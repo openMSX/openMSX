@@ -21,8 +21,7 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 {
 	// load firmware switch setting from persistent data
 	try {
-		File file(config.getFileContext().resolveCreate(filename),
-		          File::OpenMode::LOAD_PERSISTENT);
+		File file(config.getFileContext().resolveCreate(filename));
 		std::array<uint8_t, 1> byteBuf;
 		file.read(byteBuf);
 		setting.setBoolean(byteBuf[0] != 0);
@@ -37,7 +36,7 @@ FirmwareSwitch::~FirmwareSwitch()
 	// save firmware switch setting value to persistent data
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
-		          File::OpenMode::SAVE_PERSISTENT);
+		          File::OpenMode::TRUNCATE);
 		std::array byteBuf = {uint8_t(setting.getBoolean() ? 0xFF : 0x00)};
 		file.write(byteBuf);
 	} catch (FileException& e) {

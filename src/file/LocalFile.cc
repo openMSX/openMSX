@@ -31,14 +31,8 @@ namespace openmsx {
 LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
 	: filename(std::move(filename_))
 {
-	if (mode == File::OpenMode::SAVE_PERSISTENT) {
-		if (auto pos = filename.find_last_of('/'); pos != std::string::npos) {
-			FileOperations::mkdirp(filename.substr(0, pos));
-		}
-	}
-
 	const std::string& name = FileOperations::getNativePath(filename);
-	if (mode == one_of(File::OpenMode::SAVE_PERSISTENT, File::OpenMode::TRUNCATE)) {
+	if (mode == File::OpenMode::TRUNCATE) {
 		// open file read/write truncated
 		file = FileOperations::openFile(name, "wb+");
 	} else if (mode == File::OpenMode::CREATE) {

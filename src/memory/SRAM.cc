@@ -87,8 +87,7 @@ void SRAM::load(bool* loaded)
 	const auto& filename = config.getChildData("sramname");
 	try {
 		bool headerOk = true;
-		File file(config.getFileContext().resolveCreate(filename),
-			  File::OpenMode::LOAD_PERSISTENT);
+		File file(config.getFileContext().resolveCreate(filename));
 		if (header) {
 			size_t length = strlen(header);
 			small_buffer<char, 64> buf(uninitialized_tag{}, length);
@@ -117,7 +116,7 @@ void SRAM::save() const
 	const auto& filename = config.getChildData("sramname");
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
-			  File::OpenMode::SAVE_PERSISTENT);
+			  File::OpenMode::TRUNCATE);
 		if (header) {
 			auto length = strlen(header);
 			file.write(std::span{header, length});
