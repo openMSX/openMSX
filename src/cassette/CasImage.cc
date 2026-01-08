@@ -273,7 +273,7 @@ static CasImage::Data convert(std::span<const uint8_t> cas, CassetteImage::FileT
 
 CasImage::Data CasImage::init(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
-	File file(filename);
+	File file(filename.getResolved());
 	auto cas = file.mmap<const uint8_t>();
 
 	auto fileType = CassetteImage::FileType::UNKNOWN;

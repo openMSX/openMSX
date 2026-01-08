@@ -16,7 +16,7 @@
 
 namespace openmsx {
 
-WavWriter::WavWriter(const Filename& filename,
+WavWriter::WavWriter(const std::string& filename,
                      unsigned channels, unsigned bits, unsigned frequency)
 	: file(filename, "wb")
 {

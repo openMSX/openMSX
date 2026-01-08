@@ -5,15 +5,16 @@
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
 #include "Mixer.hh"
+
 #include <cstdint>
 #include <memory>
 #include <span>
+#include <string>
 #include <vector>
 
 namespace openmsx {
 
 class AviWriter;
-class Filename;
 class FrameSource;
 class Interpreter;
 class MSXMixer;
@@ -42,7 +43,7 @@ public:
 
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
-		   bool recordStereo, const Filename& filename);
+		   bool recordStereo, const std::string& filename);
 	void status(std::span<const TclObject> tokens, TclObject& result) const;
 
 	void processStart (Interpreter& interp, std::span<const TclObject> tokens, TclObject& result);

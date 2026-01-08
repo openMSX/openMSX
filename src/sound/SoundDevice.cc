@@ -151,7 +151,7 @@ void SoundDevice::setSoftwareVolume(float left, float right, EmuTime time)
 	mixer.updateSoftwareVolume(*this);
 }
 
-void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
+void SoundDevice::recordChannel(unsigned channel, const std::string& filename)
 {
 	assert(channel < numChannels);
 	bool wasRecording = writer[channel].has_value();

@@ -15,8 +15,6 @@
 
 namespace openmsx {
 
-class Filename;
-
 class File
 {
 public:
@@ -40,8 +38,6 @@ public:
 	 * @throws FileException for other errors
 	 */
 	explicit File(std::string filename, OpenMode mode = OpenMode::NORMAL);
-	explicit File(const Filename& filename, OpenMode mode = OpenMode::NORMAL);
-	explicit File(Filename&& filename, OpenMode mode = OpenMode::NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
 	  * Compared to constructor above, it does not transparently
@@ -51,8 +47,7 @@ public:
 	  *             that it contains a 'b' character.
 	  */
 	File(std::string filename, const char* mode);
-	File(const Filename& filename, const char* mode);
-	File(Filename&& filename, const char* mode);
+
 	File(File&& other) noexcept;
 
 	/* Used by MemoryBufferFile. */

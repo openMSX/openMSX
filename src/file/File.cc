@@ -1,6 +1,5 @@
 #include "File.hh"
 
-#include "Filename.hh"
 #include "GZFileAdapter.hh"
 #include "LocalFile.hh"
 #include "ZipFileAdapter.hh"
@@ -45,28 +44,8 @@ File::File(std::string filename, OpenMode mode)
 {
 }
 
-File::File(const Filename& filename, OpenMode mode)
-	: File(filename.getResolved(), mode)
-{
-}
-
-File::File(Filename&& filename, OpenMode mode)
-	: File(std::move(filename).getResolved(), mode)
-{
-}
-
 File::File(std::string filename, const char* mode)
 	: file(std::make_unique<LocalFile>(std::move(filename), mode))
-{
-}
-
-File::File(const Filename& filename, const char* mode)
-	: File(filename.getResolved(), mode)
-{
-}
-
-File::File(Filename&& filename, const char* mode)
-	: File(std::move(filename).getResolved(), mode)
 {
 }
 

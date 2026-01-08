@@ -19,7 +19,7 @@ namespace openmsx {
 
 TsxImage::TsxImage(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
-	File file(filename);
+	File file(filename.getResolved());
 	try {
 		TsxParser parser(file.mmap<const uint8_t>());
 

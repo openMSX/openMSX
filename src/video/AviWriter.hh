@@ -11,17 +11,17 @@
 
 #include <cstdint>
 #include <span>
+#include <string>
 #include <vector>
 
 namespace openmsx {
 
-class Filename;
 class FrameSource;
 
 class AviWriter
 {
 public:
-	AviWriter(const Filename& filename, unsigned width, unsigned height,
+	AviWriter(const std::string& filename, unsigned width, unsigned height,
 	          unsigned channels, unsigned freq);
 	~AviWriter();
 	void addFrame(const FrameSource* video, std::span<const int16_t> audio);

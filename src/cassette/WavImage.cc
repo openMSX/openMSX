@@ -50,7 +50,7 @@ public:
 	WavImageCache& operator=(WavImageCache&&) = delete;
 
 	static WavImageCache& instance();
-	const WavInfo& get(const Filename& filename, FilePool& filePool);
+	const WavInfo& get(const std::string& filename, FilePool& filePool);
 	void release(const WavData* wav);
 
 private:
@@ -76,17 +76,17 @@ WavImageCache& WavImageCache::instance()
 	return wavImageCache;
 }
 
-const WavImageCache::WavInfo& WavImageCache::get(const Filename& filename, FilePool& filePool)
+const WavImageCache::WavInfo& WavImageCache::get(const std::string& filename, FilePool& filePool)
 {
 	// Reading file or parsing as .wav may throw, so only create cache
 	// entry after all went well.
-	auto it = cache.find(filename.getResolved());
+	auto it = cache.find(filename);
 	if (it == cache.end()) {
 		File file(filename);
 		Entry entry;
 		entry.info.sum = filePool.getSha1Sum(file);
 		entry.info.wav = WavData(std::move(file), DCFilter{});
-		it = cache.try_emplace(filename.getResolved(), std::move(entry)).first;
+		it = cache.try_emplace(filename, std::move(entry)).first;
 	}
 	auto& entry = it->second;
 	++entry.refCount;
@@ -109,7 +109,7 @@ void WavImageCache::release(const WavData* wav)
 
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
 {
-	const auto& entry = WavImageCache::instance().get(filename, filePool);
+	const auto& entry = WavImageCache::instance().get(filename.getResolved(), filePool);
 	wav = &entry.wav;
 	setSha1Sum(entry.sum);
 	clock.setFreq(wav->getFreq());

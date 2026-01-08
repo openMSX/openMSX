@@ -14,13 +14,13 @@
 #include <cstdint>
 #include <list>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace openmsx {
 
 class CliComm;
 class RawFrame;
-class Filename;
 
 struct AudioFragment
 {
@@ -48,7 +48,7 @@ struct Frame
 class OggReader
 {
 public:
-	OggReader(const Filename& filename, CliComm& cli);
+	OggReader(const std::string& filename, CliComm& cli);
 	OggReader(const OggReader&) = delete;
 	OggReader(OggReader&&) = delete;
 	OggReader& operator=(const OggReader&) = delete;

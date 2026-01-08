@@ -682,8 +682,8 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			if (settings.record.get() == &setting) {
 				info.device->recordChannel(
 					unsigned(channel),
-					Filename(FileOperations::expandTilde(std::string(
-						 settings.record->getString()))));
+					FileOperations::expandTilde(std::string(
+						 settings.record->getString())));
 				return;
 			}
 		}

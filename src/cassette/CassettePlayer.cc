@@ -467,7 +467,7 @@ void CassettePlayer::wind(EmuTime time)
 void CassettePlayer::recordTape(const Filename& filename, EmuTime time)
 {
 	removeTape(time); // flush (possible) previous recording
-	recordImage = std::make_unique<Wav8Writer>(filename, 1, RECORD_FREQ);
+	recordImage = std::make_unique<Wav8Writer>(filename.getResolved(), 1, RECORD_FREQ);
 	tapePos = EmuTime::zero();
 	setState(State::RECORD, filename, time);
 }

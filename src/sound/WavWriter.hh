@@ -3,14 +3,13 @@
 
 #include "File.hh"
 #include "Mixer.hh"
-#include "one_of.hh"
+
 #include <cassert>
 #include <cstdint>
 #include <span>
+#include <string>
 
 namespace openmsx {
-
-class Filename;
 
 /** Base class for writing WAV files.
   */
@@ -31,7 +30,7 @@ public:
 	void flush();
 
 protected:
-	WavWriter(const Filename& filename,
+	WavWriter(const std::string& filename,
 	          unsigned channels, unsigned bits, unsigned frequency);
 	~WavWriter();
 
@@ -45,7 +44,7 @@ protected:
 class Wav8Writer : public WavWriter
 {
 public:
-	Wav8Writer(const Filename& filename, unsigned channels, unsigned frequency)
+	Wav8Writer(const std::string& filename, unsigned channels, unsigned frequency)
 		: WavWriter(filename, channels, 8, frequency) {}
 
 	void write(std::span<const uint8_t> buffer);
@@ -56,7 +55,7 @@ public:
 class Wav16Writer : public WavWriter
 {
 public:
-	Wav16Writer(const Filename& filename, unsigned channels, unsigned frequency)
+	Wav16Writer(const std::string& filename, unsigned channels, unsigned frequency)
 		: WavWriter(filename, channels, 16, frequency) {}
 
 	void write(std::span<const int16_t> buffer);

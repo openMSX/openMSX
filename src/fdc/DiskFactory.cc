@@ -55,7 +55,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		// DirAsDSK didn't work, no problem
 	}
 	try {
-		auto file = std::make_shared<File>(filename, File::OpenMode::PRE_CACHE);
+		auto file = std::make_shared<File>(filename.getResolved(), File::OpenMode::PRE_CACHE);
 		try {
 			// first try XSA
 			return std::make_unique<XSADiskImage>(filename, *file);

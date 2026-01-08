@@ -17,7 +17,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 {
 	std::vector<Chunk> result;
 
-	File ipsFile(filename);
+	File ipsFile(filename.getResolved());
 
 	std::array<uint8_t, 5> header;
 	ipsFile.read(header);

@@ -8,7 +8,6 @@
 #include "Display.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "Filename.hh"
 #include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
@@ -44,7 +43,7 @@ AviRecorder::~AviRecorder()
 }
 
 void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
-                        bool recordStereo, const Filename& filename)
+                        bool recordStereo, const std::string& filename)
 {
 	stop();
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
@@ -270,8 +269,7 @@ void AviRecorder::processStart(Interpreter& interp, std::span<const TclObject> t
 	if (aviWriter || wavWriter) {
 		result = "Already recording.";
 	} else {
-		start(recordAudio, recordVideo, recordMono, recordStereo,
-				Filename(filename));
+		start(recordAudio, recordVideo, recordMono, recordStereo, filename);
 		result = tmpStrCat("Recording to ", filename);
 	}
 }

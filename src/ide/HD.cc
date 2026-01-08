@@ -56,7 +56,7 @@ HD::HD(const DeviceConfig& config)
 		filename = Filename(std::move(cliImage), userFileContext());
 	}
 
-	file = File(filename, mode);
+	file = File(filename.getResolved(), mode);
 	filesize = file.getSize();
 	if (mode == File::OpenMode::CREATE && filesize == 0) {
 		// OK, the file was just newly created. Now make sure the file
@@ -104,7 +104,7 @@ void HD::setMedia(const TclObject& info, EmuTime /*time*/)
 
 void HD::switchImage(const Filename& newFilename)
 {
-	file = File(newFilename);
+	file = File(newFilename.getResolved());
 	filename = newFilename;
 	filesize = file.getSize();
 	tigerTree.emplace(*this, filesize, filename.getResolved());

@@ -667,7 +667,7 @@ void LaserdiscPlayer::setImageName(std::string newImage, EmuTime time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
-	video.emplace(oggImage, motherBoard.getMSXCliComm());
+	video.emplace(oggImage.getResolved(), motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();
 	sampleClock.setFreq(inputRate);

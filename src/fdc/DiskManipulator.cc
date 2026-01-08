@@ -542,7 +542,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens) const
 	create(filename, bootType, sizes);
 }
 
-void DiskManipulator::create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes) const
+void DiskManipulator::create(const std::string& filename, MSXBootSectorType bootType, const std::vector<unsigned>& sizes) const
 {
 	size_t totalSectors = sum(sizes, [](size_t s) { return s; });
 	if (totalSectors == 0) {
@@ -550,7 +550,6 @@ void DiskManipulator::create(const std::string& filename_, MSXBootSectorType boo
 	}
 
 	// create file with correct size
-	Filename filename(filename_);
 	try {
 		File file(filename, File::OpenMode::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
@@ -559,7 +558,7 @@ void DiskManipulator::create(const std::string& filename_, MSXBootSectorType boo
 	}
 
 	// initialize (create partition tables and format partitions)
-	DSKDiskImage image(filename);
+	DSKDiskImage image(Filename{filename});
 	if (sizes.size() > 1) {
 		unsigned partitionCount = DiskImageUtils::partition(image,
 			static_cast<std::span<const unsigned>>(sizes), bootType);

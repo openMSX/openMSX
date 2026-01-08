@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "WavWriter.hh"
 #include "static_string_view.hh"
+
 #include <array>
 #include <optional>
 #include <string>
@@ -13,7 +14,6 @@ namespace openmsx {
 
 class DeviceConfig;
 class DynamicClock;
-class Filename;
 class MSXMixer;
 
 class SoundDevice
@@ -86,7 +86,7 @@ public:
 	void setSoftwareVolume(float volume, EmuTime time);
 	void setSoftwareVolume(float left, float right, EmuTime time);
 
-	void recordChannel(unsigned channel, const Filename& filename);
+	void recordChannel(unsigned channel, const std::string& filename);
 	void muteChannel  (unsigned channel, bool muted);
 
 	/** Change the balance of a single channel.

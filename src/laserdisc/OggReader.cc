@@ -48,7 +48,7 @@ Frame::~Frame()
 }
 
 
-OggReader::OggReader(const Filename& filename, CliComm& cli_)
+OggReader::OggReader(const std::string& filename, CliComm& cli_)
 	: cli(cli_)
 	, file(filename)
 	, fileSize(file.getSize())

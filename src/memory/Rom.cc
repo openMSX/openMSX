@@ -143,7 +143,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		if (!file.is_open()) {
 			for (const auto& f : filenames) {
 				try {
-					file = File(Filename(f->getData(), context));
+					file = File(context.resolve(f->getData()));
 					break;
 				} catch (FileException&) {
 					// ignore
