@@ -103,6 +103,8 @@ private:
 		MILLI_SECONDS,
 		MICRO_SECONDS,
 		CYCLES,
+		PAL,
+		NTSC,
 		NUM_UNITS // must be last
 	};
 	int units = Units::SECONDS;

@@ -783,12 +783,15 @@ void ImGuiTraceViewer::scrollTo(EmuTime time)
 
 [[nodiscard]] double ImGuiTraceViewer::getUnitConversionFactor() const
 {
+	static_assert(NUM_UNITS == 6);
 	switch (units) {
 	default: // shouldn't happen
 	case       SECONDS: return 1.0;
 	case MILLI_SECONDS: return 1'000.0;
 	case MICRO_SECONDS: return 1'000'000.0;
 	case        CYCLES: return 3'579'545.0;
+	case           PAL: return (6 * 3'579'545.0) / (1368 * 313);
+	case          NTSC: return (6 * 3'579'545.0) / (1368 * 262);
 	}
 }
 
@@ -1037,11 +1040,14 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 	ImGui::TextUnformatted("units"sv);
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.0f);
+	static_assert(NUM_UNITS == 6);
 	std::array shortUnitNames = {
-		"sec", "ms", "\u00b5s", "cycles",
+		"sec", "ms", "\u00b5s",
+		"cycles", "PAL", "NTSC",
 	};
 	std::array longUnitNames = {
-		"sec (seconds)", "ms (milliseconds)", "\u00b5s (microseconds)", "cycles (Z80 @3.57MHz)",
+		"sec (seconds)", "ms (milliseconds)", "\u00b5s (microseconds)",
+		"cycles (Z80 @3.57MHz)", "PAL frames (50.16Hz)", "NTSC frames (59.92Hz)",
 	};
 	im::Combo("##units", shortUnitNames[units], [&]{
 		for (int i = 0; i < Units::NUM_UNITS; ++i) {
