@@ -189,8 +189,8 @@ struct DrawCoarse {
 		drawList->AddRectFilled({xf0, y0}, {xf1, y1}, colorNormal);
 
 		if (!rowHovered) return;
-		auto mouseX = ImGui::GetIO().MousePos.x - x;
-		if (mouseX < x0 || x1 <= mouseX) return;
+		auto mouseX = ImGui::GetIO().MousePos.x;
+		if (mouseX < xf0 || xf1 <= mouseX) return;
 		drawList->AddLine({mouseX, y0}, {mouseX, y1}, colorHover, 2.0f);
 
 		if (!convertor) return;
