@@ -77,7 +77,7 @@ private:
 	void drawSplitter(float width);
 	void drawRuler(gl::vec2 size, const Convertor& convertor, EmuTime from, EmuTime to, EmuTime now);
 	void drawGraphs(float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,
-	                EmuTime minT, EmuTime maxT, EmuTime now);
+	                EmuTime minT, EmuTime maxT, EmuTime now, MSXMotherBoard& motherBoard);
 
 	void paintMain(MSXMotherBoard& motherBoard);
 	void paintSelect(MSXMotherBoard& motherBoard);
@@ -93,6 +93,10 @@ private:
 	float col0_width = 100.0f; // TODO
 	float scrollY = 0.0f;
 	int selectedRow = 1;
+
+	std::string ctxInputPos = "0";
+	float ctxMouseX = 0.0f;
+	int ctxMouseRow = 0;
 
 	enum Units : int {
 		SECONDS,

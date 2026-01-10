@@ -8,6 +8,7 @@
 #include "Debugger.hh"
 #include "EmuDuration.hh"
 #include "MSXMotherBoard.hh"
+#include "ReverseManager.hh"
 
 #include "find_closest.h"
 #include "one_of.hh"
@@ -774,10 +775,10 @@ void ImGuiTraceViewer::scrollTo(EmuTime time)
 	}
 }
 
-[[nodiscard]] static Tracer::Trace* getTrace(Traces traces, int selectedRow)
+[[nodiscard]] static Tracer::Trace* getTrace(Traces traces, int row)
 {
-	if (selectedRow < 0 || selectedRow >= int(traces.size())) return nullptr;
-	return traces[selectedRow];
+	if (row < 0 || row >= int(traces.size())) return nullptr;
+	return traces[row];
 }
 
 [[nodiscard]] double ImGuiTraceViewer::getUnitConversionFactor() const
@@ -1231,17 +1232,21 @@ void ImGuiTraceViewer::drawRuler(gl::vec2 size, const Convertor& convertor, EmuT
 	}
 }
 
-static EmuTime snapToEvent(float mouseX, auto convertor, std::span<const Tracer::Event> events)
+static EmuTime snapToEvent(EmuTime time, auto convertor, std::span<const Tracer::Event> events)
 {
-	auto time = convertor.xToTime(mouseX);
 	auto [it, dist] = find_closest(events, time, {}, &Tracer::Event::time);
 	if (it == events.end()) return time;
 	auto h5 = ImGui::GetFrameHeight() * 0.20f;
 	return (dist < convertor.deltaXtoDuration(h5)) ? it->time : time;
 }
+static EmuTime snapToEvent(float mouseX, auto convertor, std::span<const Tracer::Event> events)
+{
+	auto time = convertor.xToTime(mouseX);
+	return snapToEvent(time, convertor, events);
+}
 
 void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,
-                                  EmuTime minT, EmuTime maxT, EmuTime now)
+                                  EmuTime minT, EmuTime maxT, EmuTime now, MSXMotherBoard& motherBoard)
 {
 	if        (ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_LeftArrow, ImGuiInputFlags_Repeat)) {
 		viewStartTime = viewStartTime.saturateSubtract(convertor.deltaXtoDuration(0.5f * convertor.viewScreenWidth));
@@ -1354,6 +1359,53 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 		}
 
 		drawList->PopClipRect();
+
+		if (hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+			ImGui::OpenPopup("graph-context");
+			ctxMouseX = mouseX;
+			ctxMouseRow = mouseRow;
+		}
+		im::Popup("graph-context", [&]{
+			ImGui::TextUnformatted("Scroll to");
+			im::Indent([&]{
+				if (ImGui::MenuItem("Primary")) {
+					scrollTo(selectedTime1);
+				}
+				if (ImGui::MenuItem("Secondary")) {
+					scrollTo(selectedTime2);
+				}
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted("Position");
+				ImGui::SameLine();
+				bool valid = StringOp::stringTo<double>(ctxInputPos).has_value();
+				im::StyleColor(!valid, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+					ImGui::SetNextItemWidth(6.0f * ImGui::GetFontSize());
+					if (ImGui::InputText("##pos", &ctxInputPos, ImGuiInputTextFlags_EnterReturnsTrue)) {
+						if (auto d = StringOp::stringTo<double>(ctxInputPos)) {
+							auto unitFactor = getUnitConversionFactor();
+							scrollTo(EmuTime::fromDouble(*d / unitFactor));
+							ImGui::CloseCurrentPopup();
+						}
+					}
+				});
+			});
+			ImGui::Separator();
+			const auto& reverseManager = motherBoard.getReverseManager();
+			bool reverseEnabled = reverseManager.isCollecting();
+			im::Disabled(!reverseEnabled, [&]{
+				if (ImGui::MenuItem("Reverse emulation to here")) {
+					auto time = convertor.xToTime(ctxMouseX);
+					if (const auto* trace = getTrace(traces, ctxMouseRow)) {
+						time = snapToEvent(time, convertor, trace->events);
+					}
+					manager.executeDelayed(makeTclList("reverse", "goto", time.toDouble()));
+				}
+				simpleToolTip(reverseEnabled
+					? "Rewind/forward emulation till this position in the timeline.\n"
+					  "Note: during replay NO new trace information is collected."
+					: "Requires 'reverse' to be enabled. Enable via 'Save state > Reverse/replay settings > Enable reverse/replay'");
+			});
+		});
 	});
 }
 
@@ -1468,7 +1520,7 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 	drawNames(rulerHeight, rowHeight, mouseRow);
 	drawSplitter(splitterWidth);
 	Convertor convertor{viewStartTime, viewDuration, viewScreenWidth};
-	drawGraphs(rulerHeight, rowHeight, mouseRow, convertor, minT, maxT, now);
+	drawGraphs(rulerHeight, rowHeight, mouseRow, convertor, minT, maxT, now, motherBoard);
 }
 
 void ImGuiTraceViewer::paintSelect(MSXMotherBoard& motherBoard)
