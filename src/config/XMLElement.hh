@@ -5,6 +5,7 @@
 
 #include "monotonic_allocator.hh"
 #include "serialize_meta.hh"
+#include "zstring_view.hh"
 
 #include <cassert>
 #include <concepts>
@@ -307,7 +308,7 @@ public:
 		: allocator(std::forward<T>(t), std::forward<Args>(args)...) {}
 
 	// Load/parse an xml file. Requires that the document is still empty.
-	void load(const std::string& filename, std::string_view systemID);
+	void load(zstring_view filename, std::string_view systemID);
 
 	[[nodiscard]] const XMLElement* getRoot() const { return root; }
 	[[nodiscard]] XMLElement* getRoot() { return root; }

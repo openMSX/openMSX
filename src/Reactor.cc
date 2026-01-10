@@ -528,7 +528,7 @@ void Reactor::switchMachine(const std::string& machine)
 	deleteBoard(oldBoard);
 }
 
-void Reactor::switchMachineFromSetup(const std::string& filename)
+void Reactor::switchMachineFromSetup(zstring_view filename)
 {
 	if (!display) {
 		display = std::make_unique<Display>(*this);

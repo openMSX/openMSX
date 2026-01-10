@@ -920,7 +920,7 @@ private:
 class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
 {
 public:
-	explicit XmlInputArchive(const std::string& filename);
+	explicit XmlInputArchive(zstring_view filename);
 
 	[[nodiscard]] bool versionAtLeast(unsigned actual, unsigned required) const
 	{

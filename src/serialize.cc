@@ -355,7 +355,7 @@ void XmlOutputArchive::serialize_blob(
 
 ////
 
-XmlInputArchive::XmlInputArchive(const std::string& filename)
+XmlInputArchive::XmlInputArchive(zstring_view filename)
 {
 	xmlDoc.load(filename, "openmsx-serialize.dtd");
 	auto* root = xmlDoc.getRoot();

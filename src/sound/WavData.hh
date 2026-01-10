@@ -13,7 +13,6 @@
 #include <bit>
 #include <cstdint>
 #include <span>
-#include <string>
 
 namespace openmsx {
 
@@ -30,7 +29,7 @@ public:
 
 	/** Construct from .wav file and optional filter. */
 	template<typename Filter = NoFilter>
-	explicit WavData(const std::string& filename, Filter filter = {})
+	explicit WavData(zstring_view filename, Filter filter = {})
 		: WavData(File(filename), filter) {}
 
 	template<typename Filter = NoFilter>

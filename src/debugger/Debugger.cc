@@ -1087,7 +1087,7 @@ void Debugger::Cmd::symbolsTypes(std::span<const TclObject> tokens, TclObject& r
 void Debugger::Cmd::symbolsLoad(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, Between{4, 5}, "filename ?type?");
-	auto filename = std::string(tokens[3].getString());
+	auto filename = tokens[3].getString();
 	auto type = [&]{
 		if (tokens.size() < 5) return SymbolFile::Type::AUTO_DETECT;
 		auto str = tokens[4].getString();

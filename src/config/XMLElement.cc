@@ -351,7 +351,7 @@ const char* XMLDocument::allocateString(std::string_view str)
 	return p;
 }
 
-void XMLDocument::load(const std::string& filename, std::string_view systemID)
+void XMLDocument::load(zstring_view filename, std::string_view systemID)
 {
 	assert(!root);
 

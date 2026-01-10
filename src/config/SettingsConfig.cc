@@ -146,7 +146,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	getSettingsManager().loadSettings(*this);
 
 	// only set saveName after file was successfully parsed
-	saveName = resolved;
+	saveName = std::move(resolved);
 }
 
 void SettingsConfig::setSaveFilename(const FileContext& context, std::string_view filename)

@@ -392,7 +392,7 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 }
 
 [[nodiscard]] SymbolFile SymbolManager::loadSymbolFile(
-	const std::string& filename, SymbolFile::Type type,
+	zstring_view filename, SymbolFile::Type type,
 	std::optional<uint8_t> slot, std::optional<uint16_t> segment)
 {
 	auto buf = File(filename).mmap<const char>();
@@ -457,7 +457,7 @@ void SymbolManager::refresh()
 }
 
 bool SymbolManager::reloadFile(
-	const std::string& filename, LoadEmpty loadEmpty, SymbolFile::Type type,
+	zstring_view filename, LoadEmpty loadEmpty, SymbolFile::Type type,
 	std::optional<uint8_t> slot, std::optional<uint16_t> segment)
 {
 	auto file = loadSymbolFile(filename, type, slot, segment); // might throw

@@ -115,7 +115,7 @@ public:
 	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 
 	void switchMachine(const std::string& machine);
-	void switchMachineFromSetup(const std::string& filename);
+	void switchMachineFromSetup(zstring_view filename);
 	[[nodiscard]] MSXMotherBoard* getMotherBoard() const;
 
 	[[nodiscard]] static std::vector<std::string> getHwConfigs(std::string_view type);

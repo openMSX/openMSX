@@ -78,7 +78,7 @@ public:
 	//   existing file is not replaced and this method returns 'false'.
 	//   Otherwise it return 'true'.
 	enum class LoadEmpty : uint8_t { ALLOWED, NOT_ALLOWED };
-	bool reloadFile(const std::string& filename, LoadEmpty loadEmpty, SymbolFile::Type type,
+	bool reloadFile(zstring_view filename, LoadEmpty loadEmpty, SymbolFile::Type type,
 	                std::optional<uint8_t> slot, std::optional<uint16_t> segment);
 
 	void removeFile(std::string_view filename);
@@ -114,7 +114,7 @@ public:
 	[[nodiscard]] static SymbolFile loadASMSX(std::string_view filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadLinkMap(std::string_view filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadSymbolFile(
-		const std::string& filename, SymbolFile::Type type,
+		zstring_view filename, SymbolFile::Type type,
 		std::optional<uint8_t> slot, std::optional<uint16_t> segment);
 
 private:

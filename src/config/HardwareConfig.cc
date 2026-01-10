@@ -235,7 +235,7 @@ XMLElement& HardwareConfig::getDevicesElem()
 	return getConfig().getChild("devices");
 }
 
-static void loadHelper(XMLDocument& doc, const std::string& filename)
+static void loadHelper(XMLDocument& doc, zstring_view filename)
 {
 	try {
 		doc.load(filename, "msxconfig2.dtd");
