@@ -93,7 +93,6 @@ runs:
         workflow: build_with_visualstudio.yml
         ref: master
         path: derived/wxcatapult
-        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Create ZIP package of VC build
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
