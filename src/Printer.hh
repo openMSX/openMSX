@@ -19,40 +19,15 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+#include "Paper.hh"
+#include "MSXCharacterSets.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class IntegerSetting;
 
-class Paper
-{
-public:
-	static constexpr std::string_view PRINT_DIR = "prints";
-	static constexpr std::string_view PRINT_EXTENSION = ".png";
 
-public:
-	Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
-
-	[[nodiscard]] std::string save(bool color = false) const;
-	void setDotSize(double sizeX, double sizeY);
-	void plot(double x, double y);
-	void plotColor(double x, double y, uint8_t r, uint8_t g, uint8_t b);
-
-private:
-	uint8_t& dot(unsigned x, unsigned y);
-
-	std::vector<uint8_t> buf;
-	std::vector<uint8_t> colorBuf; // RGB triples for color output
-	std::vector<int> table;
-
-	double radiusX;
-	double radiusY;
-	int radius16;
-
-	unsigned sizeX;
-	unsigned sizeY;
-};
 
 
 // Abstract printer class
@@ -244,9 +219,7 @@ private:
 };
 
 
-// Exposed for MSXPlotter
-[[nodiscard]] std::span<const uint8_t> getMSXFontRaw();
-[[nodiscard]] std::span<const uint8_t> getMSXJPFontRaw();
+
 
 } // namespace openmsx
 

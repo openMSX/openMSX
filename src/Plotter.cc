@@ -1,5 +1,7 @@
 #include "Plotter.hh"
 #include "Printer.hh"
+#include "Paper.hh"
+#include "MSXCharacterSets.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
 #include "strCat.hh"
@@ -616,8 +618,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
             font = getMSXJPFontRaw();
             break;
         case PlotterCharacterSet::DIN:
-            // TODO: Use actual DIN font when available
-            font = getMSXFontRaw();
+            font = getMSXDINFontRaw();
             break;
         case PlotterCharacterSet::International:
         default:
