@@ -15,13 +15,44 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class IntegerSetting;
-class Paper;
+
+class Paper
+{
+public:
+	static constexpr std::string_view PRINT_DIR = "prints";
+	static constexpr std::string_view PRINT_EXTENSION = ".png";
+
+public:
+	Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
+
+	[[nodiscard]] std::string save(bool color = false) const;
+	void setDotSize(double sizeX, double sizeY);
+	void plot(double x, double y);
+	void plotColor(double x, double y, uint8_t r, uint8_t g, uint8_t b);
+
+private:
+	uint8_t& dot(unsigned x, unsigned y);
+
+	std::vector<uint8_t> buf;
+	std::vector<uint8_t> colorBuf; // RGB triples for color output
+	std::vector<int> table;
+
+	double radiusX;
+	double radiusY;
+	int radius16;
+
+	unsigned sizeX;
+	unsigned sizeY;
+};
 
 
 // Abstract printer class
@@ -63,18 +94,29 @@ protected:
 	void resetEmulatedPrinter();
 	void printGraphicByte(uint8_t data);
 	void seekPrinterHeadRelative(double offset);
-	void ensurePrintPage();
+	virtual void ensurePrintPage();
 	void flushEmulatedPrinter();
 	void printVisibleCharacter(uint8_t data);
 	void plot9Dots(double x, double y, unsigned pattern);
 
 	[[nodiscard]] virtual std::pair<unsigned, unsigned> getNumberOfDots() = 0;
+
+    // Allow derived classes to specify if they want color output
+    [[nodiscard]] virtual bool useColor() const { return false; }
+
+    // Allow derived classes to specify paper size in mm (default A4 portrait)
+    [[nodiscard]] virtual std::pair<double, double> getPaperSize() const {
+	return {210.0, 297.0};
+    }
+
 	virtual void resetSettings() = 0;
 	[[nodiscard]] virtual unsigned calcEscSequenceLength(uint8_t character) = 0;
 	virtual void processEscSequence() = 0;
 	virtual void processCharacter(uint8_t data) = 0;
 
-protected:
+	// Provide protected accessor for paper
+	Paper* getPaper() { return paper.get(); }
+	const Paper* getPaper() const { return paper.get(); }
 	static constexpr unsigned PIXEL_WIDTH = 8;
 
 	double graphDensity;
@@ -144,8 +186,10 @@ protected:
 	bool compressed = false;
 	bool noHighEscapeCodes = false;
 
-private:
+protected:
 	MSXMotherBoard& motherBoard;
+
+private:
 	std::unique_ptr<Paper> paper;
 
 	std::shared_ptr<IntegerSetting> dpiSetting;
@@ -198,6 +242,11 @@ private:
 	void processEscSequence() override;
 	void processCharacter(uint8_t data) override;
 };
+
+
+// Exposed for MSXPlotter
+[[nodiscard]] std::span<const uint8_t> getMSXFontRaw();
+[[nodiscard]] std::span<const uint8_t> getMSXJPFontRaw();
 
 } // namespace openmsx
 

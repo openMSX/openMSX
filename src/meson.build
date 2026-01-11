@@ -42,6 +42,7 @@ sources = files(
     'Pluggable.cc',
     'PluggableFactory.cc',
     'PluggingController.cc',
+    'Plotter.cc',
     'Printer.cc',
     'PrinterPortDevice.cc',
     'PrinterPortLogger.cc',
