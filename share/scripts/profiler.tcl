@@ -5,8 +5,8 @@
 
 namespace eval symboltracer {
 
+variable names {}         ;# user traces
 variable counters {}      ;# count recursive calls
-variable functions {}     ;# function entry points
 variable symbolfiles {}   ;# symbols file name
 
 set_help_proc symboltracer [namespace code symboltracer_help]
@@ -71,10 +71,11 @@ proc _exit_function {name} {
 
 proc _add {name addr} {
 	# add user-defined name/addr pair and create function breakpoints and traces
-	variable functions
-	if {![dict exists $functions $addr]} {
-		dict set functions $addr [debug breakpoint create -address $addr -command [namespace code "_enter_function {$name}"]]
+	variable names
+	if {![dict exists $names $name]} {
+		dict set names $name {}
 		debug trace add $name
+		debug breakpoint create -address $addr -command [namespace code "_enter_function {$name}"]
 	}
 }
 
@@ -94,10 +95,10 @@ proc _start {{file ""}} {
 		set symbols [debug symbols lookup]
 	} else {
 		# load symbol file
-		variable symbolfiles
-		lappend symbolfiles $file
 		debug symbols load $file
 		set symbols [debug symbols lookup -filename $file]
+		variable symbolfiles
+		lappend symbolfiles $file
 	}
 	if {[llength $symbols] == 0} {
 		error "no symbols found"
@@ -107,15 +108,15 @@ proc _start {{file ""}} {
 
 proc _stop {} {
 	variable counters
-	set $counters {}
+	set counters {}
 
-	variable functions
-	foreach {symbol bp} $functions {
-		catch {debug trace drop $symbol}
+	variable names
+	dict for {name _} $names {
+		debug trace drop $name
 	}
-	set functions {}
+	set names {}
 
-	foreach {bp entry} [debug breakpoint list] {
+	dict for {bp entry} [debug breakpoint list] {
 		if {[string match "* [namespace current] *" [dict get $entry "-command"]]} {
 			catch {debug breakpoint remove $bp}
 		}
@@ -129,7 +130,7 @@ proc _stop {} {
 }
 
 proc _dispatcher {args} {
-	set params "[lrange $args 1 end]"
+	set params [lrange $args 1 end]
 	set cmd [lindex $args 0]
 	switch -- $cmd {
 		start   { return [_start {*}$params] }
