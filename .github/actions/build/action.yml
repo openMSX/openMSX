@@ -83,16 +83,14 @@ runs:
       run: |
         msbuild /m /p:Configuration=Release /p:Platform=x64 build\3rdparty\3rdparty.sln /m
         msbuild /m /p:Configuration=Release /p:Platform=x64 build\msvc\openmsx.sln /m
-    - name: Download wxCatapult build artifact
+    - name: Download wxCatapult release artifact
       if: ${{ inputs.os == 'windows-vc' }}
-      uses: actions/download-artifact@v4
-      with:
-        # Locked exact artifact name from wxcatapult repo
-        name: catapult-19.0-4-g8ff0858-Windows-VC-x64-bin
-        repository: openMSX/wxcatapult
-        workflow: build_with_visualstudio.yml
-        ref: master
-        path: derived/wxcatapult
+      shell: bash
+      run: |
+        mkdir -p derived/wxcatapult
+        curl -L -o wxcatapult.zip \
+          https://github.com/openMSX/wxcatapult/releases/download/wxcatapult-ci-latest/catapult-19.0-8-g7ff2d47-Windows-VC-x64-bin.zip
+        unzip -q wxcatapult.zip -d derived/wxcatapult
     - name: Create ZIP package of VC build
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
