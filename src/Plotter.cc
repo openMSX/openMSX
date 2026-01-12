@@ -468,7 +468,7 @@ void MSXPlotter::executeGraphicCommand() {
     }
 }
 
-void MSXPlotter::drawLineBresenham(double x0, double y0, double x1, double y1) {
+void MSXPlotter::drawLine(double x0, double y0, double x1, double y1) {
     if (!penDown) return;
     ensurePrintPage();
 
@@ -599,7 +599,7 @@ void MSXPlotter::moveTo(double x, double y) {
 }
 
 void MSXPlotter::lineTo(double x, double y) {
-    drawLineBresenham(plotterX, plotterY, x, y);
+    drawLine(plotterX, plotterY, x, y);
     plotterX = x;
     plotterY = y;
 }
@@ -669,7 +669,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
 		if (dx < 7) {
 		    if (rowPattern & (0x80 >> (dx + 1))) {
 			auto [nx, ny] = transform(u + gridSpacingX, v);
-			drawLineBresenham(px, py, nx, ny);
+			drawLine(px, py, nx, ny);
 		    }
 		}
 
@@ -679,7 +679,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
 		    uint8_t nextRow = fontPtr[dy + 1];
 		    if (nextRow & (0x80 >> dx)) {
 			auto [nx, ny] = transform(u, v - gridSpacingY);
-			drawLineBresenham(px, py, nx, ny);
+			drawLine(px, py, nx, ny);
 		    }
 
 		    // Check Down-Right neighbor (dx+1, dy+1)
@@ -691,7 +691,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
 
 			    if (!hasRight && !hasDown) {
 				auto [nx, ny] = transform(u + gridSpacingX, v - gridSpacingY);
-				drawLineBresenham(px, py, nx, ny);
+				drawLine(px, py, nx, ny);
 			    }
 			}
 		    }
@@ -704,7 +704,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
 
 			    if (!hasLeft && !hasDown) {
 				auto [nx, ny] = transform(u - gridSpacingX, v - gridSpacingY);
-				drawLineBresenham(px, py, nx, ny);
+				drawLine(px, py, nx, ny);
 			    }
 			}
 		    }

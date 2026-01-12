@@ -129,7 +129,7 @@ private:
 	void plotWithPen(double x, double y, double distMoved);
 	void moveTo(double x, double y);
 	void lineTo(double x, double y);
-	void drawLineBresenham(double x0, double y0, double x1, double y1);
+	void drawLine(double x0, double y0, double x1, double y1);
 	void drawCharacter(uint8_t c, bool hasNextChar = false);
 };
 
