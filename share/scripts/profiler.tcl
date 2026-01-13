@@ -4,6 +4,8 @@
 # to register functions.
 
 namespace eval symboltracer {
+namespace export start add stop
+namespace ensemble create -prefixes 0
 
 variable names {}         ;# user traces
 variable counters {}      ;# count recursive calls
@@ -41,7 +43,7 @@ Syntax: symboltracer stop
 	}
 }
 
-proc _enter_function {name} {
+proc _enter_function name {
 	# find function return address
 	set retaddr [peek16 [reg SP]]
 	# check if we create caller breakpoint for CALL or RST
@@ -55,7 +57,7 @@ proc _enter_function {name} {
 	}
 }
 
-proc _exit_function {name} {
+proc _exit_function name {
 	variable counters
 	# ignore a probable dangling breakpoint from a previous session
 	if {![dict exists $counters $name]} { return }
@@ -69,7 +71,7 @@ proc _exit_function {name} {
 	}
 }
 
-proc _add {name addr} {
+proc add {name addr} {
 	# add user-defined name/addr pair and create function breakpoints and traces
 	variable names
 	if {![dict exists $names $name]} {
@@ -79,16 +81,16 @@ proc _add {name addr} {
 	}
 }
 
-proc _add_symbol_set {symbols} {
+proc add_symbol_set symbols {
 	# run through collection of symbols
 	foreach entry $symbols {
 		dict with entry {
-			_add $name $value
+			add $name $value
 		}
 	}
 }
 
-proc _start {{file ""}} {
+proc start {{file ""}} {
 	set symbols {}
 	if {$file eq ""} {
 		# use current symbols only
@@ -103,10 +105,10 @@ proc _start {{file ""}} {
 	if {[llength $symbols] == 0} {
 		error "no symbols found"
 	}
-	_add_symbol_set $symbols
+	add_symbol_set $symbols
 }
 
-proc _stop {} {
+proc stop {} {
 	variable counters
 	set counters {}
 
@@ -129,19 +131,4 @@ proc _stop {} {
 	set symbolfiles {}
 }
 
-proc _dispatcher {args} {
-	set params [lrange $args 1 end]
-	set cmd [lindex $args 0]
-	switch -- $cmd {
-		start   { return [_start {*}$params] }
-		add     { return [_add   {*}$params] }
-		stop    { return [_stop  {*}$params] }
-		default { error "Unknown command '[lindex $args 0]'." }
-    }
-}
-
-}
-
-proc symboltracer {args} {
-	symboltracer::_dispatcher {*}$args
 }
