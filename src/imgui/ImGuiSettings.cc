@@ -28,6 +28,8 @@
 #include "MSXJoystick.hh"
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
+#include "Plotter.hh"
+#include "PluggingController.hh"
 #include "ProxySetting.hh"
 #include "R800.hh"
 #include "Reactor.hh"
@@ -383,6 +385,47 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 			ImGui::MenuItem("Configure messages", nullptr, &manager.messages->configureWindow.open);
+		});
+		im::Menu("Output", motherBoard != nullptr, [&]{
+			im::TreeNode("MSX Plotter", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				ImGui::SameLine();
+				HelpMarker("These options configure the MSX Plotter (Sony PRN-C41) emulation settings.");
+
+				// Find the MSXPlotter in the pluggables
+				MSXPlotter* plotter = nullptr;
+				for (const auto& plug : motherBoard->getPluggingController().getPluggables()) {
+					if (auto* p = dynamic_cast<MSXPlotter*>(plug.get())) {
+						plotter = p;
+						break;
+					}
+				}
+
+				if (!plotter) {
+					ImGui::TextUnformatted("No MSX Plotter available");
+					return;
+				}
+
+				// Character Set dropdown
+				static constexpr std::array charSetNames = {
+					"International", "Japanese", "DIN (German)"
+				};
+				int currentCharSet = static_cast<int>(plotter->getCharacterSet());
+				if (ImGui::Combo("Character set", &currentCharSet, charSetNames.data(), narrow<int>(charSetNames.size()))) {
+					plotter->setCharacterSet(static_cast<PlotterCharacterSet>(currentCharSet));
+				}
+
+				// Dipswitch 4
+				bool dipSwitch4 = plotter->getDipSwitch4();
+				if (ImGui::Checkbox("Dipswitch 4", &dipSwitch4)) {
+					plotter->setDipSwitch4(dipSwitch4);
+				}
+
+				// KANJI support
+				bool kanjiSupport = plotter->getKanjiSupport();
+				if (ImGui::Checkbox("Enable KANJI support", &kanjiSupport)) {
+					plotter->setKanjiSupport(kanjiSupport);
+				}
+			});
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{
