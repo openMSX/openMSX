@@ -65,7 +65,7 @@ runs:
         BUILD_TARGET="staticbindist"
         # run with minimal g++ version for native debug build, to get that covered
         if [ "${{ inputs.flavour }}" = "debug" ]; then
-          CXX_PART="CXX=g++-12"
+          CXX_PART="CXX=g++-13"
         fi
         if [ "${{ inputs.flavour }}" = "unittest" ] || [ "${{ inputs.flavour }}" = "super-opt" ] || [ "${{ inputs.flavour }}" = "debug" ]; then
           BUILD_TARGET=""
