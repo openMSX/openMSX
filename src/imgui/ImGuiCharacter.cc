@@ -12,7 +12,6 @@
 
 #include "one_of.hh"
 #include "ranges.hh"
-#include "view.hh"
 
 #include <imgui.h>
 
@@ -63,7 +62,7 @@ void ImGuiCharacter::initHexDigits()
 
 	// transform to 32-bit RGBA
 	std::array<uint32_t, totalSize> pixels;
-	for (auto [c, p] : view::zip(glyphs, pixels)) {
+	for (auto [c, p] : std::views::zip(glyphs, pixels)) {
 		p = (c == ' ') ? ImColor(0.0f, 0.0f, 0.0f, 0.0f)  // transparent
 		  : (c == '.') ? ImColor(0.0f, 0.0f, 0.0f, 0.7f)  // black semi-transparent outline
 		               : ImColor(1.0f, 1.0f, 1.0f, 0.7f); // white semi-transparent

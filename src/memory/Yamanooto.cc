@@ -7,9 +7,9 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
-#include "view.hh"
 
 #include <cassert>
+#include <ranges>
 
 // TODO:
 // * HOME/DEL boot keys.  How are these handled?
@@ -327,7 +327,7 @@ void Yamanooto::serialize(Archive& ar, unsigned version)
 	} else {
 		// Could be wrong, but the best we can do?
 		auto offset = (offsetReg << 2) | ((configReg & SUBOFF) >> 4);
-		for (auto [b, r] : view::zip(bankRegs, rawBanks)) {
+		for (auto [b, r] : std::views::zip(bankRegs, rawBanks)) {
 			r = uint8_t(b - offset);
 		}
 	}
