@@ -469,6 +469,8 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 				if (ImGui::RadioButton("Current emulation time", !timelineStop)) timelineStop = false;
 				if (ImGui::RadioButton("Last event", timelineStop)) timelineStop = true;
 			});
+			ImGui::MenuItem("Track current time", nullptr, &followNow);
+			simpleToolTip("Auto-scroll so that the current emulation time remains visible (only if it was already visible)");
 		});
 		ImGui::Separator();
 
@@ -748,6 +750,7 @@ void ImGuiTraceViewer::zoomToFit(EmuTime minT, EmuDuration totalT)
 {
 	viewStartTime = minT;
 	viewDuration = totalT;
+	scrollChanged = true;
 }
 
 void ImGuiTraceViewer::doZoom(double factor, double xFract)
@@ -764,6 +767,8 @@ void ImGuiTraceViewer::doZoom(double factor, double xFract)
 	}
 
 	viewDuration = newDuration;
+
+	scrollChanged = true;
 }
 
 void ImGuiTraceViewer::scrollTo(EmuTime time)
@@ -773,6 +778,7 @@ void ImGuiTraceViewer::scrollTo(EmuTime time)
 	} else if (time >= viewStartTime + viewDuration) {
 		viewStartTime = time.saturateSubtract(viewDuration * 0.8);
 	}
+	scrollChanged = true;
 }
 
 [[nodiscard]] static Tracer::Trace* getTrace(Traces traces, int row)
@@ -1256,12 +1262,16 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 {
 	if        (ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_LeftArrow, ImGuiInputFlags_Repeat)) {
 		viewStartTime = viewStartTime.saturateSubtract(convertor.deltaXtoDuration(0.5f * convertor.viewScreenWidth));
+		scrollChanged = true;
 	} else if (ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_RightArrow, ImGuiInputFlags_Repeat)) {
 		viewStartTime += convertor.deltaXtoDuration(0.5f * convertor.viewScreenWidth);
+		scrollChanged = true;
 	} else if (ImGui::Shortcut(ImGuiKey_LeftArrow, ImGuiInputFlags_Repeat)) {
 		viewStartTime = viewStartTime.saturateSubtract(convertor.deltaXtoDuration(12.0f));
+		scrollChanged = true;
 	} else if (ImGui::Shortcut(ImGuiKey_RightArrow, ImGuiInputFlags_Repeat)) {
 		viewStartTime += convertor.deltaXtoDuration(12.0f);
+		scrollChanged = true;
 	}
 
 	auto totalT = maxT - minT;
@@ -1295,6 +1305,7 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 			// user changed scroll position
 			auto dur = std::max(total1000, viewDuration);
 			viewStartTime = minT + (dur * double(scrollX / convertor.viewScreenWidth));
+			scrollChanged = true;
 		}
 
 		const auto& style = ImGui::GetStyle();
@@ -1360,8 +1371,15 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 		drawLine(selectedTime2, IM_COL32(255, 0, 0, 255)); // red
 
 		if (now < maxT) {
-			auto x = convertor.timeToX(now) + clipMin.x;
+			auto nowX = convertor.timeToX(now);
+			auto x = nowX + clipMin.x;
 			drawList->AddRectFilled({x, clipMin.y}, clipMax, IM_COL32(0, 0, 0, 128));
+
+			if (viewStartTime <= now && now <= (viewStartTime + viewDuration)) {
+				if ((now - EmuTime::zero()).toDouble() >= (viewDuration.toDouble() * 0.99)) {
+					prevNowX = nowX;
+				}
+			}
 		}
 
 		drawList->PopClipRect();
@@ -1380,6 +1398,7 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 			} else if (delta.x > 0.0f) {
 				viewStartTime = viewStartTime.saturateSubtract(convertor.deltaXtoDuration(delta.x));
 			}
+			scrollChanged = true;
 		}
 
 		im::Popup("graph-context", [&]{
@@ -1517,6 +1536,18 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 	auto totalT = maxT - minT;
 
 	auto viewScreenWidth = ImGui::GetContentRegionAvail().x - col0_width - splitterWidth;
+
+	if (followNow && !scrollChanged && prevNowX > 0.0f) {
+		// IF 'follow-now' feature enabled
+		// AND user didn't manually scroll/zoom previous frame
+		// AND 'now' was visible the previous frame
+		// THEN auto-scroll so that 'now' remains visible (at the same X location).
+		auto pixelsPerTick = viewScreenWidth / float(viewDuration.toUint64());
+		auto d = EmuDuration(uint64_t(prevNowX / pixelsPerTick));
+		viewStartTime = now.saturateSubtract(d);
+	}
+	prevNowX = -1.0f;
+	scrollChanged = false;
 
 	if (showMenuBar) {
 		im::MenuBar([&]{

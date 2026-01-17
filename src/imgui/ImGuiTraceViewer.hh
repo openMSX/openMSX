@@ -87,12 +87,16 @@ private:
 	std::vector<Tracer::Trace*> traces; // recalculated each frame, but can be queried by ImGuiRasterViewer
 	TimelineFormatter timelineFormatter;
 	EmuTime viewStartTime = EmuTime::zero();
-	EmuDuration viewDuration = EmuDuration::sec(1.0);
+	EmuDuration viewDuration = EmuDuration::sec(4.0);
 	EmuTime selectedTime1 = EmuTime::zero();
 	EmuTime selectedTime2 = EmuTime::zero();
 	float col0_width = 100.0f; // TODO
 	float scrollY = 0.0f;
 	int selectedRow = 1;
+
+	float prevNowX = -1.0f; // X-position of 'now' on timeline in previous frame (negative: was not visible)
+	bool scrollChanged = false; // was scroll position or zoom changed previous frame
+	bool followNow = true; // should we follow the current time in the timeline
 
 	std::string ctxInputPos = "0";
 	float ctxMouseX = 0.0f;
@@ -148,6 +152,7 @@ private:
 		PersistentElementMax{"timelineOrigin",   &ImGuiTraceViewer::timelineOrigin, Origin::NUM_ORIGIN},
 		PersistentElement   {"timelineStart",    &ImGuiTraceViewer::timelineStart},
 		PersistentElement   {"timelineStop",     &ImGuiTraceViewer::timelineStop},
+		PersistentElement   {"followNow",        &ImGuiTraceViewer::followNow},
 	};
 };
 
