@@ -20,7 +20,7 @@ struct uninitialized_tag {};
 // just always returns 'true'. This can be useful as a default parameter value.
 struct always_true {
 	template<typename ...Args>
-	bool operator()(Args&& ...) const {
+	static bool operator()(Args&& ...) {
 		return true;
 	}
 };

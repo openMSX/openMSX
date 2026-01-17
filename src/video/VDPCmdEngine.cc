@@ -655,48 +655,48 @@ struct IncrShift7
 // Logical operations:
 
 struct DummyOp {
-	void operator()(EmuTime /*time*/, VDPVRAM& /*vram*/, unsigned /*addr*/,
-	                uint8_t /*src*/, uint8_t /*color*/, uint8_t /*mask*/) const
+	static void operator()(EmuTime /*time*/, VDPVRAM& /*vram*/, unsigned /*addr*/,
+	                uint8_t /*src*/, uint8_t /*color*/, uint8_t /*mask*/)
 	{
 		// Undefined logical operations do nothing.
 	}
 };
 
 struct ImpOp {
-	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
-	                uint8_t src, uint8_t color, uint8_t mask) const
+	static void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
+	                uint8_t src, uint8_t color, uint8_t mask)
 	{
 		vram.cmdWrite(addr, (src & mask) | color, time);
 	}
 };
 
 struct AndOp {
-	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
-	                uint8_t src, uint8_t color, uint8_t mask) const
+	static void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
+	                uint8_t src, uint8_t color, uint8_t mask)
 	{
 		vram.cmdWrite(addr, src & (color | mask), time);
 	}
 };
 
 struct OrOp {
-	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
-	                uint8_t src, uint8_t color, uint8_t /*mask*/) const
+	static void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
+	                uint8_t src, uint8_t color, uint8_t /*mask*/)
 	{
 		vram.cmdWrite(addr, src | color, time);
 	}
 };
 
 struct XorOp {
-	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
-	                uint8_t src, uint8_t color, uint8_t /*mask*/) const
+	static void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
+	                uint8_t src, uint8_t color, uint8_t /*mask*/)
 	{
 		vram.cmdWrite(addr, src ^ color, time);
 	}
 };
 
 struct NotOp {
-	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
-	                uint8_t src, uint8_t color, uint8_t mask) const
+	static void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
+	                uint8_t src, uint8_t color, uint8_t mask)
 	{
 		vram.cmdWrite(addr, (src & mask) | ~(color | mask), time);
 	}
@@ -704,8 +704,8 @@ struct NotOp {
 
 template<typename Op>
 struct TransparentOp : Op {
-	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
-	                uint8_t src, uint8_t color, uint8_t mask) const
+	static void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
+	                uint8_t src, uint8_t color, uint8_t mask)
 	{
 		// TODO does this skip the write or re-write the original value
 		//      might make a difference in case the CPU has written

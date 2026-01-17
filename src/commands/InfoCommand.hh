@@ -25,7 +25,7 @@ private:
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	struct NameFromInfoTopic {
-		[[nodiscard]] const std::string& operator()(const InfoTopic* t) const {
+		[[nodiscard]] static const std::string& operator()(const InfoTopic* t) {
 			return t->getName();
 		}
 	};

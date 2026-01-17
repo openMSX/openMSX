@@ -19,12 +19,12 @@ static_assert(BIG || LITTLE, "mixed endian not supported");
 
 // Identity operator, simply returns the given value.
 struct Ident {
-	[[nodiscard]] auto operator()(std::integral auto t) const { return t; }
+	[[nodiscard]] static auto operator()(std::integral auto t) { return t; }
 };
 
 // Byte-swap operator, swap bytes in the given value (16 or 32 bit).
 struct ByteSwap {
-	[[nodiscard]] auto operator()(std::integral auto t) const { return std::byteswap(t); }
+	[[nodiscard]] static auto operator()(std::integral auto t) { return std::byteswap(t); }
 };
 
 // Helper class that stores a value and allows to read/write that value. Though

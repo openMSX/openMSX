@@ -61,7 +61,7 @@ void ConfirmDialogTclCommand::open(std::string text_, TclObject cmd_)
 	);
 }
 
-std::string GetSettingDescription::operator()(const Setting& setting) const
+std::string GetSettingDescription::operator()(const Setting& setting)
 {
 	return std::string(setting.getDescription());
 }

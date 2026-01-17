@@ -275,15 +275,15 @@ static constexpr Table initTables()
 static constexpr Table table = initTables();
 
 // conditions
-struct CondC  { bool operator()(uint8_t f) const { return  (f & C_FLAG) != 0; } };
-struct CondNC { bool operator()(uint8_t f) const { return !(f & C_FLAG); } };
-struct CondZ  { bool operator()(uint8_t f) const { return  (f & Z_FLAG) != 0; } };
-struct CondNZ { bool operator()(uint8_t f) const { return !(f & Z_FLAG); } };
-struct CondM  { bool operator()(uint8_t f) const { return  (f & S_FLAG) != 0; } };
-struct CondP  { bool operator()(uint8_t f) const { return !(f & S_FLAG); } };
-struct CondPE { bool operator()(uint8_t f) const { return  (f & V_FLAG) != 0; } };
-struct CondPO { bool operator()(uint8_t f) const { return !(f & V_FLAG); } };
-struct CondTrue { bool operator()(uint8_t /*f*/) const { return true; } };
+struct CondC  { static bool operator()(uint8_t f) { return  (f & C_FLAG) != 0; } };
+struct CondNC { static bool operator()(uint8_t f) { return !(f & C_FLAG); } };
+struct CondZ  { static bool operator()(uint8_t f) { return  (f & Z_FLAG) != 0; } };
+struct CondNZ { static bool operator()(uint8_t f) { return !(f & Z_FLAG); } };
+struct CondM  { static bool operator()(uint8_t f) { return  (f & S_FLAG) != 0; } };
+struct CondP  { static bool operator()(uint8_t f) { return !(f & S_FLAG); } };
+struct CondPE { static bool operator()(uint8_t f) { return  (f & V_FLAG) != 0; } };
+struct CondPO { static bool operator()(uint8_t f) { return !(f & V_FLAG); } };
+struct CondTrue { static bool operator()(uint8_t /*f*/) { return true; } };
 
 template<typename T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const std::string& name,

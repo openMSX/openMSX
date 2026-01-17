@@ -13,7 +13,7 @@ namespace hash_set_impl {
 // Takes any (const or non-const) pair reference and returns a reference to
 // the first element of the pair.
 struct ExtractFirst {
-	template<typename Pair> [[nodiscard]] auto& operator()(Pair&& p) const { return p.first; }
+	template<typename Pair> [[nodiscard]] static auto& operator()(Pair&& p) { return p.first; }
 };
 
 } // namespace hash_set_impl

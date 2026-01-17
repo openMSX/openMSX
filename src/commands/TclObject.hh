@@ -320,10 +320,10 @@ template<typename... Args>
 }
 
 struct XXTclHasher {
-	[[nodiscard]] uint32_t operator()(std::string_view str) const {
+	[[nodiscard]] static uint32_t operator()(std::string_view str) {
 		return xxhash(str);
 	}
-	[[nodiscard]] uint32_t operator()(const TclObject& obj) const {
+	[[nodiscard]] static uint32_t operator()(const TclObject& obj) {
 		return xxhash(obj.getString());
 	}
 };

@@ -15,38 +15,38 @@ namespace detail {
 	template<typename T> struct GetArg;
 
 	template<> struct GetArg<bool> {
-		void operator()(Interpreter& interp, const TclObject& obj, bool& result) const {
+		static void operator()(Interpreter& interp, const TclObject& obj, bool& result) {
 			result = obj.getBoolean(interp);
 		}
 	};
 	template<> struct GetArg<int> {
-		void operator()(Interpreter& interp, const TclObject& obj, int& result) const {
+		static void operator()(Interpreter& interp, const TclObject& obj, int& result) {
 			result = obj.getInt(interp);
 		}
 	};
 	template<> struct GetArg<double> {
-		void operator()(Interpreter& interp, const TclObject& obj, double& result) const {
+		static void operator()(Interpreter& interp, const TclObject& obj, double& result) {
 			result = obj.getDouble(interp);
 		}
 	};
 	template<> struct GetArg<std::string_view> {
-		void operator()(Interpreter& /*interp*/, const TclObject& obj, std::string_view& result) const {
+		static void operator()(Interpreter& /*interp*/, const TclObject& obj, std::string_view& result) {
 			result = obj.getString();
 		}
 	};
 	template<> struct GetArg<std::string> {
-		void operator()(Interpreter& /*interp*/, const TclObject& obj, std::string& result) const {
+		static void operator()(Interpreter& /*interp*/, const TclObject& obj, std::string& result) {
 			result = std::string(obj.getString());
 		}
 	};
 	template<> struct GetArg<TclObject> {
-		void operator()(Interpreter& /*interp*/, const TclObject& obj, TclObject& result) const {
+		static void operator()(Interpreter& /*interp*/, const TclObject& obj, TclObject& result) {
 			result = obj;
 		}
 	};
 
 	template<typename T> struct GetArg<std::optional<T>> {
-		void operator()(Interpreter& interp, const TclObject& obj, std::optional<T>& result) const {
+		static void operator()(Interpreter& interp, const TclObject& obj, std::optional<T>& result) {
 			T t;
 			GetArg<T>{}(interp, obj, t);
 			result = std::move(t);
@@ -54,7 +54,7 @@ namespace detail {
 	};
 
 	template<typename T> struct GetArg<std::vector<T>> {
-		void operator()(Interpreter& interp, const TclObject& obj, std::vector<T>& result) const {
+		static void operator()(Interpreter& interp, const TclObject& obj, std::vector<T>& result) {
 			result.emplace_back();
 			GetArg<T>{}(interp, obj, result.back());
 		}

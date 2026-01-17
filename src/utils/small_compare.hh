@@ -68,19 +68,19 @@ namespace detail {
 // Loader can load an 8/16/32/64 unaligned value.
 struct Load8 {
 	using type = uint8_t;
-	[[nodiscard]] type operator()(const void* p) const { return *std::bit_cast<const uint8_t*>(p); }
+	[[nodiscard]] static type operator()(const void* p) { return *std::bit_cast<const uint8_t*>(p); }
 };
 struct Load16 {
 	using type = uint16_t;
-	[[nodiscard]] type operator()(const void* p) const { return unalignedLoad16(p); }
+	[[nodiscard]] static type operator()(const void* p) { return unalignedLoad16(p); }
 };
 struct Load32 {
 	using type = uint32_t;
-	[[nodiscard]] type operator()(const void* p) const { return unalignedLoad32(p); }
+	[[nodiscard]] static type operator()(const void* p) { return unalignedLoad32(p); }
 };
 struct Load64 {
 	using type = uint64_t;
-	[[nodiscard]] type operator()(const void* p) const { return unalignedLoad64(p); }
+	[[nodiscard]] static type operator()(const void* p) { return unalignedLoad64(p); }
 };
 struct ErrorNotSupportedLoader; // load only implemented up to 64 bit
 template<size_t N> struct SelectLoader

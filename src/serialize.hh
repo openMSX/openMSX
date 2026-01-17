@@ -35,7 +35,7 @@ class DeltaBlock;
 // TODO move somewhere in utils once we use this more often
 struct HashPair {
 	template<typename T1, typename T2>
-	size_t operator()(const std::pair<T1, T2>& p) const {
+	static size_t operator()(const std::pair<T1, T2>& p) {
 		return 31 * std::hash<T1>()(p.first) +
 			    std::hash<T2>()(p.second);
 	}

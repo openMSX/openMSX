@@ -42,7 +42,7 @@ private:
 	std::vector<std::string> errors;
 
 	struct NameFromWidget {
-		[[nodiscard]] std::string_view operator()(const OSDWidget* w) const {
+		[[nodiscard]] static std::string_view operator()(const OSDWidget* w) {
 			return w->getName();
 		}
 	};

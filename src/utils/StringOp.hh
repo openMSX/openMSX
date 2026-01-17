@@ -159,7 +159,7 @@ namespace StringOp
 
 	// case insensitive less-than operator
 	struct caseless {
-		[[nodiscard]] bool operator()(std::string_view s1, std::string_view s2) const {
+		[[nodiscard]] static bool operator()(std::string_view s1, std::string_view s2) {
 			auto m = std::min(s1.size(), s2.size());
 			int r = strncasecmp(s1.data(), s2.data(), m);
 			return (r != 0) ? (r < 0) : (s1.size() < s2.size());
@@ -167,14 +167,14 @@ namespace StringOp
 	};
 	// case insensitive greater-than operator
 	struct inv_caseless {
-		[[nodiscard]] bool operator()(std::string_view s1, std::string_view s2) const {
+		[[nodiscard]] static bool operator()(std::string_view s1, std::string_view s2) {
 			auto m = std::min(s1.size(), s2.size());
 			int r = strncasecmp(s1.data(), s2.data(), m);
 			return (r != 0) ? (r > 0) : (s1.size() > s2.size());
 		}
 	};
 	struct casecmp {
-		[[nodiscard]] bool operator()(std::string_view s1, std::string_view s2) const {
+		[[nodiscard]] static bool operator()(std::string_view s1, std::string_view s2) {
 			if (s1.size() != s2.size()) return false;
 			return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
 		}
