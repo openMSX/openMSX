@@ -30,7 +30,7 @@ bind_default SHIFT+ALT+F10 "vdrive diskb -1"
 # CTRL-C/CTRL-V, but not exactly that, as these combinations are also used on
 # MSX. By adding META, the combination will be so rarely used that we can
 # assume it's OK).
-bind_default "mouse button2 down" type_clipboard
+bind_default -msx "mouse button2 down" type_clipboard
 if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 	bind_default -msx "keyb META+C" copy_screen_to_clipboard
 	bind_default -msx "keyb META+V" type_clipboard

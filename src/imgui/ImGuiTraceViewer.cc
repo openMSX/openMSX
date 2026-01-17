@@ -1371,6 +1371,17 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 			ctxMouseX = mouseX;
 			ctxMouseRow = mouseRow;
 		}
+		if (hovered && ImGui::IsMouseDragging(ImGuiMouseButton_Middle)) {
+			auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Middle);
+			ImGui::ResetMouseDragDelta(ImGuiMouseButton_Middle);
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+			if (delta.x < 0.0f) {
+				viewStartTime += convertor.deltaXtoDuration(-delta.x);
+			} else if (delta.x > 0.0f) {
+				viewStartTime = viewStartTime.saturateSubtract(convertor.deltaXtoDuration(delta.x));
+			}
+		}
+
 		im::Popup("graph-context", [&]{
 			ImGui::TextUnformatted("Scroll to");
 			im::Indent([&]{
