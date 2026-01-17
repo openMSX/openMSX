@@ -12,7 +12,7 @@
 namespace openmsx {
 
 struct GetURLFromDecompressed {
-	template<typename Ptr> [[nodiscard]] static const std::string& operator()(const Ptr& p) {
+	template<typename Ptr> [[nodiscard]] const std::string& operator()(const Ptr& p) const {
 		return p->cachedURL;
 	}
 };

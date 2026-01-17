@@ -21,7 +21,7 @@ class WavData
 {
 	struct NoFilter {
 		void setFreq(unsigned /*freq*/) const {}
-		static uint16_t operator()(uint16_t x) { return x; }
+		uint16_t operator()(uint16_t x) const { return x; }
 	};
 
 public:

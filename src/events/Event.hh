@@ -534,13 +534,13 @@ inline EventType getType(const Event& event)
 // Similar to std::get() and std::get_if()
 template<typename T>
 struct GetIfEventHelper { // standard std::get_if() behavior
-	static const T* operator()(const Event& event) {
+	const T* operator()(const Event& event) {
 		return std::get_if<T>(&event);
 	}
 };
 template<>
 struct GetIfEventHelper<SdlEvent> { // extension for base-classes
-	[[nodiscard]] static const SdlEvent* operator()(const Event& event) {
+	[[nodiscard]] const SdlEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
 		using enum EventType;
@@ -562,7 +562,7 @@ struct GetIfEventHelper<SdlEvent> { // extension for base-classes
 };
 template<>
 struct GetIfEventHelper<KeyEvent> {
-	[[nodiscard]] static const KeyEvent* operator()(const Event& event) {
+	[[nodiscard]] const KeyEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
 		using enum EventType;
@@ -574,7 +574,7 @@ struct GetIfEventHelper<KeyEvent> {
 };
 template<>
 struct GetIfEventHelper<JoystickEvent> {
-	[[nodiscard]] static const JoystickEvent* operator()(const Event& event) {
+	[[nodiscard]] const JoystickEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
 		using enum EventType;

@@ -52,9 +52,9 @@ namespace FAT12 {
 
 	// Functor to convert a FatCluster or DirCluster to a FAT12 cluster number
 	struct ToClusterNumber {
-		static unsigned operator()(Free) { return FAT::FREE; }
-		static unsigned operator()(EndOfChain) { return END_OF_CHAIN; }
-		static unsigned operator()(Cluster cluster) { return FAT::FIRST_CLUSTER + cluster.index; }
+		unsigned operator()(Free) const { return FAT::FREE; }
+		unsigned operator()(EndOfChain) const { return END_OF_CHAIN; }
+		unsigned operator()(Cluster cluster) const { return FAT::FIRST_CLUSTER + cluster.index; }
 	};
 }
 
@@ -66,9 +66,9 @@ namespace FAT16 {
 
 	// Functor to convert a FatCluster or DirCluster to a FAT16 cluster number
 	struct ToClusterNumber {
-		static unsigned operator()(Free) { return FAT::FREE; }
-		static unsigned operator()(EndOfChain) { return END_OF_CHAIN; }
-		static unsigned operator()(Cluster cluster) { return FAT::FIRST_CLUSTER + cluster.index; }
+		unsigned operator()(Free) const { return FAT::FREE; }
+		unsigned operator()(EndOfChain) const { return END_OF_CHAIN; }
+		unsigned operator()(Cluster cluster) const { return FAT::FIRST_CLUSTER + cluster.index; }
 	};
 }
 

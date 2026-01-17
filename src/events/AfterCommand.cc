@@ -401,7 +401,7 @@ void AfterCommand::executeSimpleEvents(EventType type)
 }
 
 struct AfterEmuTimePred {
-	static bool operator()(AfterCommand::Index idx) {
+	bool operator()(AfterCommand::Index idx) const {
 		return std::visit(overloaded {
 			[&](const AfterTimedCmd& cmd) { return cmd.getTime() == 0.0; },
 			[&](const AfterCmd& /*cmd*/) { return false; }

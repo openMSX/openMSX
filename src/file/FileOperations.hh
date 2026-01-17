@@ -15,7 +15,7 @@
 namespace openmsx::FileOperations {
 
 	struct FClose {
-		static void operator()(FILE* f) { fclose(f); }
+		void operator()(FILE* f) const { fclose(f); }
 	};
 	using FILE_t = std::unique_ptr<FILE, FClose>;
 

@@ -163,7 +163,7 @@ static constexpr auto combinedRomTable = [] {
 }();
 
 struct RomTypeNameHash {
-	[[nodiscard]] static constexpr uint32_t operator()(std::string_view str) {
+	[[nodiscard]] constexpr uint32_t operator()(std::string_view str) const {
 		constexpr auto MASK = uint8_t(~('a' - 'A')); // case insensitive
 		uint32_t d = 0;
 		for (char c : str) {

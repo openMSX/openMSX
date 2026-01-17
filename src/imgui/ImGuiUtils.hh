@@ -260,7 +260,7 @@ private:
 };
 
 struct GetSettingDescription {
-	static std::string operator()(const Setting& setting);
+	std::string operator()(const Setting& setting) const;
 };
 
 bool Checkbox(const HotKey& hotkey, BooleanSetting& setting);

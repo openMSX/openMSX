@@ -96,10 +96,10 @@ std::vector<CompletionCandidate> Completer::filter(
 	std::string_view str, Range&& range, bool caseSensitive)
 {
 	struct MakeCompletionCandidate {
-		static CompletionCandidate operator()(std::string_view s, bool caseSensitive) {
+		CompletionCandidate operator()(std::string_view s, bool caseSensitive) const {
 			return {.text = std::string(s), .caseSensitive = caseSensitive};
 		}
-		static CompletionCandidate operator()(CompletionCandidate c, bool /*caseSensitive*/) {
+		CompletionCandidate operator()(CompletionCandidate c, bool /*caseSensitive*/) const {
 			return c;
 		}
 	} make;

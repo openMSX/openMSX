@@ -138,7 +138,7 @@ drop_back_view(R&&, std::size_t) -> drop_back_view<std::views::all_t<R>>;
 
 struct drop_back_fn /*: public std::ranges::range_adaptor_closure<drop_back_fn>*/
 {
-	static constexpr auto operator()(std::size_t n) {
+	constexpr auto operator()(std::size_t n) const {
 		return [n]<typename Range>(Range&& range) {
 			return drop_back_view{
 			        std::forward<Range>(range), n};
@@ -146,7 +146,7 @@ struct drop_back_fn /*: public std::ranges::range_adaptor_closure<drop_back_fn>*
 	}
 
 	template<std::ranges::viewable_range R>
-	static constexpr auto operator()(R&& r, std::size_t n) {
+	constexpr auto operator()(R&& r, std::size_t n) const {
 		return drop_back_view{std::forward<R>(r), n};
 	}
 };

@@ -44,7 +44,7 @@ private:
 		unsigned idx;
 	};
 	struct HashDirIndex {
-		static auto operator()(const DirIndex& d) {
+		auto operator()(const DirIndex& d) const {
 			std::hash<unsigned> subHasher;
 			return 31 * subHasher(d.sector)
 			          + subHasher(d.idx);

@@ -12,7 +12,7 @@ namespace openmsx {
 
 struct EdgeHQ
 {
-	[[nodiscard]] static bool operator()(uint32_t c1, uint32_t c2)
+	[[nodiscard]] bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		if (c1 == c2) return false;
 

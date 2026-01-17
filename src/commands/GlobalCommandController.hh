@@ -156,7 +156,7 @@ private:
 
 	struct NameFromProxy {
 		template<typename Pair>
-		[[nodiscard]] static const std::string& operator()(const Pair& p) {
+		[[nodiscard]] const std::string& operator()(const Pair& p) const {
 			return p.second->getName();
 		}
 	};

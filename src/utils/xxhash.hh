@@ -146,13 +146,13 @@ template<uint8_t MASK8> [[nodiscard]] inline uint32_t xxhash_impl(std::string_vi
 }
 
 struct XXHasher {
-	[[nodiscard]] static uint32_t operator()(std::string_view key) {
+	[[nodiscard]] uint32_t operator()(std::string_view key) const {
 		return xxhash(key);
 	}
 };
 
 struct XXHasher_IgnoreCase {
-	[[nodiscard]] static uint32_t operator()(std::string_view key) {
+	[[nodiscard]] uint32_t operator()(std::string_view key) const {
 		return xxhash_case(key);
 	}
 };

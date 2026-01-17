@@ -30,7 +30,7 @@ namespace openmsx {
 template<typename T> struct Creator
 {
 	template<typename TUPLE>
-	static std::unique_ptr<T> operator()(TUPLE tuple) {
+	std::unique_ptr<T> operator()(TUPLE tuple) {
 		auto makeT = []<typename... Args>(Args&& ...args) {
 			return std::make_unique<T>(std::forward<Args>(args)...);
 		};
@@ -67,7 +67,7 @@ template<typename T> struct PolymorphicBaseClass;
 template<typename Base> struct MapConstrArgsEmpty
 {
 	using TUPLEIn = typename PolymorphicConstructorArgs<Base>::type;
-	static std::tuple<> operator()(const TUPLEIn& /*t*/)
+	std::tuple<> operator()(const TUPLEIn& /*t*/) const
 	{
 		return {};
 	}
@@ -78,7 +78,7 @@ template<typename Base, typename Derived> struct MapConstrArgsCopy
 	using TUPLEOut = typename PolymorphicConstructorArgs<Derived>::type;
 	static_assert(std::is_same_v<TUPLEIn, TUPLEOut>,
 	              "constructor argument types must match");
-	static TUPLEOut operator()(const TUPLEIn& t)
+	TUPLEOut operator()(const TUPLEIn& t)
 	{
 		return t;
 	}

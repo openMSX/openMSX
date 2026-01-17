@@ -73,7 +73,7 @@ private:
 	SettingCompleter unsetCompleter;
 
 	struct NameFromSetting {
-		[[nodiscard]] static const TclObject& operator()(const BaseSetting* s) {
+		[[nodiscard]] const TclObject& operator()(const BaseSetting* s) const {
 			return s->getFullNameObj();
 		}
 	};

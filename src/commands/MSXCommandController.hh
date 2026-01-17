@@ -94,7 +94,7 @@ private:
 	std::optional<InfoCommand> machineInfoCommand;
 
 	struct NameFromCommand {
-		[[nodiscard]] static const std::string& operator()(const Command* c) {
+		[[nodiscard]] const std::string& operator()(const Command* c) const {
 			return c->getName();
 		}
 	};

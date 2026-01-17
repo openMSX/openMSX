@@ -35,7 +35,7 @@ public:
 
 private:
 	struct CloseDir {
-		static void operator()(DIR* d) { if (d) closedir(d); }
+		void operator()(DIR* d) const { if (d) closedir(d); }
 	};
 	using DIR_t = std::unique_ptr<DIR, CloseDir>;
 	DIR_t dir;
