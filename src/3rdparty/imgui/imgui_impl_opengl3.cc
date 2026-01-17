@@ -25,6 +25,7 @@
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
 //  2025-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2025-12-11: OpenGL: Fixed embedded loader multiple init/shutdown cycles broken on some platforms. (#8792, #9112)
 //  2025-09-18: Call platform_io.ClearRendererHandlers() on shutdown.
 //  2025-07-22: OpenGL: Add and call embedded loader shutdown during ImGui_ImplOpenGL3_Shutdown() to facilitate multiple init/shutdown cycles in same process. (#8792)
 //  2025-07-15: OpenGL: Set GL_UNPACK_ALIGNMENT to 1 before updating textures (#8802) + restore non-WebGL/ES update path that doesn't require a CPU-side copy.
@@ -296,7 +297,8 @@ struct ImGui_ImplOpenGL3_VtxAttribState
 bool ImGui_ImplOpenGL3_InitLoader();
 bool ImGui_ImplOpenGL3_InitLoader()
 {
-    // Initialize our loader
+    // Lazily initialize our loader if not already done
+    // (to facilitate handling multiple DLL boundaries and multiple context shutdowns we call this from all main entry points)
 #ifdef IMGUI_IMPL_OPENGL_LOADER_IMGL3W
     if (glGetIntegerv == nullptr && imgl3wInit() != 0)
     {
@@ -305,6 +307,13 @@ bool ImGui_ImplOpenGL3_InitLoader()
     }
 #endif
     return true;
+}
+
+static void ImGui_ImplOpenGL3_ShutdownLoader()
+{
+#ifdef IMGUI_IMPL_OPENGL_LOADER_IMGL3W
+    imgl3wShutdown();
+#endif
 }
 
 // Functions
@@ -393,7 +402,7 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
         glsl_version = "#version 130";
 #endif
     }
-    IM_ASSERT((int)strlen(glsl_version) + 2 < IM_ARRAYSIZE(bd->GlslVersionString));
+    IM_ASSERT((int)strlen(glsl_version) + 2 < IM_COUNTOF(bd->GlslVersionString));
     strcpy(bd->GlslVersionString, glsl_version);
     strcat(bd->GlslVersionString, "\n");
 
@@ -442,9 +451,7 @@ void    ImGui_ImplOpenGL3_Shutdown()
     platform_io.ClearRendererHandlers();
     IM_DELETE(bd);
 
-#ifdef IMGUI_IMPL_OPENGL_LOADER_IMGL3W
-    imgl3wShutdown();
-#endif
+    ImGui_ImplOpenGL3_ShutdownLoader();
 }
 
 void    ImGui_ImplOpenGL3_NewFrame()
@@ -452,8 +459,7 @@ void    ImGui_ImplOpenGL3_NewFrame()
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     IM_ASSERT(bd != nullptr && "Context or backend not initialized! Did you call ImGui_ImplOpenGL3_Init()?");
 
-    ImGui_ImplOpenGL3_InitLoader(); // Lazily init loader if not already done for e.g. DLL boundaries.
-
+    ImGui_ImplOpenGL3_InitLoader();
     if (!bd->ShaderHandle)
         if (!ImGui_ImplOpenGL3_CreateDeviceObjects())
             IM_ASSERT(0 && "ImGui_ImplOpenGL3_CreateDeviceObjects() failed!");
@@ -544,7 +550,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     if (fb_width <= 0 || fb_height <= 0)
         return;
 
-    ImGui_ImplOpenGL3_InitLoader(); // Lazily init loader if not already done for e.g. DLL boundaries.
+    ImGui_ImplOpenGL3_InitLoader();
 
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
 
@@ -847,6 +853,7 @@ static bool CheckProgram(GLuint handle, const char* desc)
 
 bool    ImGui_ImplOpenGL3_CreateDeviceObjects()
 {
+    ImGui_ImplOpenGL3_InitLoader();
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
 
     // Backup GL state
@@ -1045,6 +1052,7 @@ bool    ImGui_ImplOpenGL3_CreateDeviceObjects()
 
 void    ImGui_ImplOpenGL3_DestroyDeviceObjects()
 {
+    ImGui_ImplOpenGL3_InitLoader();
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     if (bd->VboHandle)      { glDeleteBuffers(1, &bd->VboHandle); bd->VboHandle = 0; }
     if (bd->ElementsHandle) { glDeleteBuffers(1, &bd->ElementsHandle); bd->ElementsHandle = 0; }
