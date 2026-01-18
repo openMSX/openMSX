@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1768494219">
+<softwaredb timestamp="1768636802">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -22461,7 +22461,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><megarom><type>ASCII8</type><hash>12a083d3a60a71ccab08524e19572c1345fea555</hash></megarom></dump>
 </software>
 <software>
-	<title>Risky Risk -  in Dangerous Traps</title>
+	<title>Risky Risk - in Dangerous Traps</title>
 	<system>MSX</system>
 	<company>Arcadevision</company>
 	<year>2020</year>
@@ -24550,7 +24550,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><rom><type>page2</type><hash>6f8e270f3753aff090ebb2b337de03717fd07bc5</hash><remark>MSX Computer Magazine</remark></rom></dump>
 </software>
 <software>
-	<title>Nederland -  Provincies en Hoofdsteden</title>
+	<title>Nederland - Provincies en Hoofdsteden</title>
 	<system>MSX2</system>
 	<company>Unknown</company>
 	<year>19xx</year>
@@ -25911,7 +25911,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>cd66f222468f46cdacad82e4ddb0d3b5174f91e9</hash><remark>MSXDev2022 - No Turbo-R</remark></rom></dump>
 </software>
 <software>
-	<title>Muhonmourn  3</title>
+	<title>Muhonmourn 3</title>
 	<genmsxid>7530</genmsxid>
 	<system>MSX</system>
 	<company>hoge1e3</company>
@@ -28209,12 +28209,13 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>f6a76405fb8ef830001c5332ce9cce4f45583486</hash><remark>05-04-2024 release</remark></rom></dump>
 </software>
 <software>
-	<title>9 Fingers</title>
+	<title>Video Clip - 9 Fingers</title>
 	<system>MSX2</system>
 	<company>NOP</company>
 	<year>2024</year>
 	<country>NL</country>
-	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>eba008ca7095c7979383ae0f193c530480fb2209</hash></megarom></dump>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>eba008ca7095c7979383ae0f193c530480fb2209</hash><remark>v1.0</remark></megarom></dump>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>2afd5afa1681c6172f348f6e60a7d9f2526ca08c</hash><remark>v2.0</remark></megarom></dump>
 </software>
 <software>
 	<title>Trucho</title>
@@ -28228,7 +28229,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><original value="false">BAD Dump</original><megarom><type>Zemina90in1</type><hash>b812fb5da6791bbf78d7d94bda362fb21f8dca50</hash><remark>Pirated version</remark></megarom></dump>
 </software>
 <software>
-	<title>Campanera  - Jozelito's Adventure</title>
+	<title>Campanera - Jozelito's Adventure</title>
 	<genmsxid>7660</genmsxid>
 	<system>MSX</system>
 	<company>Physical Dreams</company>
@@ -30783,7 +30784,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><rom><type>page2</type><hash>c559bdcd095f50c970a69846bc6bb5a9e3aa7bd0</hash></rom></dump>
 </software>
 <software>
-	<title>Galaxy Trek  Adventure Nr 1</title>
+	<title>Galaxy Trek Adventure Nr 1</title>
 	<system>MSX</system>
 	<company>Howard F. Batie</company>
 	<year>1983</year>
@@ -31081,6 +31082,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>NL</country>
 	<dump><original value="true">Author</original><megarom><type>ASCII16-X</type><hash>50f3bb1057278090ae44bdd6223a20c1d134f007</hash><remark>Playable Promo</remark></megarom></dump>
 	<dump><original value="true">Author</original><megarom><type>ASCII16-X</type><hash>ba284c75a27d2fad32d39cf6d713e17fbd476237</hash><remark>Commerical Release</remark></megarom></dump>
+	<dump><original value="true">Author</original><megarom><type>ASCII16-X</type><hash>f0a4e0fa33a1b648c179d9e7b89eaca43a5cf6cc</hash><remark>v2.0</remark></megarom></dump>
+	<dump><megarom><type>ASCII16</type><hash>588bfabec8290203ccaff9f5f112754505d6c4f9</hash><remark>v1.1</remark></megarom></dump>
 </software>
 <software>
 	<title>Matchy Matchy</title>
@@ -31389,7 +31392,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Ace Electric Co., Ltd.</company>
 	<year></year>
 	<country>JP</country>
-	<dump><rom><type>page2</type><hash>7dcac5703574899fd8e2240f9ccb3aed783b69e4</hash><remark>need specialized hardware</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>7dcac5703574899fd8e2240f9ccb3aed783b69e4</hash><remark>only works with related hardware in cartridge</remark></rom></dump>
 	<dump><rom><type>page2</type><hash>bfea522a69ef90003b5c9caf72faaac613e78ff6</hash></rom></dump>
 </software>
 <software>
@@ -31401,7 +31404,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><rom><type>Mirrored</type><hash>4828ab87d1a00c168b3c8f52b0f4a16b855201c3</hash></rom></dump>
 </software>
 <software>
-	<title>MM Game Music -  Player and Quiz</title>
+	<title>MM Game Music - Player and Quiz</title>
 	<system>MSX</system>
 	<company>Unknown</company>
 	<year></year>
@@ -31804,18 +31807,18 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>824760b457755bb2ab3bdf4f84cd1ff3f2066a26</hash></rom></dump>
 </software>
 <software>
-	<title>The Dukes Of Hazzard Intro - Video Clip</title>
+	<title>Video Clip - The Dukes Of Hazzard Intro</title>
 	<system>MSX2</system>
 	<company>NOP</company>
-	<year>2026</year>
+	<year>2024</year>
 	<country>NL</country>
 	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>97bea12572bd86bf23712d30d80e49e066fdabb8</hash></megarom></dump>
 </software>
 <software>
-	<title>Cat Duel - Video Clip</title>
+	<title>Video Clip - Cat Duel</title>
 	<system>MSX2</system>
 	<company>NOP</company>
-	<year>2026</year>
+	<year>2024</year>
 	<country>NL</country>
 	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>cb65a59c478076e3cb88a1a4202747ace8cbbc54</hash></megarom></dump>
 </software>
@@ -31867,5 +31870,125 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 	<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>d4355fbefc45116d4381e1297c425da3a4c8c7f3</hash></rom></dump>
 </software>
+<software>
+	<title>Masyu</title>
+	<system>MSX</system>
+	<company>TwoGuysFromVA</company>
+	<year>2026</year>
+	<country>US</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>4312fdf66e6abfc2bb22a9bdebf3f4aae16bbbf1</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - Ghost Buster - Capture of Slimer</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2025</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>8367edf298013ada02b1147b78ff9019ab78f7b6</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - Sabrina Boys Boys</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>aa3f46c3e7c3dbe8328b81cc4864654a0df4ecfd</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - Van Halen Jump</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>f26a893b97c26fea18b73609ec9fa942a892a577</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - A-ha Take On Me</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>6dc4a8b83c01c87e5decfa8f171fc261c3055589</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - BTTF The Power of Love</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>44c6dfa8949c2971b619039e54ee974d0657140e</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - Theme of Airwolf</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>e43807e662635759b086bbbc100a7f3d3ac389b9</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - Mask Cartoon Intro</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>40a9cede72eed179e095ad4728915c98f837dd5d</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - Danger Zone (Top Gun)</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>53e6f41e90ba66b3d851baf61db677b144ce7fef</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - A-Team Intro</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>426466e46d38c8100a8275cb872748aea75c06bc</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - Sales Discontinued Interview</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>134a0448e4e8d95bc5e5d8492a0ee483b6e9d567</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - BBC New Years Eve 2023</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>a839457b45350a51b35a0ab09951b53c498c2c7d</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - BTTF Clock Tower</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>65a96f0d81e22eb2d991ac19b1af1dfc1ef6c6e2</hash></megarom></dump>
+</software>
+<software>
+	<title>Video Clip - BTTF Skateboard</title>
+	<system>MSX2</system>
+	<company>NOP</company>
+	<year>2024</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>2c0b22401d4709e7fdf970f948232e73079bb5e7</hash></megarom></dump>
+</software>
+<software>
+	<title>Birdy Flap</title>
+	<system>MSX</system>
+	<company>Eric Duijs</company>
+	<year>2026</year>
+	<country>NL</country>
+	<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>bf9160c924cc2469910eadd6867fcd2152f1ecb1</hash><remark>v0.1</remark></rom></dump>
+</software>
 </softwaredb>
-<!-- Roms in this XML file: 8194 - Created on Thu Jan 15 2026 - 08:23:47 -->
+<!-- Roms in this XML file: 8212 - Created on Sat Jan 17 2026 - 00:00:11 -->
