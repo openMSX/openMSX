@@ -25,6 +25,7 @@
 #include "RomInfo.hh"
 
 #include "StringOp.hh"
+#include "format.hh"
 #include "join.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
@@ -34,10 +35,8 @@
 #include <imgui_stdlib.h>
 
 #include <algorithm>
-#include <iomanip>
 #include <memory>
 #include <ranges>
-#include <sstream>
 #include <utility>
 
 namespace openmsx {
@@ -1555,17 +1554,23 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 			const auto now = motherBoard->getCurrentTime();
 			auto length = cassettePlayer.getTapeLength(now);
 			auto pos = cassettePlayer.getTapePos(now);
-			auto format = [](double time) {
+
+			std::array<char, 16> format_buf; // also passed to ImGui::InputText
+			auto format = [&format_buf](double time) {
 				int t = narrow_cast<int>(time); // truncated to seconds
 				int s = t % 60; t /= 60;
 				int m = t % 60; t /= 60;
-				std::ostringstream os;
-				os << std::setfill('0');
-				if (t) os << std::setw(2) << t << ':';
-				os << std::setw(2) << m << ':';
-				os << std::setw(2) << s;
-				return os.str();
+				if (t) {
+					// HH:MM:SS
+					return format_to_zbuf(format_buf,
+						"{:02}:{:02}:{:02}", t, m, s);
+				} else {
+					// MM:SS
+					return format_to_zbuf(format_buf,
+						"{:02}:{:02}", m, s);
+				}
 			};
+
 			auto parse = [](std::string_view str) -> std::optional<unsigned> {
 				auto [head, seconds] = StringOp::splitOnLast(str, ':');
 				auto s = StringOp::stringTo<unsigned>(seconds);
@@ -1586,9 +1591,9 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 				}
 				return result;
 			};
-			auto posStr = format(pos);
-			ImGui::SetNextItemWidth(ImGui::CalcTextSize(std::string_view(posStr)).x + 2.0f * style.FramePadding.x);
-			if (ImGui::InputText("##pos", &posStr, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			auto posStr = format(pos); assert(posStr.data() == format_buf.data());
+			ImGui::SetNextItemWidth(ImGui::CalcTextSize(posStr).x + 2.0f * style.FramePadding.x);
+			if (ImGui::InputText("##pos", format_buf.data(), int(format_buf.size()), ImGuiInputTextFlags_EnterReturnsTrue)) {
 				if (auto newPos = parse(posStr)) {
 					manager.executeDelayed(makeTclList("cassetteplayer", "setpos", *newPos));
 				}
@@ -1596,7 +1601,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 			simpleToolTip("Indicates the current position of the tape, but can be edited to change the position manual (like fast forward)");
 
 			ImGui::SameLine();
-			ImGui::Text("/ %s", format(length).c_str());
+			ImGui::StrCat("/ ", format(length));
 
 			const auto& controller = motherBoard->getMSXCommandController();
 			const auto& hotKey = reactor.getHotKey();

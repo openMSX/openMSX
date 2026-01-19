@@ -23,13 +23,13 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
+#include "format.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 
 #include <array>
 #include <cassert>
 #include <cmath>
-#include <iomanip>
 #include <ranges>
 
 namespace openmsx {
@@ -321,12 +321,11 @@ void ReverseManager::goTo(EmuTime target, bool noVideo)
 static void reportProgress(Reactor& reactor, EmuTime targetTime, float fraction)
 {
 	double targetTimeDisp = targetTime.toDouble();
-	std::ostringstream sstr;
-	sstr << "Time warping to " <<
-		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<
-		std::setw(5) << std::setprecision(2) << std::fixed <<
-		std::fmod(targetTimeDisp, 60.0);
-	reactor.getCliComm().printProgress(sstr.str(), fraction);
+	std::array<char, 64> buf;
+	auto s = format_to_buf(buf,
+		"Time warping to {}:{:05.2f}",
+		int(targetTimeDisp / 60), std::fmod(targetTimeDisp, 60.0));
+	reactor.getCliComm().printProgress(s, fraction);
 	reactor.getDisplay().repaint();
 }
 
