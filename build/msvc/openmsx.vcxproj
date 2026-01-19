@@ -707,6 +707,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXOPL3Cartridge.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXPSG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXSCCPlusCart.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXTimer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXTurboRPCM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXYamahaSFG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\NullSoundDriver.cc" />
@@ -1354,6 +1355,7 @@
     <None Include="$(OpenMSXSrcDir)\sound\MSXOPL3Cartridge.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\MSXPSG.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\MSXSCCPlusCart.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\MSXTimer.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\MSXTurboRPCM.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\MSXYamahaSFG.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\NullSoundDriver.hh" />

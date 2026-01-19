@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Y8960 Cartridge</name>
+    <manufacturer>HRA!</manufacturer>
+    <code/>
+    <release_year>2026</release_year>
+    <description>MSX2++ equivalent sound cartridge.</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <MSX-TIMER>
+      <io base="0xB0" num="4"/>
+    </MSX-TIMER>
+  </devices>
+</msxconfig>

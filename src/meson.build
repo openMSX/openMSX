@@ -402,6 +402,7 @@ sources = files(
     'sound/MSXOPL3Cartridge.cc',
     'sound/MSXPSG.cc',
     'sound/MSXSCCPlusCart.cc',
+    'sound/MSXTimer.cc',
     'sound/MSXTurboRPCM.cc',
     'sound/MSXYamahaSFG.cc',
     'sound/Mixer.cc',
