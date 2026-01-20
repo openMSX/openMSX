@@ -109,7 +109,7 @@ proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
 }
 
-# provides.... file completion. Currently has a small issue: it adds a space at
+# provides.... file completion. Currently has a small issue: it adds a space
 # after a /, which you need to erase to continue completing
 proc file_completion {args} {
 	set result [list]
@@ -118,6 +118,32 @@ proc file_completion {args} {
 			append i /
 		}
 		lappend result $i
+	}
+	return $result
+}
+
+# provides.... file completion with path and extension. If path is empty, it
+# uses the current path. Currently has a small issue: it adds a space after
+# a /, which you need to erase to continue completing
+proc subdir_completion {args} {
+	set result [list]
+	set path [lindex $args end]
+	if {$path eq {} || [file isdirectory $path]} {
+		foreach i [glob -nocomplain -path $path *] {
+			if {[file isdirectory $i]} {
+				lappend result $i/
+			} elseif {[file extension $i] in [lrange $args 0 end-1]} {
+				lappend result $i
+			}
+		}
+	} elseif {![file exists $path]} {
+		foreach i [glob -nocomplain $path*] {
+			if {[file isdirectory $i]} {
+				lappend result $i/
+			} elseif {[file extension $i] in [lrange $args 0 end-1]} {
+				lappend result $i
+			}
+		}
 	}
 	return $result
 }
@@ -165,6 +191,7 @@ namespace export get_ordered_machine_list
 namespace export get_random_number
 namespace export clip
 namespace export file_completion
+namespace export subdir_completion
 namespace export filename_clean
 namespace export get_next_numbered_filename
 

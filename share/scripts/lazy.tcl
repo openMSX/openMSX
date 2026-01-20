@@ -74,7 +74,8 @@ register_lazy "_utils.tcl" {
 	get_display_name_by_config_name get_machine_time format_time
 	format_time_subseconds format_time_hours_and_subseconds
 	get_machine_total_ram get_ordered_machine_list get_random_number clip
-	file_completion filename_clean get_next_numbered_filename}
+	file_completion subdir_completion filename_clean
+	get_next_numbered_filename}
 register_lazy "_vdp.tcl" {
 	getcolor setcolor get_screen_mode get_screen_mode_number vdpreg vdpregs
 	v9990regs vpeek vpoke palette vdpvramaddress vdpstatus
