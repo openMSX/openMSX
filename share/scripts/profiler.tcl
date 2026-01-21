@@ -43,7 +43,7 @@ Syntax: symboltracer stop
 	}
 }
 
-proc _enter_function name {
+proc _enter_function {name} {
 	# find function return address
 	set retaddr [peek16 [reg SP]]
 	# check if we create caller breakpoint for CALL or RST
@@ -57,7 +57,7 @@ proc _enter_function name {
 	}
 }
 
-proc _exit_function name {
+proc _exit_function {name} {
 	variable counters
 	# ignore a probable dangling breakpoint from a previous session
 	if {![dict exists $counters $name]} { return }
@@ -81,7 +81,7 @@ proc add {name addr} {
 	}
 }
 
-proc add_symbol_set symbols {
+proc add_symbol_set {symbols} {
 	# run through collection of symbols
 	foreach entry $symbols {
 		dict with entry {
@@ -129,6 +129,30 @@ proc stop {} {
 		debug symbols remove $file
 	}
 	set symbolfiles {}
+}
+
+set_tabcompletion_proc symboltracer [namespace code _tab_symboltracer]
+
+proc _tab_symboltracer {args} {
+	lassign $args prefix cmd path
+	switch -glob -- $cmd {
+		add -
+		stop {
+			concat
+		}
+		a* {
+			concat add
+		}
+		start {
+			utils::subdir_completion .sym .map .noi .symbol .publics .sys $path
+		}
+		s* {
+			concat start stop
+		}
+		default {
+			concat start add stop
+		}
+	}
 }
 
 }
