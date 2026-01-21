@@ -420,10 +420,13 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					plotter->setDipSwitch4(dipSwitch4);
 				}
 
-				// KANJI support
-				bool kanjiSupport = plotter->getKanjiSupport();
-				if (ImGui::Checkbox("Enable KANJI support", &kanjiSupport)) {
-					plotter->setKanjiSupport(kanjiSupport);
+				// Pen thickness
+				static constexpr std::array thicknessNames = {
+					"Standard (PRK-C41)", "Thick (PRK-C42)"
+				};
+				int currentThickness = static_cast<int>(plotter->getPenThicknessSetting().getEnum());
+				if (ImGui::Combo("Pen thickness", &currentThickness, thicknessNames.data(), narrow<int>(thicknessNames.size()))) {
+					plotter->getPenThicknessSetting().setEnum(static_cast<PlotterPenThickness>(currentThickness));
 				}
 			});
 		});

@@ -13,6 +13,8 @@
 
 namespace openmsx {
 
+static constexpr bool PLOTTER_DEBUG = false;
+
 MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
     : ImagePrinter(motherBoard, false) // graphicsHiLo=false (not used)
     , charSetSetting(motherBoard.getSharedStuff<EnumSetting<PlotterCharacterSet>>(
@@ -28,10 +30,14 @@ MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
         "plotter-dipswitch4",
         motherBoard.getCommandController(), "plotter-dipswitch4",
         "dipswitch 4 setting for the MSX plotter", false))
-    , kanjiSupportSetting(motherBoard.getSharedStuff<BooleanSetting>(
-        "plotter-kanji",
-        motherBoard.getCommandController(), "plotter-kanji",
-        "enable KANJI support for the MSX plotter", false))
+    , penThicknessSetting(motherBoard.getSharedStuff<EnumSetting<PlotterPenThickness>>(
+        "plotter-pen-thickness",
+        motherBoard.getCommandController(), "plotter-pen-thickness",
+        "pen thickness for the MSX plotter",
+        PlotterPenThickness::Standard,
+        EnumSetting<PlotterPenThickness>::Map{
+            {"standard", PlotterPenThickness::Standard},
+            {"thick", PlotterPenThickness::Thick}}))
 {
     // Initialize default font (8x8) if not loaded
     // This prevents crashes in printVisibleCharacter if rom is empty
@@ -48,6 +54,7 @@ MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
     }
 
     resetSettings();
+    ensurePrintPage();
 }
 
 zstring_view MSXPlotter::getName() const {
@@ -56,6 +63,18 @@ zstring_view MSXPlotter::getName() const {
 
 zstring_view MSXPlotter::getDescription() const {
     return "Sony PRN-C41 Color Plotter (4 pens)";
+}
+
+bool MSXPlotter::getStatus(EmuTime /*time*/) {
+    return false;
+}
+
+void MSXPlotter::setStrobe(bool strobe, EmuTime time) {
+    ImagePrinter::setStrobe(strobe, time);
+}
+
+void MSXPlotter::writeData(uint8_t data, EmuTime time) {
+    ImagePrinter::writeData(data, time);
 }
 
 PlotterCharacterSet MSXPlotter::getCharacterSet() const {
@@ -74,17 +93,31 @@ void MSXPlotter::setDipSwitch4(bool enabled) {
     dipSwitch4Setting->setBoolean(enabled);
 }
 
-bool MSXPlotter::getKanjiSupport() const {
-    return kanjiSupportSetting->getBoolean();
+
+
+void MSXPlotter::cyclePen() {
+    selectedPen = (selectedPen + 1) % 4;
 }
 
-void MSXPlotter::setKanjiSupport(bool enabled) {
-    kanjiSupportSetting->setBoolean(enabled);
+void MSXPlotter::moveStep(double dx, double dy) {
+    double oldAbsX = plotterX + originX;
+    double oldAbsY = plotterY + originY;
+    double newAbsX = std::clamp(oldAbsX + dx, 0.0, (double)PLOT_AREA_WIDTH);
+    double newAbsY = std::clamp(oldAbsY + dy, 0.0, (double)PLOT_AREA_HEIGHT);
+    plotterX = newAbsX - originX;
+    plotterY = newAbsY - originY;
+}
+
+void MSXPlotter::ejectPaper() {
+    ensurePrintPage();
+    flushEmulatedPrinter();
+    resetSettings(); // Resets pen pos and other states
+    ensurePrintPage();
 }
 
 void MSXPlotter::processCharacter(uint8_t data) {
     // Debug: log every byte received
-    motherBoard.getMSXCliComm().printInfo(
+    printDebug(
 	strCat("Plotter: received 0x", hex_string<2>(data),
 	       " mode=", (mode == Mode::TEXT ? "TEXT" : "GRAPHIC"),
 	       " escState=", static_cast<int>(escState)));
@@ -95,14 +128,14 @@ void MSXPlotter::processCharacter(uint8_t data) {
 	    // Got ESC, waiting for next char
 	    if (data == '#') {
 		// ESC # = enter graphic mode
-		motherBoard.getMSXCliComm().printInfo("Plotter: entering GRAPHIC mode");
+		printDebug("Plotter: entering GRAPHIC mode");
 		mode = Mode::GRAPHIC;
 		graphicCmdBuffer.clear();
 		escState = EscState::NONE;
 		return;
 	    } else if (data == '$') {
 		// ESC $ = return to text mode, flush any pending graphics
-		motherBoard.getMSXCliComm().printInfo("Plotter: returning to TEXT mode, flushing");
+		printDebug("Plotter: returning to TEXT mode, flushing");
 		flushEmulatedPrinter();
 		mode = Mode::TEXT;
 		escState = EscState::NONE;
@@ -123,7 +156,7 @@ void MSXPlotter::processCharacter(uint8_t data) {
 	    if (data == ' ') return; // Ignore spaces
 	    if (data >= '0' && data <= '3') {
 		selectedPen = data - '0';
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: selected pen ", selectedPen));
 	    }
 	    escState = EscState::NONE;
@@ -158,22 +191,10 @@ void MSXPlotter::processTextMode(uint8_t data) {
 	    break;
 	case 0x0A: // LF - Line feed
 	    plotterY -= lineFeed;
-	    if (plotterY < -1354.0) { // Page end reached
-		ensurePrintPage();
-		flushEmulatedPrinter();
-		plotterY = 30.0; // Reset to top of new page
-	    }
-	    break;
+// ...
 	case 0x0B: // VT - Line up (feed paper to previous line)
 	    plotterY += lineFeed;
-	    if (plotterY > 30.0) plotterY = 30.0;
-	    break;
-	case 0x0C: // FF - Form feed (top of form)
-	    ensurePrintPage();
-	    flushEmulatedPrinter();
-	    plotterY = 30.0;
-	    plotterX = 0.0;
-	    break;
+// ...
 	case 0x0D: // CR - Carriage return
 	    plotterX = 0.0;
 	    break;
@@ -233,7 +254,9 @@ void MSXPlotter::processGraphicMode(uint8_t data) {
 	    bool isPrintCmd = (graphicCmdBuffer[0] == 'P');
 
 	    char lastChar = graphicCmdBuffer.back();
-	    if (!isPrintCmd && std::isalpha(static_cast<unsigned char>(lastChar)) && lastChar != graphicCmdBuffer[0]) {
+	    if (!isPrintCmd && std::isalpha(static_cast<unsigned char>(lastChar)) &&
+	        std::toupper(lastChar) != 'E' &&
+	        lastChar != graphicCmdBuffer[0]) {
 		// New command starting, execute previous
 		std::string cmd = graphicCmdBuffer.substr(0, graphicCmdBuffer.size() - 1);
 		graphicCmdBuffer = graphicCmdBuffer.substr(graphicCmdBuffer.size() - 1);
@@ -249,7 +272,7 @@ void MSXPlotter::executeGraphicCommand() {
     if (graphicCmdBuffer.empty()) return;
 
     // Debug: log the command being executed
-    motherBoard.getMSXCliComm().printInfo(
+    printDebug(
 	strCat("Plotter: executing graphic command '", graphicCmdBuffer, "'"));
 
     char cmd = graphicCmdBuffer[0];
@@ -293,14 +316,14 @@ void MSXPlotter::executeGraphicCommand() {
 
     switch (cmd) {
 	case 'H': // Home - move to origin
-	    motherBoard.getMSXCliComm().printInfo("Plotter: H - Home");
+	    printDebug("Plotter: H - Home");
 	    plotterX = 0.0;
 	    plotterY = 0.0;
 	    break;
 
 	case 'M': // Move (absolute) - M x,y
 	    if (coords.size() >= 2) {
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: M - Move to (", coords[0], ",", coords[1], ")"));
 		moveTo(coords[0], coords[1]);
 	    }
@@ -308,7 +331,7 @@ void MSXPlotter::executeGraphicCommand() {
 
 	case 'R': // Relative move - R dx,dy
 	    if (coords.size() >= 2) {
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: R - Relative move (", coords[0], ",", coords[1], ")"));
 		moveTo(plotterX + coords[0], plotterY + coords[1]);
 	    }
@@ -318,7 +341,7 @@ void MSXPlotter::executeGraphicCommand() {
 	    if (coords.size() >= 2) {
 		double newX = coords[0];
 		double newY = coords[1];
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: D - Draw to (", newX, ",", newY, ") from (",
 			   plotterX, ",", plotterY, ") penDown=", penDown));
 		lineTo(newX, newY);
@@ -327,7 +350,7 @@ void MSXPlotter::executeGraphicCommand() {
 
 	case 'J': // Draw relative - J dx,dy[,dx,dy,...]
 	    // The J command draws a series of relative line segments
-	    motherBoard.getMSXCliComm().printInfo(
+	    printDebug(
 		strCat("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penDown));
 	    for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 		lineTo(plotterX + coords[i], plotterY + coords[i + 1]);
@@ -337,7 +360,7 @@ void MSXPlotter::executeGraphicCommand() {
 	case 'S': // Scale set - S n (0-15)
 	    if (!coords.empty()) {
 		charScale = std::clamp(static_cast<int>(coords[0]), 0, 15);
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: S - Scale set to ", charScale));
 	    }
 	    break;
@@ -346,31 +369,48 @@ void MSXPlotter::executeGraphicCommand() {
 	    if (!coords.empty()) {
 		lineType = std::clamp(static_cast<int>(coords[0]), 0, 15);
 		dashDistance = 0.0; // Reset pattern phase
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: L - Line type set to ", lineType));
 	    }
 	    break;
 
 	case 'Q': // Alpha rotate - Q n (0-3)
 	    if (!coords.empty()) {
+		// If a character was just printed, undo the gap
+		// (the last char before Q should not have the trailing gap)
+		if (pendingCharGap > 0.0) {
+		    switch (pendingGapRotation) {
+			case 0: plotterX -= pendingCharGap; break;
+			case 1: plotterY += pendingCharGap; break;
+			case 2: plotterX += pendingCharGap; break;
+			case 3: plotterY -= pendingCharGap; break;
+		    }
+
+		    printDebug(
+			strCat("Plotter: Q - Removed pending gap ", pendingCharGap));
+		    pendingCharGap = 0.0;
+		}
 		rotation = std::clamp(static_cast<int>(coords[0]), 0, 3);
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: Q - Rotation set to ", rotation));
 	    }
 	    break;
 
 	case 'I': // Initialize
+
 	    // Sets current pen position as origin
 	    originX += plotterX;
 	    originY += plotterY;
 	    plotterX = 0.0;
 	    plotterY = 0.0;
-	    motherBoard.getMSXCliComm().printInfo(
+	    printDebug(
 		    strCat("Plotter: I - Origin set to current pos. New Origin=(", originX, ",", originY, ")"));
 	    break;
 
+
 	case 'A': // All initialize
-	    motherBoard.getMSXCliComm().printInfo("Plotter: A - All Initialize (Reset)");
+
+	    printDebug("Plotter: A - All Initialize (Reset)");
 	    resetSettings();
 	    break;
 
@@ -416,7 +456,7 @@ void MSXPlotter::executeGraphicCommand() {
 		}
 
 		maxLineHeight = 0.0;
-		motherBoard.getMSXCliComm().printInfo(
+		printDebug(
 		    strCat("Plotter: F - New Line, drop=", drop, " rot=", rotation));
 	    }
 	    break;
@@ -427,7 +467,7 @@ void MSXPlotter::executeGraphicCommand() {
 				// Characters after 'P' are printed literally, including spaces.
 				// CHR$(1) prefix is used to print alternate characters (0-31).
 				std::string_view text = args;
-				motherBoard.getMSXCliComm().printInfo(
+				printDebug(
 					strCat("Plotter: P - Printing '", text, "'"));
 
 				bool altChar = false;
@@ -454,9 +494,12 @@ void MSXPlotter::executeGraphicCommand() {
 
 	case 'C': // Color select - C n (0-3)
 	    if (!coords.empty() && coords[0] >= 0 && coords[0] <= 3) {
-		motherBoard.getMSXCliComm().printInfo(
-		    strCat("Plotter: C - Select color ", coords[0]));
-		selectedPen = static_cast<unsigned>(coords[0]);
+		unsigned newPen = static_cast<unsigned>(coords[0]);
+		if (newPen != selectedPen) {
+		    printDebug(
+			strCat("Plotter: C - Select color ", newPen, " (Pen change delay applied)"));
+		    selectedPen = newPen;
+		}
 	    }
 	    break;
 
@@ -466,15 +509,21 @@ void MSXPlotter::executeGraphicCommand() {
 		strCat("Plotter: unknown graphic command '", cmd, "'"));
 	    break;
     }
+
+    // Clear pending gap for commands that are not Q (which uses it) or P (which sets it)
+    // This ensures the gap is only removed if Q immediately follows a printed character
+    if (cmd != 'Q' && cmd != 'P') {
+	pendingCharGap = 0.0;
+    }
 }
 
 void MSXPlotter::drawLine(double x0, double y0, double x1, double y1) {
-    if (!penDown) return;
-    ensurePrintPage();
-
     double dx = x1 - x0;
     double dy = y1 - y0;
     double totalDist = std::sqrt(dx * dx + dy * dy);
+
+    if (!penDown) return;
+    ensurePrintPage();
 
     if (totalDist == 0.0) {
 	plotWithPen(x0, y0, 0.0);
@@ -547,7 +596,8 @@ void MSXPlotter::ensurePrintPage() {
 	// Standard step is 0.2mm. Set dot size to 200% of step size for solid lines.
 	auto* p = getPaper();
 	if (p) {
-	    p->setDotSize(pixelSizeX * 1.0, pixelSizeY * 1.0);
+	    double sizeMultiplier = (getPenThicknessSetting().getEnum() == PlotterPenThickness::Thick) ? 1.5 : 1.0;
+	    p->setDotSize(pixelSizeX * sizeMultiplier, pixelSizeY * sizeMultiplier);
 	}
     }
 }
@@ -569,6 +619,8 @@ void MSXPlotter::resetSettings() {
     lineType = 0;
     dashDistance = 0.0;
     rotation = 0;
+    pendingCharGap = 0.0;
+    pendingGapRotation = 0;
     charScale = 1; // Default scale is 1
     maxLineHeight = 0.0;
     graphicCmdBuffer.clear();
@@ -593,18 +645,21 @@ void MSXPlotter::processEscSequence() {
     // ESC sequences handled in processCharacter state machine
 }
 
+
+
 void MSXPlotter::moveTo(double x, double y) {
     plotterX = x;
     plotterY = y;
 }
 
 void MSXPlotter::lineTo(double x, double y) {
+	// lineTo calls drawLine, which now handles addMoveDelay
     drawLine(plotterX, plotterY, x, y);
     plotterX = x;
     plotterY = y;
 }
 
-void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
+void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 {
     auto savedLineType = lineType;
     auto savedDashDistance = dashDistance;
@@ -628,8 +683,10 @@ void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
     const uint8_t* fontPtr = font.data() + c * 8;
 
     double scaleFactor = 1.0 + charScale;
-    double gridSpacingX = 0.54 * scaleFactor;
-    double gridSpacingY = 0.95 * scaleFactor;
+    double gridSpacingX = 0.94 * scaleFactor;
+    double gridSpacingY = 0.85 * scaleFactor;
+    //double gridSpacingX = 0.54 * scaleFactor;
+    //double gridSpacingY = 0.95 * scaleFactor;
 
     maxLineHeight = std::max(maxLineHeight, 8.0 * gridSpacingY);
 
@@ -715,21 +772,37 @@ void MSXPlotter::drawCharacter(uint8_t c, bool hasNextChar)
 	}
     }
     // Advance cursor to next character position
-    // Gap is only added when there's another character following in the same command
-    double charWidth = 11.12 * gridSpacingX;
-    double charGap = 0.0 * gridSpacingX;
-    double charAdvance = hasNextChar ? (charWidth + charGap) : charWidth;
+    // Always use full width (char + gap). If Q rotation follows, it will undo the gap.
+    double charWidthOnly = 4.12 * gridSpacingX;   // just the character
+    double charGap = 2.3 * gridSpacingX;          // gap between characters (11.12 - 4.12 = 7.0)
+    double charAdvance = charWidthOnly + charGap; // total advance
+
     switch (rotation) {
-	case 0: plotterX += charAdvance; break; // Right (to Q1)
-	case 1: plotterY -= charAdvance; break; // Left (to Q2) - was wrong: going down
-	case 2: plotterX -= charAdvance; break; // Down (to Q3) - was wrong: going left
-	case 3: plotterY += charAdvance; break; // Up (back to start)
+	case 0: plotterX += charAdvance; break;
+	case 1: plotterY -= charAdvance; break;
+	case 2: plotterX -= charAdvance; break;
+	case 3: plotterY += charAdvance; break;
     }
-    motherBoard.getMSXCliComm().printInfo(
-		    strCat("Plotter: Rotation ", rotation, " | charAdvance ", charAdvance), " | plotterX ", plotterX, " | plotterY ", plotterY);
+
+    // Track the gap so Q command can undo it if it follows
+    pendingCharGap = charGap;
+    pendingGapRotation = rotation;
+
+    pendingCharGap = charGap;
+    pendingGapRotation = rotation;
+
+    printDebug(
+		    strCat("Plotter: Rotation ", rotation, " | charWidth ", charWidthOnly, " | charGap ", charGap, " | charAdvance ", charAdvance, " | plotterX ", plotterX, " | plotterY ", plotterY));
 
     lineType = savedLineType;
     dashDistance = savedDashDistance;
+}
+
+void MSXPlotter::printDebug(std::string_view message) const
+{
+	if (PLOTTER_DEBUG) {
+		motherBoard.getMSXCliComm().printInfo(message);
+	}
 }
 
 // Serialization and registration macros

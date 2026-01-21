@@ -14,6 +14,7 @@ namespace openmsx {
 
 // Character set options for the plotter
 enum class PlotterCharacterSet { International, Japanese, DIN };
+enum class PlotterPenThickness { Standard, Thick };
 
 // MSXPlotter: emulates Sony PRN-C41 color plotter with 4 pens
 class MSXPlotter final : public ImagePrinter {
@@ -23,20 +24,32 @@ public:
 	// Pluggable
 	[[nodiscard]] zstring_view getName() const override;
 	[[nodiscard]] zstring_view getDescription() const override;
-	unsigned getSelectedPen() const;
 
 	// Configuration settings (accessible by ImGui)
 	[[nodiscard]] PlotterCharacterSet getCharacterSet() const;
 	void setCharacterSet(PlotterCharacterSet cs);
 	[[nodiscard]] bool getDipSwitch4() const;
 	void setDipSwitch4(bool enabled);
-	[[nodiscard]] bool getKanjiSupport() const;
-	void setKanjiSupport(bool enabled);
+
+	// Manual controls (for ImGui)
+	void cyclePen();
+	void moveStep(double dx, double dy);
+	void ejectPaper();
 
 	// Access to settings for persistence
 	[[nodiscard]] EnumSetting<PlotterCharacterSet>& getCharacterSetSetting() const { return *charSetSetting; }
 	[[nodiscard]] BooleanSetting& getDipSwitch4Setting() const { return *dipSwitch4Setting; }
-	[[nodiscard]] BooleanSetting& getKanjiSupportSetting() const { return *kanjiSupportSetting; }
+	[[nodiscard]] EnumSetting<PlotterPenThickness>& getPenThicknessSetting() const { return *penThicknessSetting; }
+
+	[[nodiscard]] std::pair<double, double> getPlotterPos() const { return {plotterX + originX, plotterY + originY}; }
+	[[nodiscard]] unsigned getSelectedPen() const { return selectedPen; }
+	[[nodiscard]] Paper* getPaper() { return ImagePrinter::getPaper(); }
+	[[nodiscard]] const Paper* getPaper() const { return ImagePrinter::getPaper(); }
+
+	// PrinterPortDevice
+	[[nodiscard]] bool getStatus(EmuTime time) override;
+	void setStrobe(bool strobe, EmuTime time) override;
+	void writeData(uint8_t data, EmuTime time) override;
 
 	// Force color output
 	[[nodiscard]] bool useColor() const override { return true; }
@@ -90,13 +103,17 @@ private:
     // Character rotation (0-3)
     unsigned rotation = 0;
 
+    // Pending character gap (to be removed if Q command follows)
+    double pendingCharGap = 0.0;
+    unsigned pendingGapRotation = 0;
+
 	// Character scale (0-15, 0 is smallest)
 	unsigned charScale = 0;
 
 	// Configuration settings (persistent)
 	std::shared_ptr<EnumSetting<PlotterCharacterSet>> charSetSetting;
 	std::shared_ptr<BooleanSetting> dipSwitch4Setting;
-	std::shared_ptr<BooleanSetting> kanjiSupportSetting;
+	std::shared_ptr<EnumSetting<PlotterPenThickness>> penThicknessSetting;
 
 	// Graphic mode command buffer
 	std::string graphicCmdBuffer;
@@ -105,7 +122,7 @@ private:
 	static constexpr std::array<std::array<uint8_t, 3>, 4> penColors = {{
 		{{0, 0, 0}},       // black
 		{{0, 0, 255}},     // blue
-		{{0, 255, 0}},     // green
+		{{49, 153, 90}},     // green
 		{{255, 0, 0}}      // red
 	}};
 
@@ -131,6 +148,8 @@ private:
 	void lineTo(double x, double y);
 	void drawLine(double x0, double y0, double x1, double y1);
 	void drawCharacter(uint8_t c, bool hasNextChar = false);
+
+	void printDebug(std::string_view message) const;
 };
 
 } // namespace openmsx

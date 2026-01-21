@@ -7,6 +7,7 @@
 #define PAPER_HH
 
 #include <cstdint>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -26,6 +27,10 @@ public:
 	void setDotSize(double sizeX, double sizeY);
 	void plot(double x, double y);
 	void plotColor(double x, double y, uint8_t r, uint8_t g, uint8_t b);
+
+	[[nodiscard]] unsigned getWidth() const { return sizeX; }
+	[[nodiscard]] unsigned getHeight() const { return sizeY; }
+	[[nodiscard]] std::span<const uint8_t> getRGBData() const { return colorBuf; }
 
 private:
 	uint8_t& dot(unsigned x, unsigned y);
