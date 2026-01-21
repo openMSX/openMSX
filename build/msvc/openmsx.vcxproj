@@ -335,7 +335,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_demo.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_draw.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl3.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_tables.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_widgets.cc" />
@@ -907,7 +907,7 @@
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui.h" />
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_impl_opengl3.h" />
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_impl_opengl3_loader.h" />
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_impl_sdl2.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_impl_sdl3.h" />
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_internal.h" />
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_stdlib.h" />
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imstb_rectpack.h" />
