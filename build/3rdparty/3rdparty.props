@@ -18,7 +18,6 @@
     <LibNameOgg>libogg-1.3.5</LibNameOgg>
     <LibNameSDL>SDL2-2.30.7</LibNameSDL>
     <LibNameSDL_ttf>SDL2_ttf-2.22.0</LibNameSDL_ttf>
-    <LibNameSDLmain>SDLmain</LibNameSDLmain>
     <LibNameTcl>tcl8.6.15</LibNameTcl>
     <LibNameTheora>libtheora-1.1.1</LibNameTheora>
     <LibNameVorbis>libvorbis-1.3.7</LibNameVorbis>
@@ -94,10 +93,6 @@
     </BuildMacro>
     <BuildMacro Include="LibNameSDL_ttf">
       <Value>$(LibNameSDL_ttf)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
-    </BuildMacro>
-    <BuildMacro Include="LibNameSDLmain">
-      <Value>$(LibNameSDLmain)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="LibNameTcl">

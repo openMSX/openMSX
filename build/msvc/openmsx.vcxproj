@@ -128,7 +128,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -164,7 +164,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -204,7 +204,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -248,7 +248,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -280,7 +280,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -317,7 +317,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDL_ttf.lib;freetype.lib;glew.lib;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
