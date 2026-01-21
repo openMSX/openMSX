@@ -800,15 +800,19 @@ cartridge slot. You can also use <code>-carta</code> to explicitly specify
 cartridge slot A.
 </p>
 <p>
-In the event openMSX doesn't have the ROM in the ROM database and fails auto
-detection of the mapper type, you can specify the mapper to <code>Konami</code>
-(for instance) like this:
+You can also explicitly specify the mapper type to use (<code>Konami</code>
+for instance) with the <code>-romtype</code> option like this:
 </p>
 <div class="commandline">openmsx galious.rom -romtype Konami</div>
 <p>
-Note that in practice you won't need this, because most ROM images are in the
-database or auto detected if they are not. The <code>-romtype</code> option
-should follow the ROM it applies to immediately on the command line.
+Note that in practice you won't need this, because almost all known ROM images
+are in the database. Obviously, for newly developed ROMs this won't be the case
+and openMSX will then apply a heuristic to guess the correct type as a
+fallback if the option is not specified. This doesn't always work correctly,
+especially for uncommon mapper types, and then it will select the wrong type
+and the program will not work. So, that is a typical case where to
+use this option. Make sure that it follows the ROM it applies to immediately
+on the command line.
 </p>
 
 <p>
