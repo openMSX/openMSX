@@ -52,6 +52,7 @@ private:
 
 	template<bool FILTER_FILE>
 	void drawTable(MSXMotherBoard* motherBoard, const std::string& file = {});
+	void checkSort();
 
 	void drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym);
 
@@ -63,6 +64,11 @@ private:
 	std::vector<SymbolRef> symbols;
 
 	std::vector<FileInfo> fileError;
+
+	struct SortState {
+		int columnIndex = -1;
+		ImGuiSortDirection direction = ImGuiSortDirection_None;
+	} sortState;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiSymbols::show}
