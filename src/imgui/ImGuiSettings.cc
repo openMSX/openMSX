@@ -397,11 +397,6 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					}
 				}
 
-				if (!plotter) {
-					ImGui::TextUnformatted("No MSX Plotter available");
-					return;
-				}
-
 				// Character Set dropdown
 				static constexpr std::array charSetNames = {
 					"International", "Japanese", "DIN (German)"
