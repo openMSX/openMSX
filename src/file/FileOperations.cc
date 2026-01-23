@@ -17,8 +17,8 @@
 #include <cerrno>
 #include <cstdlib>
 #include <filesystem>
+#include <format>
 #include <iterator>
-#include <sstream>
 #include <stdexcept>
 
 #ifdef	_WIN32
@@ -620,12 +620,9 @@ std::string getNextNumberedFileName(
 		max_num = std::max(max_num, getNextNum(d, prefix, extension, nofDigits));
 	}
 
-	std::ostringstream os;
-	os << FileOperations::join(dirName, prefix);
-	os.width(nofDigits);
-	os.fill('0');
-	os << (max_num + 1) << extension;
-	return os.str();
+	return std::format("{}{:0{}}{}",
+		FileOperations::join(dirName, prefix),
+		max_num + 1, nofDigits, extension);
 }
 
 std::string parseCommandFileArgument(
