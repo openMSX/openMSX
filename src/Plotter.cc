@@ -2,6 +2,7 @@
 #include "Printer.hh"
 #include "Paper.hh"
 #include "MSXCharacterSets.hh"
+#include "ranges.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
 #include "gl_vec.hh"
@@ -607,12 +608,12 @@ void MSXPlotter::resetSettings() {
     printNext = false;
 
     // Set up printer settings for plotter
-    lineFeed = 18.0f; // Proportional to new character height
+    lineFeed = 18.0; // Proportional to new character height
     leftBorder = 0;
     rightBorder = PLOT_AREA_WIDTH;
-    graphDensity = 1.0f;
-    fontDensity = 1.0f;
-    pageTop = 0;
+    graphDensity = 1.0;
+    fontDensity = 1.0;
+    pageTop = 0.0;
     lines = PLOT_AREA_HEIGHT / 18;
 }
 
@@ -654,7 +655,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
           case DIN:           return getMSXDINFontRaw();
       }
     }();
-    const uint8_t* fontPtr = font.data() + c * 8;
+    auto glyph = subspan<8>(font, 8 * c);
 
     float scaleFactor = 1.0f + float(charScale);
     float gridSpacingX = 0.94f * scaleFactor;
@@ -683,7 +684,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
     };
 
     for (int dy = 0; dy < 8; ++dy) {
-	uint8_t rowPattern = fontPtr[dy];
+	uint8_t rowPattern = glyph[dy];
 	// dy=0 is top row, dy=7 is bottom row.
 	// v should be height from bottom (v=0 at dy=7).
 	float v = (7.0f - float(dy)) * gridSpacingY;
@@ -706,7 +707,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 		// Check Down neighbor (dx, dy+1) -> v - gridY, Same u
 		// Note: dy+1 is "physically down" in the grid, so lower v.
 		if (dy < 7) {
-		    uint8_t nextRow = fontPtr[dy + 1];
+		    uint8_t nextRow = glyph[dy + 1];
 		    if (nextRow & (0x80 >> dx)) {
 			drawLine(p, transform(u, v - gridSpacingY));
 		    }
