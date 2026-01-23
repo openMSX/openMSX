@@ -8,7 +8,7 @@
 #include "narrow.hh"
 #include "strCat.hh"
 
-#include <iomanip>
+#include <format>
 #include <iostream>
 
 namespace openmsx {
@@ -95,7 +95,7 @@ void DebugDevice::outputSingleByte(byte value, EmuTime time)
 		(*outputStrm) << "' ";
 	}
 	Clock<3579545> zero(EmuTime::zero());
-	(*outputStrm) << "emutime: " << std::dec << zero.getTicksTill(time);
+	(*outputStrm) << "emutime: " << zero.getTicksTill(time);
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}
@@ -122,21 +122,13 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 	switch (type) {
 	using enum DisplayType;
 	case HEX:
-		(*outputStrm) << std::hex << std::setw(2)
-		              << std::setfill('0')
-		              << int(value) << "h " << std::flush;
+		(*outputStrm) << hex_string<2>(value) << "h " << std::flush;
 		break;
-	case BIN: {
-		for (byte mask = 0x80; mask; mask >>= 1) {
-			(*outputStrm) << ((value & mask) ? '1' : '0');
-		}
-		(*outputStrm) << "b " << std::flush;
+	case BIN:
+		(*outputStrm) << bin_string<8>(value) << "b " << std::flush;
 		break;
-	}
 	case DEC:
-		(*outputStrm) << std::dec << std::setw(3)
-		              << std::setfill('0')
-		              << int(value) << ' ' << std::flush;
+		(*outputStrm) << std::format("{:03d} ", value) << std::flush;
 		break;
 	case ASC:
 		(*outputStrm).put(narrow_cast<char>(value));

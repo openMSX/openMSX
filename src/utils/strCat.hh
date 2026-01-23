@@ -387,7 +387,7 @@ template<size_t N, HexCase Case, std::integral T> struct ConcatFixedWidthHexInte
 		return N;
 	}
 
-	[[nodiscard]] char* copy(char* dst) const
+	char* copy(char* dst) const
 	{
 		char* p = dst + N;
 		auto u = static_cast<FastUnsigned<T>>(t);
@@ -401,6 +401,13 @@ template<size_t N, HexCase Case, std::integral T> struct ConcatFixedWidthHexInte
 		});
 
 		return dst + N;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const ConcatFixedWidthHexIntegral& v)
+	{
+		std::array<char, N> buf;
+		v.copy(buf.data());
+		return os.write(buf.data(), N);
 	}
 
 private:
@@ -465,7 +472,7 @@ template<size_t N, std::integral T> struct ConcatFixedWidthBinIntegral
 		return N;
 	}
 
-	[[nodiscard]] char* copy(char* dst) const
+	char* copy(char* dst) const
 	{
 		char* p = dst + N;
 		auto u = static_cast<FastUnsigned<T>>(t);
@@ -476,6 +483,13 @@ template<size_t N, std::integral T> struct ConcatFixedWidthBinIntegral
 		});
 
 		return dst + N;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const ConcatFixedWidthBinIntegral& v)
+	{
+		std::array<char, N> buf;
+		v.copy(buf.data());
+		return os.write(buf.data(), N);
 	}
 
 private:
