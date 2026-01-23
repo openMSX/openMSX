@@ -1,9 +1,9 @@
 #include "Date.hh"
 
 #include <array>
+#include <cassert>
 #include <concepts>
-#include <iomanip>
-#include <sstream>
+#include <format>
 #include <string_view>
 
 namespace openmsx::Date {
@@ -150,20 +150,23 @@ time_t fromString(std::span<const char, 24> s)
 	return mktime(&tm);
 }
 
-std::string toString(time_t time)
+std::string_view toString(time_t time, std::span<char, 24> buffer)
 {
 	time = std::max(time, time_t(0));
 	const struct tm* tm = localtime(&time);
-	std::ostringstream sstr;
-	sstr << std::setfill('0')
-	     << days  [tm->tm_wday] << ' '
-	     << months[tm->tm_mon]  << ' '
-	     << std::setw(2) << tm->tm_mday << ' '
-	     << std::setw(2) << tm->tm_hour << ':'
-	     << std::setw(2) << tm->tm_min  << ':'
-	     << std::setw(2) << tm->tm_sec  << ' '
-	     << std::setw(4) << (tm->tm_year + 1900);
-	return sstr.str();
+	[[maybe_unused]] auto result = std::format_to_n(
+		buffer.data(), 24, "{} {} {:02d} {:02d}:{:02d}:{:02d} {:04d}",
+		days[tm->tm_wday], months[tm->tm_mon], tm->tm_mday,
+		tm->tm_hour, tm->tm_min, tm->tm_sec,
+		tm->tm_year + 1900);
+	assert(result.size >= 24); // most likely exactly equal to 24, but could be more for year > 9999
+	return {buffer.data(), 24};
+}
+
+std::string toString(time_t time)
+{
+	std::array<char, 24> buffer;
+	return std::string(toString(time, buffer));
 }
 
 } // namespace openmsx::Date

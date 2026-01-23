@@ -5,6 +5,7 @@
 #include <limits>
 #include <span>
 #include <string>
+#include <string_view>
 
 namespace openmsx::Date {
 
@@ -19,6 +20,9 @@ namespace openmsx::Date {
 	[[nodiscard]] time_t fromString(std::span<const char, 24> s);
 
 	[[nodiscard]] std::string toString(time_t time);
+
+	// Zero-allocation version: formats into buffer, always returns 24-char view.
+	[[nodiscard]] std::string_view toString(time_t time, std::span<char, 24> buffer);
 
 } // namespace openmsx::Date
 

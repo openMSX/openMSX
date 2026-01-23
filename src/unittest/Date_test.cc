@@ -4,6 +4,7 @@
 #include "ranges.hh"
 #include "setenv.hh"
 
+#include <array>
 #include <cstring>
 
 using namespace openmsx;
@@ -13,6 +14,11 @@ static void test(time_t t, const char* s)
 	REQUIRE(strlen(s) >= 24); // precondition
 	CHECK(Date::fromString(std::span<const char, 24>{s, 24}) == t);
 	CHECK(Date::toString(t) == s);
+
+	// Test buffer-based overload
+	std::array<char, 24> buf;
+	auto result = Date::toString(t, buf);
+	CHECK(result == s);
 }
 
 TEST_CASE("Date")

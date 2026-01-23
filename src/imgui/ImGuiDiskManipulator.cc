@@ -257,7 +257,8 @@ ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(
 			}
 		}
 		if (ImGui::TableNextColumn()) { // modified
-			ImGui::TextUnformatted(Date::toString(file.modified));
+			std::array<char, 24> buf;
+			ImGui::TextUnformatted(Date::toString(file.modified, buf));
 		}
 		if (msxSide && ImGui::TableNextColumn()) { // attrib
 			ImGui::TextUnformatted(DiskImageUtils::formatAttrib(file.attrib));

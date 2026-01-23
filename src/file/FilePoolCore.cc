@@ -235,7 +235,8 @@ void FilePoolCore::writeSha1sums()
 			file << entry.timeStr;
 		} else {
 			assert(entry.time != Date::INVALID_TIME_T);
-			file << Date::toString(entry.time);
+			std::array<char, 24> buf;
+			file << Date::toString(entry.time, buf);
 		}
 		file << "  " << entry.filename << '\n';
 	}
