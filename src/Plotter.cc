@@ -4,6 +4,7 @@
 #include "MSXCharacterSets.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
+#include "serialize.hh"
 #include "strCat.hh"
 
 #include <algorithm>
@@ -795,7 +796,6 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 }
 
 // Serialization and registration macros
-#include "serialize.hh"
 INSTANTIATE_SERIALIZE_METHODS(MSXPlotter);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MSXPlotter, "MSXPlotter");
 
