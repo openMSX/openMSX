@@ -125,11 +125,11 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Up")) {
-			plotter->moveStep(0.0, 10.0);
+			plotter->moveStep({0.0f, 10.0f});
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Down")) {
-			plotter->moveStep(0.0, -10.0);
+			plotter->moveStep({0.0f, -10.0f});
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Eject Paper")) {

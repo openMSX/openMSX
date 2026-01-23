@@ -4,6 +4,7 @@
 #include "MSXCharacterSets.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
+#include "gl_vec.hh"
 #include "serialize.hh"
 #include "strCat.hh"
 
@@ -112,13 +113,10 @@ void MSXPlotter::cyclePen() {
     selectedPen = (selectedPen + 1) % 4;
 }
 
-void MSXPlotter::moveStep(double dx, double dy) {
-    double oldAbsX = plotterX + originX;
-    double oldAbsY = plotterY + originY;
-    double newAbsX = std::clamp(oldAbsX + dx, 0.0, (double)PLOT_AREA_WIDTH);
-    double newAbsY = std::clamp(oldAbsY + dy, 0.0, (double)PLOT_AREA_HEIGHT);
-    plotterX = newAbsX - originX;
-    plotterY = newAbsY - originY;
+void MSXPlotter::moveStep(gl::vec2 delta) {
+    gl::vec2 oldAbsPos = plotter + origin;
+    gl::vec2 newAbsPos = gl::clamp(oldAbsPos + delta, gl::vec2{0.0f}, gl::vec2{float(PLOT_AREA_WIDTH), float(PLOT_AREA_HEIGHT)});
+    plotter = newAbsPos - origin;
 }
 
 void MSXPlotter::ejectPaper() {
@@ -198,16 +196,16 @@ void MSXPlotter::processTextMode(uint8_t data) {
 	    printNext = true;
 	    break;
 	case 0x08: // BS - Backspace
-	    plotterX = std::max(plotterX - (8 + 2 * charScale), 0.0);
+	    plotter.x = std::max(plotter.x - (8 + 2 * charScale), 0.0f);
 	    break;
 	case 0x0a: // LF - Line feed
-	    plotterY -= lineFeed;
+	    plotter.y -= float(lineFeed);
 // ...
 	case 0x0b: // VT - Line up (feed paper to previous line)
-	    plotterY += lineFeed;
+	    plotter.y += float(lineFeed);
 // ...
 	case 0x0d: // CR - Carriage return
-	    plotterX = 0.0;
+	    plotter.x = 0.0f;
 	    break;
 	case 0x12: // DC2 - Scale set prefix (wait for next char)
 	     // ... handling remains same (ignored)
@@ -221,14 +219,14 @@ void MSXPlotter::processTextMode(uint8_t data) {
 		// Check for line wrap before drawing
 		// Estimate width: 6 steps base * scaleFactor
 		// Or simply check current position
-		if (plotterX >= rightBorder) {
+		if (plotter.x >= float(rightBorder)) {
 		    // Auto CR/LF
-		    plotterX = 0.0;
-		    plotterY -= lineFeed;
-		    if (plotterY < -1354.0) {
+		    plotter.x = 0.0f;
+		    plotter.y -= float(lineFeed);
+		    if (plotter.y < -1354.0f) {
 			 ensurePrintPage();
 			 flushEmulatedPrinter();
-			 plotterY = 30.0;
+			 plotter.y = 30.0f;
 		    }
 		}
 		drawCharacter(data);
@@ -289,7 +287,7 @@ void MSXPlotter::executeGraphicCommand() {
     std::string args = graphicCmdBuffer.substr(1);
 
     // Parse comma-separated numbers (integers or floats)
-    std::vector<double> coords;
+    std::vector<float> coords;
     size_t pos = 0;
     while (pos < args.size()) {
 	// Skip whitespace and commas
@@ -307,9 +305,9 @@ void MSXPlotter::executeGraphicCommand() {
 	    // Valid: digit, +, -, or .
 	    char c = args[pos];
 	    if (std::isdigit(static_cast<unsigned char>(c)) || c == one_of('-', '+', '.')) {
-		 // Check if it's just a lonely '+' or '-' or '.' which stod might handle or reject
-		 // Standard library stod parses.
-		 double val = std::stod(args.substr(pos), &nextPos);
+		 // Check if it's just a lonely '+' or '-' or '.' which stof might handle or reject
+		 // Standard library stof parses.
+		 float val = std::stof(args.substr(pos), &nextPos);
 		 coords.push_back(val);
 		 pos += nextPos;
 	    } else {
@@ -327,31 +325,29 @@ void MSXPlotter::executeGraphicCommand() {
     switch (cmd) {
 	case 'H': // Home - move to origin
 	    printDebug("Plotter: H - Home");
-	    plotterX = 0.0;
-	    plotterY = 0.0;
+	    plotter = gl::vec2{0.0f};
 	    break;
 
 	case 'M': // Move (absolute) - M x,y
 	    if (coords.size() >= 2) {
 		printDebug("Plotter: M - Move to (", coords[0], ",", coords[1], ")");
-		moveTo(coords[0], coords[1]);
+		moveTo({float(coords[0]), float(coords[1])});
 	    }
 	    break;
 
 	case 'R': // Relative move - R dx,dy
 	    if (coords.size() >= 2) {
 		printDebug("Plotter: R - Relative move (", coords[0], ",", coords[1], ")");
-		moveTo(plotterX + coords[0], plotterY + coords[1]);
+		moveTo(plotter + gl::vec2{float(coords[0]), float(coords[1])});
 	    }
 	    break;
 
 	case 'D': // Draw (absolute) - D x,y
 	    if (coords.size() >= 2) {
-		double newX = coords[0];
-		double newY = coords[1];
-		printDebug("Plotter: D - Draw to (", newX, ",", newY, ") from (",
-			   plotterX, ",", plotterY, ") penDown=", penDown);
-		lineTo(newX, newY);
+		gl::vec2 target{float(coords[0]), float(coords[1])};
+		printDebug("Plotter: D - Draw to (", target.x, ",", target.y, ") from (",
+			   plotter.x, ",", plotter.y, ") penDown=", penDown);
+		lineTo(target);
 	    }
 	    break;
 
@@ -359,7 +355,7 @@ void MSXPlotter::executeGraphicCommand() {
 	    // The J command draws a series of relative line segments
 	    printDebug("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penDown);
 	    for (size_t i = 0; i + 1 < coords.size(); i += 2) {
-		lineTo(plotterX + coords[i], plotterY + coords[i + 1]);
+		lineTo(plotter + gl::vec2{float(coords[i]), float(coords[i + 1])});
 	    }
 	    break;
 
@@ -373,7 +369,7 @@ void MSXPlotter::executeGraphicCommand() {
 	case 'L': // Line type - L n (0-15)
 	    if (!coords.empty()) {
 		lineType = std::clamp(static_cast<int>(coords[0]), 0, 15);
-		dashDistance = 0.0; // Reset pattern phase
+		dashDistance = 0.0f; // Reset pattern phase
 		printDebug("Plotter: L - Line type set to ", lineType);
 	    }
 	    break;
@@ -382,16 +378,16 @@ void MSXPlotter::executeGraphicCommand() {
 	    if (!coords.empty()) {
 		// If a character was just printed, undo the gap
 		// (the last char before Q should not have the trailing gap)
-		if (pendingCharGap > 0.0) {
+		if (pendingCharGap > 0.0f) {
 		    switch (pendingGapRotation) {
-			case 0: plotterX -= pendingCharGap; break;
-			case 1: plotterY += pendingCharGap; break;
-			case 2: plotterX += pendingCharGap; break;
-			case 3: plotterY -= pendingCharGap; break;
+			case 0: plotter.x -= pendingCharGap; break;
+			case 1: plotter.y += pendingCharGap; break;
+			case 2: plotter.x += pendingCharGap; break;
+			case 3: plotter.y -= pendingCharGap; break;
 		    }
 
 		    printDebug("Plotter: Q - Removed pending gap ", pendingCharGap);
-		    pendingCharGap = 0.0;
+		    pendingCharGap = 0.0f;
 		}
 		rotation = std::clamp(static_cast<int>(coords[0]), 0, 3);
 		printDebug("Plotter: Q - Rotation set to ", rotation);
@@ -399,15 +395,11 @@ void MSXPlotter::executeGraphicCommand() {
 	    break;
 
 	case 'I': // Initialize
-
 	    // Sets current pen position as origin
-	    originX += plotterX;
-	    originY += plotterY;
-	    plotterX = 0.0;
-	    plotterY = 0.0;
-	    printDebug("Plotter: I - Origin set to current pos. New Origin=(", originX, ",", originY, ")");
+	    origin += plotter;
+	    plotter = gl::vec2{0.0f};
+	    printDebug("Plotter: I - Origin set to current pos. New Origin=(", origin.x, ",", origin.y, ")");
 	    break;
-
 
 	case 'A': // All initialize
 
@@ -423,40 +415,40 @@ void MSXPlotter::executeGraphicCommand() {
 		// Default drop if no characters printed: Height + Gap
 		// Height = 6 * (1+S), Gap = 2 * (1+S) => Total 8 * (1+S)
 		// For Scale 1: 8 * 2 = 16 steps.
-		double drop = (maxLineHeight > 0.0)
+		float drop = (maxLineHeight > 0.0f)
 			    ? maxLineHeight
-			    : 6.0 * (1.0 + charScale);
+			    : 6.0f * (1.0f + float(charScale));
 
 		// Add inter-line spacing (Gap)
-		drop += 2.0 * (1.0 + charScale);
+		drop += 2.0f * (1.0f + float(charScale));
 
 		// Apply Line Feed and Carriage Return based on rotation
 		switch (rotation) {
 		    case 0: // Normal: Feed Y- (Down), CR X=0
-			plotterY -= drop;
-			if (plotterY < -1354.0) { // Page End check
+			plotter.y -= drop;
+			if (plotter.y < -1354.0f) { // Page End check
 			     ensurePrintPage();
 			     flushEmulatedPrinter();
-			     plotterY = 30.0;
+			     plotter.y = 30.0f;
 			}
-			plotterX = 0.0;
+			plotter.x = 0.0f;
 			break;
 		    case 1: // 90 CW (Down): Feed X- (Left), CR Y=0
-			plotterX -= drop;
+			plotter.x -= drop;
 			// Check X < 0 ? (Left margin)
-			plotterY = 0.0;
+			plotter.y = 0.0f;
 			break;
 		    case 2: // 180 (Left): Feed Y+ (Up), CR X=0
-			plotterY += drop;
-			plotterX = 0.0;
+			plotter.y += drop;
+			plotter.x = 0.0f;
 			break;
 		    case 3: // 270 CW (Up): Feed X+ (Right), CR Y=0
-			plotterX += drop;
-			plotterY = 0.0;
+			plotter.x += drop;
+			plotter.y = 0.0f;
 			break;
 		}
 
-		maxLineHeight = 0.0;
+		maxLineHeight = 0.0f;
 		printDebug("Plotter: F - New Line, drop=", drop, " rot=", rotation);
 	    }
 	    break;
@@ -511,41 +503,36 @@ void MSXPlotter::executeGraphicCommand() {
     // Clear pending gap for commands that are not Q (which uses it) or P (which sets it)
     // This ensures the gap is only removed if Q immediately follows a printed character
     if (cmd != 'Q' && cmd != 'P') {
-	pendingCharGap = 0.0;
+	pendingCharGap = 0.0f;
     }
 }
 
-void MSXPlotter::drawLine(double x0, double y0, double x1, double y1) {
-    double dx = x1 - x0;
-    double dy = y1 - y0;
-    double totalDist = std::sqrt(dx * dx + dy * dy);
-
+void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to) {
+    gl::vec2 delta = to - from;
+    float totalDist = gl::length(delta);
     if (!penDown) return;
     ensurePrintPage();
 
-    if (totalDist == 0.0) {
-	plotWithPen(x0, y0, 0.0);
+    if (totalDist == 0.0f) {
+	plotWithPen(from, 0.0f);
 	return;
     }
 
     // High density sampling: e.g. 4 samples per plotter step (0.25 steps per dot)
     // This makes lines look solid rather than a series of dots.
-    double stepSize = 0.25;
+    float stepSize = 0.25f;
     int steps = static_cast<int>(std::ceil(totalDist / stepSize));
-    double xInc = dx / steps;
-    double yInc = dy / steps;
-    double dDist = totalDist / steps;
+    gl::vec2 inc = delta / float(steps);
+    float dDist = totalDist / float(steps);
 
-    double x = x0;
-    double y = y0;
+    gl::vec2 p = from;
     for (int i = 0; i <= steps; ++i) {
-	plotWithPen(x, y, (i == 0) ? 0.0 : dDist);
-	x += xInc;
-	y += yInc;
+	plotWithPen(p, (i == 0) ? 0.0f : dDist);
+	p += inc;
     }
 }
 
-void MSXPlotter::plotWithPen(double x, double y, double distMoved) {
+void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved) {
     ensurePrintPage();
     auto* p = getPaper();
     if (!p) {
@@ -557,15 +544,13 @@ void MSXPlotter::plotWithPen(double x, double y, double distMoved) {
 	// Origin (0,0) is bottom-left of the plotting area.
 	// X-axis: MarginX + LogicalX
 	// Y-axis: (PaperHeight - MarginY) - LogicalY (inverted for top-down PNG)
-	double paperX = MARGIN_X + (x + originX);
-	double paperY = (PAPER_HEIGHT_STEPS - MARGIN_Y) - (y + originY);
+	gl::vec2 paperPos = gl::vec2{float(MARGIN_X), float(PAPER_HEIGHT_STEPS - MARGIN_Y)} + gl::vec2{1.0f, -1.0f} * (pos + origin);
 
-	double pixelX = paperX * pixelSizeX;
-	double pixelY = paperY * pixelSizeY;
+	gl::vec2 pixelPos = paperPos * gl::vec2{float(pixelSizeX), float(pixelSizeY)};
 
 	// Update print area bounds so flushEmulatedPrinter knows to save the file
-	printAreaTop = std::min(printAreaTop, pixelY);
-	printAreaBottom = std::max(printAreaBottom, pixelY + pixelSizeY);
+	printAreaTop = std::min(printAreaTop, double(pixelPos.y));
+	printAreaBottom = std::max(printAreaBottom, double(pixelPos.y + float(pixelSizeY)));
 
 	// Handle Line Type (Dashing)
 	// 0 and 15 are solid. 1-14 are broken lines.
@@ -574,7 +559,7 @@ void MSXPlotter::plotWithPen(double x, double y, double distMoved) {
 	    // HP-GL/2 style or similar: start with a mark.
 	    // halfPeriod is defined by lineType.
 	    unsigned halfPeriod = lineType + 2;
-	    unsigned phase = static_cast<unsigned>(dashDistance / halfPeriod);
+	    unsigned phase = static_cast<unsigned>(dashDistance / float(halfPeriod));
 	    if (phase % 2 == 0) { // Skip if 0 (even), Mark if 1 (odd)
 		draw = false;
 	    }
@@ -582,7 +567,7 @@ void MSXPlotter::plotWithPen(double x, double y, double distMoved) {
 	dashDistance += distMoved;
 
 	if (draw) {
-	    p->plotColor(pixelX, pixelY, color[0], color[1], color[2]);
+	    p->plotColor(double(pixelPos.x), double(pixelPos.y), color[0], color[1], color[2]);
 	}
 }
 
@@ -593,8 +578,8 @@ void MSXPlotter::ensurePrintPage() {
       // Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
       // Standard step is 0.2mm. Set dot size to 200% of step size for solid lines.
       if (auto* p = getPaper()) {
-          double sizeMultiplier = (getPenThicknessSetting().getEnum() == PlotterPenThickness::Thick) ? 1.5 : 1.0;
-          p->setDotSize(pixelSizeX * sizeMultiplier, pixelSizeY * sizeMultiplier);
+          float sizeMultiplier = (getPenThicknessSetting().getEnum() == PlotterPenThickness::Thick) ? 1.5f : 1.0f;
+          p->setDotSize(double(float(pixelSizeX) * sizeMultiplier), double(float(pixelSizeY) * sizeMultiplier));
       }
     }
 }
@@ -609,26 +594,24 @@ void MSXPlotter::resetSettings() {
     escState = EscState::NONE;
     selectedPen = 0;
     penDown = true;
-    plotterX = 0.0;
-    originX = 0.0;
-    originY = 1354.0; // 30 steps from top
-    plotterY = 30.0;  // Start at top of plotting area
+    plotter = gl::vec2{0.0f, 30.0f};
+    origin = gl::vec2{0.0f, 1354.0f};
     lineType = 0;
-    dashDistance = 0.0;
+    dashDistance = 0.0f;
     rotation = 0;
-    pendingCharGap = 0.0;
+    pendingCharGap = 0.0f;
     pendingGapRotation = 0;
     charScale = 1; // Default scale is 1
-    maxLineHeight = 0.0;
+    maxLineHeight = 0.0f;
     graphicCmdBuffer.clear();
     printNext = false;
 
     // Set up printer settings for plotter
-    lineFeed = 18.0; // Proportional to new character height
+    lineFeed = 18.0f; // Proportional to new character height
     leftBorder = 0;
     rightBorder = PLOT_AREA_WIDTH;
-    graphDensity = 1.0;
-    fontDensity = 1.0;
+    graphDensity = 1.0f;
+    fontDensity = 1.0f;
     pageTop = 0;
     lines = PLOT_AREA_HEIGHT / 18;
 }
@@ -644,16 +627,14 @@ void MSXPlotter::processEscSequence() {
 
 
 
-void MSXPlotter::moveTo(double x, double y) {
-    plotterX = x;
-    plotterY = y;
+void MSXPlotter::moveTo(gl::vec2 pos) {
+    plotter = pos;
 }
 
-void MSXPlotter::lineTo(double x, double y) {
+void MSXPlotter::lineTo(gl::vec2 pos) {
 	// lineTo calls drawLine, which now handles addMoveDelay
-    drawLine(plotterX, plotterY, x, y);
-    plotterX = x;
-    plotterY = y;
+    drawLine(plotter, pos);
+    plotter = pos;
 }
 
 void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
@@ -675,29 +656,29 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
     }();
     const uint8_t* fontPtr = font.data() + c * 8;
 
-    double scaleFactor = 1.0 + charScale;
-    double gridSpacingX = 0.94 * scaleFactor;
-    double gridSpacingY = 0.85 * scaleFactor;
-    //double gridSpacingX = 0.54 * scaleFactor;
-    //double gridSpacingY = 0.95 * scaleFactor;
+    float scaleFactor = 1.0f + float(charScale);
+    float gridSpacingX = 0.94f * scaleFactor;
+    float gridSpacingY = 0.85f * scaleFactor;
+    //float gridSpacingX = 0.54f * scaleFactor;
+    //float gridSpacingY = 0.95f * scaleFactor;
 
-    maxLineHeight = std::max(maxLineHeight, 8.0 * gridSpacingY);
+    maxLineHeight = std::max(maxLineHeight, 8.0f * gridSpacingY);
 
     // Transform local (u, v) [0..width, 0..height] to global (px, py)
     // Cursor is at the START of the character baseline.
     // u=0 is at cursor, character extends in reading direction (+u).
     // v=0 is at baseline, character extends upward (+v).
-    auto transform = [&](double u, double v) -> std::pair<double, double> {
+    auto transform = [&](float u, float v) -> gl::vec2 {
 	switch (rotation) {
 	    case 0: // Normal: Right, Up - cursor at bottom-left
-		return {plotterX + u, plotterY + v};
+		return plotter + gl::vec2{u, v};
 	    case 1: // 90 CW: Down, Right - cursor at top-left (rotated)
-		return {plotterX + v, plotterY - u};
+		return plotter + gl::vec2{v, -u};
 	    case 2: // 180: Left, Down - cursor at top-right (rotated)
-		return {plotterX - u, plotterY - v};
+		return plotter - gl::vec2{u, v};
 	    case 3: // 270 CW: Up, Left - cursor at bottom-right (rotated)
-		return {plotterX - v, plotterY + u};
-	    default: return {0,0};
+		return plotter + gl::vec2{-v, u};
+	    default: return {0.0f, 0.0f};
 	}
     };
 
@@ -705,21 +686,20 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 	uint8_t rowPattern = fontPtr[dy];
 	// dy=0 is top row, dy=7 is bottom row.
 	// v should be height from bottom (v=0 at dy=7).
-	double v = (7.0 - dy) * gridSpacingY;
+	float v = (7.0f - float(dy)) * gridSpacingY;
 
 	for (int dx = 0; dx < 8; ++dx) {
 	     // dx=0 is left, dx=7 is right.
-	     double u = dx * gridSpacingX;
+	     float u = float(dx) * gridSpacingX;
 
 	    // Check if dot is present
 	    if (rowPattern & (0x80 >> dx)) {
-		auto [px, py] = transform(u, v);
+		gl::vec2 p = transform(u, v);
 
 		// Check Right neighbor (dx+1, dy) -> Same v, u + gridX
 		if (dx < 7) {
 		    if (rowPattern & (0x80 >> (dx + 1))) {
-			auto [nx, ny] = transform(u + gridSpacingX, v);
-			drawLine(px, py, nx, ny);
+			drawLine(p, transform(u + gridSpacingX, v));
 		    }
 		}
 
@@ -728,8 +708,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 		if (dy < 7) {
 		    uint8_t nextRow = fontPtr[dy + 1];
 		    if (nextRow & (0x80 >> dx)) {
-			auto [nx, ny] = transform(u, v - gridSpacingY);
-			drawLine(px, py, nx, ny);
+			drawLine(p, transform(u, v - gridSpacingY));
 		    }
 
 		    // Check Down-Right neighbor (dx+1, dy+1)
@@ -740,8 +719,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 			    bool hasDown  = (nextRow & (0x80 >> dx));
 
 			    if (!hasRight && !hasDown) {
-				auto [nx, ny] = transform(u + gridSpacingX, v - gridSpacingY);
-				drawLine(px, py, nx, ny);
+				drawLine(p, transform(u + gridSpacingX, v - gridSpacingY));
 			    }
 			}
 		    }
@@ -753,28 +731,27 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 			    bool hasDown = (nextRow & (0x80 >> dx));
 
 			    if (!hasLeft && !hasDown) {
-				auto [nx, ny] = transform(u - gridSpacingX, v - gridSpacingY);
-				drawLine(px, py, nx, ny);
+				drawLine(p, transform(u - gridSpacingX, v - gridSpacingY));
 			    }
 			}
 		    }
 		}
 
-		plotWithPen(px, py, 0.0);
+		plotWithPen(p, 0.0f);
 	    }
 	}
     }
     // Advance cursor to next character position
     // Always use full width (char + gap). If Q rotation follows, it will undo the gap.
-    double charWidthOnly = 4.12 * gridSpacingX;   // just the character
-    double charGap = 2.3 * gridSpacingX;          // gap between characters (11.12 - 4.12 = 7.0)
-    double charAdvance = charWidthOnly + charGap; // total advance
+    float charWidthOnly = 4.12f * gridSpacingX;   // just the character
+    float charGap = 2.3f * gridSpacingX;          // gap between characters (11.12 - 4.12 = 7.0)
+    float charAdvance = charWidthOnly + charGap; // total advance
 
     switch (rotation) {
-	case 0: plotterX += charAdvance; break;
-	case 1: plotterY -= charAdvance; break;
-	case 2: plotterX -= charAdvance; break;
-	case 3: plotterY += charAdvance; break;
+	case 0: plotter.x += charAdvance; break;
+	case 1: plotter.y -= charAdvance; break;
+	case 2: plotter.x -= charAdvance; break;
+	case 3: plotter.y += charAdvance; break;
     }
 
     // Track the gap so Q command can undo it if it follows
@@ -784,7 +761,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
     pendingCharGap = charGap;
     pendingGapRotation = rotation;
 
-    printDebug("Plotter: Rotation ", rotation, " | charWidth ", charWidthOnly, " | charGap ", charGap, " | charAdvance ", charAdvance, " | plotterX ", plotterX, " | plotterY ", plotterY);
+    printDebug("Plotter: Rotation ", rotation, " | charWidth ", charWidthOnly, " | charGap ", charGap, " | charAdvance ", charAdvance, " | plotter.x ", plotter.x, " | plotter.y ", plotter.y);
 
     lineType = savedLineType;
     dashDistance = savedDashDistance;

@@ -4,10 +4,10 @@
 #include "Printer.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
+#include "gl_vec.hh"
 #include <array>
 #include <memory>
 #include <string>
-#include <utility> // for std::pair
 #include <cstdint> // for uint8_t
 
 namespace openmsx {
@@ -33,7 +33,7 @@ public:
 
 	// Manual controls (for ImGui)
 	void cyclePen();
-	void moveStep(double dx, double dy);
+	void moveStep(gl::vec2 delta);
 	void ejectPaper();
 
 	// Access to settings for persistence
@@ -41,7 +41,7 @@ public:
 	[[nodiscard]] BooleanSetting& getDipSwitch4Setting() const { return *dipSwitch4Setting; }
 	[[nodiscard]] EnumSetting<PlotterPenThickness>& getPenThicknessSetting() const { return *penThicknessSetting; }
 
-	[[nodiscard]] std::pair<double, double> getPlotterPos() const { return {plotterX + originX, plotterY + originY}; }
+	[[nodiscard]] gl::vec2 getPlotterPos() const { return plotter + origin; }
 	[[nodiscard]] unsigned getSelectedPen() const { return selectedPen; }
 	[[nodiscard]] Paper* getPaper() { return ImagePrinter::getPaper(); }
 	[[nodiscard]] const Paper* getPaper() const { return ImagePrinter::getPaper(); }
@@ -88,23 +88,21 @@ private:
 	bool penDown = true; // pen starts down for drawing
 
 	// Plotter head position (logical steps, relative to origin)
-	double plotterX = 0.0;
-	double plotterY = 0.0;
+	gl::vec2 plotter{0.0f, 0.0f};
 
-    // Origin offset (physical steps)
-    double originX = 0.0;
-    double originY = 0.0;
+	// Origin offset (physical steps)
+	gl::vec2 origin{0.0f, 0.0f};
 
     // Line style
     unsigned lineType = 0; // 0=solid, 1-14=dashed
-    double dashDistance = 0.0;
-    double maxLineHeight = 0.0;
+    float dashDistance = 0.0f;
+    float maxLineHeight = 0.0f;
 
     // Character rotation (0-3)
     unsigned rotation = 0;
 
     // Pending character gap (to be removed if Q command follows)
-    double pendingCharGap = 0.0;
+    float pendingCharGap = 0.0f;
     unsigned pendingGapRotation = 0;
 
 	// Character scale (0-15, 0 is smallest)
@@ -143,10 +141,10 @@ private:
 	void processTextMode(uint8_t data);
 	void processGraphicMode(uint8_t data);
 	void executeGraphicCommand();
-	void plotWithPen(double x, double y, double distMoved);
-	void moveTo(double x, double y);
-	void lineTo(double x, double y);
-	void drawLine(double x0, double y0, double x1, double y1);
+	void plotWithPen(gl::vec2 pos, float distMoved);
+	void moveTo(gl::vec2 pos);
+	void lineTo(gl::vec2 pos);
+	void drawLine(gl::vec2 from, gl::vec2 to);
 	void drawCharacter(uint8_t c, bool hasNextChar = false);
 };
 
