@@ -148,8 +148,6 @@ private:
 	void lineTo(double x, double y);
 	void drawLine(double x0, double y0, double x1, double y1);
 	void drawCharacter(uint8_t c, bool hasNextChar = false);
-
-	void printDebug(std::string_view message) const;
 };
 
 } // namespace openmsx

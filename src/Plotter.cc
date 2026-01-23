@@ -9,11 +9,23 @@
 #include <algorithm>
 #include <cmath>
 #include <charconv>
+#include <iostream>
 #include <span>
 
 namespace openmsx {
 
-static constexpr bool PLOTTER_DEBUG = false;
+// Enable debug output by setting to 0
+#if 1
+template<typename... Args> static void printDebug(Args&&...)
+{
+    // nothing
+}
+#else
+template<typename... Args> static void printDebug(Args&&... args)
+{
+    std::cerr << strCat(std::forward<Args>(args)...) << '\n';
+}
+#endif
 
 MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
     : ImagePrinter(motherBoard, false) // graphicsHiLo=false (not used)
@@ -117,10 +129,9 @@ void MSXPlotter::ejectPaper() {
 
 void MSXPlotter::processCharacter(uint8_t data) {
     // Debug: log every byte received
-    printDebug(
-	strCat("Plotter: received 0x", hex_string<2>(data),
+    printDebug("Plotter: received 0x", hex_string<2>(data),
 	       " mode=", (mode == Mode::TEXT ? "TEXT" : "GRAPHIC"),
-	       " escState=", static_cast<int>(escState)));
+	       " escState=", static_cast<int>(escState));
 
     // Handle ESC sequence state first
     switch (escState) {
@@ -156,8 +167,7 @@ void MSXPlotter::processCharacter(uint8_t data) {
 	    if (data == ' ') return; // Ignore spaces
 	    if (data >= '0' && data <= '3') {
 		selectedPen = data - '0';
-		printDebug(
-		    strCat("Plotter: selected pen ", selectedPen));
+		printDebug("Plotter: selected pen ", selectedPen);
 	    }
 	    escState = EscState::NONE;
 	    return;
@@ -272,8 +282,7 @@ void MSXPlotter::executeGraphicCommand() {
     if (graphicCmdBuffer.empty()) return;
 
     // Debug: log the command being executed
-    printDebug(
-	strCat("Plotter: executing graphic command '", graphicCmdBuffer, "'"));
+    printDebug("Plotter: executing graphic command '", graphicCmdBuffer, "'");
 
     char cmd = graphicCmdBuffer[0];
     std::string args = graphicCmdBuffer.substr(1);
@@ -323,16 +332,14 @@ void MSXPlotter::executeGraphicCommand() {
 
 	case 'M': // Move (absolute) - M x,y
 	    if (coords.size() >= 2) {
-		printDebug(
-		    strCat("Plotter: M - Move to (", coords[0], ",", coords[1], ")"));
+		printDebug("Plotter: M - Move to (", coords[0], ",", coords[1], ")");
 		moveTo(coords[0], coords[1]);
 	    }
 	    break;
 
 	case 'R': // Relative move - R dx,dy
 	    if (coords.size() >= 2) {
-		printDebug(
-		    strCat("Plotter: R - Relative move (", coords[0], ",", coords[1], ")"));
+		printDebug("Plotter: R - Relative move (", coords[0], ",", coords[1], ")");
 		moveTo(plotterX + coords[0], plotterY + coords[1]);
 	    }
 	    break;
@@ -341,17 +348,15 @@ void MSXPlotter::executeGraphicCommand() {
 	    if (coords.size() >= 2) {
 		double newX = coords[0];
 		double newY = coords[1];
-		printDebug(
-		    strCat("Plotter: D - Draw to (", newX, ",", newY, ") from (",
-			   plotterX, ",", plotterY, ") penDown=", penDown));
+		printDebug("Plotter: D - Draw to (", newX, ",", newY, ") from (",
+			   plotterX, ",", plotterY, ") penDown=", penDown);
 		lineTo(newX, newY);
 	    }
 	    break;
 
 	case 'J': // Draw relative - J dx,dy[,dx,dy,...]
 	    // The J command draws a series of relative line segments
-	    printDebug(
-		strCat("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penDown));
+	    printDebug("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penDown);
 	    for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 		lineTo(plotterX + coords[i], plotterY + coords[i + 1]);
 	    }
@@ -360,8 +365,7 @@ void MSXPlotter::executeGraphicCommand() {
 	case 'S': // Scale set - S n (0-15)
 	    if (!coords.empty()) {
 		charScale = std::clamp(static_cast<int>(coords[0]), 0, 15);
-		printDebug(
-		    strCat("Plotter: S - Scale set to ", charScale));
+		printDebug("Plotter: S - Scale set to ", charScale);
 	    }
 	    break;
 
@@ -369,8 +373,7 @@ void MSXPlotter::executeGraphicCommand() {
 	    if (!coords.empty()) {
 		lineType = std::clamp(static_cast<int>(coords[0]), 0, 15);
 		dashDistance = 0.0; // Reset pattern phase
-		printDebug(
-		    strCat("Plotter: L - Line type set to ", lineType));
+		printDebug("Plotter: L - Line type set to ", lineType);
 	    }
 	    break;
 
@@ -386,13 +389,11 @@ void MSXPlotter::executeGraphicCommand() {
 			case 3: plotterY -= pendingCharGap; break;
 		    }
 
-		    printDebug(
-			strCat("Plotter: Q - Removed pending gap ", pendingCharGap));
+		    printDebug("Plotter: Q - Removed pending gap ", pendingCharGap);
 		    pendingCharGap = 0.0;
 		}
 		rotation = std::clamp(static_cast<int>(coords[0]), 0, 3);
-		printDebug(
-		    strCat("Plotter: Q - Rotation set to ", rotation));
+		printDebug("Plotter: Q - Rotation set to ", rotation);
 	    }
 	    break;
 
@@ -403,8 +404,7 @@ void MSXPlotter::executeGraphicCommand() {
 	    originY += plotterY;
 	    plotterX = 0.0;
 	    plotterY = 0.0;
-	    printDebug(
-		    strCat("Plotter: I - Origin set to current pos. New Origin=(", originX, ",", originY, ")"));
+	    printDebug("Plotter: I - Origin set to current pos. New Origin=(", originX, ",", originY, ")");
 	    break;
 
 
@@ -456,8 +456,7 @@ void MSXPlotter::executeGraphicCommand() {
 		}
 
 		maxLineHeight = 0.0;
-		printDebug(
-		    strCat("Plotter: F - New Line, drop=", drop, " rot=", rotation));
+		printDebug("Plotter: F - New Line, drop=", drop, " rot=", rotation);
 	    }
 	    break;
 
@@ -467,8 +466,7 @@ void MSXPlotter::executeGraphicCommand() {
 				// Characters after 'P' are printed literally, including spaces.
 				// CHR$(1) prefix is used to print alternate characters (0-31).
 				std::string_view text = args;
-				printDebug(
-					strCat("Plotter: P - Printing '", text, "'"));
+				printDebug("Plotter: P - Printing '", text, "'");
 
 				bool altChar = false;
 				size_t i = 0;
@@ -496,8 +494,7 @@ void MSXPlotter::executeGraphicCommand() {
 	    if (!coords.empty() && coords[0] >= 0 && coords[0] <= 3) {
 		unsigned newPen = static_cast<unsigned>(coords[0]);
 		if (newPen != selectedPen) {
-		    printDebug(
-			strCat("Plotter: C - Select color ", newPen, " (Pen change delay applied)"));
+		    printDebug("Plotter: C - Select color ", newPen, " (Pen change delay applied)");
 		    selectedPen = newPen;
 		}
 	    }
@@ -791,18 +788,10 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
     pendingCharGap = charGap;
     pendingGapRotation = rotation;
 
-    printDebug(
-		    strCat("Plotter: Rotation ", rotation, " | charWidth ", charWidthOnly, " | charGap ", charGap, " | charAdvance ", charAdvance, " | plotterX ", plotterX, " | plotterY ", plotterY));
+    printDebug("Plotter: Rotation ", rotation, " | charWidth ", charWidthOnly, " | charGap ", charGap, " | charAdvance ", charAdvance, " | plotterX ", plotterX, " | plotterY ", plotterY);
 
     lineType = savedLineType;
     dashDistance = savedDashDistance;
-}
-
-void MSXPlotter::printDebug(std::string_view message) const
-{
-	if (PLOTTER_DEBUG) {
-		motherBoard.getMSXCliComm().printInfo(message);
-	}
 }
 
 // Serialization and registration macros
