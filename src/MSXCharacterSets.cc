@@ -269,7 +269,7 @@ static constexpr std::array<uint8_t, 256 * 8> MSXFontRaw = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 255
 };
 
-std::span<const uint8_t> getMSXFontRaw()
+std::span<const uint8_t, 8 * 256> getMSXFontRaw()
 {
 	return MSXFontRaw;
 }
@@ -286,7 +286,7 @@ static constexpr auto MSXDINFontRaw = []{
 	return result;
 }();
 
-std::span<const uint8_t> getMSXDINFontRaw()
+std::span<const uint8_t, 8 * 256> getMSXDINFontRaw()
 {
 	return MSXDINFontRaw;
 }
@@ -550,7 +550,7 @@ static constexpr std::array<uint8_t, 256 * 8> MSXJPFontRaw = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 255
 };
 
-std::span<const uint8_t> getMSXJPFontRaw()
+std::span<const uint8_t, 8 * 256> getMSXJPFontRaw()
 {
 	return MSXJPFontRaw;
 }
@@ -587,7 +587,7 @@ static constexpr auto MSXFontRotated = []{
 	return result;
 }();
 
-std::span<const uint8_t> getMSXFontRotated()
+std::span<const uint8_t, 9 * 256> getMSXFontRotated()
 {
 	return MSXFontRotated;
 }
