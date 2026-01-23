@@ -386,10 +386,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			});
 			ImGui::MenuItem("Configure messages", nullptr, &manager.messages->configureWindow.open);
 		});
-		im::Menu("Output", motherBoard != nullptr, [&]{
-			im::TreeNode("MSX Plotter", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-				ImGui::SameLine();
-				HelpMarker("These options configure the MSX Plotter (Sony PRN-C41) emulation settings.");
+		im::Menu("MSX Plotter", motherBoard != nullptr, [&]{
 
 				// Find the MSXPlotter in the pluggables
 				MSXPlotter* plotter = nullptr;
@@ -428,7 +425,6 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::Combo("Pen thickness", &currentThickness, thicknessNames.data(), narrow<int>(thicknessNames.size()))) {
 					plotter->getPenThicknessSetting().setEnum(static_cast<PlotterPenThickness>(currentThickness));
 				}
-			});
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{

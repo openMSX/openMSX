@@ -132,7 +132,7 @@ void MSXPlotter::processCharacter(uint8_t data) {
     // Debug: log every byte received
     printDebug("Plotter: received 0x", hex_string<2>(data),
 	       " mode=", (mode == Mode::TEXT ? "TEXT" : "GRAPHIC"),
-	       " escState=", static_cast<int>(escState));
+	       " escState=", int(escState));
 
     // Handle ESC sequence state first
     switch (escState) {
@@ -200,19 +200,19 @@ void MSXPlotter::processTextMode(uint8_t data) {
 	case 0x08: // BS - Backspace
 	    plotterX = std::max(plotterX - (8 + 2 * charScale), 0.0);
 	    break;
-	case 0x0A: // LF - Line feed
+	case 0x0a: // LF - Line feed
 	    plotterY -= lineFeed;
 // ...
-	case 0x0B: // VT - Line up (feed paper to previous line)
+	case 0x0b: // VT - Line up (feed paper to previous line)
 	    plotterY += lineFeed;
 // ...
-	case 0x0D: // CR - Carriage return
+	case 0x0d: // CR - Carriage return
 	    plotterX = 0.0;
 	    break;
 	case 0x12: // DC2 - Scale set prefix (wait for next char)
 	     // ... handling remains same (ignored)
 	    break;
-	case 0x1B: // ESC - Start escape sequence
+	case 0x1b: // ESC - Start escape sequence
 	    escState = EscState::ESC;
 	    break;
 	default:
@@ -241,13 +241,13 @@ void MSXPlotter::processGraphicMode(uint8_t data) {
     // In graphic mode, accumulate command chars until delimiter
     // Commands are ASCII text like "J100,-100,50,-100" terminated by CR/LF or next command
 
-    if (data == 0x0D || data == 0x0A) {
+    if (data == one_of(0x0d, 0x0a)) {
 	// CR or LF terminates command
 	if (!graphicCmdBuffer.empty()) {
 	    executeGraphicCommand();
 	    graphicCmdBuffer.clear();
 	}
-    } else if (data == 0x1B) {
+    } else if (data == 0x1b) {
 	// ESC in graphic mode - start escape sequence
 	if (!graphicCmdBuffer.empty()) {
 	    executeGraphicCommand();
@@ -306,7 +306,7 @@ void MSXPlotter::executeGraphicCommand() {
 	    // Manually check if valid start of number?
 	    // Valid: digit, +, -, or .
 	    char c = args[pos];
-	    if (std::isdigit(static_cast<unsigned char>(c)) || c == '-' || c == '+' || c == '.') {
+	    if (std::isdigit(static_cast<unsigned char>(c)) || c == one_of('-', '+', '.')) {
 		 // Check if it's just a lonely '+' or '-' or '.' which stod might handle or reject
 		 // Standard library stod parses.
 		 double val = std::stod(args.substr(pos), &nextPos);
@@ -548,7 +548,10 @@ void MSXPlotter::drawLine(double x0, double y0, double x1, double y1) {
 void MSXPlotter::plotWithPen(double x, double y, double distMoved) {
     ensurePrintPage();
     auto* p = getPaper();
-    if (p) {
+    if (!p) {
+      motherBoard.getMSXCliComm().printWarning("Plotter: plotWithPen called but NO PAPER");
+      return;
+    }
 	const auto& color = penColors[selectedPen];
 	// Convert logical plotter steps to physical paper steps with margins.
 	// Origin (0,0) is bottom-left of the plotting area.
@@ -581,22 +584,18 @@ void MSXPlotter::plotWithPen(double x, double y, double distMoved) {
 	if (draw) {
 	    p->plotColor(pixelX, pixelY, color[0], color[1], color[2]);
 	}
-    } else {
-	motherBoard.getMSXCliComm().printWarning("Plotter: plotWithPen called but NO PAPER");
-    }
 }
 
 void MSXPlotter::ensurePrintPage() {
     bool alreadyHadPaper = (getPaper() != nullptr);
     ImagePrinter::ensurePrintPage();
     if (!alreadyHadPaper) {
-	// Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
-	// Standard step is 0.2mm. Set dot size to 200% of step size for solid lines.
-	auto* p = getPaper();
-	if (p) {
-	    double sizeMultiplier = (getPenThicknessSetting().getEnum() == PlotterPenThickness::Thick) ? 1.5 : 1.0;
-	    p->setDotSize(pixelSizeX * sizeMultiplier, pixelSizeY * sizeMultiplier);
-	}
+      // Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
+      // Standard step is 0.2mm. Set dot size to 200% of step size for solid lines.
+      if (auto* p = getPaper()) {
+          double sizeMultiplier = (getPenThicknessSetting().getEnum() == PlotterPenThickness::Thick) ? 1.5 : 1.0;
+          p->setDotSize(pixelSizeX * sizeMultiplier, pixelSizeY * sizeMultiplier);
+      }
     }
 }
 
@@ -665,19 +664,15 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 
     //auto font = getMSXFontRaw();
     // Select font based on character set setting
-    std::span<const uint8_t> font;
-    switch (getCharacterSet()) {
-        case PlotterCharacterSet::Japanese:
-            font = getMSXJPFontRaw();
-            break;
-        case PlotterCharacterSet::DIN:
-            font = getMSXDINFontRaw();
-            break;
-        case PlotterCharacterSet::International:
-        default:
-            font = getMSXFontRaw();
-            break;
-    }
+    auto font = [&] {
+      switch (getCharacterSet()) {
+          using enum PlotterCharacterSet;
+          default:
+          case International: return getMSXFontRaw();
+          case Japanese:      return getMSXJPFontRaw();
+          case DIN:           return getMSXDINFontRaw();
+      }
+    }();
     const uint8_t* fontPtr = font.data() + c * 8;
 
     double scaleFactor = 1.0 + charScale;

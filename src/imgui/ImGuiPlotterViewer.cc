@@ -49,14 +49,14 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 		}
 
 		if (!plotter) {
-			ImGui::TextUnformatted("No plotter present in the system.");
+			ImGui::TextUnformatted("Plotter not plugged in.");
 			if (texture) texture.reset();
 			return;
 		}
 
 		auto* paper = plotter->getPaper();
 		if (!paper) {
-			ImGui::TextUnformatted("Plotter is present, but has no paper.");
+			ImGui::TextUnformatted("Plotter has no paper.");
 			if (texture) texture.reset();
 			return;
 		}
