@@ -15,6 +15,7 @@
 #include "strCat.hh"
 
 #include <cassert>
+#include <format>
 #include <queue>
 
 namespace openmsx {
@@ -459,7 +460,7 @@ void Tracer::exportVCD(zstring_view filename)
 			val.visit(overloaded{
 				[&](std::monostate)   { os << '0'; },
 				[&](uint64_t u)       { os << u; },
-				[&](double d)         { os << std::setprecision(17) << d; },
+				[&](double d)         { os << std::format("{:.17g}", d); },
 				[&](std::string_view) { os << '0'; } // this should not happen
 			});
 			os << " t" << id << '\n';
@@ -470,7 +471,7 @@ void Tracer::exportVCD(zstring_view filename)
 			val.visit(overloaded{
 				[] (std::monostate)      { /* nothing */ },
 				[&](uint64_t u)          { os << u; },
-				[&](double d)            { os << std::setprecision(17) << d; },
+				[&](double d)            { os << std::format("{:.17g}", d); },
 				[&](std::string_view sv) { os << escapeString(sv); }
 			});
 			os << " t" << id << '\n';
