@@ -47,6 +47,7 @@
 #include "SettingsConfig.hh"
 #include "VDP.hh"
 
+#include "format.hh"
 #include "stl.hh"
 #include "strCat.hh"
 
@@ -757,9 +758,9 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 					fpsDrawTimeOut = 0.1f;
 					fps = reactor.getDisplay().getFps();
 				}
-				std::stringstream ssFps;
-				ssFps << std::fixed << std::setprecision(1) << fps << " fps";
-				ImGui::RightAlignText(ssFps.str(), "999.9 fps");
+				std::array<char, 32> buf;
+				auto fpsStr = format_to_buf(buf, "{:.1f} fps", fps);
+				ImGui::RightAlignText(fpsStr, "999.9 fps");
 				simpleToolTip("refresh rate");
 				ImGui::Separator();
 			}
