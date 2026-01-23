@@ -42,15 +42,15 @@ MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
     // Initialize default font (8x8) if not loaded
     // This prevents crashes in printVisibleCharacter if rom is empty
     if (fontInfo.charWidth == 0) {
-	fontInfo.charWidth = 8;
-	// FontInfo struct does not have charHeight, and rom is std::array
+      fontInfo.charWidth = 8;
+      // FontInfo struct does not have charHeight, and rom is std::array
 
-	// Populate with a very simple pattern to distinguish chars?
-	// Let's make it stripes: 0x55
-	std::fill(fontInfo.rom.begin(), fontInfo.rom.end(), 0x55);
+      // Populate with a very simple pattern to distinguish chars?
+      // Let's make it stripes: 0x55
+      std::ranges::fill(fontInfo.rom, 0x55);
 
-	// Proper fix: We should ideally load "printer.rom".
-	// But for this patch, a dummy prevents the crash.
+      // Proper fix: We should ideally load "printer.rom".
+      // But for this patch, a dummy prevents the crash.
     }
 
     resetSettings();
