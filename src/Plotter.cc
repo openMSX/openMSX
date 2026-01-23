@@ -669,18 +669,10 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
     // Cursor is at the START of the character baseline.
     // u=0 is at cursor, character extends in reading direction (+u).
     // v=0 is at baseline, character extends upward (+v).
-    auto transform = [&](float u, float v) -> gl::vec2 {
-	switch (rotation) {
-	    case 0: // Normal: Right, Up - cursor at bottom-left
-		return plotter + gl::vec2{u, v};
-	    case 1: // 90 CW: Down, Right - cursor at top-left (rotated)
-		return plotter + gl::vec2{v, -u};
-	    case 2: // 180: Left, Down - cursor at top-right (rotated)
-		return plotter - gl::vec2{u, v};
-	    case 3: // 270 CW: Up, Left - cursor at bottom-right (rotated)
-		return plotter + gl::vec2{-v, u};
-	    default: return {0.0f, 0.0f};
-	}
+    auto transform = [&](gl::vec2 p) -> gl::vec2 {
+	static constexpr std::array<gl::vec2, 4> uDir = {{{1.0f, 0.0f}, {0.0f, -1.0f}, {-1.0f, 0.0f}, {0.0f, 1.0f}}};
+	static constexpr std::array<gl::vec2, 4> vDir = {{{0.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, -1.0f}, {-1.0f, 0.0f}}};
+	return plotter + p.x * uDir[rotation] + p.y * vDir[rotation];
     };
 
     for (int dy = 0; dy < 8; ++dy) {
@@ -695,12 +687,12 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 
 	    // Check if dot is present
 	    if (rowPattern & (0x80 >> dx)) {
-		gl::vec2 p = transform(u, v);
+		gl::vec2 p = transform({u, v});
 
 		// Check Right neighbor (dx+1, dy) -> Same v, u + gridX
 		if (dx < 7) {
 		    if (rowPattern & (0x80 >> (dx + 1))) {
-			drawLine(p, transform(u + gridSpacingX, v));
+			drawLine(p, transform({u + gridSpacingX, v}));
 		    }
 		}
 
@@ -709,7 +701,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 		if (dy < 7) {
 		    uint8_t nextRow = glyph[dy + 1];
 		    if (nextRow & (0x80 >> dx)) {
-			drawLine(p, transform(u, v - gridSpacingY));
+			drawLine(p, transform({u, v - gridSpacingY}));
 		    }
 
 		    // Check Down-Right neighbor (dx+1, dy+1)
@@ -720,7 +712,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 			    bool hasDown  = (nextRow & (0x80 >> dx));
 
 			    if (!hasRight && !hasDown) {
-				drawLine(p, transform(u + gridSpacingX, v - gridSpacingY));
+				drawLine(p, transform({u + gridSpacingX, v - gridSpacingY}));
 			    }
 			}
 		    }
@@ -732,7 +724,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 			    bool hasDown = (nextRow & (0x80 >> dx));
 
 			    if (!hasLeft && !hasDown) {
-				drawLine(p, transform(u - gridSpacingX, v - gridSpacingY));
+				drawLine(p, transform({u - gridSpacingX, v - gridSpacingY}));
 			    }
 			}
 		    }
@@ -748,17 +740,9 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
     float charGap = 2.3f * gridSpacingX;          // gap between characters (11.12 - 4.12 = 7.0)
     float charAdvance = charWidthOnly + charGap; // total advance
 
-    switch (rotation) {
-	case 0: plotter.x += charAdvance; break;
-	case 1: plotter.y -= charAdvance; break;
-	case 2: plotter.x -= charAdvance; break;
-	case 3: plotter.y += charAdvance; break;
-    }
+    plotter = transform({charAdvance, 0.0f});
 
     // Track the gap so Q command can undo it if it follows
-    pendingCharGap = charGap;
-    pendingGapRotation = rotation;
-
     pendingCharGap = charGap;
     pendingGapRotation = rotation;
 
