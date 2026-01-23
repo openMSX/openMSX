@@ -77,7 +77,10 @@ bool operator==(const Event& x, const Event& y)
 			const auto& b = b_.getSdlWindowEvent();
 			// don't compare timestamp
 			if (a.event != b.event) return false;
-			if (a.windowID != b.windowID) return false;
+			auto getWindowId = [](const SDL_WindowEvent& e) {
+				return e.windowID == Uint32(-1) ? WindowEvent::getMainWindowId() : e.windowID;
+			};
+			if (getWindowId(a) != getWindowId(b)) return false;
 			// TODO for specific events, compare data1 and data2
 			return true;
 		},
