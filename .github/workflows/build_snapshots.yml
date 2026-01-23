@@ -78,9 +78,6 @@ jobs:
     - name: Select Xcode version
       if: ${{ matrix.xcode_version }}
       run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
-    - name: Set macOS deployment target (for std::format)
-      if: ${{ matrix.os == 'darwin' }}
-      run: echo "MACOSX_DEPLOYMENT_TARGET=13.3" >> $GITHUB_ENV
     - name: Preparations for signing binaries on Darwin builds
       # Don't fail build for pull requests if vars and secrets are not defined.
       if: ${{ matrix.os == 'darwin' && vars.CODE_SIGN_IDENTITY }}
