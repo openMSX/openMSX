@@ -4,11 +4,11 @@
 
 #include "TsxParser.hh"
 
+#include "strCat.hh"
 #include "xrange.hh"
 
 #include <array>
 #include <cstring>
-#include <sstream>
 
 // Current version supports these TZX 1.20 blocks plus the #4B TSX block:
 static constexpr uint8_t B10_STD_BLOCK      = 0x10; // Standard Speed Block (Turbo normal)
@@ -42,13 +42,6 @@ static constexpr uint8_t B2B_SIGNAL_LEVEL   = 0x2B; // Set signal level
 static constexpr uint8_t B31_MSG_BLOCK      = 0x31; // Message Block
 static constexpr uint8_t B33_HARDWARE_TYPE  = 0x33; // Hardware type
 
-
-[[nodiscard]] static std::string toHex(int x)
-{
-	std::stringstream ss;
-	ss << std::hex << x;
-	return ss.str();
-}
 
 TsxParser::TsxParser(std::span<const uint8_t> file)
 	: buf(file)
@@ -124,7 +117,7 @@ TsxParser::TsxParser(std::span<const uint8_t> file)
 			// TODO not yet implemented, useful?
 			[[fallthrough]];
 		default:
-			error("Unsupported block: #" + toHex(blockId));
+			error(strCat("Unsupported block: #", hex_string<2>(blockId)));
 		}
 	}
 }
@@ -339,7 +332,7 @@ void TsxParser::processBlock4B(const Block4B& b)
 	bool stopBitVal   = (b.byteCfg & 0b00000100) >> 2; // 1 for MSX
 	bool msb          = (b.byteCfg & 0b00000001) >> 0; // 0 (LSB first) for MSX
 	if (b.byteCfg & 0b00000010) {
-		error("Invalid block #4B: unsupported byte-cfg: " + toHex(b.byteCfg));
+		error(strCat("Invalid block #4B: unsupported byte-cfg: ", hex_string<2>(b.byteCfg)));
 	}
 
 	// write a header signal
