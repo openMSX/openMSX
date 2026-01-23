@@ -9,22 +9,25 @@
 #include "foreach_file.hh"
 #include "zstring_view.hh"
 
+#include <array>
+#include <cassert>
 #include <filesystem>
+#include <span>
 
 namespace openmsx {
 
-static std::string formatFileTimeFull(std::time_t fileTime)
+static std::string formatFileTimeFull(std::time_t fileTime, std::span<char, 32> buf)
 {
 	// Convert time_t to local time (broken-down time in the local time zone)
 	const std::tm* local_time = std::localtime(&fileTime);
 
 	// Get the local time in human-readable format
-	std::stringstream ss;
-	ss << std::put_time(local_time, "%F %T");
-	return ss.str();
+	auto len = std::strftime(buf.data(), buf.size(), "%F %T", local_time);
+	assert(len > 0); // buf.size == 32 should always be sufficient for this format
+	return {buf.data(), len};
 }
 
-static std::string formatFileAbbreviated(std::time_t fileTime)
+static std::string formatFileAbbreviated(std::time_t fileTime, std::span<char, 32> buf)
 {
 	// Convert time_t to local time (broken-down time in the local time zone)
 	std::tm local_time = *std::localtime(&fileTime);
@@ -37,9 +40,9 @@ static std::string formatFileAbbreviated(std::time_t fileTime)
 	               (now.tm_year == local_time.tm_year)) ? zstring_view("%T") : zstring_view("%F");
 
 	// Get the local time in human-readable format
-	std::stringstream ss;
-	ss << std::put_time(&local_time, format.c_str());
-	return ss.str();
+	auto len = std::strftime(buf.data(), buf.size(), format.c_str(), &local_time);
+	assert(len > 0); // buf.size == 32 should always be sufficient for these formats
+	return {buf.data(), len};
 };
 
 FileListWidget::FileListWidget(
@@ -189,8 +192,9 @@ void FileListWidget::drawTable()
 				}
 			}
 			if (ImGui::TableNextColumn()) {
-				ImGui::TextUnformatted(formatFileAbbreviated(entry.ftime));
-				simpleToolTip([&] { return formatFileTimeFull(entry.ftime); });
+				std::array<char, 32> buf;
+				ImGui::TextUnformatted(formatFileAbbreviated(entry.ftime, buf));
+				simpleToolTip([&] { return formatFileTimeFull(entry.ftime, buf); });
 			}
 	}});
 	confirmDelete.execute();
