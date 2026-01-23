@@ -277,6 +277,6 @@ namespace export mute_channels
 namespace export unmute_channels
 namespace export solo
 
-} ;# namspace record_channels
+} ;# namespace record_channels
 
 namespace import record_channels::*
