@@ -1,7 +1,9 @@
-# Plotter Command Reference
+# Plotter information
 
-## Control Characters
+## Sony PRN-C41(D) / General PCP-5501 / Toshiba HX-P570
+This information is copied from the original Sony manual and some parts are from the Creative Greetings software manual. The Sony plotter was release with Plotter (Creative Greetings) software. Also some add on graphics are released for this software, see also: https://www.generation-msx.nl/group/sony-plotter-series/97/
 
+### Control Characters
 
 | Name            | Code                | Functions                                                                                   |
 |-----------------|--------------------|---------------------------------------------------------------------------------------------|
@@ -15,7 +17,7 @@
 | Top of form     | OCH                 | Feeds paper 297 mm (1143​ inches) down from the printing start position.                    |
 | Text mode       | 1BH+"$"             | Sets the plotter printer in the text mode.                                                  |
 
-## Graphic Mode Instruction Codes Table
+### Graphic Mode Instruction Codes Table
 
 | Category                  | Command                                         | Function                                                                 | Remarks / Examples                                                                                       |
 |---------------------------|-------------------------------------------------|--------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
@@ -34,7 +36,7 @@
 | Character Print           | P chrs. (Print)                                | Prints out characters.                                                  | Any spaces specified after the commands are ignored.                                                      |
 
 
-## Paper size and Plotting Area
+### Paper size and Plotting Area
 
 | Size | Description | Dimensions (mm) | Plotting Area (mm) |
 |------|-------------|------------------|---------------------|
@@ -44,7 +46,7 @@
 | B5 | Notebook paper size | 257x182 | about 180x120 |
 | A4 | Typing paper size | 296x210 | about 210x140 |
 
-## Graphics printing area
+### Graphics printing area
 |direction/paper size|100mm (Card) | 114 mm (Roll) | A5 | B5 | A4 |
 |---|---|---|---|---|---|
 |x-direction| 410 steps (82mm) | 480 steps (96mm) | 650 steps (130mm) | 820 steps (164mm) | 960 steps (192mm) |
@@ -53,7 +55,7 @@
 
 
 
-## Print functions:
+### Print functions:
 |Function|Description|
 |---|---|
 |Print system|Ball point pen print, 4 colors rotary system|
@@ -72,26 +74,27 @@
 
 When printing the test page, it prints 80 characters per line on real A4 paper.
 
-## Dip Switches
+### Dip Switches
 The printer has 4 dip switches, which are by factory default all off.
 
 The switch 4 selects the function of the carriage return code (ODH) in the plotter printer text mode. When it is set to: ON: the pen position is set to the beginning of the next line. OFF: the pen position is set to the beginning of the line.
 
 You may have to set the DIP switches according to your software. Refer to the operating instructions of the software.
 
-## Buttons
+### Buttons
 The printer has 4 buttons:
 
 | Button | Function |
+|---|---|
 | Reset | Press to reset the plotter printer into the power on status. This button is useful to reset the plotter printer when the printing operation is interrupted. Refer to the software's manual for how to interrupt the printing operation. |
 | Change Color | Press this button to turn the pen holder and change the printed out characters color. |
 | Feed | Press this button to feed the paper. |
 | Feed Back | Press this button to feed the paper back. |
 
 
-# Examples
+## Examples
 
-## All Characters
+### All Characters
 ```
 300 'All Character Font
 310 LPRINT
@@ -107,7 +110,7 @@ The printer has 4 buttons:
 410 LPRINT
 ```
 
-## Rotate
+### Rotate characters
 ```
 9000 'Rotate
 9005 LPRINT
@@ -121,3 +124,12 @@ The printer has 4 buttons:
 9075 LPRINT "S1"
 9080 LPRINT "A"
 ```
+
+
+## Daewoo DPL-400 / Talent DPL-400 (not emulated yet)
+The command set is almost the same as the Sony PRN-C41(D), but there are some differences. The manual is available, but there is no software that supports this plotter.
+
+
+## National CF-2311 / Panasonic KX-08P (not emulated yet)
+No documentation is available for this plotter at the moment. National did release some software for this plotter, but without the manual it is hard to say how it works.
+
