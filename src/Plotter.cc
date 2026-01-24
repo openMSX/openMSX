@@ -251,16 +251,10 @@ void MSXPlotter::processGraphicMode(uint8_t data) {
 
   if (data == one_of(0x0d, 0x0a)) {
     // CR or LF terminates command
-    if (!graphicCmdBuffer.empty()) {
-      executeGraphicCommand();
-      graphicCmdBuffer.clear();
-    }
+    executeGraphicCommand();
   } else if (data == 0x1b) {
     // ESC in graphic mode - start escape sequence
-    if (!graphicCmdBuffer.empty()) {
-      executeGraphicCommand();
-      graphicCmdBuffer.clear();
-    }
+    executeGraphicCommand();
     escState = EscState::ESC;
   } else if (data >= 32 && data < 127) {
     // Accumulate command characters
@@ -277,12 +271,10 @@ void MSXPlotter::processGraphicMode(uint8_t data) {
       if (!isPrintCmd && std::isalpha(static_cast<unsigned char>(lastChar)) &&
           std::toupper(lastChar) != 'E' && lastChar != graphicCmdBuffer[0]) {
         // New command starting, execute previous
-        std::string cmd =
-            graphicCmdBuffer.substr(0, graphicCmdBuffer.size() - 1);
-        graphicCmdBuffer = graphicCmdBuffer.substr(graphicCmdBuffer.size() - 1);
-        std::swap(cmd, graphicCmdBuffer);
+        char nextCmd = graphicCmdBuffer.back();
+        graphicCmdBuffer.pop_back();
         executeGraphicCommand();
-        graphicCmdBuffer = std::string(1, lastChar);
+        graphicCmdBuffer = nextCmd;
       }
     }
   }
@@ -523,12 +515,10 @@ void MSXPlotter::executeGraphicCommand() {
     break;
   }
 
-  // Clear pending gap for commands that are not Q (which uses it) or P (which
-  // sets it) This ensures the gap is only removed if Q immediately follows a
-  // printed character
   if (cmd != 'Q' && cmd != 'P') {
     pendingCharGap = 0.0f;
   }
+  graphicCmdBuffer.clear();
 }
 
 void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to) {
