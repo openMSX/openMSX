@@ -75,9 +75,15 @@ This information is copied from the original Sony manual and some parts are from
 When printing the test page, it prints 80 characters per line on real A4 paper.
 
 ### Dip Switches
-The printer has 4 dip switches, which are by factory default all off.
+The printer has four dip switches, which are by factory default all off.
 
-The switch 4 selects the function of the carriage return code (ODH) in the plotter printer text mode. When it is set to: ON: the pen position is set to the beginning of the next line. OFF: the pen position is set to the beginning of the line.
+Switch 1 and 2 are not connected at all according to the service manual.
+
+Switch 3 is only connected on the Japanese model and selects between JIS and SHIFT-JIS. It is short circuited on non-Japanese models (so GND is on the pin to the chip that makes the selection).
+
+Switch 4 is called CR/CR,LF. It selects the function of the carriage return code (ODH) in the plotter printer text mode. When it is set to:
+- ON: the pen position is set to the beginning of the next line.
+- OFF: the pen position is set to the beginning of the line.
 
 You may have to set the DIP switches according to your software. Refer to the operating instructions of the software.
 
