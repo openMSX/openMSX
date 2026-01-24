@@ -195,23 +195,23 @@ void MSXPlotter::processTextMode(uint8_t data) {
     break;
   case 0x0a: // LF - Line feed
     plotter.y -= float(lineFeed);
-    if (plotter.y < -1354.0) { // Page end reached
+    if (plotter.y < -1354.0f) { // Page end reached
       ensurePrintPage();
       flushEmulatedPrinter();
-      plotter.y = 30.0; // Reset to top of new page
+      plotter.y = 30.0f; // Reset to top of new page
     }
     break;
   case 0x0b: // VT - Line up (feed paper to previous line)
     plotter.y += float(lineFeed);
-    if (plotter.y > 30.0) {
-      plotter.y = 30.0;
+    if (plotter.y > 30.0f) {
+      plotter.y = 30.0f;
     }
     break;
   case 0x0C: // FF - Form feed (top of form)
     ensurePrintPage();
     flushEmulatedPrinter();
-    plotter.y = 30.0;
-    plotter.x = 0.0;
+    plotter.y = 30.0f;
+    plotter.x = 0.0f;
     break;
   case 0x0d: // CR - Carriage return
     plotter.x = 0.0f;
