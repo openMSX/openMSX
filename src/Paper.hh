@@ -14,37 +14,39 @@
 
 namespace openmsx {
 
-class Paper
-{
+class Paper {
 public:
-	static constexpr std::string_view PRINT_DIR = "prints";
-	static constexpr std::string_view PRINT_EXTENSION = ".png";
+  static constexpr std::string_view PRINT_DIR = "prints";
+  static constexpr std::string_view PRINT_EXTENSION = ".png";
 
 public:
-	Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
+  Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
 
-	[[nodiscard]] std::string save(bool color = false) const;
-	void setDotSize(double sizeX, double sizeY);
-	void plot(double x, double y);
-	void plotColor(double x, double y, uint8_t r, uint8_t g, uint8_t b);
+  [[nodiscard]] std::string save(bool color = false) const;
+  void setDotSize(double sizeX, double sizeY);
+  void plot(double x, double y);
+  void plotColor(double x, double y, uint8_t r, uint8_t g, uint8_t b);
 
-	[[nodiscard]] unsigned getWidth() const { return sizeX; }
-	[[nodiscard]] unsigned getHeight() const { return sizeY; }
-	[[nodiscard]] std::span<const uint8_t> getRGBData() const { return colorBuf; }
+  [[nodiscard]] unsigned getWidth() const { return sizeX; }
+  [[nodiscard]] unsigned getHeight() const { return sizeY; }
+  [[nodiscard]] std::span<const uint8_t> getRGBData() const { return colorBuf; }
+  [[nodiscard]] uint64_t getGeneration() const { return generation; }
 
 private:
-	uint8_t& dot(unsigned x, unsigned y);
+  uint8_t &dot(unsigned x, unsigned y);
 
-	std::vector<uint8_t> buf;
-	std::vector<uint8_t> colorBuf; // RGB triples for color output
-	std::vector<int> table;
+  std::vector<uint8_t> buf;
+  std::vector<uint8_t> colorBuf; // RGB triples for color output
+  std::vector<int> table;
 
-	double radiusX;
-	double radiusY;
-	int radius16;
+  uint64_t generation = 0;
 
-	unsigned sizeX;
-	unsigned sizeY;
+  double radiusX;
+  double radiusY;
+  int radius16;
+
+  unsigned sizeX;
+  unsigned sizeY;
 };
 
 } // namespace openmsx

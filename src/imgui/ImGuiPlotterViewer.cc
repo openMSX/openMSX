@@ -46,35 +46,63 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard) {
 
     if (!plotter) {
       ImGui::TextUnformatted("Plotter not plugged in.");
-      if (texture)
-        texture.reset();
+      texture.reset();
       return;
     }
 
     auto *paper = plotter->getPaper();
     if (!paper) {
       ImGui::TextUnformatted("Plotter has no paper.");
-      if (texture)
-        texture.reset();
+      texture.reset();
       return;
     }
 
     unsigned width = paper->getWidth();
     unsigned height = paper->getHeight();
-    auto rgbData = paper->getRGBData();
+    auto currentGeneration = paper->getGeneration();
 
     if (!texture || texture->getWidth() != (int)width ||
-        texture->getHeight() != (int)height) {
-      texture.emplace(width, height);
-      texture->setInterpolation(false);
-      texture->setWrapMode(false);
-      texture->bind();
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-                   GL_UNSIGNED_BYTE, rgbData.data());
-    } else {
-      texture->bind();
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB,
-                      GL_UNSIGNED_BYTE, rgbData.data());
+        texture->getHeight() != (int)height ||
+        currentGeneration != lastGeneration) {
+
+      auto rgbData = paper->getRGBData();
+      int n = 1;
+      while ((width / n) > 2048 || (height / n) > 2048) {
+        n *= 2;
+      }
+
+      int texW = width / n;
+      int texH = height / n;
+
+      const uint8_t *dataToUpload = rgbData.data();
+      if (n > 1) {
+        downsampledBuf.assign(size_t(texW) * texH * 3, 255);
+        for (int y = 0; y < texH; ++y) {
+          for (int x = 0; x < texW; ++x) {
+            size_t srcIdx = (size_t(y * n) * width + (x * n)) * 3;
+            size_t dstIdx = (size_t(y) * texW + x) * 3;
+            downsampledBuf[dstIdx + 0] = rgbData[srcIdx + 0];
+            downsampledBuf[dstIdx + 1] = rgbData[srcIdx + 1];
+            downsampledBuf[dstIdx + 2] = rgbData[srcIdx + 2];
+          }
+        }
+        dataToUpload = downsampledBuf.data();
+      }
+
+      if (!texture || texture->getWidth() != texW ||
+          texture->getHeight() != texH) {
+        texture.emplace(texW, texH);
+        texture->setInterpolation(false);
+        texture->setWrapMode(false);
+        texture->bind();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0, GL_RGB,
+                     GL_UNSIGNED_BYTE, dataToUpload);
+      } else {
+        texture->bind();
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texW, texH, GL_RGB,
+                        GL_UNSIGNED_BYTE, dataToUpload);
+      }
+      lastGeneration = currentGeneration;
     }
 
     // Calculate available space and aspect ratio
