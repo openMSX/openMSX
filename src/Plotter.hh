@@ -82,6 +82,16 @@ public:
   void ensurePrintPage() override;
 
 private:
+  void processTextMode(uint8_t data);
+  void processGraphicMode(uint8_t data);
+  void executeGraphicCommand();
+  void plotWithPen(gl::vec2 pos, float distMoved);
+  void moveTo(gl::vec2 pos);
+  void lineTo(gl::vec2 pos);
+  void drawLine(gl::vec2 from, gl::vec2 to);
+  void drawCharacter(uint8_t c, bool hasNextChar = false);
+
+private:
   // Mode state
   enum class Mode { TEXT, GRAPHIC };
   Mode mode = Mode::TEXT;
@@ -138,16 +148,6 @@ private:
       (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2; // 45 steps (9mm)
   static constexpr unsigned MARGIN_Y =
       (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2; // 48 steps (9.6mm)
-
-  // Private methods
-  void processTextMode(uint8_t data);
-  void processGraphicMode(uint8_t data);
-  void executeGraphicCommand();
-  void plotWithPen(gl::vec2 pos, float distMoved);
-  void moveTo(gl::vec2 pos);
-  void lineTo(gl::vec2 pos);
-  void drawLine(gl::vec2 from, gl::vec2 to);
-  void drawCharacter(uint8_t c, bool hasNextChar = false);
 };
 
 } // namespace openmsx
