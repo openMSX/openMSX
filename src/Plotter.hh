@@ -5,6 +5,7 @@
 #include "EnumSetting.hh"
 #include "Printer.hh"
 #include "gl_vec.hh"
+#include <array>
 #include <cstdint> // for uint8_t
 #include <memory>
 #include <string>
@@ -149,6 +150,15 @@ private:
       (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2; // 45 steps (9mm)
   static constexpr unsigned MARGIN_Y =
       (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2; // 48 steps (9.6mm)
+
+public:
+  // Pen colors: RGB tuples for each pen (0=black, 1=blue, 2=green, 3=red)
+  static constexpr std::array<std::array<uint8_t, 3>, 4> penColors = {{
+      {{0, 0, 0}},     // black
+      {{0, 0, 255}},   // blue
+      {{49, 153, 90}}, // green
+      {{255, 0, 0}}    // red
+  }};
 };
 
 } // namespace openmsx

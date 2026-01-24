@@ -556,13 +556,6 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved) {
     return;
   }
 
-  // Pen colors: RGB tuples for each pen (0=black, 1=blue, 2=green, 3=red)
-  static constexpr std::array<std::array<uint8_t, 3>, 4> penColors = {{
-      {{0, 0, 0}},     // black
-      {{0, 0, 255}},   // blue
-      {{49, 153, 90}}, // green
-      {{255, 0, 0}}    // red
-  }};
   const auto &color = penColors[selectedPen];
   // Convert logical plotter steps to physical paper steps with margins.
   // Origin (0,0) is bottom-left of the plotting area.

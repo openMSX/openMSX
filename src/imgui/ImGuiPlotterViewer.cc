@@ -145,17 +145,9 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard) {
     unsigned pen = plotter->getSelectedPen();
     static constexpr std::array<const char *, 4> penNames = {"Black", "Blue",
                                                              "Green", "Red"};
-    static constexpr std::array<std::array<uint8_t, 3>, 4> penColors = {{
-        {{0, 0, 0}},     // black
-        {{0, 0, 255}},   // blue
-        {{49, 153, 90}}, // green
-        {{255, 0, 0}}    // red
-    }};
-
-    // ImGui::AlignTextToFramePadding();
     ImGui::Text("Pen: %s", penNames[pen]);
     ImGui::SameLine();
-    const auto &c = penColors[pen];
+    const auto &c = MSXPlotter::penColors[pen];
     float sz = ImGui::GetFontSize();
     ImGui::ColorButton("##pencolor",
                        ImVec4(float(c[0]) / 255.0f, float(c[1]) / 255.0f,
