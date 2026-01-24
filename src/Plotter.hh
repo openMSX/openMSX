@@ -50,6 +50,7 @@ public:
 
   [[nodiscard]] gl::vec2 getPlotterPos() const { return plotter + origin; }
   [[nodiscard]] unsigned getSelectedPen() const { return selectedPen; }
+  [[nodiscard]] bool isGraphicMode() const { return mode == Mode::GRAPHIC; }
   [[nodiscard]] Paper *getPaper() { return ImagePrinter::getPaper(); }
   [[nodiscard]] const Paper *getPaper() const {
     return ImagePrinter::getPaper();

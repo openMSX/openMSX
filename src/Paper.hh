@@ -6,6 +6,7 @@
 #ifndef PAPER_HH
 #define PAPER_HH
 
+#include "gl_vec.hh"
 #include <cstdint>
 #include <span>
 #include <string>
@@ -29,6 +30,9 @@ public:
 
   [[nodiscard]] unsigned getWidth() const { return sizeX; }
   [[nodiscard]] unsigned getHeight() const { return sizeY; }
+  [[nodiscard]] gl::vec2 getSize() const {
+    return {float(sizeX), float(sizeY)};
+  }
   [[nodiscard]] std::span<const uint8_t> getRGBData() const { return colorBuf; }
   [[nodiscard]] uint64_t getGeneration() const { return generation; }
 

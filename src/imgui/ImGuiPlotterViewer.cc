@@ -106,12 +106,12 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard) {
     }
 
     // Calculate available space and aspect ratio
-    float availableWidth = ImGui::GetContentRegionAvail().x;
-    float availableHeight =
-        ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeight() * 2.5f;
-    float scale = std::min(availableWidth / (float)width,
-                           availableHeight / (float)height);
-    ImVec2 displaySize = ImVec2(width * scale, height * scale);
+    auto paperSize = paper->getSize();
+    auto availableSize = gl::vec2(ImGui::GetContentRegionAvail()) -
+                         gl::vec2{0.0f, 2.5f * ImGui::GetTextLineHeight()};
+    auto scaleVec = availableSize / paperSize;
+    float scale = min_component(scaleVec);
+    ImVec2 displaySize = paperSize * scale;
 
     ImVec2 screenPos = ImGui::GetCursorScreenPos();
     ImGui::Image(texture->getImGui(), displaySize);
@@ -145,16 +145,26 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard) {
     unsigned pen = plotter->getSelectedPen();
     static constexpr std::array<const char *, 4> penNames = {"Black", "Blue",
                                                              "Green", "Red"};
-    static constexpr std::array<uint32_t, 4> penColors = {
-        0xFF000000, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF};
+    static constexpr std::array<std::array<uint8_t, 3>, 4> penColors = {{
+        {{0, 0, 0}},     // black
+        {{0, 0, 255}},   // blue
+        {{49, 153, 90}}, // green
+        {{255, 0, 0}}    // red
+    }};
 
+    // ImGui::AlignTextToFramePadding();
     ImGui::Text("Pen: %s", penNames[pen]);
     ImGui::SameLine();
+    const auto &c = penColors[pen];
+    float sz = ImGui::GetFontSize();
     ImGui::ColorButton("##pencolor",
-                       ImGui::ColorConvertU32ToFloat4(penColors[pen]),
-                       ImGuiColorEditFlags_NoTooltip);
+                       ImVec4(float(c[0]) / 255.0f, float(c[1]) / 255.0f,
+                              float(c[2]) / 255.0f, 1.0f),
+                       ImGuiColorEditFlags_NoTooltip, {sz, sz});
     ImGui::SameLine();
     ImGui::Text("  Pos: (%.1f, %.1f)", (double)plotX, (double)plotY);
+    ImGui::SameLine();
+    ImGui::Text("  Mode: %s", plotter->isGraphicMode() ? "Graphic" : "Text");
 
     ImGui::Separator();
     if (ImGui::Button("Cycle Pen")) {
