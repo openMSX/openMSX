@@ -343,7 +343,7 @@ void MSXPlotter::executeGraphicCommand() {
   case 'M': // Move (absolute) - M x,y
     if (coords.size() >= 2) {
       printDebug("Plotter: M - Move to (", coords[0], ",", coords[1], ")");
-      moveTo({float(coords[0]), float(coords[1])});
+      moveTo({coords[0], coords[1]});
     }
     break;
 
@@ -351,13 +351,13 @@ void MSXPlotter::executeGraphicCommand() {
     if (coords.size() >= 2) {
       printDebug("Plotter: R - Relative move (", coords[0], ",", coords[1],
                  ")");
-      moveTo(plotter + gl::vec2{float(coords[0]), float(coords[1])});
+      moveTo(plotter + gl::vec2{coords[0], coords[1]});
     }
     break;
 
   case 'D': // Draw (absolute) - D x,y
     if (coords.size() >= 2) {
-      gl::vec2 target{float(coords[0]), float(coords[1])};
+      gl::vec2 target{coords[0], coords[1]};
       printDebug("Plotter: D - Draw to (", target.x, ",", target.y, ") from (",
                  plotter.x, ",", plotter.y, ") penDown=", penDown);
       lineTo(target);
@@ -369,7 +369,7 @@ void MSXPlotter::executeGraphicCommand() {
     printDebug("Plotter: J - Draw relative, ", coords.size() / 2,
                " segments, penDown=", penDown);
     for (size_t i = 0; i + 1 < coords.size(); i += 2) {
-      lineTo(plotter + gl::vec2{float(coords[i]), float(coords[i + 1])});
+      lineTo(plotter + gl::vec2{coords[i], coords[i + 1]});
     }
     break;
 
