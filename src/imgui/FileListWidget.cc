@@ -16,7 +16,7 @@
 
 namespace openmsx {
 
-static std::string formatFileTimeFull(std::time_t fileTime, std::span<char, 32> buf)
+static std::string_view formatFileTimeFull(std::time_t fileTime, std::span<char, 32> buf)
 {
 	// Convert time_t to local time (broken-down time in the local time zone)
 	const std::tm* local_time = std::localtime(&fileTime);
@@ -27,7 +27,7 @@ static std::string formatFileTimeFull(std::time_t fileTime, std::span<char, 32> 
 	return {buf.data(), len};
 }
 
-static std::string formatFileAbbreviated(std::time_t fileTime, std::span<char, 32> buf)
+static std::string_view formatFileAbbreviated(std::time_t fileTime, std::span<char, 32> buf)
 {
 	// Convert time_t to local time (broken-down time in the local time zone)
 	std::tm local_time = *std::localtime(&fileTime);
