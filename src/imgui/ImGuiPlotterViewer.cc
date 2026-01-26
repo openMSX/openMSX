@@ -32,24 +32,32 @@ void ImGuiPlotterViewer::updateTexture(Paper *paper) {
       currentGeneration != lastGeneration) {
 
     auto rgbData = paper->getRGBData();
-    int n = 1;
-    while ((width / n) > 2048 || (height / n) > 2048) {
-      n *= 2;
-    }
+    int scaleX = (int(width) + 2047) / 2048;
+    int scaleY = (int(height) + 2047) / 2048;
 
-    int texW = width / n;
-    int texH = height / n;
+    int texW = width / scaleX;
+    int texH = height / scaleY;
 
     const uint8_t *dataToUpload = rgbData.data();
-    if (n > 1) {
-      downsampledBuf.resize(size_t(texW) * texH * 3, 255);
+    if (scaleX > 1 || scaleY > 1) {
+      downsampledBuf.resize(size_t(texW) * texH * 3);
       for (int y = 0; y < texH; ++y) {
         for (int x = 0; x < texW; ++x) {
-          size_t srcIdx = (size_t(y * n) * width + (x * n)) * 3;
+          unsigned r = 0, g = 0, b = 0;
+          for (int sy = 0; sy < scaleY; ++sy) {
+            for (int sx = 0; sx < scaleX; ++sx) {
+              size_t srcIdx =
+                  (size_t(y * scaleY + sy) * width + (x * scaleX + sx)) * 3;
+              r += rgbData[srcIdx + 0];
+              g += rgbData[srcIdx + 1];
+              b += rgbData[srcIdx + 2];
+            }
+          }
           size_t dstIdx = (size_t(y) * texW + x) * 3;
-          downsampledBuf[dstIdx + 0] = rgbData[srcIdx + 0];
-          downsampledBuf[dstIdx + 1] = rgbData[srcIdx + 1];
-          downsampledBuf[dstIdx + 2] = rgbData[srcIdx + 2];
+          int area = scaleX * scaleY;
+          downsampledBuf[dstIdx + 0] = uint8_t(r / area);
+          downsampledBuf[dstIdx + 1] = uint8_t(g / area);
+          downsampledBuf[dstIdx + 2] = uint8_t(b / area);
         }
       }
       dataToUpload = downsampledBuf.data();
