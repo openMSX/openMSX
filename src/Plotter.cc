@@ -269,8 +269,10 @@ void MSXPlotter::processGraphicMode(uint8_t data) {
       bool isPrintCmd = (graphicCmdBuffer[0] == 'P');
 
       char lastChar = graphicCmdBuffer.back();
-      if (!isPrintCmd && std::isalpha(static_cast<unsigned char>(lastChar)) &&
-          std::toupper(lastChar) != 'E' && lastChar != graphicCmdBuffer[0]) {
+      bool isAlpha = (lastChar >= 'a' && lastChar <= 'z') ||
+                     (lastChar >= 'A' && lastChar <= 'Z');
+      if (!isPrintCmd && isAlpha &&
+          lastChar != one_of('E', 'e', graphicCmdBuffer.front())) {
         // New command starting, execute previous
         char nextCmd = graphicCmdBuffer.back();
         graphicCmdBuffer.pop_back();
@@ -309,8 +311,7 @@ void MSXPlotter::executeGraphicCommand() {
       // actually parses std::stod throws if no conversion. Manually check if
       // valid start of number? Valid: digit, +, -, or .
       char c = args[pos];
-      if (std::isdigit(static_cast<unsigned char>(c)) ||
-          c == one_of('-', '+', '.')) {
+      if ((c >= '0' && c <= '9') || c == one_of('-', '+', '.')) {
         // Check if it's just a lonely '+' or '-' or '.' which stof might handle
         // or reject Standard library stof parses.
         float val = std::stof(args.substr(pos), &nextPos);
