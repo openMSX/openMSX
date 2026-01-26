@@ -352,8 +352,8 @@ void MSXPlotter::executeGraphicCommand() {
   case 'D': // Draw (absolute) - D x,y
     if (coords.size() >= 2) {
       gl::vec2 target{coords[0], coords[1]};
-      printDebug("Plotter: D - Draw to (", target.x, ",", target.y, ") from (",
-                 plotter.x, ",", plotter.y, ") penDown=", penDown);
+      printDebug("Plotter: D - draw to ", target, " from ", plotter,
+                 " penDown=", penDown);
       lineTo(target);
     }
     break;
