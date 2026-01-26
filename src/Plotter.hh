@@ -12,12 +12,13 @@
 
 namespace openmsx {
 
-// Character set options for the plotter
-enum class PlotterCharacterSet { International, Japanese, DIN };
-enum class PlotterPenThickness { Standard, Thick };
-
 // MSXPlotter: emulates Sony PRN-C41 color plotter with 4 pens
 class MSXPlotter final : public ImagePrinter {
+public:
+  // Character set options for the plotter
+  enum class CharacterSet { International, Japanese, DIN };
+  enum class PenThickness { Standard, Thick };
+
 public:
   explicit MSXPlotter(MSXMotherBoard &motherBoard);
 
@@ -26,8 +27,8 @@ public:
   [[nodiscard]] zstring_view getDescription() const override;
 
   // Configuration settings (accessible by ImGui)
-  [[nodiscard]] PlotterCharacterSet getCharacterSet() const;
-  void setCharacterSet(PlotterCharacterSet cs);
+  [[nodiscard]] CharacterSet getCharacterSet() const;
+  void setCharacterSet(CharacterSet cs);
   [[nodiscard]] bool getDipSwitch4() const;
   void setDipSwitch4(bool enabled);
 
@@ -37,15 +38,13 @@ public:
   void ejectPaper();
 
   // Access to settings for persistence
-  [[nodiscard]] EnumSetting<PlotterCharacterSet> &
-  getCharacterSetSetting() const {
+  [[nodiscard]] EnumSetting<CharacterSet> &getCharacterSetSetting() const {
     return *charSetSetting;
   }
   [[nodiscard]] BooleanSetting &getDipSwitch4Setting() const {
     return *dipSwitch4Setting;
   }
-  [[nodiscard]] EnumSetting<PlotterPenThickness> &
-  getPenThicknessSetting() const {
+  [[nodiscard]] EnumSetting<PenThickness> &getPenThicknessSetting() const {
     return *penThicknessSetting;
   }
 
@@ -129,9 +128,9 @@ private:
   unsigned charScale = 0;
 
   // Configuration settings (persistent)
-  std::shared_ptr<EnumSetting<PlotterCharacterSet>> charSetSetting;
+  std::shared_ptr<EnumSetting<CharacterSet>> charSetSetting;
   std::shared_ptr<BooleanSetting> dipSwitch4Setting;
-  std::shared_ptr<EnumSetting<PlotterPenThickness>> penThicknessSetting;
+  std::shared_ptr<EnumSetting<PenThickness>> penThicknessSetting;
 
   // Graphic mode command buffer
   std::string graphicCmdBuffer;
@@ -144,12 +143,6 @@ private:
   // A4 Plotting Area: 192mm x 276.8mm => 960 x 1384 steps.
   static constexpr unsigned PLOT_AREA_WIDTH = 960;
   static constexpr unsigned PLOT_AREA_HEIGHT = 1384;
-
-  // Center the plotting area on the paper.
-  static constexpr unsigned MARGIN_X =
-      (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2; // 45 steps (9mm)
-  static constexpr unsigned MARGIN_Y =
-      (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2; // 48 steps (9.6mm)
 
 public:
   // Pen colors: RGB tuples for each pen (0=black, 1=blue, 2=green, 3=red)

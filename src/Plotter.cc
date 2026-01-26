@@ -34,26 +34,26 @@ MSXPlotter::MSXPlotter(MSXMotherBoard &motherBoard)
     : ImagePrinter(motherBoard, false) // graphicsHiLo=false (not used)
       ,
       charSetSetting(
-          motherBoard.getSharedStuff<EnumSetting<PlotterCharacterSet>>(
+          motherBoard.getSharedStuff<EnumSetting<MSXPlotter::CharacterSet>>(
               "plotter-charset", motherBoard.getCommandController(),
               "plotter-charset", "character set for the MSX plotter",
-              PlotterCharacterSet::International,
-              EnumSetting<PlotterCharacterSet>::Map{
-                  {"international", PlotterCharacterSet::International},
-                  {"japanese", PlotterCharacterSet::Japanese},
-                  {"din", PlotterCharacterSet::DIN}})),
+              MSXPlotter::CharacterSet::International,
+              EnumSetting<MSXPlotter::CharacterSet>::Map{
+                  {"international", MSXPlotter::CharacterSet::International},
+                  {"japanese", MSXPlotter::CharacterSet::Japanese},
+                  {"din", MSXPlotter::CharacterSet::DIN}})),
       dipSwitch4Setting(motherBoard.getSharedStuff<BooleanSetting>(
           "plotter-dipswitch4", motherBoard.getCommandController(),
           "plotter-dipswitch4", "dipswitch 4 setting for the MSX plotter",
           false)),
       penThicknessSetting(
-          motherBoard.getSharedStuff<EnumSetting<PlotterPenThickness>>(
+          motherBoard.getSharedStuff<EnumSetting<MSXPlotter::PenThickness>>(
               "plotter-pen-thickness", motherBoard.getCommandController(),
               "plotter-pen-thickness", "pen thickness for the MSX plotter",
-              PlotterPenThickness::Standard,
-              EnumSetting<PlotterPenThickness>::Map{
-                  {"standard", PlotterPenThickness::Standard},
-                  {"thick", PlotterPenThickness::Thick}})) {
+              MSXPlotter::PenThickness::Standard,
+              EnumSetting<MSXPlotter::PenThickness>::Map{
+                  {"standard", MSXPlotter::PenThickness::Standard},
+                  {"thick", MSXPlotter::PenThickness::Thick}})) {
   // Initialize default font (8x8) if not loaded
   // This prevents crashes in printVisibleCharacter if rom is empty
   if (fontInfo.charWidth == 0) {
@@ -88,11 +88,11 @@ void MSXPlotter::writeData(uint8_t data, EmuTime time) {
   ImagePrinter::writeData(data, time);
 }
 
-PlotterCharacterSet MSXPlotter::getCharacterSet() const {
+MSXPlotter::CharacterSet MSXPlotter::getCharacterSet() const {
   return charSetSetting->getEnum();
 }
 
-void MSXPlotter::setCharacterSet(PlotterCharacterSet cs) {
+void MSXPlotter::setCharacterSet(CharacterSet cs) {
   charSetSetting->setEnum(cs);
 }
 
@@ -549,6 +549,12 @@ void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to) {
 }
 
 void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved) {
+  // Margin constants: center the plotting area on the paper.
+  // MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2 = 45 steps (9mm)
+  // MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2 = 48 steps (9.6mm)
+  constexpr float MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2.0f;
+  constexpr float MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2.0f;
+
   ensurePrintPage();
   auto *p = getPaper();
   if (!p) {
@@ -562,9 +568,8 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved) {
   // Origin (0,0) is bottom-left of the plotting area.
   // X-axis: MarginX + LogicalX
   // Y-axis: (PaperHeight - MarginY) - LogicalY (inverted for top-down PNG)
-  gl::vec2 paperPos =
-      gl::vec2{float(MARGIN_X), float(PAPER_HEIGHT_STEPS - MARGIN_Y)} +
-      gl::vec2{1.0f, -1.0f} * (pos + origin);
+  gl::vec2 paperPos = gl::vec2{MARGIN_X, float(PAPER_HEIGHT_STEPS) - MARGIN_Y} +
+                      gl::vec2{1.0f, -1.0f} * (pos + origin);
 
   gl::vec2 pixelPos = paperPos * gl::vec2{float(pixelSizeX), float(pixelSizeY)};
 
@@ -602,9 +607,8 @@ void MSXPlotter::ensurePrintPage() {
     // lines.
     if (auto *p = getPaper()) {
       float sizeMultiplier =
-          (getPenThicknessSetting().getEnum() == PlotterPenThickness::Thick)
-              ? 1.5f
-              : 1.0f;
+          (getPenThicknessSetting().getEnum() == PenThickness::Thick) ? 1.5f
+                                                                      : 1.0f;
       p->setDotSize(double(float(pixelSizeX) * sizeMultiplier),
                     double(float(pixelSizeY) * sizeMultiplier));
     }
@@ -669,7 +673,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/) {
   //  Select font based on character set setting
   auto font = [&] {
     switch (getCharacterSet()) {
-      using enum PlotterCharacterSet;
+      using enum CharacterSet;
     default:
     case International:
       return getMSXFontRaw();
