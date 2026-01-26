@@ -130,12 +130,13 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard) {
     // (PAPER_HEIGHT_STEPS - MARGIN_Y) - (y + originY); NOTE: Plotter steps
     // might be slightly different than paper size, but MARGIN_X handles it.
     // Let's use the same logic as plotWithPen:
-    double paperX = (double)plotX + 45.0; // MARGIN_X is 45
-    double paperY = 1480.0 - 48.0 -
-                    (double)plotY; // PAPER_HEIGHT_STEPS = 1480, MARGIN_Y = 48
+    double paperX = (double)plotX + (double)MSXPlotter::MARGIN_X;
+    double paperY = (double)MSXPlotter::PAPER_HEIGHT_STEPS -
+                    (double)MSXPlotter::MARGIN_Y - (double)plotY;
 
-    double stepToPixelX = (double)width / 1050.0;
-    double stepToPixelY = (double)height / 1480.0;
+    double stepToPixelX = (double)width / (double)MSXPlotter::PAPER_WIDTH_STEPS;
+    double stepToPixelY =
+        (double)height / (double)MSXPlotter::PAPER_HEIGHT_STEPS;
     float penX = (float)(paperX * stepToPixelX * (double)scale);
     float penY = (float)(paperY * stepToPixelY * (double)scale);
 

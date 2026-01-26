@@ -135,6 +135,7 @@ private:
   // Graphic mode command buffer
   std::string graphicCmdBuffer;
 
+public:
   // A4 Paper: 210mm x 296mm => 1050 x 1480 steps.
   // X-axis is the short axis (carriage), Y-axis is the long axis (paper feed).
   static constexpr unsigned PAPER_WIDTH_STEPS = 1050;  // 210mm
@@ -143,6 +144,11 @@ private:
   // A4 Plotting Area: 192mm x 276.8mm => 960 x 1384 steps.
   static constexpr unsigned PLOT_AREA_WIDTH = 960;
   static constexpr unsigned PLOT_AREA_HEIGHT = 1384;
+
+  static constexpr float MARGIN_X =
+      (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2.0f;
+  static constexpr float MARGIN_Y =
+      (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2.0f;
 
 public:
   // Pen colors: RGB tuples for each pen (0=black, 1=blue, 2=green, 3=red)

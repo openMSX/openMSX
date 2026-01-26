@@ -553,8 +553,9 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved) {
   // Margin constants: center the plotting area on the paper.
   // MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2 = 45 steps (9mm)
   // MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2 = 48 steps (9.6mm)
-  constexpr float MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2.0f;
-  constexpr float MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2.0f;
+  // Margin constants: center the plotting area on the paper.
+  // MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2 = 45 steps (9mm)
+  // MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2 = 48 steps (9.6mm)
 
   ensurePrintPage();
   auto *p = getPaper();
