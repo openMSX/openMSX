@@ -135,6 +135,7 @@ void ImGuiManager::initializeImGui()
 	                  //ImGuiConfigFlags_NavEnableGamepad | // TODO revisit this later
 	                  ImGuiConfigFlags_DockingEnable |
 	                  ImGuiConfigFlags_ViewportsEnable;
+	//io.ConfigViewportsNoDefaultParent = true; // Experiment: can be set via 'Settings > GUI > No window grouping'
 	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
 	io.IniFilename = iniFilename.c_str();
 

@@ -383,6 +383,20 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 			ImGui::MenuItem("Configure messages", nullptr, &manager.messages->configureWindow.open);
+
+			ImGui::Separator();
+			// Experiment: allow to play with this.
+			//   Can we pick one preferred way and remove this option?
+			//   Or is it better to keep this option?
+			//   And if so, where to place it? (I just added it at the end because it's experimental.)
+			bool& noGrouping = ImGui::GetIO().ConfigViewportsNoDefaultParent;
+			ImGui::MenuItem("No window grouping", nullptr, &noGrouping);
+			simpleToolTip(
+				"By default, new windows are created as children of the main window. "
+				"This means they are always drawn above the main window, and are minimized "
+				"together with the main window.\n"
+				"When this option is enabled, new windows are instead created as independent windows."
+			);
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{
