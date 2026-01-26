@@ -21,6 +21,8 @@ public:
   bool show = false;
 
 private:
+  void updateTexture(class Paper *paper);
+
   std::optional<gl::ColorTexture> texture;
   uint64_t lastGeneration = uint64_t(-1);
   std::vector<uint8_t> downsampledBuf;
