@@ -4,6 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "Paper.hh"
 #include "Printer.hh"
+#include "gl_mat.hh"
 #include "gl_vec.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -693,11 +694,14 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/) {
   // u=0 is at cursor, character extends in reading direction (+u).
   // v=0 is at baseline, character extends upward (+v).
   auto transform = [&](gl::vec2 p) -> gl::vec2 {
-    static constexpr std::array<gl::vec2, 4> uDir = {
-        {{1.0f, 0.0f}, {0.0f, -1.0f}, {-1.0f, 0.0f}, {0.0f, 1.0f}}};
-    static constexpr std::array<gl::vec2, 4> vDir = {
-        {{0.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, -1.0f}, {-1.0f, 0.0f}}};
-    return plotter + p.x * uDir[rotation] + p.y * vDir[rotation];
+    // Each rotation matrix has columns [uDir, vDir] for that rotation
+    static constexpr std::array<gl::mat2, 4> rotations = {{
+        gl::mat2{gl::vec2{1.0f, 0.0f}, gl::vec2{0.0f, 1.0f}},   // 0°: identity
+        gl::mat2{gl::vec2{0.0f, -1.0f}, gl::vec2{1.0f, 0.0f}},  // 90° CW
+        gl::mat2{gl::vec2{-1.0f, 0.0f}, gl::vec2{0.0f, -1.0f}}, // 180°
+        gl::mat2{gl::vec2{0.0f, 1.0f}, gl::vec2{-1.0f, 0.0f}}   // 270° CW
+    }};
+    return plotter + rotations[rotation] * p;
   };
 
   for (int dy = 0; dy < 8; ++dy) {
