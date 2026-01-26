@@ -42,7 +42,7 @@ void ImGuiPlotterViewer::updateTexture(Paper *paper) {
 
     const uint8_t *dataToUpload = rgbData.data();
     if (n > 1) {
-      downsampledBuf.assign(size_t(texW) * texH * 3, 255);
+      downsampledBuf.resize(size_t(texW) * texH * 3, 255);
       for (int y = 0; y < texH; ++y) {
         for (int x = 0; x < texW; ++x) {
           size_t srcIdx = (size_t(y * n) * width + (x * n)) * 3;
