@@ -597,6 +597,7 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved) {
   if (draw) {
     p->plotColor(double(pixelPos.x), double(pixelPos.y), color[0], color[1],
                  color[2]);
+    picturePlotted = true;
   }
 }
 
@@ -615,6 +616,19 @@ void MSXPlotter::ensurePrintPage() {
                     double(float(pixelSizeY) * sizeMultiplier));
     }
   }
+}
+
+void MSXPlotter::flushEmulatedPrinter() {
+  if (!picturePlotted) {
+    // If nothing was plotted, force the ImagePrinter to effectively "forget"
+    // the dirty region so it won't save a blank file.
+    // Default values in ImagePrinter are Top=-1.0, Bottom=0.0 which satisfy
+    // Bottom > Top. We set Top=0.0, Bottom=-1.0 to ensure Bottom <= Top.
+    printAreaTop = 0.0;
+    printAreaBottom = -1.0;
+  }
+  ImagePrinter::flushEmulatedPrinter();
+  picturePlotted = false;
 }
 
 std::pair<unsigned, unsigned> MSXPlotter::getNumberOfDots() {
@@ -638,6 +652,7 @@ void MSXPlotter::resetSettings() {
   maxLineHeight = 0.0f;
   graphicCmdBuffer.clear();
   printNext = false;
+  picturePlotted = false;
 
   // Set up printer settings for plotter
   lineFeed = 18.0; // Proportional to new character height

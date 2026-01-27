@@ -81,6 +81,7 @@ public:
   unsigned calcEscSequenceLength(uint8_t character) override;
   void processEscSequence() override;
   void ensurePrintPage() override;
+  void flushEmulatedPrinter() override;
 
 private:
   void processTextMode(uint8_t data);
@@ -100,7 +101,8 @@ private:
   // ESC sequence parsing state
   enum class EscState { NONE, ESC, ESC_C };
   EscState escState = EscState::NONE;
-  bool printNext = false; // For 0x01 literal prefix
+  bool printNext = false;      // For 0x01 literal prefix
+  bool picturePlotted = false; // Has anything been plotted on the current page?
 
   // Pen/color state
   unsigned selectedPen = 0; // 0=black, 1=blue, 2=green, 3=red
