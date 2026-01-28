@@ -168,9 +168,8 @@ public:
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).
 	  */
-	// TODO should be friend, workaround for pre-gcc-13 bug
-	[[nodiscard]] EmuTime operator+(uint64_t n) const {
-		return EmuTime(lastTick.time + n * getStep());
+	[[nodiscard]] friend EmuTime operator+(const DynamicClock& c, uint64_t n) {
+		return EmuTime(c.lastTick.time + n * c.getStep());
 	}
 
 	/** Advance this clock by the given number of ticks.
