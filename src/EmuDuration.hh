@@ -159,17 +159,11 @@ using EmuDuration32 = EmuDurationCompactStorage<uint32_t>;
 using EmuDuration16 = EmuDurationCompactStorage<uint16_t>;
 using EmuDuration8  = EmuDurationCompactStorage<uint8_t>;
 
-namespace detail {
-	// via intermediate variable to work around gcc-10 warning
-	inline constexpr uint64_t max32 = std::numeric_limits<uint32_t>::max();
-	inline constexpr uint64_t max16 = std::numeric_limits<uint16_t>::max();
-	inline constexpr uint64_t max8  = std::numeric_limits<uint8_t >::max();
-}
 template<uint64_t MAX>
-using EmuDurationStorageFor = std::conditional_t<(MAX > detail::max32), EmuDuration,
-                              std::conditional_t<(MAX > detail::max16), EmuDuration32,
-                              std::conditional_t<(MAX > detail::max8 ), EmuDuration16,
-                                                                        EmuDuration8>>>;
+using EmuDurationStorageFor = std::conditional_t<(MAX > std::numeric_limits<uint32_t>::max()), EmuDuration,
+                              std::conditional_t<(MAX > std::numeric_limits<uint16_t>::max()), EmuDuration32,
+                              std::conditional_t<(MAX > std::numeric_limits<uint8_t >::max()), EmuDuration16,
+                                                                                               EmuDuration8>>>;
 } // namespace openmsx
 
 #endif
