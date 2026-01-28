@@ -21,6 +21,9 @@ public:
 	[[nodiscard]] static constexpr EmuTime fromDouble(double d) {
 		return EmuTime::zero() + EmuDuration::sec(d);
 	}
+	[[nodiscard]] static constexpr EmuTime fromUint64(uint64_t t) {
+		return EmuTime(t);
+	}
 
 	[[nodiscard]] constexpr uint64_t toUint64() const { return time; }
 	[[nodiscard]] constexpr double toDouble() const { return EmuDuration(time).toDouble(); }

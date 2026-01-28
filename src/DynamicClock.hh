@@ -169,7 +169,7 @@ public:
 	  * number of times (counted from its last tick).
 	  */
 	[[nodiscard]] friend EmuTime operator+(const DynamicClock& c, uint64_t n) {
-		return EmuTime(c.lastTick.toUint64() + n * c.getStep());
+		return EmuTime::fromUint64(c.lastTick.toUint64() + n * c.getStep());
 	}
 
 	/** Advance this clock by the given number of ticks.

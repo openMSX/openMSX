@@ -87,7 +87,7 @@ public:
 	  * number of times (counted from its last tick).
 	  */
 	[[nodiscard]] constexpr friend EmuTime operator+(const Clock& c, uint64_t n) {
-		return EmuTime(c.lastTick.time + n * MASTER_TICKS);
+		return EmuTime::fromUint64(c.lastTick.toUint64() + n * MASTER_TICKS);
 	}
 
 	/** Like operator+() but faster, though the step can't be too big (max
