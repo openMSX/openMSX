@@ -103,20 +103,127 @@ static constexpr std::array<uint8_t, 18> CH_OFFSET = {
 
 static constexpr std::array<int8_t, 8> VIB_TAB = {0, 1, 2, 1, 0, -1, -2, -1};
 
-// Define the tables
-//    constexpr uint8_t attack[14][4][64] = { ... };
-//    constexpr uint8_t releaseIndex[14][4][4] = { ... };
-//    constexpr uint8_t releaseData[64][64] = { ... };
-// Theoretically these could all be initialized via some constexpr functions.
-// The calculation isn't difficult, but it's a bit long. 'clang' can handle it,
-// but 'gcc' cannot. So instead, for now, we pre-calculate these tables and
-// #include them. See 'generateNukeYktTables.cpp' for the generator code.
-#include "YM2413NukeYktTables.ii"
+// Compute envelope generator tables at compile time.
+// These tables control the attack and release characteristics of the YM2413 sound chip.
+
+using B4 = std::array<bool, 4>;
+constexpr std::array<B4, 4> EG_STEP_HI = {
+        B4{false, true, true, true},
+        B4{false, false, false, true},
+        B4{false, false, true, true},
+        B4{false, false, false, false},
+};
+
+// Compute the attack envelope table
+[[nodiscard]] constexpr auto computeAttackTable()
+{
+	std::array<std::array<std::array<uint8_t, 64 /*rate*/>, 4 /*timer*/>, 14 /*timer_shift*/> result = {};
+	for (auto timer_shift : xrange(14)) {
+		for (auto timer : xrange(4)) {
+			for (auto rate : xrange(64)) {
+				uint8_t rate_hi = rate >> 2;
+				uint8_t rate_lo = rate & 3;
+				bool inc_hi = EG_STEP_HI[timer][rate_lo];
+				bool inc_lo = [&]() -> bool {
+					if ((rate_hi < 12) && (rate_hi != 0)) {
+						switch (timer_shift + rate_hi) {
+						case 12: return true;
+						case 13: return rate_lo & 2;
+						case 14: return rate_lo & 1;
+						}
+					}
+					return false;
+				}();
+				result[timer_shift][timer][rate] = [&]() {
+					if (rate_hi != 0xf) {
+						int32_t shift = (rate_hi < 12)
+						              ? inc_lo
+						              : (rate_hi - 11 + inc_hi);
+						if (shift > 0) {
+							return 5 - shift;
+						}
+					}
+					return 31;
+				}();
+			}
+		}
+	}
+	return result;
+}
+static constexpr auto attack = computeAttackTable();
+
+// Compute the uncompressed release envelope table
+[[nodiscard]] constexpr auto computeReleaseTable()
+{
+	std::array<std::array<std::array<std::array<uint8_t, 64 /*rate*/>, 4 /*counter_state*/>, 4 /*timer*/>, 14 /*timer_shift*/> result = {};
+	for (auto timer_shift : xrange(14)) {
+		for (auto timer : xrange(4)) {
+			for (auto rate : xrange(64)) {
+				uint8_t rate_hi = rate >> 2;
+				uint8_t rate_lo = rate & 3;
+				bool inc_hi = EG_STEP_HI[timer][rate_lo];
+				bool inc_lo = [&]() -> bool {
+					if ((rate_hi < 12) && (rate_hi != 0)) {
+						switch (timer_shift + rate_hi) {
+						case 12: return true;
+						case 13: return rate_lo & 2;
+						case 14: return rate_lo & 1;
+						}
+					}
+					return false;
+				}();
+				for (auto counter_state : xrange(4)) {
+					bool i0 = rate_hi == 15 || (rate_hi == 14 && inc_hi);
+					bool i1 = (rate_hi == 14 && !inc_hi) ||
+					          (rate_hi == 13 && inc_hi) ||
+					          (rate_hi == 13 && !inc_hi && (counter_state & 1)) ||
+					          (rate_hi == 12 && inc_hi && (counter_state & 1)) ||
+					          (rate_hi == 12 && !inc_hi && (counter_state == 3)) ||
+					          (inc_lo && (counter_state == 3));
+					int i01 = (i0 << 1) | i1;
+					result[timer_shift][timer][counter_state][rate] = i01;
+				}
+			}
+		}
+	}
+	return result;
+}
+
+// Compress a table by deduplicating identical 64-element arrays
+template<typename Table>
+[[nodiscard]] constexpr auto compressTable(const Table& table)
+{
+	struct CompressedTable {
+		std::array<std::array<std::array<uint8_t, 4>, 4>, 14> index;
+		std::array<std::array<uint8_t, 64>, 64> data;
+	};
+	CompressedTable result = {};
+	size_t out_n = 0;
+	for (auto i : xrange(14)) {
+		for (auto j : xrange(4)) {
+			for (auto k : xrange(4)) {
+				auto haystack = std::span{result.data.data(), out_n};
+				auto it = std::ranges::find_if(haystack, [&](const auto& candidate) {
+					return std::ranges::equal(table[i][j][k], candidate);
+				});
+				if (it != haystack.end()) {
+					result.index[i][j][k] = narrow<uint8_t>(std::ranges::distance(haystack.begin(), it));
+				} else {
+					copy_to_range(table[i][j][k], result.data[out_n]);
+					result.index[i][j][k] = out_n;
+					++out_n;
+				}
+			}
+		}
+	}
+	return result;
+}
+static constexpr auto release = compressTable(computeReleaseTable());
 
 
 YM2413::YM2413()
 	: attackPtr (/*dummy*/attack[0][0])
-	, releasePtr(/*dummy*/releaseData[0])
+	, releasePtr(/*dummy*/release.data[0])
 {
 	// copy ROM patches to array (for faster lookup)
 	copy_to_range(m_patches, subspan(patches, 1));
@@ -133,8 +240,8 @@ void YM2413::reset()
 	eg_counter_state = 3;
 	eg_timer = eg_timer_shift = eg_timer_shift_lock = eg_timer_lock = 0;
 	attackPtr  = attack[eg_timer_shift_lock][eg_timer_lock];
-	auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
-	releasePtr = releaseData[idx];
+	auto idx = release.index[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
+	releasePtr = release.data[idx];
 	std::ranges::fill(eg_state, EgState::release);
 	std::ranges::fill(eg_level, 0x7f);
 	std::ranges::fill(eg_dokon, false);
@@ -206,8 +313,8 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeTimer1()
 {
 	if constexpr (CYCLES == 0) {
 		eg_counter_state = (eg_counter_state + 1) & 3;
-		auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
-		releasePtr = releaseData[idx];
+		auto idx = release.index[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
+		releasePtr = release.data[idx];
 	}
 }
 
@@ -220,8 +327,8 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 			eg_timer_shift = 0;
 
 			attackPtr  = attack[eg_timer_shift_lock][eg_timer_lock];
-			auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
-			releasePtr = releaseData[idx];
+			auto idx = release.index[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
+			releasePtr = release.data[idx];
 		}
 		{ // EG timer
 			bool timer_inc = (eg_counter_state != 3) ? false
@@ -250,8 +357,8 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 				eg_timer_shift_lock = (eg_timer_shift > 13) ? 0 : eg_timer_shift;
 
 				attackPtr  = attack[eg_timer_shift_lock][eg_timer_lock];
-				auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
-				releasePtr = releaseData[idx];
+				auto idx = release.index[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
+				releasePtr = release.data[idx];
 			}
 			if (eg_counter_state == 3) {
 				eg_timer = (eg_timer + 1) & 0x3ffff;
@@ -988,8 +1095,8 @@ void YM2413::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		// restore redundant state
 		attackPtr = attack[eg_timer_shift_lock][eg_timer_lock];
-		auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
-		releasePtr = releaseData[idx];
+		auto idx = release.index[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
+		releasePtr = release.data[idx];
 
 		lfo_vib = VIB_TAB[lfo_vib_counter];
 
