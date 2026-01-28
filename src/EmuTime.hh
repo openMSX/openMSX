@@ -30,10 +30,10 @@ public:
 
 	// arithmetic operators
 	[[nodiscard]] constexpr friend EmuTime operator+(EmuTime l, EmuDuration r)
-		{ return EmuTime(l.time + r.time); }
+		{ return EmuTime(l.toUint64() + r.toUint64()); }
 	[[nodiscard]] constexpr friend EmuTime operator-(EmuTime l, EmuDuration r)
-		{ assert(l.time >= r.time);
-		  return EmuTime(l.time - r.time); }
+		{ assert(l.toUint64() >= r.toUint64());
+		  return EmuTime(l.toUint64() - r.toUint64()); }
 	[[nodiscard]] constexpr EmuTime saturateSubtract(EmuDuration r) const
 		{ return EmuTime((time >= r.time) ? time - r.time : 0); }
 	constexpr EmuTime& operator+=(EmuDuration d)
