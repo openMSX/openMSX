@@ -125,6 +125,7 @@ void ImGuiSettings::setStyle() const
 	case 0: ImGui::StyleColorsDark();    break;
 	case 1: ImGui::StyleColorsLight();   break;
 	case 2: ImGui::StyleColorsClassic(); break;
+	case 3: ImGui::StyleColorsClassic(); break; // colorblind adjustements
 	}
 	setColors(selectedStyle);
 }
@@ -361,7 +362,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 			im::Menu("Select style", [&]{
 				std::optional<int> newStyle;
-				static constexpr std::array names = {"Dark", "Light", "Classic"}; // must be in sync with setStyle()
+				static constexpr std::array names = {"Dark", "Light", "Classic", "Colorblind"}; // must be in sync with setStyle()
 				for (auto i : xrange(narrow<int>(names.size()))) {
 					if (ImGui::Selectable(names[i], selectedStyle == i)) {
 						newStyle = i;

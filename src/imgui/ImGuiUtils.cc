@@ -341,8 +341,9 @@ std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name)
 
 void setColors(int style)
 {
-	// style: 0->dark, 1->light, 2->classic
+	// style: 0->dark, 1->light, 2->classic, 3->colorblind
 	bool light = style == 1;
+  bool colorblind = style == 3;
 	using enum imColor;
 
 	//                                   AA'BB'GG'RR
@@ -357,13 +358,14 @@ void setColors(int style)
 	imColors[size_t(TEXT          )] = ImGui::GetColorU32(ImGuiCol_Text);
 	imColors[size_t(TEXT_DISABLED )] = ImGui::GetColorU32(ImGuiCol_TextDisabled);
 
-	imColors[size_t(ERROR         )] = 0xff'00'00'ff;
+	imColors[size_t(ERROR         )] = colorblind ? 0xff'00'ff'ff : 0xff'00'00'ff;
 	imColors[size_t(WARNING       )] = 0xff'33'b3'ff;
 
 	imColors[size_t(COMMENT       )] = 0xff'5c'ff'5c;
 	imColors[size_t(VARIABLE      )] = 0xff'ff'ff'00;
 	imColors[size_t(LITERAL       )] = light ? 0xff'9c'5d'27 : 0xff'00'ff'ff;
-	imColors[size_t(PROC          )] = 0xff'cd'00'cd;
+	imColors[size_t(PROC          )] = colorblind ? 0xff'00'ee'aa : 0xff'cd'00'cd;
+
 	imColors[size_t(OPERATOR      )] = 0xff'cd'cd'00;
 
 	imColors[size_t(KEY_ACTIVE    )] = 0xff'10'40'ff;
