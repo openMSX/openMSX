@@ -47,7 +47,7 @@ TsxImage::TsxImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 	}
 
 	// Conversion successful, now calculate sha1sum
-	setSha1Sum(filePool.getSha1Sum(file));
+	setSha1Sum(filePool.getSha1Sum(file, filename.getResolved()));
 }
 
 int16_t TsxImage::getSampleAt(EmuTime time) const

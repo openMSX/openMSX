@@ -723,7 +723,7 @@ Sha1Sum SCSILS120::getSha1SumImpl(FilePool& filePool)
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
-	return filePool.getSha1Sum(file);
+	return filePool.getSha1Sum(file, filename);
 }
 
 void SCSILS120::readSectorsImpl(

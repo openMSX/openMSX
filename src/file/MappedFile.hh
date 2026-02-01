@@ -1,6 +1,7 @@
 #ifndef MAPPED_FILE_HH
 #define MAPPED_FILE_HH
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <span>

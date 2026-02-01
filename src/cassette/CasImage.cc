@@ -289,7 +289,7 @@ CasImage::Data CasImage::init(const Filename& filename, FilePool& filePool, CliC
 	setFirstFileType(fileType, filename);
 
 	// conversion successful, now calc sha1sum
-	setSha1Sum(filePool.getSha1Sum(file));
+	setSha1Sum(filePool.getSha1Sum(file, filename.getResolved()));
 
 	return result;
 }

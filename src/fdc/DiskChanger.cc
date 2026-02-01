@@ -340,10 +340,10 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			// I'm not sure which alternative is better.
 			if (!FileOperations::exists(name)) {
 				assert(!oldChecksum.empty());
-				auto file = filePool.getFile(
+				auto [file, filename] = filePool.getFile(
 					FileType::DISK, Sha1Sum(oldChecksum));
 				if (file.is_open()) {
-					name = file.getURL();
+					name = std::move(filename);
 				}
 			}
 			std::vector<TclObject> args =

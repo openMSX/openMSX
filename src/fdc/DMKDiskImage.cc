@@ -219,7 +219,7 @@ bool DMKDiskImage::isWriteProtectedImpl() const
 
 Sha1Sum DMKDiskImage::getSha1SumImpl(FilePool& filePool)
 {
-	return filePool.getSha1Sum(*file);
+	return filePool.getSha1Sum(*file, getName().getResolved());
 }
 
 void DMKDiskImage::detectGeometryFallback()

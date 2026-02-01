@@ -84,7 +84,7 @@ const WavImageCache::WavInfo& WavImageCache::get(const std::string& filename, Fi
 	if (it == cache.end()) {
 		File file(filename);
 		Entry entry;
-		entry.info.sum = filePool.getSha1Sum(file);
+		entry.info.sum = filePool.getSha1Sum(file, filename);
 		entry.info.wav = WavData(std::move(file), DCFilter{});
 		it = cache.try_emplace(filename, std::move(entry)).first;
 	}

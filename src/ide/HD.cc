@@ -142,7 +142,7 @@ Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
-	return filePool.getSha1Sum(file);
+	return filePool.getSha1Sum(file, filename.getResolved());
 }
 
 void HD::showProgress(size_t position, size_t maxPosition)

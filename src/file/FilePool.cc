@@ -54,21 +54,21 @@ FilePool::~FilePool()
 	filePoolSetting.detach(*this);
 }
 
-File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
+FilePool::Result FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 {
 	return core.getFile(fileType, sha1sum);
 }
 
-Sha1Sum FilePool::getSha1Sum(File& file)
+Sha1Sum FilePool::getSha1Sum(File& file, std::string_view filename)
 {
-	return core.getSha1Sum(file);
+	return core.getSha1Sum(file, filename);
 }
 
-std::optional<Sha1Sum> FilePool::getSha1Sum(const std::string& filename)
+std::optional<Sha1Sum> FilePool::getSha1Sum(zstring_view filename)
 {
 	try {
 		File file(filename);
-		return getSha1Sum(file);
+		return getSha1Sum(file, filename);
 	} catch (MSXException&) {
 		return {};
 	}
@@ -174,9 +174,10 @@ FilePool::Sha1SumCommand::Sha1SumCommand(
 void FilePool::Sha1SumCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, "filename");
-	File file(FileOperations::expandTilde(std::string(tokens[1].getString())));
+	auto filename = FileOperations::expandTilde(std::string(tokens[1].getString()));
+	File file(filename);
 	auto& filePool = OUTER(FilePool, sha1SumCommand);
-	result = filePool.getSha1Sum(file).toString();
+	result = filePool.getSha1Sum(file, filename).toString();
 }
 
 std::string FilePool::Sha1SumCommand::help(std::span<const TclObject> /*tokens*/) const

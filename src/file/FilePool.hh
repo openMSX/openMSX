@@ -19,6 +19,8 @@ class Sha1SumCommand;
 class FilePool final : private Observer<Setting>, private EventListener
 {
 public:
+	using Result = FilePoolCore::Result;
+
 	FilePool(CommandController& controller, Reactor& reactor);
 	~FilePool();
 
@@ -26,14 +28,14 @@ public:
 	 * If found it returns the (already opened) file,
 	 * if not found it returns nullptr.
 	 */
-	[[nodiscard]] File getFile(FileType fileType, const Sha1Sum& sha1sum);
+	[[nodiscard]] Result getFile(FileType fileType, const Sha1Sum& sha1sum);
 
 	/** Calculate sha1sum for the given File object.
 	 * If possible the result is retrieved from cache, avoiding the
 	 * relatively expensive calculation.
 	 */
-	[[nodiscard]] Sha1Sum getSha1Sum(File& file);
-	[[nodiscard]] std::optional<Sha1Sum> getSha1Sum(const std::string& filename);
+	[[nodiscard]] Sha1Sum getSha1Sum(File& file, std::string_view filename);
+	[[nodiscard]] std::optional<Sha1Sum> getSha1Sum(zstring_view filename);
 
 	[[nodiscard]] FilePoolCore::Directories getDirectories() const;
 

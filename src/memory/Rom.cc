@@ -135,11 +135,12 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 			? FileType::ROM : FileType::SYSTEM_ROM;
 		if (!file.is_open() && resolvedSha1Elem) {
 			Sha1Sum sha1(resolvedSha1Elem->getData());
-			file = filePool.getFile(fileType, sha1);
+			auto [f, fname] = filePool.getFile(fileType, sha1);
+			file = std::move(f);
 			if (file.is_open()) {
 				// avoid recalculating same sha1 later
 				originalSha1 = sha1;
-				filename = file.getURL();
+				filename = std::move(fname);
 			}
 		}
 		// .. and then try filename as originally given by user ..
@@ -160,11 +161,12 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		if (!file.is_open()) {
 			for (const auto& s : sums) {
 				Sha1Sum sha1(s->getData());
-				file = filePool.getFile(fileType, sha1);
+				auto [f, fname] = filePool.getFile(fileType, sha1);
+				file = std::move(f);
 				if (file.is_open()) {
 					// avoid recalculating same sha1 later
 					originalSha1 = sha1;
-					filename = file.getURL();
+					filename = std::move(fname);
 					break;
 				}
 			}
@@ -202,7 +204,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		// For file-based roms, calc sha1 via File::getSha1Sum(). It can
 		// possibly use the FilePool cache to avoid the calculation.
 		if (originalSha1.empty()) {
-			originalSha1 = filePool.getSha1Sum(file);
+			originalSha1 = filePool.getSha1Sum(file, filename);
 		}
 
 		// verify SHA1

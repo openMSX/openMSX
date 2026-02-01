@@ -1,6 +1,7 @@
 #ifndef FILEPOOLCORE_HH
 #define FILEPOOLCORE_HH
 
+#include "File.hh"
 #include "FileOperations.hh"
 
 #include "MemBuffer.hh"
@@ -39,6 +40,11 @@ inline FileType& operator|=(FileType& x, FileType y) {
 class FilePoolCore
 {
 public:
+	struct Result {
+		File file;
+		std::string filename;
+	};
+
 	struct Dir {
 		std::string_view path;
 		FileType types;
@@ -55,13 +61,13 @@ public:
 	 * If found it returns the (already opened) file,
 	 * if not found it returns a close File object.
 	 */
-	[[nodiscard]] File getFile(FileType fileType, const Sha1Sum& sha1sum);
+	[[nodiscard]] Result getFile(FileType fileType, const Sha1Sum& sha1sum);
 
 	/** Calculate sha1sum for the given File object.
 	 * If possible the result is retrieved from cache, avoiding the
 	 * relatively expensive calculation.
 	 */
-	[[nodiscard]] Sha1Sum getSha1Sum(File& file);
+	[[nodiscard]] Sha1Sum getSha1Sum(File& file, std::string_view filename);
 
 	/** This is only meaningful to call from within the 'reportProgress'
 	 * callback (constructor parameter). This will abort the current search
@@ -129,7 +135,7 @@ private:
 	using FilenameIndex = SimpleHashSet<Index(-1), FilenameIndexHash, FilenameIndexEqual>;
 
 private:
-	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
+	void insert(const Sha1Sum& sum, time_t time, std::string_view filename);
 	[[nodiscard]] Sha1Index::iterator getSha1Iterator(Index idx, const Entry& entry);
 	void remove(Sha1Index::iterator it);
 	void remove(Index idx);
@@ -140,19 +146,19 @@ private:
 	void readSha1sums();
 	void writeSha1sums();
 
-	[[nodiscard]] File getFromPool(const Sha1Sum& sha1sum);
-	[[nodiscard]] File scanDirectory(
+	[[nodiscard]] Result getFromPool(const Sha1Sum& sha1sum);
+	[[nodiscard]] Result scanDirectory(
 		const Sha1Sum& sha1sum,
 	        const std::string& directory,
 	        std::string_view poolPath,
 	        ScanProgress& progress);
-	[[nodiscard]] File scanFile(
+	[[nodiscard]] Result scanFile(
 		const Sha1Sum& sha1sum,
-	        const std::string& filename,
+	        zstring_view filename,
 	        const FileOperations::Stat& st,
 	        std::string_view poolPath,
 	        ScanProgress& progress);
-	[[nodiscard]] Sha1Sum calcSha1sum(File& file) const;
+	[[nodiscard]] Sha1Sum calcSha1sum(File& file, std::string_view filename) const;
 	[[nodiscard]] std::pair<Index, Entry*> findInDatabase(std::string_view filename);
 
 private:

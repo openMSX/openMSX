@@ -717,9 +717,9 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		casImage.updateAfterLoadState();
 		if (!oldChecksum.empty() &&
 		    !FileOperations::exists(casImage.getResolved())) {
-			auto file = filePool.getFile(FileType::TAPE, oldChecksum);
+			auto [file, filename] = filePool.getFile(FileType::TAPE, oldChecksum);
 			if (file.is_open()) {
-				casImage.setResolved(file.getURL());
+				casImage.setResolved(filename);
 			}
 		}
 		try {
