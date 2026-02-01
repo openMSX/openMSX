@@ -72,7 +72,7 @@ IDECDROM::~IDECDROM()
 
 void IDECDROM::getMediaInfo(TclObject& result)
 {
-	result.addDictKeyValue("target", file.is_open() ? file.getURL() : std::string_view{});
+	result.addDictKeyValue("target", filename);
 }
 
 void IDECDROM::setMedia(const TclObject& info, EmuTime /*time*/)
@@ -83,7 +83,7 @@ void IDECDROM::setMedia(const TclObject& info, EmuTime /*time*/)
 	if (auto trgt = target->getString(); trgt.empty()) {
 		eject();
 	} else {
-		insert(std::string(trgt));
+		insert(trgt);
 	}
 }
 
@@ -321,14 +321,16 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 void IDECDROM::eject()
 {
 	file.close();
+	filename.clear();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
 	getMotherBoard().getMSXCliComm().update(CliComm::UpdateType::MEDIA, name, {});
 }
 
-void IDECDROM::insert(const std::string& filename)
+void IDECDROM::insert(zstring_view fname)
 {
-	file = File(filename);
+	file = File(fname);
+	filename = fname;
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
 	getMotherBoard().getMSXCliComm().update(CliComm::UpdateType::MEDIA, name, filename);
@@ -351,8 +353,7 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 {
 	if (tokens.size() == 1) {
 		const auto& file = cd.file;
-		result.addListElement(tmpStrCat(cd.name, ':'),
-		                      file.is_open() ? file.getURL() : std::string{});
+		result.addListElement(tmpStrCat(cd.name, ':'), cd.filename);
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		cd.eject();
@@ -373,7 +374,7 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 			}
 		}
 		try {
-			std::string filename = userFileContext().resolve(
+			auto filename = userFileContext().resolve(
 				tokens[fileToken].getString());
 			cd.insert(filename);
 		} catch (FileException& e) {
@@ -407,7 +408,6 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 
-	std::string filename = file.is_open() ? file.getURL() : std::string{};
 	ar.serialize("filename", filename);
 	if constexpr (Archive::IS_LOADER) {
 		// re-insert CD-ROM before restoring 'mediaChanged', 'senseKey'

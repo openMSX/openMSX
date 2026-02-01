@@ -89,7 +89,7 @@ private:
 	[[nodiscard]] unsigned dataOut(unsigned& blocks) override;
 
 	void eject();
-	void insert(const std::string& filename);
+	void insert(zstring_view filename);
 
 	[[nodiscard]] bool getReady();
 	void testUnitReady();
@@ -108,6 +108,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	AlignedBuffer& buffer;
 	File file;
+	std::string filename;
 	std::optional<LSXCommand> lsxCommand; // delayed init
 	std::string name;
 	const unsigned mode;

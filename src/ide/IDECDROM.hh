@@ -46,7 +46,7 @@ public:
 	~IDECDROM() override;
 
 	void eject();
-	void insert(const std::string& filename);
+	void insert(zstring_view filename);
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
@@ -84,6 +84,7 @@ private:
 	std::string name;
 	std::optional<CDXCommand> cdxCommand; // delayed init
 	File file;
+	std::string filename;
 	unsigned byteCountLimit;
 	unsigned transferOffset;
 

@@ -127,7 +127,7 @@ SCSILS120::~SCSILS120()
 
 void SCSILS120::getMediaInfo(TclObject& result)
 {
-	result.addDictKeyValue("target", file.is_open() ? file.getURL() : std::string_view{});
+	result.addDictKeyValue("target", filename);
 }
 
 void SCSILS120::setMedia(const TclObject& info, EmuTime /*time*/)
@@ -138,7 +138,7 @@ void SCSILS120::setMedia(const TclObject& info, EmuTime /*time*/)
 	if (auto trgt = target->getString(); trgt.empty()) {
 		eject();
 	} else {
-		insert(std::string(trgt));
+		insert(trgt);
 	}
 }
 
@@ -245,9 +245,9 @@ unsigned SCSILS120::inquiry()
 	}
 
 	if (length > 36) {
-		std::string filename(FileOperations::getFilename(file.getURL()));
-		filename.resize(20, ' ');
-		std::ranges::copy(filename, &buffer[36]);
+		std::string fname(FileOperations::getFilename(filename));
+		fname.resize(20, ' ');
+		std::ranges::copy(fname, &buffer[36]);
 	}
 	return length;
 }
@@ -480,6 +480,7 @@ uint8_t SCSILS120::getStatusCode()
 void SCSILS120::eject()
 {
 	file.close();
+	filename.clear();
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
@@ -487,9 +488,10 @@ void SCSILS120::eject()
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, name, {});
 }
 
-void SCSILS120::insert(const std::string& filename)
+void SCSILS120::insert(zstring_view fname)
 {
-	file = File(filename);
+	file = File(fname);
+	filename = fname;
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
@@ -752,10 +754,10 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(const std::string& filename)
+int SCSILS120::insertDisk(const std::string& fname)
 {
 	try {
-		insert(filename);
+		insert(fname);
 		return 0;
 	} catch (MSXException&) {
 		return -1;
@@ -779,8 +781,7 @@ void LSXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 {
 	if (tokens.size() == 1) {
 		const auto& file = ls.file;
-		result.addListElement(tmpStrCat(ls.name, ':'),
-		                      file.is_open() ? file.getURL() : std::string{});
+		result.addListElement(tmpStrCat(ls.name, ':'), ls.filename);
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		ls.eject();
@@ -831,7 +832,6 @@ void LSXCommand::tabCompletion(std::vector<std::string>& tokens) const
 template<typename Archive>
 void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
-	std::string filename = file.is_open() ? file.getURL() : std::string{};
 	ar.serialize("filename", filename);
 	if constexpr (Archive::IS_LOADER) {
 		// re-insert disk before restoring 'mediaChanged'

@@ -40,7 +40,7 @@ public:
 	[[nodiscard]] auto begin() const { return rom.begin(); }
 	[[nodiscard]] auto end()   const { return rom.end(); }
 
-	[[nodiscard]] std::string_view getFilename() const;
+	[[nodiscard]] const std::string& getFilename() const { return filename; }
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] std::string_view getDescription() const { return description; }
 	[[nodiscard]] const Sha1Sum& getOriginalSHA1() const;
@@ -64,6 +64,7 @@ private:
 	MemBuffer<uint8_t> extendedRom;
 
 	File file; // can be a closed file
+	std::string filename;
 	std::optional<MappedFile<uint8_t>> mmap; // non-const to allow patching
 
 	mutable Sha1Sum originalSha1;

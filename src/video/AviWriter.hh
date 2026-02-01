@@ -32,6 +32,7 @@ private:
 
 private:
 	File file;
+	std::string filename;
 	ZMBVEncoder codec;
 	std::vector<Endian::L32> index;
 
