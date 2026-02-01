@@ -119,7 +119,7 @@ void ImGuiRasterViewer::paint(MSXMotherBoard* motherBoard)
 	});
 
 	if (showConfigure) {
-		ImGui::SetNextWindowSize(gl::vec2{19, 20} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(gl::vec2{19, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 		im::Window("Raster beam - configure traces", &showConfigure, [&]{
 			paintConfigure(*motherBoard);
 		});
@@ -479,7 +479,8 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 		if (showTraces) {
 			EmuTime from = time.saturateSubtract(frameDuration);
 			EmuTime to = time;
-			for (const auto* trace : traceViewer.getTraces(motherBoard)) {
+			const auto& traces = traceViewer.getTraces(motherBoard);
+			for (const auto* trace : traces) {
 				const auto& traceInfo = getTraceInfoFor(trace->name);
 				if (!traceInfo.enabled) continue;
 				auto subEvents = subrange_between(trace->events, from, to, {}, &Tracer::Event::time);
@@ -497,26 +498,51 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 					addAnnotation(print, traceInfo.color, tt);
 				}
 			}
+			auto m1 = traceViewer.getMarker(0);
+			auto m2 = traceViewer.getMarker(1);
 			if (showMarkers) {
 				auto draw = [&](EmuTime tt, gl::vec4 color) {
 					if ((tt < from) || (tt >= to)) return;
 					tt += frameDuration; // bring into the 'future' (doesn't change screen position)
 					drawMarker(timeToVdpPos(tt), color, scrnPos, zoom, allLineWidths);
 				};
-				auto m1 = traceViewer.getMarker(0);
 				draw(m1, markerColor1);
-				auto m2 = traceViewer.getMarker(1);
 				draw(m2, markerColor2);
 
-				if (betweenMarkers) {
-					// intersection of between-markers-interval and last-frame-interval
-					auto [mMin, mMax] = std::minmax(m1, m2);
-					auto mStart = std::max(mMin, from);
-					auto mStop  = std::min(mMax, to);
-					if (mStart < mStop) {
+			}
+			if (shadeType == Shade::MARKERS) {
+				// intersection of between-markers-interval and last-frame-interval
+				auto [mMin, mMax] = std::minmax(m1, m2);
+				auto mStart = std::max(mMin, from);
+				auto mStop  = std::min(mMax, to);
+				if (mStart < mStop) {
+					drawRegion(
+						timeToVdpPos(mStart + frameDuration), timeToVdpPos(mStop + frameDuration),
+						shadeColor, scrnPos, zoom, std::span(allLineWidths.data(), numLines));
+				}
+			} else if (shadeType == Shade::TRACE) {
+				if (auto t_it = std::ranges::find(traces, shadeTrace, &Tracer::Trace::name);
+				    t_it != traces.end()) {
+					const auto& trace = **t_it;
+
+					auto it0 = std::ranges::lower_bound(trace.events, from, {}, &Tracer::Event::time);
+					if (it0 != trace.events.begin()) --it0;
+					auto it1 = std::ranges::upper_bound(trace.events, to, {}, &Tracer::Event::time);
+
+					for (auto it = it0; it != it1; ++it) {
+						bool skip = it->value.visit(overloaded{
+							[](std::monostate) { return true; },
+							[](uint64_t i) { return i == 0; },
+							[](double d) { return d == 0.0; },
+							[](std::string_view s) { return s.empty(); }
+						});
+						if (skip) continue;
+						auto mStart = std::max(from, it->time);
+						auto next = it + 1;
+						auto mStop = std::min(to, (next == it1) ? to : next->time);
 						drawRegion(
 							timeToVdpPos(mStart + frameDuration), timeToVdpPos(mStop + frameDuration),
-							betweenColor, scrnPos, zoom, std::span(allLineWidths.data(), numLines));
+							shadeColor, scrnPos, zoom, std::span(allLineWidths.data(), numLines));
 					}
 				}
 			}
@@ -680,6 +706,32 @@ void ImGuiRasterViewer::drawRegion(
 
 void ImGuiRasterViewer::paintConfigure(MSXMotherBoard& motherBoard)
 {
+	ImGui::SeparatorText("Probes / traces");
+	if (ImGui::Button("Select probes/traces...")) {
+		traceViewer.showSelect = true;
+	}
+	HelpMarker("Select which probe and trace information will be collected.\n"
+	           "In some cases this can be expensive, so it's not done by default.");
+
+	const auto& traces = traceViewer.getTraces(motherBoard);
+	auto n = std::clamp(float(traces.size()), 1.0f, 5.5f);
+	im::Child("##list", {0, n * ImGui::GetFrameHeightWithSpacing()}, [&]{
+		if (traces.empty()) {
+			ImGui::TextDisabled("No traces selected");
+		} else {
+			im::ListClipperID(traces.size(), [&](int i) {
+				const auto* trace = traces[i];
+				auto& traceInfo = getTraceInfoFor(trace->name);
+
+				ImGui::ColorEdit4("##color", traceInfo.color.data(),
+					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+				ImGui::SameLine();
+				ImGui::Checkbox(traceInfo.name.c_str(), &traceInfo.enabled);
+			});
+		}
+	});
+
+	ImGui::SeparatorText("Markers");
 	ImGui::Checkbox("Draw markers", &showMarkers);
 	HelpMarker("Show the 'Probe/Trace Viewer' markers also in the 'Raster Beam Viewer' window.");
 	im::DisabledIndent(!showMarkers, [&]{
@@ -689,35 +741,32 @@ void ImGuiRasterViewer::paintConfigure(MSXMotherBoard& motherBoard)
 		ImGui::ColorEdit4("Secondary", markerColor2.data(),
 			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar);
 		HelpMarker("Place via shift-left-mouse-click in the 'Raster Beam Viewer' screen area.");
-
-		im::Disabled(!betweenMarkers, [&]{
-			ImGui::ColorEdit4("##between", betweenColor.data(),
-				ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-		});
-		ImGui::SameLine();
-		ImGui::Checkbox("Color between markers", &betweenMarkers);
-		HelpMarker("Color the area between the primary and secondary marker.");
 	});
 
-	ImGui::SeparatorText("Probes / traces");
-	if (ImGui::Button("Select probes/traces...")) {
-		traceViewer.showSelect = true;
-	}
-	HelpMarker("Select which probe and trace information will be collected.\n"
-	           "In some cases this can be expensive, so it's not done by default.");
-
-	im::Child("##list", [&]{
-		const auto& traces = traceViewer.getTraces(motherBoard);
-		im::ListClipperID(traces.size(), [&](int i) {
-			const auto* trace = traces[i];
-			auto& traceInfo = getTraceInfoFor(trace->name);
-
-			ImGui::ColorEdit4("##color", traceInfo.color.data(),
-				ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-			ImGui::SameLine();
-			ImGui::Checkbox(traceInfo.name.c_str(), &traceInfo.enabled);
+	ImGui::SeparatorText("Shade");
+	ImGui::RadioButton("Disabled", &shadeType, Shade::DISABLED);
+	ImGui::RadioButton("Between markers", &shadeType, Shade::MARKERS);
+	HelpMarker("Color the area between the primary and secondary marker.");
+	ImGui::RadioButton("Trace", &shadeType, Shade::TRACE);
+	HelpMarker("Color the areas where a specific trace is active.");
+	im::DisabledIndent(shadeType != Shade::TRACE, [&]{
+		const char* preview =
+			traces.empty() ? "no traces selected" :
+			contains(traces, shadeTrace, &Tracer::Trace::name) ? shadeTrace.c_str() :
+			"none";
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		im::Combo("##trace", preview, [&]{
+			im::ListClipperID(traces.size(), [&](int i) {
+				const auto* trace = traces[i];
+				if (ImGui::Selectable(trace->name.c_str())) {
+					shadeTrace = trace->name;
+				}
+			});
 		});
 	});
+
+	ImGui::ColorEdit4("Shade color", shadeColor.data(),
+		ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar);
 }
 
 } // namespace openmsx

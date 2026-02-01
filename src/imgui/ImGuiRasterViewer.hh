@@ -63,7 +63,10 @@ private:
 	gl::vec4 lineIrqColor{0.0f, 1.0f, 1.0f, 0.8f}; // RGBA
 	gl::vec4 markerColor1{0.0f, 1.0f, 0.0f, 0.8f}; // RGBA
 	gl::vec4 markerColor2{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
-	gl::vec4 betweenColor{1.0f, 1.0f, 0.0f, 0.3f}; // RGBA
+	gl::vec4 shadeColor{1.0f, 1.0f, 0.0f, 0.3f}; // RGBA
+	std::string shadeTrace;
+	enum Shade : int { DISABLED, MARKERS, TRACE };
+	int shadeType = Shade::MARKERS;
 	int zoomSelect = 0; // +1 for actual zoom factor
 	bool showGrid = true;
 	bool showFadeOut = true;
@@ -72,7 +75,6 @@ private:
 	bool showLineIrq = false;
 	bool showTraces = false;
 	bool showMarkers = true;
-	bool betweenMarkers = true;
 	bool showConfigure = false;
 
 	MemBuffer<uint32_t> pixelBuffer;
@@ -91,7 +93,8 @@ private:
 		PersistentElement{"lineIrq",        &ImGuiRasterViewer::showLineIrq},
 		PersistentElement{"traces",         &ImGuiRasterViewer::showTraces},
 		PersistentElement{"markers",        &ImGuiRasterViewer::showMarkers},
-		PersistentElement{"betweenMarkers", &ImGuiRasterViewer::betweenMarkers},
+		PersistentElement{"shadeTrace",     &ImGuiRasterViewer::shadeTrace},
+		PersistentElement{"shadeType",      &ImGuiRasterViewer::shadeType},
 		PersistentElement{"gridColor",      &ImGuiRasterViewer::gridColor},
 		PersistentElement{"fadeOutColor",   &ImGuiRasterViewer::fadeOutColor},
 		PersistentElement{"beamColor",      &ImGuiRasterViewer::beamColor},
@@ -99,7 +102,7 @@ private:
 		PersistentElement{"lineIrqColor",   &ImGuiRasterViewer::lineIrqColor},
 		PersistentElement{"marker1Color",   &ImGuiRasterViewer::markerColor1},
 		PersistentElement{"marker2Color",   &ImGuiRasterViewer::markerColor2},
-		PersistentElement{"betweenColor",   &ImGuiRasterViewer::betweenColor},
+		PersistentElement{"shadeColor",     &ImGuiRasterViewer::shadeColor},
 	};
 };
 
