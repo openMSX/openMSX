@@ -5,6 +5,8 @@
 #include "FileBase.hh"
 #include "FileOperations.hh"
 
+#include "zstring_view.hh"
+
 #include "systemfuncs.hh"
 
 #include <cstdio>
@@ -14,8 +16,8 @@ namespace openmsx {
 class LocalFile final : public FileBase
 {
 public:
-	LocalFile(std::string filename, File::OpenMode mode);
-	LocalFile(std::string filename, const char* mode);
+	LocalFile(zstring_view filename, File::OpenMode mode);
+	LocalFile(zstring_view filename, const char* mode);
 
 	void read(std::span<uint8_t> buffer) override;
 	void write(std::span<const uint8_t> buffer) override;

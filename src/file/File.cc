@@ -15,12 +15,12 @@ namespace openmsx {
 
 File::File() = default;
 
-[[nodiscard]] static std::unique_ptr<FileBase> init(std::string filename, File::OpenMode mode)
+[[nodiscard]] static std::unique_ptr<FileBase> init(zstring_view filename, File::OpenMode mode)
 {
 	static constexpr std::array<uint8_t, 3> GZ_HEADER  = {0x1F, 0x8B, 0x08};
 	static constexpr std::array<uint8_t, 4> ZIP_HEADER = {0x50, 0x4B, 0x03, 0x04};
 
-	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(std::move(filename), mode);
+	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(filename, mode);
 	if (file->getSize() >= 4) {
 		std::array<uint8_t, 4> buf;
 		file->read(buf);
@@ -39,13 +39,13 @@ File::File() = default;
 	return file;
 }
 
-File::File(std::string filename, OpenMode mode)
-	: file(init(std::move(filename), mode))
+File::File(zstring_view filename, OpenMode mode)
+	: file(init(filename, mode))
 {
 }
 
-File::File(std::string filename, const char* mode)
-	: file(std::make_unique<LocalFile>(std::move(filename), mode))
+File::File(zstring_view filename, const char* mode)
+	: file(std::make_unique<LocalFile>(filename, mode))
 {
 }
 

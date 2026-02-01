@@ -28,8 +28,8 @@
 
 namespace openmsx {
 
-LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
-	: filename(std::move(filename_))
+LocalFile::LocalFile(zstring_view filename_, File::OpenMode mode)
+	: filename(filename_)
 {
 	const std::string& name = FileOperations::getNativePath(filename);
 	if (mode == File::OpenMode::TRUNCATE) {
@@ -65,8 +65,8 @@ LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
 	(void)getSize(); // query filesize, but ignore result
 }
 
-LocalFile::LocalFile(std::string filename_, const char* mode)
-	: filename(std::move(filename_))
+LocalFile::LocalFile(zstring_view filename_, const char* mode)
+	: filename(filename_)
 {
 	assert(strchr(mode, 'b'));
 	const std::string name = FileOperations::getNativePath(filename);

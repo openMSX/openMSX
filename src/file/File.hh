@@ -4,6 +4,8 @@
 #include "FileBase.hh"
 #include "MappedFile.hh"
 
+#include "zstring_view.hh"
+
 #include <bit>
 #include <cstdint>
 #include <ctime>
@@ -37,7 +39,7 @@ public:
 	 * @throws FileNotFoundException if file not found
 	 * @throws FileException for other errors
 	 */
-	explicit File(std::string filename, OpenMode mode = OpenMode::NORMAL);
+	explicit File(zstring_view filename, OpenMode mode = OpenMode::NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
 	  * Compared to constructor above, it does not transparently
@@ -46,7 +48,7 @@ public:
 	  * @param mode Open mode, same meaning as in fopen(), but we assert
 	  *             that it contains a 'b' character.
 	  */
-	File(std::string filename, const char* mode);
+	File(zstring_view filename, const char* mode);
 
 	File(File&& other) noexcept;
 
