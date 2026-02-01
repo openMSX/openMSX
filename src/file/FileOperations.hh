@@ -184,10 +184,9 @@ namespace openmsx::FileOperations {
 	 *    Just for portability issue. (Especially for Win32)
 	 */
 #ifdef _WIN32
-	[[nodiscard]]              std::string  getNativePath(      std::string   path);
+	[[nodiscard]] std::string getNativePath(zstring_view path);
 #else
-	[[nodiscard]] inline const std::string& getNativePath(const std::string&  path) { return           path;  }
-	[[nodiscard]] inline       std::string  getNativePath(      std::string&& path) { return std::move(path); }
+	[[nodiscard]] inline zstring_view getNativePath(zstring_view path) { return path; }
 #endif
 
 	/**

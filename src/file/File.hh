@@ -11,8 +11,6 @@
 #include <ctime>
 #include <memory>
 #include <span>
-#include <string>
-#include <string_view>
 #include <type_traits>
 
 namespace openmsx {
@@ -139,21 +137,13 @@ public:
 	 */
 	void flush();
 
-	/** Returns the URL of this file object.
-	 * Note: this returns a reference which may get invalidated by other
-	 * calls. For example: decompressing the internal buffer inside a
-	 * CompressedFileAdapter.
-	 * @throws FileException
-	 */
-	[[nodiscard]] const std::string& getURL() const;
-
-	/** Get Original filename for this object. This will usually just
-	 *  return the filename portion of the URL. However for compressed
-	 *  files this will be different.
+	/** Get original filename for this file. Usually this returns an
+	 *  empty string. Only for compressed files that store the original
+	 *  name this can be non-empty.
 	 * @result Original file name
 	 * @throws FileException
 	 */
-	[[nodiscard]] std::string_view getOriginalName();
+	[[nodiscard]] zstring_view getOriginalName();
 
 	/** Check if this file is readonly
 	 * @result true iff file is readonly
@@ -168,11 +158,8 @@ public:
 
 private:
 	friend class LocalFileReference;
-	/** This is an internal method used by LocalFileReference.
-	 * Returns the path to the (uncompressed) file on the local,
-	 * filesystem. Or an empty string in case there is no such path.
-	 */
-	[[nodiscard]] std::string getLocalReference() const;
+	/** This is an internal method used by LocalFileReference. */
+	[[nodiscard]] bool isLocalFile() const;
 
 	std::unique_ptr<FileBase> file;
 };

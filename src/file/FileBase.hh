@@ -1,11 +1,11 @@
 #ifndef FILEBASE_HH
 #define FILEBASE_HH
 
+#include "zstring_view.hh"
+
 #include <cstdint>
 #include <ctime>
 #include <span>
-#include <string>
-#include <string_view>
 
 namespace openmsx {
 
@@ -25,9 +25,8 @@ public:
 	virtual void truncate(size_t size);
 	virtual void flush() = 0;
 
-	[[nodiscard]] virtual const std::string& getURL() const = 0;
-	[[nodiscard]] virtual std::string getLocalReference();
-	[[nodiscard]] virtual std::string_view getOriginalName();
+	[[nodiscard]] virtual bool isLocalFile() const;
+	[[nodiscard]] virtual zstring_view getOriginalName();
 	[[nodiscard]] virtual bool isReadOnly() const = 0;
 	[[nodiscard]] virtual time_t getModificationDate() = 0;
 };

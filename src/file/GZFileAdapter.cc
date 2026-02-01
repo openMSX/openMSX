@@ -14,8 +14,8 @@ static constexpr uint8_t COMMENT     = 0x10; // bit 4 set: file comment present
 static constexpr uint8_t RESERVED    = 0xE0; // bits 5..7: reserved
 
 
-GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_)
-	: CompressedFileAdapter(std::move(file_))
+GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_, zstring_view filename_)
+	: CompressedFileAdapter(std::move(file_), filename_)
 {
 }
 

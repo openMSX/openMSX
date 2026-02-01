@@ -20,15 +20,16 @@ static hash_set<std::unique_ptr<CompressedFileAdapter::Decompressed>,
                 GetURLFromDecompressed, XXHasher> decompressCache;
 
 
-CompressedFileAdapter::CompressedFileAdapter(std::unique_ptr<FileBase> file_)
+CompressedFileAdapter::CompressedFileAdapter(std::unique_ptr<FileBase> file_, zstring_view filename_)
 	: file(std::move(file_))
+	, filename(filename_)
 {
 }
 
 CompressedFileAdapter::~CompressedFileAdapter()
 {
 	if (decompressed) {
-		auto it = decompressCache.find(getURL());
+		auto it = decompressCache.find(decompressed->cachedURL);
 		assert(it != end(decompressCache));
 		assert(it->get() == decompressed);
 		--(*it)->useCount;
@@ -43,13 +44,12 @@ void CompressedFileAdapter::decompress()
 {
 	if (decompressed) return;
 
-	const std::string& url = getURL();
-	auto it = decompressCache.find(url);
+	auto it = decompressCache.find(filename);
 	if (it == end(decompressCache)) {
 		auto d = std::make_unique<Decompressed>();
 		decompress(*file, *d);
 		d->cachedModificationDate = getModificationDate();
-		d->cachedURL = url;
+		d->cachedURL = filename;
 		it = decompressCache.insert_noDuplicateCheck(std::move(d));
 	}
 	++(*it)->useCount;
@@ -106,12 +106,7 @@ void CompressedFileAdapter::flush()
 	// nothing because writing is not supported
 }
 
-const std::string& CompressedFileAdapter::getURL() const
-{
-	return file ? file->getURL() : decompressed->cachedURL;
-}
-
-std::string_view CompressedFileAdapter::getOriginalName()
+zstring_view CompressedFileAdapter::getOriginalName()
 {
 	decompress();
 	return decompressed->originalName;

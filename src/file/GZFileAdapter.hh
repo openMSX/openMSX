@@ -8,7 +8,7 @@ namespace openmsx {
 class GZFileAdapter final : public CompressedFileAdapter
 {
 public:
-	explicit GZFileAdapter(std::unique_ptr<FileBase> file);
+	explicit GZFileAdapter(std::unique_ptr<FileBase> file, zstring_view filename);
 
 private:
 	void decompress(FileBase& file, Decompressed& decompressed) override;

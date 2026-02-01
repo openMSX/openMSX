@@ -3,7 +3,6 @@
 #include "File.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
-#include "Filename.hh"
 
 #include "build-info.hh"
 
@@ -12,52 +11,11 @@
 
 namespace openmsx {
 
-LocalFileReference::LocalFileReference(File& file)
+LocalFileReference::LocalFileReference(std::string filename_)
+	: filename(std::move(filename_))
 {
-	init(file);
-}
-
-LocalFileReference::LocalFileReference(std::string filename)
-{
-	File file(std::move(filename));
-	init(file);
-}
-
-LocalFileReference::LocalFileReference(const Filename& filename)
-	: LocalFileReference(filename.getResolved())
-{
-}
-
-LocalFileReference::LocalFileReference(Filename&& filename)
-	: LocalFileReference(std::move(filename).getResolved())
-{
-}
-
-LocalFileReference::LocalFileReference(LocalFileReference&& other) noexcept
-	: tmpFile(std::move(other.tmpFile))
-	, tmpDir (std::move(other.tmpDir ))
-{
-	other.tmpDir.clear();
-}
-
-LocalFileReference& LocalFileReference::operator=(LocalFileReference&& other) noexcept
-{
-	cleanup();
-	tmpFile = std::move(other.tmpFile);
-	tmpDir  = std::move(other.tmpDir);
-	other.tmpDir.clear();
-	return *this;
-}
-
-LocalFileReference::~LocalFileReference()
-{
-	cleanup();
-}
-
-void LocalFileReference::init(File& file)
-{
-	tmpFile = file.getLocalReference();
-	if (!tmpFile.empty()) {
+	File file(filename);
+	if (file.isLocalFile()) {
 		// file is backed on the (local) filesystem,
 		// we can simply use the path to that file
 		assert(tmpDir.empty()); // no need to delete file/dir later
@@ -76,7 +34,7 @@ void LocalFileReference::init(File& file)
 	FileOperations::mkdirp(tmpDir);
 
 	// create temp file
-	auto fp = FileOperations::openUniqueFile(tmpDir, tmpFile);
+	auto fp = FileOperations::openUniqueFile(tmpDir, filename);
 	if (!fp) {
 		throw FileException("Couldn't create temp file");
 	}
@@ -88,20 +46,35 @@ void LocalFileReference::init(File& file)
 	}
 }
 
+LocalFileReference::LocalFileReference(LocalFileReference&& other) noexcept
+	: filename(std::move(other.filename))
+	, tmpDir  (std::move(other.tmpDir))
+{
+	other.tmpDir.clear();
+}
+
+LocalFileReference& LocalFileReference::operator=(LocalFileReference&& other) noexcept
+{
+	cleanup();
+	filename = std::move(other.filename);
+	tmpDir   = std::move(other.tmpDir);
+	other.tmpDir.clear();
+	return *this;
+}
+
+LocalFileReference::~LocalFileReference()
+{
+	cleanup();
+}
+
 void LocalFileReference::cleanup() const
 {
 	if (!tmpDir.empty()) {
-		FileOperations::unlink(tmpFile);
+		FileOperations::unlink(filename);
 		// it's possible the directory is not empty, in that case
 		// the following function will fail, we ignore that error
 		FileOperations::rmdir(tmpDir);
 	}
-}
-
-const std::string& LocalFileReference::getFilename() const
-{
-	assert(!tmpFile.empty());
-	return tmpFile;
 }
 
 } // namespace openmsx

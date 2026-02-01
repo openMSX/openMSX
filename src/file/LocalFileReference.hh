@@ -6,7 +6,6 @@
 namespace openmsx {
 
 class File;
-class Filename;
 
 /** Helper class to use files in APIs other than openmsx::File.
  * The openMSX File class has support for (g)zipped files (or maybe in the
@@ -31,10 +30,7 @@ class LocalFileReference
 {
 public:
 	LocalFileReference() = default;
-	explicit LocalFileReference(const Filename& filename);
-	explicit LocalFileReference(Filename&& filename);
 	explicit LocalFileReference(std::string filename);
-	explicit LocalFileReference(File& file);
 	~LocalFileReference();
 	// non-copyable, but moveable
 	LocalFileReference(const LocalFileReference&) = delete;
@@ -45,15 +41,14 @@ public:
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.
 	  */
-	[[nodiscard]] const std::string& getFilename() const;
+	[[nodiscard]] const std::string& getFilename() const { return filename; }
 
 private:
-	void init(File& file);
 	void cleanup() const;
 
 private:
-	std::string tmpFile;
-	std::string tmpDir;
+	std::string filename;
+	std::string tmpDir; // empty if local file
 };
 
 } // namespace openmsx

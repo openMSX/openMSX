@@ -27,17 +27,15 @@ void FileBase::truncate(size_t newSize)
 	}
 }
 
-std::string FileBase::getLocalReference()
+bool FileBase::isLocalFile() const
 {
-	// default implementation, file is not backed (uncompressed) on
-	// the local file system
-	return {};
+	return false;
 }
 
-std::string_view FileBase::getOriginalName()
+zstring_view FileBase::getOriginalName()
 {
-	// default implementation just returns filename portion of URL
-	return FileOperations::getFilename(getURL());
+	// default implementation
+	return {};
 }
 
 } // namespace openmsx

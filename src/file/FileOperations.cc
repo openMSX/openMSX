@@ -303,10 +303,11 @@ std::string join(std::string_view part1, std::string_view part2,
 }
 
 #ifdef _WIN32
-std::string getNativePath(std::string path)
+std::string getNativePath(zstring_view path)
 {
-	std::ranges::replace(path, '/', '\\');
-	return path;
+	auto result = std::string(path);
+	std::ranges::replace(result, '/', '\\');
+	return result;
 }
 
 std::string getConventionalPath(std::string path)

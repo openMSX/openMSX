@@ -28,10 +28,9 @@
 
 namespace openmsx {
 
-LocalFile::LocalFile(zstring_view filename_, File::OpenMode mode)
-	: filename(filename_)
+LocalFile::LocalFile(zstring_view filename, File::OpenMode mode)
 {
-	const std::string& name = FileOperations::getNativePath(filename);
+	auto name = FileOperations::getNativePath(filename);
 	if (mode == File::OpenMode::TRUNCATE) {
 		// open file read/write truncated
 		file = FileOperations::openFile(name, "wb+");
@@ -65,11 +64,10 @@ LocalFile::LocalFile(zstring_view filename_, File::OpenMode mode)
 	(void)getSize(); // query filesize, but ignore result
 }
 
-LocalFile::LocalFile(zstring_view filename_, const char* mode)
-	: filename(filename_)
+LocalFile::LocalFile(zstring_view filename, const char* mode)
 {
 	assert(strchr(mode, 'b'));
-	const std::string name = FileOperations::getNativePath(filename);
+	auto name = FileOperations::getNativePath(filename);
 	file = FileOperations::openFile(name, mode);
 	if (!file) {
 		throw FileException("Error opening file \"", filename, '"');
@@ -126,7 +124,7 @@ size_t LocalFile::getSize()
 		// on 32-bit systems, the fstat() call returns a EOVERFLOW
 		// error in case the file is bigger than (1<<31)-1 bytes
 		throw FileException("Files >= 2GB are not supported on "
-		                    "32-bit platforms: ", getURL());
+		                    "32-bit platforms");
 	}
 #endif
 	if (ret) {
@@ -167,14 +165,9 @@ void LocalFile::flush()
 	fflush(file.get());
 }
 
-const std::string& LocalFile::getURL() const
+bool LocalFile::isLocalFile() const
 {
-	return filename;
-}
-
-std::string LocalFile::getLocalReference()
-{
-	return filename;
+	return true;
 }
 
 bool LocalFile::isReadOnly() const

@@ -6,8 +6,8 @@
 
 namespace openmsx {
 
-ZipFileAdapter::ZipFileAdapter(std::unique_ptr<FileBase> file_)
-	: CompressedFileAdapter(std::move(file_))
+ZipFileAdapter::ZipFileAdapter(std::unique_ptr<FileBase> file_, zstring_view filename_)
+	: CompressedFileAdapter(std::move(file_), filename_)
 {
 }
 

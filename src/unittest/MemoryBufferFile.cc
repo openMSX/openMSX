@@ -45,12 +45,6 @@ void MemoryBufferFile::flush()
 	// nothing
 }
 
-const std::string& MemoryBufferFile::getURL() const
-{
-	static const std::string EMPTY;
-	return EMPTY;
-}
-
 bool MemoryBufferFile::isReadOnly() const
 {
 	return true;

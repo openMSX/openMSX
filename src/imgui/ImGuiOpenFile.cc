@@ -64,7 +64,7 @@ void ImGuiOpenFile::setBookmarks()
 		using enum FileType;
 		if ((dir.types & (ROM | DISK | TAPE)) == NONE) continue;
 
-		auto path = FileOperations::getNativePath(std::string(dir.path));
+		auto path = std::string(FileOperations::getNativePath(std::string(dir.path)));
 		if (!FileOperations::isDirectory(path)) continue;
 		if (dirOnlyHasReadme(path)) continue;
 		auto name = makeUniqueName(FileOperations::getFilename(dir.path), existingNames);

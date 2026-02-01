@@ -26,9 +26,9 @@ File::File() = default;
 		file->read(buf);
 		file->seek(0);
 		if (std::ranges::equal(subspan<3>(buf), GZ_HEADER)) {
-			file = std::make_unique<GZFileAdapter>(std::move(file));
+			file = std::make_unique<GZFileAdapter>(std::move(file), filename);
 		} else if (std::ranges::equal(subspan<4>(buf), ZIP_HEADER)) {
-			file = std::make_unique<ZipFileAdapter>(std::move(file));
+			file = std::make_unique<ZipFileAdapter>(std::move(file), filename);
 		} else {
 			// only pre-cache non-compressed files
 			if (mode == File::OpenMode::PRE_CACHE) {
@@ -107,20 +107,14 @@ void File::flush()
 	file->flush();
 }
 
-const std::string& File::getURL() const
+bool File::isLocalFile() const
 {
-	return file->getURL();
+	return file->isLocalFile();
 }
 
-std::string File::getLocalReference() const
+zstring_view File::getOriginalName()
 {
-	return file->getLocalReference();
-}
-
-std::string_view File::getOriginalName()
-{
-	std::string_view orig = file->getOriginalName();
-	return !orig.empty() ? orig : getURL();
+	return file->getOriginalName();
 }
 
 bool File::isReadOnly() const
