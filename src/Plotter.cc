@@ -80,14 +80,6 @@ zstring_view MSXPlotter::getDescription() const {
 
 bool MSXPlotter::getStatus(EmuTime /*time*/) { return false; }
 
-void MSXPlotter::setStrobe(bool strobe, EmuTime time) {
-  ImagePrinter::setStrobe(strobe, time);
-}
-
-void MSXPlotter::writeData(uint8_t data, EmuTime time) {
-  ImagePrinter::writeData(data, time);
-}
-
 MSXPlotter::CharacterSet MSXPlotter::getCharacterSet() const {
   return charSetSetting->getEnum();
 }

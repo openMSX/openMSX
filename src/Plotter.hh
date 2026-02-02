@@ -58,8 +58,6 @@ public:
 
   // PrinterPortDevice
   [[nodiscard]] bool getStatus(EmuTime time) override;
-  void setStrobe(bool strobe, EmuTime time) override;
-  void writeData(uint8_t data, EmuTime time) override;
 
   // Force color output
   [[nodiscard]] bool useColor() const override { return true; }
