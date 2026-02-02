@@ -48,7 +48,7 @@ public:
     return *penThicknessSetting;
   }
 
-  [[nodiscard]] gl::vec2 getPlotterPos() const { return plotter + origin; }
+  [[nodiscard]] gl::vec2 getPlotterPos() const { return penPosition + origin; }
   [[nodiscard]] unsigned getSelectedPen() const { return selectedPen; }
   [[nodiscard]] bool isGraphicMode() const { return mode == Mode::GRAPHIC; }
   [[nodiscard]] Paper *getPaper() { return ImagePrinter::getPaper(); }
@@ -107,7 +107,7 @@ private:
   bool penDown = true;      // pen starts down for drawing
 
   // Plotter head position (logical steps, relative to origin)
-  gl::vec2 plotter{0.0f, 0.0f};
+  gl::vec2 penPosition{0.0f, 0.0f};
 
   // Origin offset (physical steps)
   gl::vec2 origin{0.0f, 0.0f};
@@ -142,13 +142,12 @@ public:
   static constexpr unsigned PAPER_HEIGHT_STEPS = 1480; // 296mm
 
   // A4 Plotting Area: 192mm x 276.8mm => 960 x 1384 steps.
-  static constexpr unsigned PLOT_AREA_WIDTH = 960;
-  static constexpr unsigned PLOT_AREA_HEIGHT = 1384;
+  static constexpr gl::vec2 PLOT_AREA_SIZE = {960.0f, 1384.0f};
 
   static constexpr float MARGIN_X =
-      (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2.0f;
+      (PAPER_WIDTH_STEPS - PLOT_AREA_SIZE.x) / 2.0f;
   static constexpr float MARGIN_Y =
-      (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2.0f;
+      (PAPER_HEIGHT_STEPS - PLOT_AREA_SIZE.y) / 2.0f;
 
 public:
   // Pen colors: RGB tuples for each pen (0=black, 1=blue, 2=green, 3=red)
