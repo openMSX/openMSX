@@ -224,7 +224,7 @@ template<unsigned FFT_LEN_L2>
 
 	// Convert to frequency and get error measure
 	auto frequency = sampleRate / refinedLag;
-	auto error = diffNorm[bestLag]; // YIN normalized difference (lower is better)
+	auto error = std::max(diffNorm[bestLag], 0.0f); // YIN normalized difference (lower is better)
 	return {frequency, error};
 }
 

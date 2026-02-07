@@ -155,7 +155,8 @@ void ImGuiMsxMusicViewer::paintMelodicChannel(ChipState& cs, HoverList& newHover
 		ImGui::StrCat(std::lround(freq));
 	});
 	drawCell(cs, newHoverList, regs, freqH, [&](uint32_t) { // note
-		ImGui::TextUnformatted(freq2note(freq));
+		std::array<char, 3> buf;
+		ImGui::TextUnformatted(freq2note(freq, buf));
 	});
 	drawCell(cs, newHoverList, regs, {r30, 0x0f}, drawVolume);
 	drawCell(cs, newHoverList, regs, {r30, 0xf0}, [&](uint32_t v) { // instrument

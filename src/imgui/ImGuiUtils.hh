@@ -457,18 +457,36 @@ private:
 	bool planar = false;
 };
 
-inline std::string freq2note(float freq)
+[[nodiscard]] inline int freq2noteNum(float freq)
 {
 	static constexpr auto a4_freq = 440.0f;
-	static constexpr std::array<std::string_view, 12> names = {
-		"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+	return int(std::lround(12.0f * fast_log2(freq / a4_freq))) + 9 + 4 * 12;
+}
+[[nodiscard]] inline std::string_view noteNum2str(int n, std::span<char, 3> buf)
+{
+	using N = std::array<char, 2>;
+	static constexpr std::array<N, 12> names = {
+		N{'C'}, N{'C','#'}, N{'D'}, N{'D','#'}, N{'E'},
+		N{'F'}, N{'F','#'}, N{'G'}, N{'G','#'}, N{'A'}, N{'A','#'}, N{'B'}
 	};
 
-	auto n = int(std::lround(12.0f * fast_log2(freq / a4_freq))) + 9 + 4 * 12;
-	if (n < 0) return ""; // these are below 20Hz, so inaudible
+	if (n < 0) return {}; // these are below 20Hz, so inaudible
 	auto note = n % 12;
 	auto octave = n / 12;
-	return strCat(names[note], octave);
+	const auto& name = names[note];
+	buf[0] = name[0];
+	if (name[1]) {
+		buf[1] = name[1];
+		buf[2] = char(octave + '0');
+		return std::string_view{buf.data(), 3};
+	} else {
+		buf[1] = char(octave + '0');
+		return std::string_view{buf.data(), 2};
+	}
+}
+[[nodiscard]] inline auto freq2note(float freq, std::span<char, 3> buf)
+{
+	return noteNum2str(freq2noteNum(freq), buf);
 }
 
 enum class imColor : uint8_t {

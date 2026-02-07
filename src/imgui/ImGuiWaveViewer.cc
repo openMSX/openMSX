@@ -180,19 +180,25 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 }
 
 // format with "Hz" or "kHz" suffix and 3 significant digits
-static std::string formatFreq(float freq)
+[[nodiscard]] static std::string formatFreq(int freq, int noteNum)
 {
-	auto note = freq2note(freq);
-	auto iFreq = int(std::lround(freq));
-	if (iFreq < 1000) {
-		return strCat(iFreq, "Hz  ", note);
+	std::array<char, 4> noteBuf = {' ', ' ', ' ', ' '};
+	(void)noteNum2str(noteNum, std::span<char, 3>(noteBuf.data(), 3));
+	std::string_view note{noteBuf.data(), 4};
+
+	if (freq < 1000) {
+		return strCat(note, freq, "Hz");
 	} else {
-		auto k = iFreq / 1000;
-		auto t = (iFreq % 1000) / 10;
+		auto k = freq / 1000;
+		auto t = (freq % 1000) / 10;
 		char t1 = char(t / 10) + '0';
 		char t2 = char(t % 10) + '0';
-		return strCat(k, '.', t1, t2, "kHz  ", note);
+		return strCat(note, k, '.', t1, t2, "kHz");
 	}
+}
+[[nodiscard]] static std::string formatFreq(float freq)
+{
+	return formatFreq(int(std::lround(freq)), freq2noteNum(freq));
 }
 
 static void paintSpectrum(std::span<const float> buf, float factor, const SoundDevice& device)
@@ -304,9 +310,10 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 		return formatFreq(sampleRate * 0.5f * mouseX);
 	});
 }
-static void paintPitch(std::span<const float> buf, const SoundDevice& device)
+
+[[nodiscard]] static yin::PitchResult calcPitch(std::span<const float> buf, const SoundDevice& device)
 {
-	if (buf.size() < 512) return;
+	if (buf.size() < 512) return {};
 
 	auto sampleRate = device.getNativeSampleRate();
 
@@ -329,21 +336,70 @@ static void paintPitch(std::span<const float> buf, const SoundDevice& device)
 		buf = out;
 	}
 	// at this point sampleRate is between 11kHz and 22kHz
-	if (buf.size() < 512) return; // need minimum size for good detection
+	if (buf.size() < 512) return {}; // need minimum size for good detection
 
-	auto [freq, err] = yin::detectPitch(buf, sampleRate);
-	err = std::max(err, 0.0f); // needed?
+	return yin::detectPitch(buf, sampleRate);
+}
 
+static void paintPitch(std::span<const float> buf, const SoundDevice& device)
+{
+	auto [freq, err] = calcPitch(buf, device);
+	auto noteNum = freq2noteNum(freq);
+
+	auto iFreq = int(std::lround(freq));
 	auto pos = ImGui::GetCursorPos();
 	ImGui::InvisibleButton("hover", {-FLT_MIN, ImGui::GetFrameHeight()});
 	simpleToolTip([&]{
-		auto f = err > 0.8 ? 0.0f : freq;
-		return strCat(formatFreq(f), "\nconfidence=", 1.0f - err);
+		auto f = (err > 0.8) ? 0 : iFreq;
+		return strCat(formatFreq(f, noteNum), "\nconfidence=", 1.0f - err);
 	});
 	ImGui::SetCursorPos(pos);
 
-	if (err > 0.2f) return; // no clear frequency, don't draw anything
+	using P = gl::vec2;
+	using Rect = std::array<gl::vec2, 2>;
+	using Rect2 = std::array<Rect, 2>;
+	struct K { ImU32 col = 0; Rect2 r2; };
+	static constexpr ImU32 white = 0xffffffff;
+	static constexpr ImU32 black = 0xff000000;
+	static constexpr ImU32 gray  = 0xff808080; // background
+	static constexpr ImU32 press = 0xff0000ff; // pressed key
+	std::array<K, 12> keys = {
+		K{.col = white, .r2 = {Rect{P{ 0, 0}, P{ 8, 13}}, Rect{P{ 0, 13}, P{12, 19}}}}, // C
+		K{.col = black, .r2 = {Rect{P{ 8, 0}, P{18, 13}}                            }}, // C#
+		K{.col = white, .r2 = {Rect{P{18, 0}, P{22, 13}}, Rect{P{14, 13}, P{26, 19}}}}, // D
+		K{.col = black, .r2 = {Rect{P{22, 0}, P{32, 13}}                            }}, // D#
+		K{.col = white, .r2 = {Rect{P{32, 0}, P{40, 13}}, Rect{P{28, 13}, P{40, 19}}}}, // E
+		K{.col = white, .r2 = {Rect{P{42, 0}, P{50, 13}}, Rect{P{42, 13}, P{54, 19}}}}, // F
+		K{.col = black, .r2 = {Rect{P{50, 0}, P{60, 13}}                            }}, // F#
+		K{.col = white, .r2 = {Rect{P{60, 0}, P{64, 13}}, Rect{P{56, 13}, P{68, 19}}}}, // G
+		K{.col = black, .r2 = {Rect{P{64, 0}, P{74, 13}}                            }}, // G#
+		K{.col = white, .r2 = {Rect{P{74, 0}, P{78, 13}}, Rect{P{70, 13}, P{82, 19}}}}, // A
+		K{.col = black, .r2 = {Rect{P{78, 0}, P{88, 13}}                            }}, // A#
+		K{.col = white, .r2 = {Rect{P{88, 0}, P{94, 13}}, Rect{P{84, 13}, P{94, 19}}}}, // B
+	};
+	auto tl = ImGui::GetCursorScreenPos();
+	auto h = ImGui::GetFrameHeight();
+	auto trScale = h * (1.0f / 19.0f);
+	auto tr = [&](gl::vec2 p) { return tl + p * trScale; };
+
+	std::optional<int> noteInOctave = (err < 0.15f) ? (noteNum % 12) : std::optional<int>{};
+	auto* drawList = ImGui::GetWindowDrawList();
+	drawList->AddRectFilled(tr({0, 0}), tr({94, 19}), gray);
+	for (auto i : xrange(12)) {
+		const auto& key = keys[i];
+		auto col = (i == noteInOctave) ? press : key.col;
+		const auto& r0 = key.r2[0];
+		drawList->AddRectFilled(tr(r0[0]), tr(r0[1]), col);
+		const auto& r1 = key.r2[1];
+		if (r1[0].y != 0.0f) {
+			drawList->AddRectFilled(tr(r1[0]), tr(r1[1]), col);
+		}
+	}
 	const auto& style = ImGui::GetStyle();
+	ImGui::Dummy({94 * trScale, h});
+	ImGui::SameLine();
+
+	if (err > 0.2f) return; // no clear frequency, don't draw anything
 	auto colText = style.Colors[ImGuiCol_Text];
 	auto colTextDisabled = style.Colors[ImGuiCol_TextDisabled];
 	auto col = [&]{
@@ -355,8 +411,9 @@ static void paintPitch(std::span<const float> buf, const SoundDevice& device)
 			return c;
 		}
 	}();
+	ImGui::AlignTextToFramePadding();
 	im::StyleColor(ImGuiCol_Text, col, [&]{
-		ImGui::TextUnformatted(formatFreq(freq));
+		ImGui::TextUnformatted(formatFreq(iFreq, noteNum));
 	});
 }
 
