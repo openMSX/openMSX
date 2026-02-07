@@ -552,7 +552,7 @@ void ImGuiMsxMusicViewer::paint(MSXMotherBoard* motherBoard)
 	if (!show || !motherBoard) return;
 
 	ImGui::SetNextWindowSize(gl::vec2{33, 50} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Msx-Music Viewer", &show, [&]{
+	im::Window("MSX Music Viewer", &show, [&]{
 		std::vector<const YM2413*> devices;
 		for (const auto& info: motherBoard->getMSXMixer().getDeviceInfos()) {
 			if (const auto* device = dynamic_cast<const YM2413*>(info.device)) {
