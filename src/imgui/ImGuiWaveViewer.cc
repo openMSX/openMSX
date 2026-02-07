@@ -13,6 +13,7 @@
 #include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+#include "yin.hh"
 
 #include "imgui.h"
 #include "imgui_internal.h" // for ImLerp
@@ -178,6 +179,22 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 		.reducedSampleRate = sampleRate};
 }
 
+// format with "Hz" or "kHz" suffix and 3 significant digits
+static std::string formatFreq(float freq)
+{
+	auto note = freq2note(freq);
+	auto iFreq = int(std::lround(freq));
+	if (iFreq < 1000) {
+		return strCat(iFreq, "Hz  ", note);
+	} else {
+		auto k = iFreq / 1000;
+		auto t = (iFreq % 1000) / 10;
+		char t1 = char(t / 10) + '0';
+		char t2 = char(t % 10) + '0';
+		return strCat(k, '.', t1, t2, "kHz  ", note);
+	}
+}
+
 static void paintSpectrum(std::span<const float> buf, float factor, const SoundDevice& device)
 {
 	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
@@ -284,18 +301,62 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 			}
 		}
 
-		// format with "Hz" or "kHz" suffix and 3 significant digits
-		auto freq = std::lround(sampleRate * 0.5f * mouseX);
-		auto note = freq2note(float(freq));
-		if (freq < 1000) {
-			return strCat(freq, "Hz  ", note);
-		} else {
-			auto k = freq / 1000;
-			auto t = (freq % 1000) / 10;
-			char t1 = char(t / 10) + '0';
-			char t2 = char(t % 10) + '0';
-			return strCat(k, '.', t1, t2, "kHz  ", note);
+		return formatFreq(sampleRate * 0.5f * mouseX);
+	});
+}
+static void paintPitch(std::span<const float> buf, const SoundDevice& device)
+{
+	if (buf.size() < 512) return;
+
+	auto sampleRate = device.getNativeSampleRate();
+
+	std::array<float, 32768> workBuf;
+	static constexpr float MAX_RATE = 22'000.0f; // 22kHz
+	while (sampleRate > MAX_RATE) {
+		static_assert(HALF_BAND_EXTRA & 1);
+		if ((buf.size() & 1) == 0) {
+			buf = buf.subspan(1); // drop oldest sample (need an odd number)
 		}
+		assert(buf.size() >= HALF_BAND_EXTRA);
+
+		auto outSize = (buf.size() - HALF_BAND_EXTRA) / 2;
+		assert(outSize <= workBuf.size());
+		auto out = std::span{workBuf}.subspan(0, outSize);
+
+		halfBand(buf, out); // possibly inplace
+
+		sampleRate *= 0.5f;
+		buf = out;
+	}
+	// at this point sampleRate is between 11kHz and 22kHz
+	if (buf.size() < 512) return; // need minimum size for good detection
+
+	auto [freq, err] = yin::detectPitch(buf, sampleRate);
+	err = std::max(err, 0.0f); // needed?
+
+	auto pos = ImGui::GetCursorPos();
+	ImGui::InvisibleButton("hover", {-FLT_MIN, ImGui::GetFrameHeight()});
+	simpleToolTip([&]{
+		auto f = err > 0.8 ? 0.0f : freq;
+		return strCat(formatFreq(f), "\nconfidence=", 1.0f - err);
+	});
+	ImGui::SetCursorPos(pos);
+
+	if (err > 0.2f) return; // no clear frequency, don't draw anything
+	const auto& style = ImGui::GetStyle();
+	auto colText = style.Colors[ImGuiCol_Text];
+	auto colTextDisabled = style.Colors[ImGuiCol_TextDisabled];
+	auto col = [&]{
+		if (err < 0.15f) {
+			return ImLerp(colText, colTextDisabled, err * (1.0f / 0.15f));
+		} else {
+			auto c = colTextDisabled;
+			c.w = std::lerp(c.w, 0.0f, (err - 0.15f) * (1.0f / (0.20f - 0.15f)));
+			return c;
+		}
+	}();
+	im::StyleColor(ImGuiCol_Text, col, [&]{
+		ImGui::TextUnformatted(formatFreq(freq));
 	});
 }
 
@@ -346,6 +407,9 @@ static void paintDevice(SoundDevice& device, std::span<const MSXMixer::SoundDevi
 		if (ImGui::TableNextColumn()) { // spectrum
 			paintSpectrum(monoBuf, factor, device);
 		}
+		if (ImGui::TableNextColumn()) { // pitch estimation
+			paintPitch(monoBuf, device);
+		}
 	});
 }
 
@@ -375,7 +439,7 @@ void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 			            ImGuiTableFlags_Reorderable |
 			            ImGuiTableFlags_Hideable |
 			            ImGuiTableFlags_SizingStretchProp;
-			im::Table("##table", 5, flags, [&]{ // note: use the same id for all tables
+			im::Table("##table", 6, flags, [&]{ // note: use the same id for all tables
 				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 				ImGui::TableSetupColumn("ch.", ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed);
 				// TODO: make this work here, or add an alternative: simpleToolTip("channel number");
@@ -383,6 +447,7 @@ void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::TableSetupColumn("VU-meter", 0, 1.0f);
 				ImGui::TableSetupColumn("Waveform", 0, 2.0f);
 				ImGui::TableSetupColumn("Spectrum", 0, 3.0f);
+				ImGui::TableSetupColumn("Pitch estimation", ImGuiTableColumnFlags_DefaultHide, 1.0f);
 				ImGui::TableHeadersRow();
 				im::ID(name, [&]{
 					paintDevice(device, info.channelSettings);
