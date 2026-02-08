@@ -352,11 +352,12 @@ class TCL(Library):
 			return cls.tclConfig
 
 		def iterLocations():
-			# Allow the user to specify the location we should search first,
+			# Allow the user to specify the location of the config script,
 			# by setting an environment variable.
 			tclpath = environ.get('TCL_CONFIG')
 			if tclpath is not None:
 				yield tclpath
+				return
 
 			if distroRoot is None or cls.isSystemLibrary(platform):
 				if msysActive():
