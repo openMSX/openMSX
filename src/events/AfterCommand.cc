@@ -14,15 +14,15 @@
 #include "Schedulable.hh"
 #include "TclObject.hh"
 
+#include "strCat.hh"
 #include "StringOp.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 
 #include <algorithm>
+#include <format>
 #include <iterator>
-#include <memory>
 #include <ranges>
-#include <sstream>
 #include <variant>
 
 namespace openmsx {
@@ -277,25 +277,20 @@ void AfterCommand::afterIdle(std::span<const TclObject> tokens, TclObject& resul
 
 void AfterCommand::afterInfo(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	auto printTime = [](std::ostream& os, const AfterTimedCmd& cmd) {
-		os.precision(3);
-		os << std::fixed << std::showpoint << cmd.getTime() << ' ';
-	};
-
-	std::ostringstream str;
+	std::string str;
 	for (auto idx : afterCmds) {
 		const auto& var = afterCmdPool[idx];
-		std::visit([&](const AfterCmd& cmd) { str << cmd.getIdStr() << ": "; }, var);
+		std::visit([&](const AfterCmd& cmd) { strAppend(str, cmd.getIdStr(), ": "); }, var);
 		std::visit(overloaded {
-			[&](const AfterTimeCmd&        cmd ) { str << "time "; printTime(str, cmd); },
-			[&](const AfterIdleCmd&        cmd ) { str << "idle "; printTime(str, cmd); },
-			[&](const AfterSimpleEventCmd& cmd ) { str << cmd.getType() << ' '; },
-			[&](const AfterInputEventCmd&  cmd ) { str << toString(cmd.getEvent()) << ' '; },
-			[&](const AfterRealTimeCmd& /*cmd*/) { str << "realtime "; }
+			[&](const AfterTimeCmd&        cmd ) { str += std::format("time {:.3f} ", cmd.getTime()); },
+			[&](const AfterIdleCmd&        cmd ) { str += std::format("idle {:.3f} ", cmd.getTime()); },
+			[&](const AfterSimpleEventCmd& cmd ) { strAppend(str, cmd.getType(), ' '); },
+			[&](const AfterInputEventCmd&  cmd ) { strAppend(str, toString(cmd.getEvent()), ' '); },
+			[&](const AfterRealTimeCmd& /*cmd*/) { str += "realtime "; }
 		}, var);
-		std::visit([&](const AfterCmd& cmd) { str << cmd.getCommand().getString() << '\n'; }, var);
+		std::visit([&](const AfterCmd& cmd) { strAppend(str, cmd.getCommand().getString(), '\n'); }, var);
 	}
-	result = str.str();
+	result = str;
 }
 
 void AfterCommand::afterCancel(std::span<const TclObject> tokens, TclObject& /*result*/)
