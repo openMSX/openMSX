@@ -2,22 +2,10 @@
 #include "strCat.hh"
 
 #include <array>
-#include <iostream>
 
 static std::string rValue()
 {
 	return "bar";
-}
-
-struct MyType
-{
-	char c;
-};
-
-static std::ostream& operator<<(std::ostream& os, const MyType& m)
-{
-	os << "--|" << m.c << "|--";
-	return os;
 }
 
 TEST_CASE("strCat")
@@ -32,7 +20,6 @@ TEST_CASE("strCat")
 	int i = 123456;
 	float f = 6.28f;
 	double d = -1.234;
-	MyType t = {'a'};
 
 	SECTION("zero") {
 		CHECK(strCat() == "");
@@ -49,7 +36,6 @@ TEST_CASE("strCat")
 		CHECK(strCat(i) == "123456");
 		CHECK(strCat(f) == "6.280000");
 		CHECK(strCat(d) == "-1.234000");
-		CHECK(strCat(t) == "--|a|--");
 		CHECK(strCat(hex_string<8>(i)) == "0001e240");
 		CHECK(strCat(hex_string<4>(i)) == "e240");
 		CHECK(strCat(hex_string<4, HexCase::upper>(i)) == "E240");

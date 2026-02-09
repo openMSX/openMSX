@@ -1,9 +1,9 @@
 #ifndef JOIN_HH
 #define JOIN_HH
 
-#include <iostream>
+#include "strCat.hh"
+
 #include <iterator>
-#include <sstream>
 #include <string>
 #include <utility>
 
@@ -19,33 +19,20 @@ public:
 	{
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, const Joiner& joiner)
-	{
-		return joiner.execute(os);
-	}
-
 	[[nodiscard]] operator std::string() const
 	{
-		std::ostringstream os;
-		execute(os);
-		return os.str();
-	}
-
-private:
-	template<typename OutputStream>
-	OutputStream& execute(OutputStream& os) const
-	{
+		std::string result;
 		auto first = std::begin(col);
 		auto last  = std::end  (col);
 		if (first != last) {
-			goto print;
+			result = strCat(*first);
+			++first;
 			while (first != last) {
-				os << sep;
-		print:	os << *first;
+				strAppend(result, sep, *first);
 				++first;
 			}
 		}
-		return os;
+		return result;
 	}
 
 private:
@@ -54,6 +41,14 @@ private:
 };
 
 } // namespace detail
+
+// to enable strCat()
+template<typename Col, typename Sep> struct strCatImpl::ConcatUnit<detail::Joiner<Col, Sep>>
+	: public strCatImpl::ConcatViaString
+{
+	explicit ConcatUnit(const detail::Joiner<Col, Sep>& joiner)
+		: strCatImpl::ConcatViaString(std::string(joiner)) {}
+};
 
 
 template<typename Collection, typename Separator>

@@ -7,11 +7,9 @@
 
 #include <algorithm>
 #include <array>
-#include <climits>
 #include <cstdint>
 #include <limits>
 #include <span>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -155,20 +153,6 @@ struct ConcatToString : ConcatViaString
 {
 	explicit ConcatToString(T t)
 		: ConcatViaString(std::to_string(t))
-	{
-	}
-};
-
-// The default (slow) implementation uses 'operator<<(ostream&, T)'
-template<typename T>
-struct ConcatUnit : ConcatViaString
-{
-	explicit ConcatUnit(const T& t)
-		: ConcatViaString([&]{
-			std::ostringstream os;
-			os << t;
-			return os.str();
-		}())
 	{
 	}
 };
@@ -677,9 +661,6 @@ template<typename T>
 {
 	return ConcatIntegral<unsigned long long>(l);
 }
-
-// Converting float->string via std::to_string() might be faster than via
-// std::stringstream.
 
 [[nodiscard]] inline auto makeConcatUnit(float f)
 {

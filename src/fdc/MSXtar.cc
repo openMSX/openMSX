@@ -116,10 +116,10 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	}
 
 	if (boot.bpSector != SECTOR_SIZE) {
-		throw MSXException("Illegal sector size: ", boot.bpSector);
+		throw MSXException("Illegal sector size: ", uint16_t(boot.bpSector));
 	}
 	if (boot.resvSectors == 0) {
-		throw MSXException("Illegal number of reserved sectors: ", boot.resvSectors);
+		throw MSXException("Illegal number of reserved sectors: ", uint16_t(boot.resvSectors));
 	}
 	if (fatCount == 0) {
 		throw MSXException("Illegal number of FATs: ", fatCount);
@@ -128,7 +128,7 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 		throw MSXException("Illegal number of sectors per FAT: ", sectorsPerFat);
 	}
 	if (boot.dirEntries == 0 || boot.dirEntries % DIR_ENTRIES_PER_SECTOR != 0) {
-		throw MSXException("Illegal number of root directory entries: ", boot.dirEntries);
+		throw MSXException("Illegal number of root directory entries: ", uint16_t(boot.dirEntries));
 	}
 	if (!std::has_single_bit(sectorsPerCluster)) {
 		throw MSXException("Illegal number of sectors per cluster: ", sectorsPerCluster);

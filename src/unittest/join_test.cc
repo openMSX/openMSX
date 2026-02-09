@@ -39,11 +39,6 @@ TEST_CASE("join: various types")
 	auto check = [](const auto& range, const auto& sep, std::string_view expected) {
 		std::string result1 = join(range, sep);
 		CHECK(result1 == expected);
-
-		std::ostringstream ss;
-		ss << join(range, sep);
-		std::string result2 = ss.str();
-		CHECK(result2 == expected);
 	};
 
 	check(vs, sep1, "foo-bar-qux");
