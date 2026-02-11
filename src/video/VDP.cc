@@ -49,7 +49,7 @@ namespace openmsx {
 static uint8_t getDelayCycles(const XMLElement& devices) {
 	uint8_t cycles = 0;
 	if (const auto* t9769Dev = devices.findChild("T9769")) {
-		if (t9769Dev->getChildData("subtype") == "C") {
+		if (t9769Dev->getChildData("subtype") == one_of("B", "C")) {
 			cycles = 1;
 		} else {
 			cycles = 2;
