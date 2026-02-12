@@ -793,7 +793,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					if (hovered) {
 						ImGui::Separator();
 						auto [hx, hy] = hoverPos;
-						ImGui::Text("x=%d y=%d", hx, hy);
+						ImGui::StrCat("x,y=", hx, ',', hy, " (0x", hex_string<2>(hx), ",0x", hex_string<2>(hy), ')');
 						ImGui::Spacing();
 
 						for (int i : xrange(nrClippedBoxes)) {
@@ -803,7 +803,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 								if (drawBoundingBox && (boundingBoxOnAll == 0)) {
 									drawBox(b.x, b.y, b.w, b.h);
 								}
-								ImGui::Text("sprite=%d x=%d y=%d pat=%d", b.sprite, b.vramX, b.vramY, b.pattern);
+								ImGui::Bullet();
+								ImGui::StrCat("sprite ", b.sprite, ": pat=", b.pattern, " (0x", hex_string<2>(b.pattern), ")\n"
+								              "x,y=", b.vramX, ',', b.vramY, " (0x", hex_string<2>(b.vramX), ",0x", hex_string<2>(b.vramY), ')');
 							}
 						}
 					}
