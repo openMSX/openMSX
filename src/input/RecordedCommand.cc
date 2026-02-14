@@ -58,7 +58,7 @@ bool RecordedCommand::needRecord(std::span<const TclObject> /*tokens*/) const
 
 void RecordedCommand::signalStateChange(const StateChange& event)
 {
-	const auto* commandEvent = dynamic_cast<const MSXCommandEvent*>(&event);
+	const auto* commandEvent = std::get_if<MSXCommandEvent>(&event);
 	if (!commandEvent) return;
 
 	const auto& tokens = commandEvent->getTokens();
@@ -85,34 +85,5 @@ void RecordedCommand::stopReplay(EmuTime /*time*/) noexcept
 {
 	// nothing
 }
-
-
-// class MSXCommandEvent
-
-MSXCommandEvent::MSXCommandEvent(EmuTime time_, std::span<const TclObject> tokens_)
-	: StateChange(time_)
-	, tokens(dynarray<TclObject>::construct_from_range_tag{}, tokens_)
-{
-}
-
-template<typename Archive>
-void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
-{
-	ar.template serializeBase<StateChange>(*this);
-
-	// serialize vector<TclObject> as vector<string>
-	std::vector<std::string> str;
-	if constexpr (!Archive::IS_LOADER) {
-		str = to_vector(std::views::transform(
-			tokens, [](auto& t) { return std::string(t.getString()); }));
-	}
-	ar.serialize("tokens", str);
-	if constexpr (Archive::IS_LOADER) {
-		assert(tokens.empty());
-		tokens = dynarray<TclObject>(dynarray<TclObject>::construct_from_range_tag{},
-		                             std::views::transform(str, [](const auto& s) { return TclObject(s); }));
-	}
-}
-REGISTER_POLYMORPHIC_CLASS(StateChange, MSXCommandEvent, "MSXCommandEvent");
 
 } // namespace openmsx

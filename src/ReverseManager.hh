@@ -5,6 +5,7 @@
 #include "EmuTime.hh"
 #include "EventListener.hh"
 #include "Schedulable.hh"
+#include "StateChange.hh"
 
 #include "DeltaBlock.hh"
 #include "MemBuffer.hh"
@@ -25,7 +26,6 @@ class EventDelay;
 class EventDistributor;
 class Interpreter;
 class MSXMotherBoard;
-class StateChange;
 class TclObject;
 
 class ReverseManager final : private EventListener
@@ -58,8 +58,8 @@ public:
 	StateChange& record(EmuTime time, Args&& ...args) {
 		assert(!isReplaying());
 		++replayIndex;
-		history.events.push_back(std::make_unique<T>(time, std::forward<Args>(args)...));
-		return *history.events.back();
+		history.events.emplace_back(std::in_place_type_t<T>{}, time, std::forward<Args>(args)...);
+		return history.events.back();
 	}
 
 	[[nodiscard]] bool isCollecting() const { return collecting; }
@@ -86,7 +86,7 @@ private:
 		unsigned eventCount;
 	};
 	using Chunks = std::map<unsigned, ReverseChunk>;
-	using Events = std::deque<std::unique_ptr<StateChange>>;
+	using Events = std::deque<StateChange>;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other) noexcept;

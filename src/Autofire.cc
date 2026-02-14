@@ -10,45 +10,8 @@
 
 namespace openmsx {
 
-static std::string_view nameForId(Autofire::ID id)
-{
-	switch (id) {
-		case Autofire::ID::RENSHATURBO: return "renshaturbo";
-		default: return "unknown-autofire";
-	}
-}
-
-class AutofireStateChange final : public StateChange
-{
-public:
-	AutofireStateChange() = default; // for serialize
-	AutofireStateChange(EmuTime time_, Autofire::ID id_, int value_)
-		: StateChange(time_)
-		, id(id_), value(value_) {}
-	[[nodiscard]] auto getId() const { return id; }
-	[[nodiscard]] int getValue() const { return value; }
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		// for backwards compatibility serialize 'id' as 'name'
-		std::string name = Archive::IS_LOADER ? "" : std::string(nameForId(id));
-		ar.serialize("name",    name,
-		             "value",   value);
-		if constexpr (Archive::IS_LOADER) {
-			using enum Autofire::ID;
-			id = (name == nameForId(RENSHATURBO)) ? RENSHATURBO : UNKNOWN;
-		}
-	}
-
-private:
-	Autofire::ID id;
-	int value;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, AutofireStateChange, "AutofireStateChange");
-
-
 Autofire::Autofire(MSXMotherBoard& motherBoard,
-                   unsigned newMinInts, unsigned newMaxInts, ID id_)
+                   unsigned newMinInts, unsigned newMaxInts, AutofireID id_)
 	: scheduler(motherBoard.getScheduler())
 	, stateChangeDistributor(motherBoard.getStateChangeDistributor())
 	, min_ints(std::max(newMinInts, 1u))
@@ -95,7 +58,7 @@ void Autofire::update(const Setting& setting) noexcept
 
 void Autofire::signalStateChange(const StateChange& event)
 {
-	const auto* as = dynamic_cast<const AutofireStateChange*>(&event);
+	const auto* as = std::get_if<AutofireStateChange>(&event);
 	if (!as) return;
 	if (as->getId() != id) return;
 

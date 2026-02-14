@@ -5,6 +5,7 @@
 #include "EmuTime.hh"
 #include "IntegerSetting.hh"
 #include "Observer.hh"
+#include "StateChange.hh"
 #include "StateChangeListener.hh"
 
 #include <cstdint>
@@ -26,12 +27,9 @@ class StateChangeDistributor;
 class Autofire final : private Observer<Setting>, private StateChangeListener
 {
 public:
-	enum class ID : uint8_t { RENSHATURBO, UNKNOWN };
-
-public:
 	Autofire(MSXMotherBoard& motherBoard,
 	         unsigned newMinInts, unsigned newMaxInts,
-	         ID id);
+	         AutofireID id);
 	~Autofire();
 
 	/** Get the output signal in negative logic.
@@ -83,7 +81,7 @@ private:
 	  */
 	DynamicClock clock;
 
-	const ID id;
+	const AutofireID id;
 };
 
 } // namespace openmsx

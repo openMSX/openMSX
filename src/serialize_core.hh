@@ -191,7 +191,7 @@ template<typename V> struct VariantSerializer : std::true_type
 	struct Saver {
 		template<typename Archive>
 		void operator()(Archive& ar, const V& v, bool saveId) const {
-			saveEnum<Archive>(Serializer<V>::list, v.index(),
+			saveEnum<Archive>(Serializer<V>::info(), v.index(),
 				[&](const auto& t) { ar.attribute("type", t); });
 			std::visit([&]<typename T>(T& e) {
 				using TNC = std::remove_cvref_t<T>;
@@ -205,7 +205,7 @@ template<typename V> struct VariantSerializer : std::true_type
 		template<typename Archive, typename TUPLE>
 		void operator()(Archive& ar, V& v, TUPLE args, int id) const {
 			size_t idx;
-			loadEnum<Archive>(Serializer<V>::list, idx,
+			loadEnum<Archive>(Serializer<V>::info(), idx,
 				[&](auto& l) { ar.attribute("type", l); });
 			v = defaultConstructVariant<V>(idx);
 			std::visit([&]<typename T>(T& e) {

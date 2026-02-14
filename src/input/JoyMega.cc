@@ -16,35 +16,8 @@
 #include "xrange.hh"
 
 #include <algorithm>
-#include <memory>
 
 namespace openmsx {
-
-class JoyMegaState final : public StateChange
-{
-public:
-	JoyMegaState() = default; // for serialize
-	JoyMegaState(EmuTime time_, uint8_t id_,
-	             unsigned press_, unsigned release_)
-		: StateChange(time_)
-		, press(press_), release(release_), id(id_) {}
-
-	[[nodiscard]] auto getId()      const { return id; }
-	[[nodiscard]] auto getPress()   const { return press; }
-	[[nodiscard]] auto getRelease() const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("id",      id,
-		             "press",   press,
-		             "release", release);
-	}
-private:
-	unsigned press, release;
-	uint8_t id;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, JoyMegaState, "JoyMegaState");
 
 TclObject JoyMega::getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager)
 {
@@ -251,7 +224,7 @@ void JoyMega::signalMSXEvent(const Event& event, EmuTime time) noexcept
 // StateChangeListener
 void JoyMega::signalStateChange(const StateChange& event)
 {
-	const auto* js = dynamic_cast<const JoyMegaState*>(&event);
+	const auto* js = std::get_if<JoyMegaState>(&event);
 	if (!js) return;
 	if (js->getId() != id) return;
 

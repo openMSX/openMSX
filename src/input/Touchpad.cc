@@ -28,34 +28,6 @@ using namespace gl;
 
 namespace openmsx {
 
-class TouchpadState final : public StateChange
-{
-public:
-	TouchpadState() = default; // for serialize
-	TouchpadState(EmuTime time_,
-	              uint8_t x_, uint8_t y_, bool touch_, bool button_)
-		: StateChange(time_)
-		, x(x_), y(y_), touch(touch_), button(button_) {}
-	[[nodiscard]] uint8_t getX()   const { return x; }
-	[[nodiscard]] uint8_t getY()   const { return y; }
-	[[nodiscard]] bool getTouch()  const { return touch; }
-	[[nodiscard]] bool getButton() const { return button; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("x",      x,
-		             "y",      y,
-		             "touch",  touch,
-		             "button", button);
-	}
-private:
-	uint8_t x, y;
-	bool touch, button;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, TouchpadState, "TouchpadState");
-
-
 Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
                    Display& display_,
@@ -261,7 +233,7 @@ void Touchpad::createTouchpadStateChange(
 // StateChangeListener
 void Touchpad::signalStateChange(const StateChange& event)
 {
-	if (const auto* ts = dynamic_cast<const TouchpadState*>(&event)) {
+	if (const auto* ts = std::get_if<TouchpadState>(&event)) {
 		x      = ts->getX();
 		y      = ts->getY();
 		touch  = ts->getTouch();

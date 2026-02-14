@@ -15,24 +15,6 @@ class CommandController;
 class StateChangeDistributor;
 class Scheduler;
 
-/** This class is used to for Tcl commands that directly influence the MSX
-  * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
-  * event because the recording needs to see these.
-  */
-class MSXCommandEvent final : public StateChange
-{
-public:
-	MSXCommandEvent() = default; // for serialize
-	MSXCommandEvent(EmuTime time, std::span<const TclObject> tokens);
-	[[nodiscard]] const auto& getTokens() const { return tokens; }
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-private:
-	dynarray<TclObject> tokens;
-};
-
-
 /** Commands that directly influence the MSX state should send and events
   * so that they can be recorded by the event recorder. This class helps to
   * implement that.

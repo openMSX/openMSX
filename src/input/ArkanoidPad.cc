@@ -26,30 +26,6 @@ static constexpr int POS_CENTER = 236; // approx. middle used by games
 static constexpr int SCALE = 2;
 
 
-class ArkanoidState final : public StateChange
-{
-public:
-	ArkanoidState() = default; // for serialize
-	ArkanoidState(EmuTime time_, int delta_, bool press_, bool release_)
-		: StateChange(time_)
-		, delta(delta_), press(press_), release(release_) {}
-	[[nodiscard]] int  getDelta()   const { return delta; }
-	[[nodiscard]] bool getPress()   const { return press; }
-	[[nodiscard]] bool getRelease() const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("delta",   delta,
-		             "press",   press,
-		             "release", release);
-	}
-private:
-	int delta;
-	bool press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, ArkanoidState, "ArkanoidState");
-
 ArkanoidPad::ArkanoidPad(MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -146,7 +122,7 @@ void ArkanoidPad::signalMSXEvent(const Event& event,
 // StateChangeListener
 void ArkanoidPad::signalStateChange(const StateChange& event)
 {
-	const auto* as = dynamic_cast<const ArkanoidState*>(&event);
+	const auto* as = std::get_if<ArkanoidState>(&event);
 	if (!as) return;
 
 	dialPos += as->getDelta();

@@ -65,38 +65,6 @@ static constexpr uint8_t TRY_AGAIN = 0x80; // see pressAscii()
 
 using KeyInfo = UnicodeKeymap::KeyInfo;
 
-class KeyMatrixState final : public StateChange
-{
-public:
-	KeyMatrixState() = default; // for serialize
-	KeyMatrixState(EmuTime time_, uint8_t row_, uint8_t press_, uint8_t release_)
-		: StateChange(time_)
-		, row(row_), press(press_), release(release_)
-	{
-		// disallow useless events
-		assert((press != 0) || (release != 0));
-		// avoid confusion about what happens when some bits are both
-		// set and reset (in other words: don't rely on order of and-
-		// and or-operations)
-		assert((press & release) == 0);
-	}
-	[[nodiscard]] uint8_t getRow()     const { return row; }
-	[[nodiscard]] uint8_t getPress()   const { return press; }
-	[[nodiscard]] uint8_t getRelease() const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("row",     row,
-		             "press",   press,
-		             "release", release);
-	}
-private:
-	uint8_t row, press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
-
-
 static constexpr array_with_enum_index<Keyboard::Matrix, std::string_view> defaultKeymapForMatrix = {
 	"int", // Matrix::MSX
 	"svi", // Matrix::SVI
@@ -880,7 +848,7 @@ void Keyboard::signalMSXEvent(const Event& event,
 
 void Keyboard::signalStateChange(const StateChange& event)
 {
-	const auto* kms = dynamic_cast<const KeyMatrixState*>(&event);
+	const auto* kms = std::get_if<KeyMatrixState>(&event);
 	if (!kms) return;
 
 	userKeyMatrix[kms->getRow()] &= uint8_t(~kms->getPress());

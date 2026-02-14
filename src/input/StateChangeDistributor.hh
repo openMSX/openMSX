@@ -7,6 +7,7 @@
 
 #include "ScopedAssign.hh"
 
+#include <utility>
 #include <vector>
 
 namespace openmsx {
@@ -61,7 +62,8 @@ public:
 			const auto& event = recorder->record<T>(time, std::forward<Args>(args)...);
 			distribute(event); // might throw, ok
 		} else {
-			T event(time, std::forward<Args>(args)...);
+			StateChange event(std::in_place_type_t<T>{},
+			                  time, std::forward<Args>(args)...);
 			distribute(event); // might throw, ok
 		}
 	}

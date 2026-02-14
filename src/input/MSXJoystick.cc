@@ -19,31 +19,6 @@
 
 namespace openmsx {
 
-class MSXJoyState final : public StateChange
-{
-public:
-	MSXJoyState() = default; // for serialize
-	MSXJoyState(EmuTime time_, uint8_t id_,
-	            uint8_t press_, uint8_t release_)
-		: StateChange(time_), id(id_)
-		, press(press_), release(release_) {}
-
-	[[nodiscard]] auto getId()      const { return id; }
-	[[nodiscard]] auto getPress()   const { return press; }
-	[[nodiscard]] auto getRelease() const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/) {
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("id",      id,
-		             "press",   press,
-		             "release", release);
-	}
-
-private:
-	uint8_t id, press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, MSXJoyState, "MSXJoyState");
-
 TclObject MSXJoystick::getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager)
 {
 	auto buttons = joystickManager.getNumButtons(joyId);
@@ -195,11 +170,11 @@ void MSXJoystick::signalMSXEvent(const Event& event,
 // StateChangeListener
 void MSXJoystick::signalStateChange(const StateChange& event)
 {
-	const auto* kjs = dynamic_cast<const MSXJoyState*>(&event);
-	if (!kjs) return;
-	if (kjs->getId() != id) return;
+	const auto* mjs = std::get_if<MSXJoyState>(&event);
+	if (!mjs) return;
+	if (mjs->getId() != id) return;
 
-	status = (status & ~kjs->getPress()) | kjs->getRelease();
+	status = (status & ~mjs->getPress()) | mjs->getRelease();
 }
 
 void MSXJoystick::stopReplay(EmuTime time) noexcept

@@ -2,10 +2,9 @@
 #define STATECHANGELISTENER_HH
 
 #include "EmuTime.hh"
+#include "StateChange.hh"
 
 namespace openmsx {
-
-class StateChange;
 
 class StateChangeListener
 {

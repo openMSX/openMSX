@@ -31,54 +31,6 @@ static constexpr int PHASE_YLOW2  = 7;
 static constexpr int STROBE = 0x04;
 
 
-class MouseState final : public StateChange
-{
-public:
-	MouseState() = default; // for serialize
-	MouseState(EmuTime time_, int deltaX_, int deltaY_,
-	           uint8_t press_, uint8_t release_)
-		: StateChange(time_)
-		, deltaX(deltaX_), deltaY(deltaY_)
-		, press(press_), release(release_) {}
-	[[nodiscard]] int     getDeltaX()  const { return deltaX; }
-	[[nodiscard]] int     getDeltaY()  const { return deltaY; }
-	[[nodiscard]] uint8_t getPress()   const { return press; }
-	[[nodiscard]] uint8_t getRelease() const { return release; }
-	template<typename Archive> void serialize(Archive& ar, unsigned version)
-	{
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("deltaX",  deltaX,
-		             "deltaY",  deltaY,
-		             "press",   press,
-		             "release", release);
-		if (ar.versionBelow(version, 2)) {
-			assert(Archive::IS_LOADER);
-			// Old versions stored host (=unscaled) mouse movement
-			// in the replay-event-log. Apply the (old) algorithm
-			// to scale host to msx mouse movement.
-			// In principle the code snippet below does:
-			//    delta{X,Y} /= SCALE
-			// except that it doesn't accumulate rounding errors
-			int oldMsxX = absHostX / SCALE;
-			int oldMsxY = absHostY / SCALE;
-			absHostX += deltaX;
-			absHostY += deltaY;
-			int newMsxX = absHostX / SCALE;
-			int newMsxY = absHostY / SCALE;
-			deltaX = newMsxX - oldMsxX;
-			deltaY = newMsxY - oldMsxY;
-		}
-	}
-private:
-	int deltaX, deltaY; // msx mouse movement
-	uint8_t press, release;
-public:
-	inline static int absHostX = 0, absHostY = 0; // (only) for old savestates
-};
-SERIALIZE_CLASS_VERSION(MouseState, 2);
-
-REGISTER_POLYMORPHIC_CLASS(StateChange, MouseState, "MouseState");
-
 Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -334,7 +286,7 @@ void Mouse::createMouseStateChange(
 
 void Mouse::signalStateChange(const StateChange& event)
 {
-	const auto* ms = dynamic_cast<const MouseState*>(&event);
+	const auto* ms = std::get_if<MouseState>(&event);
 	if (!ms) return;
 
 	// Verified with a real MSX-mouse (Philips SBC3810):
