@@ -6,6 +6,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "small_buffer.hh"
 #include "xrange.hh"
 
 #include <algorithm>
@@ -123,13 +124,16 @@ std::vector<RawTrack::Sector> RawTrack::decodeAll() const
 	return result;
 }
 
-static std::vector<unsigned> rotateIdam(std::vector<unsigned> idam, unsigned startIdx)
+static small_buffer<int, 16> rotateIdam(std::span<const unsigned> idam, unsigned startIdx)
 {
+	// Typically only 9 sectors. Rarely 10 or 11. Theoretically up-to 64.
+	small_buffer<int, 16> result(uninitialized_tag{}, idam.size());
+
 	// find first element that is equal or bigger
 	auto it = std::ranges::lower_bound(idam, startIdx);
 	// rotate range so that we start at that element
-	std::ranges::rotate(idam, it);
-	return idam;
+	std::ranges::rotate_copy(idam, it, result.begin());
+	return result;
 }
 
 std::optional<RawTrack::Sector> RawTrack::decodeNextSector(unsigned startIdx) const
