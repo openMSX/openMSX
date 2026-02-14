@@ -108,16 +108,17 @@ namespace openmsx {
 [[nodiscard]] static std::unique_ptr<MSXDevice> createWD2793BasedFDC(DeviceConfig& conf)
 {
 	const auto* styleEl = conf.findChild("connectionstyle");
-	std::string type;
-	if (!styleEl) {
-		conf.getCliComm().printWarning(
-			"WD2793 as FDC type without a connectionstyle is "
-			"deprecated, please update your config file to use "
-			"WD2793 with connectionstyle Philips!");
-		type = "Philips";
-	} else {
-		type = styleEl->getData();
-	}
+	auto type = [&]() -> std::string_view {
+		if (!styleEl) {
+			conf.getCliComm().printWarning(
+				"WD2793 as FDC type without a connectionstyle is "
+				"deprecated, please update your config file to use "
+				"WD2793 with connectionstyle Philips!");
+			return "Philips";
+		} else {
+			return styleEl->getData();
+		}
+	}();
 	if (type == one_of("Philips", "Sony")) {
 		return std::make_unique<PhilipsFDC>(conf);
 	} else if (type == "Microsol") {

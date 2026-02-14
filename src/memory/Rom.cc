@@ -123,9 +123,9 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
 			try {
-				auto fname = std::string(resolvedFilenameElem->getData());
+				auto fname = resolvedFilenameElem->getData();
 				file = File(fname);
-				filename = std::move(fname);
+				filename = fname;
 			} catch (FileException&) {
 				// ignore
 			}

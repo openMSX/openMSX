@@ -192,11 +192,11 @@ public:
 	explicit XMLElement(const char* name_) : name(name_) {}
 	XMLElement(const char* name_, const char* data_) : name(name_), data(data_) {}
 
-	[[nodiscard]] std::string_view getName() const { return name; }
+	[[nodiscard]] zstring_view getName() const { return name; }
 	void clearName() { name = ""; } // hack to 'remove' child from findChild()
 
-	[[nodiscard]] std::string_view getData() const {
-		return data ? std::string_view(data) : std::string_view();
+	[[nodiscard]] zstring_view getData() const {
+		return data ? zstring_view(data) : zstring_view{};
 	}
 	XMLElement* setData(const char* data_) {
 		data = data_;
