@@ -431,7 +431,7 @@ static void stereoToMono(std::span<const float> stereo, float factorL, float fac
 
 static void paintDevice(SoundDevice& device, std::span<const MSXMixer::SoundDeviceInfo::ChannelSettings> settings)
 {
-	std::vector<float> tmpBuf; // recycle buffer for all channels
+	static std::vector<float> tmpBuf; // recycle buffer for all channels, for all frames
 
 	bool stereo = device.hasStereoChannels();
 	auto [factorL, factorR] = device.getAmplificationFactor();
