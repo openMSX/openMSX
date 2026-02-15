@@ -14,7 +14,7 @@ This information is copied from the original Sony manual and some parts are from
 | Graphic mode    | 1BH+"#"             | Sets the plotter printer in the graphic mode.                                               |
 | Scale set       | 12H+"0"−"15"        | Sets the size of characters (0 is the smallest size).                                       |
 | Color set       | 1BH+"C"+"0"−"3"     | Sets the pen color (0: black, 1: blue, 2: green, 3: red).                                   |
-| Top of form     | OCH                 | Feeds paper 297 mm (1143​ inches) down from the printing start position.                    |
+| Top of form     | OCH                 | Feeds paper 297 mm (11 3/4​ inches) down from the printing start position.                    |
 | Text mode       | 1BH+"$"             | Sets the plotter printer in the text mode.                                                  |
 
 ### Graphic Mode Instruction Codes Table
