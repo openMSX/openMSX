@@ -184,7 +184,6 @@ void MSXPlotter::processCharacter(uint8_t data)
 		}
 	case EscState::ESC_C:
 		// Got ESC C, waiting for color digit '0'-'3'
-		if (data == ' ') return; // Ignore spaces
 		if (data >= '0' && data <= '3') {
 			selectedPen = data - '0';
 			printDebug("Plotter: selected pen ", selectedPen);
@@ -204,15 +203,15 @@ void MSXPlotter::processCharacter(uint8_t data)
 		} else if (data >= '0' && data <= '9') {
 			// ASCII digit
 			unsigned val = data - '0';
-			if (val >= 2) {
-				// '2'-'9' -> single digit, final
+			if (val == 0 || val >= 2) {
+				// '0' or '2'-'9' -> single digit, final
 				charScale = val;
 				updateLineFeed();
 				printDebug("Plotter: text scale set to ", charScale);
 				terminatorSkip = TerminatorSkip::START;
 				escState       = EscState::NONE;
 			} else {
-				// '0' or '1' -> could be start of "00"-"15"
+				// '1' -> could be start of "0"-"15"
 				pendingScaleDigit = val;
 				escState	  = EscState::ESC_S_EXP_DIGIT;
 			}
@@ -223,7 +222,7 @@ void MSXPlotter::processCharacter(uint8_t data)
 		}
 		return;
 	case EscState::ESC_S_EXP_DIGIT:
-		// Got DC2 + '0'/'1', waiting for potential second digit
+		// Got DC2 + '1', waiting for potential second digit
 		if (data >= '0' && data <= '9') {
 			unsigned val = pendingScaleDigit * 10 + (data - '0');
 			if (val <= 15) {
@@ -235,12 +234,7 @@ void MSXPlotter::processCharacter(uint8_t data)
 			} else {
 				// > 15, valid first digit but invalid second.
 				// e.g. "19". Interpret first digit as scale, second as text.
-				// Or ignore? User said "ignore the command" if invalid.
-				// But "1" was valid.
-				// Let's assume we ignore the update if the *total* is invalid.
-				// Fallback: treat 'prev' as scale?
-				// Let's just reset and process 'data' as text. Scale unnecessary
-				// changes? printDebug("Plotter: invalid scale ", val, ", ignoring");
+				// Or ignore? for now ignore
 				escState = EscState::NONE;
 				processTextMode(data);
 			}
@@ -791,8 +785,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 	auto savedDashDistance = dashDistance;
 	lineType	       = 0;
 
-	// auto font = getMSXFontRaw();
-	//  Select font based on character set setting
+	// Select font based on character set setting
 	auto font = [&] {
 		switch (getCharacterSet()) {
 			using enum CharacterSet;
