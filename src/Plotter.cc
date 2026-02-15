@@ -135,6 +135,7 @@ void MSXPlotter::moveStep(gl::vec2 delta)
 void MSXPlotter::ejectPaper()
 {
 	ensurePrintPage();
+	picturePlotted = true;
 	flushEmulatedPrinter();
 	resetSettings(); // Resets pen pos and other states
 	ensurePrintPage();
