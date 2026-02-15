@@ -38,7 +38,7 @@ std::string findResourceDir(const std::string& resourceDirName)
 		}
 	}
 
-	throw FatalError("Could not find \"" + resourceDirName + "\" directory anywhere");
+	throw FatalError("Could not find \"", resourceDirName, "\" directory anywhere");
 }
 
 }

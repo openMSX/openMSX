@@ -141,7 +141,7 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 	const auto* info = msxMixer.findDeviceInfo(name);
 	if (!info) return;
 
-	std::string label = name + " channel settings";
+	auto label = tmpStrCat(name, " channel settings");
 	ImGui::SetNextWindowSize(gl::vec2{40, 0} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(label.c_str(), enabled, [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();

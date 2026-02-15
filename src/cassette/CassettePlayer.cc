@@ -402,8 +402,8 @@ void CassettePlayer::insertTape(const Filename& filename, EmuTime time)
 		if (!newImage) {
 			throw MSXException(
 				"Failed to insert image: "
-				"tried WAV: \"", msgWav + "\""
-				", CAS: \"", msgCas + "\""
+				"tried WAV: \"", msgWav, "\""
+				", CAS: \"", msgCas, "\""
 				" and TSX: \"", msgTsx, "\".");
 		}
 		playImage = std::move(newImage);

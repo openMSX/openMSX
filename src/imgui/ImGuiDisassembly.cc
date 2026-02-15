@@ -76,7 +76,7 @@ std::pair<const MSXRom*, RomBlockDebuggableBase*>
 	const auto* rom = dynamic_cast<const MSXRom*>(device);
 	if (rom && !dynamic_cast<const RomPlain*>(rom)) {
 		debuggable = dynamic_cast<RomBlockDebuggableBase*>(
-			debugger.findDebuggable(rom->getName() + " romblocks"));
+			debugger.findDebuggable(tmpStrCat(rom->getName(), " romblocks")));
 	}
 	return {rom, debuggable};
 }
