@@ -1,4 +1,5 @@
 #include "Printer.hh"
+
 #include "Paper.hh"
 #include "MSXCharacterSets.hh"
 
@@ -17,11 +18,8 @@
 #include <cmath>
 #include <memory>
 #include <ranges>
-#include <vector>
 
 namespace openmsx {
-
-
 
 bool PrinterCore::getStatus(EmuTime /*time*/)
 {
@@ -165,12 +163,11 @@ void ImagePrinter::seekPrinterHeadRelative(double offset)
 void ImagePrinter::ensurePrintPage()
 {
 	if (!paper) {
-		// Paper format at 300dpi (default A4 portrait 210mm x 297mm)
+		// A4 paper format (210mm x 297mm) at 300dpi
 		// TODO make this configurable
 		int dpi = dpiSetting->getInt();
-		auto [widthmm, heightmm] = getPaperSize();
-		auto paperSizeX = unsigned((widthmm / 25.4) * dpi);
-		auto paperSizeY = unsigned((heightmm / 25.4) * dpi);
+		auto paperSizeX = unsigned((210 / 25.4) * dpi);
+		auto paperSizeY = unsigned((297 / 25.4) * dpi);
 
 		auto [dotsX, dotsY] = getNumberOfDots();
 		pixelSizeX = double(paperSizeX) / dotsX;
@@ -186,7 +183,7 @@ void ImagePrinter::flushEmulatedPrinter()
 	if (paper) {
 		if (printAreaBottom > printAreaTop) {
 			try {
-				auto filename = paper->save(useColor());
+				auto filename = paper->save();
 				motherBoard.getMSXCliComm().printInfo(
 					"Printed to ", filename);
 			} catch (MSXException& e) {
