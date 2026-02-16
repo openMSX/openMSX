@@ -1,8 +1,8 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
+#include "serialize.hh"
 #include "strCat.hh"
-#include "xrange.hh"
 
 #include <array>
 #include <cstdint>
@@ -31,6 +31,7 @@ public:
 	Sha1Sum();
 	/** Construct from string, throws when string is malformed. */
 	explicit Sha1Sum(std::string_view hex);
+	void parse(std::string_view hex);
 
 	/** Parse from a 40-character long buffer.
 	 * @pre 'str' points to a buffer of at least 40 characters
@@ -39,16 +40,16 @@ public:
 	void parse40(std::span<const char, 40> str);
 
 	void toBuffer(std::span<char, 40> buf) const;
-	[[nodiscard]] std::string toString() const {
-		std::string result(40, '\0');
-		toBuffer(std::span<char, 40>(result.data(), 40));
-		return result;
+	[[nodiscard]] std::string_view toString(std::span<char, 40> buf) const {
+		toBuffer(buf);
+		return {buf.data(), 40};
 	}
 
 	// Test or set 'null' value.
 	[[nodiscard]] bool empty() const;
 	void clear();
 
+	[[nodiscard]] constexpr bool operator==(const Sha1Sum&) const = default;
 	[[nodiscard]] constexpr auto operator<=>(const Sha1Sum&) const = default;
 
 	friend std::ostream& operator<<(std::ostream& os, const Sha1Sum& sum) {
@@ -56,6 +57,32 @@ public:
 		sum.toBuffer(buf);
 		os.write(buf.data(), 40);
 		return os;
+	}
+
+	// We used to serialize sha1 as a string.
+	// * For on-disk formats we want to continue to do that.
+	// * Fos in-memory formats we can skip that formatting/parsing step
+	void serialize(MemInputArchive& ar, unsigned /*version*/) {
+		ar.serialize("a", a);
+	}
+	void serialize(MemOutputArchive& ar, unsigned /*version*/) const {
+		ar.serialize("a", a);
+	}
+	void serialize(XmlInputArchive& ar, unsigned /*version*/) {
+		std::string s;
+		ar.load(s); // no label
+		if (s.empty()) {
+			clear();
+		} else {
+			parse(s);
+		}
+	}
+	void serialize(XmlOutputArchive& ar, unsigned /*version*/) const {
+		if (empty()) return;
+		std::array<char, 40> buf;
+		toBuffer(buf);
+		std::string_view s(buf.data(), 40);
+		ar.save(s);
 	}
 
 private:

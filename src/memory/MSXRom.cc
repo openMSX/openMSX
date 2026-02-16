@@ -41,15 +41,17 @@ RomType MSXRom::getRomType() const
 
 void MSXRom::getInfo(TclObject& result) const
 {
+	std::array<char, 40> buf1;
+	std::array<char, 40> buf2;
 	// Add detected rom type.
 	result.addDictKeyValues("mappertype", getMapperTypeString(),
 
 	// add sha1sum, to be able to get a unique key for this ROM device,
 	// so that it can be used to look up things in databases
-	                        "actualSHA1", rom.getSHA1().toString(),
+	                        "actualSHA1", rom.getSHA1().toString(buf1),
 
 	// add original sha1sum
-	                        "originalSHA1", rom.getOriginalSHA1().toString());
+	                        "originalSHA1", rom.getOriginalSHA1().toString(buf2));
 
 	// note that we're not using rom.getInfo(result); because we don't want
 	// the filename included for this method...

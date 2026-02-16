@@ -275,17 +275,11 @@ void HD::serialize(Archive& ar, unsigned version)
 		} else {
 			// use sha1
 			auto& filePool = motherBoard.getReactor().getFilePool();
-			Sha1Sum oldChecksum;
+			Sha1Sum oldChecksum{Sha1Sum::UninitializedTag{}};
 			if constexpr (!Archive::IS_LOADER) {
 				oldChecksum = getSha1Sum(filePool);
 			}
-			std::string oldChecksumStr = oldChecksum.empty()
-					      ? std::string{}
-					      : oldChecksum.toString();
-			ar.serialize("checksum", oldChecksumStr);
-			oldChecksum = oldChecksumStr.empty()
-				    ? Sha1Sum()
-				    : Sha1Sum(oldChecksumStr);
+			ar.serialize("checksum", oldChecksum);
 
 			if constexpr (Archive::IS_LOADER) {
 				Sha1Sum newChecksum = getSha1Sum(filePool);

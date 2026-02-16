@@ -293,7 +293,8 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 
 	if (checkResolvedSha1) {
 		auto& doc = motherBoard.getMachineConfig()->getXMLDocument();
-		auto patchedSha1Str = getSHA1().toString();
+		std::array<char, 40> buf;
+		auto patchedSha1Str = getSHA1().toString(buf);
 		const auto* actualSha1Elem = doc.getOrCreateChild(
 			config, "resolvedSha1", doc.allocateString(patchedSha1Str));
 		if (actualSha1Elem->getData() != patchedSha1Str) {
@@ -384,8 +385,10 @@ void Rom::addPadding(size_t newSize, uint8_t filler)
 
 void Rom::getInfo(TclObject& result) const
 {
-	result.addDictKeyValues("actualSHA1", getSHA1().toString(),
-	                        "originalSHA1", getOriginalSHA1().toString(),
+	std::array<char, 40> buf1;
+	std::array<char, 40> buf2;
+	result.addDictKeyValues("actualSHA1", getSHA1().toString(buf1),
+	                        "originalSHA1", getOriginalSHA1().toString(buf2),
 	                        "filename", getFilename());
 }
 

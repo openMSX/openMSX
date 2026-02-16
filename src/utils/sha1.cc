@@ -25,6 +25,7 @@ A million repetitions of "a"
 #include "endian.hh"
 #include "narrow.hh"
 #include "ranges.hh"
+#include "xrange.hh"
 
 #include <algorithm>
 #include <bit>
@@ -104,6 +105,11 @@ Sha1Sum::Sha1Sum()
 }
 
 Sha1Sum::Sha1Sum(std::string_view hex)
+{
+	parse(hex);
+}
+
+void Sha1Sum::parse(std::string_view hex)
 {
 	if (hex.size() != 40) {
 		throw MSXException("Invalid sha1, should be exactly 40 digits long: ", hex);

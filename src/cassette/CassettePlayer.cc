@@ -702,13 +702,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		}
 	}
 	if (ar.versionAtLeast(version, 2)) {
-		std::string oldChecksumStr = oldChecksum.empty()
-		                      ? std::string{}
-		                      : oldChecksum.toString();
-		ar.serialize("checksum", oldChecksumStr);
-		oldChecksum = oldChecksumStr.empty()
-		            ? Sha1Sum()
-		            : Sha1Sum(oldChecksumStr);
+		ar.serialize("checksum", oldChecksum);
 	}
 
 	if constexpr (Archive::IS_LOADER) {

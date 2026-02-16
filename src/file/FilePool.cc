@@ -177,7 +177,8 @@ void FilePool::Sha1SumCommand::execute(std::span<const TclObject> tokens, TclObj
 	auto filename = FileOperations::expandTilde(std::string(tokens[1].getString()));
 	File file(filename);
 	auto& filePool = OUTER(FilePool, sha1SumCommand);
-	result = filePool.getSha1Sum(file, filename).toString();
+	std::array<char, 40> buf;
+	result = filePool.getSha1Sum(file, filename).toString(buf);
 }
 
 std::string FilePool::Sha1SumCommand::help(std::span<const TclObject> /*tokens*/) const
