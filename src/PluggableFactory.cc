@@ -14,6 +14,7 @@
 #include "NinjaTap.hh"
 #include "Paddle.hh"
 #include "PluggingController.hh"
+#include "Plotter.hh"
 #include "Printer.hh"
 #include "PrinterPortLogger.hh"
 #include "PrinterPortSimpl.hh"
@@ -135,6 +136,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<ImagePrinterMSX>(
 		motherBoard));
 	controller.registerPluggable(std::make_unique<ImagePrinterEpson>(
+		motherBoard));
+	controller.registerPluggable(std::make_unique<MSXPlotter>(
 		motherBoard));
 }
 
