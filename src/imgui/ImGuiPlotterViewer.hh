@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+class Paper;
+
 class ImGuiPlotterViewer final : public ImGuiPart {
 public:
 	explicit ImGuiPlotterViewer(ImGuiManager &manager);
@@ -23,7 +25,7 @@ public:
 	bool show = false;
 
 private:
-	void updateTexture(class Paper *paper);
+	void updateTexture(const Paper* paper);
 
 	std::optional<gl::ColorTexture> texture;
 	uint64_t lastGeneration = uint64_t(-1);

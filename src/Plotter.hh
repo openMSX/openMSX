@@ -1,10 +1,13 @@
 #ifndef PLOTTER_HH
 #define PLOTTER_HH
 
+#include "Printer.hh"
+
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "Printer.hh"
+
 #include "gl_vec.hh"
+
 #include <array>
 #include <cstdint> // for uint8_t
 #include <memory>
@@ -13,7 +16,7 @@
 namespace openmsx {
 
 // MSXPlotter: emulates Sony PRN-C41 color plotter with 4 pens
-class MSXPlotter final : public ImagePrinter
+class MSXPlotter final : public PrinterCore
 {
 public:
 	// Character set options for the plotter
@@ -27,6 +30,12 @@ public:
 	// Pluggable
 	[[nodiscard]] zstring_view getName() const override;
 	[[nodiscard]] zstring_view getDescription() const override;
+
+	// PrinterCore
+	void write(uint8_t data) override;
+	void forceFormFeed() override;
+
+	[[nodiscard]] const Paper* getPaper() const { return paper.get(); }
 
 	// Configuration settings (accessible by ImGui)
 	[[nodiscard]] CharacterSet getCharacterSet() const;
@@ -47,38 +56,32 @@ public:
 	[[nodiscard]] gl::vec2 getPlotterPos() const { return penPosition + origin; }
 	[[nodiscard]] unsigned getSelectedPen() const { return selectedPen; }
 	[[nodiscard]] bool isGraphicMode() const { return mode == Mode::GRAPHIC; }
-	[[nodiscard]] Paper* getPaper() { return ImagePrinter::getPaper(); }
-	[[nodiscard]] const Paper* getPaper() const { return ImagePrinter::getPaper(); }
 
 	// PrinterPortDevice
 	[[nodiscard]] bool getStatus(EmuTime time) override;
 
-	// Force color output
-	[[nodiscard]] bool useColor() const override { return true; }
-
 	// A4 Landscape as specified in manual (296mm x 210mm)
-	[[nodiscard]] std::pair<double, double> getPaperSize() const override { return {210.0, 296.0}; }
-
-	// Override processCharacter to handle plotter-specific commands
-	void processCharacter(uint8_t data) override;
+	[[nodiscard]] std::pair<double, double> getPaperSize() const { return {210.0, 296.0}; }
 
 	// Re-initialize paper on re-plug
 	void plugHelper(Connector& connector, EmuTime time) override;
 
+	// Implement required pure virtuals from ImagePrinter
+	void resetSettings();
+	unsigned calcEscSequenceLength(uint8_t character);
+	void processEscSequence();
+	void ensurePrintPage();
+	void flushEmulatedPrinter();
+
 	// (Optional) serialization
 	template<typename Archive>
 	void serialize(Archive&, unsigned)
-	{}
-
-	// Implement required pure virtuals from ImagePrinter
-	std::pair<unsigned, unsigned> getNumberOfDots() override;
-	void resetSettings() override;
-	unsigned calcEscSequenceLength(uint8_t character) override;
-	void processEscSequence() override;
-	void ensurePrintPage() override;
-	void flushEmulatedPrinter() override;
+	{
+		// TODO
+	}
 
 private:
+	void updateLineFeed();
 	void processTextMode(uint8_t data);
 	void processGraphicMode(uint8_t data);
 	void executeGraphicCommand();
@@ -89,6 +92,15 @@ private:
 	void drawCharacter(uint8_t c, bool hasNextChar = false);
 
 private:
+	MSXMotherBoard& motherBoard;
+	std::shared_ptr<IntegerSetting> dpiSetting;
+
+	std::unique_ptr<Paper> paper;
+
+	gl::vec2 pixelSize;
+	double printAreaTop = -1.0;
+	double printAreaBottom = 0.0;
+
 	// Mode state
 	enum class Mode { TEXT, GRAPHIC };
 	Mode mode = Mode::TEXT;
@@ -127,7 +139,6 @@ private:
 	// Character scale (0-15, 0 is smallest)
 	unsigned charScale         = 0;
 	unsigned pendingScaleDigit = 0;
-	void updateLineFeed();
 
 	// Configuration settings (persistent)
 	std::shared_ptr<EnumSetting<CharacterSet>> charSetSetting;
@@ -145,6 +156,7 @@ public:
 
 	// A4 Plotting Area: 192mm x 276.8mm => 960 x 1384 steps.
 	static constexpr gl::vec2 PLOT_AREA_SIZE = {960.0f, 1384.0f};
+	static constexpr auto RIGHT_BORDER = PLOT_AREA_SIZE.x;
 
 	static constexpr float MARGIN_X = (PAPER_WIDTH_STEPS  - PLOT_AREA_SIZE.x) / 2.0f;
 	static constexpr float MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_SIZE.y) / 2.0f;

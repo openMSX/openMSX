@@ -1,9 +1,12 @@
 #include "Plotter.hh"
+
+#include "IntegerSetting.hh"
 #include "MSXCharacterSets.hh"
 #include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Paper.hh"
 #include "Printer.hh"
+
 #include "gl_mat.hh"
 #include "gl_vec.hh"
 #include "ranges.hh"
@@ -11,7 +14,7 @@
 #include "strCat.hh"
 
 #include <algorithm>
-#include <array> // Added for std::array
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <span>
@@ -34,7 +37,12 @@ static void printDebug(Args&&... args)
 #endif
 
 MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard_)
-	: ImagePrinter(motherBoard_, false) // graphicsHiLo=false (not used)
+	: motherBoard(motherBoard_)
+	, dpiSetting(motherBoard.getSharedStuff<IntegerSetting>(
+		"print-resolution",
+		motherBoard.getCommandController(), "print-resolution",
+		"resolution of the output image of emulated dot matrix printer in DPI",
+		300, 72, 1200))
 	, charSetSetting(motherBoard.getSharedStuff<EnumSetting<MSXPlotter::CharacterSet>>("plotter-charset",
 		motherBoard.getCommandController(),
 		"plotter-charset",
@@ -56,23 +64,10 @@ MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard_)
 		EnumSetting<MSXPlotter::PenThickness>::Map{{"standard", MSXPlotter::PenThickness::Standard},
 			{"thick", MSXPlotter::PenThickness::Thick}}))
 {
-	// Initialize default font (8x8) if not loaded
-	// This prevents crashes in printVisibleCharacter if rom is empty
-	if (fontInfo.charWidth == 0) {
-		fontInfo.charWidth = 8;
-		// FontInfo struct does not have charHeight, and rom is std::array
-
-		// Populate with a very simple pattern to distinguish chars?
-		// Let's make it stripes: 0x55
-		std::ranges::fill(fontInfo.rom, 0x55);
-
-		// Proper fix: We should ideally load "printer.rom".
-		// But for this patch, a dummy prevents the crash.
-	}
-
 	resetSettings();
 	ensurePrintPage();
 }
+
 MSXPlotter::~MSXPlotter()
 {
 	flushEmulatedPrinter();
@@ -141,7 +136,7 @@ void MSXPlotter::ejectPaper()
 	ensurePrintPage();
 }
 
-void MSXPlotter::processCharacter(uint8_t data)
+void MSXPlotter::write(uint8_t data)
 {
 	// Debug: log every byte received
 	printDebug("Plotter: received 0x", hex_string<2>(data),
@@ -263,6 +258,11 @@ void MSXPlotter::processCharacter(uint8_t data)
 	}
 }
 
+void MSXPlotter::forceFormFeed()
+{
+	flushEmulatedPrinter();
+}
+
 void MSXPlotter::processTextMode(uint8_t data)
 {
 	if (terminatorSkip != TerminatorSkip::NONE) {
@@ -330,7 +330,7 @@ void MSXPlotter::processTextMode(uint8_t data)
 			// Check for line wrap before drawing
 			// Estimate width: 6 steps base * scaleFactor
 			// Or simply check current position
-			if (penPosition.x >= float(rightBorder)) {
+			if (penPosition.x >= RIGHT_BORDER) {
 				// Auto CR/LF
 				penPosition.x = 0.0f;
 				penPosition.y -= float(lineFeed);
@@ -647,7 +647,7 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 	// MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2 = 48 steps (9.6mm)
 
 	ensurePrintPage();
-	auto* p = getPaper();
+	auto* p = paper.get();
 	if (!p) {
 		motherBoard.getMSXCliComm().printWarning("Plotter: plotWithPen called but NO PAPER");
 		return;
@@ -661,11 +661,11 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 	gl::vec2 paperPos =
 		gl::vec2{MARGIN_X, float(PAPER_HEIGHT_STEPS) - MARGIN_Y} + gl::vec2{1.0f, -1.0f} * (pos + origin);
 
-	gl::vec2 pixelPos = paperPos * gl::vec2{float(pixelSizeX), float(pixelSizeY)};
+	gl::vec2 pixelPos = paperPos * pixelSize;
 
 	// Update print area bounds so flushEmulatedPrinter knows to save the file
 	printAreaTop    = std::min(printAreaTop, double(pixelPos.y));
-	printAreaBottom = std::max(printAreaBottom, double(pixelPos.y + float(pixelSizeY)));
+	printAreaBottom = std::max(printAreaBottom, double(pixelPos.y + float(pixelSize.y)));
 
 	// Handle Line Type (Dashing)
 	// 0 and 15 are solid. 1-14 are broken lines.
@@ -689,16 +689,25 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 
 void MSXPlotter::ensurePrintPage()
 {
-	bool alreadyHadPaper = (getPaper() != nullptr);
-	ImagePrinter::ensurePrintPage();
-	if (!alreadyHadPaper) {
+	if (!paper) {
+		// Paper format at 300dpi (default A4 portrait 210mm x 297mm)
+		// TODO make this configurable
+		int dpi = dpiSetting->getInt();
+		auto [widthMm, heightMm] = getPaperSize();
+		auto paperSize = trunc((gl::vec2{float(widthMm), float(heightMm)} / 25.4f) * float(dpi));
+
+		gl::vec2 dots{PAPER_WIDTH_STEPS, PAPER_HEIGHT_STEPS};
+		pixelSize = gl::vec2(paperSize) / dots;
+
+		paper = std::make_unique<Paper>(paperSize.x, paperSize.y,
+		                                pixelSize.x, pixelSize.y);
+	} else {
 		// Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
 		// Standard step is 0.2mm. Set dot size to 200% of step size for solid
 		// lines.
-		if (auto* p = getPaper()) {
-			float sizeMultiplier = (getPenThicknessSetting().getEnum() == PenThickness::Thick) ? 1.5f : 1.0f;
-			p->setDotSize(double(float(pixelSizeX) * sizeMultiplier), double(float(pixelSizeY) * sizeMultiplier));
-		}
+		float sizeMultiplier = (getPenThicknessSetting().getEnum() == PenThickness::Thick) ? 1.5f : 1.0f;
+		auto ds = pixelSize * sizeMultiplier;
+		paper->setDotSize(ds.x, ds.y);
 	}
 }
 
@@ -712,14 +721,22 @@ void MSXPlotter::flushEmulatedPrinter()
 		printAreaTop    = 0.0;
 		printAreaBottom = -1.0;
 	}
-	ImagePrinter::flushEmulatedPrinter();
+	if (paper) {
+		if (printAreaBottom > printAreaTop) {
+			try {
+				auto filename = paper->save(true);
+				motherBoard.getMSXCliComm().printInfo(
+					"Printed to ", filename);
+			} catch (MSXException& e) {
+				motherBoard.getMSXCliComm().printWarning(
+					"Failed to print: ", e.getMessage());
+			}
+			printAreaTop = -1.0;
+			printAreaBottom = 0.0;
+		}
+		paper.reset();
+	}
 	picturePlotted = false;
-}
-
-std::pair<unsigned, unsigned> MSXPlotter::getNumberOfDots()
-{
-	// Return total steps that fit on the specified paper size.
-	return {PAPER_WIDTH_STEPS, PAPER_HEIGHT_STEPS};
 }
 
 void MSXPlotter::resetSettings()
@@ -744,12 +761,6 @@ void MSXPlotter::resetSettings()
 
 	// Set up printer settings for plotter
 	updateLineFeed();
-	leftBorder = 0;
-	rightBorder = unsigned(PLOT_AREA_SIZE.x);
-	graphDensity = 1.0;
-	fontDensity = 1.0;
-	pageTop = 0.0;
-	lines = unsigned(PLOT_AREA_SIZE.y) / 18;
 }
 
 unsigned MSXPlotter::calcEscSequenceLength(uint8_t /*character*/)

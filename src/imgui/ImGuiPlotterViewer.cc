@@ -26,7 +26,7 @@ void ImGuiPlotterViewer::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-void ImGuiPlotterViewer::updateTexture(Paper* paper)
+void ImGuiPlotterViewer::updateTexture(const Paper* paper)
 {
 	unsigned width = paper->getWidth();
 	unsigned height = paper->getHeight();
@@ -110,7 +110,7 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 			return;
 		}
 
-		auto *paper = plotter->getPaper();
+		auto* paper = plotter->getPaper();
 		if (!paper) {
 			ImGui::TextUnformatted("Plotter has no paper.");
 			texture.reset();
