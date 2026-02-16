@@ -145,7 +145,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("MSX-Music viewer", nullptr, &manager.msxMusicViewer->show);
 		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show);
 		ImGui::MenuItem("Plotter viewer", nullptr, &manager.plotterViewer->show);
-    simpleToolTip("The plotter should be plugged into the printer port");
+		simpleToolTip("The plotter should be plugged into the printer port");
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{

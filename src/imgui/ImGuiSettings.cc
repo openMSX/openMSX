@@ -388,39 +388,38 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Configure messages", nullptr, &manager.messages->configureWindow.open);
 		});
 		im::Menu("MSX Plotter", motherBoard != nullptr, [&]{
-
-				// Find the MSXPlotter in the pluggables
-				MSXPlotter* plotter = nullptr;
-				for (const auto& plug : motherBoard->getPluggingController().getPluggables()) {
-					if (auto* p = dynamic_cast<MSXPlotter*>(plug.get())) {
-						plotter = p;
-						break;
-					}
+			// Find the MSXPlotter in the pluggables
+			MSXPlotter* plotter = nullptr;
+			for (const auto& plug : motherBoard->getPluggingController().getPluggables()) {
+				if (auto* p = dynamic_cast<MSXPlotter*>(plug.get())) {
+					plotter = p;
+					break;
 				}
+			}
 
-				// Character Set dropdown
-				static constexpr std::array charSetNames = {
-					"International", "Japanese", "DIN (German)"
-				};
-				int currentCharSet = static_cast<int>(plotter->getCharacterSet());
-				if (ImGui::Combo("Character set", &currentCharSet, charSetNames.data(), narrow<int>(charSetNames.size()))) {
-					plotter->setCharacterSet(static_cast<MSXPlotter::CharacterSet>(currentCharSet));
-				}
+			// Character Set dropdown
+			static constexpr std::array charSetNames = {
+				"International", "Japanese", "DIN (German)"
+			};
+			int currentCharSet = static_cast<int>(plotter->getCharacterSet());
+			if (ImGui::Combo("Character set", &currentCharSet, charSetNames.data(), narrow<int>(charSetNames.size()))) {
+				plotter->setCharacterSet(static_cast<MSXPlotter::CharacterSet>(currentCharSet));
+			}
 
-				// Dipswitch 4
-				bool dipSwitch4 = plotter->getDipSwitch4();
-				if (ImGui::Checkbox("Dipswitch 4", &dipSwitch4)) {
-					plotter->setDipSwitch4(dipSwitch4);
-				}
+			// Dipswitch 4
+			bool dipSwitch4 = plotter->getDipSwitch4();
+			if (ImGui::Checkbox("Dipswitch 4", &dipSwitch4)) {
+				plotter->setDipSwitch4(dipSwitch4);
+			}
 
-				// Pen thickness
-				static constexpr std::array thicknessNames = {
-					"Standard (PRK-C41)", "Thick (PRK-C42)"
-				};
-				int currentThickness = static_cast<int>(plotter->getPenThicknessSetting().getEnum());
-				if (ImGui::Combo("Pen thickness", &currentThickness, thicknessNames.data(), narrow<int>(thicknessNames.size()))) {
-					plotter->getPenThicknessSetting().setEnum(static_cast<MSXPlotter::PenThickness>(currentThickness));
-				}
+			// Pen thickness
+			static constexpr std::array thicknessNames = {
+				"Standard (PRK-C41)", "Thick (PRK-C42)"
+			};
+			int currentThickness = static_cast<int>(plotter->getPenThicknessSetting().getEnum());
+			if (ImGui::Combo("Pen thickness", &currentThickness, thicknessNames.data(), narrow<int>(thicknessNames.size()))) {
+				plotter->getPenThicknessSetting().setEnum(static_cast<MSXPlotter::PenThickness>(currentThickness));
+			}
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{

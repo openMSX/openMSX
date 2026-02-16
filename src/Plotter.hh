@@ -98,12 +98,12 @@ private:
 	EscState escState = EscState::NONE;
 	enum class TerminatorSkip { NONE, START, SEEN_CR };
 	TerminatorSkip terminatorSkip = TerminatorSkip::NONE;
-	bool printNext		      = false; // For 0x01 literal prefix
-	bool picturePlotted	      = false; // Has anything been plotted on the current page?
+	bool printNext                = false; // For 0x01 literal prefix
+	bool picturePlotted           = false; // Has anything been plotted on the current page?
 
 	// Pen/color state
 	unsigned selectedPen = 0;    // 0=black, 1=blue, 2=green, 3=red
-	bool penDown	     = true; // pen starts down for drawing
+	bool penDown         = true; // pen starts down for drawing
 
 	// Plotter head position (logical steps, relative to origin)
 	gl::vec2 penPosition{0.0f, 0.0f};
@@ -115,17 +115,17 @@ private:
 	unsigned lineType   = 0; // 0=solid, 1-14=dashed
 	float dashDistance  = 0.0f;
 	float maxLineHeight = 0.0f;
-	float lineFeed	    = 18.0f;
+	float lineFeed      = 18.0f;
 
 	// Character rotation (0-3)
 	unsigned rotation = 0;
 
 	// Pending character gap (to be removed if Q command follows)
-	float pendingCharGap	    = 0.0f;
+	float pendingCharGap        = 0.0f;
 	unsigned pendingGapRotation = 0;
 
 	// Character scale (0-15, 0 is smallest)
-	unsigned charScale	   = 0;
+	unsigned charScale         = 0;
 	unsigned pendingScaleDigit = 0;
 	void updateLineFeed();
 
@@ -146,16 +146,16 @@ public:
 	// A4 Plotting Area: 192mm x 276.8mm => 960 x 1384 steps.
 	static constexpr gl::vec2 PLOT_AREA_SIZE = {960.0f, 1384.0f};
 
-	static constexpr float MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_SIZE.x) / 2.0f;
+	static constexpr float MARGIN_X = (PAPER_WIDTH_STEPS  - PLOT_AREA_SIZE.x) / 2.0f;
 	static constexpr float MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_SIZE.y) / 2.0f;
 
 public:
 	// Pen colors: RGB tuples for each pen (0=black, 1=blue, 2=green, 3=red)
 	static constexpr std::array<std::array<uint8_t, 3>, 4> penColors = {{
-		{{0, 0, 0}},	 // black
-		{{0, 0, 255}},	 // blue
-		{{49, 153, 90}}, // green
-		{{255, 0, 0}}	 // red
+		{{  0,   0,   0}}, // black
+		{{  0,   0, 255}}, // blue
+		{{ 49, 153,  90}}, // green
+		{{255,   0,   0}}, // red
 	}};
 };
 

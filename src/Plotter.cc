@@ -36,25 +36,25 @@ static void printDebug(Args&&... args)
 MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
 	: ImagePrinter(motherBoard, false) // graphicsHiLo=false (not used)
 	, charSetSetting(motherBoard.getSharedStuff<EnumSetting<MSXPlotter::CharacterSet>>("plotter-charset",
-		  motherBoard.getCommandController(),
-		  "plotter-charset",
-		  "character set for the MSX plotter",
-		  MSXPlotter::CharacterSet::International,
-		  EnumSetting<MSXPlotter::CharacterSet>::Map{{"international", MSXPlotter::CharacterSet::International},
-			  {"japanese", MSXPlotter::CharacterSet::Japanese},
-			  {"din", MSXPlotter::CharacterSet::DIN}}))
+		motherBoard.getCommandController(),
+		"plotter-charset",
+		"character set for the MSX plotter",
+		MSXPlotter::CharacterSet::International,
+		EnumSetting<MSXPlotter::CharacterSet>::Map{{"international", MSXPlotter::CharacterSet::International},
+			{"japanese", MSXPlotter::CharacterSet::Japanese},
+			{"din", MSXPlotter::CharacterSet::DIN}}))
 	, dipSwitch4Setting(motherBoard.getSharedStuff<BooleanSetting>("plotter-dipswitch4",
-		  motherBoard.getCommandController(),
-		  "plotter-dipswitch4",
-		  "dipswitch 4 setting for the MSX plotter",
-		  false))
+		motherBoard.getCommandController(),
+		"plotter-dipswitch4",
+		"dipswitch 4 setting for the MSX plotter",
+		false))
 	, penThicknessSetting(motherBoard.getSharedStuff<EnumSetting<MSXPlotter::PenThickness>>("plotter-pen-thickness",
-		  motherBoard.getCommandController(),
-		  "plotter-pen-thickness",
-		  "pen thickness for the MSX plotter",
-		  MSXPlotter::PenThickness::Standard,
-		  EnumSetting<MSXPlotter::PenThickness>::Map{{"standard", MSXPlotter::PenThickness::Standard},
-			  {"thick", MSXPlotter::PenThickness::Thick}}))
+		motherBoard.getCommandController(),
+		"plotter-pen-thickness",
+		"pen thickness for the MSX plotter",
+		MSXPlotter::PenThickness::Standard,
+		EnumSetting<MSXPlotter::PenThickness>::Map{{"standard", MSXPlotter::PenThickness::Standard},
+			{"thick", MSXPlotter::PenThickness::Thick}}))
 {
 	// Initialize default font (8x8) if not loaded
 	// This prevents crashes in printVisibleCharacter if rom is empty
@@ -129,7 +129,7 @@ void MSXPlotter::moveStep(gl::vec2 delta)
 {
 	gl::vec2 oldAbsPos = penPosition + origin;
 	gl::vec2 newAbsPos = gl::clamp(oldAbsPos + delta, gl::vec2{0.0f}, PLOT_AREA_SIZE);
-	penPosition	   = newAbsPos - origin;
+	penPosition = newAbsPos - origin;
 }
 
 void MSXPlotter::ejectPaper()
@@ -144,12 +144,9 @@ void MSXPlotter::ejectPaper()
 void MSXPlotter::processCharacter(uint8_t data)
 {
 	// Debug: log every byte received
-	printDebug("Plotter: received 0x",
-		hex_string<2>(data),
-		" mode=",
-		(mode == Mode::TEXT ? "TEXT" : "GRAPHIC"),
-		" escState=",
-		int(escState));
+	printDebug("Plotter: received 0x", hex_string<2>(data),
+	           " mode=", (mode == Mode::TEXT ? "TEXT" : "GRAPHIC"),
+	           " escState=", int(escState));
 
 	// Handle ESC sequence state first
 	switch (escState) {
@@ -179,7 +176,7 @@ void MSXPlotter::processCharacter(uint8_t data)
 		} else {
 			// Unknown ESC sequence, ignore
 			motherBoard.getMSXCliComm().printWarning(
-				strCat("Plotter: unknown ESC sequence 0x", hex_string<2>(data)));
+				"Plotter: unknown ESC sequence 0x", hex_string<2>(data));
 			escState = EscState::NONE;
 			return;
 		}
@@ -200,7 +197,7 @@ void MSXPlotter::processCharacter(uint8_t data)
 			updateLineFeed();
 			printDebug("Plotter: text scale set to ", charScale);
 			terminatorSkip = TerminatorSkip::START;
-			escState       = EscState::NONE;
+			escState = EscState::NONE;
 		} else if (data >= '0' && data <= '9') {
 			// ASCII digit
 			unsigned val = data - '0';
@@ -210,11 +207,11 @@ void MSXPlotter::processCharacter(uint8_t data)
 				updateLineFeed();
 				printDebug("Plotter: text scale set to ", charScale);
 				terminatorSkip = TerminatorSkip::START;
-				escState       = EscState::NONE;
+				escState = EscState::NONE;
 			} else {
 				// '1' -> could be start of "0"-"15"
 				pendingScaleDigit = val;
-				escState	  = EscState::ESC_S_EXP_DIGIT;
+				escState = EscState::ESC_S_EXP_DIGIT;
 			}
 		} else {
 			// Invalid scale parameter, ignore command but process char
@@ -231,7 +228,7 @@ void MSXPlotter::processCharacter(uint8_t data)
 				updateLineFeed();
 				printDebug("Plotter: text scale set to ", charScale);
 				terminatorSkip = TerminatorSkip::START;
-				escState       = EscState::NONE;
+				escState = EscState::NONE;
 			} else {
 				// > 15, valid first digit but invalid second.
 				// e.g. "19". Interpret first digit as scale, second as text.
@@ -247,10 +244,10 @@ void MSXPlotter::processCharacter(uint8_t data)
 			printDebug("Plotter: text scale set to ", charScale);
 			terminatorSkip =
 				TerminatorSkip::START; // Should we skip terminators here too if the first digit was
-						       // valid? The command technically executed properly with the
-						       // single digit. But followed by 'A', user probably didn't
-						       // intend a terminator sequence immediately. However, strictly
-						       // speaking, if '1' sets scale, command is done.
+				                       // valid? The command technically executed properly with the
+				                       // single digit. But followed by 'A', user probably didn't
+				                       // intend a terminator sequence immediately. However, strictly
+				                       // speaking, if '1' sets scale, command is done.
 			escState = EscState::NONE;
 			processTextMode(data);
 		}
@@ -571,7 +568,7 @@ void MSXPlotter::executeGraphicCommand()
 			printDebug("Plotter: P - Printing '", text, "'");
 
 			bool altChar = false;
-			size_t i     = 0;
+			size_t i = 0;
 			while (i < text.size()) {
 				char c = text[i];
 				if (static_cast<uint8_t>(c) == 0x01) {
@@ -594,7 +591,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'C': // Color select - C n (0-3)
 		if (!coords.empty() && coords[0] >= 0 && coords[0] <= 3) {
-			unsigned newPen = static_cast<unsigned>(coords[0]);
+			auto newPen = static_cast<unsigned>(coords[0]);
 			if (newPen != selectedPen) {
 				printDebug("Plotter: C - Select color ", newPen, " (Pen change delay applied)");
 				selectedPen = newPen;
@@ -604,7 +601,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	default:
 		// Unknown command, ignore
-		motherBoard.getMSXCliComm().printWarning(strCat("Plotter: unknown graphic command '", cmd, "'"));
+		motherBoard.getMSXCliComm().printWarning("Plotter: unknown graphic command '", cmd, "'");
 		break;
 	}
 
@@ -629,9 +626,9 @@ void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
 	// High density sampling: e.g. 4 samples per plotter step (0.25 steps per dot)
 	// This makes lines look solid rather than a series of dots.
 	float stepSize = 0.25f;
-	int steps      = static_cast<int>(std::ceil(totalDist / stepSize));
-	gl::vec2 inc   = delta / float(steps);
-	float dDist    = totalDist / float(steps);
+	int steps = static_cast<int>(std::ceil(totalDist / stepSize));
+	gl::vec2 inc = delta / float(steps);
+	float dDist = totalDist / float(steps);
 
 	gl::vec2 p = from;
 	for (int i = 0; i <= steps; ++i) {
@@ -667,7 +664,7 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 	gl::vec2 pixelPos = paperPos * gl::vec2{float(pixelSizeX), float(pixelSizeY)};
 
 	// Update print area bounds so flushEmulatedPrinter knows to save the file
-	printAreaTop	= std::min(printAreaTop, double(pixelPos.y));
+	printAreaTop    = std::min(printAreaTop, double(pixelPos.y));
 	printAreaBottom = std::max(printAreaBottom, double(pixelPos.y + float(pixelSizeY)));
 
 	// Handle Line Type (Dashing)
@@ -677,7 +674,7 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 		// HP-GL/2 style or similar: start with a mark.
 		// halfPeriod is defined by lineType.
 		unsigned halfPeriod = lineType + 2;
-		unsigned phase	    = static_cast<unsigned>(dashDistance / float(halfPeriod));
+		auto phase = static_cast<unsigned>(dashDistance / float(halfPeriod));
 		if (phase % 2 == 0) { // Skip if 0 (even), Mark if 1 (odd)
 			draw = false;
 		}
@@ -699,10 +696,8 @@ void MSXPlotter::ensurePrintPage()
 		// Standard step is 0.2mm. Set dot size to 200% of step size for solid
 		// lines.
 		if (auto* p = getPaper()) {
-			float sizeMultiplier =
-				(getPenThicknessSetting().getEnum() == PenThickness::Thick) ? 1.5f : 1.0f;
-			p->setDotSize(
-				double(float(pixelSizeX) * sizeMultiplier), double(float(pixelSizeY) * sizeMultiplier));
+			float sizeMultiplier = (getPenThicknessSetting().getEnum() == PenThickness::Thick) ? 1.5f : 1.0f;
+			p->setDotSize(double(float(pixelSizeX) * sizeMultiplier), double(float(pixelSizeY) * sizeMultiplier));
 		}
 	}
 }
@@ -714,7 +709,7 @@ void MSXPlotter::flushEmulatedPrinter()
 		// the dirty region so it won't save a blank file.
 		// Default values in ImagePrinter are Top=-1.0, Bottom=0.0 which satisfy
 		// Bottom > Top. We set Top=0.0, Bottom=-1.0 to ensure Bottom <= Top.
-		printAreaTop	= 0.0;
+		printAreaTop    = 0.0;
 		printAreaBottom = -1.0;
 	}
 	ImagePrinter::flushEmulatedPrinter();
@@ -729,32 +724,32 @@ std::pair<unsigned, unsigned> MSXPlotter::getNumberOfDots()
 
 void MSXPlotter::resetSettings()
 {
-	mode		   = Mode::TEXT;
-	escState	   = EscState::NONE;
-	selectedPen	   = 0;
-	penDown		   = true;
-	penPosition	   = gl::vec2{0.0f, 30.0f};
-	origin		   = gl::vec2{0.0f, 1354.0f};
-	lineType	   = 0;
-	dashDistance	   = 0.0f;
-	rotation	   = 0;
-	pendingCharGap	   = 0.0f;
+	mode = Mode::TEXT;
+	escState = EscState::NONE;
+	selectedPen = 0;
+	penDown = true;
+	penPosition = gl::vec2{0.0f, 30.0f};
+	origin = gl::vec2{0.0f, 1354.0f};
+	lineType = 0;
+	dashDistance = 0.0f;
+	rotation = 0;
+	pendingCharGap = 0.0f;
 	pendingGapRotation = 0;
-	charScale	   = 1; // Default scale is 1
-	maxLineHeight	   = 0.0f;
+	charScale = 1; // Default scale is 1
+	maxLineHeight = 0.0f;
 	graphicCmdBuffer.clear();
-	printNext      = false;
+	printNext = false;
 	picturePlotted = false;
 	terminatorSkip = TerminatorSkip::NONE;
 
 	// Set up printer settings for plotter
 	updateLineFeed();
-	leftBorder   = 0;
-	rightBorder  = unsigned(PLOT_AREA_SIZE.x);
+	leftBorder = 0;
+	rightBorder = unsigned(PLOT_AREA_SIZE.x);
 	graphDensity = 1.0;
-	fontDensity  = 1.0;
-	pageTop	     = 0.0;
-	lines	     = unsigned(PLOT_AREA_SIZE.y) / 18;
+	fontDensity = 1.0;
+	pageTop = 0.0;
+	lines = unsigned(PLOT_AREA_SIZE.y) / 18;
 }
 
 unsigned MSXPlotter::calcEscSequenceLength(uint8_t /*character*/)
@@ -782,23 +777,23 @@ void MSXPlotter::lineTo(gl::vec2 pos)
 
 void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 {
-	auto savedLineType     = lineType;
+	auto savedLineType = lineType;
 	auto savedDashDistance = dashDistance;
-	lineType	       = 0;
+	lineType = 0;
 
 	// Select font based on character set setting
 	auto font = [&] {
 		switch (getCharacterSet()) {
-			using enum CharacterSet;
+		using enum CharacterSet;
 		default:
 		case International: return getMSXFontRaw();
-		case Japanese: return getMSXJPFontRaw();
-		case DIN: return getMSXDINFontRaw();
+		case Japanese:      return getMSXJPFontRaw();
+		case DIN:           return getMSXDINFontRaw();
 		}
 	}();
 	auto glyph = subspan<8>(font, 8 * c);
 
-	float scaleFactor  = 1.0f + float(charScale);
+	float scaleFactor = 1.0f + float(charScale);
 	float gridSpacingX = 0.94f * scaleFactor;
 	float gridSpacingY = 0.85f * scaleFactor;
 	// float gridSpacingX = 0.54f * scaleFactor;
@@ -813,10 +808,10 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 	auto transform = [&](gl::vec2 p) -> gl::vec2 {
 		// Each rotation matrix has columns [uDir, vDir] for that rotation
 		static constexpr std::array<gl::mat2, 4> rotations = {{
-			gl::mat2{gl::vec2{1.0f, 0.0f}, gl::vec2{0.0f, 1.0f}},	// 0°: identity
-			gl::mat2{gl::vec2{0.0f, -1.0f}, gl::vec2{1.0f, 0.0f}},	// 90° CW
-			gl::mat2{gl::vec2{-1.0f, 0.0f}, gl::vec2{0.0f, -1.0f}}, // 180°
-			gl::mat2{gl::vec2{0.0f, 1.0f}, gl::vec2{-1.0f, 0.0f}}	// 270° CW
+			gl::mat2{gl::vec2{ 1.0f,  0.0f}, gl::vec2{ 0.0f,  1.0f}}, //   0°
+			gl::mat2{gl::vec2{ 0.0f, -1.0f}, gl::vec2{ 1.0f,  0.0f}}, //  90° CW
+			gl::mat2{gl::vec2{-1.0f,  0.0f}, gl::vec2{ 0.0f, -1.0f}}, // 180°
+			gl::mat2{gl::vec2{ 0.0f,  1.0f}, gl::vec2{-1.0f,  0.0f}}, // 270° CW
 		}};
 		return penPosition + rotations[rotation] * p;
 	};
@@ -887,30 +882,24 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 	// Advance cursor to next character position
 	// Always use full width (char + gap). If Q rotation follows, it will undo the
 	// gap.
-	float charWidthOnly = 4.12f * gridSpacingX;    // just the character
-	float charGap	    = 2.3f * gridSpacingX;     // gap between characters (11.12 - 4.12 = 7.0)
-	float charAdvance   = charWidthOnly + charGap; // total advance
+	float charWidthOnly = 4.12f * gridSpacingX;  // just the character
+	float charGap = 2.3f * gridSpacingX;         // gap between characters (11.12 - 4.12 = 7.0)
+	float charAdvance = charWidthOnly + charGap; // total advance
 
 	penPosition = transform({charAdvance, 0.0f});
 
 	// Track the gap so Q command can undo it if it follows
-	pendingCharGap	   = charGap;
+	pendingCharGap = charGap;
 	pendingGapRotation = rotation;
 
-	printDebug("Plotter: Rotation ",
-		rotation,
-		" | charWidth ",
-		charWidthOnly,
-		" | charGap ",
-		charGap,
-		" | charAdvance ",
-		charAdvance,
-		" | plotter.x ",
-		penPosition.x,
-		" | plotter.y ",
-		penPosition.y);
+	printDebug("Plotter: Rotation ", rotation,
+	           " | charWidth ", charWidthOnly,
+	           " | charGap ", charGap,
+	           " | charAdvance ", charAdvance,
+	           " | plotter.x ", penPosition.x,
+	           " | plotter.y ", penPosition.y);
 
-	lineType     = savedLineType;
+	lineType = savedLineType;
 	dashDistance = savedDashDistance;
 }
 
