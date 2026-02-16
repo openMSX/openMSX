@@ -32,8 +32,8 @@ void ImGuiPlotterViewer::updateTexture(Paper* paper)
 	unsigned height = paper->getHeight();
 	auto currentGeneration = paper->getGeneration();
 
-	if (!texture || texture->getWidth() != (int)width ||
-	    texture->getHeight() != (int)height ||
+	if (!texture || texture->getWidth() != int(width) ||
+	    texture->getHeight() != int(height) ||
 	    currentGeneration != lastGeneration) {
 		auto rgbData = paper->getRGBData();
 		int scaleX = (int(width) + 2047) / 2048;
@@ -140,15 +140,14 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 		// (PAPER_HEIGHT_STEPS - MARGIN_Y) - (y + originY); NOTE: Plotter steps
 		// might be slightly different than paper size, but MARGIN_X handles it.
 		// Let's use the same logic as plotWithPen:
-		double paperX = (double)plotX + (double)MSXPlotter::MARGIN_X;
-		double paperY = (double)MSXPlotter::PAPER_HEIGHT_STEPS -
-		                (double)MSXPlotter::MARGIN_Y - (double)plotY;
+		double paperX = double(plotX) + double(MSXPlotter::MARGIN_X);
+		double paperY = double(MSXPlotter::PAPER_HEIGHT_STEPS) -
+		                double(MSXPlotter::MARGIN_Y) - double(plotY);
 
-		double stepToPixelX = (double)width / (double)MSXPlotter::PAPER_WIDTH_STEPS;
-		double stepToPixelY =
-		    (double)height / (double)MSXPlotter::PAPER_HEIGHT_STEPS;
-		auto penX = float(paperX * stepToPixelX * (double)scale);
-		auto penY = float(paperY * stepToPixelY * (double)scale);
+		double stepToPixelX = double(width)  / double(MSXPlotter::PAPER_WIDTH_STEPS);
+		double stepToPixelY = double(height) / double(MSXPlotter::PAPER_HEIGHT_STEPS);
+		auto penX = float(paperX * stepToPixelX * double(scale));
+		auto penY = float(paperY * stepToPixelY * double(scale));
 
 		auto *drawList = ImGui::GetWindowDrawList();
 		ImVec2 penPos = ImVec2(screenPos.x + penX, screenPos.y + penY);
@@ -172,7 +171,7 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 		                          float(c[2]) / 255.0f, 1.0f),
 		                   ImGuiColorEditFlags_NoTooltip, {sz, sz});
 		ImGui::SameLine();
-		ImGui::Text("  Pos: (%.1f, %.1f)", (double)plotX, (double)plotY);
+		ImGui::Text("  Pos: (%.1f, %.1f)", double(plotX), double(plotY));
 		ImGui::SameLine();
 		ImGui::Text("  Mode: %s", plotter->isGraphicMode() ? "Graphic" : "Text");
 

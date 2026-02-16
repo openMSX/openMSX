@@ -33,8 +33,8 @@ static void printDebug(Args&&... args)
 }
 #endif
 
-MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
-	: ImagePrinter(motherBoard, false) // graphicsHiLo=false (not used)
+MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard_)
+	: ImagePrinter(motherBoard_, false) // graphicsHiLo=false (not used)
 	, charSetSetting(motherBoard.getSharedStuff<EnumSetting<MSXPlotter::CharacterSet>>("plotter-charset",
 		motherBoard.getCommandController(),
 		"plotter-charset",
@@ -83,9 +83,9 @@ zstring_view MSXPlotter::getName() const
 	return "MSXPlotter";
 }
 
-void MSXPlotter::plugHelper(Connector& connector, EmuTime time)
+void MSXPlotter::plugHelper(Connector& connector_, EmuTime time)
 {
-	PrinterCore::plugHelper(connector, time);
+	PrinterCore::plugHelper(connector_, time);
 	resetSettings();
 	ensurePrintPage();
 }
