@@ -13,16 +13,17 @@ using namespace openmsx;
 
 TEST_CASE("Sha1Sum: constructors")
 {
+	std::array<char, 40> buf;
 	SECTION("default") {
 		Sha1Sum sum;
 		CHECK(sum.empty());
-		CHECK(sum.toString() == "0000000000000000000000000000000000000000");
+		CHECK(sum.toString(buf) == "0000000000000000000000000000000000000000");
 	}
 
 	SECTION("from string, ok") {
 		Sha1Sum sum("1234567890123456789012345678901234567890");
 		CHECK(!sum.empty());
-		CHECK(sum.toString() == "1234567890123456789012345678901234567890");
+		CHECK(sum.toString(buf) == "1234567890123456789012345678901234567890");
 	}
 	SECTION("from string, too short") {
 		CHECK_THROWS(Sha1Sum("123456789012345678901234567890123456789"));
@@ -38,11 +39,12 @@ TEST_CASE("Sha1Sum: constructors")
 TEST_CASE("Sha1Sum: parse")
 {
 	Sha1Sum sum;
+	std::array<char, 40> buf;
 
 	// precondition: string must be 40 chars long
 	SECTION("ok") {
 		sum.parse40(subspan<40>("abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd"));
-		CHECK(sum.toString() == "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd");
+		CHECK(sum.toString(buf) == "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd");
 	}
 	SECTION("invalid char") {
 		CHECK_THROWS(sum.parse40(subspan<40>("abcdabcdabcdabcdabcdabcdabcdabcd-bcdabcd")));
@@ -52,12 +54,13 @@ TEST_CASE("Sha1Sum: parse")
 TEST_CASE("Sha1Sum: clear")
 {
 	Sha1Sum sum("1111111111111111111111111111111111111111");
+	std::array<char, 40> buf;
 	REQUIRE(!sum.empty());
-	REQUIRE(sum.toString() != "0000000000000000000000000000000000000000");
+	REQUIRE(sum.toString(buf) != "0000000000000000000000000000000000000000");
 
 	sum.clear();
 	CHECK(sum.empty());
-	CHECK(sum.toString() == "0000000000000000000000000000000000000000");
+	CHECK(sum.toString(buf) == "0000000000000000000000000000000000000000");
 }
 
 static void testCompare(const Sha1Sum& x, const Sha1Sum& y, bool expectEqual, bool expectLess)
@@ -113,19 +116,21 @@ TEST_CASE("sha1: calc")
 {
 	const char* in = "abc";
 	Sha1Sum output = SHA1::calc({std::bit_cast<const uint8_t*>(in), strlen(in)});
-	CHECK(output.toString() == "a9993e364706816aba3e25717850c26c9cd0d89d");
+	std::array<char, 40> buf;
+	CHECK(output.toString(buf) == "a9993e364706816aba3e25717850c26c9cd0d89d");
 }
 
 TEST_CASE("sha1: update,digest")
 {
 	SHA1 sha1;
+	std::array<char, 40> buf;
 	SECTION("single block") {
 		const char* in = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
 		sha1.update({std::bit_cast<const uint8_t*>(in), strlen(in)});
 		Sha1Sum sum1 = sha1.digest();
 		Sha1Sum sum2 = sha1.digest(); // call 2nd time is ok
 		CHECK(sum1 == sum2);
-		CHECK(sum1.toString() == "84983e441c3bd26ebaae4aa1f95129e5e54670f1");
+		CHECK(sum1.toString(buf) == "84983e441c3bd26ebaae4aa1f95129e5e54670f1");
 	}
 	SECTION("multiple blocks") {
 		const char* in = "aaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -135,7 +140,7 @@ TEST_CASE("sha1: update,digest")
 		});
 		// 25 * 40'000 = 1'000'000 repetitions of "a"
 		Sha1Sum sum = sha1.digest();
-		CHECK(sum.toString() == "34aa973cd4c4daa4f61eeb2bdbad27316534016f");
+		CHECK(sum.toString(buf) == "34aa973cd4c4daa4f61eeb2bdbad27316534016f");
 	}
 }
 
@@ -143,41 +148,42 @@ TEST_CASE("sha1: finalize")
 {
 	// white-box test for boundary cases in finalize()
 	SHA1 sha1;
+	std::array<char, 40> buf;
 	const char* in = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 	                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 	SECTION("0") {
 		sha1.update({std::bit_cast<const uint8_t*>(in), 0uz});
 		auto sum = sha1.digest();
-		CHECK(sum.toString() == "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+		CHECK(sum.toString(buf) == "da39a3ee5e6b4b0d3255bfef95601890afd80709");
 	}
 	SECTION("25") {
 		sha1.update({std::bit_cast<const uint8_t*>(in), 25uz});
 		auto sum = sha1.digest();
-		CHECK(sum.toString() == "44f4647e1542a79d7d68ceb7f75d1dbf77fdebfc");
+		CHECK(sum.toString(buf) == "44f4647e1542a79d7d68ceb7f75d1dbf77fdebfc");
 	}
 	SECTION("55") {
 		sha1.update({std::bit_cast<const uint8_t*>(in), 55uz});
 		auto sum = sha1.digest();
-		CHECK(sum.toString() == "c1c8bbdc22796e28c0e15163d20899b65621d65a");
+		CHECK(sum.toString(buf) == "c1c8bbdc22796e28c0e15163d20899b65621d65a");
 	}
 	SECTION("56") {
 		sha1.update({std::bit_cast<const uint8_t*>(in), 56uz});
 		auto sum = sha1.digest();
-		CHECK(sum.toString() == "c2db330f6083854c99d4b5bfb6e8f29f201be699");
+		CHECK(sum.toString(buf) == "c2db330f6083854c99d4b5bfb6e8f29f201be699");
 	}
 	SECTION("60") {
 		sha1.update({std::bit_cast<const uint8_t*>(in), 60uz});
 		auto sum = sha1.digest();
-		CHECK(sum.toString() == "13d956033d9af449bfe2c4ef78c17c20469c4bf1");
+		CHECK(sum.toString(buf) == "13d956033d9af449bfe2c4ef78c17c20469c4bf1");
 	}
 	SECTION("63") {
 		sha1.update({std::bit_cast<const uint8_t*>(in), 63uz});
 		auto sum = sha1.digest();
-		CHECK(sum.toString() == "03f09f5b158a7a8cdad920bddc29b81c18a551f5");
+		CHECK(sum.toString(buf) == "03f09f5b158a7a8cdad920bddc29b81c18a551f5");
 	}
 	SECTION("64") {
 		sha1.update({std::bit_cast<const uint8_t*>(in), 64uz});
 		auto sum = sha1.digest();
-		CHECK(sum.toString() == "0098ba824b5c16427bd7a1122a5a442a25ec644d");
+		CHECK(sum.toString(buf) == "0098ba824b5c16427bd7a1122a5a442a25ec644d");
 	}
 }
