@@ -49,11 +49,11 @@ namespace openmsx {
 static uint8_t getDelayCycles(const XMLElement& devices) {
 	uint8_t cycles = 0;
 	if (const auto* t9769Dev = devices.findChild("T9769")) {
-		if (t9769Dev->getChildData("subtype") == one_of("B", "C")) {
-			cycles = 1;
-		} else {
-			cycles = 2;
-		}
+		// See https://github.com/openMSX/openMSX/issues/989:
+		// All tested T9769 variants seem to introduce only 1 extra
+		// cycle. It is currently unknown what the observable
+		// differences are between the subtypes.
+		cycles = 1;
 	} else if (devices.findChild("S1990")) {
 		// this case is purely there for backwards compatibility for
 		// turboR configs which do not have the T9769 tag yet.
