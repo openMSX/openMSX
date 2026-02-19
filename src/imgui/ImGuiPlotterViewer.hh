@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-class Paper;
+class PlotterPaper;
 
 class ImGuiPlotterViewer final : public ImGuiPart {
 public:
@@ -25,10 +25,9 @@ public:
 	bool show = false;
 
 private:
-	void updateTexture(const Paper* paper);
+	void updateTexture(PlotterPaper& paper);
 
 	std::optional<gl::ColorTexture> texture;
-	uint64_t lastGeneration = uint64_t(-1);
 	std::vector<uint8_t> downsampledBuf;
 
 	static constexpr auto persistentElements = std::tuple{

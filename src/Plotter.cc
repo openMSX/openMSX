@@ -1,22 +1,19 @@
 #include "Plotter.hh"
 
+#include "FileOperations.hh"
 #include "IntegerSetting.hh"
 #include "MSXCharacterSets.hh"
 #include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
-#include "Paper.hh"
-#include "Printer.hh"
+#include "PNG.hh"
 
 #include "gl_mat.hh"
-#include "gl_vec.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "strCat.hh"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
-#include <iostream>
 #include <span>
 
 namespace openmsx {
@@ -653,7 +650,7 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 		return;
 	}
 
-	const auto& color = penColors[selectedPen];
+	const auto& color = inkColors[selectedPen];
 	// Convert logical plotter steps to physical paper steps with margins.
 	// Origin (0,0) is bottom-left of the plotting area.
 	// X-axis: MarginX + LogicalX
@@ -682,7 +679,12 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 	dashDistance += distMoved;
 
 	if (draw) {
-		p->plotColor(double(pixelPos.x), double(pixelPos.y), color[0], color[1], color[2]);
+		// Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
+		// Standard step is 0.2mm. Set dot size to 200% of step size for solid
+		// lines.
+
+		// TODO use draw_motion()
+		p->draw_dot(pixelPos, pixelSize.x, color);
 		picturePlotted = true;
 	}
 }
@@ -697,17 +699,9 @@ void MSXPlotter::ensurePrintPage()
 		auto paperSize = trunc((gl::vec2{float(widthMm), float(heightMm)} / 25.4f) * float(dpi));
 
 		gl::vec2 dots{PAPER_WIDTH_STEPS, PAPER_HEIGHT_STEPS};
-		pixelSize = gl::vec2(paperSize) / dots;
+		pixelSize = gl::vec2(paperSize) / dots; // TODO pixels are round (x==y), no need to store both x and y
 
-		paper = std::make_unique<Paper>(paperSize.x, paperSize.y,
-		                                pixelSize.x, pixelSize.y);
-	} else {
-		// Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
-		// Standard step is 0.2mm. Set dot size to 200% of step size for solid
-		// lines.
-		float sizeMultiplier = (getPenThicknessSetting().getEnum() == PenThickness::Thick) ? 1.5f : 1.0f;
-		auto ds = pixelSize * sizeMultiplier;
-		paper->setDotSize(ds.x, ds.y);
+		paper = std::make_unique<PlotterPaper>(paperSize);
 	}
 }
 
@@ -724,12 +718,20 @@ void MSXPlotter::flushEmulatedPrinter()
 	if (paper) {
 		if (printAreaBottom > printAreaTop) {
 			try {
-				auto filename = paper->save(true);
-				motherBoard.getMSXCliComm().printInfo(
-					"Printed to ", filename);
+				static constexpr std::string_view PRINT_DIR = "prints";
+				static constexpr std::string_view PRINT_EXTENSION = ".png";
+				auto filename = FileOperations::getNextNumberedFileName(PRINT_DIR, "page", PRINT_EXTENSION);
+
+				auto rgb = paper->getRGB();
+				auto size = rgb.size();
+				small_buffer<const uint8_t*, 4096> rowPointers(std::views::transform(xrange(size.y),
+					[&](int y) { return &rgb.getLine(y).data()->x; }));
+
+				PNG::saveRGB(size.x, rowPointers, filename);
+
+				motherBoard.getMSXCliComm().printInfo("Printed to ", filename);
 			} catch (MSXException& e) {
-				motherBoard.getMSXCliComm().printWarning(
-					"Failed to print: ", e.getMessage());
+				motherBoard.getMSXCliComm().printWarning("Failed to print: ", e.getMessage());
 			}
 			printAreaTop = -1.0;
 			printAreaBottom = 0.0;

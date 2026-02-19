@@ -1,7 +1,8 @@
 #ifndef PLOTTER_HH
 #define PLOTTER_HH
 
-#include "Printer.hh"
+#include "PlotterPaper.hh"
+#include "Printer.hh" // TODO split off PrinterCore
 
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -35,7 +36,7 @@ public:
 	void write(uint8_t data) override;
 	void forceFormFeed() override;
 
-	[[nodiscard]] const Paper* getPaper() const { return paper.get(); }
+	[[nodiscard]] PlotterPaper* getPaper() { return paper.get(); }
 
 	// Configuration settings (accessible by ImGui)
 	[[nodiscard]] CharacterSet getCharacterSet() const;
@@ -95,7 +96,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::shared_ptr<IntegerSetting> dpiSetting;
 
-	std::unique_ptr<Paper> paper;
+	std::unique_ptr<PlotterPaper> paper;
 
 	gl::vec2 pixelSize;
 	double printAreaTop = -1.0;
@@ -149,10 +150,10 @@ private:
 	std::string graphicCmdBuffer;
 
 public:
-	// A4 Paper: 210mm x 296mm => 1050 x 1480 steps.
+	// A4 Paper: 210mm x 297mm => 1050 x 1485 steps.
 	// X-axis is the short axis (carriage), Y-axis is the long axis (paper feed).
 	static constexpr unsigned PAPER_WIDTH_STEPS  = 1050; // 210mm
-	static constexpr unsigned PAPER_HEIGHT_STEPS = 1480; // 296mm
+	static constexpr unsigned PAPER_HEIGHT_STEPS = 1485; // 297mm
 
 	// A4 Plotting Area: 192mm x 276.8mm => 960 x 1384 steps.
 	static constexpr gl::vec2 PLOT_AREA_SIZE = {960.0f, 1384.0f};
@@ -162,12 +163,12 @@ public:
 	static constexpr float MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_SIZE.y) / 2.0f;
 
 public:
-	// Pen colors: RGB tuples for each pen (0=black, 1=blue, 2=green, 3=red)
-	static constexpr std::array<std::array<uint8_t, 3>, 4> penColors = {{
-		{{  0,   0,   0}}, // black
-		{{  0,   0, 255}}, // blue
-		{{ 49, 153,  90}}, // green
-		{{255,   0,   0}}, // red
+	// Pen colors: RGB tuples for each pen
+	static constexpr std::array<gl::vec3, 4> inkColors = {{
+		{0.80f, 0.80f, 0.80f}, // black
+		{0.80f, 0.80f, 0.00f}, // blue
+		{0.65f, 0.32f, 0.52f}, // green
+		{0.00f, 0.80f, 0.80f}, // red
 	}};
 };
 

@@ -125,17 +125,35 @@ public:
 
 	// scalar / vector
 	[[nodiscard]] constexpr friend vecN operator/(T a, const vecN& v) {
-		return a * recip(v);
+		if constexpr (std::is_floating_point_v<T>) {
+			return a * recip(v);
+		} else {
+			vecN r;
+			for (auto i : xrange(2)) r[i] = a / v[i];
+			return r;
+		}
 	}
 
 	// vector / scalar
 	[[nodiscard]] constexpr friend vecN operator/(const vecN& v, T a) {
-		return v * (T(1) / a);
+		if constexpr (std::is_floating_point_v<T>) {
+			return v * (T(1) / a);
+		} else {
+			vecN r;
+			for (auto i : xrange(2)) r[i] = v[i] / a;
+			return r;
+		}
 	}
 
 	// vector / vector
 	[[nodiscard]] constexpr friend vecN operator/(const vecN& v1, const vecN& v2) {
-		return v1 * recip(v2);
+		if constexpr (std::is_floating_point_v<T>) {
+			return v1 * recip(v2);
+		} else {
+			vecN r;
+			for (auto i : xrange(2)) r[i] = v1[i] / v2[i];
+			return r;
+		}
 	}
 
 	// Textual representation. (Only) used to debug unittest.
@@ -539,6 +557,22 @@ template<int N, typename T>
 {
 	vecN<N, int> r;
 	for (auto i : xrange(N)) r[i] = int(x[i]);
+	return r;
+}
+// Similar, but floor.
+template<int N, typename T>
+[[nodiscard]] inline vecN<N, int> floor(const vecN<N, T>& x)
+{
+	vecN<N, int> r;
+	for (auto i : xrange(N)) r[i] = int(std::floor(x[i]));
+	return r;
+}
+// Similar, but ceil.
+template<int N, typename T>
+[[nodiscard]] inline vecN<N, int> ceil(const vecN<N, T>& x)
+{
+	vecN<N, int> r;
+	for (auto i : xrange(N)) r[i] = int(std::ceil(x[i]));
 	return r;
 }
 

@@ -11,6 +11,7 @@
 #endif
 
 #include "MemBuffer.hh"
+#include "gl_vec.hh"
 
 #include <bit>
 #include <cassert>
@@ -116,6 +117,7 @@ public:
 
 	[[nodiscard]] GLsizei getWidth () const { return width;  }
 	[[nodiscard]] GLsizei getHeight() const { return height; }
+	[[nodiscard]] gl::ivec2 size() const { return {width, height}; }
 
 private:
 	GLsizei width = 0;

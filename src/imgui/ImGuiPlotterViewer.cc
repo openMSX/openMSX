@@ -26,59 +26,54 @@ void ImGuiPlotterViewer::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-void ImGuiPlotterViewer::updateTexture(const Paper* paper)
+void ImGuiPlotterViewer::updateTexture(PlotterPaper& paper)
 {
-	unsigned width = paper->getWidth();
-	unsigned height = paper->getHeight();
-	auto currentGeneration = paper->getGeneration();
+	auto fullSize = paper.size();
+	auto scale = max(gl::ivec2(1), (fullSize + gl::ivec2(2047)) / 2048);
+	auto texSize = fullSize / scale;
 
-	if (!texture || texture->getWidth() != int(width) ||
-	    texture->getHeight() != int(height) ||
-	    currentGeneration != lastGeneration) {
-		auto rgbData = paper->getRGBData();
-		int scaleX = (int(width) + 2047) / 2048;
-		int scaleY = (int(height) + 2047) / 2048;
+	bool damage = paper.getAndResetDamage();
 
-		int texW = width / scaleX;
-		int texH = height / scaleY;
+	if (texture && texture->size() == texSize && !damage) return;
 
-		const uint8_t *dataToUpload = rgbData.data();
-		if (scaleX > 1 || scaleY > 1) {
-			downsampledBuf.resize(size_t(texW) * texH * 3);
-			for (int y = 0; y < texH; ++y) {
-				for (int x = 0; x < texW; ++x) {
-					unsigned r = 0, g = 0, b = 0;
-					for (int sy = 0; sy < scaleY; ++sy) {
-						for (int sx = 0; sx < scaleX; ++sx) {
-							size_t srcIdx = (size_t(y * scaleY + sy) * width + (x * scaleX + sx)) * 3;
-							r += rgbData[srcIdx + 0];
-							g += rgbData[srcIdx + 1];
-							b += rgbData[srcIdx + 2];
-						}
+	auto rgbData = paper.getRGB();
+
+	const uint8_t* dataToUpload = &rgbData.getLine(0)[0].x;
+	int area = scale.x * scale.y;
+	if (scale.x > 1 || scale.y > 1) {
+		downsampledBuf.resize(size_t(texSize.x) * texSize.y * 3);
+		for (int y = 0; y < texSize.y; ++y) {
+			for (int x = 0; x < texSize.x; ++x) {
+				unsigned r = 0, g = 0, b = 0;
+				for (int sy = 0; sy < scale.y; ++sy) {
+					auto srcLine = rgbData.getLine(y * scale.y + sy);
+					for (int sx = 0; sx < scale.x; ++sx) {
+						size_t srcIdx = x * scale.x + sx;
+						r += srcLine[srcIdx].x;
+						g += srcLine[srcIdx].y;
+						b += srcLine[srcIdx].z;
 					}
-					size_t dstIdx = (size_t(y) * texW + x) * 3;
-					int area = scaleX * scaleY;
-					downsampledBuf[dstIdx + 0] = uint8_t(r / area);
-					downsampledBuf[dstIdx + 1] = uint8_t(g / area);
-					downsampledBuf[dstIdx + 2] = uint8_t(b / area);
 				}
+				size_t dstIdx = (size_t(y) * texSize.x + x) * 3;
+				downsampledBuf[dstIdx + 0] = uint8_t(r / area);
+				downsampledBuf[dstIdx + 1] = uint8_t(g / area);
+				downsampledBuf[dstIdx + 2] = uint8_t(b / area);
 			}
-			dataToUpload = downsampledBuf.data();
 		}
+		dataToUpload = downsampledBuf.data();
+	}
 
-		if (!texture || texture->getWidth() != texW || texture->getHeight() != texH) {
-			texture.emplace(texW, texH);
-			texture->setInterpolation(false);
-			texture->setWrapMode(false);
-			texture->bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0, GL_RGB,
-			             GL_UNSIGNED_BYTE, dataToUpload);
-		} else {
-			texture->bind();
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texW, texH, GL_RGB,
-			                GL_UNSIGNED_BYTE, dataToUpload);
-		}
-		lastGeneration = currentGeneration;
+	if (!texture || texture->size() != texSize) {
+		texture.emplace(texSize.x, texSize.y);
+		texture->setInterpolation(false);
+		texture->setWrapMode(false);
+		texture->bind();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texSize.x, texSize.y, 0, GL_RGB,
+				GL_UNSIGNED_BYTE, dataToUpload);
+	} else {
+		texture->bind();
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texSize.x, texSize.y, GL_RGB,
+				GL_UNSIGNED_BYTE, dataToUpload);
 	}
 }
 
@@ -117,19 +112,17 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 			return;
 		}
 
-		updateTexture(paper);
+		updateTexture(*paper);
 
 		// Calculate available space and aspect ratio
-		unsigned width = paper->getWidth();
-		unsigned height = paper->getHeight();
-		auto paperSize = paper->getSize();
+		auto paperSize = gl::vec2(paper->size());
 		auto availableSize = gl::vec2(ImGui::GetContentRegionAvail()) -
 		                     gl::vec2{0.0f, 2.5f * ImGui::GetTextLineHeight()};
 		auto scaleVec = availableSize / paperSize;
 		float scale = min_component(scaleVec);
-		ImVec2 displaySize = paperSize * scale;
+		auto displaySize = paperSize * scale;
 
-		ImVec2 screenPos = ImGui::GetCursorScreenPos();
+		auto screenPos = ImGui::GetCursorScreenPos();
 		ImGui::Image(texture->getImGui(), displaySize);
 
 		// Draw crosshair at pen position
@@ -144,12 +137,12 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 		double paperY = double(MSXPlotter::PAPER_HEIGHT_STEPS) -
 		                double(MSXPlotter::MARGIN_Y) - double(plotY);
 
-		double stepToPixelX = double(width)  / double(MSXPlotter::PAPER_WIDTH_STEPS);
-		double stepToPixelY = double(height) / double(MSXPlotter::PAPER_HEIGHT_STEPS);
+		double stepToPixelX = double(paperSize.x)  / double(MSXPlotter::PAPER_WIDTH_STEPS);
+		double stepToPixelY = double(paperSize.y) / double(MSXPlotter::PAPER_HEIGHT_STEPS);
 		auto penX = float(paperX * stepToPixelX * double(scale));
 		auto penY = float(paperY * stepToPixelY * double(scale));
 
-		auto *drawList = ImGui::GetWindowDrawList();
+		auto* drawList = ImGui::GetWindowDrawList();
 		ImVec2 penPos = ImVec2(screenPos.x + penX, screenPos.y + penY);
 		float crossSize = 10.0f;
 		drawList->AddLine(ImVec2(penPos.x - crossSize, penPos.y),
@@ -164,11 +157,10 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 		};
 		ImGui::Text("Pen: %s", penNames[pen]);
 		ImGui::SameLine();
-		const auto &c = MSXPlotter::penColors[pen];
+		auto c = gl::vec3(1.0f) - MSXPlotter::inkColors[pen];
 		float sz = ImGui::GetFontSize();
 		ImGui::ColorButton("##pencolor",
-		                   ImVec4(float(c[0]) / 255.0f, float(c[1]) / 255.0f,
-		                          float(c[2]) / 255.0f, 1.0f),
+		                   ImVec4(c.x, c.y, c.z, 1.0f),
 		                   ImGuiColorEditFlags_NoTooltip, {sz, sz});
 		ImGui::SameLine();
 		ImGui::Text("  Pos: (%.1f, %.1f)", double(plotX), double(plotY));
