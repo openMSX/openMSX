@@ -222,6 +222,9 @@ public:
 	  *   In Graphic7 mode with YJK off, the range is [0..255].
 	  *   In other modes, the range is [0..15].
 	  */
+	[[nodiscard]] uint8_t getRawBackgroundColor() const {
+		return controlRegs[7];
+	}
 	[[nodiscard]] uint8_t getBackgroundColor() const {
 		uint8_t reg7 = controlRegs[7];
 		if (displayMode.getByte() == DisplayMode::GRAPHIC7) {

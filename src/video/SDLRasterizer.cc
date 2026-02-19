@@ -204,7 +204,7 @@ void SDLRasterizer::setDisplayMode(DisplayMode mode)
 		characterConverter.setDisplayMode(mode);
 	}
 	precalcColorIndex0(mode, vdp.getTransparency(),
-	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
+	                   vdp.isSuperimposing(), vdp.getRawBackgroundColor());
 	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(mode.getByte() == DisplayMode::GRAPHIC7
 	                           ? palGraphic7Sprites : palBg);
@@ -362,6 +362,8 @@ void SDLRasterizer::precalcColorIndex0(DisplayMode mode,
 	// Graphic7 mode doesn't use transparency.
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
 		transparency = false;
+	} else {
+		bgColorIndex &= 0x0f;
 	}
 
 	int tpIndex = transparency ? bgColorIndex : 0;
