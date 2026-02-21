@@ -1,13 +1,16 @@
 #include "ImGuiPlotterViewer.hh"
+
 #include "Connector.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 #include "MSXMotherBoard.hh"
-#include "Paper.hh"
 #include "Plotter.hh"
 #include "Pluggable.hh"
 #include "PluggingController.hh"
+
 #include <imgui.h>
+
+using namespace std::literals;
 
 namespace openmsx {
 
@@ -77,7 +80,7 @@ void ImGuiPlotterViewer::updateTexture(PlotterPaper& paper)
 	}
 }
 
-void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
+void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
 
@@ -88,11 +91,11 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 		}
 
 		// Find MSXPlotter
-		MSXPlotter *plotter = nullptr;
-		const auto &controller = motherBoard->getPluggingController();
-		for (auto *connector : controller.getConnectors()) {
-			if (auto *pluggable = &connector->getPlugged()) {
-				if (auto *p = dynamic_cast<MSXPlotter *>(pluggable)) {
+		MSXPlotter* plotter = nullptr;
+		const auto& controller = motherBoard->getPluggingController();
+		for (auto* connector : controller.getConnectors()) {
+			if (auto* pluggable = &connector->getPlugged()) {
+				if (auto* p = dynamic_cast<MSXPlotter*>(pluggable)) {
 					plotter = p;
 					break;
 				}
@@ -116,8 +119,9 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 
 		// Calculate available space and aspect ratio
 		auto paperSize = gl::vec2(paper->size());
-		auto availableSize = gl::vec2(ImGui::GetContentRegionAvail()) -
-		                     gl::vec2{0.0f, 2.5f * ImGui::GetTextLineHeight()};
+		const auto& style = ImGui::GetStyle();
+		auto panelHeight = 2.0f * ImGui::GetTextLineHeight() + 4.0f * style.ItemSpacing.y + 2.0f * style.FramePadding.y + 2.0f;
+		auto availableSize = ImGui::GetContentRegionAvail() - gl::vec2{0.0f, panelHeight};
 		auto scaleVec = availableSize / paperSize;
 		float scale = min_component(scaleVec);
 		auto displaySize = paperSize * scale;
@@ -126,46 +130,35 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard *motherBoard)
 		ImGui::Image(texture->getImGui(), displaySize);
 
 		// Draw crosshair at pen position
-		auto [plotX, plotY] = plotter->getPlotterPos();
-		// MSXPlotter: X-axis is short axis (carriage), Y-axis is long axis (paper
-		// feed). Origin (0,0) is bottom-left of plotting area. Paper location in
-		// plotWithPen: double paperX = MARGIN_X + (x + originX); double paperY =
-		// (PAPER_HEIGHT_STEPS - MARGIN_Y) - (y + originY); NOTE: Plotter steps
-		// might be slightly different than paper size, but MARGIN_X handles it.
-		// Let's use the same logic as plotWithPen:
-		double paperX = double(plotX) + double(MSXPlotter::MARGIN_X);
-		double paperY = double(MSXPlotter::PAPER_HEIGHT_STEPS) -
-		                double(MSXPlotter::MARGIN_Y) - double(plotY);
-
-		double stepToPixelX = double(paperSize.x)  / double(MSXPlotter::PAPER_WIDTH_STEPS);
-		double stepToPixelY = double(paperSize.y) / double(MSXPlotter::PAPER_HEIGHT_STEPS);
-		auto penX = float(paperX * stepToPixelX * double(scale));
-		auto penY = float(paperY * stepToPixelY * double(scale));
+		// MSXPlotter: X-axis is short axis (carriage), Y-axis is long axis (paper feed).
+		// Origin (0,0) is bottom-left of plotting area.
+		auto plotPos = plotter->getPlotterPos();
+		auto paperPos = gl::vec2{MSXPlotter::MARGIN.x, MSXPlotter::FULL_AREA.y - MSXPlotter::MARGIN.y}
+		              + plotPos * gl::vec2{1, -1};
+		auto stepToPixel = paperSize / MSXPlotter::FULL_AREA;
+		auto penScrnPos = screenPos + (paperPos * stepToPixel * scale);
 
 		auto* drawList = ImGui::GetWindowDrawList();
-		ImVec2 penPos = ImVec2(screenPos.x + penX, screenPos.y + penY);
 		float crossSize = 10.0f;
-		drawList->AddLine(ImVec2(penPos.x - crossSize, penPos.y),
-		                  ImVec2(penPos.x + crossSize, penPos.y), 0xFF0000FF);
-		drawList->AddLine(ImVec2(penPos.x, penPos.y - crossSize),
-		                  ImVec2(penPos.x, penPos.y + crossSize), 0xFF0000FF);
+		drawList->AddLine(penScrnPos + gl::vec2{-crossSize, 0.0f},
+		                  penScrnPos + gl::vec2{ crossSize, 0.0f}, 0xFF0000FF);
+		drawList->AddLine(penScrnPos + gl::vec2{0.0f, -crossSize},
+		                  penScrnPos + gl::vec2{0.0f,  crossSize}, 0xFF0000FF);
 
 		ImGui::Separator();
-		unsigned pen = plotter->getSelectedPen();
-		static constexpr std::array<const char *, 4> penNames = {
+		auto pen = plotter->getSelectedPen();
+		static constexpr std::array<std::string_view, 4> penNames = {
 			"Black", "Blue", "Green", "Red"
 		};
-		ImGui::Text("Pen: %s", penNames[pen]);
+		ImGui::StrCat("Pen: ", penNames[pen]);
 		ImGui::SameLine();
-		auto c = gl::vec3(1.0f) - MSXPlotter::inkColors[pen];
-		float sz = ImGui::GetFontSize();
-		ImGui::ColorButton("##pencolor",
-		                   ImVec4(c.x, c.y, c.z, 1.0f),
-		                   ImGuiColorEditFlags_NoTooltip, {sz, sz});
+		auto c = gl::vec4{gl::vec3(1.0f) - MSXPlotter::inkColors[pen], 1.0f};
+		ImGui::ColorButton("##pencolor", c, ImGuiColorEditFlags_NoTooltip,
+		                   gl::vec2{ImGui::GetFontSize()});
 		ImGui::SameLine();
-		ImGui::Text("  Pos: (%.1f, %.1f)", double(plotX), double(plotY));
+		ImGui::Text("  Pos: (%.1f, %.1f)", plotPos.x, plotPos.y);
 		ImGui::SameLine();
-		ImGui::Text("  Mode: %s", plotter->isGraphicMode() ? "Graphic" : "Text");
+		ImGui::StrCat("  Mode: ", plotter->isGraphicMode() ? "Graphic"sv : "Text"sv);
 
 		ImGui::Separator();
 		if (ImGui::Button("Cycle Pen")) {

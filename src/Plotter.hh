@@ -61,9 +61,6 @@ public:
 	// PrinterPortDevice
 	[[nodiscard]] bool getStatus(EmuTime time) override;
 
-	// A4 Landscape as specified in manual (296mm x 210mm)
-	[[nodiscard]] std::pair<double, double> getPaperSize() const { return {210.0, 296.0}; }
-
 	// Re-initialize paper on re-plug
 	void plugHelper(Connector& connector, EmuTime time) override;
 
@@ -95,12 +92,9 @@ private:
 private:
 	MSXMotherBoard& motherBoard;
 	std::shared_ptr<IntegerSetting> dpiSetting;
-
 	std::unique_ptr<PlotterPaper> paper;
 
-	gl::vec2 pixelSize;
-	double printAreaTop = -1.0;
-	double printAreaBottom = 0.0;
+	float pixelSize;
 
 	// Mode state
 	enum class Mode { TEXT, GRAPHIC };
@@ -111,12 +105,11 @@ private:
 	EscState escState = EscState::NONE;
 	enum class TerminatorSkip { NONE, START, SEEN_CR };
 	TerminatorSkip terminatorSkip = TerminatorSkip::NONE;
-	bool printNext                = false; // For 0x01 literal prefix
-	bool picturePlotted           = false; // Has anything been plotted on the current page?
+	bool printNext = false; // For 0x01 literal prefix
 
 	// Pen/color state
-	unsigned selectedPen = 0;    // 0=black, 1=blue, 2=green, 3=red
-	bool penDown         = true; // pen starts down for drawing
+	uint8_t selectedPen = 0; // 0=black, 1=blue, 2=green, 3=red
+	bool penDown = true; // pen starts down for drawing
 
 	// Plotter head position (logical steps, relative to origin)
 	gl::vec2 penPosition{0.0f, 0.0f};
@@ -125,7 +118,7 @@ private:
 	gl::vec2 origin{0.0f, 0.0f};
 
 	// Line style
-	unsigned lineType   = 0; // 0=solid, 1-14=dashed
+	uint8_t lineType = 0; // 0=solid, 1-14=dashed
 	float dashDistance  = 0.0f;
 	float maxLineHeight = 0.0f;
 	float lineFeed      = 18.0f;
@@ -150,20 +143,17 @@ private:
 	std::string graphicCmdBuffer;
 
 public:
-	// A4 Paper: 210mm x 297mm => 1050 x 1485 steps.
 	// X-axis is the short axis (carriage), Y-axis is the long axis (paper feed).
-	static constexpr unsigned PAPER_WIDTH_STEPS  = 1050; // 210mm
-	static constexpr unsigned PAPER_HEIGHT_STEPS = 1485; // 297mm
+	static constexpr auto A4_SIZE = gl::vec2{210.0f, 297.0f}; // portrait A4 in mm
+	static constexpr gl::vec2 FULL_AREA = A4_SIZE * 5; // 5 steps/mm  ->  1050 x 1485 steps
 
 	// A4 Plotting Area: 192mm x 276.8mm => 960 x 1384 steps.
-	static constexpr gl::vec2 PLOT_AREA_SIZE = {960.0f, 1384.0f};
-	static constexpr auto RIGHT_BORDER = PLOT_AREA_SIZE.x;
+	static constexpr gl::vec2 PLOT_AREA = {960.0f, 1384.0f};
+	static constexpr auto RIGHT_BORDER = PLOT_AREA.x;
 
-	static constexpr float MARGIN_X = (PAPER_WIDTH_STEPS  - PLOT_AREA_SIZE.x) / 2.0f;
-	static constexpr float MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_SIZE.y) / 2.0f;
+	static constexpr gl::vec2 MARGIN = (FULL_AREA - PLOT_AREA) * 0.5f;
 
-public:
-	// Pen colors: RGB tuples for each pen
+	// Pen colors: 0=no ink, 1=full ink for subtractive model
 	static constexpr std::array<gl::vec3, 4> inkColors = {{
 		{0.80f, 0.80f, 0.80f}, // black
 		{0.80f, 0.80f, 0.00f}, // blue

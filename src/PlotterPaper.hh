@@ -11,6 +11,9 @@
 
 namespace openmsx {
 
+using GrayPixel = uint8_t;
+using RgbPixel = gl::vecN<3, uint8_t>;
+
 template<typename T> class Canvas
 {
 public:
@@ -38,8 +41,6 @@ private:
 	gl::ivec2 sz;
 };
 
-// Output pixel types for 8-bit RGB and grayscale
-using RgbPixel = gl::vecN<3, uint8_t>;
 
 class PlotterPaper
 {
@@ -47,6 +48,7 @@ public:
 	explicit PlotterPaper(gl::ivec2 size);
 
 	[[nodiscard]] gl::ivec2 size() const { return paper.size(); }
+	[[nodiscard]] bool empty() const { return !anythingPlotted; }
 
 	void draw_dot(gl::vec2 pos, float radius, gl::vec3 color);
 	void draw_motion(gl::vec2 from, gl::vec2 to, float radius, gl::vec3 color);
@@ -60,6 +62,7 @@ public:
 private:
 	Canvas<gl::vec3> paper;
 	bool damage = true; // TODO track damage bounding box
+	bool anythingPlotted = false; // Used to avoid saving blank file when nothing was plotted
 };
 
 } // namespace openmsx

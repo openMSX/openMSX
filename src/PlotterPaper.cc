@@ -1,10 +1,6 @@
 #include "PlotterPaper.hh"
 
-#include "FileOperations.hh"
-#include "PNG.hh"
-
 #include "ranges.hh"
-#include "small_buffer.hh"
 
 #include <array>
 #include <cmath>
@@ -287,7 +283,6 @@ void rasterize_segment(
 
 // InkType: 'gl::vec3' for RGB, 'float' for grayscale
 // Deduce pixel type from ink type
-using GrayPixel = uint8_t;
 template<typename InkType> struct PixelTypeFor;
 template<> struct PixelTypeFor<gl::vec3> { using type = RgbPixel; };
 template<> struct PixelTypeFor<float> { using type = GrayPixel; };
@@ -339,12 +334,14 @@ PlotterPaper::PlotterPaper(gl::ivec2 size)
 
 void PlotterPaper::draw_dot(gl::vec2 pos, float radius, gl::vec3 color)
 {
+	anythingPlotted = true;
 	damage = true;
 	rasterize_dot(paper, pos, radius, color);
 }
 
 void PlotterPaper::draw_motion(gl::vec2 from, gl::vec2 to, float radius, gl::vec3 color)
 {
+	anythingPlotted = true;
 	damage = true;
 	rasterize_segment_motion(paper, from, to, radius, color);
 }

@@ -120,14 +120,13 @@ void MSXPlotter::cyclePen()
 void MSXPlotter::moveStep(gl::vec2 delta)
 {
 	gl::vec2 oldAbsPos = penPosition + origin;
-	gl::vec2 newAbsPos = gl::clamp(oldAbsPos + delta, gl::vec2{0.0f}, PLOT_AREA_SIZE);
+	gl::vec2 newAbsPos = gl::clamp(oldAbsPos + delta, gl::vec2{0.0f}, PLOT_AREA);
 	penPosition = newAbsPos - origin;
 }
 
 void MSXPlotter::ejectPaper()
 {
 	ensurePrintPage();
-	picturePlotted = true;
 	flushEmulatedPrinter();
 	resetSettings(); // Resets pen pos and other states
 	ensurePrintPage();
@@ -656,13 +655,9 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 	// X-axis: MarginX + LogicalX
 	// Y-axis: (PaperHeight - MarginY) - LogicalY (inverted for top-down PNG)
 	gl::vec2 paperPos =
-		gl::vec2{MARGIN_X, float(PAPER_HEIGHT_STEPS) - MARGIN_Y} + gl::vec2{1.0f, -1.0f} * (pos + origin);
+		gl::vec2{MARGIN.x, FULL_AREA.y - MARGIN.y} + gl::vec2{1.0f, -1.0f} * (pos + origin);
 
 	gl::vec2 pixelPos = paperPos * pixelSize;
-
-	// Update print area bounds so flushEmulatedPrinter knows to save the file
-	printAreaTop    = std::min(printAreaTop, double(pixelPos.y));
-	printAreaBottom = std::max(printAreaBottom, double(pixelPos.y + float(pixelSize.y)));
 
 	// Handle Line Type (Dashing)
 	// 0 and 15 are solid. 1-14 are broken lines.
@@ -684,39 +679,25 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 		// lines.
 
 		// TODO use draw_motion()
-		p->draw_dot(pixelPos, pixelSize.x, color);
-		picturePlotted = true;
+		p->draw_dot(pixelPos, pixelSize, color);
 	}
 }
 
 void MSXPlotter::ensurePrintPage()
 {
 	if (!paper) {
-		// Paper format at 300dpi (default A4 portrait 210mm x 297mm)
-		// TODO make this configurable
-		int dpi = dpiSetting->getInt();
-		auto [widthMm, heightMm] = getPaperSize();
-		auto paperSize = trunc((gl::vec2{float(widthMm), float(heightMm)} / 25.4f) * float(dpi));
+		static constexpr auto MM_PER_INCH = 25.4f;
 
-		gl::vec2 dots{PAPER_WIDTH_STEPS, PAPER_HEIGHT_STEPS};
-		pixelSize = gl::vec2(paperSize) / dots; // TODO pixels are round (x==y), no need to store both x and y
-
+		auto paperSize = trunc(A4_SIZE / MM_PER_INCH * float(dpiSetting->getInt()));
+		pixelSize = float(paperSize.x) / FULL_AREA.x; // pixels are round (x==y)
 		paper = std::make_unique<PlotterPaper>(paperSize);
 	}
 }
 
 void MSXPlotter::flushEmulatedPrinter()
 {
-	if (!picturePlotted) {
-		// If nothing was plotted, force the ImagePrinter to effectively "forget"
-		// the dirty region so it won't save a blank file.
-		// Default values in ImagePrinter are Top=-1.0, Bottom=0.0 which satisfy
-		// Bottom > Top. We set Top=0.0, Bottom=-1.0 to ensure Bottom <= Top.
-		printAreaTop    = 0.0;
-		printAreaBottom = -1.0;
-	}
 	if (paper) {
-		if (printAreaBottom > printAreaTop) {
+		if (!paper->empty()) {
 			try {
 				static constexpr std::string_view PRINT_DIR = "prints";
 				static constexpr std::string_view PRINT_EXTENSION = ".png";
@@ -733,12 +714,9 @@ void MSXPlotter::flushEmulatedPrinter()
 			} catch (MSXException& e) {
 				motherBoard.getMSXCliComm().printWarning("Failed to print: ", e.getMessage());
 			}
-			printAreaTop = -1.0;
-			printAreaBottom = 0.0;
 		}
 		paper.reset();
 	}
-	picturePlotted = false;
 }
 
 void MSXPlotter::resetSettings()
@@ -758,7 +736,6 @@ void MSXPlotter::resetSettings()
 	maxLineHeight = 0.0f;
 	graphicCmdBuffer.clear();
 	printNext = false;
-	picturePlotted = false;
 	terminatorSkip = TerminatorSkip::NONE;
 
 	// Set up printer settings for plotter
