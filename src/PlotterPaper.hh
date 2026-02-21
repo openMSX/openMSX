@@ -42,6 +42,20 @@ private:
 	gl::ivec2 sz;
 };
 
+struct BoundingBox {
+	void clear() { tl = gl::ivec2{0}; br = gl::ivec2{0}; }
+	[[nodiscard]] bool empty() const { return br.x <= tl.x || br.y <= tl.y; }
+	[[nodiscard]] gl::ivec2 size() const { return br - tl; }
+
+	[[nodiscard]] static BoundingBox merge(const BoundingBox& a, const BoundingBox& b) {
+		if (a.empty()) return b;
+		if (b.empty()) return a;
+		return {.tl = min(a.tl, b.tl), .br = max(a.br, b.br)};
+	}
+
+	gl::ivec2 tl{}; // top-left corner (inclusive)
+	gl::ivec2 br{}; // bottom-right corner (exclusive)
+};
 
 class PlotterPaper
 {
@@ -62,8 +76,8 @@ private:
 
 	gl::Texture texture{gl::Null{}};
 	gl::ivec2 texSize;
+	BoundingBox damage;
 
-	bool damage = true; // TODO track damage bounding box
 	bool anythingPlotted = false; // Used to avoid saving blank file when nothing was plotted
 };
 

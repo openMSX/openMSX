@@ -4,7 +4,7 @@
 
 #include <array>
 #include <cmath>
-#include <cstdint>
+#include <limits>
 #include <map>
 #include <span>
 
@@ -21,13 +21,13 @@ static std::span<int> get_dot_table(int radius16)
 	auto& table = it->second;
 	if (inserted) { // was not yet present
 		// Table covers full vertical extent: y from -(radius16+16) to +(radius16+16)
-		table.resize(2 * (radius16 + 16));
+		table.resize(2 * (radius16 + 16) + 1);
 
 		int offset = radius16 + 16;  // Center of table (y=0 relative to circle center)
 		int r_sq = radius16 * radius16;
 
 		// Compute half-widths for all y positions relative to circle center
-		for (int y_rel = -(radius16 + 16); y_rel < (radius16 + 16); ++y_rel) {
+		for (int y_rel = -(radius16 + 16); y_rel <= (radius16 + 16); ++y_rel) {
 			int y_sq = y_rel * y_rel;
 
 			if (y_sq > r_sq) {
@@ -50,14 +50,14 @@ static std::span<int> get_dot_table(int radius16)
 //     To control ink amount, pre-multiply ink_color (e.g., ink_color * 0.5f)
 // Uses 16×16 sub-pixel grid (256 shading levels)
 template<typename InkType>
-void rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_radius, InkType ink_color)
+BoundingBox rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_radius, InkType ink_color)
 {
 	// Compute pixel bounding box
-	auto bbox_min = max(gl::ivec2{0}, floor(center - gl::vec2(pen_radius)));
-	auto bbox_max = min(canvas.size() - gl::ivec2{1}, ceil(center + gl::vec2(pen_radius)));
-
-	// Early exit if no pixels to draw
-	if (bbox_min.x >= bbox_max.x || bbox_min.y >= bbox_max.y) return;
+	BoundingBox bbox{
+		.tl = max(gl::ivec2{0}, floor(center - gl::vec2(pen_radius))),
+		.br = min(canvas.size(), ceil(center + gl::vec2(pen_radius)))
+	};
+	if (bbox.empty()) return bbox; // Early exit if no pixels to draw
 
 	// Quantized center position (in 1/16 pixel units)
 	int xPos16 = int(16.0f * center.x);
@@ -66,23 +66,23 @@ void rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_radius, I
 	auto table = get_dot_table(radius16);
 
 	// Starting y offset in lookup table
-	int y = 16 * bbox_min.y - yPos16 + 16 + radius16;
+	int y = 16 * bbox.tl.y - yPos16 + 16 + radius16;
 
-	for (int yy = bbox_min.y; yy < bbox_max.y; ++yy, y += 16) {
+	for (int yy = bbox.tl.y; yy < bbox.br.y; ++yy, y += 16) {
 		auto line = canvas.getLine(yy);
 		auto table_slice = subspan<16>(table, y);
 
 		// Calculate which pixel contains the Y-axis (x=0, circle center)
-		int x_start = 16 * bbox_min.x - xPos16;
+		int x_start = 16 * bbox.tl.x - xPos16;
 
 		// Find the pixel that crosses the Y-axis
 		// Y-axis at x=0, middle pixel has x in [-16, 0)
-		int xx_mid = bbox_min.x + (-x_start + 15) / 16;
-		xx_mid = std::clamp(xx_mid, bbox_min.x, bbox_max.x - 1);
+		int xx_mid = bbox.tl.x + (-x_start + 15) / 16;
+		xx_mid = std::clamp(xx_mid, bbox.tl.x, bbox.br.x - 1);
 
 		// Left half: pixels before middle (x+16 < 0)
 		int x = x_start;
-		for (int xx = bbox_min.x; xx < xx_mid; ++xx) {
+		for (int xx = bbox.tl.x; xx < xx_mid; ++xx) {
 			int sum = 0;
 			for (int i = 0; i < 16; ++i) {
 				int a = table_slice[i];
@@ -95,7 +95,7 @@ void rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_radius, I
 		}
 
 		// Middle pixel: exactly 1 (if Y-axis within bounding box)
-		if (xx_mid < bbox_max.x) {
+		if (xx_mid < bbox.br.x) {
 			int sum = 0;
 			for (int i = 0; i < 16; ++i) {
 				int a = table_slice[i];
@@ -109,7 +109,7 @@ void rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_radius, I
 		}
 
 		// Right half: pixels after middle (x >= 0)
-		for (int xx = xx_mid + 1; xx < bbox_max.x; ++xx) {
+		for (int xx = xx_mid + 1; xx < bbox.br.x; ++xx) {
 			int sum = 0;
 			for (int i = 0; i < 16; ++i) {
 				int a = table_slice[i];
@@ -120,6 +120,7 @@ void rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_radius, I
 			x += 16;
 		}
 	}
+	return bbox;
 }
 
 
@@ -129,7 +130,7 @@ void rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_radius, I
 // Caller should normalize endpoint dwells by dividing by (2*pen_radius) for consistency
 // Uses 8x MSAA for anti-aliasing
 template<typename InkType>
-void rasterize_segment_motion(Canvas<InkType>& canvas, gl::vec2 A, gl::vec2 B, float pen_radius, InkType ink_color)
+BoundingBox rasterize_segment_motion(Canvas<InkType>& canvas, gl::vec2 A, gl::vec2 B, float pen_radius, InkType ink_color)
 {
 	// MSAA 8x sample pattern (positions within pixel, in range [0, 1])
 	// (0,0) = top-left corner, (1,1) = bottom-right corner, (0.5,0.5) = center
@@ -141,7 +142,7 @@ void rasterize_segment_motion(Canvas<InkType>& canvas, gl::vec2 A, gl::vec2 B, f
 
 	auto D = B - A;
 	float L_sq = dot(D, D);
-	if (L_sq < 1e-18f) return; // degenerate segment
+	if (L_sq < 1e-18f) return BoundingBox{}; // degenerate segment
 
 	float L = std::sqrt(L_sq);
 	gl::vec2 T = D * (1.0f / L); // unit tangent
@@ -210,6 +211,8 @@ void rasterize_segment_motion(Canvas<InkType>& canvas, gl::vec2 A, gl::vec2 B, f
 		const float inv_Ty = 1.0f / T.y;
 		const float dx_factor = (std::abs(N.x) > epsilon ? pen_radius / std::abs(N.x) : pen_radius);
 
+		auto global_x_min = std::numeric_limits<int>::max();
+		auto global_x_max = std::numeric_limits<int>::min();
 		for (int y = y_min; y <= y_max; ++y) {
 			auto line = canvas.getLine(y);
 			float y_float = float(y);
@@ -217,13 +220,19 @@ void rasterize_segment_motion(Canvas<InkType>& canvas, gl::vec2 A, gl::vec2 B, f
 			float Py = y_float + 0.5f;
 			float t_center = (Py - A.y) * inv_Ty;
 			float x_center = A.x + t_center * T.x;
-			int x_min = std::max(0, (int)std::floor(x_center - dx_factor));
-			int x_max = std::min(canvas.size().x - 1, (int)std::ceil(x_center + dx_factor));
+			auto x_min = std::max(0, (int)std::floor(x_center - dx_factor));
+			auto x_max = std::min(canvas.size().x - 1, (int)std::ceil(x_center + dx_factor));
+			global_x_min = std::min(global_x_min, x_min);
+			global_x_max = std::max(global_x_max, x_max);
 
 			for (int x = x_min; x <= x_max; ++x) {
 				process_pixel(line, x, dy);
 			}
 		}
+		return BoundingBox{
+			.tl = gl::ivec2{global_x_min,     y_min},
+			.br = gl::ivec2{global_x_max + 1, y_max + 1}
+		};
 	} else {
 		// Nearly horizontal segment: use axis-aligned bounding box
 		int x_min = std::max(0, int(std::floor(segment_min.x - pen_radius)));
@@ -236,9 +245,14 @@ void rasterize_segment_motion(Canvas<InkType>& canvas, gl::vec2 A, gl::vec2 B, f
 				process_pixel(line, x, dy);
 			}
 		}
+		return BoundingBox{
+			.tl = gl::ivec2{x_min,     y_min},
+			.br = gl::ivec2{x_max + 1, y_max + 1}
+		};
 	}
 }
 
+/*
 // Rasterize a polyline with proper endpoint dwell times
 template<typename InkType>
 void rasterize_polyline(
@@ -277,7 +291,7 @@ void rasterize_segment(
 {
 	std::array pts = {A, B};
 	rasterize_polyline(canvas, pts, pen_radius, ink_color, dwell_time);
-}
+}*/
 
 ////
 
@@ -329,21 +343,22 @@ Canvas<PixelTypeFor_t<InkTypeForSampler<Sampler>>> ink_to_pixels(gl::ivec2 size,
 
 PlotterPaper::PlotterPaper(gl::ivec2 size)
 	: paper(size)
+	, damage{.tl = gl::ivec2{0}, .br = size}
 {
 }
 
 void PlotterPaper::draw_dot(gl::vec2 pos, float radius, gl::vec3 color)
 {
 	anythingPlotted = true;
-	damage = true;
-	rasterize_dot(paper, pos, radius, color);
+	auto box = rasterize_dot(paper, pos, radius, color);
+	damage = BoundingBox::merge(damage, box);
 }
 
 void PlotterPaper::draw_motion(gl::vec2 from, gl::vec2 to, float radius, gl::vec3 color)
 {
 	anythingPlotted = true;
-	damage = true;
-	rasterize_segment_motion(paper, from, to, radius, color);
+	auto box = rasterize_segment_motion(paper, from, to, radius, color);
+	damage = BoundingBox::merge(damage, box);
 }
 
 Canvas<RgbPixel> PlotterPaper::getRGB() const
@@ -359,48 +374,57 @@ gl::Texture& PlotterPaper::updateTexture(gl::ivec2 targetSize)
 	auto clampedTargetSize = min(targetSize, gl::ivec2(1024)); // ensure below 2048 x 2028
 	auto factor = max_component(trunc(fullSize / clampedTargetSize));
 	auto newTexSize = max(fullSize / factor, gl::ivec2(1));
+	bool sizeChanged = newTexSize != texSize;
 
-	if (texture.get() && texSize == newTexSize && !damage) {
+	if (texture.get() && !sizeChanged && damage.empty()) {
 		return texture; // already up to date
 	}
+	if (sizeChanged) {
+		// full update if size changed
+		damage = BoundingBox{.tl = gl::ivec2{0}, .br = paper.size()};
+	}
+	auto dstTl = damage.tl / factor;
+	auto dstBr = damage.br / factor;
+	auto dstSize = dstBr - dstTl;
+	auto srcOffset = dstTl * factor;
 
-	damage = false;
-	texSize = newTexSize;
-
-	auto sample_direct = [&](int x, int y) { return paper.getLine(y)[x]; };
-	auto down_sample_generic = [&](int x, int y) {
+	auto sample_direct = [&](int x, int y) { return paper.getLine(y + srcOffset.y)[x + srcOffset.x]; };
+	auto down_sample_generic = [&](int x, int y) { // run-time 'factor'
+		auto srcPos = gl::ivec2(x, y) * factor + srcOffset;
 		auto sum = gl::vec3(0.0f);
 		for (int sy = 0; sy < factor; ++sy) {
-			auto line = subspan(paper.getLine(y * factor + sy), x * factor, factor);
+			auto line = subspan(paper.getLine(srcPos.y + sy), srcPos.x, factor);
 			for (int sx = 0; sx < factor; ++sx) {
 				sum += line[sx];
 			}
 		}
 		return sum * (1.0f / float(factor * factor));
 	};
-	auto down_sample_N = [&]<int FACTOR>(int x, int y) {
+	auto down_sample_N = [&]<int FACTOR>(int x, int y) { // compile-time 'FACTOR'
+		auto srcPos = gl::ivec2(x, y) * factor + srcOffset;
 		auto sum = gl::vec3(0.0f);
 		for (int sy = 0; sy < FACTOR; ++sy) {
-			auto line = subspan<FACTOR>(paper.getLine(y * FACTOR + sy), x * FACTOR);
+			auto line = subspan<FACTOR>(paper.getLine(srcPos.y + sy), srcPos.x);
 			for (int sx = 0; sx < FACTOR; ++sx) {
 				sum += line[sx];
 			}
 		}
 		return sum * (1.0f / float(FACTOR * FACTOR));
 	};
+
+
 	auto rgb = [&]{
-		// specializations for small common factors,
-		// this gives a reasonably large speedup
+		// specializations for small factors, this gives a reasonably large speedup
 		switch (factor) {
-		case 1:  return ink_to_pixels(texSize, sample_direct);
-		case 2:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<2>(x, y); });
-		case 3:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<3>(x, y); });
-		case 4:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<4>(x, y); });
-		case 5:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<5>(x, y); });
-		case 6:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<6>(x, y); });
-		case 7:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<7>(x, y); });
-		case 8:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<8>(x, y); });
-		default: return ink_to_pixels(texSize, down_sample_generic);
+		case 1:  return ink_to_pixels(dstSize, sample_direct);
+		case 2:  return ink_to_pixels(dstSize, [&](int x, int y) { return down_sample_N.operator()<2>(x, y); });
+		case 3:  return ink_to_pixels(dstSize, [&](int x, int y) { return down_sample_N.operator()<3>(x, y); });
+		case 4:  return ink_to_pixels(dstSize, [&](int x, int y) { return down_sample_N.operator()<4>(x, y); });
+		case 5:  return ink_to_pixels(dstSize, [&](int x, int y) { return down_sample_N.operator()<5>(x, y); });
+		case 6:  return ink_to_pixels(dstSize, [&](int x, int y) { return down_sample_N.operator()<6>(x, y); });
+		case 7:  return ink_to_pixels(dstSize, [&](int x, int y) { return down_sample_N.operator()<7>(x, y); });
+		case 8:  return ink_to_pixels(dstSize, [&](int x, int y) { return down_sample_N.operator()<8>(x, y); });
+		default: return ink_to_pixels(dstSize, down_sample_generic);
 		}
 	}();
 
@@ -410,11 +434,16 @@ gl::Texture& PlotterPaper::updateTexture(gl::ivec2 targetSize)
 	} else {
 		texture.bind();
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texSize.x, texSize.y, 0, GL_RGB,
-	             GL_UNSIGNED_BYTE, &rgb.getLine(0)[0].x);
-	// TODO
-	//	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texSize.x, texSize.y, GL_RGB,
-	//			GL_UNSIGNED_BYTE, dataToUpload);
+	if (sizeChanged) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, newTexSize.x, newTexSize.y, 0, GL_RGB,
+		             GL_UNSIGNED_BYTE, &rgb.getLine(0)[0].x);
+	} else {
+		glTexSubImage2D(GL_TEXTURE_2D, 0, dstTl.x, dstTl.y, dstSize.x, dstSize.y, GL_RGB,
+		                 GL_UNSIGNED_BYTE, &rgb.getLine(0)[0].x);
+	}
+
+	damage.clear();
+	texSize = newTexSize;
 	return texture;
 }
 
