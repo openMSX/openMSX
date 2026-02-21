@@ -453,7 +453,16 @@ template<int N, typename T>
 	return r;
 }
 
-// min(vector, vector)
+// max(vector, vector)
+template<int N, typename T>
+[[nodiscard]] constexpr vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
+{
+	vecN<N, T> r;
+	for (auto i : xrange(N)) r[i] = std::max(x[i], y[i]);
+	return r;
+}
+
+// min(vector.x, vector.y, ...)
 template<int N, typename T>
 [[nodiscard]] constexpr T min_component(const vecN<N, T>& x)
 {
@@ -462,12 +471,12 @@ template<int N, typename T>
 	return r;
 }
 
-// max(vector, vector)
+// max(vector.x, vector.y, ...)
 template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr T max_component(const vecN<N, T>& x)
 {
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = std::max(x[i], y[i]);
+	T r = x[0];
+	for (auto i : xrange(1, N)) r = std::max(r, x[i]);
 	return r;
 }
 

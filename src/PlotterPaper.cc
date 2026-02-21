@@ -349,10 +349,73 @@ void PlotterPaper::draw_motion(gl::vec2 from, gl::vec2 to, float radius, gl::vec
 Canvas<RgbPixel> PlotterPaper::getRGB() const
 {
 	auto out_size = size();
-	auto sampler = [&](int x, int y) {
-		return paper.getLine(y)[x];
-	};
+	auto sampler = [&](int x, int y) { return paper.getLine(y)[x]; };
 	return ink_to_pixels(out_size, sampler);
+}
+
+gl::Texture& PlotterPaper::updateTexture(gl::ivec2 targetSize)
+{
+	auto fullSize = paper.size();
+	auto clampedTargetSize = min(targetSize, gl::ivec2(1024)); // ensure below 2048 x 2028
+	auto factor = max_component(trunc(fullSize / clampedTargetSize));
+	auto newTexSize = max(fullSize / factor, gl::ivec2(1));
+
+	if (texture.get() && texSize == newTexSize && !damage) {
+		return texture; // already up to date
+	}
+
+	damage = false;
+	texSize = newTexSize;
+
+	auto sample_direct = [&](int x, int y) { return paper.getLine(y)[x]; };
+	auto down_sample_generic = [&](int x, int y) {
+		auto sum = gl::vec3(0.0f);
+		for (int sy = 0; sy < factor; ++sy) {
+			auto line = subspan(paper.getLine(y * factor + sy), x * factor, factor);
+			for (int sx = 0; sx < factor; ++sx) {
+				sum += line[sx];
+			}
+		}
+		return sum * (1.0f / float(factor * factor));
+	};
+	auto down_sample_N = [&]<int FACTOR>(int x, int y) {
+		auto sum = gl::vec3(0.0f);
+		for (int sy = 0; sy < FACTOR; ++sy) {
+			auto line = subspan<FACTOR>(paper.getLine(y * FACTOR + sy), x * FACTOR);
+			for (int sx = 0; sx < FACTOR; ++sx) {
+				sum += line[sx];
+			}
+		}
+		return sum * (1.0f / float(FACTOR * FACTOR));
+	};
+	auto rgb = [&]{
+		// specializations for small common factors,
+		// this gives a reasonably large speedup
+		switch (factor) {
+		case 1:  return ink_to_pixels(texSize, sample_direct);
+		case 2:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<2>(x, y); });
+		case 3:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<3>(x, y); });
+		case 4:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<4>(x, y); });
+		case 5:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<5>(x, y); });
+		case 6:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<6>(x, y); });
+		case 7:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<7>(x, y); });
+		case 8:  return ink_to_pixels(texSize, [&](int x, int y) { return down_sample_N.operator()<8>(x, y); });
+		default: return ink_to_pixels(texSize, down_sample_generic);
+		}
+	}();
+
+	if (!texture.get()) {
+		texture.allocate();
+		texture.setInterpolation(true);
+	} else {
+		texture.bind();
+	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texSize.x, texSize.y, 0, GL_RGB,
+	             GL_UNSIGNED_BYTE, &rgb.getLine(0)[0].x);
+	// TODO
+	//	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texSize.x, texSize.y, GL_RGB,
+	//			GL_UNSIGNED_BYTE, dataToUpload);
+	return texture;
 }
 
 } // namespace openmsx
