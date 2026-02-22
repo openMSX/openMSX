@@ -83,11 +83,16 @@ private:
 	void processTextMode(uint8_t data);
 	void processGraphicMode(uint8_t data);
 	void executeGraphicCommand();
-	void plotWithPen(gl::vec2 pos, float distMoved);
 	void moveTo(gl::vec2 pos);
 	void lineTo(gl::vec2 pos);
 	void drawLine(gl::vec2 from, gl::vec2 to);
 	void drawCharacter(uint8_t c, bool hasNextChar = false);
+	void drawDot(gl::vec2 pos);
+	void drawDashedLine(gl::vec2 A, gl::vec2 B, float halfPeriod);
+	void drawSolidLine(gl::vec2 A, gl::vec2 B);
+	[[nodiscard]] gl::vec2 toPaperPos(gl::vec2 plotterPos) const;
+	[[nodiscard]] float penRadius() const;
+	[[nodiscard]] gl::vec3 penColor() const;
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -109,7 +114,7 @@ private:
 
 	// Pen/color state
 	uint8_t selectedPen = 0; // 0=black, 1=blue, 2=green, 3=red
-	bool penDown = true; // pen starts down for drawing
+	bool penDown = true; // pen starts down for drawing   TODO this isn't used ??
 
 	// Plotter head position (logical steps, relative to origin)
 	gl::vec2 penPosition{0.0f, 0.0f};

@@ -7,6 +7,7 @@
 #include "MSXMotherBoard.hh"
 #include "PNG.hh"
 
+#include "ScopedAssign.hh"
 #include "gl_mat.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -607,33 +608,7 @@ void MSXPlotter::executeGraphicCommand()
 	graphicCmdBuffer.clear();
 }
 
-void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
-{
-	gl::vec2 delta	= to - from;
-	float totalDist = gl::length(delta);
-	if (!penDown) return;
-	ensurePrintPage();
-
-	if (totalDist == 0.0f) {
-		plotWithPen(from, 0.0f);
-		return;
-	}
-
-	// High density sampling: e.g. 4 samples per plotter step (0.25 steps per dot)
-	// This makes lines look solid rather than a series of dots.
-	float stepSize = 0.25f;
-	int steps = static_cast<int>(std::ceil(totalDist / stepSize));
-	gl::vec2 inc = delta / float(steps);
-	float dDist = totalDist / float(steps);
-
-	gl::vec2 p = from;
-	for (int i = 0; i <= steps; ++i) {
-		plotWithPen(p, (i == 0) ? 0.0f : dDist);
-		p += inc;
-	}
-}
-
-void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
+gl::vec2 MSXPlotter::toPaperPos(gl::vec2 plotterPos) const
 {
 	// Margin constants: center the plotting area on the paper.
 	// MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2 = 45 steps (9mm)
@@ -642,81 +617,125 @@ void MSXPlotter::plotWithPen(gl::vec2 pos, float distMoved)
 	// MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2 = 45 steps (9mm)
 	// MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2 = 48 steps (9.6mm)
 
-	ensurePrintPage();
-	auto* p = paper.get();
-	if (!p) {
-		motherBoard.getMSXCliComm().printWarning("Plotter: plotWithPen called but NO PAPER");
-		return;
-	}
-
-	const auto& color = inkColors[selectedPen];
 	// Convert logical plotter steps to physical paper steps with margins.
 	// Origin (0,0) is bottom-left of the plotting area.
 	// X-axis: MarginX + LogicalX
 	// Y-axis: (PaperHeight - MarginY) - LogicalY (inverted for top-down PNG)
-	gl::vec2 paperPos =
-		gl::vec2{MARGIN.x, FULL_AREA.y - MARGIN.y} + gl::vec2{1.0f, -1.0f} * (pos + origin);
+	gl::vec2 paperPos = gl::vec2{MARGIN.x, FULL_AREA.y - MARGIN.y}
+	                  + gl::vec2{1.0f, -1.0f} * (plotterPos + origin);
+	return paperPos * pixelSize;
+}
 
-	gl::vec2 pixelPos = paperPos * pixelSize;
+float MSXPlotter::penRadius() const
+{
+	// Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
+	// Standard step is 0.2mm. Set dot size to 200% of step size for solid
+	// lines.
+	return pixelSize; // radius = 0.2mm  ->  line width = 0.4mm
+}
 
-	// Handle Line Type (Dashing)
-	// 0 and 15 are solid. 1-14 are broken lines.
-	bool draw = true;
-	if (lineType > 0 && lineType < 15) {
-		// HP-GL/2 style or similar: start with a mark.
-		// halfPeriod is defined by lineType.
-		unsigned halfPeriod = lineType + 2;
-		auto phase = static_cast<unsigned>(dashDistance / float(halfPeriod));
-		if (phase % 2 == 0) { // Skip if 0 (even), Mark if 1 (odd)
-			draw = false;
-		}
+gl::vec3 MSXPlotter::penColor() const
+{
+	return inkColors[selectedPen];
+}
+
+void MSXPlotter::drawDot(gl::vec2 pos)
+{
+	ensurePrintPage();
+	assert(paper);
+	paper->draw_dot(toPaperPos(pos), penRadius(), penColor());
+}
+
+void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
+{
+	if (!penDown) return; // TODO increase dashDistance?
+
+	ensurePrintPage();
+	// TODO handle begin/end point with draw_dot() ??
+	if (0 < lineType && lineType < 15) {
+		auto halfPeriod = float(lineType + 2);
+		drawDashedLine(from, to, halfPeriod);
+	} else {
+		drawSolidLine(from, to);
+		dashDistance += length(to - from); // needed ?
 	}
-	dashDistance += distMoved;
+}
 
-	if (draw) {
-		// Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
-		// Standard step is 0.2mm. Set dot size to 200% of step size for solid
-		// lines.
+void MSXPlotter::drawDashedLine(gl::vec2 A, gl::vec2 B, float halfPeriod)
+{
+	if (A == B) return;
+	gl::vec2 AB = B - A;
+	auto len = length(AB);
 
-		// TODO use draw_motion()
-		p->draw_dot(pixelPos, pixelSize, color);
+	auto dir = AB / len;
+	auto period = 2 * halfPeriod;
+	auto phase = std::fmod(dashDistance, period);
+	dashDistance += len;
+
+	// Peel first and align to next draw boundary
+	float d = 0;
+	if (phase < halfPeriod) {
+		// start with draw
+		auto step = std::min(halfPeriod - phase, len);
+		drawSolidLine(A, A + dir * step);
+		d = step + halfPeriod;
+	} else {
+		// start with gap
+		d = period - phase;
 	}
+
+	// Draw full line+gap periods
+	while (d + period <= len) {
+		drawSolidLine(A + dir * d, A + dir * (d + halfPeriod));
+		d += period;
+	}
+
+	// Handle partial tail segment
+	if (d < len) {
+		auto d2 = d + std::min(halfPeriod, len - d);
+		drawSolidLine(A + dir * d, A + dir * d2);
+	}
+}
+
+void MSXPlotter::drawSolidLine(gl::vec2 A, gl::vec2 B)
+{
+	assert(paper);
+	paper->draw_motion(toPaperPos(A), toPaperPos(B), penRadius(), penColor());
 }
 
 void MSXPlotter::ensurePrintPage()
 {
-	if (!paper) {
-		static constexpr auto MM_PER_INCH = 25.4f;
+	if (paper) return;
 
-		auto paperSize = trunc(A4_SIZE / MM_PER_INCH * float(dpiSetting->getInt()));
-		pixelSize = float(paperSize.x) / FULL_AREA.x; // pixels are round (x==y)
-		paper = std::make_unique<PlotterPaper>(paperSize);
-	}
+	static constexpr auto MM_PER_INCH = 25.4f;
+	auto paperSize = trunc(A4_SIZE / MM_PER_INCH * float(dpiSetting->getInt()));
+	pixelSize = float(paperSize.x) / FULL_AREA.x; // pixels are round (x==y)
+	paper = std::make_unique<PlotterPaper>(paperSize);
 }
 
 void MSXPlotter::flushEmulatedPrinter()
 {
-	if (paper) {
-		if (!paper->empty()) {
-			try {
-				static constexpr std::string_view PRINT_DIR = "prints";
-				static constexpr std::string_view PRINT_EXTENSION = ".png";
-				auto filename = FileOperations::getNextNumberedFileName(PRINT_DIR, "page", PRINT_EXTENSION);
+	if (!paper) return;
 
-				auto rgb = paper->getRGB();
-				auto size = rgb.size();
-				small_buffer<const uint8_t*, 4096> rowPointers(std::views::transform(xrange(size.y),
-					[&](int y) { return &rgb.getLine(y).data()->x; }));
+	if (!paper->empty()) {
+		try {
+			static constexpr std::string_view PRINT_DIR = "prints";
+			static constexpr std::string_view PRINT_EXTENSION = ".png";
+			auto filename = FileOperations::getNextNumberedFileName(PRINT_DIR, "page", PRINT_EXTENSION);
 
-				PNG::saveRGB(size.x, rowPointers, filename);
+			auto rgb = paper->getRGB();
+			auto size = rgb.size();
+			small_buffer<const uint8_t*, 4096> rowPointers(std::views::transform(xrange(size.y),
+				[&](int y) { return &rgb.getLine(y).data()->x; }));
 
-				motherBoard.getMSXCliComm().printInfo("Printed to ", filename);
-			} catch (MSXException& e) {
-				motherBoard.getMSXCliComm().printWarning("Failed to print: ", e.getMessage());
-			}
+			PNG::saveRGB(size.x, rowPointers, filename);
+
+			motherBoard.getMSXCliComm().printInfo("Printed to ", filename);
+		} catch (MSXException& e) {
+			motherBoard.getMSXCliComm().printWarning("Failed to print: ", e.getMessage());
 		}
-		paper.reset();
 	}
+	paper.reset();
 }
 
 void MSXPlotter::resetSettings()
@@ -767,9 +786,8 @@ void MSXPlotter::lineTo(gl::vec2 pos)
 
 void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 {
-	auto savedLineType = lineType;
-	auto savedDashDistance = dashDistance;
-	lineType = 0;
+	ScopedAssign savedLineType(lineType, 0);
+	ScopedAssign savedDashDistance(dashDistance, dashDistance); // value doesn't matter, just restore at the end
 
 	// Select font based on character set setting
 	auto font = [&] {
@@ -865,7 +883,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 					}
 				}
 
-				plotWithPen(p, 0.0f);
+				drawDot(p);
 			}
 		}
 	}
@@ -888,9 +906,6 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 	           " | charAdvance ", charAdvance,
 	           " | plotter.x ", penPosition.x,
 	           " | plotter.y ", penPosition.y);
-
-	lineType = savedLineType;
-	dashDistance = savedDashDistance;
 }
 
 void MSXPlotter::updateLineFeed()
