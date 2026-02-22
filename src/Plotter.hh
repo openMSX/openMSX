@@ -2,7 +2,7 @@
 #define PLOTTER_HH
 
 #include "PlotterPaper.hh"
-#include "Printer.hh" // TODO split off PrinterCore
+#include "PrinterCore.hh"
 
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -15,6 +15,9 @@
 #include <string>
 
 namespace openmsx {
+
+class IntegerSetting;
+class MSXMotherBoard;
 
 // MSXPlotter: emulates Sony PRN-C41 color plotter with 4 pens
 class MSXPlotter final : public PrinterCore
