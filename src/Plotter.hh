@@ -10,12 +10,14 @@
 #include "gl_vec.hh"
 
 #include <array>
-#include <cstdint> // for uint8_t
+#include <cstdint>
 #include <memory>
 #include <string>
 
 namespace openmsx {
 
+class BooleanSetting;
+class CliComm;
 class IntegerSetting;
 class MSXMotherBoard;
 
@@ -24,16 +26,21 @@ class MSXPlotter final : public PrinterCore
 {
 public:
 	// Character set options for the plotter
-	enum class CharacterSet { International, Japanese, DIN };
-	enum class PenThickness { Standard, Thick };
+	enum class CharacterSet : uint8_t { International, Japanese, DIN };
+	enum class PenThickness : uint8_t { Standard, Thick };
 
 public:
 	explicit MSXPlotter(MSXMotherBoard& motherBoard);
+	MSXPlotter(const MSXPlotter&) = delete;
+	MSXPlotter(MSXPlotter&&) = delete;
+	MSXPlotter& operator=(const MSXPlotter&) = delete;
+	MSXPlotter& operator=(MSXPlotter&&) = delete;
 	~MSXPlotter() override;
 
 	// Pluggable
 	[[nodiscard]] zstring_view getName() const override;
 	[[nodiscard]] zstring_view getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime time) override;
 
 	// PrinterCore
 	void write(uint8_t data) override;
@@ -53,24 +60,15 @@ public:
 	void ejectPaper();
 
 	// Access to settings for persistence
-	[[nodiscard]] EnumSetting<CharacterSet>& getCharacterSetSetting() const { return *charSetSetting; }
-	[[nodiscard]] BooleanSetting& getDipSwitch4Setting() const { return *dipSwitch4Setting; }
-	[[nodiscard]] EnumSetting<PenThickness>& getPenThicknessSetting() const { return *penThicknessSetting; }
+	[[nodiscard]] EnumSetting<CharacterSet>& getCharacterSetSetting() { return charSetSetting; }
+	[[nodiscard]] BooleanSetting& getDipSwitch4Setting() { return dipSwitch4Setting; }
+	[[nodiscard]] EnumSetting<PenThickness>& getPenThicknessSetting() { return penThicknessSetting; }
 
 	[[nodiscard]] gl::vec2 getPlotterPos() const { return penPosition + origin; }
 	[[nodiscard]] unsigned getSelectedPen() const { return selectedPen; }
 	[[nodiscard]] bool isGraphicMode() const { return mode == Mode::GRAPHIC; }
 
-	// PrinterPortDevice
-	[[nodiscard]] bool getStatus(EmuTime time) override;
-
-	// Re-initialize paper on re-plug
-	void plugHelper(Connector& connector, EmuTime time) override;
-
-	// Implement required pure virtuals from ImagePrinter
 	void resetSettings();
-	unsigned calcEscSequenceLength(uint8_t character);
-	void processEscSequence();
 	void ensurePrintPage();
 	void flushEmulatedPrinter();
 
@@ -98,20 +96,25 @@ private:
 	[[nodiscard]] gl::vec3 penColor() const;
 
 private:
-	MSXMotherBoard& motherBoard;
+	CliComm& cliComm;
 	std::shared_ptr<IntegerSetting> dpiSetting;
 	std::unique_ptr<PlotterPaper> paper;
 
-	float pixelSize;
+	// Configuration settings (persistent)
+	EnumSetting<CharacterSet> charSetSetting;
+	BooleanSetting dipSwitch4Setting;
+	EnumSetting<PenThickness> penThicknessSetting;
+
+	float pixelSize = 0.0f;
 
 	// Mode state
-	enum class Mode { TEXT, GRAPHIC };
+	enum class Mode : uint8_t { TEXT, GRAPHIC };
 	Mode mode = Mode::TEXT;
 
 	// ESC sequence parsing state
-	enum class EscState { NONE, ESC, ESC_C, ESC_S, ESC_S_EXP_DIGIT };
+	enum class EscState : uint8_t { NONE, ESC, ESC_C, ESC_S, ESC_S_EXP_DIGIT };
 	EscState escState = EscState::NONE;
-	enum class TerminatorSkip { NONE, START, SEEN_CR };
+	enum class TerminatorSkip : uint8_t { NONE, START, SEEN_CR };
 	TerminatorSkip terminatorSkip = TerminatorSkip::NONE;
 	bool printNext = false; // For 0x01 literal prefix
 
@@ -141,11 +144,6 @@ private:
 	// Character scale (0-15, 0 is smallest)
 	unsigned charScale         = 0;
 	unsigned pendingScaleDigit = 0;
-
-	// Configuration settings (persistent)
-	std::shared_ptr<EnumSetting<CharacterSet>> charSetSetting;
-	std::shared_ptr<BooleanSetting> dipSwitch4Setting;
-	std::shared_ptr<EnumSetting<PenThickness>> penThicknessSetting;
 
 	// Graphic mode command buffer
 	std::string graphicCmdBuffer;

@@ -34,33 +34,35 @@ static void printDebug(Args&&... args)
 }
 #endif
 
-MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard_)
-	: motherBoard(motherBoard_)
+MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
+	: cliComm(motherBoard.getMSXCliComm())
 	, dpiSetting(motherBoard.getSharedStuff<IntegerSetting>(
 		"print-resolution",
 		motherBoard.getCommandController(), "print-resolution",
 		"resolution of the output image of emulated dot matrix printer in DPI",
 		300, 72, 1200))
-	, charSetSetting(motherBoard.getSharedStuff<EnumSetting<MSXPlotter::CharacterSet>>("plotter-charset",
+	, charSetSetting(
 		motherBoard.getCommandController(),
 		"plotter-charset",
 		"character set for the MSX plotter",
-		MSXPlotter::CharacterSet::International,
-		EnumSetting<MSXPlotter::CharacterSet>::Map{{"international", MSXPlotter::CharacterSet::International},
-			{"japanese", MSXPlotter::CharacterSet::Japanese},
-			{"din", MSXPlotter::CharacterSet::DIN}}))
-	, dipSwitch4Setting(motherBoard.getSharedStuff<BooleanSetting>("plotter-dipswitch4",
+		CharacterSet::International,
+		EnumSetting<CharacterSet>::Map{
+			{"international", CharacterSet::International},
+			{"japanese",      CharacterSet::Japanese},
+			{"din",           CharacterSet::DIN}})
+	, dipSwitch4Setting(
 		motherBoard.getCommandController(),
 		"plotter-dipswitch4",
 		"dipswitch 4 setting for the MSX plotter",
-		false))
-	, penThicknessSetting(motherBoard.getSharedStuff<EnumSetting<MSXPlotter::PenThickness>>("plotter-pen-thickness",
+		false)
+	, penThicknessSetting(
 		motherBoard.getCommandController(),
 		"plotter-pen-thickness",
 		"pen thickness for the MSX plotter",
-		MSXPlotter::PenThickness::Standard,
-		EnumSetting<MSXPlotter::PenThickness>::Map{{"standard", MSXPlotter::PenThickness::Standard},
-			{"thick", MSXPlotter::PenThickness::Thick}}))
+		PenThickness::Standard,
+		EnumSetting<PenThickness>::Map{
+			{"standard", PenThickness::Standard},
+			{"thick",    PenThickness::Thick}})
 {
 	resetSettings();
 	ensurePrintPage();
@@ -88,29 +90,24 @@ zstring_view MSXPlotter::getDescription() const
 	return "Sony PRN-C41 Color Plotter (4 pens)";
 }
 
-bool MSXPlotter::getStatus(EmuTime /*time*/)
-{
-	return false;
-}
-
 MSXPlotter::CharacterSet MSXPlotter::getCharacterSet() const
 {
-	return charSetSetting->getEnum();
+	return charSetSetting.getEnum();
 }
 
 void MSXPlotter::setCharacterSet(CharacterSet cs)
 {
-	charSetSetting->setEnum(cs);
+	charSetSetting.setEnum(cs);
 }
 
 bool MSXPlotter::getDipSwitch4() const
 {
-	return dipSwitch4Setting->getBoolean();
+	return dipSwitch4Setting.getBoolean();
 }
 
 void MSXPlotter::setDipSwitch4(bool enabled)
 {
-	dipSwitch4Setting->setBoolean(enabled);
+	dipSwitch4Setting.setBoolean(enabled);
 }
 
 void MSXPlotter::cyclePen()
@@ -127,7 +124,6 @@ void MSXPlotter::moveStep(gl::vec2 delta)
 
 void MSXPlotter::ejectPaper()
 {
-	ensurePrintPage();
 	flushEmulatedPrinter();
 	resetSettings(); // Resets pen pos and other states
 	ensurePrintPage();
@@ -135,22 +131,20 @@ void MSXPlotter::ejectPaper()
 
 void MSXPlotter::write(uint8_t data)
 {
-	// Debug: log every byte received
 	printDebug("Plotter: received 0x", hex_string<2>(data),
 	           " mode=", (mode == Mode::TEXT ? "TEXT" : "GRAPHIC"),
 	           " escState=", int(escState));
 
 	// Handle ESC sequence state first
 	switch (escState) {
-	case EscState::ESC:
-		// Got ESC, waiting for next char
+	using enum EscState;
+	case ESC: // Got ESC, waiting for next char
 		if (data == '#') {
 			// ESC # = enter graphic mode
 			printDebug("Plotter: entering GRAPHIC mode");
 			mode = Mode::GRAPHIC;
 			graphicCmdBuffer.clear();
-			escState = EscState::NONE;
-			return;
+			escState = NONE;
 		} else if (data == '$') {
 			// ESC $ = return to text mode, execute any pending graphics
 			printDebug("Plotter: returning to TEXT mode");
@@ -158,39 +152,37 @@ void MSXPlotter::write(uint8_t data)
 				executeGraphicCommand();
 				graphicCmdBuffer.clear();
 			}
-			mode	 = Mode::TEXT;
-			escState = EscState::NONE;
-			return;
+			mode = Mode::TEXT;
+			escState = NONE;
 		} else if (data == 'C') {
 			// ESC C = color set, wait for color digit
-			escState = EscState::ESC_C;
-			return;
+			escState = ESC_C;
 		} else {
 			// Unknown ESC sequence, ignore
-			motherBoard.getMSXCliComm().printWarning(
+			cliComm.printWarning(
 				"Plotter: unknown ESC sequence 0x", hex_string<2>(data));
-			escState = EscState::NONE;
-			return;
+			escState = NONE;
 		}
-	case EscState::ESC_C:
-		// Got ESC C, waiting for color digit '0'-'3'
-		if (data >= '0' && data <= '3') {
+		break;
+
+	case ESC_C: // Got ESC C, waiting for color digit '0'-'3'
+		if ('0' <= data && data <= '3') {
 			selectedPen = data - '0';
 			printDebug("Plotter: selected pen ", selectedPen);
 			terminatorSkip = TerminatorSkip::START;
 		}
-		escState = EscState::NONE;
-		return;
-	case EscState::ESC_S:
-		// Got DC2 (0x12)
+		escState = NONE;
+		break;
+
+	case EscState::ESC_S: // Got DC2 (0x12)
 		if (data <= 15) {
 			// Raw byte 0-15
 			charScale = data;
 			updateLineFeed();
 			printDebug("Plotter: text scale set to ", charScale);
 			terminatorSkip = TerminatorSkip::START;
-			escState = EscState::NONE;
-		} else if (data >= '0' && data <= '9') {
+			escState = NONE;
+		} else if ('0' <= data && data <= '9') {
 			// ASCII digit
 			unsigned val = data - '0';
 			if (val == 0 || val >= 2) {
@@ -199,33 +191,33 @@ void MSXPlotter::write(uint8_t data)
 				updateLineFeed();
 				printDebug("Plotter: text scale set to ", charScale);
 				terminatorSkip = TerminatorSkip::START;
-				escState = EscState::NONE;
+				escState = NONE;
 			} else {
 				// '1' -> could be start of "0"-"15"
 				pendingScaleDigit = val;
-				escState = EscState::ESC_S_EXP_DIGIT;
+				escState = ESC_S_EXP_DIGIT;
 			}
 		} else {
 			// Invalid scale parameter, ignore command but process char
-			escState = EscState::NONE;
+			escState = NONE;
 			processTextMode(data);
 		}
-		return;
-	case EscState::ESC_S_EXP_DIGIT:
-		// Got DC2 + '1', waiting for potential second digit
-		if (data >= '0' && data <= '9') {
+		break;
+
+	case ESC_S_EXP_DIGIT: // Got DC2 + '1', waiting for potential second digit
+		if ('0' <= data && data <= '9') {
 			unsigned val = pendingScaleDigit * 10 + (data - '0');
 			if (val <= 15) {
 				charScale = val;
 				updateLineFeed();
 				printDebug("Plotter: text scale set to ", charScale);
 				terminatorSkip = TerminatorSkip::START;
-				escState = EscState::NONE;
+				escState = NONE;
 			} else {
 				// > 15, valid first digit but invalid second.
 				// e.g. "19". Interpret first digit as scale, second as text.
 				// Or ignore? for now ignore
-				escState = EscState::NONE;
+				escState = NONE;
 				processTextMode(data);
 			}
 		} else {
@@ -234,24 +226,25 @@ void MSXPlotter::write(uint8_t data)
 			charScale = pendingScaleDigit;
 			updateLineFeed();
 			printDebug("Plotter: text scale set to ", charScale);
-			terminatorSkip =
-				TerminatorSkip::START; // Should we skip terminators here too if the first digit was
-				                       // valid? The command technically executed properly with the
-				                       // single digit. But followed by 'A', user probably didn't
-				                       // intend a terminator sequence immediately. However, strictly
-				                       // speaking, if '1' sets scale, command is done.
-			escState = EscState::NONE;
+			terminatorSkip = TerminatorSkip::START;
+				// Should we skip terminators here too if the first digit was
+				// valid? The command technically executed properly with the
+				// single digit. But followed by 'A', user probably didn't
+				// intend a terminator sequence immediately. However, strictly
+				// speaking, if '1' sets scale, command is done.
+			escState = NONE;
 			processTextMode(data);
 		}
-		return;
-	case EscState::NONE: break;
-	}
+		break;
 
-	// Route to appropriate mode handler
-	if (mode == Mode::TEXT) {
-		processTextMode(data);
-	} else {
-		processGraphicMode(data);
+	case NONE:
+		// Route to appropriate mode handler
+		if (mode == Mode::TEXT) {
+			processTextMode(data);
+		} else {
+			processGraphicMode(data);
+		}
+		break;
 	}
 }
 
@@ -262,15 +255,16 @@ void MSXPlotter::forceFormFeed()
 
 void MSXPlotter::processTextMode(uint8_t data)
 {
-	if (terminatorSkip != TerminatorSkip::NONE) {
+	using enum TerminatorSkip;
+	if (terminatorSkip != NONE) {
 		if (data == 0x0D) { // CR
-			terminatorSkip = TerminatorSkip::SEEN_CR;
+			terminatorSkip = SEEN_CR;
 			return;
 		} else if (data == 0x0A) { // LF
-			terminatorSkip = TerminatorSkip::NONE;
+			terminatorSkip = NONE;
 			return;
 		} else {
-			terminatorSkip = TerminatorSkip::NONE;
+			terminatorSkip = NONE;
 			// continue to process data
 		}
 	}
@@ -278,7 +272,7 @@ void MSXPlotter::processTextMode(uint8_t data)
 	if (printNext) {
 		// CHR$(1) prefix: print alternate character (0-31) by subtracting 64
 		// e.g., CHR$(1)+CHR$(65) prints character 1 (65-64=1)
-		drawCharacter(static_cast<uint8_t>(data - 64));
+		drawCharacter(uint8_t(data - 64));
 		printNext = false;
 		return;
 	}
@@ -288,29 +282,23 @@ void MSXPlotter::processTextMode(uint8_t data)
 		printNext = true;
 		break;
 	case 0x08: // BS - Backspace
-		penPosition.x = std::max(penPosition.x - (8 + 2 * charScale), 0.0f);
+		penPosition.x = std::max(penPosition.x - float(8 + 2 * charScale), 0.0f);
 		break;
 	case 0x0a: // LF - Line feed
-		penPosition.y -= float(lineFeed);
+		penPosition.y -= lineFeed;
 		if (penPosition.y < -1354.0f) { // Page end reached
-			ensurePrintPage();
 			flushEmulatedPrinter();
 			ensurePrintPage();
 			penPosition.y = 30.0f; // Reset to top of new page
 		}
 		break;
 	case 0x0b: // VT - Line up (feed paper to previous line)
-		penPosition.y += float(lineFeed);
-		if (penPosition.y > 30.0f) {
-			penPosition.y = 30.0f;
-		}
+		penPosition.y = std::min(penPosition.y + lineFeed, 30.0f);
 		break;
 	case 0x0C: // FF - Form feed (top of form)
-		ensurePrintPage();
 		flushEmulatedPrinter();
 		ensurePrintPage();
-		penPosition.y = 30.0f;
-		penPosition.x = 0.0f;
+		penPosition = {0.0f, 30.0f};
 		break;
 	case 0x0d: // CR - Carriage return
 		penPosition.x = 0.0f;
@@ -330,9 +318,8 @@ void MSXPlotter::processTextMode(uint8_t data)
 			if (penPosition.x >= RIGHT_BORDER) {
 				// Auto CR/LF
 				penPosition.x = 0.0f;
-				penPosition.y -= float(lineFeed);
+				penPosition.y -= lineFeed;
 				if (penPosition.y < -1354.0f) {
-					ensurePrintPage();
 					flushEmulatedPrinter();
 					ensurePrintPage();
 					penPosition.y = 30.0f;
@@ -357,9 +344,9 @@ void MSXPlotter::processGraphicMode(uint8_t data)
 		// ESC in graphic mode - start escape sequence
 		executeGraphicCommand();
 		escState = EscState::ESC;
-	} else if (data >= 32 && data < 127) {
+	} else if (32 <= data && data < 127) {
 		// Accumulate command characters
-		graphicCmdBuffer += static_cast<char>(data);
+		graphicCmdBuffer += char(data);
 
 		// Execute immediately if buffer starts with known command and we hit a
 		// letter (next command) Commands start with a letter, followed by numbers
@@ -369,7 +356,8 @@ void MSXPlotter::processGraphicMode(uint8_t data)
 			bool isPrintCmd = (graphicCmdBuffer[0] == 'P');
 
 			char lastChar = graphicCmdBuffer.back();
-			bool isAlpha  = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z');
+			bool isAlpha  = ('a' <= lastChar && lastChar <= 'z') ||
+			                ('A' <= lastChar && lastChar <= 'Z');
 			if (!isPrintCmd && isAlpha && lastChar != one_of('E', 'e', graphicCmdBuffer.front())) {
 				// New command starting, execute previous
 				char nextCmd = graphicCmdBuffer.back();
@@ -385,10 +373,9 @@ void MSXPlotter::executeGraphicCommand()
 {
 	if (graphicCmdBuffer.empty()) return;
 
-	// Debug: log the command being executed
 	printDebug("Plotter: executing graphic command '", graphicCmdBuffer, "'");
 
-	char cmd	 = graphicCmdBuffer[0];
+	char cmd = graphicCmdBuffer[0];
 	std::string args = graphicCmdBuffer.substr(1);
 
 	// Parse comma-separated numbers (integers or floats)
@@ -408,7 +395,7 @@ void MSXPlotter::executeGraphicCommand()
 			// actually parses std::stod throws if no conversion. Manually check if
 			// valid start of number? Valid: digit, +, -, or .
 			char c = args[pos];
-			if ((c >= '0' && c <= '9') || c == one_of('-', '+', '.')) {
+			if (('0' <= c && c <= '9') || c == one_of('-', '+', '.')) {
 				// Check if it's just a lonely '+' or '-' or '.' which stof might handle
 				// or reject Standard library stof parses.
 				float val = std::stof(args.substr(pos), &nextPos);
@@ -465,7 +452,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'S': // Scale set - S n (0-15)
 		if (!coords.empty()) {
-			charScale = std::clamp(static_cast<int>(coords[0]), 0, 15);
+			charScale = std::clamp(int(coords[0]), 0, 15);
 			updateLineFeed();
 			printDebug("Plotter: S - Scale set to ", charScale);
 		}
@@ -473,7 +460,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'L': // Line type - L n (0-15)
 		if (!coords.empty()) {
-			lineType     = std::clamp(static_cast<int>(coords[0]), 0, 15);
+			lineType = std::clamp(int(coords[0]), 0, 15);
 			dashDistance = 0.0f; // Reset pattern phase
 			printDebug("Plotter: L - Line type set to ", lineType);
 		}
@@ -490,11 +477,10 @@ void MSXPlotter::executeGraphicCommand()
 				case 2: penPosition.x += pendingCharGap; break;
 				case 3: penPosition.y -= pendingCharGap; break;
 				}
-
 				printDebug("Plotter: Q - Removed pending gap ", pendingCharGap);
 				pendingCharGap = 0.0f;
 			}
-			rotation = std::clamp(static_cast<int>(coords[0]), 0, 3);
+			rotation = std::clamp(int(coords[0]), 0, 3);
 			printDebug("Plotter: Q - Rotation set to ", rotation);
 		}
 		break;
@@ -507,56 +493,53 @@ void MSXPlotter::executeGraphicCommand()
 		break;
 
 	case 'A': // All initialize
-
 		printDebug("Plotter: A - All Initialize (Reset)");
 		resetSettings();
 		break;
 
-	case 'F': // New line
+	case 'F': { // New line
 		// Move to top of next line using max height encountered.
 		// If empty line, default to standard line feed (12 steps + scale effect?).
 		// If maxLineHeight is set, use it.
-		{
-			// Default drop if no characters printed: Height + Gap
-			// Height = 6 * (1+S), Gap = 2 * (1+S) => Total 8 * (1+S)
-			// For Scale 1: 8 * 2 = 16 steps.
-			float drop = (maxLineHeight > 0.0f) ? maxLineHeight : 6.0f * (1.0f + float(charScale));
 
-			// Add inter-line spacing (Gap)
-			drop += 2.0f * (1.0f + float(charScale));
+		// Default drop if no characters printed: Height + Gap
+		// Height = 6 * (1+S), Gap = 2 * (1+S) => Total 8 * (1+S)
+		// For Scale 1: 8 * 2 = 16 steps.
+		float drop = (maxLineHeight > 0.0f) ? maxLineHeight : 6.0f * (1.0f + float(charScale));
 
-			// Apply Line Feed and Carriage Return based on rotation
-			switch (rotation) {
-			case 0: // Normal: Feed Y- (Down), CR X=0
-				penPosition.y -= drop;
-				if (penPosition.y < -1354.0f) { // Page End check
-					ensurePrintPage();
-					flushEmulatedPrinter();
-					ensurePrintPage();
-					penPosition.y = 30.0f;
-				}
-				penPosition.x = 0.0f;
-				break;
-			case 1: // 90 CW (Down): Feed X- (Left), CR Y=0
-				penPosition.x -= drop;
-				// Check X < 0 ? (Left margin)
-				penPosition.y = 0.0f;
-				break;
-			case 2: // 180 (Left): Feed Y+ (Up), CR X=0
-				penPosition.y += drop;
-				penPosition.x = 0.0f;
-				break;
-			case 3: // 270 CW (Up): Feed X+ (Right), CR Y=0
-				penPosition.x += drop;
-				penPosition.y = 0.0f;
-				break;
+		// Add inter-line spacing (Gap)
+		drop += 2.0f * (1.0f + float(charScale));
+
+		// Apply Line Feed and Carriage Return based on rotation
+		switch (rotation) {
+		case 0: // Normal: Feed Y- (Down), CR X=0
+			penPosition.y -= drop;
+			if (penPosition.y < -1354.0f) { // Page End check
+				flushEmulatedPrinter();
+				ensurePrintPage();
+				penPosition.y = 30.0f;
 			}
-
-			maxLineHeight = 0.0f;
-			printDebug("Plotter: F - New Line, drop=", drop, " rot=", rotation);
+			penPosition.x = 0.0f;
+			break;
+		case 1: // 90 CW (Down): Feed X- (Left), CR Y=0
+			penPosition.x -= drop;
+			// Check X < 0 ? (Left margin)
+			penPosition.y = 0.0f;
+			break;
+		case 2: // 180 (Left): Feed Y+ (Up), CR X=0
+			penPosition.y += drop;
+			penPosition.x = 0.0f;
+			break;
+		case 3: // 270 CW (Up): Feed X+ (Right), CR Y=0
+			penPosition.x += drop;
+			penPosition.y = 0.0f;
+			break;
 		}
-		break;
 
+		maxLineHeight = 0.0f;
+		printDebug("Plotter: F - New Line, drop=", drop, " rot=", rotation);
+		break;
+	}
 	case 'P': // Print - P chrs
 		if (!args.empty()) {
 			// Characters after 'P' are printed literally, including spaces.
@@ -568,18 +551,18 @@ void MSXPlotter::executeGraphicCommand()
 			size_t i = 0;
 			while (i < text.size()) {
 				char c = text[i];
-				if (static_cast<uint8_t>(c) == 0x01) {
+				if (uint8_t(c) == 0x01) {
 					altChar = true;
 					++i;
 				} else if (altChar) {
 					// CHR$(1)+CHR$(N) prints character N-64
 					bool hasNext = (i + 1 < text.size());
-					drawCharacter(static_cast<uint8_t>(c) - 64, hasNext);
+					drawCharacter(uint8_t(c) - 64, hasNext);
 					altChar = false;
 					++i;
 				} else {
 					bool hasNext = (i + 1 < text.size());
-					drawCharacter(static_cast<uint8_t>(c), hasNext);
+					drawCharacter(uint8_t(c), hasNext);
 					++i;
 				}
 			}
@@ -587,8 +570,8 @@ void MSXPlotter::executeGraphicCommand()
 		break;
 
 	case 'C': // Color select - C n (0-3)
-		if (!coords.empty() && coords[0] >= 0 && coords[0] <= 3) {
-			auto newPen = static_cast<unsigned>(coords[0]);
+		if (!coords.empty() && 0 <= coords[0] && coords[0] <= 3) {
+			auto newPen = unsigned(coords[0]);
 			if (newPen != selectedPen) {
 				printDebug("Plotter: C - Select color ", newPen, " (Pen change delay applied)");
 				selectedPen = newPen;
@@ -598,7 +581,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	default:
 		// Unknown command, ignore
-		motherBoard.getMSXCliComm().printWarning("Plotter: unknown graphic command '", cmd, "'");
+		cliComm.printWarning("Plotter: unknown graphic command '", cmd, "'");
 		break;
 	}
 
@@ -730,9 +713,9 @@ void MSXPlotter::flushEmulatedPrinter()
 
 			PNG::saveRGB(size.x, rowPointers, filename);
 
-			motherBoard.getMSXCliComm().printInfo("Printed to ", filename);
+			cliComm.printInfo("Printed to ", filename);
 		} catch (MSXException& e) {
-			motherBoard.getMSXCliComm().printWarning("Failed to print: ", e.getMessage());
+			cliComm.printWarning("Failed to print: ", e.getMessage());
 		}
 	}
 	paper.reset();
@@ -759,17 +742,6 @@ void MSXPlotter::resetSettings()
 
 	// Set up printer settings for plotter
 	updateLineFeed();
-}
-
-unsigned MSXPlotter::calcEscSequenceLength(uint8_t /*character*/)
-{
-	// ESC sequences handled in processCharacter state machine
-	return 0;
-}
-
-void MSXPlotter::processEscSequence()
-{
-	// ESC sequences handled in processCharacter state machine
 }
 
 void MSXPlotter::moveTo(gl::vec2 pos)
@@ -799,7 +771,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 		case DIN:           return getMSXDINFontRaw();
 		}
 	}();
-	auto glyph = subspan<8>(font, 8 * c);
+	auto glyph = subspan<8>(font, 8 * size_t(c));
 
 	float scaleFactor = 1.0f + float(charScale);
 	float gridSpacingX = 0.94f * scaleFactor;
@@ -861,9 +833,7 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 							bool hasDown  = (nextRow & (0x80 >> dx));
 
 							if (!hasRight && !hasDown) {
-								drawLine(p,
-									transform(
-										{u + gridSpacingX, v - gridSpacingY}));
+								drawLine(p, transform({u + gridSpacingX, v - gridSpacingY}));
 							}
 						}
 					}
@@ -875,14 +845,11 @@ void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
 							bool hasDown = (nextRow & (0x80 >> dx));
 
 							if (!hasLeft && !hasDown) {
-								drawLine(p,
-									transform(
-										{u - gridSpacingX, v - gridSpacingY}));
+								drawLine(p, transform({u - gridSpacingX, v - gridSpacingY}));
 							}
 						}
 					}
 				}
-
 				drawDot(p);
 			}
 		}

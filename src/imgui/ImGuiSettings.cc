@@ -398,11 +398,11 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			}
 
 			// Character Set dropdown
-			static constexpr std::array charSetNames = {
+			static constexpr std::array charSetNames = { // must be in sync with Plotter
 				"International", "Japanese", "DIN (German)"
 			};
-			int currentCharSet = static_cast<int>(plotter->getCharacterSet());
-			if (ImGui::Combo("Character set", &currentCharSet, charSetNames.data(), narrow<int>(charSetNames.size()))) {
+			auto currentCharSet = int(plotter->getCharacterSet());
+			if (ImGui::Combo("Character set", &currentCharSet, charSetNames.data(), int(charSetNames.size()))) {
 				plotter->setCharacterSet(static_cast<MSXPlotter::CharacterSet>(currentCharSet));
 			}
 
@@ -416,8 +416,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			static constexpr std::array thicknessNames = {
 				"Standard (PRK-C41)", "Thick (PRK-C42)"
 			};
-			int currentThickness = static_cast<int>(plotter->getPenThicknessSetting().getEnum());
-			if (ImGui::Combo("Pen thickness", &currentThickness, thicknessNames.data(), narrow<int>(thicknessNames.size()))) {
+			auto currentThickness = int(plotter->getPenThicknessSetting().getEnum());
+			if (ImGui::Combo("Pen thickness", &currentThickness, thicknessNames.data(), int(thicknessNames.size()))) {
 				plotter->getPenThicknessSetting().setEnum(static_cast<MSXPlotter::PenThickness>(currentThickness));
 			}
 		});
