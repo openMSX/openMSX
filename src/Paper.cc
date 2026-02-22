@@ -1,14 +1,8 @@
-/** \file Paper.cc
- * Paper/Page rendering implementation.
- * Extracted from Printer.cc for shared use.
- */
-
 #include "Paper.hh"
 
 #include "FileOperations.hh"
 #include "PNG.hh"
 
-#include "Math.hh"
 #include "narrow.hh"
 #include "small_buffer.hh"
 #include "xrange.hh"
@@ -21,67 +15,21 @@
 namespace openmsx {
 
 Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
-	: buf(size_t(x) * size_t(y)), colorBuf(size_t(x) * size_t(y) * 3, 255)
+	: buf(size_t(x) * size_t(y))
 	, sizeX(x), sizeY(y)
 {
 	std::ranges::fill(buf, 255);
-	std::ranges::fill(colorBuf, 255);
 	setDotSize(dotSizeX, dotSizeY);
 }
 
-std::string Paper::save(bool color) const
+std::string Paper::save() const
 {
-	auto filename = FileOperations::getNextNumberedFileName(PRINT_DIR, "page", PRINT_EXTENSION);
-	if (color) {
-		// Save colorBuf as RGB PNG (each row is sizeX*3 bytes)
-		small_buffer<const uint8_t *, 4096> rowPointers(std::views::transform(xrange(sizeY),
-			[&](size_t y) { return &colorBuf[sizeX * 3 * y]; }));
-		PNG::saveRGB(sizeX, rowPointers, filename);
-	} else {
-		small_buffer<const uint8_t *, 4096> rowPointers(std::views::transform(xrange(sizeY),
-			[&](size_t y) { return &buf[sizeX * y]; }));
-		PNG::saveGrayscale(sizeX, rowPointers, filename);
-	}
+	auto filename = FileOperations::getNextNumberedFileName(
+		PRINT_DIR, "page", PRINT_EXTENSION);
+	small_buffer<const uint8_t*, 4096> rowPointers(std::views::transform(xrange(sizeY),
+		[&](size_t y) { return &buf[sizeX * y]; }));
+	PNG::saveGrayscale(sizeX, rowPointers, filename);
 	return filename;
-}
-
-void Paper::plotColor(double x, double y, uint8_t r, uint8_t g, uint8_t b)
-{
-	int xx1 = std::max(int(floor(x - radiusX)), 0);
-	int xx2 = std::min(int(ceil(x + radiusX)), int(sizeX));
-	int yy1 = std::max(int(floor(y - radiusY)), 0);
-	int yy2 = std::min(int(ceil(y + radiusY)), int(sizeY));
-
-	int ytab = 16 * yy1 - int(16 * y) + 16 + radius16;
-	for (auto yy : xrange(yy1, yy2)) {
-		int xtab = 16 * xx1 - int(16 * x);
-		for (auto xx : xrange(xx1, xx2)) {
-			int sum = 0;
-			for (auto i : xrange(16)) {
-				int a = table[ytab + i];
-				if (xtab < -a) {
-					int t = 16 + a + xtab;
-					if (t > 0) {
-						sum += std::min(t, 2 * a);
-					}
-				} else {
-					int t = a - xtab;
-					if (t > 0) {
-						sum += std::min(16, t);
-					}
-				}
-			}
-			unsigned idx = (yy * sizeX + xx) * 3;
-			if (sum > 0 && idx + 2 < colorBuf.size()) {
-				colorBuf[idx + 0] = r;
-				colorBuf[idx + 1] = g;
-				colorBuf[idx + 2] = b;
-				++generation;
-			}
-			xtab += 16;
-		}
-		ytab += 16;
-	}
 }
 
 void Paper::setDotSize(double dotSizeX, double dotSizeY)
@@ -109,15 +57,15 @@ void Paper::setDotSize(double dotSizeX, double dotSizeY)
 	int sy = rx2 * ry;
 	while (sx <= sy) {
 		table[offset - y - 1] = x;
-		table[offset + y] = x;
-		x += 1;
-		sx += ry2;
-		e += de_x;
+		table[offset + y    ] = x;
+		x    += 1;
+		sx   += ry2;
+		e    += de_x;
 		de_x += ry2;
 		if ((2 * e + de_y) > 0) {
-			y -= 1;
-			sy -= rx2;
-			e += de_y;
+			y    -= 1;
+			sy   -= rx2;
+			e    += de_y;
 			de_y += rx2;
 		}
 	}
@@ -131,10 +79,10 @@ void Paper::setDotSize(double dotSizeX, double dotSizeY)
 	sy = 0;
 	while (sy <= sx) {
 		table[offset - y - 1] = x;
-		table[offset + y] = x;
-		y += 1;
-		sy += rx2;
-		e += de_y;
+		table[offset + y    ] = x;
+		y    += 1;
+		sy   += rx2;
+		e    += de_y;
 		de_y += rx2;
 		if ((2 * e + de_x) > 0) {
 			x -= 1;
@@ -148,9 +96,9 @@ void Paper::setDotSize(double dotSizeX, double dotSizeY)
 void Paper::plot(double xPos, double yPos)
 {
 	int xx1 = std::max(int(floor(xPos - radiusX)), 0);
-	int xx2 = std::min(int(ceil(xPos + radiusX)), int(sizeX));
+	int xx2 = std::min(int(ceil (xPos + radiusX)), int(sizeX));
 	int yy1 = std::max(int(floor(yPos - radiusY)), 0);
-	int yy2 = std::min(int(ceil(yPos + radiusY)), int(sizeY));
+	int yy2 = std::min(int(ceil (yPos + radiusY)), int(sizeY));
 
 	int y = 16 * yy1 - int(16 * yPos) + 16 + radius16;
 	for (auto yy : xrange(yy1, yy2)) {
@@ -172,14 +120,13 @@ void Paper::plot(double xPos, double yPos)
 				}
 			}
 			dot(xx, yy) = narrow<uint8_t>(std::max(0, dot(xx, yy) - sum));
-			++generation;
 			x += 16;
 		}
 		y += 16;
 	}
 }
 
-uint8_t &Paper::dot(unsigned x, unsigned y)
+uint8_t& Paper::dot(unsigned x, unsigned y)
 {
 	assert(x < sizeX);
 	assert(y < sizeY);
