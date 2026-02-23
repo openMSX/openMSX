@@ -261,6 +261,10 @@ private:
 	/** Combination of 'cmdKeyMatrix', 'typeKeyMatrix' and 'userKeyMatrix'. */
 	mutable std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> keyMatrix;
 
+	/** keyboard matrix press counter for multi-binded key. */
+	std::array<std::array<int8_t, KeyMatrixPosition::NUM_COLS>, KeyMatrixPosition::NUM_ROWS> cntKeyMatrix;
+	// e.g.) LSHIFT and RSHIFT are assigned to the same SHIFT in the MSX key matrix.
+
 	uint8_t msxModifiers = 0xff;
 
 	/** True iff keyboard includes a numeric keypad. */
