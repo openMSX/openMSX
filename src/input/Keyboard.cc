@@ -41,6 +41,22 @@
 #include <ranges>
 #include <type_traits>
 
+#if defined(_WIN32)
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <windows.h>
+#include <imm.h>
+#ifdef _MSC_VER
+#pragma comment(lib, "imm32")
+#endif
+#include "SDL_syswm.h"
+
+#endif // _WIN32
+
+
 namespace openmsx {
 
 // How does the CAPSLOCK key behave?
@@ -677,6 +693,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxcode2UnicodeCmd(commandController)
 	, unicode2MsxcodeCmd(commandController)
 	, capsLockAligner(eventDistributor, scheduler_)
+	, imeManager(eventDistributor)
 	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
@@ -1970,6 +1987,80 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime time)
 	}
 }
 
+// class ImeManager
+
+/*  FOR WINDOWS:
+ *  To work around a Japanese keyboard Kanji mode bug. (Multi-character
+ *	input makes a keydown event without keyrelease message.)
+ */
+Keyboard::ImeManager::ImeManager(
+		EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
+{
+	for (auto type : { EventType::WINDOW }) {
+		eventDistributor.registerEventListener(type, *this);
+	}
+#if defined(_WIN32)
+	hImc = 0;
+#endif
+}
+
+Keyboard::ImeManager::~ImeManager()
+{
+	for (auto type : { EventType::WINDOW }) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
+}
+
+/*
+ *  disable IME at msx window.
+ *  -> SDL_WINDOWEVENT_FOCUS_GAINED : IME OFF
+ */
+bool Keyboard::ImeManager::signalEvent(const Event& event)
+{
+#if defined(_WIN32)
+	auto getWindow = [](const WindowEvent& e) -> HWND {
+		SDL_SysWMinfo info;
+		SDL_VERSION(&info.version);
+		auto window = SDL_GetWindowFromID(e.getMainWindowId());
+		if (SDL_GetWindowWMInfo(window, &info)) {
+			return info.info.win.window;
+		}
+		return nullptr;
+	};
+#endif
+
+	std::visit(overloaded{
+		[&](const WindowEvent& e) {
+			if (e.isMainWindow()) {
+				const auto& evt = e.getSdlWindowEvent();
+				if (evt.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+					auto& keyboard = OUTER(Keyboard, imeManager);
+					if (keyboard.keyboardSettings.getDisableIME()) {
+						// disable IME when focus is gained
+					#if defined(_WIN32)
+						auto hwnd = getWindow(e);
+						if (hwnd) {
+							hImc = ::ImmAssociateContext(hwnd, 0);
+						}
+					#endif
+					}
+				}
+				else if (evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+				#if defined(_WIN32)
+					auto hwnd = getWindow(e);
+					if (hwnd && hImc) {
+						hImc = ::ImmAssociateContext(hwnd, hImc);
+					}
+				#endif
+				}
+			}
+		},
+		[](const EventBase&) { UNREACHABLE; }
+	}, event);
+
+	return false;
+}
 
 // class KeybDebuggable
 
