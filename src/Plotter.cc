@@ -596,9 +596,6 @@ gl::vec2 MSXPlotter::toPaperPos(gl::vec2 plotterPos) const
 	// Margin constants: center the plotting area on the paper.
 	// MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2 = 45 steps (9mm)
 	// MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2 = 48 steps (9.6mm)
-	// Margin constants: center the plotting area on the paper.
-	// MARGIN_X = (PAPER_WIDTH_STEPS - PLOT_AREA_WIDTH) / 2 = 45 steps (9mm)
-	// MARGIN_Y = (PAPER_HEIGHT_STEPS - PLOT_AREA_HEIGHT) / 2 = 48 steps (9.6mm)
 
 	// Convert logical plotter steps to physical paper steps with margins.
 	// Origin (0,0) is bottom-left of the plotting area.
@@ -647,36 +644,41 @@ void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
 void MSXPlotter::drawDashedLine(gl::vec2 A, gl::vec2 B, float halfPeriod)
 {
 	if (A == B) return;
-	gl::vec2 AB = B - A;
-	auto len = length(AB);
 
-	auto dir = AB / len;
-	auto period = 2 * halfPeriod;
-	auto phase = std::fmod(dashDistance, period);
+	gl::vec2 AB = B - A;
+	float length2 = gl::length2(AB);
+	float invLen = gl::rsqrt(length2);
+	float len = length2 * invLen; // for dashDistance, avoids separate sqrt
+
+	float period = 2.0f * halfPeriod;
+	float phase = std::fmod(dashDistance, period);
 	dashDistance += len;
 
-	// Peel first and align to next draw boundary
-	float d = 0;
-	if (phase < halfPeriod) {
-		// start with draw
-		auto step = std::min(halfPeriod - phase, len);
-		drawSolidLine(A, A + dir * step);
-		d = step + halfPeriod;
-	} else {
-		// start with gap
-		d = period - phase;
+	float t_start = (phase < halfPeriod) ? -phase : (period - phase);
+	float t_end = t_start + halfPeriod;
+
+	// Work in normalized parameter space [0,1] to avoid per-iteration multiplies
+	float period_alpha = period * invLen;
+	float alpha_start = t_start * invLen;
+	float alpha_end = t_end * invLen;
+
+	// First segment (may be partial at line start)
+	if (alpha_start < 1.0f) {
+		drawSolidLine(A + AB * std::max(0.0f, alpha_start), A + AB * std::min(1.0f, alpha_end));
+		alpha_start += period_alpha;
+		alpha_end += period_alpha;
 	}
 
-	// Draw full line+gap periods
-	while (d + period <= len) {
-		drawSolidLine(A + dir * d, A + dir * (d + halfPeriod));
-		d += period;
+	// Middle segments (fully inside [0,1], no clipping)
+	while (alpha_end < 1.0f) {
+		drawSolidLine(A + AB * alpha_start, A + AB * alpha_end);
+		alpha_start += period_alpha;
+		alpha_end += period_alpha;
 	}
 
-	// Handle partial tail segment
-	if (d < len) {
-		auto d2 = d + std::min(halfPeriod, len - d);
-		drawSolidLine(A + dir * d, A + dir * d2);
+	// Last segment (partial at line end)
+	if (alpha_start < 1.0f) {
+		drawSolidLine(A + AB * alpha_start, B);
 	}
 }
 
