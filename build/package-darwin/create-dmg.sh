@@ -39,7 +39,13 @@ DEVICE=$(hdiutil attach -readwrite -noverify -noautoopen "$TMP_DMG" | \
 MOUNT_DIR="/Volumes/$VOL_NAME"
 
 echo "Copying contents..."
-cp -R "$SRC_DIR/"* "$MOUNT_DIR/"
+# Use tar to copy to preserve symlinks and attributes safely
+(cd "$SRC_DIR" && tar cf - .) | (cd "$MOUNT_DIR" && tar xpf -)
+
+echo "Cleaning up pre-existing styling files from app.mk..."
+rm -rf "$MOUNT_DIR/.background"
+rm -f "$MOUNT_DIR/.DS_Store"
+rm -f "$MOUNT_DIR/ "
 
 echo "Setting up background image..."
 mkdir -p "$MOUNT_DIR/.background"
