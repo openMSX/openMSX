@@ -548,22 +548,15 @@ void MSXPlotter::executeGraphicCommand()
 			printDebug("Plotter: P - Printing '", text, "'");
 
 			bool altChar = false;
-			size_t i = 0;
-			while (i < text.size()) {
-				char c = text[i];
+			for (auto c : text) {
 				if (uint8_t(c) == 0x01) {
 					altChar = true;
-					++i;
 				} else if (altChar) {
 					// CHR$(1)+CHR$(N) prints character N-64
-					bool hasNext = (i + 1 < text.size());
-					drawCharacter(uint8_t(c) - 64, hasNext);
+					drawCharacter(uint8_t(c) - 64);
 					altChar = false;
-					++i;
 				} else {
-					bool hasNext = (i + 1 < text.size());
-					drawCharacter(uint8_t(c), hasNext);
-					++i;
+					drawCharacter(uint8_t(c));
 				}
 			}
 		}
@@ -758,7 +751,7 @@ void MSXPlotter::lineTo(gl::vec2 pos)
 	penPosition = pos;
 }
 
-void MSXPlotter::drawCharacter(uint8_t c, bool /*hasNextChar*/)
+void MSXPlotter::drawCharacter(uint8_t c)
 {
 	ScopedAssign savedLineType(lineType, 0);
 	ScopedAssign savedDashDistance(dashDistance, dashDistance); // value doesn't matter, just restore at the end

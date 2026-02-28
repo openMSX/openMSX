@@ -87,7 +87,7 @@ private:
 	void moveTo(gl::vec2 pos);
 	void lineTo(gl::vec2 pos);
 	void drawLine(gl::vec2 from, gl::vec2 to);
-	void drawCharacter(uint8_t c, bool hasNextChar = false);
+	void drawCharacter(uint8_t c);
 	void drawDot(gl::vec2 pos);
 	void drawDashedLine(gl::vec2 A, gl::vec2 B, float halfPeriod);
 	void drawSolidLine(gl::vec2 A, gl::vec2 B);
