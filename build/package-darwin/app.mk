@@ -25,6 +25,10 @@ app: install $(DESTDIR)/$(APP_PLIST) $(DESTDIR)/$(APP_ICON)
 
 bindist: app codesign $(DESTDIR)/$(BINDIST_README) $(DESTDIR)/$(BINDIST_LICENSE)
 	@echo "Creating disk image:"
+	@cp $(APP_SUPPORT_DIR)/DS_Store $(BINDIST_DIR)/.DS_Store || true
+	@mkdir -p $(BINDIST_DIR)/.background
+	@cp $(APP_SUPPORT_DIR)/dmg_bg.png $(BINDIST_DIR)/.background/
+	@ln -sf /Applications $(BINDIST_DIR)/" "
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
 		-fs HFS+J \
 		-volname openMSX \
