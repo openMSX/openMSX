@@ -604,7 +604,8 @@ float MSXPlotter::penRadius() const
 	// Sony PRN-C41 uses pens that are likely ~0.4-0.5mm wide.
 	// Standard step is 0.2mm. Set dot size to 200% of step size for solid
 	// lines.
-	return pixelSize; // radius = 0.2mm  ->  line width = 0.4mm
+	// radius = 0.2mm -> line width = 0.4mm,  or 0.6mm for thick line
+	return pixelSize * ((penThicknessSetting.getEnum() == PenThickness::Thick) ? 1.5f : 1.0f);
 }
 
 gl::vec3 MSXPlotter::penColor() const
