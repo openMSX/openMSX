@@ -17,13 +17,12 @@ PACKAGE_FULL:=$(shell PYTHONPATH=build $(PYTHON) -c \
   "import version; print(version.getVersionedPackageName())" \
   )
 BINDIST_PACKAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
-BINDIST_README:=README.html
 BINDIST_LICENSE:=$(INSTALL_DOC_DIR)/GPL.txt
 
 # TODO: What is needed for an app folder?
 app: install $(DESTDIR)/$(APP_PLIST) $(DESTDIR)/$(APP_ICON)
 
-bindist: app codesign $(DESTDIR)/$(BINDIST_README) $(DESTDIR)/$(BINDIST_LICENSE)
+bindist: app codesign $(DESTDIR)/$(BINDIST_LICENSE)
 	@echo "Creating disk image:"
 	@cp $(APP_SUPPORT_DIR)/DS_Store $(BINDIST_DIR)/.DS_Store || true
 	@mkdir -p $(BINDIST_DIR)/.background
@@ -68,11 +67,6 @@ codesign: app
 		echo "  Signing the application bundle..."; \
 		codesign --deep --force --verify --verbose --options runtime --sign "$(CODE_SIGN_IDENTITY)" $(DESTDIR)/$(APP_DIR); \
 	fi
-
-$(DESTDIR)/$(BINDIST_README): $(APP_SUPPORT_DIR)/README.html
-	@echo "  Copying README..."
-	@mkdir -p $(@D)
-	@cp $< $@
 
 $(DESTDIR)/$(BINDIST_LICENSE): doc/GPL.txt app
 	@echo "  Copying license..."
