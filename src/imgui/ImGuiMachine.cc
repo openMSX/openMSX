@@ -1101,16 +1101,26 @@ const std::string& ImGuiMachine::getTestResult(MachineInfo& info)
 		info.testResult.emplace(); // empty string (for now)
 
 		auto& reactor = manager.getReactor();
-		manager.executeDelayed([&reactor, &info]() mutable {
+		std::string configName = info.configName;
+		manager.executeDelayed([&reactor, configName, this]() mutable {
 			// don't create extra mb while drawing
 			try {
+				auto* currentInfo = findMachineInfo(configName);
+				if (!currentInfo) return;
+
 				MSXMotherBoard mb(reactor);
 				mb.getMSXCliComm().setSuppressMessages(true);
-				mb.loadMachine(info.configName);
-				assert(info.testResult->empty());
-				amendConfigInfo(mb, info);
-			} catch (MSXException& e) {
-				info.testResult = e.getMessage(); // error
+				mb.loadMachine(configName);
+				//assert(currentInfo->testResult->empty());
+				amendConfigInfo(mb, *currentInfo);
+			} catch (const MSXException& e) {
+				if (auto* currentInfo = findMachineInfo(configName)) {
+					currentInfo->testResult = e.getMessage(); // error
+				}
+			} catch (const std::exception& e) {
+				if (auto* currentInfo = findMachineInfo(configName)) {
+					currentInfo->testResult = strCat("std::exception: ", e.what()); // error
+				}
 			}
 		});
 	}
