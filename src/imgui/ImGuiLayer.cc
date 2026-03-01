@@ -57,6 +57,11 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus;
 	im::Window("MSX Display Area", nullptr, flags, [&]{
+		// Ensure this window has focus on startup (after other windows are loaded)
+		if (ImGui::GetFrameCount() == 1) {
+			ImGui::SetWindowFocus();
+		}
+
 		bool focus = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow | ImGuiFocusedFlags_DockHierarchy);
 		if (focus) {
 			ImGui::SetNextFrameWantCaptureMouse(false);
