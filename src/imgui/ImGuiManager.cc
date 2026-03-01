@@ -39,7 +39,6 @@
 #include "FileOperations.hh"
 #include "FilePool.hh"
 #include "HardwareConfig.hh"
-#include "Keyboard.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
 #include "RomDatabase.hh"
@@ -509,13 +508,6 @@ void ImGuiManager::paintImGui()
 	updateParts();
 
 	auto* motherBoard = reactor.getMotherBoard();
-	if (motherBoard) {
-		if (auto* keyb = motherBoard->getKeyboard()) {
-			auto time = motherBoard->getCurrentTime();
-			keyb->setFocus(!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow), time);
-		}
-	}
-
 	for (auto* part : parts) {
 		part->paint(motherBoard);
 	}

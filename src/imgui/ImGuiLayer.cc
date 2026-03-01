@@ -1,10 +1,16 @@
 #include "ImGuiLayer.hh"
 
+#include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+
+#include "Keyboard.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
+#include <imgui_internal.h>
 
 #include <SDL.h>
 
@@ -28,14 +34,41 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	manager.paintImGui();
 
 	// Allow docking in main window
-	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(),
-		ImGuiDockNodeFlags_NoDockingOverCentralNode |
-		ImGuiDockNodeFlags_PassthruCentralNode);
+	auto dockspaceId = 0;
+	im::StyleVar(ImGuiStyleVar_Alpha, /*transparent*/0.0f, [&]{
+		dockspaceId = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(),
+			ImGuiDockNodeFlags_NoDockingOverCentralNode |
+			ImGuiDockNodeFlags_PassthruCentralNode |
+			ImGuiDockNodeFlags_AutoHideTabBar);
+	});
 
-	if (ImGui::GetFrameCount() == 1) {
-		// on startup, focus main openMSX window instead of the GUI window
-		ImGui::SetWindowFocus(nullptr);
+	// Main content window: focus target for the MSX display area.  Docked
+	// into central node so it receives clicks there.  When focused, we
+	// override WantCapture so input goes to the application (see
+	// ImGuiManager).
+	if (auto* centralNode = ImGui::DockBuilderGetCentralNode(dockspaceId)) {
+		ImGui::SetNextWindowDockID(centralNode->ID, ImGuiCond_FirstUseEver);
 	}
+	auto flags = ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoBackground |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoBringToFrontOnFocus;
+	im::Window("MSX Display Area", nullptr, flags, [&]{
+		bool focus = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow | ImGuiFocusedFlags_DockHierarchy);
+		if (focus) {
+			ImGui::SetNextFrameWantCaptureMouse(false);
+			ImGui::SetNextFrameWantCaptureKeyboard(false);
+		}
+		if (auto* motherBoard = manager.getReactor().getMotherBoard()) {
+			if (auto* keyb = motherBoard->getKeyboard()) {
+				auto time = motherBoard->getCurrentTime();
+				keyb->setFocus(focus, time);
+			}
+		}
+	});
 
 	// Rendering
 	const ImGuiIO& io = ImGui::GetIO();
