@@ -284,6 +284,10 @@ void MSXPlotter::processTextMode(uint8_t data)
 	case 0x08: // BS - Backspace
 		penPosition.x = std::max(penPosition.x - float(8 + 2 * charScale), 0.0f);
 		break;
+	case 0x0d: // CR - Carriage return, if dipswitch 4 is set, also do a line feed
+		penPosition.x = 0.0f;
+		if (!getDipSwitch4()) break;
+		[[fallthrough]];
 	case 0x0a: // LF - Line feed
 		penPosition.y -= lineFeed;
 		if (penPosition.y < -1354.0f) { // Page end reached
@@ -299,9 +303,6 @@ void MSXPlotter::processTextMode(uint8_t data)
 		flushEmulatedPrinter();
 		ensurePrintPage();
 		penPosition = {0.0f, 30.0f};
-		break;
-	case 0x0d: // CR - Carriage return
-		penPosition.x = 0.0f;
 		break;
 	case 0x12: // DC2 - Scale set prefix (wait for next char)
 		escState = EscState::ESC_S;
