@@ -27,6 +27,7 @@ namespace openmsx {
 	if (pluggable == "simpl")              return "SIMPL";
 	if (pluggable == "msx-printer")        return "MSX printer";
 	if (pluggable == "epson-printer")      return "Epson printer";
+	if (pluggable == "MSXPlotter")         return "MSX plotter";
 	if (pluggable == "tetris2-protection") return "Tetris II SE dongle";
 	if (pluggable == "circuit-designer-rd-dongle") return "Circuit Designer RD dongle";
 	return pluggable;

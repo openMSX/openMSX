@@ -8,6 +8,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiMessages.hh"
 #include "ImGuiMsxMusicViewer.hh"
+#include "ImGuiPlotterViewer.hh"
 #include "ImGuiSCCViewer.hh"
 #include "ImGuiTrainer.hh"
 #include "ImGuiUtils.hh"
@@ -143,6 +144,8 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("SCC viewer", nullptr, &manager.sccViewer->show);
 		ImGui::MenuItem("MSX-Music viewer", nullptr, &manager.msxMusicViewer->show);
 		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show);
+		ImGui::MenuItem("Plotter viewer", nullptr, &manager.plotterViewer->show);
+    simpleToolTip("The plotter should be plugged into the printer port");
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{
