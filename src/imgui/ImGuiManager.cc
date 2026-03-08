@@ -500,7 +500,7 @@ static bool hoverMenuBar()
 	       mouse.y >= topLeft.y && mouse.y <= bottomRight.y;
 }
 
-void ImGuiManager::paintImGui()
+void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 {
 	im::ScopedFont sf(fontProp);
 
@@ -531,9 +531,10 @@ void ImGuiManager::paintImGui()
 			});
 		});
 	} else {
-		bool active = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
-		              ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) ||
-		              hoverMenuBar();
+		bool imGuiActive = !msxDisplayAreaFocused &&
+		                  (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
+		                   ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow));
+		bool active = imGuiActive || hoverMenuBar();
 		if (active != guiActive) {
 			guiActive = active;
 			auto& eventDistributor = reactor.getEventDistributor();

@@ -31,12 +31,11 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	manager.paintImGui();
-
 	// Allow docking in main window
+	auto* mainViewport = ImGui::GetMainViewport();
 	auto dockspaceId = 0;
 	im::StyleVar(ImGuiStyleVar_Alpha, /*transparent*/0.0f, [&]{
-		dockspaceId = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(),
+		dockspaceId = ImGui::DockSpaceOverViewport(0, mainViewport,
 			ImGuiDockNodeFlags_NoDockingOverCentralNode |
 			ImGuiDockNodeFlags_PassthruCentralNode |
 			ImGuiDockNodeFlags_AutoHideTabBar);
@@ -46,9 +45,8 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	// into central node so it receives clicks there.  When focused, we
 	// override WantCapture so input goes to the application (see
 	// ImGuiManager).
-	if (auto* centralNode = ImGui::DockBuilderGetCentralNode(dockspaceId)) {
-		ImGui::SetNextWindowDockID(centralNode->ID, ImGuiCond_FirstUseEver);
-	}
+	ImGui::SetNextWindowPos(mainViewport->Pos);
+	ImGui::SetNextWindowSize(mainViewport->Size);
 	auto flags = ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_NoBackground |
 			ImGuiWindowFlags_NoResize |
@@ -56,13 +54,18 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus;
+	bool focus = false;
 	im::Window("MSX Display Area", nullptr, flags, [&]{
 		// Ensure this window has focus on startup (after other windows are loaded)
 		if (ImGui::GetFrameCount() == 1) {
 			ImGui::SetWindowFocus();
 		}
+		// If no other window currently has focus, then take it ourselves.
+		if (ImGui::GetCurrentContext()->NavWindow == nullptr) {
+			ImGui::SetWindowFocus();
+		}
 
-		bool focus = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow | ImGuiFocusedFlags_DockHierarchy);
+		focus = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootWindow);
 		if (focus) {
 			ImGui::SetNextFrameWantCaptureMouse(false);
 			ImGui::SetNextFrameWantCaptureKeyboard(false);
@@ -74,6 +77,8 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			}
 		}
 	});
+
+	manager.paintImGui(focus);
 
 	// Rendering
 	const ImGuiIO& io = ImGui::GetIO();
