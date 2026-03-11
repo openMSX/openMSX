@@ -26,7 +26,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::Save::NO)
 	, escapeGrabCmd(commandController)
 {
-	setGrabInput(grabInput.getBoolean());
 	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 }
 
@@ -486,6 +485,11 @@ bool InputEventGenerator::signalEvent(const Event& event)
 		}
 	}, event);
 	return false;
+}
+
+void InputEventGenerator::initializeGrab(void) const
+{
+	SDL_SetWindowGrab(SDL_GL_GetCurrentWindow(), grabInput.getBoolean() ? SDL_TRUE : SDL_FALSE);
 }
 
 void InputEventGenerator::setGrabInput(bool grab) const

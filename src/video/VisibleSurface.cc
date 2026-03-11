@@ -155,6 +155,7 @@ VisibleSurface::VisibleSurface(
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 #endif
+	inputEventGenerator.initializeGrab();
 }
 
 VisibleSurface::~VisibleSurface()
