@@ -48,6 +48,8 @@ public:
 
 	[[nodiscard]] JoystickManager& getJoystickManager() { return joystickManager; }
 
+	void initializeGrab() const;
+
 private:
 	void handle(SDL_Event& evt);
 	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
