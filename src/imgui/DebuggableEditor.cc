@@ -812,7 +812,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::Checkbox("Show Address bar", &showAddress);
 		ImGui::Checkbox("Show Search pane", &showSearch);
 		ImGui::Checkbox("Show Data Preview", &showDataPreview);
-		ImGui::Checkbox("Show Ascii", &showAscii);
+		ImGui::Checkbox("Show ASCII", &showAscii);
 		ImGui::Checkbox("Show Symbol info", &showSymbolInfo);
 		ImGui::Checkbox("Grey out zeroes", &greyOutZeroes);
 		im::Menu("Highlight changes", [&]{
@@ -977,8 +977,8 @@ void DebuggableEditor::drawSearch(const Sizes& s, Debuggable& debuggable, unsign
 	ImGui::AlignTextToFramePadding();
 	ImGui::TextUnformatted("Type");
 	ImGui::SameLine();
-	ImGui::SetNextItemWidth(ImGui::CalcTextSize("Ascii").x + extra);
-	if (ImGui::Combo("##search_type", &searchType, "Hex\0Ascii\0\0")) {
+	ImGui::SetNextItemWidth(ImGui::CalcTextSize("ASCII").x + extra);
+	if (ImGui::Combo("##search_type", &searchType, "Hex\0ASCII\0\0")) {
 		parseSearchString(searchString);
 	}
 
