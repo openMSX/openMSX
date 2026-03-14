@@ -68,9 +68,7 @@ public:
 	}
 	[[nodiscard]] std::string getPsSsString(unsigned slot) const {
 		auto [ps, ss] = getPsSs(slot);
-		std::string result = strCat(ps);
-		if (ss != -1) strAppend(result, '-', ss);
-		return result;
+		return strCat(ps, strCat_if(ss != -1, '-', ss));
 	}
 	[[nodiscard]] std::optional<unsigned> findSlotWith(const HardwareConfig& config) const {
 		for (auto slot : xrange(MAX_SLOTS)) {

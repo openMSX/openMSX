@@ -6,11 +6,9 @@ namespace openmsx {
 
 #include "Version.ii"
 
-std::string Version::full()
+TemporaryString Version::full()
 {
-	std::string result = strCat("openMSX ", VERSION);
-	if constexpr (!RELEASE) strAppend(result, '-', REVISION);
-	return result;
+	return tmpStrCat("openMSX ", VERSION, strCat_if(!RELEASE, '-', REVISION));
 }
 
 } // namespace openmsx

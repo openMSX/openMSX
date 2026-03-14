@@ -38,7 +38,7 @@ class DebuggableEditor final : public ImGuiPart
 	};
 
 public:
-	explicit DebuggableEditor(ImGuiManager& manager_, std::string debuggableName, size_t index);
+	explicit DebuggableEditor(ImGuiManager& manager_, std::string_view debuggableName, size_t index);
 	[[nodiscard]] std::string_view getDebuggableName() const { return {title.data(), debuggableNameSize}; }
 
 	void makeSnapshot(MSXMotherBoard& motherBoard);
@@ -82,8 +82,8 @@ private:
 	enum ExportDestination : int {OUTPUT_CLIPBOARD, OUTPUT_FILE};
 
 	SymbolManager& symbolManager;
-	std::string title; // debuggableName + suffix
 	size_t debuggableNameSize;
+	std::string title; // debuggableName + suffix
 
 	// Settings
 	static constexpr int MAX_COLUMNS = 64;

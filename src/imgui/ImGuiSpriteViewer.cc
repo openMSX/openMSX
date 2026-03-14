@@ -26,11 +26,8 @@ using namespace std::literals;
 
 ImGuiSpriteViewer::ImGuiSpriteViewer(ImGuiManager& manager_, size_t index)
 	: ImGuiPart(manager_)
-	, title("Sprite viewer")
+	, title(strCat("Sprite viewer", strCat_if(index, " (", index + 1, ')')))
 {
-	if (index) {
-		strAppend(title, " (", index + 1, ')');
-	}
 }
 
 void ImGuiSpriteViewer::save(ImGuiTextBuffer& buf)

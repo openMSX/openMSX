@@ -487,13 +487,9 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 				for (const auto& event : subEvents) {
 					auto tt = event.time + frameDuration; // bring event into the 'future' (doesn't change screen position)
 					auto print = [&]{
-						std::string result = trace->name;
 						std::array<char, 64> buf;
-						if (auto valStr = ImGuiTraceViewer::formatTraceValue(event.value, buf, trace->getFormat());
-						    !valStr.empty()) {
-							strAppend(result, ": ", valStr);
-						}
-						return result;
+						auto valStr = ImGuiTraceViewer::formatTraceValue(event.value, buf, trace->getFormat());
+						return strCat(trace->name, strCat_if(!valStr.empty(), ": ", valStr));
 					};
 					addAnnotation(print, traceInfo.color, tt);
 				}

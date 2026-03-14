@@ -23,11 +23,8 @@ using namespace std::literals;
 
 ImGuiCharacter::ImGuiCharacter(ImGuiManager& manager_, size_t index)
 	: ImGuiPart(manager_)
-	, title("Tile viewer")
+	, title(strCat("Tile viewer", strCat_if(index, " (", index + 1, ')')))
 {
-	if (index) {
-		strAppend(title, " (", index + 1, ')');
-	}
 }
 
 void ImGuiCharacter::save(ImGuiTextBuffer& buf)

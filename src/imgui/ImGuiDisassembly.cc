@@ -39,11 +39,8 @@ namespace openmsx {
 ImGuiDisassembly::ImGuiDisassembly(ImGuiManager& manager_, size_t index)
 	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
-	, title("Disassembly")
+	, title(strCat("Disassembly", strCat_if(index, " (", index + 1, ')')))
 {
-	if (index) {
-		strAppend(title, " (", index + 1, ')');
-	}
 	scrollToPcOnBreak = index == 0;
 }
 
@@ -110,15 +107,11 @@ struct CurrentSlot {
 
 [[nodiscard]] static TclObject toTclExpression(const CurrentSlot& slot)
 {
-	std::string result = strCat("[pc_in_slot ", slot.ps);
-	if (slot.ss) {
-		strAppend(result, ' ', *slot.ss);
-	} else {
-		if (slot.seg) strAppend(result, " X");
-	}
-	if (slot.seg) strAppend(result, ' ', *slot.seg);
-	strAppend(result, ']');
-	return TclObject(result);
+	return TclObject(tmpStrCat(
+		"[pc_in_slot ", slot.ps,
+		strCat_if(slot.ss, ' ', *slot.ss).else_if(slot.seg, " X"),
+		strCat_if(slot.seg, ' ', *slot.seg),
+		']'));
 }
 
 [[nodiscard]] static bool addrInSlot(
@@ -459,12 +452,11 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 							});
 							if (!addrLabels.empty()) {
 								simpleToolTip([&]{
-									std::string tip(addrStr);
-									if (addrLabels.size() > 1) {
-										strAppend(tip, "\nmultiple possibilities (click to cycle):\n",
-											join(std::views::transform(addrLabels, &Symbol::name), ' '));
-									}
-									return tip;
+									return tmpStrCat(
+										addrStr,
+										strCat_if(addrLabels.size() > 1,
+											"\nmultiple possibilities (click to cycle):\n",
+											join(std::views::transform(addrLabels, &Symbol::name), ' ')));
 								});
 								ImGui::SetCursorPos(pos);
 								if (ImGui::InvisibleButton("##addrButton", {-FLT_MIN, textSize})) {
@@ -497,12 +489,11 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 								if (!mnemonicLabels.empty()) {
 									if (click) ++cycleLabelsCounter;
 									simpleToolTip([&]{
-										auto tip = strCat('#', hex_string<4>(*mnemonicAddr));
-										if (mnemonicLabels.size() > 1) {
-											strAppend(tip, "\nmultiple possibilities (click to cycle):\n",
-												join(std::views::transform(mnemonicLabels, &Symbol::name), ' '));
-										}
-										return tip;
+										return tmpStrCat(
+											'#', hex_string<4>(*mnemonicAddr),
+											strCat_if(mnemonicLabels.size() > 1,
+												"\nmultiple possibilities (click to cycle):\n",
+												join(std::views::transform(mnemonicLabels, &Symbol::name), ' ')));
 									});
 								}
 							}

@@ -99,11 +99,8 @@ struct DoneTodo {
 
 ImGuiBitmapViewer::ImGuiBitmapViewer(ImGuiManager& manager_, size_t index)
 	: ImGuiPart(manager_)
-	, title("Bitmap viewer")
+	, title(strCat("Bitmap viewer", strCat_if(index, " (", index + 1, ')')))
 {
-	if (index) {
-		strAppend(title, " (", index + 1, ')');
-	}
 }
 
 void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)

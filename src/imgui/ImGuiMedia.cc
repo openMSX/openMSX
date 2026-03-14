@@ -260,16 +260,13 @@ static std::string cdFilter()
 }
 
 template<std::invocable<const std::string&> DisplayFunc = std::identity>
-static std::string display(const ImGuiMedia::MediaItem& item, DisplayFunc displayFunc = {})
+static TemporaryString display(const ImGuiMedia::MediaItem& item, DisplayFunc displayFunc = {})
 {
-	std::string result = displayFunc(item.name);
-	if (item.romType != RomType::UNKNOWN) {
-		strAppend(result, " (", RomInfo::romTypeToName(item.romType), ')');
-	}
-	if (auto n = item.ipsPatches.size()) {
-		strAppend(result, " (+", n, " patch", (n == 1 ? ""sv : "es"sv), ')');
-	}
-	return result;
+	auto n = item.ipsPatches.size();
+	return tmpStrCat(
+		displayFunc(item.name),
+		strCat_if(item.romType != RomType::UNKNOWN, " ("sv, RomInfo::romTypeToName(item.romType), ')'),
+		strCat_if(n != 0, " (+"sv, n, " patch"sv, strCat_if(n != 1, "es"sv), ')'));
 }
 
 static std::string romTypeToolTipText(const zstring_view name)
@@ -389,11 +386,10 @@ std::string ImGuiMedia::displayNameForSlotContent(const CartridgeSlotManager& sl
 std::string ImGuiMedia::slotAndNameForHardwareConfig(const CartridgeSlotManager& slotManager, const HardwareConfig& config)
 {
 	auto slot = slotManager.findSlotWith(config);
-	std::string result = slot
-		? strCat(char('A' + *slot), " (", slotManager.getPsSsString(*slot), "): ")
-		: "I/O-only: ";
-	strAppend(result, displayNameForHardwareConfig(config));
-	return result;
+	return strCat(strCat_if(slot,
+	                        char('A' + *slot), " (", slotManager.getPsSsString(*slot), "): ")
+	                 .else_("I/O-only: "),
+	              displayNameForHardwareConfig(config));
 }
 
 std::string ImGuiMedia::displayNameForDriveContent(unsigned drive, bool compact)
@@ -446,11 +442,12 @@ void ImGuiMedia::extensionTooltip(ExtensionInfo& info)
 
 bool ImGuiMedia::drawExtensionFilter(std::string& filterType, std::string& filterString, bool& filterOpen, int id)
 {
-	std::string filterDisplay = "filter";
-	if (!filterType.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
-	if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
-	if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
-	strAppend(filterDisplay, "###filter", id);
+	auto filterDisplay = tmpStrCat(
+		"filter",
+		strCat_if(!filterType.empty() || !filterString.empty(), ':'),
+		strCat_if(!filterType.empty(), ' ', filterType),
+		strCat_if(!filterString.empty(), ' ', filterString),
+		"###filter", id);
 	bool newFilterOpen = filterOpen;
 	im::TreeNode(filterDisplay.c_str(), &newFilterOpen, [&]{
 		displayFilterCombo(filterType, "Type", getAllExtensions());
@@ -975,11 +972,10 @@ bool ImGuiMedia::selectMapperType(const char* label, RomType& romType)
 bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 {
 	bool interacted = false;
-	std::string patchesTitle = "IPS patches";
-	if (!item.ipsPatches.empty()) {
-		strAppend(patchesTitle, " (", item.ipsPatches.size(), ')');
-	}
-	strAppend(patchesTitle, "###patches");
+	auto patchesTitle = tmpStrCat(
+		"IPS patches",
+		strCat_if(!item.ipsPatches.empty(), " (", item.ipsPatches.size(), ')'),
+		"###patches");
 	im::TreeNode(patchesTitle.c_str(), [&]{
 		const auto& style = ImGui::GetStyle();
 		auto width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize("Remove"sv).x;
@@ -1153,13 +1149,9 @@ void ImGuiMedia::printDatabase(const RomInfo& romInfo, const char* buf)
 	auto status = [&]{
 		auto str = romInfo.getOrigType(buf);
 		if (romInfo.getOriginal()) {
-			std::string result = "Unmodified dump";
-			if (!str.empty()) {
-				strAppend(result, " (confirmed by ", str, ')');
-			}
-			return result;
+			return tmpStrCat("Unmodified dump", strCat_if(!str.empty(), " (confirmed by ", str, ')'));
 		} else {
-			return std::string(str);
+			return tmpStrCat(str);
 		}
 	}();
 	printRow("Status", status);
@@ -1201,7 +1193,7 @@ void ImGuiMedia::printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic
 		std::string mapperTypeStr = romTypeToolTipText(RomInfo::romTypeToName(romType));
 		if (romInfo) {
 			if (auto dbType = romInfo->getRomType();
-			dbType != RomType::UNKNOWN && dbType != romType) {
+			    dbType != RomType::UNKNOWN && dbType != romType) {
 				strAppend(mapperStr, " (database: ", RomInfo::getDescription(dbType), ')');
 				strAppend(mapperTypeStr, " (and the database mapper type as: ", RomInfo::romTypeToName(dbType), ')');
 			}

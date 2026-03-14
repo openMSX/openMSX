@@ -203,10 +203,7 @@ bool Display::signalEvent(const Event& event)
 
 std::string Display::getWindowTitle()
 {
-	std::string title = Version::full();
-	if (!Version::RELEASE) {
-		strAppend(title, " [", BUILD_FLAVOUR, ']');
-	}
+	auto title = strCat(Version::full(), strCat_if(!Version::RELEASE, " [", BUILD_FLAVOUR, ']'));
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {
 			const auto& config = machine->getConfig();

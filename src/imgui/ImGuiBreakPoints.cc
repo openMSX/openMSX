@@ -133,41 +133,25 @@ ParsedSlotCond::ParsedSlotCond(std::string_view checkCmd, std::string_view cond)
 	// invalid terminator
 }
 
-std::string ParsedSlotCond::toTclExpression(std::string_view checkCmd) const
+TemporaryString ParsedSlotCond::toTclExpression(std::string_view checkCmd) const
 {
-	if (!hasPs) return rest;
-	std::string result = strCat('[', checkCmd, ' ', ps);
-	if (hasSs) {
-		strAppend(result, ' ', ss);
-	} else {
-		if (hasSeg) strAppend(result, " X");
-	}
-	if (hasSeg) {
-		strAppend(result, ' ', seg);
-	}
-	strAppend(result, ']');
-	if (!rest.empty()) {
-		strAppend(result, " && (", rest, ')');
-	}
-	return result;
+	return tmpStrCat(
+		strCat_if(hasPs, '[', checkCmd, ' ', ps,
+		                 strCat_if(hasSs, ' ', ss).else_if(hasSeg, " X"),
+		                 strCat_if(hasSeg, ' ', seg),
+		                 ']',
+		                 strCat_if(!rest.empty(), " && (", rest, ')'))
+		.else_(rest));
 }
 
-std::string ParsedSlotCond::toDisplayString() const
+TemporaryString ParsedSlotCond::toDisplayString() const
 {
-	if (!hasPs) return rest;
-	std::string result = strCat("Slot:", ps, '-');
-	if (hasSs) {
-		strAppend(result, ss);
-	} else {
-		strAppend(result, 'X');
-	}
-	if (hasSeg) {
-		strAppend(result, ',', seg);
-	}
-	if (!rest.empty()) {
-		strAppend(result, " && ", rest);
-	}
-	return result;
+	return tmpStrCat(
+		strCat_if(hasPs, "Slot:", ps, '-',
+		                 strCat_if(hasSs, ss).else_('X'),
+		                 strCat_if(hasSeg, ',', seg),
+		                 strCat_if(!rest.empty(), " && ", rest))
+		.else_(rest));
 }
 
 template<typename> struct BaseBpType;
@@ -409,11 +393,8 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, Item& ite
 			setRedBg(parseError.empty());
 
 			auto pos = ImGui::GetCursorPos();
-			std::string endAddrStr = displayAddr(item->getEndAddressString());
-			std::string displayAddr = addrStr;
-			if (!endAddrStr.empty()) {
-				strAppend(displayAddr, "...", endAddrStr);
-			}
+			auto endAddrStr = displayAddr(item->getEndAddressString());
+			auto displayAddr = tmpStrCat(addrStr, strCat_if(!endAddrStr.empty(), "...", endAddrStr));
 			im::Font(manager.fontMono, [&]{
 				ImGui::TextUnformatted(displayAddr);
 			});
@@ -425,11 +406,10 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, Item& ite
 			auto addr = item->getBeginAddress();
 			if (parseError.empty() && addr) {
 				simpleToolTip([&]{
-					auto tip = strCat("0x", hex_string<4>(*addr));
-					if (auto endAddr = item->getEndAddress(); endAddr && *endAddr != *addr) {
-						strAppend(tip, "...0x", hex_string<4>(*endAddr));
-					}
-					return tip;
+					auto endAddr = item->getEndAddress();
+					return tmpStrCat(
+						"0x", hex_string<4>(*addr),
+						strCat_if(endAddr && *endAddr != *addr, "...0x", hex_string<4>(*endAddr)));
 				});
 			} else {
 				simpleToolTip(parseError);
@@ -467,7 +447,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, Item& ite
 		}
 	}
 	if (ImGui::TableNextColumn()) { // condition
-		std::string cond{getCondition(item).getString()};
+		std::string_view cond = getCondition(item).getString();
 		std::string parseError = isValidCond<Type>(cond, interp);
 		setRedBg(parseError.empty());
 		auto checkCmd = getCheckCmd<Type>();
@@ -484,8 +464,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, Item& ite
 		simpleToolTip(parseError);
 		im::Popup("cond-popup", [&]{
 			if (editCondition(slot)) {
-				cond = slot.toTclExpression(checkCmd);
-				setCondition(item, TclObject(cond));
+				setCondition(item, TclObject(slot.toTclExpression(checkCmd)));
 			}
 		});
 	}

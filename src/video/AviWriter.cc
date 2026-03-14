@@ -178,7 +178,7 @@ AviWriter::~AviWriter()
 		AVIOUTw(bitsPerSample);     // BitsPerSample
 	}
 
-	std::string versionStr = Version::full();
+	auto versionStr = Version::full();
 
 	// The standard snprintf() function does always zero-terminate the
 	// output it writes. Though windows doesn't have a snprintf() function,

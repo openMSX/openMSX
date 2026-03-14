@@ -1,7 +1,7 @@
 #ifndef VERSION_HH
 #define VERSION_HH
 
-#include <string>
+#include "TemporaryString.hh"
 
 namespace openmsx {
 
@@ -15,7 +15,7 @@ public:
 	static const char* const BUILD_FLAVOUR;
 
 	// Computed using constants above:
-	static std::string full();
+	static TemporaryString full();
 
 	static const char* const COPYRIGHT;
 };

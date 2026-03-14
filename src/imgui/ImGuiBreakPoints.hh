@@ -4,6 +4,7 @@
 #include "ImGuiPart.hh"
 
 #include "TclObject.hh"
+#include "TemporaryString.hh"
 
 #include <cstdint>
 #include <optional>
@@ -21,8 +22,8 @@ class WatchPoint;
 
 struct ParsedSlotCond {
 	ParsedSlotCond(std::string_view checkCmd, std::string_view cond);
-	[[nodiscard]] std::string toTclExpression(std::string_view checkCmd) const;
-	[[nodiscard]] std::string toDisplayString() const;
+	[[nodiscard]] TemporaryString toTclExpression(std::string_view checkCmd) const;
+	[[nodiscard]] TemporaryString toDisplayString() const;
 
 	std::string rest;
 

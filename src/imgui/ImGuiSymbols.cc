@@ -196,11 +196,11 @@ void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym
 		newBp.setAddress(interp, TclObject(strCat("$sym(", sym.name(symbolManager), ')')));
 
 		if (auto slot = sym.slot(symbolManager)) {
-			auto cond = strCat("[pc_in_slot ", *slot & 3, ' ', (*slot >> 2) & 3);
-			if (auto segment = sym.segment(symbolManager)) {
-				strAppend(cond, ' ', *segment);
-			}
-			strAppend(cond, ']');
+			auto segment = sym.segment(symbolManager);
+			auto cond = tmpStrCat(
+				"[pc_in_slot ", *slot & 3, ' ', (*slot >> 2) & 3,
+				strCat_if(segment, ' ', *segment),
+				']');
 			newBp.setCondition(TclObject(cond));
 		}
 

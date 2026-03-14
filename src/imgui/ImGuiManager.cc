@@ -782,11 +782,9 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 				}();
 				ImGui::RightAlignText(modeStr, "0 (80)");
 				simpleToolTip([&]{
-					std::string result = "screen mode as used in MSX-BASIC";
-					if (extendedStr[0]) {
-						strAppend(result, ", corresponds to VDP mode ", extendedStr);
-					}
-					return result;
+					return tmpStrCat(
+						"screen mode as used in MSX-BASIC",
+						strCat_if(extendedStr[0], ", corresponds to VDP mode ", extendedStr));
 				});
 				ImGui::Separator();
 			}

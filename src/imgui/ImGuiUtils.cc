@@ -278,22 +278,21 @@ float calculateFade(float current, float target, float period)
 	}
 }
 
-std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command)
+TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view command)
 {
 	for (const auto& info : hotkey.getGlobalBindings()) {
 		if (info.command != command) continue;
 		if (const auto* keyDown = std::get_if<KeyDownEvent>(&info.event)) {
-			std::string result;
 			auto modifiers = keyDown->getModifiers();
-			if (modifiers & KMOD_CTRL)  strAppend(result, "CTRL+");
-			if (modifiers & KMOD_SHIFT) strAppend(result, "SHIFT+");
-			if (modifiers & KMOD_ALT)   strAppend(result, "ALT+");
-			if (modifiers & KMOD_GUI)   strAppend(result, "GUI+");
-			strAppend(result, SDL_GetKeyName(keyDown->getKeyCode()));
-			return result;
+			return tmpStrCat(
+				strCat_if(modifiers & KMOD_CTRL,  "CTRL+"),
+				strCat_if(modifiers & KMOD_SHIFT, "SHIFT+"),
+				strCat_if(modifiers & KMOD_ALT,   "ALT+"),
+				strCat_if(modifiers & KMOD_GUI,   "GUI+"),
+				SDL_GetKeyName(keyDown->getKeyCode()));
 		}
 	}
-	return "";
+	return TemporaryString{};
 }
 
 [[nodiscard]] static std::string_view superName()

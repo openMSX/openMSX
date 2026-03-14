@@ -67,15 +67,11 @@ void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
 {
 	if (!getUpdateEnable(type)) return;
 
-	auto tmp = strCat("<update type=\"", toString(type), '\"');
-	if (!machine.empty()) {
-		strAppend(tmp, " machine=\"", machine, '\"');
-	}
-	if (!name.empty()) {
-		strAppend(tmp, " name=\"", XMLEscape(name), '\"');
-	}
-	strAppend(tmp, '>', XMLEscape(value), "</update>\n");
-
+	auto tmp = tmpStrCat(
+		"<update type=\"", toString(type), '\"',
+		strCat_if(!machine.empty(), " machine=\"", machine, '"'),
+		strCat_if(!name.empty(), " name=\"", name, '"'),
+		'>', XMLEscape(value), "</update>\n");
 	output(tmp);
 }
 

@@ -74,10 +74,7 @@ Rom::Rom(std::string name_, static_string_view description_,
 	}
 	if (errors.empty()) {
 		// No matching <rom> tag.
-		std::string err = "Missing <rom> tag";
-		if (!id.empty()) {
-			strAppend(err, " with id=\"", id, '"');
-		}
+		auto err = strCat("Missing <rom> tag", strCat_if(!id.empty(), " with id=\"", id, '"'));
 		throw ConfigException(std::move(err));
 	} else {
 		// We got at least one matching <rom>, but it failed to load.
@@ -173,16 +170,15 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		}
 		// .. still no file, then error
 		if (!file.is_open()) {
-			std::string error = strCat("Couldn't find ROM file for \"", name, '"');
-			if (!std::ranges::empty(filenames)) {
-				strAppend(error, ' ', (*std::ranges::begin(filenames))->getData());
-			}
-			if (resolvedSha1Elem) {
-				strAppend(error, " (sha1: ", resolvedSha1Elem->getData(), ')');
-			} else if (!std::ranges::empty(sums)) {
-				strAppend(error, " (sha1: ", (*std::ranges::begin(sums))->getData(), ')');
-			}
-			strAppend(error, '.');
+			auto error = strCat(
+				"Couldn't find ROM file for \"", name, '"',
+				strCat_if(!std::ranges::empty(filenames),
+					' ', (*std::ranges::begin(filenames))->getData()),
+				strCat_if(resolvedSha1Elem,
+					" (sha1: ", resolvedSha1Elem->getData(), ')')
+				.else_if(!std::ranges::empty(sums),
+					" (sha1: ", (*std::ranges::begin(sums))->getData(), ')'),
+				'.');
 			throw MSXException(std::move(error));
 		}
 

@@ -434,8 +434,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			if (stuff) {
 				auto [num, size] = stuff->tar->getFreeSpace();
 				auto free = (size_t(num) * size) / 1024; // in kB
-				auto status = strCat(free, "kB free");
-				if (!writable) strAppend(status, ", read-only");
+				auto status = tmpStrCat(free, "kB free", strCat_if(!writable, ", read-only"));
 				ImGui::TextUnformatted(status);
 			} else {
 				ImGui::TextUnformatted("No (valid) disk inserted"sv);

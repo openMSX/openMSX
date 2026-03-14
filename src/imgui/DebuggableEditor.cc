@@ -43,15 +43,12 @@ static constexpr int MidColsCount = 8; // extra spacing between every mid-cols.
 static constexpr auto HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
 static constexpr auto HighlightSymbolColor = IM_COL32(148, 95, 35, 255); // background color of known symbol bytes.
 
-DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggableName_, size_t index)
+DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string_view debuggableName_, size_t index)
 	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
-	, title(std::move(debuggableName_))
+	, debuggableNameSize(debuggableName_.size())
+	, title(strCat(debuggableName_, strCat_if(index, " (", index + 1, ')')))
 {
-	debuggableNameSize = title.size();
-	if (index) {
-		strAppend(title, " (", index + 1, ')');
-	}
 }
 
 void DebuggableEditor::save(ImGuiTextBuffer& buf)
