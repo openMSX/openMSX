@@ -9,9 +9,11 @@
 #include <array>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <tuple>
 #include <utility>
 
@@ -126,6 +128,8 @@ template<typename T> struct ConcatUnit;
 // Helper for types which are formatted via a temporary string object
 struct ConcatViaString
 {
+	using NonTrivialToConstruct = void;
+
 	explicit ConcatViaString(std::string s_)
 		: s(std::move(s_))
 	{
@@ -268,6 +272,8 @@ template<std::signed_integral T>
 // result. This size can be used to calculate the start position in the buffer.
 template<std::integral T> struct ConcatIntegral
 {
+	using NonTrivialToConstruct = void;
+
 	static constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	static constexpr size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
 
@@ -712,6 +718,159 @@ template<size_t N, std::integral T>
 	return t;
 }
 
+struct Empty
+{
+	[[nodiscard]] size_t size() const { return 0; }
+	[[nodiscard]] char* copy(char* dst) const { return dst; }
+};
+
+template<typename... Ts>
+struct Group
+{
+	std::tuple<Ts...> t; // expected: concat-unit like objects
+
+	[[nodiscard]] size_t size() const
+	{
+		return std::apply([](const auto& ...x) { return (0 + ... + x.size()); }, t);
+	}
+
+	[[nodiscard]] char* copy(char* dst) const
+	{
+		std::apply([&](const auto& ...x) { ((dst = x.copy(dst)), ...); }, t);
+		return dst;
+	}
+};
+
+template<typename T>
+using ConcatUnitForArg = decltype(makeConcatUnit(std::declval<T>()));
+
+// For expensive types: lazily build ConcatUnit on first size()/copy().
+template<typename T>
+struct LazyConcatUnit
+{
+	explicit LazyConcatUnit(T t)
+		: arg(std::move(t)) {}
+
+	[[nodiscard]] size_t size() const
+	{
+		assert(!concatUnit); // strCat framework calls size() exactly once before copy()
+		concatUnit.emplace(makeConcatUnit(std::move(arg)));
+		return concatUnit->size();
+	}
+
+	[[nodiscard]] char* copy(char* dst) const
+	{
+		assert(concatUnit); // size() must have been called first
+		return concatUnit->copy(dst);
+	}
+
+private:
+	mutable T arg;
+	mutable std::optional<ConcatUnitForArg<T>> concatUnit;
+};
+
+// ConcatUnit types can opt into lazy construction by defining NonTrivialToConstruct.
+template<typename T, typename = void>
+struct IsNonTrivialToConstruct : std::false_type {};
+template<typename T>
+struct IsNonTrivialToConstruct<T, std::void_t<typename T::NonTrivialToConstruct>> : std::true_type {};
+
+template<typename T>
+[[nodiscard]] auto makeLazyConcatUnit(T&& t)
+{
+	using T2 = std::remove_cvref_t<T>;
+	if constexpr (IsNonTrivialToConstruct<ConcatUnitForArg<T2>>::value) {
+		return LazyConcatUnit<T2>(std::forward<T>(t));
+	} else {
+		return makeConcatUnit(std::forward<T>(t));
+	}
+}
+
+// Per-element lazy: cheap types -> ConcatUnit immediately, expensive -> LazyConcatUnit.
+template<typename... Ts>
+[[nodiscard]] auto makeLazyConcatUnits(Ts&&... ts)
+{
+	if constexpr (sizeof...(Ts) == 1) { // single element doesn't need Group
+		return makeLazyConcatUnit(std::forward<Ts>(ts)...);
+	} else {
+		return Group{std::tuple{makeLazyConcatUnit(std::forward<Ts>(ts))...}};
+	}
+}
+
+template<typename IfPart, typename ElsePart>
+struct Conditional
+{
+	bool condition;
+	IfPart ifPart;
+	ElsePart elsePart;
+
+	[[nodiscard]] size_t size() const
+	{
+		return condition ? ifPart.size() : elsePart.size();
+	}
+
+	[[nodiscard]] char* copy(char* dst) const
+	{
+		return condition ? ifPart.copy(dst) : elsePart.copy(dst);
+	}
+
+	template<typename BOOL, typename... Ts> [[nodiscard]] auto else_if(BOOL c, Ts&&... ts) &&;
+	template<typename... Ts> [[nodiscard]] auto else_(Ts&&... ts) &&;
+};
+
+template<typename T> struct IsConditional : std::false_type {};
+template<typename IfPart, typename ElsePart>
+struct IsConditional<Conditional<IfPart, ElsePart>> : std::true_type {};
+
+template<auto> static inline constexpr bool always_false = false;
+
+template<typename IfPart, typename ElsePart, typename NewPart>
+[[nodiscard]] auto replaceEmptyTail(Conditional<IfPart, ElsePart>&& c, NewPart&& part)
+{
+	if constexpr (std::same_as<ElsePart, Empty>) {
+		return Conditional{
+			c.condition, std::move(c.ifPart), std::forward<NewPart>(part)
+		};
+	} else if constexpr (IsConditional<ElsePart>::value) {
+		return Conditional{
+			c.condition,
+			std::move(c.ifPart),
+			replaceEmptyTail(std::move(c.elsePart), std::forward<NewPart>(part))
+		};
+	} else {
+		static_assert(always_false<sizeof(ElsePart)>,
+			"Cannot chain .else_() or .else_if() after .else_()");
+		std::unreachable();
+	}
+}
+
+template<typename BOOL, typename... Ts>
+[[nodiscard]] inline auto if_(BOOL condition, Ts&&... ts)
+{
+	return Conditional{static_cast<bool>(condition), makeLazyConcatUnits(std::forward<Ts>(ts)...), Empty{}};
+}
+
+template<typename IfPart, typename ElsePart>
+template<typename BOOL, typename... Ts>
+[[nodiscard]] auto Conditional<IfPart, ElsePart>::else_if(BOOL c, Ts&&... ts) &&
+{
+	return replaceEmptyTail(std::move(*this), if_(c, std::forward<Ts>(ts)...));
+}
+
+template<typename IfPart, typename ElsePart>
+template<typename... Ts>
+[[nodiscard]] auto Conditional<IfPart, ElsePart>::else_(Ts&&... ts) &&
+{
+	return replaceEmptyTail(std::move(*this),
+		makeLazyConcatUnits(std::forward<Ts>(ts)...));
+}
+
+template<typename IfPart, typename ElsePart>
+[[nodiscard]] inline auto makeConcatUnit(const Conditional<IfPart, ElsePart>& t)
+{
+	return t;
+}
+
 
 // Calculate the total size for a bunch (a tuple) of ConcatUnit<T> objects.
 // That is, calculate the sum of calling the size() method on each ConcatUnit.
@@ -862,6 +1021,12 @@ inline void strAppend(std::string& /*x*/)
 inline void strAppend(std::string& x, const std::string& y) { x += y; }
 inline void strAppend(std::string& x, const char*        y) { x += y; }
 inline void strAppend(std::string& x, std::string_view   y) { x.append(y.data(), y.size()); }
+
+template<typename BOOL, typename... Ts>
+[[nodiscard]] inline auto strCat_if(BOOL condition, Ts&&... ts)
+{
+	return strCatImpl::if_(condition, std::forward<Ts>(ts)...);
+}
 
 
 template<HexCase Case = HexCase::lower, std::integral T>

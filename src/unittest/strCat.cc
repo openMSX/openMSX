@@ -151,6 +151,39 @@ TEST_CASE("strAppend")
 	}
 }
 
+TEST_CASE("strCat_if")
+{
+	SECTION("if only") {
+		CHECK(strCat("foo", strCat_if(true, "bla", 42, ' ')) == "foobla42 ");
+		CHECK(strCat("foo", strCat_if(false, "bla", 42, ' ')) == "foo");
+	}
+
+	SECTION("if else") {
+		CHECK(strCat("x", strCat_if(true, "a").else_("b"), "y") == "xay");
+		CHECK(strCat("x", strCat_if(false, "a").else_("b"), "y") == "xby");
+		CHECK(strCat("x", strCat_if(false, "a").else_("b", 7, ' '), "y") == "xb7 y");
+	}
+
+	SECTION("if else_if else chain") {
+		CHECK(strCat("bla", strCat_if(true, ' ').else_if(true, "t").else_("xyz"), "\n") == "bla \n");
+		CHECK(strCat("bla", strCat_if(false, ' ').else_if(true, "t").else_("xyz"), "\n") == "blat\n");
+		CHECK(strCat("bla", strCat_if(false, ' ').else_if(false, "t").else_("xyz"), "\n") == "blaxyz\n");
+		CHECK(strCat("x", strCat_if(false, "a").else_if(true, "b", 7, ' ').else_("z"), "y") == "xb7 y");
+	}
+
+	SECTION("if else_if without else") {
+		CHECK(strCat("x", strCat_if(false, "a").else_if(false, "b"), "y") == "xy");
+		CHECK(strCat("x", strCat_if(false, "a").else_if(true, "b"), "y") == "xby");
+	}
+
+	SECTION("zero-arg branches are allowed") {
+		CHECK(strCat("x", strCat_if(true), "y") == "xy");
+		CHECK(strCat("x", strCat_if(false), "y") == "xy");
+		CHECK(strCat("x", strCat_if(false, "a").else_if(true), "y") == "xy");
+		CHECK(strCat("x", strCat_if(false, "a").else_if(false).else_(), "y") == "xy");
+	}
+}
+
 
 #if 0
 
