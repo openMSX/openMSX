@@ -372,7 +372,7 @@ void setColors(int style)
 }
 
 std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end, std::string_view prefix,
-	unsigned columns, std::string_view suffix, std::string_view formatStr, Interpreter& interp)
+	unsigned columns, std::string_view suffix, std::string_view separator, std::function<std::string(uint8_t)> formatFunc)
 {
 	std::string result;
 	unsigned col = 0;
@@ -380,15 +380,13 @@ std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin
 		if (col == 0) strAppend(result, prefix);
 
 		auto val = fetch(addr);
-		auto cmd = makeTclList("format", formatStr, val);
-		auto formatted = cmd.executeCommand(interp); // may throw
-		strAppend(result, formatted.getString());
+		strAppend(result, formatFunc(val));
 
 		if (++col == columns) {
 			col = 0;
 			strAppend(result, suffix, '\n');
 		} else if (addr != end) {
-			strAppend(result, ", ");
+			strAppend(result, separator);
 		}
 	}
 
@@ -397,6 +395,17 @@ std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin
 	}
 	return result;
 }
+
+std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end, std::string_view prefix,
+	unsigned columns, std::string_view suffix, std::string_view separator, std::string_view formatStr, Interpreter& interp)
+{
+	return formatToString(fetch, begin, end, prefix, columns, suffix, separator, [formatStr, &interp] (uint8_t val) {
+		auto cmd = makeTclList("format", formatStr, val);
+		auto formatted = cmd.executeCommand(interp); // may throw
+		return std::string(formatted.getString());
+	});
+}
+
 
 [[nodiscard]] std::string rawToString(
 	function_ref<uint8_t(unsigned)> fetch,

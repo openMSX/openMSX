@@ -422,7 +422,10 @@ std::string getKeyChordName(ImGuiKeyChord keyChord);
 std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name);
 
 [[nodiscard]] std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end, std::string_view prefix,
-	unsigned columns, std::string_view suffix, std::string_view formatStr, Interpreter& interp);
+	unsigned columns, std::string_view suffix, std::string_view separator, std::string_view formatStr, Interpreter& interp);
+
+[[nodiscard]] std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end, std::string_view prefix,
+	unsigned columns, std::string_view suffix, std::string_view separator, std::function<std::string(uint8_t)> formatFunc);
 
 [[nodiscard]] std::string rawToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end);
 

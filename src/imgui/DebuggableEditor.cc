@@ -134,6 +134,11 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	});
 }
 
+[[nodiscard]] static char formatAsciiData(uint8_t val)
+{
+	return (val < 32 || val >= 128) ? '.' : char(val);
+}
+
 void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 {
 	auto& interp = manager.getInterpreter();
@@ -243,7 +248,9 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 				ImGui::RadioButton("Hex", &exportFormat, FORMAT_HEX);
 				HelpMarker("2 digit hexadecimal\n"
 					"corresponding to custom format '0x%02X'");
-
+				ImGui::SameLine();
+				ImGui::RadioButton("ASCII", &exportFormat, FORMAT_ASCII);
+				HelpMarker("As visible in the ASCII view.");
 				try {
 					if (exportFormatted == EXPORT_FORMATTED) {
 						makeTclList("format", exportCustomFormat, 0).executeCommand(interp);
@@ -295,8 +302,11 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 				auto fetch = [&](unsigned address) { return debuggable.read(address); };
 				try {
 					auto output = (exportFormatted == EXPORT_FORMATTED)
-						? formatToString(fetch, *begin, *end, exportPrefix, exportColumns, exportSuffix,
-								formatStr, interp)
+						? ((exportFormat == FORMAT_ASCII)
+							? formatToString(fetch, *begin, *end, exportPrefix, exportColumns, exportSuffix, {},
+								[](uint8_t val) { return std::string(1, formatAsciiData(val)); })
+							: formatToString(fetch, *begin, *end, exportPrefix, exportColumns, exportSuffix, ", ",
+								formatStr, interp))
 						: rawToString(fetch, *begin, *end);
 					if (exportDestination == OUTPUT_CLIPBOARD) {
 						manager.getReactor().getDisplay().getVideoSystem().setClipboardText(output);
@@ -374,11 +384,6 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 [[nodiscard]] static std::string formatData(uint8_t val)
 {
 	return strCat(hex_string<2, HexCase::upper>(val));
-}
-
-[[nodiscard]] static char formatAsciiData(uint8_t val)
-{
-	return (val < 32 || val >= 128) ? '.' : char(val);
 }
 
 [[nodiscard]] std::string DebuggableEditor::formatAddr(const Sizes& s, unsigned addr) const

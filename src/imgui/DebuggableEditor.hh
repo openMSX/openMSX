@@ -78,7 +78,7 @@ private:
 
 	enum ExportRange : int {RANGE_ALL, RANGE_RANGE};
 	enum ExportFormatted : int {EXPORT_RAW, EXPORT_FORMATTED};
-	enum ExportFormat : int {FORMAT_BIN, FORMAT_DEC, FORMAT_HEX, FORMAT_CUSTOM};
+	enum ExportFormat : int {FORMAT_BIN, FORMAT_DEC, FORMAT_HEX, FORMAT_ASCII, FORMAT_CUSTOM};
 	enum ExportDestination : int {OUTPUT_CLIPBOARD, OUTPUT_FILE};
 
 	SymbolManager& symbolManager;
