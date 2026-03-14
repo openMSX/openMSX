@@ -38,7 +38,6 @@ PioneerLDControl::PioneerLDControl(DeviceConfig& config)
 	if (config.getChildDataAsBool("laserdisc", true)) {
 		laserdisc.emplace(getHardwareConfig(), *this);
 	}
-	reset(getCurrentTime());
 }
 
 void PioneerLDControl::init()
@@ -57,6 +56,7 @@ void PioneerLDControl::init()
 		throw MSXException("Invalid PioneerLDControl configuration: "
 		                   "need reference to VDP device.");
 	}
+	reset(getCurrentTime());
 }
 
 PioneerLDControl::~PioneerLDControl() = default;

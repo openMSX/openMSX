@@ -7,11 +7,13 @@ namespace openmsx {
 EEPROM_93C46::EEPROM_93C46(const XMLElement& xml)
 	: sram(NUM_ADDRESSES, xml, SRAM::DontLoadTag{})
 {
+	reset();
 }
 
 EEPROM_93C46::EEPROM_93C46(const std::string& name, const DeviceConfig& config)
 	: sram(name + " EEPROM", NUM_ADDRESSES, config)
 {
+	reset();
 }
 
 void EEPROM_93C46::reset()

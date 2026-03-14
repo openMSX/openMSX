@@ -10,6 +10,7 @@ MSXPiDevice::MSXPiDevice(const DeviceConfig& config)
 	: MSXDevice(config)
 {
 	thread = std::thread(&MSXPiDevice::readLoop, this);
+	reset(EmuTime::dummy());
 }
 
 MSXPiDevice::~MSXPiDevice()

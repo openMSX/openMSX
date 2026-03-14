@@ -49,6 +49,8 @@ Carnivore2::Carnivore2(DeviceConfig& config)
 	configRegs[0x30] = 0; // to avoid UMR in powerUp -> writePSGCtrl
 	configRegs[0x35] = 0xf0; // to avoid UMR in powerUp -> writePFXN
 	getCPUInterface().register_IO_InOut(idControlPort(), this);
+
+	powerUp(getCurrentTime());
 }
 
 Carnivore2::~Carnivore2()

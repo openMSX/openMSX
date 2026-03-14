@@ -14,7 +14,6 @@ ADVram::ADVram(const DeviceConfig& config)
 	: MSXDevice(config)
 	, hasEnable(config.getChildDataAsBool("hasEnable", true))
 {
-	reset(EmuTime::dummy());
 }
 
 void ADVram::init()
@@ -33,6 +32,7 @@ void ADVram::init()
 	}
 	vram = &vdp->getVRAM();
 	mask = std::min(vram->getSize(), 128u * 1024) - 1;
+	reset(EmuTime::dummy());
 }
 
 void ADVram::reset(EmuTime /*time*/)

@@ -71,6 +71,7 @@ RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, Rom&& rom_)
 			"Rom for FSA1FM mapper must be 1MB in size "
 			"(some dumps are 2MB, those can be used as well).");
 	}
+	reset(EmuTime::dummy());
 }
 
 void RomFSA1FM1::reset(EmuTime /*time*/)

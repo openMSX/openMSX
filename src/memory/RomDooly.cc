@@ -16,6 +16,7 @@ RomDooly::RomDooly(const DeviceConfig& config, Rom&& rom_)
 	if (rom.size() != 0x8000) {
 		throw MSXException("Dooly ROM-size must be exactly 32kB");
 	}
+	reset(EmuTime::dummy());
 }
 
 void RomDooly::reset(EmuTime /*time*/)

@@ -24,9 +24,10 @@ RomAscii16X::RomAscii16X(DeviceConfig& config, Rom&& rom_)
 	, debuggable(*this)
 	, flash(rom, AmdFlashChip::S29GL064S70TFI040, {}, config)
 {
+	reset(EmuTime::dummy());
 }
 
-void RomAscii16X::reset(EmuTime /* time */)
+void RomAscii16X::reset(EmuTime /*time*/)
 {
 	ranges::iota(bankRegs, uint16_t(0));
 

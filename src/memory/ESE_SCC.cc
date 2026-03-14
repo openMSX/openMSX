@@ -82,6 +82,8 @@ ESE_SCC::ESE_SCC(DeviceConfig& config, bool withSCSI)
 {
 	// initialized mapper
 	ranges::iota(mapper, byte(0));
+
+	powerUp(getCurrentTime());
 }
 
 void ESE_SCC::powerUp(EmuTime time)

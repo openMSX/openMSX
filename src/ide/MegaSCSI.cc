@@ -71,6 +71,7 @@ MegaSCSI::MegaSCSI(DeviceConfig& config)
 	, romBlockDebug(*this, mapped, 0x4000, 0x8000, 13)
 	, blockMask(narrow<byte>((sram.size() / 0x2000) - 1))
 {
+	reset(EmuTime::dummy());
 }
 
 void MegaSCSI::reset(EmuTime /*time*/)

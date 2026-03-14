@@ -10,6 +10,7 @@ RomMajutsushi::RomMajutsushi(const DeviceConfig& config, Rom&& rom_)
 	: RomKonami(config, std::move(rom_))
 	, dac("Majutsushi-DAC", "Hai no Majutsushi's DAC", config)
 {
+	reset(getCurrentTime());
 }
 
 void RomMajutsushi::reset(EmuTime time)

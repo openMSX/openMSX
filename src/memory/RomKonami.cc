@@ -31,10 +31,7 @@ RomKonami::RomKonami(const DeviceConfig& config, Rom&& rom_)
 			"The size of this ROM image is larger than 256kB, "
 			"which is not supported on real Konami mapper chips!");
 	}
-
-	// Do not call reset() here, since it can be overridden and the subclass
-	// constructor has not been run yet. And there will be a reset() at power
-	// up anyway.
+	reset(EmuTime::dummy());
 }
 
 void RomKonami::bankSwitch(unsigned page, unsigned block)

@@ -25,6 +25,7 @@ namespace openmsx {
 CanonFDC::CanonFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
+	reset(getCurrentTime());
 }
 
 void CanonFDC::reset(EmuTime time)

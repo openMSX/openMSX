@@ -31,6 +31,7 @@ MSXMemoryMapperBase::MSXMemoryMapperBase(const DeviceConfig& config)
 	, checkedRam(config, getName(), "memory mapper", getRamSize(config))
 	, debuggable(getMotherBoard(), getName())
 {
+	powerUp(getCurrentTime());
 }
 
 unsigned MSXMemoryMapperBase::getBaseSizeAlignment() const

@@ -8,6 +8,7 @@ SNPSG::SNPSG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, sn76489(config)
 {
+	reset(getCurrentTime());
 }
 
 void SNPSG::reset(EmuTime time)

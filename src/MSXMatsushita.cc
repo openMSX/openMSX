@@ -23,8 +23,6 @@ MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	, turboAvailable(config.getChildDataAsBool("hasturbo", false))
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
-
-	reset(EmuTime::dummy());
 }
 
 void MSXMatsushita::init()
@@ -56,6 +54,7 @@ void MSXMatsushita::init()
 			"Invalid Matsushita configuration: "
 			"VDP not on IO-ports 0x98-0x9B.");
 	}
+	reset(EmuTime::dummy());
 }
 
 MSXMatsushita::~MSXMatsushita()

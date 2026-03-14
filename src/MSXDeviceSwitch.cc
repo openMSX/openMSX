@@ -15,6 +15,7 @@ MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 	: MSXDevice(config)
 {
 	std::ranges::fill(devices, nullptr);
+	reset(EmuTime::dummy());
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()

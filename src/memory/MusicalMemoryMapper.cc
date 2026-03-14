@@ -18,6 +18,7 @@ MusicalMemoryMapper::MusicalMemoryMapper(const DeviceConfig& config)
 	: MSXMemoryMapperBase(config)
 	, sn76489(config)
 {
+	reset(getCurrentTime());
 }
 
 void MusicalMemoryMapper::reset(EmuTime time)

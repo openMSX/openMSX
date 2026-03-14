@@ -91,6 +91,7 @@ MSXMoonSound::MSXMoonSound(DeviceConfig& config)
 	: MSXDevice(config)
 	, ymf278b(getName(), getRamSize(config), config, setupMemPtrs, getCurrentTime())
 {
+	powerUp(getCurrentTime());
 }
 
 void MSXMoonSound::powerUp(EmuTime time)

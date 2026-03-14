@@ -29,6 +29,7 @@ void MSXRam::init()
 	assert((base + size) <= 0x10000);
 
 	checkedRam.emplace(getDeviceConfig2(), getName(), "ram", size);
+	powerUp(getCurrentTime());
 }
 
 void MSXRam::powerUp(EmuTime /*time*/)

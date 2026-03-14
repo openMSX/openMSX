@@ -42,6 +42,7 @@ void Video9000::init()
 			"Invalid Video9000 configuration: "
 			"need reference to VDP and V9990 device.");
 	}
+	reset(EmuTime::dummy());
 }
 
 Video9000::~Video9000()
