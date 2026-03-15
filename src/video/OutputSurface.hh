@@ -55,13 +55,6 @@ public:
 		return pixelOps.combine(r, g, b);
 	}
 
-	/** Returns the color key for this output surface.
-	  */
-	[[nodiscard]] Pixel getKeyColor() const
-	{
-		return 0x00000000; // alpha = 0
-	}
-
 	/** Save the content of this OutputSurface to a PNG file.
 	  * @throws MSXException If creating the PNG file fails.
 	  */

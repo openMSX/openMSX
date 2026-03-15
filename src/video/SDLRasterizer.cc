@@ -369,7 +369,7 @@ void SDLRasterizer::precalcColorIndex0(DisplayMode mode,
 	int tpIndex = transparency ? bgColorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
 		Pixel c = (superimposing && (bgColorIndex == 0))
-		        ? screen.getKeyColor()
+		        ? 0u // transparent (alpha = 0)
 		        : palBg[tpIndex];
 
 		if (palFg[0] != c) {
@@ -402,7 +402,7 @@ std::pair<Pixel, Pixel> SDLRasterizer::getBorderColors()
 			return PALETTE256[bgColor];
 		} else {
 			if (!bgColor && vdp.isSuperimposing()) {
-				return screen.getKeyColor();
+				return 0u; // transparent (alpha = 0)
 			} else {
 				return palBg[bgColor];
 			}

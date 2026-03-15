@@ -318,7 +318,7 @@ void V9990SDLRasterizer::setPalette(int index, uint8_t r, uint8_t g, uint8_t b, 
 {
 	auto idx32768 = ((g & 31) << 10) | ((r & 31) << 5) | ((b & 31) << 0);
 	palette64_32768[index & 63] = narrow<int16_t>(idx32768); // TODO what with ys?
-	palette64[index & 63] = ys ? screen.getKeyColor()
+	palette64[index & 63] = ys ? 0u // transparent (alpha = 0)
 	                           : palette32768[idx32768];
 }
 
@@ -329,7 +329,7 @@ void V9990SDLRasterizer::resetPalette()
 		auto [r, g, b, ys] = vdp.getPalette(i);
 		setPalette(i, r, g, b, ys);
 	}
-	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor()
+	palette256[0] = vdp.isSuperimposing() ? 0u // transparent (alpha = 0)
 	                                      : palette32768[0];
 	// TODO what with palette256_32768[0]?
 }
