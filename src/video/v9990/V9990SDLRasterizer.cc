@@ -3,7 +3,6 @@
 #include "V9990.hh"
 
 #include "Display.hh"
-#include "OutputSurface.hh"
 #include "PixelOperations.hh"
 #include "PostProcessor.hh"
 #include "RawFrame.hh"
@@ -22,10 +21,9 @@
 namespace openmsx {
 
 V9990SDLRasterizer::V9990SDLRasterizer(
-		V9990& vdp_, Display& display, OutputSurface& screen_,
+		V9990& vdp_, Display& display,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, screen(screen_)
 	, workFrame(std::make_unique<RawFrame>(1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, postProcessor(std::move(postProcessor_))

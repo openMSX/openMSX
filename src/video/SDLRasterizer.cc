@@ -1,7 +1,6 @@
 #include "SDLRasterizer.hh"
 
 #include "Display.hh"
-#include "OutputSurface.hh"
 #include "PixelOperations.hh"
 #include "PostProcessor.hh"
 #include "RawFrame.hh"
@@ -93,10 +92,9 @@ inline void SDLRasterizer::renderBitmapLine(std::span<Pixel> buf, unsigned vramL
 }
 
 SDLRasterizer::SDLRasterizer(
-		VDP& vdp_, Display& display, OutputSurface& screen_,
+		VDP& vdp_, Display& display,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, screen(screen_)
 	, postProcessor(std::move(postProcessor_))
 	, workFrame(std::make_unique<RawFrame>(640, 240))
 	, renderSettings(display.getRenderSettings())
