@@ -4,6 +4,7 @@
 
 #include "Display.hh"
 #include "OutputSurface.hh"
+#include "PixelOperations.hh"
 #include "PostProcessor.hh"
 #include "RawFrame.hh"
 #include "RenderSettings.hh"
@@ -269,6 +270,7 @@ void V9990SDLRasterizer::drawBxMode(
 
 void V9990SDLRasterizer::preCalcPalettes()
 {
+	PixelOperations pixelOp;
 	// the 32768 color palette
 	if (renderSettings.isColorMatrixIdentity()) {
 		// Most users use the "normal" monitor type; making this a
@@ -278,7 +280,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 			r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 31.0f)));
 		}
 		for (auto [grb, col] : enumerate(palette32768)) {
-			col = screen.mapRGB255(gl::ivec3(
+			col = pixelOp.mapRGB255(gl::ivec3(
 				intensity[(grb >>  5) & 31],
 				intensity[(grb >> 10) & 31],
 				intensity[(grb >>  0) & 31]));
@@ -291,7 +293,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 					             narrow<float>(g),
 					             narrow<float>(b)};
 					palette32768[(g << 10) + (r << 5) + b] = Pixel(
-						screen.mapRGB(renderSettings.transformRGB(rgb * (1.0f / 31.0f))));
+						pixelOp.mapRGB(renderSettings.transformRGB(rgb * (1.0f / 31.0f))));
 				}
 			}
 		}

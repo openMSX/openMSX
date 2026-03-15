@@ -1,6 +1,8 @@
 #ifndef PIXELOPERATIONS_HH
 #define PIXELOPERATIONS_HH
 
+#include "gl_vec.hh"
+
 #include <bit>
 #include <cstdint>
 #include <span>
@@ -23,6 +25,14 @@ public:
 	[[nodiscard]] unsigned green(Pixel p) const;
 	[[nodiscard]] unsigned blue(Pixel p) const;
 	[[nodiscard]] unsigned alpha(Pixel p) const;
+
+	/** Returns the pixel value for the given RGB color.
+	  */
+	[[nodiscard]] Pixel mapRGB(gl::vec3 rgb) const;
+
+	/** Same as mapRGB, but RGB components are in range [0..255].
+	 */
+	[[nodiscard]] uint32_t mapRGB255(gl::ivec3 rgb) const;
 
 	/** Combine RGB components to a pixel
 	  */
@@ -106,6 +116,17 @@ inline Pixel PixelOperations::combine(
 		unsigned r, unsigned g, unsigned b) const
 {
 	return Pixel((r << 0) | (g << 8) | (b << 16) | (0xFF << 24));
+}
+
+inline Pixel PixelOperations::mapRGB(gl::vec3 rgb) const
+{
+	return mapRGB255(gl::ivec3(rgb * 255.0f));
+}
+
+inline Pixel PixelOperations::mapRGB255(gl::ivec3 rgb) const
+{
+	auto [r, g, b] = rgb;
+	return combine(r, g, b);
 }
 
 inline Pixel PixelOperations::avgDown(Pixel p1, Pixel p2) const

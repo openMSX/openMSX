@@ -2,6 +2,7 @@
 
 #include "Display.hh"
 #include "OutputSurface.hh"
+#include "PixelOperations.hh"
 #include "PostProcessor.hh"
 #include "RawFrame.hh"
 #include "RenderSettings.hh"
@@ -253,13 +254,14 @@ void SDLRasterizer::setTransparency(bool enabled)
 
 void SDLRasterizer::precalcPalette()
 {
+	PixelOperations pixelOp;
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		const auto palette = vdp.getMSX1Palette();
 		for (auto i : xrange(16)) {
 			const auto rgb = palette[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				screen.mapRGB(
+				pixelOp.mapRGB(
 					renderSettings.transformRGB(
 						vec3(rgb[0], rgb[1], rgb[2]) * (1.0f / 255.0f)));
 		}
@@ -274,7 +276,7 @@ void SDLRasterizer::precalcPalette()
 					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 31.0f)));
 				}
 				for (auto [rgb, col] : enumerate(V9958_COLORS)) {
-					col = screen.mapRGB255(ivec3(
+					col = pixelOp.mapRGB255(ivec3(
 						intensity[(rgb >> 10) & 31],
 						intensity[(rgb >>  5) & 31],
 						intensity[(rgb >>  0) & 31]));
@@ -287,7 +289,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9958_COLORS[(r << 10) + (g << 5) + b] =
-								screen.mapRGB(
+								pixelOp.mapRGB(
 									renderSettings.transformRGB(rgb * (1.0f / 31.0f)));
 						}
 					}
@@ -318,7 +320,7 @@ void SDLRasterizer::precalcPalette()
 					for (auto g : xrange(8)) {
 						for (auto b : xrange(8)) {
 							V9938_COLORS[r][g][b] =
-								screen.mapRGB255(ivec3(
+								pixelOp.mapRGB255(ivec3(
 									intensity[r],
 									intensity[g],
 									intensity[b]));
@@ -333,7 +335,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9938_COLORS[r][g][b] =
-								screen.mapRGB(
+								pixelOp.mapRGB(
 									renderSettings.transformRGB(rgb * (1.0f / 7.0f)));
 						}
 					}
