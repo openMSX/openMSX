@@ -65,7 +65,7 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 			const auto& romConfig = config->getConfig()
 				.getChild("devices").getChild("primary").getChild("secondary")
 				.getChild("ROM").getChild("rom");
-			result.addDictKeyValue("target", romConfig.getChildData("filename"));
+			result.addDictKeyValue("target", romConfig.getChildData("resolvedFilename"));
 			TclObject patches;
 			if (const auto* patchesElem = romConfig.findChild("patches")) {
 				for (const auto* p : patchesElem->getChildren("ips")) {
