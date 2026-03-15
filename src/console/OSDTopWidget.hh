@@ -17,7 +17,7 @@ class OSDTopWidget final : public OSDWidget
 public:
 	explicit OSDTopWidget(Display& display);
 	[[nodiscard]] std::string_view getType() const override;
-	[[nodiscard]] gl::vec2 getSize(const OutputSurface& output) const override;
+	[[nodiscard]] gl::vec2 getSize(const OutputDimensions& output) const override;
 	[[nodiscard]] bool isVisible() const override;
 	[[nodiscard]] bool isRecursiveFading() const override;
 
@@ -36,7 +36,7 @@ public:
 
 protected:
 	void invalidateLocal() override;
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 
 private:
 	std::vector<std::string> errors;

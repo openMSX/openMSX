@@ -22,7 +22,7 @@ ImGuiLayer::ImGuiLayer(ImGuiManager& manager_)
 {
 }
 
-void ImGuiLayer::paint(OutputSurface& /*surface*/)
+void ImGuiLayer::paint(const OutputDimensions& /*output*/)
 {
 	manager.preNewFrame();
 

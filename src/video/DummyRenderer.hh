@@ -44,7 +44,7 @@ public:
 	void updateWindow(bool enabled, EmuTime time) override;
 
 	// Layer interface:
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 };
 
 } // namespace openmsx

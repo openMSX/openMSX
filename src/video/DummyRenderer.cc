@@ -92,7 +92,7 @@ void DummyRenderer::updateVRAM(unsigned /*offset*/, EmuTime /*time*/) {
 void DummyRenderer::updateWindow(bool /*enabled*/, EmuTime /*time*/) {
 }
 
-void DummyRenderer::paint(OutputSurface& /*output*/) {
+void DummyRenderer::paint(const OutputDimensions& /*output*/) {
 }
 
 } // namespace openmsx

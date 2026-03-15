@@ -16,7 +16,7 @@ OSDGUILayer::~OSDGUILayer()
 	getGUI().getTopWidget().invalidateRecursive();
 }
 
-void OSDGUILayer::paint(OutputSurface& output)
+void OSDGUILayer::paint(const OutputDimensions& output)
 {
 	auto& top = getGUI().getTopWidget();
 	top.paintRecursive(output);

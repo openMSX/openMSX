@@ -145,7 +145,7 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
         const auto* parentImage = dynamic_cast<const OSDImageBasedWidget*>(getParent());
         if (!parentImage) return {};
 
-        const auto* output = getDisplay().getOutputSurface();
+        const auto* output = getDisplay().getOutputDim();
         if (!output) return {};
 
         auto [parentPos, parentSize] = parentImage->getBoundingBox(*output);
@@ -278,7 +278,7 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-vec2 OSDImageBasedWidget::getTransformedPos(const OutputSurface& output) const
+vec2 OSDImageBasedWidget::getTransformedPos(const OutputDimensions& output) const
 {
 	return getParent()->transformPos(
 		output, float(getScaleFactor(output)) * getPos(), getRelPos());
@@ -300,7 +300,7 @@ void OSDImageBasedWidget::setError(std::string message)
 	}
 }
 
-void OSDImageBasedWidget::createImage(OutputSurface& output)
+void OSDImageBasedWidget::createImage(const OutputDimensions& output)
 {
 	if (!image && !hasError()) {
 		try {
@@ -313,7 +313,7 @@ void OSDImageBasedWidget::createImage(OutputSurface& output)
 
 vec2 OSDImageBasedWidget::getRenderedSize() const
 {
-	auto* output = getDisplay().getOutputSurface();
+	auto* output = getDisplay().getOutputDim();
 	if (!output) {
 		throw CommandException(
 			"Can't query size: no window visible");
@@ -333,7 +333,7 @@ vec2 OSDImageBasedWidget::getRenderedSize() const
 	return imageSize / float(getScaleFactor(*output));
 }
 
-void OSDImageBasedWidget::paint(OutputSurface& output)
+void OSDImageBasedWidget::paint(const OutputDimensions& output)
 {
 	// Note: Even when alpha == 0 we still create the image:
 	//    It may be needed to get the dimensions to be able to position

@@ -4,7 +4,7 @@
 #include "EventListener.hh"
 #include "Observer.hh"
 #include "OffScreenSurface.hh"
-#include "OutputSurface.hh"
+#include "OutputDimensions.hh"
 #include "RTSchedulable.hh"
 #include "SDLSurfacePtr.hh"
 
@@ -29,8 +29,8 @@ class BooleanSetting;
 /** An OutputSurface which is visible to the user, such as a window or a
   * full screen display.
   */
-class VisibleSurface final : public OutputSurface, public EventListener
-                                , private Observer<Setting>, private RTSchedulable
+class VisibleSurface final : public EventListener
+                           , private Observer<Setting>, private RTSchedulable
 {
 public:
 	VisibleSurface(Display& display,
@@ -40,12 +40,13 @@ public:
 	               CliComm& cliComm,
 	               VideoSystem& videoSystem,
 		       BooleanSetting& pauseSetting);
-	~VisibleSurface() override;
+	~VisibleSurface();
 
 	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
 	[[nodiscard]] Display& getDisplay() const { return display; }
+	[[nodiscard]] const OutputDimensions& getOutputDim() const { return outputDim; }
 
-	static void saveScreenshotGL(const OutputSurface& output,
+	static void saveScreenshotGL(const OutputDimensions& output,
 	                             const std::string& filename);
 
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() const;
@@ -62,12 +63,6 @@ public:
 	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer();
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
 	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(ImGuiManager& manager);
-
-	/** Create an off-screen OutputSurface which has similar properties
-	  * as this VisibleSurface. E.g. used to re-render the current frame
-	  * without OSD elements to take a screenshot.
-	  */
-	[[nodiscard]] std::unique_ptr<OffScreenSurface> createOffScreenSurface();
 
 	void fullScreenUpdated(bool fullScreen);
 
@@ -102,6 +97,7 @@ private:
 	CliComm& cliComm;
 	VideoSystem& videoSystem;
 	BooleanSetting& pauseSetting;
+	OutputDimensions outputDim;
 
 	struct VSyncObserver : openmsx::Observer<Setting> {
 		void update(const Setting& setting) noexcept override;

@@ -125,7 +125,7 @@ bool OSDRectangle::takeImageDimensions() const
 	return (size == vec2()) && (relSize == vec2());
 }
 
-vec2 OSDRectangle::getSize(const OutputSurface& output) const
+vec2 OSDRectangle::getSize(const OutputDimensions& output) const
 {
 	if (!imageName.empty() && image && takeImageDimensions()) {
 		return vec2(image->getSize());
@@ -140,7 +140,7 @@ uint8_t OSDRectangle::getFadedAlpha() const
 	return uint8_t(255 * getRecursiveFadeValue());
 }
 
-std::unique_ptr<GLImage> OSDRectangle::create(OutputSurface& output)
+std::unique_ptr<GLImage> OSDRectangle::create(const OutputDimensions& output)
 {
 	if (imageName.empty()) {
 		if (hasConstantAlpha() && ((getRGBA(0) & 0xff) == 0) &&

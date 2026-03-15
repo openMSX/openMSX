@@ -38,7 +38,7 @@ std::optional<gl::ivec2> DummyVideoSystem::getMouseCoord()
 	return {};
 }
 
-OutputSurface* DummyVideoSystem::getOutputSurface()
+const OutputDimensions* DummyVideoSystem::getOutputDim()
 {
 	return nullptr;
 }

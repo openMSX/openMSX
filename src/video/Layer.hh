@@ -7,7 +7,7 @@
 namespace openmsx {
 
 class Display;
-class OutputSurface;
+class OutputDimensions;
 
 /** Interface for display layers.
   */
@@ -46,7 +46,7 @@ public:
 
 	/** Paint this layer.
 	  */
-	virtual void paint(OutputSurface& output) = 0;
+	virtual void paint(const OutputDimensions& output) = 0;
 
 	/** Query the Z-index of this layer.
 	  */

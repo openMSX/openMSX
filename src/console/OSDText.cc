@@ -139,7 +139,7 @@ std::string_view OSDText::getType() const
 	return "text";
 }
 
-vec2 OSDText::getSize(const OutputSurface& /*output*/) const
+vec2 OSDText::getSize(const OutputDimensions& /*output*/) const
 {
 	if (image) {
 		return vec2(image->getSize());
@@ -155,7 +155,7 @@ uint8_t OSDText::getFadedAlpha() const
 	return narrow_cast<uint8_t>(narrow_cast<float>(getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
+std::unique_ptr<GLImage> OSDText::create(const OutputDimensions& output)
 {
 	if (text.empty()) {
 		return std::make_unique<GLImage>(ivec2(), 0);

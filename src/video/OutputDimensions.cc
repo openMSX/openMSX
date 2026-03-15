@@ -1,12 +1,11 @@
-#include "OutputSurface.hh"
+#include "OutputDimensions.hh"
 
 namespace openmsx {
 
-void OutputSurface::calculateViewPort(gl::ivec2 logSize_, gl::ivec2 physSize_)
+OutputDimensions::OutputDimensions(gl::ivec2 logSize_, gl::ivec2 physSize_)
+	: m_logicalSize(logSize_)
+	, m_physSize(physSize_)
 {
-	m_logicalSize = logSize_;
-	m_physSize = physSize_;
-
 	gl::vec2 logSize(logSize_); // convert int->float
 	gl::vec2 physSize(physSize_);
 

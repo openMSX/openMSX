@@ -27,6 +27,7 @@ class MSXMotherBoard;
 class RawFrame;
 class RenderSettings;
 class SuperImposedFrame;
+class VisibleSurface;
 
 /** A post processor builds the frame that is displayed from the MSX frame,
   * while applying effects such as scalers, noise etc.
@@ -36,12 +37,12 @@ class PostProcessor final : public VideoLayer, private Schedulable
 public:
 	PostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
-		OutputSurface& screen, const std::string& videoSource,
+		VisibleSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
 	~PostProcessor() override;
 
 	// Layer interface:
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 
 	/** Sets up the "abcdFrame" variables for a new frame.
 	  * TODO: The point of passing the finished frame in and the new workFrame
@@ -134,7 +135,7 @@ private:
 	EventDistributor& eventDistributor;
 
 	/** The surface which is visible to the user. */
-	OutputSurface& screen;
+	VisibleSurface& screen;
 
 	/** The last 4 fully rendered (unscaled) MSX frames. */
 	std::array<std::unique_ptr<RawFrame>, 4> lastFrames;

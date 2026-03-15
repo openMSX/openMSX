@@ -39,7 +39,7 @@ private:
 	void postVideoSystemChange() noexcept override;
 
 	// VideoLayer
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 	void takeRawScreenShot(std::optional<unsigned> height, const std::string& filename) override;
 
 	// EventListener

@@ -18,7 +18,7 @@ class V9990Rasterizer;
 class LDRasterizer;
 class V9990;
 class LaserdiscPlayer;
-class OutputSurface;
+class OutputDimensions;
 
 /** Video back-end system.
   */
@@ -69,7 +69,7 @@ public:
 	[[nodiscard]] virtual std::optional<gl::ivec2> getMouseCoord() = 0;
 
 	/** TODO */
-	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
+	[[nodiscard]] virtual const OutputDimensions* getOutputDim() = 0;
 	virtual void showCursor(bool show) = 0;
 	[[nodiscard]] virtual bool getCursorEnabled() = 0;
 	[[nodiscard]] virtual std::string getClipboardText() = 0;

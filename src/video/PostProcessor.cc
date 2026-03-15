@@ -14,12 +14,13 @@
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
 #include "MSXMotherBoard.hh"
-#include "OutputSurface.hh"
+#include "OutputDimensions.hh"
 #include "PNG.hh"
 #include "RawFrame.hh"
 #include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "SuperImposedFrame.hh"
+#include "VisibleSurface.hh"
 #include "gl_transform.hh"
 
 #include "MemBuffer.hh"
@@ -43,7 +44,7 @@ namespace openmsx {
 
 PostProcessor::PostProcessor(
 	MSXMotherBoard& motherBoard_, Display& display_,
-	OutputSurface& screen_, const std::string& videoSource,
+	VisibleSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
 	: VideoLayer(motherBoard_, videoSource)
 	, Schedulable(motherBoard_.getScheduler())
@@ -184,7 +185,7 @@ void PostProcessor::createRegions()
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getLogicalHeight();
+	const unsigned dstHeight = screen.getOutputDim().getLogicalHeight();
 	regionsDstHeight = dstHeight;
 
 	unsigned g = std::gcd(srcHeight, dstHeight);
@@ -220,7 +221,7 @@ void PostProcessor::createRegions()
 	}
 }
 
-void PostProcessor::paint(OutputSurface& /*output*/)
+void PostProcessor::paint(const OutputDimensions& output)
 {
 	if (renderSettings.getInterleaveBlackFrame()) {
 		interleaveCount ^= 1;
@@ -235,7 +236,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	float horStretch = renderSettings.getHorizontalStretch();
 	int glow = renderSettings.getGlow();
 
-	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
+	if ((output.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
 	    (deform == RenderSettings::DisplayDeform::_3D) || !paintFrame) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -244,7 +245,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		}
 	}
 
-	auto size = screen.getLogicalSize();
+	auto size = output.getLogicalSize();
 	bool needReUpload = size.y != int(regionsDstHeight);
 
 	// New scaler algorithm selected?
@@ -305,11 +306,11 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	renderedFrame.tex.bind();
 
 	if (renderSettings.getFullStretch()) {
-		auto [w, h] = screen.getPhysicalSize();
+		auto [w, h] = output.getPhysicalSize();
 		glViewport(0, 0, w, h);
 	} else {
-		auto [x, y] = screen.getViewOffset();
-		auto [w, h] = screen.getViewSize();
+		auto [x, y] = output.getViewOffset();
+		auto [w, h] = output.getViewSize();
 		glViewport(x, y, w, h);
 	}
 

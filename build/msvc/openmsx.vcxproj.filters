@@ -1224,7 +1224,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\Layer.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\OutputSurface.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\video\OutputDimensions.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc">
@@ -2892,7 +2892,7 @@
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh">
+    <None Include="$(OpenMSXSrcDir)\video\OutputDimensions.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh">

@@ -24,7 +24,7 @@ class VideoSystem;
 class CliComm;
 class VideoSystemChangeListener;
 class Setting;
-class OutputSurface;
+class OutputDimensions;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -56,7 +56,7 @@ public:
 	void repaint();
 	void repaintDelayed(uint64_t delta);
 	void repaintImpl();
-	void repaintImpl(OutputSurface& surface);
+	void repaintImpl(const OutputDimensions& output);
 
 	void addLayer(Layer& layer);
 	void removeLayer(Layer& layer);
@@ -68,7 +68,7 @@ public:
 	[[nodiscard]] Layer* findActiveLayer() const;
 	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
 
-	[[nodiscard]] OutputSurface* getOutputSurface();
+	[[nodiscard]] const OutputDimensions* getOutputDim();
 
 	[[nodiscard]] std::string getWindowTitle();
 

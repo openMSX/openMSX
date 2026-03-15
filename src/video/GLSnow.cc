@@ -49,7 +49,7 @@ GLSnow::GLSnow(Display& display_)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void GLSnow::paint(OutputSurface& /*output*/)
+void GLSnow::paint(const OutputDimensions& /*output*/)
 {
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.

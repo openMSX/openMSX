@@ -19,7 +19,7 @@ public:
 #endif
 	void flush() override;
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() override;
-	[[nodiscard]] OutputSurface* getOutputSurface() override;
+	[[nodiscard]] const OutputDimensions* getOutputDim() override;
 	void showCursor(bool show) override;
 	[[nodiscard]] bool getCursorEnabled() override;
 	[[nodiscard]] std::string getClipboardText() override;

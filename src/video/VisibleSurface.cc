@@ -356,11 +356,11 @@ std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
 
 void VisibleSurface::saveScreenshot(const std::string& filename)
 {
-	saveScreenshotGL(*this, filename);
+	saveScreenshotGL(outputDim, filename);
 }
 
 void VisibleSurface::saveScreenshotGL(
-	const OutputSurface& output, const std::string& filename)
+	const OutputDimensions& output, const std::string& filename)
 {
 	auto [x, y] = output.getViewOffset();
 	auto [w, h] = output.getViewSize();
@@ -393,11 +393,6 @@ std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
 std::unique_ptr<Layer> VisibleSurface::createImGUILayer(ImGuiManager& manager)
 {
 	return std::make_unique<ImGuiLayer>(manager);
-}
-
-std::unique_ptr<OffScreenSurface> VisibleSurface::createOffScreenSurface()
-{
-	return std::make_unique<OffScreenSurface>(*this);
 }
 
 void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
@@ -442,7 +437,7 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 
 	// The created surface may be larger than requested.
 	// If that happens, center the area that we actually use.
-	calculateViewPort(logicalSize, physicalSize);
+	outputDim = OutputDimensions{logicalSize, physicalSize};
 	// actually setting the viewport is done in PostProcessor::paint()
 
 	gl::context->setupMvpMatrix(gl::vec2(logicalSize));
@@ -450,7 +445,7 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 
 void VisibleSurface::fullScreenUpdated(bool fullScreen)
 {
-	setViewPort(getLogicalSize(), fullScreen);
+	setViewPort(outputDim.getLogicalSize(), fullScreen);
 }
 
 } // namespace openmsx

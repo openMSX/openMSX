@@ -18,7 +18,7 @@ public:
 	explicit GLSnow(Display& display);
 
 	// Layer interface:
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 
 private:
 	Display& display;

@@ -757,7 +757,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\Icon.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\Layer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\OutputSurface.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\OutputDimensions.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PNG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PostProcessor.cc" />
@@ -1406,7 +1406,7 @@
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\OutputDimensions.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PNG.hh" />

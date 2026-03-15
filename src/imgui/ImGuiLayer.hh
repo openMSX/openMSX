@@ -14,7 +14,7 @@ public:
 
 private:
 	// Layer
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 
 private:
 	ImGuiManager& manager;

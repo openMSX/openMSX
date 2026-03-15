@@ -451,7 +451,7 @@ sources = files(
     'video/FrameSource.cc',
     'video/Icon.cc',
     'video/Layer.cc',
-    'video/OutputSurface.cc',
+    'video/OutputDimensions.cc',
     'video/PNG.cc',
     'video/PixelRenderer.cc',
     'video/PostProcessor.cc',

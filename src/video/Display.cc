@@ -2,7 +2,7 @@
 
 #include "ImGuiManager.hh"
 #include "Layer.hh"
-#include "OutputSurface.hh"
+#include "OutputDimensions.hh"
 #include "RendererFactory.hh"
 #include "VideoLayer.hh"
 #include "VideoSystem.hh"
@@ -94,9 +94,9 @@ VideoSystem& Display::getVideoSystem()
 	return *videoSystem;
 }
 
-OutputSurface* Display::getOutputSurface()
+const OutputDimensions* Display::getOutputDim()
 {
-	return videoSystem ? videoSystem->getOutputSurface() : nullptr;
+	return videoSystem ? videoSystem->getOutputDim() : nullptr;
 }
 
 void Display::resetVideoSystem()
@@ -339,8 +339,8 @@ void Display::repaintImpl()
 
 	if (!renderFrozen) {
 		assert(videoSystem);
-		if (OutputSurface* surface = videoSystem->getOutputSurface()) {
-			repaintImpl(*surface);
+		if (const auto* output = videoSystem->getOutputDim()) {
+			repaintImpl(*output);
 			videoSystem->flush();
 		}
 	}
@@ -357,11 +357,11 @@ void Display::repaintImpl()
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::repaintImpl(OutputSurface& surface)
+void Display::repaintImpl(const OutputDimensions& output)
 {
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
-			(*it)->paint(surface);
+			(*it)->paint(output);
 		}
 	}
 }

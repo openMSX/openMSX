@@ -118,9 +118,11 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		// with OSD layers disabled
 		ScopedLayerHider hideOsd(*osdGuiLayer);
 		ScopedLayerHider hideImgui(*imGuiLayer);
-		auto surf = screen->createOffScreenSurface();
-		display.repaintImpl(*surf);
-		surf->saveScreenshot(filename);
+
+		const auto& dim = screen->getOutputDim();
+		OffScreenSurface offScreen(dim); // setup FBO
+		display.repaintImpl(dim);
+		VisibleSurface::saveScreenshotGL(dim, filename);
 	}
 }
 
@@ -134,9 +136,9 @@ std::optional<gl::ivec2> SDLVideoSystem::getMouseCoord()
 	return screen->getMouseCoord();
 }
 
-OutputSurface* SDLVideoSystem::getOutputSurface()
+const OutputDimensions* SDLVideoSystem::getOutputDim()
 {
-	return screen.get();
+	return &screen->getOutputDim();
 }
 
 void SDLVideoSystem::showCursor(bool show)

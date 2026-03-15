@@ -16,7 +16,7 @@ public:
 	[[nodiscard]] OSDGUI& getGUI() { return gui; }
 
 	// Layer
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 
 private:
 	OSDGUI& gui;

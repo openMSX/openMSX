@@ -1,15 +1,14 @@
 #include "OffScreenSurface.hh"
 
 #include "GLUtil.hh"
-#include "VisibleSurface.hh"
+#include "OutputDimensions.hh"
 
 namespace openmsx {
 
-OffScreenSurface::OffScreenSurface(const OutputSurface& output)
+OffScreenSurface::OffScreenSurface(const OutputDimensions& output)
 	: fboTex(true) // enable interpolation   TODO why?
 {
-	calculateViewPort(output.getLogicalSize(), output.getPhysicalSize());
-	auto [w, h] = getPhysicalSize();
+	auto [w, h] = output.getPhysicalSize();
 	fboTex.bind();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
@@ -22,11 +21,6 @@ OffScreenSurface::OffScreenSurface(const OutputSurface& output)
 	             nullptr);         // data
 	fbo = gl::FrameBufferObject(fboTex);
 	fbo.push();
-}
-
-void OffScreenSurface::saveScreenshot(const std::string& filename)
-{
-	VisibleSurface::saveScreenshotGL(*this, filename);
 }
 
 } // namespace openmsx

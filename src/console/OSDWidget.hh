@@ -14,7 +14,7 @@
 namespace openmsx {
 
 class Display;
-class OutputSurface;
+class OutputDimensions;
 class Interpreter;
 
 class OSDWidget
@@ -55,14 +55,14 @@ public:
 	[[nodiscard]] virtual std::string_view getType() const = 0;
 
 	void invalidateRecursive();
-	void paintRecursive(OutputSurface& output);
+	void paintRecursive(const OutputDimensions& output);
 
-	[[nodiscard]] int getScaleFactor(const OutputSurface& output) const;
-	[[nodiscard]] gl::vec2 transformPos(const OutputSurface& output,
+	[[nodiscard]] int getScaleFactor(const OutputDimensions& output) const;
+	[[nodiscard]] gl::vec2 transformPos(const OutputDimensions& output,
 	                                    gl::vec2 pos, gl::vec2 relPos) const;
 	struct BoundingBox { gl::vec2 pos; gl::vec2 size; };
-	[[nodiscard]] BoundingBox getBoundingBox(const OutputSurface& output) const;
-	[[nodiscard]] virtual gl::vec2 getSize(const OutputSurface& output) const = 0;
+	[[nodiscard]] BoundingBox getBoundingBox(const OutputDimensions& output) const;
+	[[nodiscard]] virtual gl::vec2 getSize(const OutputDimensions& output) const = 0;
 
 	// Is visible? Or may become visible (fading-in).
 	[[nodiscard]] virtual bool isVisible() const = 0;
@@ -75,11 +75,11 @@ protected:
 	[[nodiscard]] bool needSuppressErrors() const;
 
 	virtual void invalidateLocal() = 0;
-	virtual void paint(OutputSurface& output) = 0;
+	virtual void paint(const OutputDimensions& output) = 0;
 
 private:
 	[[nodiscard]] gl::vec2 getMouseCoord() const;
-	[[nodiscard]] gl::vec2 transformReverse(const OutputSurface& output,
+	[[nodiscard]] gl::vec2 transformReverse(const OutputDimensions& output,
 	                                        gl::vec2 pos) const;
 	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (const OSDWidget* elem);
