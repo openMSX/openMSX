@@ -1,11 +1,11 @@
 #include "VisibleSurface.hh"
 
 #include "Display.hh"
-#include "GlobalSettings.hh"
 #include "GLContext.hh"
 #include "GLSnow.hh"
 #include "GLUtil.hh"
 #include "OffScreenSurface.hh"
+#include "PixelOperations.hh"
 #include "RenderSettings.hh"
 #include "VideoSystem.hh"
 
@@ -395,7 +395,7 @@ std::unique_ptr<Layer> VisibleSurface::createImGUILayer(ImGuiManager& manager)
 	return std::make_unique<ImGuiLayer>(manager);
 }
 
-std::unique_ptr<OutputSurface> VisibleSurface::createOffScreenSurface()
+std::unique_ptr<OffScreenSurface> VisibleSurface::createOffScreenSurface()
 {
 	return std::make_unique<OffScreenSurface>(*this);
 }

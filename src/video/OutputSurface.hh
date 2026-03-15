@@ -1,12 +1,7 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
-#include "PixelOperations.hh"
 #include "gl_vec.hh"
-
-#include <cassert>
-#include <cstdint>
-#include <string>
 
 namespace openmsx {
 
@@ -34,11 +29,6 @@ public:
 	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }
 	[[nodiscard]] gl::ivec2 getViewSize()   const { return m_viewSize; }
 	[[nodiscard]] gl::vec2  getViewScale()  const { return m_viewScale; }
-
-	/** Save the content of this OutputSurface to a PNG file.
-	  * @throws MSXException If creating the PNG file fails.
-	  */
-	virtual void saveScreenshot(const std::string& filename) = 0;
 
 protected:
 	OutputSurface() = default;

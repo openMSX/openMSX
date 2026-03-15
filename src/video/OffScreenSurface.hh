@@ -14,9 +14,10 @@ class OffScreenSurface final : public OutputSurface
 public:
 	explicit OffScreenSurface(const OutputSurface& output);
 
-private:
-	// OutputSurface
-	void saveScreenshot(const std::string& filename) override;
+	/** Save the content of this OffScreenSurface to a PNG file.
+	  * @throws MSXException If creating the PNG file fails.
+	  */
+	void saveScreenshot(const std::string& filename);
 
 private:
 	gl::Texture fboTex;

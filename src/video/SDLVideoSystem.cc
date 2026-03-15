@@ -118,7 +118,7 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		// with OSD layers disabled
 		ScopedLayerHider hideOsd(*osdGuiLayer);
 		ScopedLayerHider hideImgui(*imGuiLayer);
-		std::unique_ptr<OutputSurface> surf = screen->createOffScreenSurface();
+		auto surf = screen->createOffScreenSurface();
 		display.repaintImpl(*surf);
 		surf->saveScreenshot(filename);
 	}

@@ -3,6 +3,7 @@
 
 #include "EventListener.hh"
 #include "Observer.hh"
+#include "OffScreenSurface.hh"
 #include "OutputSurface.hh"
 #include "RTSchedulable.hh"
 #include "SDLSurfacePtr.hh"
@@ -66,7 +67,7 @@ public:
 	  * as this VisibleSurface. E.g. used to re-render the current frame
 	  * without OSD elements to take a screenshot.
 	  */
-	[[nodiscard]] std::unique_ptr<OutputSurface> createOffScreenSurface();
+	[[nodiscard]] std::unique_ptr<OffScreenSurface> createOffScreenSurface();
 
 	void fullScreenUpdated(bool fullScreen);
 
@@ -75,8 +76,10 @@ public:
 	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() const;
 	void setWindowPosition(gl::ivec2 pos);
 
-	// OutputSurface
-	void saveScreenshot(const std::string& filename) override;
+	/** Save the content of this VisibleSurface to a PNG file.
+	  * @throws MSXException If creating the PNG file fails.
+	  */
+	void saveScreenshot(const std::string& filename);
 
 	// Observer
 	void update(const Setting& setting) noexcept override;
