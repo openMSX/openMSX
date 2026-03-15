@@ -20,8 +20,6 @@ namespace openmsx {
 class OutputSurface
 {
 public:
-	using Pixel = uint32_t;
-
 	OutputSurface(const OutputSurface&) = delete;
 	OutputSurface(OutputSurface&&) = delete;
 	OutputSurface& operator=(const OutputSurface&) = delete;
