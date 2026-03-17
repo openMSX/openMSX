@@ -86,18 +86,22 @@ proc guess_rom_device_naive {} {
 	return ""
 }
 
+proc format_title_from_path {path} {
+	return [string totitle [file rootname [file tail $path]]]
+}
+
 proc guess_disk_title {drive_name} {
 	# check name of the diskimage (remove directory part and extension)
 	set disk ""
 	catch {set disk [lindex [$drive_name] 1]}
-	return [file rootname [file tail $disk]]
+	return [format_title_from_path $disk]
 }
 
 proc guess_cassette_title {} {
 	# check name of the cassette image (remove directory part and extension)
 	set cassette ""
 	catch {set cassette [lindex [cassetteplayer] 1]}
-	return [file rootname [file tail $cassette]]
+	return [format_title_from_path $cassette]
 }
 
 proc guess_title {{fallback ""}} {
@@ -142,7 +146,8 @@ proc guess_title {{fallback ""}} {
 proc rom_device_to_title {device} {
 	set result $device
 	if {[string tolower [file extension $device]] in [list .rom .ri .mx1 .mx2]} {
-		set result [string totitle [file rootname [file tail $device]]]
+		# it has an extension, so it's a path
+		set result [format_title_from_path $device]
 	}
 	return $result
 }
