@@ -4,7 +4,6 @@
 # to register functions.
 
 namespace eval symboltracer {
-namespace export start add stop
 namespace ensemble create -prefixes 0
 
 variable names {}         ;# user traces
