@@ -145,8 +145,8 @@ proc guess_title {{fallback ""}} {
 
 proc rom_device_to_title {device} {
 	set result $device
-	if {[string tolower [file extension $device]] in [list .rom .ri .mx1 .mx2]} {
-		# it has an extension, so it's a path
+	if {[openmsx_info file_type_category $device] eq "rom"} {
+		# it has an extension for a ROM type, so it's a path
 		set result [format_title_from_path $device]
 	}
 	return $result
