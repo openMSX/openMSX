@@ -142,7 +142,7 @@ proc guess_title {{fallback ""}} {
 proc rom_device_to_title {device} {
 	set result $device
 	if {[string tolower [file extension $device]] in [list .rom .ri .mx1 .mx2]} {
-		set result [string totitle [file rootname $device]]
+		set result [string totitle [file rootname [file tail $device]]]
 	}
 	return $result
 }
