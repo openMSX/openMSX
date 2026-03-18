@@ -13,6 +13,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <functional>
 #include <type_traits>
 #include <tuple>
 #include <utility>
@@ -744,6 +745,57 @@ struct Group
 template<typename T>
 using ConcatUnitForArg = decltype(makeConcatUnit(std::declval<T>()));
 
+// Wrapper for callables whose evaluation must be deferred (e.g. in strCat_if when
+// the condition may be false). The callable is invoked only when size()/copy() is
+// actually needed.
+template<typename F>
+struct LazyStrCat
+{
+	explicit LazyStrCat(F f_)
+		: f(std::move(f_)) {}
+
+	F f;
+};
+
+template<typename F>
+LazyStrCat(F&&) -> LazyStrCat<std::remove_cvref_t<F>>;
+
+// ConcatUnit that invokes the callable on first use. Use with strCat_if() to
+// avoid evaluating expressions when the condition is false (e.g. to prevent
+// nullptr dereference or to skip expensive computation).
+template<typename F>
+struct LazyStrCatConcatUnit
+{
+	using R = std::invoke_result_t<F>;
+	explicit LazyStrCatConcatUnit(F f_)
+		: f(std::move(f_)) {}
+
+	[[nodiscard]] size_t size() const
+	{
+		assert(!concatUnit); // strCat framework calls size() exactly once before copy()
+		result.emplace(std::invoke(f));
+		concatUnit.emplace(makeConcatUnit(*result));
+		return concatUnit->size();
+	}
+
+	[[nodiscard]] char* copy(char* dst) const
+	{
+		assert(concatUnit); // size() must have been called first
+		return concatUnit->copy(dst);
+	}
+
+private:
+	mutable F f;
+	mutable std::optional<R> result;
+	mutable std::optional<ConcatUnitForArg<R>> concatUnit;
+};
+
+template<typename F>
+[[nodiscard]] inline auto makeConcatUnit(const LazyStrCat<F>& t)
+{
+	return LazyStrCatConcatUnit<F>(t.f);
+}
+
 // For expensive types: lazily build ConcatUnit on first size()/copy().
 template<typename T>
 struct LazyConcatUnit
@@ -1028,6 +1080,16 @@ template<typename BOOL, typename... Ts>
 	return strCatImpl::if_(condition, std::forward<Ts>(ts)...);
 }
 
+// Defer evaluation of an expression until it is actually needed. Use inside
+// strCat_if() or .else_if() to avoid evaluating when the condition is false
+// (e.g. to prevent nullptr dereference or skip expensive computation).
+// The callable must return something that strCat can concatenate.
+template<typename F>
+[[nodiscard]] inline auto strCat_lazy(F&& f)
+{
+	return strCatImpl::LazyStrCat(std::forward<F>(f));
+}
+#define STRCAT_LAZY(...) strCat_lazy([&]{ return (__VA_ARGS__); })
 
 template<HexCase Case = HexCase::lower, std::integral T>
 [[nodiscard]] inline strCatImpl::ConcatVariableWidthHexIntegral<Case, T> hex_string(Digits n, T t)

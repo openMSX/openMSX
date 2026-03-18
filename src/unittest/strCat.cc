@@ -184,6 +184,74 @@ TEST_CASE("strCat_if")
 	}
 }
 
+TEST_CASE("lazy")
+{
+	SECTION("basic usage in strCat") {
+		CHECK(strCat("a", strCat_lazy([&]{ return std::string("b"); }), "c") == "abc");
+		CHECK(strCat("x", strCat_lazy([&]{ return 42; }), "y") == "x42y");
+		CHECK(strCat(strCat_lazy([&]{ return "foo"; })) == "foo");
+	}
+
+	SECTION("lazy with strCat_if - condition true, lambda invoked") {
+		int callCount = 0;
+		CHECK(strCat("pre", strCat_if(true, strCat_lazy([&]{
+			++callCount;
+			return "mid";
+		})), "suf") == "premidsuf");
+		CHECK(callCount == 1);
+	}
+
+	SECTION("lazy with strCat_if - condition false, lambda not invoked") {
+		int callCount = 0;
+		CHECK(strCat("pre", strCat_if(false, strCat_lazy([&]{
+			++callCount;
+			return "mid";
+		})), "suf") == "presuf");
+		CHECK(callCount == 0);
+	}
+
+	SECTION("lazy with else_ - condition false, lambda invoked for else") {
+		int callCount = 0;
+		CHECK(strCat("x", strCat_if(false, "a").else_(strCat_lazy([&]{
+			++callCount;
+			return "b";
+		})), "y") == "xby");
+		CHECK(callCount == 1);
+	}
+
+	SECTION("lazy with else_ - condition true, else lambda not invoked") {
+		int callCount = 0;
+		CHECK(strCat("x", strCat_if(true, "a").else_(strCat_lazy([&]{
+			++callCount;
+			return "b";
+		})), "y") == "xay");
+		CHECK(callCount == 0);
+	}
+
+	SECTION("lazy with else_if - only invoked when that branch is taken") {
+		int callCount = 0;
+		CHECK(strCat("x", strCat_if(false, "a").else_if(true, strCat_lazy([&]{
+			++callCount;
+			return "b";
+		})), "y") == "xby");
+		CHECK(callCount == 1);
+		callCount = 0;
+		CHECK(strCat("x", strCat_if(true, "a").else_if(true, strCat_lazy([&]{
+			++callCount;
+			return "b";
+		})), "y") == "xay");
+		CHECK(callCount == 0);
+	}
+
+	SECTION("compare with/without lazy") {
+		int i = 0;
+		CHECK(strCat("a", strCat_if(false, STRCAT_LAZY(++i)), "z") == "az");
+		CHECK(i == 0);
+		CHECK(strCat("a", strCat_if(false, ++i), "z") == "az");
+		CHECK(i == 1);
+	}
+}
+
 
 #if 0
 
