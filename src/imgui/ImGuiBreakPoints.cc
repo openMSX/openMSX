@@ -409,7 +409,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, Item& ite
 					auto endAddr = item->getEndAddress();
 					return tmpStrCat(
 						"0x", hex_string<4>(*addr),
-						strCat_if(endAddr && *endAddr != *addr, "...0x", hex_string<4>(*endAddr)));
+						strCat_if(endAddr && *endAddr != *addr, "...0x", STRCAT_LAZY(hex_string<4>(*endAddr))));
 				});
 			} else {
 				simpleToolTip(parseError);

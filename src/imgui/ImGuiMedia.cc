@@ -387,7 +387,7 @@ std::string ImGuiMedia::slotAndNameForHardwareConfig(const CartridgeSlotManager&
 {
 	auto slot = slotManager.findSlotWith(config);
 	return strCat(strCat_if(slot,
-	                        char('A' + *slot), " (", slotManager.getPsSsString(*slot), "): ")
+	                        STRCAT_LAZY(char('A' + *slot)), " (", STRCAT_LAZY(slotManager.getPsSsString(*slot)), "): ")
 	                 .else_("I/O-only: "),
 	              displayNameForHardwareConfig(config));
 }

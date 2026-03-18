@@ -199,7 +199,7 @@ void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym
 			auto segment = sym.segment(symbolManager);
 			auto cond = tmpStrCat(
 				"[pc_in_slot ", *slot & 3, ' ', (*slot >> 2) & 3,
-				strCat_if(segment, ' ', *segment),
+				strCat_if(segment, ' ', STRCAT_LAZY(*segment)),
 				']');
 			newBp.setCondition(TclObject(cond));
 		}

@@ -89,7 +89,7 @@ void ImGuiConnector::showPluggables(PluggingController& controller, Mode mode)
 						});
 						break;
 					case SUBMENU:
-						im::Menu(tmpStrCat(strCat_if(plugName.empty(), "(empty)##", connectorName).else_(pluggableToGuiString(plugName))).c_str(), [&] {
+						im::Menu(tmpStrCat(strCat_if(plugName.empty(), "(empty)##", connectorName).else_(STRCAT_LAZY(pluggableToGuiString(plugName)))).c_str(), [&] {
 							paintPluggableSelectables(controller, *connector);
 						});
 						break;

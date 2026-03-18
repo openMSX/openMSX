@@ -109,8 +109,8 @@ struct CurrentSlot {
 {
 	return TclObject(tmpStrCat(
 		"[pc_in_slot ", slot.ps,
-		strCat_if(slot.ss, ' ', *slot.ss).else_if(slot.seg, " X"),
-		strCat_if(slot.seg, ' ', *slot.seg),
+		strCat_if(slot.ss, ' ', STRCAT_LAZY(*slot.ss)).else_if(slot.seg, " X"),
+		strCat_if(slot.seg, ' ', STRCAT_LAZY(*slot.seg)),
 		']'));
 }
 
@@ -456,7 +456,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 										addrStr,
 										strCat_if(addrLabels.size() > 1,
 											"\nmultiple possibilities (click to cycle):\n",
-											join(std::views::transform(addrLabels, &Symbol::name), ' ')));
+											STRCAT_LAZY(join(std::views::transform(addrLabels, &Symbol::name), ' '))));
 								});
 								ImGui::SetCursorPos(pos);
 								if (ImGui::InvisibleButton("##addrButton", {-FLT_MIN, textSize})) {
@@ -493,7 +493,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 											'#', hex_string<4>(*mnemonicAddr),
 											strCat_if(mnemonicLabels.size() > 1,
 												"\nmultiple possibilities (click to cycle):\n",
-												join(std::views::transform(mnemonicLabels, &Symbol::name), ' ')));
+												STRCAT_LAZY(join(std::views::transform(mnemonicLabels, &Symbol::name), ' '))));
 									});
 								}
 							}

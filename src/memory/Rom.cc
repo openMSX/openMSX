@@ -173,11 +173,11 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 			auto error = strCat(
 				"Couldn't find ROM file for \"", name, '"',
 				strCat_if(!std::ranges::empty(filenames),
-					' ', (*std::ranges::begin(filenames))->getData()),
+					' ', STRCAT_LAZY((*std::ranges::begin(filenames))->getData())),
 				strCat_if(resolvedSha1Elem,
-					" (sha1: ", resolvedSha1Elem->getData(), ')')
+					" (sha1: ", STRCAT_LAZY(resolvedSha1Elem->getData()), ')')
 				.else_if(!std::ranges::empty(sums),
-					" (sha1: ", (*std::ranges::begin(sums))->getData(), ')'),
+					" (sha1: ", STRCAT_LAZY((*std::ranges::begin(sums))->getData()), ')'),
 				'.');
 			throw MSXException(std::move(error));
 		}
