@@ -1424,12 +1424,13 @@ bool ImGuiMedia::showExtensionSelector(int cartNum, std::optional<std::string> i
 			});
 		});
 	};
+	ImGui::SetNextItemWidth(-FLT_MIN);
 	if (info.filterOpen) {
 		im::ListBox(strCat("##list", cartNum).c_str(), [&]{
 			drawExtensions();
 		});
 	} else {
-		im::Combo(strCat("##extension", cartNum).c_str(), displayNameForExtension(itemToShowAsSelected ? *itemToShowAsSelected : item.name).c_str(), ImGuiComboFlags_WidthFitPreview, [&]{
+		im::Combo(strCat("##extension", cartNum).c_str(), displayNameForExtension(itemToShowAsSelected ? *itemToShowAsSelected : item.name).c_str(), [&]{
 			drawExtensions();
 		});
 	}
