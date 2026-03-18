@@ -70,7 +70,7 @@ void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
 	auto tmp = tmpStrCat(
 		"<update type=\"", toString(type), '\"',
 		strCat_if(!machine.empty(), " machine=\"", machine, '"'),
-		strCat_if(!name.empty(), " name=\"", name, '"'),
+		strCat_if(!name.empty(), " name=\"", XMLEscape(name), '"'),
 		'>', XMLEscape(value), "</update>\n");
 	output(tmp);
 }
