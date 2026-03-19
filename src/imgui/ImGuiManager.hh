@@ -91,6 +91,7 @@ public:
 	}
 
 	void preNewFrame();
+	void paintFrame();
 	void paintImGui(bool msxDisplayAreaFocused);
 
 	void storeWindowPosition(gl::ivec2 pos) { windowPos = pos; }
