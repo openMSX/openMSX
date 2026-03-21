@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>OPL3 Cartridge (Moonsound)</name>
+    <name>OPL3 Cartridge (Moonsound compatible)</name>
     <manufacturer>Luciano Sturaro</manufacturer>
     <code/>
     <release_year>2004</release_year>

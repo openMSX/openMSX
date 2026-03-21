@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>OPL3 Cartridge</name>
+    <name>OPL3 Cartridge v2 (mono)</name>
     <manufacturer>MSXpro</manufacturer>
     <code/>
     <release_year>2011</release_year>

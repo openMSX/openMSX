@@ -7,11 +7,11 @@
      interested in MSX-Audio 2, by the way... -->
 <msxconfig>
   <info>
-    <name>MSX-AUDIO 2</name>
-    <manufacturer/>
+    <name>Generic MSX-AUDIO 2 (alternative ports)</name>
+    <manufacturer>openMSX Team</manufacturer>
     <code/>
     <release_year>1986</release_year>
-    <description>Generic Yamaha Y8950 MSX-AUDIO with 256kB RAM, on alternative I/O ports.</description>
+    <description>Generic Yamaha Y8950 MSX-AUDIO with 256kB RAM, on alternative I/O ports. No MIDI ports.</description>
     <type>sound expansion</type>
   </info>
   <devices>

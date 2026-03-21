@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>OPL3 Cartridge (MSX-Audio)</name>
+    <name>OPL3 Cartridge (MSX-Audio compatible)</name>
     <manufacturer>Luciano Sturaro</manufacturer>
     <code/>
     <release_year>2004</release_year>
