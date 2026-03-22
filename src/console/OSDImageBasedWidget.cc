@@ -345,9 +345,6 @@ void OSDImageBasedWidget::paint(const OutputDimensions& output)
 		ivec2 drawPos = round(getTransformedPos(output));
 		image->draw(drawPos, fadedAlpha);
 	}
-	if (isRecursiveFading() || isAnimating()) {
-		getDisplay().getOSDGUI().refresh();
-	}
 }
 
 } // namespace openmsx
