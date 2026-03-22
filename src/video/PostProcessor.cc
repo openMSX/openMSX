@@ -209,18 +209,7 @@ void PostProcessor::createRegions()
 
 void PostProcessor::paint(const OutputDimensions& output)
 {
-	auto deform = renderSettings.getDisplayDeform();
-	float horStretch = renderSettings.getHorizontalStretch();
-	int glow = renderSettings.getGlow();
-
-	if ((output.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
-	    (deform == RenderSettings::DisplayDeform::_3D) || !paintFrame) {
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		if (!paintFrame) {
-			return;
-		}
-	}
+	if (!paintFrame) return;
 
 	auto size = output.getLogicalSize();
 	bool needReUpload = size.y != int(regionsDstHeight);
@@ -277,7 +266,7 @@ void PostProcessor::paint(const OutputDimensions& output)
 	}
 
 	drawNoise();
-	drawGlow(glow);
+	drawGlow(renderSettings.getGlow());
 
 	renderedFrame.fbo.pop();
 	renderedFrame.tex.bind();
@@ -291,9 +280,10 @@ void PostProcessor::paint(const OutputDimensions& output)
 		glViewport(x, y, w, h);
 	}
 
-	if (deform == RenderSettings::DisplayDeform::_3D) {
+	if (renderSettings.getDisplayDeform() == RenderSettings::DisplayDeform::_3D) {
 		drawMonitor3D();
 	} else {
+		float horStretch = renderSettings.getHorizontalStretch();
 		float x1 = (320.0f - horStretch) * (1.0f / (2.0f * 320.0f));
 		float x2 = 1.0f - x1;
 		std::array tex = {
