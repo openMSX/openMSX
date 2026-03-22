@@ -8,20 +8,17 @@
 
 namespace openmsx {
 
-class Display;
-
 /** Snow effect for background layer.
   */
 class GLSnow final : public Layer
 {
 public:
-	explicit GLSnow(Display& display);
+	GLSnow();
 
 	// Layer interface:
 	void paint(const OutputDimensions& output) override;
 
 private:
-	Display& display;
 	std::array<gl::BufferObject, 2> vbo;
 	gl::Texture noiseTexture;
 };

@@ -382,7 +382,7 @@ void VisibleSurface::finish()
 
 std::unique_ptr<Layer> VisibleSurface::createSnowLayer()
 {
-	return std::make_unique<GLSnow>(getDisplay());
+	return std::make_unique<GLSnow>();
 }
 
 std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)

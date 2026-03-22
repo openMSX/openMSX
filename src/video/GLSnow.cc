@@ -13,9 +13,8 @@ using namespace gl;
 
 namespace openmsx {
 
-GLSnow::GLSnow(Display& display_)
+GLSnow::GLSnow()
 	: Layer(Coverage::FULL, ZIndex::BACKGROUND)
-	, display(display_)
 	, noiseTexture(true, true) // enable interpolation + wrapping
 {
 	// Create noise texture.
@@ -85,8 +84,6 @@ void GLSnow::paint(const OutputDimensions& /*output*/)
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	display.repaintDelayed(100 * 1000); // 10fps
 }
 
 } // namespace openmsx
