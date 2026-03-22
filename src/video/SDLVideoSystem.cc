@@ -41,10 +41,8 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
-	imGuiLayer = screen->createImGUILayer(reactor.getImGuiManager());
 	display.addLayer(*snowLayer);
 	display.addLayer(*osdGuiLayer);
-	display.addLayer(*imGuiLayer);
 
 	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
@@ -55,7 +53,6 @@ SDLVideoSystem::~SDLVideoSystem()
 	renderSettings.getScaleFactorSetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
-	display.removeLayer(*imGuiLayer);
 	display.removeLayer(*osdGuiLayer);
 	display.removeLayer(*snowLayer);
 }
@@ -117,11 +114,10 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		// we first need to re-render to an off-screen surface
 		// with OSD layers disabled
 		ScopedLayerHider hideOsd(*osdGuiLayer);
-		ScopedLayerHider hideImgui(*imGuiLayer);
 
 		const auto& dim = screen->getOutputDim();
 		OffScreenSurface offScreen(dim); // setup FBO
-		display.repaintImpl(dim);
+		display.repaintImpl(dim, false);
 		VisibleSurface::saveScreenshotGL(dim, filename);
 	}
 }

@@ -63,7 +63,6 @@ public:
 
 	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer();
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
-	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(ImGuiManager& manager);
 
 	/** Returns x,y coordinates of top-left window corner,
 	    or returns a nullopt when in fullscreen mode. */

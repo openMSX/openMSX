@@ -22,7 +22,6 @@ public:
 		MSX_PASSIVE,
 		MSX_ACTIVE,
 		OSDGUI,
-		IMGUI,
 	};
 	[[nodiscard]] friend auto operator<=>(ZIndex x, ZIndex y) { return std::to_underlying(x) <=> std::to_underlying(y); }
 

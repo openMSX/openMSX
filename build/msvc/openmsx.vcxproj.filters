@@ -576,9 +576,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.cc">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.cc">
-      <Filter>imgui</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -2104,9 +2101,6 @@
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.hh">
-      <Filter>imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.hh">

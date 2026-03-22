@@ -16,7 +16,6 @@
 #include "FileContext.hh"
 #include "FloatSetting.hh"
 #include "Icon.hh"
-#include "ImGuiLayer.hh"
 #include "InitException.hh"
 #include "InputEventGenerator.hh"
 #include "MemBuffer.hh"
@@ -381,11 +380,6 @@ std::unique_ptr<Layer> VisibleSurface::createSnowLayer()
 std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
 	return std::make_unique<OSDGUILayer>(gui);
-}
-
-std::unique_ptr<Layer> VisibleSurface::createImGUILayer(ImGuiManager& manager)
-{
-	return std::make_unique<ImGuiLayer>(manager);
 }
 
 void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept

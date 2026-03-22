@@ -361,12 +361,16 @@ void Display::repaint()
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::repaintImpl(const OutputDimensions& output)
+void Display::repaintImpl(const OutputDimensions& output, bool withOsd)
 {
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
 			(*it)->paint(output);
 		}
+	}
+	if (withOsd) {
+		// TODO eventually also OSDGUI
+		reactor.getImGuiManager().paintFrame();
 	}
 }
 
