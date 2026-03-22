@@ -185,12 +185,6 @@ void SDLVideoSystem::setWindowPosition(gl::ivec2 pos)
 	screen->setWindowPosition(pos);
 }
 
-void SDLVideoSystem::repaint()
-{
-	// With SDL we can simply repaint the display directly.
-	display.repaintImpl();
-}
-
 void SDLVideoSystem::update(const Setting& subject) noexcept
 {
 	if (&subject == &renderSettings.getFullScreenSetting()) {

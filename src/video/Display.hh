@@ -55,7 +55,6 @@ public:
 	  */
 	void repaint();
 	void repaintDelayed(uint64_t delta);
-	void repaintImpl();
 	void repaintImpl(const OutputDimensions& output);
 
 	void addLayer(Layer& layer);

@@ -322,7 +322,7 @@ void Display::doRendererSwitch2(RenderSettings::RendererID newRenderer)
 	}
 }
 
-void Display::repaintImpl()
+void Display::repaint()
 {
 	if (switchInProgress) {
 		// The checkRendererSwitch() method will queue a
@@ -364,13 +364,6 @@ void Display::repaintImpl(const OutputDimensions& output)
 			(*it)->paint(output);
 		}
 	}
-}
-
-void Display::repaint()
-{
-	// Request a repaint from the VideoSystem. This may call repaintImpl()
-	// directly or for example defer to a signal callback on VisibleSurface.
-	videoSystem->repaint();
 }
 
 void Display::repaintDelayed(uint64_t delta)

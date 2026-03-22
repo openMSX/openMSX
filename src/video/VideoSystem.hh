@@ -78,10 +78,6 @@ public:
 	[[nodiscard]] virtual std::optional<gl::ivec2> getWindowPosition() = 0;
 	virtual void setWindowPosition(gl::ivec2 pos) = 0;
 
-	/** Requests a repaint of the output surface. An implementation might
-	 *  start a repaint directly, or trigger a queued rendering. */
-	virtual void repaint() = 0;
-
 protected:
 	VideoSystem() = default;
 };
