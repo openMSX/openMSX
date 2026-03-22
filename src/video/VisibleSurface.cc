@@ -141,9 +141,6 @@ VisibleSurface::VisibleSurface(
 	}
 	gl::context.emplace();
 
-	bool fullScreen = renderSettings.getFullScreen();
-	setViewPort(size, fullScreen); // set initial values
-
 	renderSettings.getVSyncSetting().attach(vSyncObserver);
 	// set initial value
 	vSyncObserver.update(renderSettings.getVSyncSetting());
@@ -325,7 +322,6 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 			fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0) {
 		return false; // error, try re-creating the window
 	}
-	fullScreenUpdated(fullscreen);
 	return true; // success
 }
 
@@ -333,9 +329,6 @@ void VisibleSurface::resize()
 {
 	auto size = display.getWindowSize();
 	SDL_SetWindowSize(window.get(), size.x, size.y);
-
-	bool fullScreen = display.getRenderSettings().getFullScreen();
-	setViewPort(size, fullScreen);
 }
 
 void VisibleSurface::updateWindowTitle()
@@ -441,11 +434,6 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 	// actually setting the viewport is done in PostProcessor::paint()
 
 	gl::context->setupMvpMatrix(gl::vec2(logicalSize));
-}
-
-void VisibleSurface::fullScreenUpdated(bool fullScreen)
-{
-	setViewPort(outputDim.getLogicalSize(), fullScreen);
 }
 
 } // namespace openmsx

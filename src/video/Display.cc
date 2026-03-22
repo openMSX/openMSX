@@ -341,7 +341,10 @@ void Display::repaint()
 
 	if (!renderFrozen) {
 		assert(videoSystem);
-		if (const auto* surf = videoSystem->getSurface()) {
+		if (auto* surf = videoSystem->getSurface()) {
+			auto size = getWindowSize();
+			bool fullScreen = getRenderSettings().getFullScreen();
+			surf->setViewPort(size, fullScreen);
 			repaintImpl(surf->getOutputDim());
 			videoSystem->flush();
 		}

@@ -53,6 +53,7 @@ public:
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 	void resize();
+	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 	/** When a complete frame is finished, call this method.
 	  * It will 'actually' display it. E.g. when using double buffering
@@ -63,8 +64,6 @@ public:
 	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer();
 	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
 	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(ImGuiManager& manager);
-
-	void fullScreenUpdated(bool fullScreen);
 
 	/** Returns x,y coordinates of top-left window corner,
 	    or returns a nullopt when in fullscreen mode. */
@@ -88,7 +87,6 @@ public:
 private:
 	void updateCursor();
 	void createSurface(gl::ivec2 size, unsigned flags);
-	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 private:
 	Display& display;
