@@ -136,9 +136,9 @@ std::optional<gl::ivec2> SDLVideoSystem::getMouseCoord()
 	return screen->getMouseCoord();
 }
 
-const OutputDimensions* SDLVideoSystem::getOutputDim()
+VisibleSurface* SDLVideoSystem::getSurface()
 {
-	return &screen->getOutputDim();
+	return screen.get();
 }
 
 void SDLVideoSystem::showCursor(bool show)

@@ -7,6 +7,7 @@
 #include "VideoLayer.hh"
 #include "VideoSystem.hh"
 #include "VideoSystemChangeListener.hh"
+#include "VisibleSurface.hh"
 
 #include "BooleanSetting.hh"
 #include "CliComm.hh"
@@ -96,7 +97,8 @@ VideoSystem& Display::getVideoSystem()
 
 const OutputDimensions* Display::getOutputDim()
 {
-	return videoSystem ? videoSystem->getOutputDim() : nullptr;
+	auto* surf = videoSystem ? videoSystem->getSurface() : nullptr;
+	return surf ? &surf->getOutputDim() : nullptr;
 }
 
 void Display::resetVideoSystem()
@@ -339,8 +341,8 @@ void Display::repaint()
 
 	if (!renderFrozen) {
 		assert(videoSystem);
-		if (const auto* output = videoSystem->getOutputDim()) {
-			repaintImpl(*output);
+		if (const auto* surf = videoSystem->getSurface()) {
+			repaintImpl(surf->getOutputDim());
 			videoSystem->flush();
 		}
 	}
