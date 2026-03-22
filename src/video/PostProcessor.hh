@@ -6,7 +6,6 @@
 #include "VideoLayer.hh"
 
 #include "EmuTime.hh"
-#include "Schedulable.hh"
 
 #include <array>
 #include <memory>
@@ -20,7 +19,6 @@ class Deflicker;
 class DeinterlacedFrame;
 class Display;
 class DoubledFrame;
-class EventDistributor;
 class FrameSource;
 class GLScaler;
 class MSXMotherBoard;
@@ -32,7 +30,7 @@ class VisibleSurface;
 /** A post processor builds the frame that is displayed from the MSX frame,
   * while applying effects such as scalers, noise etc.
   */
-class PostProcessor final : public VideoLayer, private Schedulable
+class PostProcessor final : public VideoLayer
 {
 public:
 	PostProcessor(
@@ -109,9 +107,6 @@ private:
 	// Observer<Setting> interface:
 	void update(const Setting& setting) noexcept override;
 
-	// Schedulable
-	void executeUntil(EmuTime time) override;
-
 	/** Returns the maximum width for lines [y..y+step).
 	  */
 	[[nodiscard]] static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
@@ -132,7 +127,6 @@ private:
 private:
 	Display& display;
 	RenderSettings& renderSettings;
-	EventDistributor& eventDistributor;
 
 	/** The surface which is visible to the user. */
 	VisibleSurface& screen;
@@ -166,7 +160,6 @@ private:
 	const RawFrame* superImposeVideoFrame = nullptr;
 	const FrameSource* superImposeVdpFrame = nullptr;
 
-	int interleaveCount = 0; // for interleave-black-frame
 	int lastFramesCount = 0; // How many items in lastFrames[] are up-to-date
 	unsigned maxWidth; // we lazily create RawFrame objects in lastFrames[]
 	unsigned height;   // these two vars remember how big those should be
@@ -177,7 +170,6 @@ private:
 	  */
 	const bool canDoInterlace;
 
-	EmuTime lastRotate;
 	/** The currently active scaler.
 	  */
 	std::unique_ptr<GLScaler> currScaler;

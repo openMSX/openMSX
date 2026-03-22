@@ -171,13 +171,6 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"number of seconds after which the mouse pointer is hidden in the openMSX "
 		"window; negative = no hiding, 0 = immediately",
 		2.0, -1.0, 60.0)
-
-	, interleaveBlackFrameSetting(commandController,
-		"interleave_black_frame",
-		"Insert a black frame in between each normal MSX frame. "
-		"Useful on (100Hz+) lightboost enabled monitors to reduce "
-		"motion blur and double frame artifacts.",
-		false)
 {
 	brightnessSetting.attach(*this);
 	contrastSetting  .attach(*this);

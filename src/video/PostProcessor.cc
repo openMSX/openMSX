@@ -7,17 +7,13 @@
 #include "DeinterlacedFrame.hh"
 #include "Display.hh"
 #include "DoubledFrame.hh"
-#include "Event.hh"
-#include "EventDistributor.hh"
 #include "FloatSetting.hh"
 #include "GLContext.hh"
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
-#include "MSXMotherBoard.hh"
 #include "OutputDimensions.hh"
 #include "PNG.hh"
 #include "RawFrame.hh"
-#include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "SuperImposedFrame.hh"
 #include "VisibleSurface.hh"
@@ -47,15 +43,12 @@ PostProcessor::PostProcessor(
 	VisibleSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
 	: VideoLayer(motherBoard_, videoSource)
-	, Schedulable(motherBoard_.getScheduler())
 	, display(display_)
 	, renderSettings(display_.getRenderSettings())
-	, eventDistributor(motherBoard_.getReactor().getEventDistributor())
 	, screen(screen_)
 	, maxWidth(maxWidth_)
 	, height(height_)
 	, canDoInterlace(canDoInterlace_)
-	, lastRotate(motherBoard_.getCurrentTime())
 {
 	if (canDoInterlace) {
 		deinterlacedFrame = std::make_unique<DeinterlacedFrame>();
@@ -124,13 +117,6 @@ unsigned PostProcessor::getLineWidth(
 	FrameSource* frame, unsigned y, unsigned step)
 {
 	return max_value(xrange(step), [&](auto i) { return frame->getLineWidth(y + i); });
-}
-
-void PostProcessor::executeUntil(EmuTime /*time*/)
-{
-	// insert fake end of frame event
-	eventDistributor.distributeEvent(FinishFrameEvent(
-		getVideoSource(), getVideoSourceSetting(), false));
 }
 
 using WorkBuffer = std::vector<MemBuffer<FrameSource::Pixel, SSE_ALIGNMENT>>;
@@ -223,15 +209,6 @@ void PostProcessor::createRegions()
 
 void PostProcessor::paint(const OutputDimensions& output)
 {
-	if (renderSettings.getInterleaveBlackFrame()) {
-		interleaveCount ^= 1;
-		if (interleaveCount) {
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			return;
-		}
-	}
-
 	auto deform = renderSettings.getDisplayDeform();
 	float horStretch = renderSettings.getHorizontalStretch();
 	int glow = renderSettings.getGlow();
@@ -352,14 +329,6 @@ void PostProcessor::paint(const OutputDimensions& output)
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, EmuTime time)
 {
-	if (renderSettings.getInterleaveBlackFrame()) {
-		auto delta = time - lastRotate; // time between last two calls
-		auto middle = time + delta / 2; // estimate for middle between now
-		                                // and next call
-		setSyncPoint(middle);
-	}
-	lastRotate = time;
-
 	// Figure out how many past frames we want to use.
 	int numRequired = 1;
 	bool doDeinterlace = false;

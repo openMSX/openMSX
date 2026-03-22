@@ -182,11 +182,6 @@ public:
 		return pointerHideDelaySetting.getFloat();
 	}
 
-	/** Is black frame interleaving enabled? */
-	[[nodiscard]] bool getInterleaveBlackFrame() const {
-		return interleaveBlackFrameSetting.getBoolean();
-	}
-
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color component. The component is expected to be in the range
 	  * [0.0 .. 1.0] but it's not an error if it lays outside of this range.
@@ -245,7 +240,6 @@ private:
 	BooleanSetting fullStretchSetting;
 	FloatSetting horizontalStretchSetting;
 	FloatSetting pointerHideDelaySetting;
-	BooleanSetting interleaveBlackFrameSetting;
 
 	float brightness;
 	float contrast;
