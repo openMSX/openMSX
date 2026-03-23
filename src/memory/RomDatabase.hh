@@ -28,6 +28,7 @@ public:
 	 */
 	[[nodiscard]] const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
 
+	[[nodiscard]] const RomDB& getFullDB() const { return db; }
 	[[nodiscard]] const char* getBufferStart() const { return buffer.data(); }
 
 private:
