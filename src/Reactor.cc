@@ -1279,12 +1279,20 @@ SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& r
 void SoftwareInfoTopic::execute(
 	std::span<const TclObject> tokens, TclObject& result) const
 {
+	const auto& romDatabase = reactor.getSoftwareDatabase();
+	if (tokens.size() == 2) {
+		std::array<char, 40> buf;
+		for (const auto& [sha1, _] : romDatabase.getFullDB()) {
+			result.addListElement(sha1.toString(buf));
+		}
+		return;
+	}
+
 	if (tokens.size() != 3) {
 		throw CommandException("Wrong number of parameters");
 	}
 
 	Sha1Sum sha1sum(tokens[2].getString());
-	const auto& romDatabase = reactor.getSoftwareDatabase();
 	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
 	if (!romInfo) {
 		// no match found
