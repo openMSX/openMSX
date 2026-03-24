@@ -178,6 +178,18 @@ void DBParser::start(zstring_view tag)
 				return;
 			}
 			break;
+		case 'r':
+			tag.remove_prefix(1);
+			if (small_compare<"om">(tag)) {
+				dumps.emplace_back();
+				dumps.back().type = RomType::UNKNOWN;
+				dumps.back().origValue = false;
+				toString32(bufStart, bufStart, dumps.back().remark);
+				toString32(bufStart, bufStart, dumps.back().origData);
+				state = DUMP;
+				return;
+			}
+			break;
 		}
 		break;
 	}
@@ -279,10 +291,82 @@ void DBParser::attribute(zstring_view name, zstring_view value)
 			dumps.back().origValue = StringOp::stringToBool(value);
 		}
 		break;
+	case SOFTWARE:
+		switch (name.front()) {
+		case 't':
+			name.remove_prefix(1);
+			if (small_compare<"itle">(name)) {
+				title = cIndex(value);
+			}
+			break;
+		case 'g':
+			if (small_compare<"genmsxid">(name)) {
+				if (auto g = StringOp::stringToBase<10, unsigned>(value)) {
+					genMSXid = *g;
+				} else {
+					cliComm.printWarning(
+						"Ignoring bad Generation MSX id (genmsxid) "
+						"in entry with title '", fromString32(bufStart, title),
+						": ", value);
+				}
+			}
+			break;
+		case 's':
+			if (small_compare<"system">(name)) {
+				system = value;
+			}
+			break;
+		case 'c':
+			if (small_compare<"company">(name)) {
+				company = cIndex(value);
+			} else if (small_compare<"country">(name)) {
+				country = cIndex(value);
+			}
+			break;
+		case 'y':
+			if (small_compare<"year">(name)) {
+				year = cIndex(value);
+			}
+			break;
+		}
+		break;
+	case DUMP:
+		switch (name.front()) {
+		case 't':
+			if (small_compare<"type">(name)) {
+				RomType romType = RomInfo::nameToRomType(value);
+				if (romType == RomType::UNKNOWN) {
+					unknownTypes[std::string(value)]++;
+				}
+				dumps.back().type = romType;
+			}
+			break;
+		case 's':
+			if (small_compare<"sha1">(name)) {
+				try {
+					dumps.back().hash = Sha1Sum(value);
+				} catch (MSXException& e) {
+					cliComm.printWarning(
+						"Ignoring bad dump for '", fromString32(bufStart, title),
+						"': ", e.getMessage());
+				}
+			}
+			break;
+		case 'd':
+			if (small_compare<"dump">(name)) {
+				dumps.back().origData = cIndex(value);
+			}
+			break;
+		case 'r':
+			if (small_compare<"remark">(name)) {
+				dumps.back().remark = cIndex(value);
+			}
+			break;
+		}
+		break;
 	case HASH:
 	case BEGIN:
 	case SOFTWAREDB:
-	case SOFTWARE:
 	case SYSTEM:
 	case TITLE:
 	case COMPANY:
@@ -291,7 +375,6 @@ void DBParser::attribute(zstring_view name, zstring_view value)
 	case GENMSXID:
 	case DUMP_REMARK:
 	case DUMP_TEXT:
-	case DUMP:
 	case ROM:
 	case TYPE:
 	case START:
