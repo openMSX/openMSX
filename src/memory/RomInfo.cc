@@ -191,6 +191,7 @@ RomType RomInfo::nameToRomType(std::string_view name)
 
 zstring_view RomInfo::romTypeToName(RomType type)
 {
+	if (type == RomType::UNKNOWN) return "unknown";
 	return romTypeInfoArray[type].name;
 }
 
