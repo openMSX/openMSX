@@ -423,9 +423,6 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 	// actually setting the viewport is done in PostProcessor::paint()
 
 	gl::context->setupMvpMatrix(gl::vec2(logicalSize));
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 } // namespace openmsx

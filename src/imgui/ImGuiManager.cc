@@ -491,7 +491,15 @@ void ImGuiManager::preNewFrame()
 	}
 }
 
-void ImGuiManager::paintFrame()
+static void msxDisplayDrawCallback(const ImDrawList* /*parent_list*/, const ImDrawCmd* pcmd)
+{
+	auto* display = static_cast<Display*>(pcmd->UserCallbackData);
+	const auto* dim = display->getOutputDim(); // TODO eventually use ImGui window dimensions
+	assert(dim);
+	display->paintLayers(*dim);
+}
+
+void ImGuiManager::paintFrame(Display& display)
 {
 	preNewFrame();
 
@@ -545,6 +553,11 @@ void ImGuiManager::paintFrame()
 				keyb->setFocus(focus, time);
 			}
 		}
+		// Draw MSX layers into this window via callback (runs during ImGui::Render)
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->AddCallback(msxDisplayDrawCallback, &display);
+		drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
+		ImGui::Dummy(ImGui::GetContentRegionAvail());
 	});
 
 	paintImGui(focus);

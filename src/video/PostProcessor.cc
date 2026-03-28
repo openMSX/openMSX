@@ -235,6 +235,7 @@ void PostProcessor::paint(const OutputDimensions& output)
 		uploadFrame();
 	}
 
+	glDisable(GL_SCISSOR_TEST);
 	glViewport(0, 0, size.x, size.y);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	auto& renderedFrame = renderedFrames[frameCounter & 1];

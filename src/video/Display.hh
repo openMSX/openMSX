@@ -55,7 +55,7 @@ public:
 	  */
 	void repaint();
 	void repaintDelayed(uint64_t delta);
-	void repaintImpl(const OutputDimensions& output, bool withOsd = true);
+	void paintLayers(const OutputDimensions& output, bool withOsd = true);
 
 	void addLayer(Layer& layer);
 	void removeLayer(Layer& layer);

@@ -342,10 +342,13 @@ void Display::repaint()
 	if (!renderFrozen) {
 		assert(videoSystem);
 		if (auto* surf = videoSystem->getSurface()) {
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
 			auto size = getWindowSize();
 			bool fullScreen = getRenderSettings().getFullScreen();
 			surf->setViewPort(size, fullScreen);
-			repaintImpl(surf->getOutputDim());
+			reactor.getImGuiManager().paintFrame(*this);
 			videoSystem->flush();
 		}
 	}
@@ -361,7 +364,7 @@ void Display::repaint()
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::repaintImpl(const OutputDimensions& output, bool withOsd)
+void Display::paintLayers(const OutputDimensions& output, bool withOsd)
 {
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
@@ -369,8 +372,7 @@ void Display::repaintImpl(const OutputDimensions& output, bool withOsd)
 		}
 	}
 	if (withOsd) {
-		// TODO eventually also OSDGUI
-		reactor.getImGuiManager().paintFrame();
+		// TODO eventually skip OSDGUI
 	}
 }
 
