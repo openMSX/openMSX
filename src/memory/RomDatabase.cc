@@ -350,10 +350,7 @@ void DBParser::attribute(zstring_view name, zstring_view value)
 						"Ignoring bad dump for '", fromString32(bufStart, title),
 						"': ", e.getMessage());
 				}
-			}
-			break;
-		case 'd':
-			if (small_compare<"dump">(name)) {
+			} else if (small_compare<"status">(name)) {
 				dumps.back().origData = cIndex(value);
 			}
 			break;
