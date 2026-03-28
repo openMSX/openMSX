@@ -69,11 +69,6 @@ public:
 	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() const;
 	void setWindowPosition(gl::ivec2 pos);
 
-	/** Save the content of this VisibleSurface to a PNG file.
-	  * @throws MSXException If creating the PNG file fails.
-	  */
-	void saveScreenshot(const std::string& filename);
-
 	// Observer
 	void update(const Setting& setting) noexcept override;
 

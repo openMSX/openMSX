@@ -107,15 +107,15 @@ void SDLVideoSystem::flush()
 
 void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 {
+	const auto& dim = screen->getOutputDim();
 	if (withOsd) {
 		// we can directly save current content as screenshot
-		screen->saveScreenshot(filename);
+		VisibleSurface::saveScreenshotGL(dim, filename);
 	} else {
 		// we first need to re-render to an off-screen surface
 		// with OSD layers disabled
 		ScopedLayerHider hideOsd(*osdGuiLayer);
 
-		const auto& dim = screen->getOutputDim();
 		OffScreenSurface offScreen(dim); // setup FBO
 		display.repaintImpl(dim, false);
 		VisibleSurface::saveScreenshotGL(dim, filename);

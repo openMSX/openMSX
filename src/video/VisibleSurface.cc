@@ -346,11 +346,6 @@ std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
 }
 
 
-void VisibleSurface::saveScreenshot(const std::string& filename)
-{
-	saveScreenshotGL(outputDim, filename);
-}
-
 void VisibleSurface::saveScreenshotGL(
 	const OutputDimensions& output, const std::string& filename)
 {
