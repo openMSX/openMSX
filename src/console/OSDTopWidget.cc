@@ -2,7 +2,6 @@
 
 #include "CliComm.hh"
 #include "Display.hh"
-#include "OutputDimensions.hh"
 
 namespace openmsx {
 
@@ -17,9 +16,9 @@ std::string_view OSDTopWidget::getType() const
 	return "top";
 }
 
-gl::vec2 OSDTopWidget::getSize(const OutputDimensions& output) const
+gl::vec2 OSDTopWidget::getSize(gl::ivec2 logicalSize) const
 {
-	return gl::vec2(output.getLogicalSize()); // int -> float
+	return gl::vec2(logicalSize); // int -> float
 }
 
 bool OSDTopWidget::isVisible() const

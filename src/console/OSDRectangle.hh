@@ -40,9 +40,9 @@ public:
 private:
 	[[nodiscard]] bool takeImageDimensions() const;
 
-	[[nodiscard]] gl::vec2 getSize(const OutputDimensions& output) const override;
+	[[nodiscard]] gl::vec2 getSize(gl::ivec2 logicalSize) const override;
 	[[nodiscard]] uint8_t getFadedAlpha() const override;
-	[[nodiscard]] std::unique_ptr<GLImage> create(const OutputDimensions& output) override;
+	[[nodiscard]] std::unique_ptr<GLImage> create(gl::ivec2 logicalSize) override;
 
 private:
 	std::string imageName;

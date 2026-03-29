@@ -6,6 +6,7 @@
 #include "CommandException.hh"
 #include "Display.hh"
 #include "GLImage.hh"
+#include "OutputDimensions.hh"
 #include "TclObject.hh"
 #include "Timer.hh"
 
@@ -140,22 +141,23 @@ void OSDImageBasedWidget::getProperty(std::string_view propName, TclObject& resu
 
 std::optional<float> OSDImageBasedWidget::getScrollWidth() const
 {
-        if (scrollSpeed == 0.0f) return {};
+	if (scrollSpeed == 0.0f) return {};
 
-        const auto* parentImage = dynamic_cast<const OSDImageBasedWidget*>(getParent());
-        if (!parentImage) return {};
+	const auto* parentImage = dynamic_cast<const OSDImageBasedWidget*>(getParent());
+	if (!parentImage) return {};
 
-        const auto* output = getDisplay().getOutputDim();
-        if (!output) return {};
+	const auto* output = getDisplay().getOutputDim();
+	if (!output) return {};
 
-        auto [parentPos, parentSize] = parentImage->getBoundingBox(*output);
-        auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(*output));
+	gl::ivec2 logicalSize = output->getLogicalSize();
+	auto [parentPos, parentSize] = parentImage->getBoundingBox(logicalSize);
+	auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(logicalSize));
 
-        auto thisWidth = getRenderedSize().x;
-        auto scrollWidth = thisWidth - parentWidth;
-        if (scrollWidth <= 0.0f) return {};
+	auto thisWidth = getRenderedSize().x;
+	auto scrollWidth = thisWidth - parentWidth;
+	if (scrollWidth <= 0.0f) return {};
 
-        return scrollWidth;
+	return scrollWidth;
 }
 
 bool OSDImageBasedWidget::isAnimating() const
@@ -278,10 +280,10 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-vec2 OSDImageBasedWidget::getTransformedPos(const OutputDimensions& output) const
+vec2 OSDImageBasedWidget::getTransformedPos(gl::ivec2 logicalSize) const
 {
 	return getParent()->transformPos(
-		output, float(getScaleFactor(output)) * getPos(), getRelPos());
+		logicalSize, float(getScaleFactor(logicalSize)) * getPos(), getRelPos());
 }
 
 void OSDImageBasedWidget::setError(std::string message)
@@ -300,11 +302,11 @@ void OSDImageBasedWidget::setError(std::string message)
 	}
 }
 
-void OSDImageBasedWidget::createImage(const OutputDimensions& output)
+void OSDImageBasedWidget::createImage(gl::ivec2 logicalSize)
 {
 	if (!image && !hasError()) {
 		try {
-			image = create(output);
+			image = create(logicalSize);
 		} catch (MSXException& e) {
 			setError(std::move(e).getMessage());
 		}
@@ -319,7 +321,8 @@ vec2 OSDImageBasedWidget::getRenderedSize() const
 			"Can't query size: no window visible");
 	}
 	// force creating image (does not yet draw it on screen)
-	const_cast<OSDImageBasedWidget*>(this)->createImage(*output);
+	auto logicalSize = output->getLogicalSize();
+	const_cast<OSDImageBasedWidget*>(this)->createImage(logicalSize);
 
 	vec2 imageSize = [&] {
 		if (image) {
@@ -327,10 +330,10 @@ vec2 OSDImageBasedWidget::getRenderedSize() const
 		} else {
 			// Couldn't be rendered, maybe an (intentionally)
 			// invisible rectangle
-			return getBoundingBox(*output).size;
+			return getBoundingBox(logicalSize).size;
 		}
 	}();
-	return imageSize / float(getScaleFactor(*output));
+	return imageSize / float(getScaleFactor(logicalSize));
 }
 
 void OSDImageBasedWidget::paint(const OutputDimensions& output)
@@ -338,11 +341,12 @@ void OSDImageBasedWidget::paint(const OutputDimensions& output)
 	// Note: Even when alpha == 0 we still create the image:
 	//    It may be needed to get the dimensions to be able to position
 	//    child widgets.
-	createImage(output);
+	auto logicalSize = output.getLogicalSize();
+	createImage(logicalSize);
 
 	if (auto fadedAlpha = getFadedAlpha();
 	    (fadedAlpha != 0) && image) {
-		ivec2 drawPos = round(getTransformedPos(output));
+		ivec2 drawPos = round(getTransformedPos(logicalSize));
 		image->draw(drawPos, fadedAlpha);
 	}
 }

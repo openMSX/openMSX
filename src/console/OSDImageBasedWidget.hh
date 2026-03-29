@@ -52,10 +52,10 @@ protected:
 	OSDImageBasedWidget(Display& display, const TclObject& name);
 	~OSDImageBasedWidget() override;
 	[[nodiscard]] bool hasConstantAlpha() const;
-	void createImage(const OutputDimensions& output);
+	void createImage(gl::ivec2 logicalSize);
 	void invalidateLocal() override;
 	void paint(const OutputDimensions& output) override;
-	[[nodiscard]] virtual std::unique_ptr<GLImage> create(const OutputDimensions& output) = 0;
+	[[nodiscard]] virtual std::unique_ptr<GLImage> create(gl::ivec2 logicalSize) = 0;
 	[[nodiscard]] gl::vec2 getRenderedSize() const;
 
 	void setError(std::string message);
@@ -72,7 +72,7 @@ private:
 	[[nodiscard]] std::optional<float> getScrollWidth() const;
 	void updateCurrentFadeValue();
 
-	[[nodiscard]] gl::vec2 getTransformedPos(const OutputDimensions& output) const;
+	[[nodiscard]] gl::vec2 getTransformedPos(gl::ivec2 logicalSize) const;
 
 private:
 	uint64_t startFadeTime = 0;
