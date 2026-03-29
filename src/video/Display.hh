@@ -67,8 +67,6 @@ public:
 	[[nodiscard]] Layer* findActiveLayer() const;
 	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
 
-	[[nodiscard]] const OutputDimensions* getOutputDim();
-
 	[[nodiscard]] std::string getWindowTitle();
 
 	/** Get/set x,y coordinates of top-left window corner.

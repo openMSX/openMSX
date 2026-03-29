@@ -95,12 +95,6 @@ VideoSystem& Display::getVideoSystem()
 	return *videoSystem;
 }
 
-const OutputDimensions* Display::getOutputDim()
-{
-	auto* surf = videoSystem ? videoSystem->getSurface() : nullptr;
-	return surf ? &surf->getOutputDim() : nullptr;
-}
-
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();
@@ -366,12 +360,14 @@ void Display::repaint()
 
 void Display::paintLayers(bool withOsd)
 {
-	const auto* output = getOutputDim();
-	assert(output);
+	assert(videoSystem);
+	auto* surf = videoSystem->getSurface();
+	assert(surf);
+	const auto& output = surf->getOutputDim();
 
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
-			(*it)->paint(*output);
+			(*it)->paint(output);
 		}
 	}
 	if (withOsd) {
