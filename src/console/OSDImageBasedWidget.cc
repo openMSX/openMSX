@@ -146,10 +146,7 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
 	const auto* parentImage = dynamic_cast<const OSDImageBasedWidget*>(getParent());
 	if (!parentImage) return {};
 
-	const auto* output = getDisplay().getOutputDim();
-	if (!output) return {};
-
-	gl::ivec2 logicalSize = output->getLogicalSize();
+	gl::ivec2 logicalSize = getDisplay().getLogicalSize();
 	auto [parentPos, parentSize] = parentImage->getBoundingBox(logicalSize);
 	auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(logicalSize));
 
@@ -315,13 +312,8 @@ void OSDImageBasedWidget::createImage(gl::ivec2 logicalSize)
 
 vec2 OSDImageBasedWidget::getRenderedSize() const
 {
-	auto* output = getDisplay().getOutputDim();
-	if (!output) {
-		throw CommandException(
-			"Can't query size: no window visible");
-	}
 	// force creating image (does not yet draw it on screen)
-	auto logicalSize = output->getLogicalSize();
+	auto logicalSize = getDisplay().getLogicalSize();
 	const_cast<OSDImageBasedWidget*>(this)->createImage(logicalSize);
 
 	vec2 imageSize = [&] {

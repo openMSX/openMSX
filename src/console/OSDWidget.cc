@@ -337,17 +337,12 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	const auto* output = getDisplay().getOutputDim();
-	if (!output) {
-		throw CommandException(
-			"Can't get mouse coordinates: no window visible");
-	}
 	auto mouse = videoSystem.getMouseCoord();
 	if (!mouse) {
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	gl::ivec2 logicalSize = output->getLogicalSize();
+	gl::ivec2 logicalSize = getDisplay().getLogicalSize();
 	vec2 out = transformReverse(logicalSize, vec2(*mouse));
 	vec2 size = getSize(logicalSize);
 	if ((size.x == 0.0f) || (size.y == 0.0f)) {
