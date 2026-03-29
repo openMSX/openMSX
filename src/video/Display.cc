@@ -241,7 +241,7 @@ gl::ivec2 Display::retrieveWindowPosition()
 	return reactor.getImGuiManager().retrieveWindowPosition();
 }
 
-gl::ivec2 Display::getWindowSize() const
+gl::ivec2 Display::getLogicalSize() const
 {
 	int factor = renderSettings.getScaleFactor();
 	return {320 * factor, 240 * factor};
@@ -345,7 +345,7 @@ void Display::repaint()
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			auto size = getWindowSize();
+			auto size = getLogicalSize();
 			bool fullScreen = getRenderSettings().getFullScreen();
 			surf->setViewPort(size, fullScreen);
 			reactor.getImGuiManager().paintFrame(*this);
@@ -364,11 +364,14 @@ void Display::repaint()
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::paintLayers(const OutputDimensions& output, bool withOsd)
+void Display::paintLayers(bool withOsd)
 {
+	const auto* output = getOutputDim();
+	assert(output);
+
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
-			(*it)->paint(output);
+			(*it)->paint(*output);
 		}
 	}
 	if (withOsd) {

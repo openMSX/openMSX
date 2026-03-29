@@ -95,7 +95,7 @@ VisibleSurface::VisibleSurface(
 
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
-	auto size = display.getWindowSize();
+	auto size = display.getLogicalSize();
 	createSurface(size, flags);
 	WindowEvent::setMainWindowId(SDL_GetWindowID(window.get()));
 
@@ -326,7 +326,7 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 
 void VisibleSurface::resize()
 {
-	auto size = display.getWindowSize();
+	auto size = display.getLogicalSize();
 	SDL_SetWindowSize(window.get(), size.x, size.y);
 }
 

@@ -322,7 +322,7 @@ static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
 void ImGuiManager::loadEnd()
 {
 	auto& display = reactor.getDisplay();
-	windowPos = ensureVisible(windowPos, display.getWindowSize());
+	windowPos = ensureVisible(windowPos, display.getLogicalSize());
 	display.setWindowPosition(windowPos);
 }
 
@@ -494,9 +494,8 @@ void ImGuiManager::preNewFrame()
 static void msxDisplayDrawCallback(const ImDrawList* /*parent_list*/, const ImDrawCmd* pcmd)
 {
 	auto* display = static_cast<Display*>(pcmd->UserCallbackData);
-	const auto* dim = display->getOutputDim(); // TODO eventually use ImGui window dimensions
-	assert(dim);
-	display->paintLayers(*dim);
+	// TODO eventually use ImGui window dimensions
+	display->paintLayers();
 }
 
 void ImGuiManager::paintFrame(Display& display)
@@ -524,12 +523,9 @@ void ImGuiManager::paintFrame(Display& display)
 	// ImGuiManager).
 	ImGui::SetNextWindowPos(mainViewport->Pos);
 	ImGui::SetNextWindowSize(mainViewport->Size);
-	auto flags = ImGuiWindowFlags_NoTitleBar |
+	auto flags = ImGuiWindowFlags_NoDecoration |
 			ImGuiWindowFlags_NoBackground |
-			ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus;
 	bool focus = false;
 	im::Window("MSX Display Area", nullptr, flags, [&]{
@@ -555,6 +551,7 @@ void ImGuiManager::paintFrame(Display& display)
 		}
 		// Draw MSX layers into this window via callback (runs during ImGui::Render)
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		// TODO also pass ImGui::GetWindowSize()
 		drawList->AddCallback(msxDisplayDrawCallback, &display);
 		drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
 		ImGui::Dummy(ImGui::GetContentRegionAvail());

@@ -55,7 +55,7 @@ public:
 	  */
 	void repaint();
 	void repaintDelayed(uint64_t delta);
-	void paintLayers(const OutputDimensions& output, bool withOsd = true);
+	void paintLayers(bool withOsd = true);
 
 	void addLayer(Layer& layer);
 	void removeLayer(Layer& layer);
@@ -79,7 +79,7 @@ public:
 	void storeWindowPosition(gl::ivec2 pos);
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition();
 
-	[[nodiscard]] gl::ivec2 getWindowSize() const;
+	[[nodiscard]] gl::ivec2 getLogicalSize() const;
 
 	// Get the latest fps value
 	[[nodiscard]] float getFps() const;

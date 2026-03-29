@@ -117,7 +117,7 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		ScopedLayerHider hideOsd(*osdGuiLayer);
 
 		OffScreenSurface offScreen(dim); // setup FBO
-		display.paintLayers(dim, false);
+		display.paintLayers(false);
 		VisibleSurface::saveScreenshotGL(dim, filename);
 	}
 }
