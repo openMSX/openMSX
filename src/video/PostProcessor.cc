@@ -171,7 +171,7 @@ void PostProcessor::createRegions()
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getOutputDim().getLogicalHeight();
+	const unsigned dstHeight = screen.getDisplay().getLogicalSize().y;
 	regionsDstHeight = dstHeight;
 
 	unsigned g = std::gcd(srcHeight, dstHeight);
