@@ -421,8 +421,6 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 	// If that happens, center the area that we actually use.
 	outputDim = OutputDimensions{logicalSize, physicalSize};
 	// actually setting the viewport is done in PostProcessor::paint()
-
-	gl::context->setupMvpMatrix(gl::vec2(logicalSize));
 }
 
 } // namespace openmsx

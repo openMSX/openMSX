@@ -1,6 +1,7 @@
 #include "GLScaler.hh"
 
 #include "GLContext.hh"
+#include "gl_transform.hh"
 #include "gl_vec.hh"
 
 #include "narrow.hh"
@@ -38,12 +39,17 @@ void GLScaler::uploadBlock(
 {
 }
 
+void GLScaler::setup(gl::ivec2 screenSize)
+{
+	pixelMvp = ortho(screenSize.x, screenSize.y);
+}
+
 void GLScaler::setup(bool superImpose)
 {
 	int i = superImpose ? 1 : 0;
 	program[i].activate();
 
-	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, gl::context->pixelMvp.data());
+	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, pixelMvp.data());
 }
 
 void GLScaler::execute(

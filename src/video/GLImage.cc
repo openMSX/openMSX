@@ -8,6 +8,7 @@
 
 #include "Math.hh"
 #include "endian.hh"
+#include "gl_transform.hh"
 #include "narrow.hh"
 #include "xrange.hh"
 
@@ -142,7 +143,7 @@ void GLImage::initBuffers() const
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
+void GLImage::draw(ivec2 screenSize, ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 {
 	// 4-----------------7
 	// |                 |
@@ -172,6 +173,7 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions.data(), GL_STREAM_DRAW);
 
 	auto& glContext = *gl::context;
+	auto pixelMvp = ortho(screenSize.x, screenSize.y);
 	if (texture.get()) {
 		std::array<vec2, 4> tex = {
 			vec2(0.0f, 0.0f),
@@ -186,8 +188,7 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 			    narrow<float>(g)     * (1.0f / 255.0f),
 			    narrow<float>(b)     * (1.0f / 255.0f),
 			    narrow<float>(alpha) * (1.0f / 255.0f));
-		glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE,
-		                   glContext.pixelMvp.data());
+		glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, pixelMvp.data());
 		const ivec2* offset = nullptr;
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, offset + 4);
 		glEnableVertexAttribArray(0);
@@ -204,8 +205,7 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 		assert(g == 255);
 		assert(b == 255);
 		glContext.progFill.activate();
-		glUniformMatrix4fv(glContext.unifFillMvp, 1, GL_FALSE,
-		                   glContext.pixelMvp.data());
+		glUniformMatrix4fv(glContext.unifFillMvp, 1, GL_FALSE, pixelMvp.data());
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 		glVertexAttrib4f(1,

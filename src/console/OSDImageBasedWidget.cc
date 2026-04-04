@@ -339,7 +339,7 @@ void OSDImageBasedWidget::paint(const OutputDimensions& output)
 	if (auto fadedAlpha = getFadedAlpha();
 	    (fadedAlpha != 0) && image) {
 		ivec2 drawPos = round(getTransformedPos(logicalSize));
-		image->draw(drawPos, fadedAlpha);
+		image->draw(logicalSize, drawPos, fadedAlpha);
 	}
 }
 

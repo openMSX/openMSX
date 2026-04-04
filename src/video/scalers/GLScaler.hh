@@ -2,6 +2,8 @@
 #define GLSCALER_HH
 
 #include "GLUtil.hh"
+#include "gl_mat.hh"
+
 #include <array>
 #include <string>
 
@@ -21,6 +23,7 @@ public:
 	  * Must be called once per frame before calling scaleImage() (possibly
 	  * multiple times).
 	  */
+	void setup(gl::ivec2 screenSize);
 	void setup(bool superImpose);
 
 	/** Scales the image in the given area, which must consist of lines which
@@ -85,6 +88,7 @@ protected:
 	std::array<gl::ShaderProgram, 2> program;
 	std::array<GLint, 2> unifTexSize;
 	std::array<GLint, 2> unifMvpMatrix;
+	gl::mat4 pixelMvp;
 };
 
 } // namespace openmsx
