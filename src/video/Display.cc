@@ -324,16 +324,11 @@ void Display::repaint()
 
 	if (!renderFrozen) {
 		assert(videoSystem);
-		if (auto* surf = videoSystem->getSurface()) {
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-			auto size = getLogicalSize();
-			bool fullScreen = getRenderSettings().getFullScreen();
-			surf->setViewPort(size, fullScreen);
-			reactor.getImGuiManager().paintFrame(*this);
-			videoSystem->flush();
-		}
+		reactor.getImGuiManager().paintFrame(*this);
+		videoSystem->flush();
 	}
 
 	// update fps statistics
@@ -352,6 +347,9 @@ void Display::paintLayers(bool withOsd)
 	assert(videoSystem);
 	auto* surf = videoSystem->getSurface();
 	assert(surf);
+	auto size = getLogicalSize();
+	bool fullScreen = getRenderSettings().getFullScreen();
+	surf->setViewPort(size, fullScreen);
 	const auto& output = surf->getOutputDim();
 
 	if (auto* video = findActiveLayer()) {
