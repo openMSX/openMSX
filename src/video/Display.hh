@@ -18,13 +18,15 @@
 
 namespace openmsx {
 
-class Layer;
-class Reactor;
-class VideoSystem;
 class CliComm;
-class VideoSystemChangeListener;
-class Setting;
+class GLSnow;
+class OSDGUILayer;
 class OutputDimensions;
+class Reactor;
+class Setting;
+class VideoLayer;
+class VideoSystem;
+class VideoSystemChangeListener;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -37,8 +39,6 @@ public:
 	static constexpr std::string_view SCREENSHOT_EXTENSION = ".png";
 
 public:
-	using Layers = std::vector<Layer*>;
-
 	explicit Display(Reactor& reactor);
 	~Display();
 
@@ -57,15 +57,16 @@ public:
 	void repaintDelayed(uint64_t delta);
 	void paintLayers(bool withOsd = true);
 
-	void addLayer(Layer& layer);
-	void removeLayer(Layer& layer);
-	void updateZ(Layer& layer);
+	void setSnowLayer(GLSnow* snow) { snowLayer = snow; }
+	void setOSDLayer(OSDGUILayer* osd) { osdLayer = osd; }
+	void addVideoLayer(VideoLayer& layer);
+	void removeVideoLayer(VideoLayer& layer);
 
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
-	[[nodiscard]] Layer* findActiveLayer() const;
-	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
+	[[nodiscard]] VideoLayer* findActiveLayer();
+	[[nodiscard]] const auto& getAllLayers() const { return videoLayers; }
 
 	[[nodiscard]] std::string getWindowTitle();
 
@@ -98,12 +99,10 @@ private:
 	void doRendererSwitch(RenderSettings::RendererID newRenderer);
 	void doRendererSwitch2(RenderSettings::RendererID newRenderer);
 
-	/** Find front most opaque layer.
-	  */
-	[[nodiscard]] Layers::iterator baseLayer();
-
 private:
-	Layers layers; // sorted on z
+	GLSnow* snowLayer = nullptr;
+	OSDGUILayer* osdLayer = nullptr;
+	std::vector<VideoLayer*> videoLayers;
 	std::unique_ptr<VideoSystem> videoSystem;
 
 	std::vector<VideoSystemChangeListener*> listeners; // unordered

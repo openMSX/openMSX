@@ -15,7 +15,9 @@
 namespace openmsx {
 
 class Display;
+class GLSnow;
 class Layer;
+class OSDGUILayer;
 class Reactor;
 class RenderSettings;
 class Setting;
@@ -65,9 +67,8 @@ private:
 	Display& display;
 	RenderSettings& renderSettings;
 	std::unique_ptr<VisibleSurface> screen;
-	std::unique_ptr<Layer> snowLayer;
-	std::unique_ptr<Layer> iconLayer;
-	std::unique_ptr<Layer> osdGuiLayer;
+	std::unique_ptr<GLSnow> snowLayer;
+	std::unique_ptr<OSDGUILayer> osdGuiLayer;
 };
 
 } // namespace openmsx

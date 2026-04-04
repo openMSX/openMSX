@@ -367,12 +367,12 @@ void VisibleSurface::finish()
 	SDL_GL_SwapWindow(window.get());
 }
 
-std::unique_ptr<Layer> VisibleSurface::createSnowLayer()
+std::unique_ptr<GLSnow> VisibleSurface::createSnowLayer()
 {
 	return std::make_unique<GLSnow>();
 }
 
-std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
+std::unique_ptr<OSDGUILayer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
 	return std::make_unique<OSDGUILayer>(gui);
 }

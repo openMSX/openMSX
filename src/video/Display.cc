@@ -1,8 +1,9 @@
 #include "Display.hh"
 
+#include "GLSnow.hh"
 #include "ImGuiManager.hh"
 #include "Layer.hh"
-#include "OutputDimensions.hh"
+#include "OSDGUILayer.hh"
 #include "RendererFactory.hh"
 #include "VideoLayer.hh"
 #include "VideoSystem.hh"
@@ -119,29 +120,18 @@ void Display::detach(VideoSystemChangeListener& listener)
 	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
-Layer* Display::findActiveLayer() const
+VideoLayer* Display::findActiveLayer()
 {
-	auto it = std::ranges::find_if(layers, &Layer::isActive);
-	return (it != layers.end()) ? *it : nullptr;
-}
+	if (videoLayers.empty()) return nullptr;
 
-Display::Layers::iterator Display::baseLayer()
-{
-	// Note: It is possible to cache this, but since the number of layers is
-	//       low at the moment, it's not really worth it.
-	auto it = end(layers);
-	while (true) {
-		if (it == begin(layers)) {
-			// There should always be at least one opaque layer.
-			// TODO: This is not true for DummyVideoSystem.
-			//       Anyway, a missing layer will probably stand out visually,
-			//       so do we really have to assert on it?
-			//UNREACHABLE;
-			return it;
-		}
-		--it;
-		if ((*it)->getCoverage() == Layer::Coverage::FULL) return it;
-	}
+	// fast path
+	if (auto* f = videoLayers.front(); f->isActive()) return f;
+
+	// slow path, find new active layer (if any) and swap to front
+	auto it = std::ranges::find_if(videoLayers.begin() + 1, videoLayers.end(), &VideoLayer::isActive);
+	if (it == videoLayers.end()) return nullptr;
+	std::swap(*it, videoLayers.front());
+	return videoLayers.front();
 }
 
 void Display::executeRT()
@@ -365,13 +355,13 @@ void Display::paintLayers(bool withOsd)
 	assert(surf);
 	const auto& output = surf->getOutputDim();
 
-	for (auto it = baseLayer(); it != end(layers); ++it) {
-		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
-			(*it)->paint(output);
-		}
+	if (auto* video = findActiveLayer()) {
+		video->paint(output);
+	} else {
+		snowLayer->paint(output);
 	}
 	if (withOsd) {
-		// TODO eventually skip OSDGUI
+		osdLayer->paint(output);
 	}
 }
 
@@ -384,32 +374,14 @@ void Display::repaintDelayed(uint64_t delta)
 	scheduleRT(unsigned(delta));
 }
 
-void Display::addLayer(Layer& layer)
+void Display::addVideoLayer(VideoLayer& layer)
 {
-	auto z = layer.getZ();
-	auto it = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() > z; });
-	layers.insert(it, &layer);
-	layer.setDisplay(*this);
+	videoLayers.push_back(&layer);
 }
 
-void Display::removeLayer(Layer& layer)
+void Display::removeVideoLayer(VideoLayer& layer)
 {
-	layers.erase(rfind_unguarded(layers, &layer));
-}
-
-void Display::updateZ(Layer& layer)
-{
-	auto oldPos = rfind_unguarded(layers, &layer);
-	auto z = layer.getZ();
-	auto newPos = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() >= z; });
-
-	if (oldPos == newPos) {
-		return;
-	} else if (oldPos < newPos) {
-		std::rotate(oldPos, oldPos + 1, newPos);
-	} else {
-		std::rotate(newPos, oldPos, oldPos + 1);
-	}
+	videoLayers.erase(rfind_unguarded(videoLayers, &layer));
 }
 
 
@@ -491,8 +463,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 				"Failed to take screenshot: ", e.getMessage());
 		}
 	} else {
-		auto* videoLayer = dynamic_cast<VideoLayer*>(
-			display.findActiveLayer());
+		auto* videoLayer = display.findActiveLayer();
 		if (!videoLayer) {
 			throw CommandException(
 				"Current renderer doesn't support taking screenshots.");

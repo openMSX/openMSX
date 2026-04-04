@@ -50,7 +50,6 @@ public:
 	/** Query the Z-index of this layer.
 	  */
 	[[nodiscard]] ZIndex getZ() const { return z; }
-	[[nodiscard]] bool isActive() const { return getZ() == ZIndex::MSX_ACTIVE; }
 
 	/** Query the coverage of this layer.
 	 */
@@ -87,23 +86,6 @@ private:
 	  * painted.
 	  */
 	ZIndex z;
-
-	friend class ScopedLayerHider; // for setCoverage()
-};
-
-
-class ScopedLayerHider
-{
-public:
-	explicit ScopedLayerHider(Layer& layer);
-	ScopedLayerHider(const ScopedLayerHider&) = delete;
-	ScopedLayerHider(ScopedLayerHider&&) = delete;
-	ScopedLayerHider& operator=(const ScopedLayerHider&) = delete;
-	ScopedLayerHider& operator=(ScopedLayerHider&&) = delete;
-	~ScopedLayerHider();
-private:
-	Layer& layer;
-	Layer::Coverage originalCoverage;
 };
 
 } // namespace openmsx

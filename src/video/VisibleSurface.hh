@@ -17,10 +17,11 @@ class CliComm;
 class CommandConsole;
 class Display;
 class EventDistributor;
+class GLSnow;
 class ImGuiManager;
 class InputEventGenerator;
-class Layer;
 class OSDGUI;
+class OSDGUILayer;
 class Reactor;
 class Setting;
 class VideoSystem;
@@ -61,8 +62,8 @@ public:
 	  */
 	void finish();
 
-	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer();
-	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
+	[[nodiscard]] std::unique_ptr<GLSnow> createSnowLayer();
+	[[nodiscard]] std::unique_ptr<OSDGUILayer> createOSDGUILayer(OSDGUI& gui);
 
 	/** Returns x,y coordinates of top-left window corner,
 	    or returns a nullopt when in fullscreen mode. */

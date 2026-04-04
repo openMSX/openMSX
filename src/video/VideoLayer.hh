@@ -35,6 +35,8 @@ public:
 	[[nodiscard]] int getVideoSource() const;
 	[[nodiscard]] int getVideoSourceSetting() const;
 
+	[[nodiscard]] bool isActive() const;
+
 	/** Create a raw (=non-post-processed) screenshot. The 'height'
 	 * parameter should be either '240' or '480' if specified. If not
 	 * specified, the height will be determined based on the available

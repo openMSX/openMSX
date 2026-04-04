@@ -24,7 +24,7 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 {
 	calcCoverage();
 	calcZ();
-	display.addLayer(*this);
+	display.addVideoLayer(*this);
 
 	videoSourceSetting.attach(*this);
 	powerSetting.attach(*this);
@@ -37,7 +37,7 @@ VideoLayer::~VideoLayer()
 	powerSetting.detach(*this);
 	videoSourceSetting.detach(*this);
 
-	display.removeLayer(*this);
+	display.removeVideoLayer(*this);
 }
 
 int VideoLayer::getVideoSource() const
@@ -47,6 +47,13 @@ int VideoLayer::getVideoSource() const
 int VideoLayer::getVideoSourceSetting() const
 {
 	return videoSourceSetting.getSource();
+}
+
+bool VideoLayer::isActive() const
+{
+	return getVideoSourceSetting() == getVideoSource()
+	    && powerSetting.getBoolean()
+	    && motherBoard.isActive();
 }
 
 void VideoLayer::update(const Setting& setting) noexcept

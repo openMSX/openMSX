@@ -1,7 +1,9 @@
 #include "SDLVideoSystem.hh"
 
 #include "Display.hh"
+#include "GLSnow.hh"
 #include "GlobalSettings.hh"
+#include "OSDGUILayer.hh"
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "SDLRasterizer.hh"
@@ -41,8 +43,8 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
-	display.addLayer(*snowLayer);
-	display.addLayer(*osdGuiLayer);
+	display.setSnowLayer(snowLayer.get());
+	display.setOSDLayer(osdGuiLayer.get());
 
 	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
@@ -53,8 +55,8 @@ SDLVideoSystem::~SDLVideoSystem()
 	renderSettings.getScaleFactorSetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
-	display.removeLayer(*osdGuiLayer);
-	display.removeLayer(*snowLayer);
+	display.setSnowLayer(nullptr);
+	display.setOSDLayer(nullptr);
 }
 
 std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
@@ -112,10 +114,6 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		// we can directly save current content as screenshot
 		VisibleSurface::saveScreenshotGL(dim, filename);
 	} else {
-		// we first need to re-render to an off-screen surface
-		// with OSD layers disabled
-		ScopedLayerHider hideOsd(*osdGuiLayer);
-
 		OffScreenSurface offScreen(dim); // setup FBO
 		display.paintLayers(false);
 		VisibleSurface::saveScreenshotGL(dim, filename);
