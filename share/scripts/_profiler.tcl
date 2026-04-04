@@ -4,6 +4,7 @@
 # to register functions.
 
 namespace eval symboltracer {
+namespace export add list remove start stop
 namespace ensemble create -prefixes 0
 
 variable names {}         ;# user traces
@@ -15,7 +16,7 @@ proc symboltracer_help {args} {
 	if {[llength $args] == 1} {
 		return {symboltracer is a profiler that traces function calls in the Trace Viewer widget
 
-Recognized commands: start, stop, add
+Recognized commands: start, stop, add, list, remove
 
 Type 'help symboltracer <command>' for more information about each command.
 }
@@ -39,6 +40,20 @@ Syntax: symboltracer add <name> <address>
 
 Syntax: symboltracer stop
 }}
+		"list" { return {Verifies if a user trace exists
+
+'list' returns all user traces created by symboltracer when executed without parameters or the address of the user trace if a user trace name is specified.
+
+Syntax: symboltracer list my_function
+        symboltracer list
+}}
+		"remove" { return {Removes user trace from the trace viewer
+
+'remove' deletes the user specified user trace and associated breakpoint.
+
+Syntax: symboltracer remove my_function
+}}
+		default { error "Unknown subcommand. Must be one of 'add', 'list', 'remove', 'start' or 'stop'." }
 	}
 }
 
@@ -73,10 +88,35 @@ proc _exit_function {name} {
 proc add {name addr} {
 	# add user-defined name/addr pair and create function breakpoints and traces
 	variable names
-	if {![dict exists $names $name]} {
-		dict set names $name {}
-		debug trace add $name
-		debug breakpoint create -address $addr -command [namespace code "_enter_function {$name}"]
+	# replace old entry
+	if {[dict exists $names $name]} {
+		catch {debug breakpoint remove [dict get $names $name]}
+		debug trace drop $name
+	}
+	set bp [debug breakpoint create -address $addr -command [namespace code "_enter_function {$name}"]]
+	dict set names $name $bp
+	debug trace add $name
+}
+
+proc remove {name} {
+	variable names
+	if {[dict exists $names $name]} {
+		debug trace drop $name
+		catch {debug breakpoint remove [dict get $names $name]}
+		dict unset names $name
+		variable counters
+		dict unset counters $name
+	}
+}
+
+proc list {{name {}}} {
+	variable names
+	if {$name ne {}} {
+		if {[dict exists $names $name]} {
+			return [dict get $names $name]
+		}
+	} else {
+		return [dict keys $names]
 	}
 }
 
@@ -133,9 +173,7 @@ proc stop {} {
 set_tabcompletion_proc symboltracer [namespace code _tab_symboltracer]
 
 proc _tab_symboltracer {args} {
-	list "start" "add" "stop"
+	::list "add" "list" "remove" "start" "stop"
 }
 
 } ;# namespace symboltracer
-
-namespace import symboltracer::*
