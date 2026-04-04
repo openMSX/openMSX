@@ -395,32 +395,4 @@ void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 	}
 }
 
-void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
-{
-	gl::ivec2 physicalSize = [&] {
-#ifndef __APPLE__
-		// On macos we set 'SDL_WINDOW_ALLOW_HIGHDPI', and in that case
-		// it's required to use SDL_GL_GetDrawableSize(), but then this
-		// 'full screen'-workaround/hack is counter-productive.
-		if (!fullScreen) {
-			// ??? When switching  back from full screen to windowed mode,
-			// SDL_GL_GetDrawableSize() still returns the dimensions of the
-			// full screen window ??? Is this a bug ???
-			// But we know that in windowed mode, physical and logical size
-			// must be the same, so enforce that.
-			return logicalSize;
-		}
-#endif
-		(void)fullScreen;
-		int w, h;
-		SDL_GL_GetDrawableSize(window.get(), &w, &h);
-		return gl::ivec2(w, h);
-	}();
-
-	// The created surface may be larger than requested.
-	// If that happens, center the area that we actually use.
-	outputDim = OutputDimensions{logicalSize, physicalSize};
-	// actually setting the viewport is done in PostProcessor::paint()
-}
-
 } // namespace openmsx

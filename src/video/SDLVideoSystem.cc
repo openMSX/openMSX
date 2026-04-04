@@ -109,13 +109,14 @@ void SDLVideoSystem::flush()
 
 void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 {
-	const auto& dim = screen->getOutputDim();
+	auto windowSize = display.getLastWindowSize();
+	OutputDimensions dim(display.getLogicalSize(), windowSize);
 	if (withOsd) {
 		// we can directly save current content as screenshot
 		VisibleSurface::saveScreenshotGL(dim, filename);
 	} else {
 		OffScreenSurface offScreen(dim); // setup FBO
-		display.paintLayers(false);
+		display.paintLayers(windowSize, false);
 		VisibleSurface::saveScreenshotGL(dim, filename);
 	}
 }

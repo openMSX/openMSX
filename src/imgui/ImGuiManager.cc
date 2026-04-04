@@ -491,11 +491,16 @@ void ImGuiManager::preNewFrame()
 	}
 }
 
+struct DrawCallbackData {
+	Display* display;
+	gl::ivec2 windowSize;
+};
+
 static void msxDisplayDrawCallback(const ImDrawList* /*parent_list*/, const ImDrawCmd* pcmd)
 {
-	auto* display = static_cast<Display*>(pcmd->UserCallbackData);
+	auto& data = *static_cast<DrawCallbackData*>(pcmd->UserCallbackData);
 	// TODO eventually use ImGui window dimensions
-	display->paintLayers();
+	data.display->paintLayers(data.windowSize);
 }
 
 void ImGuiManager::paintFrame(Display& display)
@@ -550,9 +555,10 @@ void ImGuiManager::paintFrame(Display& display)
 			}
 		}
 		// Draw MSX layers into this window via callback (runs during ImGui::Render)
+		gl::vec2 windowSize = ImGui::GetWindowSize();
+		DrawCallbackData data{.display = &display, .windowSize = gl::ivec2(windowSize)};
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		// TODO also pass ImGui::GetWindowSize()
-		drawList->AddCallback(msxDisplayDrawCallback, &display);
+		drawList->AddCallback(msxDisplayDrawCallback, &data);
 		drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
 		ImGui::Dummy(ImGui::GetContentRegionAvail());
 	});

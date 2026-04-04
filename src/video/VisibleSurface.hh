@@ -45,7 +45,6 @@ public:
 
 	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
 	[[nodiscard]] Display& getDisplay() const { return display; }
-	[[nodiscard]] const OutputDimensions& getOutputDim() const { return outputDim; }
 
 	static void saveScreenshotGL(const OutputDimensions& output,
 	                             const std::string& filename);
@@ -54,7 +53,6 @@ public:
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 	void resize();
-	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 	/** When a complete frame is finished, call this method.
 	  * It will 'actually' display it. E.g. when using double buffering
@@ -90,7 +88,6 @@ private:
 	CliComm& cliComm;
 	VideoSystem& videoSystem;
 	BooleanSetting& pauseSetting;
-	OutputDimensions outputDim;
 
 	struct VSyncObserver : openmsx::Observer<Setting> {
 		void update(const Setting& setting) noexcept override;

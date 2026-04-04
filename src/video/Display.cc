@@ -342,23 +342,18 @@ void Display::repaint()
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::paintLayers(bool withOsd)
+void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
 {
-	assert(videoSystem);
-	auto* surf = videoSystem->getSurface();
-	assert(surf);
-	auto size = getLogicalSize();
-	bool fullScreen = getRenderSettings().getFullScreen();
-	surf->setViewPort(size, fullScreen);
-	const auto& output = surf->getOutputDim();
+	lastWindowSize = windowSize;
+	OutputDimensions outputDim{getLogicalSize(), windowSize};
 
 	if (auto* video = findActiveLayer()) {
-		video->paint(output);
+		video->paint(outputDim);
 	} else {
 		snowLayer->paint();
 	}
 	if (withOsd) {
-		osdLayer->paint(output);
+		osdLayer->paint(outputDim);
 	}
 }
 

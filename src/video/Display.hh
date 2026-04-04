@@ -21,7 +21,6 @@ namespace openmsx {
 class CliComm;
 class GLSnow;
 class OSDGUILayer;
-class OutputDimensions;
 class Reactor;
 class Setting;
 class VideoLayer;
@@ -49,13 +48,14 @@ public:
 	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
 	[[nodiscard]] auto getRenderer() const { return currentRenderer; }
 	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
+	[[nodiscard]] gl::ivec2 getLastWindowSize() const { return lastWindowSize; }
 
 	/** Redraw the display.
 	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.
 	  */
 	void repaint();
 	void repaintDelayed(uint64_t delta);
-	void paintLayers(bool withOsd = true);
+	void paintLayers(gl::ivec2 windowSize, bool withOsd = true);
 
 	void setSnowLayer(GLSnow* snow) { snowLayer = snow; }
 	void setOSDLayer(OSDGUILayer* osd) { osdLayer = osd; }
@@ -133,6 +133,8 @@ private:
 
 	// the current renderer
 	RenderSettings::RendererID currentRenderer = RenderSettings::RendererID::UNINITIALIZED;
+
+	gl::ivec2 lastWindowSize; // (only) for screenshot
 
 	bool renderFrozen = false;
 	bool switchInProgress = false;
