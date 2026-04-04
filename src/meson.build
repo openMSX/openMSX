@@ -450,7 +450,6 @@ sources = files(
     'video/DummyVideoSystem.cc',
     'video/FrameSource.cc',
     'video/Icon.cc',
-    'video/Layer.cc',
     'video/OutputDimensions.cc',
     'video/PNG.cc',
     'video/PixelRenderer.cc',

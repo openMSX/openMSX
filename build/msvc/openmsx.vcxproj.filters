@@ -1218,9 +1218,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\Icon.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\Layer.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\OutputDimensions.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2881,9 +2878,6 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\Icon.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\Layer.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\OutputDimensions.hh">

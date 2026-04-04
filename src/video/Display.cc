@@ -2,7 +2,6 @@
 
 #include "GLSnow.hh"
 #include "ImGuiManager.hh"
-#include "Layer.hh"
 #include "OSDGUILayer.hh"
 #include "RendererFactory.hh"
 #include "VideoLayer.hh"
@@ -358,7 +357,7 @@ void Display::paintLayers(bool withOsd)
 	if (auto* video = findActiveLayer()) {
 		video->paint(output);
 	} else {
-		snowLayer->paint(output);
+		snowLayer->paint();
 	}
 	if (withOsd) {
 		osdLayer->paint(output);

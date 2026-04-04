@@ -1,12 +1,7 @@
 #ifndef VIDEOLAYER_HH
 #define VIDEOLAYER_HH
 
-#include "Layer.hh"
-
-#include "MSXEventListener.hh"
 #include "VideoSourceSetting.hh"
-
-#include "Observer.hh"
 
 #include <cstdint>
 #include <optional>
@@ -14,19 +9,20 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
-class Display;
-class Setting;
 class BooleanSetting;
+class Display;
+class MSXMotherBoard;
+class OutputDimensions;
 
-class VideoLayer : public Layer, protected Observer<Setting>
-                 , private MSXEventListener
+class VideoLayer
 {
 public:
 	VideoLayer(const VideoLayer&) = delete;
 	VideoLayer(VideoLayer&&) = delete;
 	VideoLayer& operator=(const VideoLayer&) = delete;
 	VideoLayer& operator=(VideoLayer&&) = delete;
+
+	virtual void paint(const OutputDimensions& output) = 0;
 
 	/** Returns the ID for this VideoLayer.
 	  * These IDs are globally unique. The 'videosource' setting uses
@@ -61,20 +57,7 @@ public:
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
 	           const std::string& videoSource);
-	~VideoLayer() override;
-
-	// Observer<Setting> interface:
-	void update(const Setting& setting) noexcept override;
-
-private:
-	/** Calculates the current Z coordinate of this layer. */
-	void calcZ();
-	/** Calculates the current coverage of this layer. */
-	void calcCoverage();
-
-	// MSXEventListener
-	void signalMSXEvent(const Event& event,
-	                    EmuTime time) noexcept override;
+	~VideoLayer();
 
 private:
 	/** This layer belongs to a specific machine. */

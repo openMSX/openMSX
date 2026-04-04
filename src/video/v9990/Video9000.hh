@@ -6,17 +6,20 @@
 
 #include "EventListener.hh"
 #include "MSXDevice.hh"
+#include "Observer.hh"
 
 namespace openmsx {
 
+class PostProcessor;
+class Setting;
 class VDP;
 class V9990;
-class PostProcessor;
 
 class Video9000 final : public MSXDevice
                       , private VideoSystemChangeListener
                       , private VideoLayer
                       , private EventListener
+                      , private Observer<Setting>
 {
 public:
 	explicit Video9000(const DeviceConfig& config);
@@ -52,7 +55,7 @@ private:
 	VideoSourceSetting& videoSourceSetting;
 	VDP* vdp;
 	V9990* v9990;
-	Layer* activeLayer = nullptr;
+	VideoLayer* activeLayer = nullptr;
 	PostProcessor* v99x8Layer = nullptr;
 	PostProcessor* v9990Layer = nullptr;
 	uint8_t value = 0x10;

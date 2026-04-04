@@ -14,8 +14,7 @@ using namespace gl;
 namespace openmsx {
 
 GLSnow::GLSnow()
-	: Layer(Coverage::FULL, ZIndex::BACKGROUND)
-	, noiseTexture(true, true) // enable interpolation + wrapping
+	: noiseTexture(true, true) // enable interpolation + wrapping
 {
 	// Create noise texture.
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
@@ -48,7 +47,7 @@ GLSnow::GLSnow()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void GLSnow::paint(const OutputDimensions& /*output*/)
+void GLSnow::paint()
 {
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.

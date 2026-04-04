@@ -1,18 +1,15 @@
 #ifndef DUMMYRENDERER_HH
 #define DUMMYRENDERER_HH
 
-#include "Layer.hh"
 #include "Renderer.hh"
 
 namespace openmsx {
 
 /** Dummy Renderer
   */
-class DummyRenderer final : public Renderer, public Layer
+class DummyRenderer final : public Renderer
 {
 public:
-	DummyRenderer() : Layer(Layer::Coverage::NONE, Layer::ZIndex::BACKGROUND) {}
-
 	// Renderer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	[[nodiscard]] const RawFrame* getWorkingFrame(EmuTime time) override;
@@ -42,9 +39,6 @@ public:
 	void updateSpritesEnabled(bool enabled, EmuTime time) override;
 	void updateVRAM(unsigned offset, EmuTime time) override;
 	void updateWindow(bool enabled, EmuTime time) override;
-
-	// Layer interface:
-	void paint(const OutputDimensions& output) override;
 };
 
 } // namespace openmsx

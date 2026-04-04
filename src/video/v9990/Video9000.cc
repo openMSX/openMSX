@@ -155,7 +155,6 @@ bool Video9000::signalEvent(const Event& event)
 
 void Video9000::update(const Setting& setting) noexcept
 {
-	VideoLayer::update(setting);
 	if (&setting == &videoSourceSetting) {
 		recalculateVideoSource();
 	}

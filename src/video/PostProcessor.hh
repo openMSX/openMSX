@@ -6,6 +6,7 @@
 #include "VideoLayer.hh"
 
 #include "EmuTime.hh"
+#include "Observer.hh"
 
 #include <array>
 #include <memory>
@@ -22,22 +23,24 @@ class DoubledFrame;
 class FrameSource;
 class GLScaler;
 class MSXMotherBoard;
+class OutputDimensions;
 class RawFrame;
 class RenderSettings;
+class Setting;
 class SuperImposedFrame;
 class VisibleSurface;
 
 /** A post processor builds the frame that is displayed from the MSX frame,
   * while applying effects such as scalers, noise etc.
   */
-class PostProcessor final : public VideoLayer
+class PostProcessor final : public VideoLayer, private Observer<Setting>
 {
 public:
 	PostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
 		VisibleSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
-	~PostProcessor() override;
+	~PostProcessor();
 
 	// Layer interface:
 	void paint(const OutputDimensions& output) override;

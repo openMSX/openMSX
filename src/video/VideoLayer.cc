@@ -3,40 +3,25 @@
 #include "Display.hh"
 
 #include "BooleanSetting.hh"
-#include "Event.hh"
 #include "GlobalSettings.hh"
-#include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-
-#include "one_of.hh"
 
 namespace openmsx {
 
 VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
                        const std::string& videoSource_)
-	: Layer(Layer::Coverage::NONE, Layer::ZIndex::BACKGROUND)
-	, motherBoard(motherBoard_)
+	: motherBoard(motherBoard_)
 	, display(motherBoard.getReactor().getDisplay())
 	, videoSourceSetting(motherBoard.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource_)
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
 {
-	calcCoverage();
-	calcZ();
 	display.addVideoLayer(*this);
-
-	videoSourceSetting.attach(*this);
-	powerSetting.attach(*this);
-	motherBoard.getMSXEventDistributor().registerEventListener(*this);
 }
 
 VideoLayer::~VideoLayer()
 {
-	motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
-	powerSetting.detach(*this);
-	videoSourceSetting.detach(*this);
-
 	display.removeVideoLayer(*this);
 }
 
@@ -54,39 +39,6 @@ bool VideoLayer::isActive() const
 	return getVideoSourceSetting() == getVideoSource()
 	    && powerSetting.getBoolean()
 	    && motherBoard.isActive();
-}
-
-void VideoLayer::update(const Setting& setting) noexcept
-{
-	if (&setting == &videoSourceSetting) {
-		calcZ();
-	} else if (&setting == &powerSetting) {
-		calcCoverage();
-	}
-}
-
-void VideoLayer::calcZ()
-{
-	setZ((videoSourceSetting.getSource() == getVideoSource())
-		? ZIndex::MSX_ACTIVE
-		: ZIndex::MSX_PASSIVE);
-}
-
-void VideoLayer::calcCoverage()
-{
-	auto cov = (!powerSetting.getBoolean() || !motherBoard.isActive())
-	         ? Coverage::NONE
-	         : Coverage::FULL;
-	setCoverage(cov);
-}
-
-void VideoLayer::signalMSXEvent(const Event& event,
-                                EmuTime /*time*/) noexcept
-{
-	if (getType(event) == one_of(EventType::MACHINE_ACTIVATED,
-		                     EventType::MACHINE_DEACTIVATED)) {
-		calcCoverage();
-	}
 }
 
 bool VideoLayer::needRender() const

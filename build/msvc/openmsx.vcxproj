@@ -754,7 +754,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLUtil.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\Icon.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\Layer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\OutputDimensions.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc" />
@@ -1401,7 +1400,6 @@
     <None Include="$(OpenMSXSrcDir)\video\GLUtil.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQCommon.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Icon.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\Layer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
     <None Include="$(OpenMSXSrcDir)\video\OutputDimensions.hh" />

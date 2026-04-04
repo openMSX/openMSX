@@ -431,7 +431,6 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 
 void PostProcessor::update(const Setting& setting) noexcept
 {
-	VideoLayer::update(setting);
 	const auto& noiseSetting = renderSettings.getNoiseSetting();
 	const auto& horizontalStretch = renderSettings.getHorizontalStretchSetting();
 	if (&setting == &noiseSetting) {

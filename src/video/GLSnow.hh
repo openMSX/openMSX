@@ -2,7 +2,6 @@
 #define GLSNOW_HH
 
 #include "GLUtil.hh"
-#include "Layer.hh"
 
 #include <array>
 
@@ -10,13 +9,11 @@ namespace openmsx {
 
 /** Snow effect for background layer.
   */
-class GLSnow final : public Layer
+class GLSnow
 {
 public:
 	GLSnow();
-
-	// Layer interface:
-	void paint(const OutputDimensions& output) override;
+	void paint();
 
 private:
 	std::array<gl::BufferObject, 2> vbo;
