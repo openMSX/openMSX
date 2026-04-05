@@ -14,10 +14,12 @@ class OffScreenSurface
 {
 public:
 	explicit OffScreenSurface(const OutputDimensions& output);
+	~OffScreenSurface();
 
 private:
 	gl::Texture fboTex;
 	gl::FrameBufferObject fbo;
+	GLuint prevFbo = 0;
 };
 
 } // namespace openmsx

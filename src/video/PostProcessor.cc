@@ -253,7 +253,8 @@ void PostProcessor::paint(const OutputDimensions& output)
 			     nullptr);          // data
 		renderedFrame.fbo = FrameBufferObject(renderedFrame.tex);
 	}
-	renderedFrame.fbo.push();
+	auto prevFbo = FrameBufferObject::getCurrent();
+	renderedFrame.fbo.activate();
 
 	auto* superImpose = superImposeVideoFrame
 	                  ? &superImposeTex : nullptr;
@@ -270,7 +271,7 @@ void PostProcessor::paint(const OutputDimensions& output)
 	drawNoise();
 	drawGlow(renderSettings.getGlow());
 
-	renderedFrame.fbo.pop();
+	FrameBufferObject::activate(prevFbo);
 	renderedFrame.tex.bind();
 
 	if (renderSettings.getFullStretch()) {

@@ -127,23 +127,36 @@ class FrameBufferObject
 public:
 	FrameBufferObject() = default;
 	explicit FrameBufferObject(Texture& texture);
+	FrameBufferObject(const FrameBufferObject&) = delete;
 	FrameBufferObject(FrameBufferObject&& other) noexcept
 		: bufferId(other.bufferId)
 	{
 		other.bufferId = 0;
 	}
+	FrameBufferObject& operator=(const FrameBufferObject&) = delete;
 	FrameBufferObject& operator=(FrameBufferObject&& other) noexcept {
 		std::swap(bufferId, other.bufferId);
 		return *this;
 	}
-	~FrameBufferObject();
+	~FrameBufferObject() {
+		glDeleteFramebuffers(1, &bufferId);
+	}
 
-	void push();
-	void pop();
+	void activate() {
+		activate(bufferId);
+	}
+
+	[[nodiscard]] static GLuint getCurrent() {
+		GLint result = 0;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
+		return result;
+	}
+	static void activate(GLuint id) {
+		glBindFramebuffer(GL_FRAMEBUFFER, id);
+	}
 
 private:
 	GLuint bufferId = 0; // 0 is not a valid openGL name
-	GLint previousId = 0;
 };
 
 /** Wrapper around a pixel buffer.
