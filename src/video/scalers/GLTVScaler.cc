@@ -19,9 +19,7 @@ GLTVScaler::GLTVScaler(RenderSettings& renderSettings_)
 
 void GLTVScaler::scaleImage(
 	gl::ColorTexture& src, gl::ColorTexture* superImpose,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	unsigned logSrcHeight)
+	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize)
 {
 	setup(superImpose != nullptr);
 	int i = superImpose ? 1 : 0;
@@ -30,10 +28,7 @@ void GLTVScaler::scaleImage(
 	float gap = renderSettings.getScanlineGap();
 	glUniform1f(unifMinScanline [i], 0.1f * gap + 0.2f * gap * gap);
 	glUniform1f(unifSizeVariance[i], 0.7f * gap - 0.3f * gap * gap);
-	execute(src, superImpose,
-	        srcStartY, srcEndY, srcWidth,
-	        dstStartY, dstEndY, dstWidth,
-	        logSrcHeight, true);
+	execute(src, superImpose, srcStartY, srcEndY, srcSize, dstSize, true);
 }
 
 } // namespace openmsx

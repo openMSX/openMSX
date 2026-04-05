@@ -211,8 +211,8 @@ void PostProcessor::paint(const OutputDimensions& output)
 {
 	if (!paintFrame) return;
 
-	auto size = output.getLogicalSize();
-	bool needReUpload = size.y != int(regionsDstHeight);
+	auto dstSize = output.getLogicalSize();
+	bool needReUpload = dstSize.y != int(regionsDstHeight);
 
 	// New scaler algorithm selected?
 	if (auto algo = renderSettings.getScaleAlgorithm();
@@ -236,17 +236,17 @@ void PostProcessor::paint(const OutputDimensions& output)
 	}
 
 	glDisable(GL_SCISSOR_TEST);
-	glViewport(0, 0, size.x, size.y);
+	glViewport(0, 0, dstSize.x, dstSize.y);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	auto& renderedFrame = renderedFrames[frameCounter & 1];
-	if (renderedFrame.size != size) {
+	if (renderedFrame.size != dstSize) {
 		renderedFrame.tex.bind();
 		renderedFrame.tex.setInterpolation(true);
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB,            // internal format
-			     size.x,            // width
-			     size.y,            // height
+			     dstSize.x,            // width
+			     dstSize.y,            // height
 			     0,                 // border
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
@@ -256,16 +256,17 @@ void PostProcessor::paint(const OutputDimensions& output)
 	auto prevFbo = FrameBufferObject::getCurrent();
 	renderedFrame.fbo.activate();
 
+	auto scaleDstSize = currScaler->getOutputScaleSize(dstSize);
 	auto* superImpose = superImposeVideoFrame
 	                  ? &superImposeTex : nullptr;
-	currScaler->setup(size);
+	currScaler->setup(dstSize);
+	auto srcHeight = int(paintFrame->getHeight());
 	for (const auto& r : regions) {
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
+		ivec2 srcSize{int(r.lineWidth), srcHeight};
 		currScaler->scaleImage(
 			it->tex, superImpose,
-			r.srcStartY, r.srcEndY, r.lineWidth, // src
-			r.dstStartY, r.dstEndY, size.x,   // dst
-			paintFrame->getHeight()); // dst
+			r.srcStartY, r.srcEndY, srcSize, scaleDstSize);
 	}
 
 	drawNoise();
