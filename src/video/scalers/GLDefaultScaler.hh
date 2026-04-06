@@ -2,6 +2,9 @@
 #define GLDEFAULTSCALER_HH
 
 #include "GLScaler.hh"
+#include "GLUtil.hh"
+
+#include <array>
 
 namespace openmsx {
 
@@ -17,6 +20,15 @@ public:
 	[[nodiscard]] gl::ivec2 getOutputScaleSize(gl::ivec2 dstScreenSize) const override {
 		return dstScreenSize; // can do arbitrary scaling
 	}
+
+private:
+	std::array<GLint, 2> unifTexelCount;
+	std::array<GLint, 2> unifPixelCount;
+	std::array<GLint, 2> unifTexelSize; // = 1.0 / texelCount
+	std::array<GLint, 2> unifPixelSize; // = 1.0 / pixelCount
+	std::array<GLint, 2> unifHalfTexelSize; // = 0.5 * texelSize
+	std::array<GLint, 2> unifHalfPixelSize; // = 0.5 * pixelSize
+	std::array<GLint, 2> unifYRatio;
 };
 
 } // namespace openmsx
