@@ -114,12 +114,6 @@ CliComm& PostProcessor::getCliComm()
 	return display.getCliComm();
 }
 
-unsigned PostProcessor::getLineWidth(
-	FrameSource* frame, unsigned y, unsigned step)
-{
-	return max_value(xrange(step), [&](auto i) { return frame->getLineWidth(y + i); });
-}
-
 using WorkBuffer = std::vector<MemBuffer<FrameSource::Pixel, SSE_ALIGNMENT>>;
 static void getScaledFrame(const FrameSource& paintFrame,
                            std::span<const FrameSource::Pixel*> lines,
@@ -154,7 +148,9 @@ void PostProcessor::takeRawScreenShot(std::optional<unsigned> desiredHeight, con
 	}
 
 	const unsigned targetHeight = desiredHeight ? *desiredHeight : [this] {
-		auto maxLineWidth = getLineWidth(paintFrame, 0, paintFrame->getHeight());
+		auto maxLineWidth = max_value(xrange(paintFrame->getHeight()), [&](auto i) {
+			return paintFrame->getLineWidth(i);
+		});
 		if (maxLineWidth == 320) return 240;
 		// in all other cases (there could be other than 640), we go for 640x480
 		return 480;
@@ -172,39 +168,23 @@ void PostProcessor::createRegions()
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getDisplay().getLogicalSize().y;
-	regionsDstHeight = dstHeight;
-
-	unsigned g = std::gcd(srcHeight, dstHeight);
-	unsigned srcStep = srcHeight / g;
-	unsigned dstStep = dstHeight / g;
 
 	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
 	//       on the PC screen, as a preparation for resizable output window.
 	unsigned srcStartY = 0;
-	unsigned dstStartY = 0;
-	while (dstStartY < dstHeight) {
-		// Currently this is true because the source frame height
-		// is always >= dstHeight/(dstStep/srcStep).
-		assert(srcStartY < srcHeight);
-
+	while (srcStartY < srcHeight) {
 		// get region with equal lineWidth
-		unsigned lineWidth = getLineWidth(paintFrame, srcStartY, srcStep);
-		unsigned srcEndY = srcStartY + srcStep;
-		unsigned dstEndY = dstStartY + dstStep;
-		while ((srcEndY < srcHeight) && (dstEndY < dstHeight) &&
-		       (getLineWidth(paintFrame, srcEndY, srcStep) == lineWidth)) {
-			srcEndY += srcStep;
-			dstEndY += dstStep;
+		unsigned lineWidth = paintFrame->getLineWidth(srcStartY);
+		unsigned srcEndY = srcStartY + 1;
+		while ((srcEndY < srcHeight) &&
+		       (paintFrame->getLineWidth(srcEndY) == lineWidth)) {
+			++srcEndY;
 		}
 
-		regions.emplace_back(srcStartY, srcEndY,
-		                     dstStartY, dstEndY,
-		                     lineWidth);
+		regions.emplace_back(srcStartY, srcEndY, lineWidth);
 
 		// next region
 		srcStartY = srcEndY;
-		dstStartY = dstEndY;
 	}
 }
 
@@ -213,7 +193,7 @@ void PostProcessor::paint(const OutputDimensions& output)
 	if (!paintFrame) return;
 
 	auto dstSize = output.getLogicalSize();
-	bool needReUpload = dstSize.y != int(regionsDstHeight);
+	bool needReUpload = false;
 
 	// New scaler algorithm selected?
 	if (auto algo = renderSettings.getScaleAlgorithm();
