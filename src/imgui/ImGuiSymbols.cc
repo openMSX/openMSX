@@ -207,6 +207,20 @@ void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym
 		auto& cpuInterface = motherBoard->getCPUInterface();
 		cpuInterface.insertBreakPoint(std::move(newBp));
 	}
+
+	ImGui::Separator();
+
+	auto cmdResult = manager.execute(makeTclList("symboltracer", "list", sym.name(symbolManager)));
+	bool traceAsFunction = cmdResult && !cmdResult->getString().empty();
+
+	if (ImGui::Checkbox("Toggle trace function", &traceAsFunction)) {
+		TclObject cmd = makeTclList("symboltracer", traceAsFunction ? "add" : "remove", sym.name(symbolManager));
+		if (traceAsFunction) {
+			cmd.addListElement(sym.value(symbolManager));
+		}
+		manager.execute(cmd);
+	}
+	HelpMarker("Use the console command \"help symboltracer\" for more details on how function traces work.");
 }
 
 template<bool FILTER_FILE>
