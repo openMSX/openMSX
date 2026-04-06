@@ -259,7 +259,6 @@ void PostProcessor::paint(const OutputDimensions& output)
 	auto scaleDstSize = currScaler->getOutputScaleSize(dstSize);
 	auto* superImpose = superImposeVideoFrame
 	                  ? &superImposeTex : nullptr;
-	currScaler->setup(dstSize);
 	auto srcHeight = int(paintFrame->getHeight());
 	for (const auto& r : regions) {
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);

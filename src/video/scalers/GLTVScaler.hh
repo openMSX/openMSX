@@ -23,6 +23,7 @@ private:
 	RenderSettings& renderSettings;
 	std::array<GLint, 2> unifMinScanline;
 	std::array<GLint, 2> unifSizeVariance;
+	std::array<GLint, 2> unifDstSize;
 };
 
 } // namespace openmsx

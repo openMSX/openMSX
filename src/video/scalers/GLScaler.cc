@@ -39,23 +39,18 @@ void GLScaler::uploadBlock(
 {
 }
 
-void GLScaler::setup(gl::ivec2 screenSize)
-{
-	pixelMvp = ortho(screenSize.x, screenSize.y);
-}
-
-void GLScaler::setup(bool superImpose)
+void GLScaler::setup(bool superImpose, gl::ivec2 dstSize)
 {
 	int i = superImpose ? 1 : 0;
 	program[i].activate();
 
-	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, pixelMvp.data());
+	auto M = ortho(dstSize.x, dstSize.y);
+	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, M.data());
 }
 
 void GLScaler::execute(
 	const ColorTexture& src, const ColorTexture* superImpose,
-	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize,
-	bool textureFromZero)
+	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize)
 {
 	auto srcStartYF = narrow<float>(srcStartY);
 	auto srcEndYF   = narrow<float>(srcEndY);
@@ -82,10 +77,9 @@ void GLScaler::execute(
 	// Note: The coordinate is put just past zero, to avoid fract() in the
 	//       fragment shader to wrap around on rounding errors.
 	static constexpr float BIAS = 0.001f;
-	float samplePos = (textureFromZero ? 0.5f : 0.0f) + BIAS;
-	float hShift = samplePos / dstWidthF;
+	float hShift = BIAS / dstWidthF;
 	float yRatio = (srcEndYF - srcStartYF) / (dstEndYF - dstStartYF);
-	float vShift = samplePos * yRatio;
+	float vShift = BIAS * yRatio;
 
 	// vertex positions
 	std::array pos = {

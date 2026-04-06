@@ -23,8 +23,7 @@ public:
 	  * Must be called once per frame before calling scaleImage() (possibly
 	  * multiple times).
 	  */
-	void setup(gl::ivec2 screenSize);
-	void setup(bool superImpose);
+	void setup(bool superImpose, gl::ivec2 dstSize);
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.
@@ -65,22 +64,15 @@ protected:
 	  * @param srcEndY
 	  * @param srcSize
 	  * @param dstSize
-	  * @param textureFromZero If true, the texture coordinates of subpixels
-	  *   will start from zero: for example in 4x zoom the source coordinates
-	  *   will be 0.0, 0.25, 0.5, 0.75. If false, the texture coordinates of
-	  *   subpixels will be centered: for example in 4x zoom the source
-	  *   coordinates will be 0.125, 0.375, 0.625, 0.875.
 	  */
 	void execute(const gl::ColorTexture& src, const gl::ColorTexture* superImpose,
-	             unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize,
-	             bool textureFromZero = false);
+	             unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize);
 
 protected:
 	std::array<gl::BufferObject, 2> vbo;
 	std::array<gl::ShaderProgram, 2> program;
 	std::array<GLint, 2> unifTexSize;
 	std::array<GLint, 2> unifMvpMatrix;
-	gl::mat4 pixelMvp;
 };
 
 } // namespace openmsx
