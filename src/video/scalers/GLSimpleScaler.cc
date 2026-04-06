@@ -28,12 +28,11 @@ void GLSimpleScaler::scaleImage(
 
 	float blur = narrow<float>(renderSettings.getBlurFactor()) * (1.0f / 256.0f);
 	float scanline = narrow<float>(renderSettings.getScanlineFactor()) * (1.0f / 255.0f);
-	unsigned yScale = dstSize.y / srcSize.y;
-	if (yScale == 0) {
+	auto yScaleF = float(dstSize.y) / float(srcSize.y);
+	if (yScaleF < 1.0f) {
 		// less lines in destination than in source
 		// (factor=1 / interlace) --> disable scanlines
 		scanline = 1.0f;
-		yScale = 1;
 	}
 
 	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
@@ -41,10 +40,9 @@ void GLSimpleScaler::scaleImage(
 		if ((blur != 0.0f) && (srcSize.x != 1)) { // srcWidth check: workaround for ATI cards
 			src.setInterpolation(true);
 		}
-		auto yScaleF = narrow<GLfloat>(yScale);
-		GLfloat scan_a = (yScale & 1) ? 0.5f : ((yScaleF + 1.0f) / (2.0f * yScaleF));
-		GLfloat scan_b = 2.0f - 2.0f * scanline;
-		GLfloat scan_c = scanline;
+		float scan_a = (yScaleF + 1.0f) / (2.0f * yScaleF);
+		float scan_b = 2.0f - 2.0f * scanline;
+		float scan_c = scanline;
 		if (!superImpose) {
 			// small optimization in simple.frag:
 			// divide by 2 here instead of on every pixel

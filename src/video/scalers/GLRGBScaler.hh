@@ -2,6 +2,7 @@
 #define GLRGBSCALER_HH
 
 #include "GLScaler.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -11,7 +12,7 @@ class RenderSettings;
 class GLRGBScaler final : public GLScaler
 {
 public:
-	GLRGBScaler(RenderSettings& renderSettings, GLScaler& fallback);
+	explicit GLRGBScaler(RenderSettings& renderSettings);
 
 	void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
@@ -23,7 +24,6 @@ public:
 
 private:
 	RenderSettings& renderSettings;
-	GLScaler& fallback;
 	std::array<int, 2> unifCnsts;
 };
 
