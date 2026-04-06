@@ -43,10 +43,11 @@ public:
 		unsigned srcStartY, unsigned srcEndY,
 		unsigned lineWidth, FrameSource& paintFrame);
 
-	[[nodiscard]] virtual gl::ivec2 getOutputScaleSize(gl::ivec2 dstScreenSize) const {
-		// TODO for now same as input
-		return dstScreenSize;
-	}
+	// Input: the final screen output size.
+	// Output: the best this scaler can approximate the given size.
+	// Some scalers can exactly produce any desired size. Some can only
+	// produce one or a few fixed sizes.
+	[[nodiscard]] virtual gl::ivec2 getOutputScaleSize(gl::ivec2 dstScreenSize) const = 0;
 
 protected:
 	explicit GLScaler(const std::string& progName);
