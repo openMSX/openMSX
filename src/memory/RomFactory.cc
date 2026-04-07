@@ -185,20 +185,19 @@ std::unique_ptr<MSXDevice> create(DeviceConfig& config)
 			if (!romInfo) {
 				romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
 			}
-			// If still not found, guess the mapper type
-			if (!romInfo) {
-				auto machineType = config.getMotherBoard().getMachineType();
-				if (machineType == "Coleco") {
-					if (rom.size() == one_of(128*1024u, 256*1024u, 512*1024u, 1024*1024u)) {
-						return COLECOMEGACART;
-					} else {
-						return PAGE23;
-					}
+			auto dbType = romInfo ? romInfo->getRomType() : RomType::UNKNOWN;
+			if (dbType != RomType::UNKNOWN) return dbType;
+
+			// If still not found, or database doesn't have info, guess the mapper type
+			auto machineType = config.getMotherBoard().getMachineType();
+			if (machineType == "Coleco") {
+				if (rom.size() == one_of(128*1024u, 256*1024u, 512*1024u, 1024*1024u)) {
+					return COLECOMEGACART;
 				} else {
-					return guessRomType(rom);
+					return PAGE23;
 				}
 			} else {
-				return romInfo->getRomType();
+				return guessRomType(rom);
 			}
 		} else {
 			// Use mapper type from config, even if this overrides DB.
