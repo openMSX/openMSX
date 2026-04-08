@@ -273,7 +273,7 @@ static void drawEventsBool(
 	auto mouseX = io.MousePos.x;
 
 	auto getVal = [&](const Tracer::Event& e) {
-		return e.value.get<uint64_t>() ? y0 : y1;
+		return e.value.get_as_bool() ? y0 : y1;
 	};
 
 	auto yp = y1;

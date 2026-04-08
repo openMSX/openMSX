@@ -176,6 +176,19 @@ public:
 		return read_payload<double>();
 	}
 
+	[[nodiscard]] bool get_as_bool() const {
+		// empty string, zero integer, zero double are all considered
+		// false, everything else is true
+		switch (tag()) {
+		case Tag::SSO:
+		case Tag::HeapStr:   return !get_string().empty();
+		case Tag::Monostate: return false;
+		case Tag::U64:       return get_u64() != 0;
+		case Tag::Double:    return get_double() != 0.0;
+		default: std::unreachable();
+		}
+	}
+
 private:
 	[[nodiscard]] Tag tag() const { return Tag(raw.back()); }
 	void set_tag(Tag t) { raw.back() = char(t); }
