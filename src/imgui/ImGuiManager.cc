@@ -322,7 +322,7 @@ static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
 void ImGuiManager::loadEnd()
 {
 	auto& display = reactor.getDisplay();
-	windowPos = ensureVisible(windowPos, display.getLogicalSize());
+	windowPos = ensureVisible(windowPos, display.getScaleFactorSize()); // TODO restore last size
 	display.setWindowPosition(windowPos);
 }
 

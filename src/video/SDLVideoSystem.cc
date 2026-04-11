@@ -48,10 +48,16 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 
 	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
+
+	auto& eventDistributor = reactor.getEventDistributor();
+	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
+	auto& eventDistributor = reactor.getEventDistributor();
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
+
 	renderSettings.getScaleFactorSetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
@@ -109,14 +115,13 @@ void SDLVideoSystem::flush()
 
 void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 {
-	auto windowSize = display.getLastWindowSize();
-	OutputDimensions dim(display.getLogicalSize(), windowSize);
+	OutputDimensions dim = display.getLastOutputDim();
 	if (withOsd) {
 		// we can directly save current content as screenshot
 		VisibleSurface::saveScreenshotGL(dim, filename);
 	} else {
 		OffScreenSurface offScreen(dim); // setup FBO
-		display.paintLayers(windowSize, false);
+		display.paintLayers(dim.getPhysicalSize(), false);
 		VisibleSurface::saveScreenshotGL(dim, filename);
 	}
 }
@@ -191,13 +196,18 @@ void SDLVideoSystem::update(const Setting& subject) noexcept
 	}
 }
 
-bool SDLVideoSystem::signalEvent(const Event& /*event*/)
+bool SDLVideoSystem::signalEvent(const Event& event)
 {
-	// TODO: Currently window size depends only on scale factor.
-	//       Maybe in the future it will be handled differently.
-	//const auto& resizeEvent = get_event<ResizeEvent>(event);
-	//resize(resizeEvent.getX(), resizeEvent.getY());
-	//resize();
+	std::visit(overloaded{
+		[&](const WindowEvent& e) {
+			const auto& evt = e.getSdlWindowEvent();
+			if (evt.event == SDL_WINDOWEVENT_RESIZED) {
+				gl::ivec2 size{evt.data1, evt.data2};
+				screen->resize(size);
+			}
+		},
+		[](const EventBase&) { /*ignore*/ }
+	}, event);
 	return false;
 }
 

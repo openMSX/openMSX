@@ -224,10 +224,9 @@ gl::ivec2 Display::retrieveWindowPosition()
 	return reactor.getImGuiManager().retrieveWindowPosition();
 }
 
-gl::ivec2 Display::getLogicalSize() const
+gl::ivec2 Display::getScaleFactorSize() const
 {
-	int factor = renderSettings.getScaleFactor();
-	return {320 * factor, 240 * factor};
+	return gl::ivec2{320, 240} * renderSettings.getScaleFactor();
 }
 
 float Display::getFps() const
@@ -344,8 +343,7 @@ void Display::repaint()
 
 void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
 {
-	lastWindowSize = windowSize;
-	OutputDimensions outputDim{getLogicalSize(), windowSize};
+	outputDim = OutputDimensions{windowSize, renderSettings.getScaleMode()};
 
 	if (auto* video = findActiveLayer()) {
 		video->paint(outputDim);

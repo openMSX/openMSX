@@ -17,10 +17,10 @@ using namespace gl;
 
 namespace openmsx {
 
-EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
+[[nodiscard]] static EnumSetting<RenderSettings::ScaleAlgorithm>::Map getScalerMap()
 {
-	using enum ScaleAlgorithm;
-	EnumSetting<ScaleAlgorithm>::Map scalerMap = {
+	using enum RenderSettings::ScaleAlgorithm;
+	EnumSetting<RenderSettings::ScaleAlgorithm>::Map scalerMap = {
 		{"simple",     SIMPLE},
 		{"ScaleNx",    SCALE},
 		{"hq",         HQ},
@@ -30,10 +30,21 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 	return scalerMap;
 }
 
-EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
+[[nodiscard]] static EnumSetting<RenderSettings::ScaleMode>::Map getScaleModeMap()
 {
-	using enum RendererID;
-	EnumSetting<RendererID>::Map rendererMap = {
+	using enum RenderSettings::ScaleMode;
+	EnumSetting<RenderSettings::ScaleMode>::Map result = {
+		{"free",               FREE},
+		{"fixed_aspect_ratio", FIXED_ASPECT_RATIO},
+		{"integer",            INTEGER},
+	};
+	return result;
+}
+
+[[nodiscard]] static EnumSetting<RenderSettings::RendererID>::Map getRendererMap()
+{
+	using enum RenderSettings::RendererID;
+	EnumSetting<RenderSettings::RendererID>::Map rendererMap = {
 		{"uninitialized", UNINITIALIZED},
 		{"none",          DUMMY},
 		{"SDLGL-PP",      SDLGL_PP}
@@ -101,6 +112,10 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	, scaleAlgorithmSetting(
 		commandController, "scale_algorithm", "scale algorithm",
 		ScaleAlgorithm::SIMPLE, getScalerMap())
+
+	, scaleModeSetting(
+		commandController, "scale_mode", "scale mode",
+		ScaleMode::FIXED_ASPECT_RATIO, getScaleModeMap())
 
 	, scaleFactorSetting(commandController,
 		"scale_factor", "scale factor",

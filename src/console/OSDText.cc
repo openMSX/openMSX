@@ -139,7 +139,7 @@ std::string_view OSDText::getType() const
 	return "text";
 }
 
-vec2 OSDText::getSize(gl::ivec2 /*logicalSize*/) const
+vec2 OSDText::getSize(gl::ivec2 /*viewSize*/) const
 {
 	if (image) {
 		return vec2(image->getSize());
@@ -155,12 +155,12 @@ uint8_t OSDText::getFadedAlpha() const
 	return narrow_cast<uint8_t>(narrow_cast<float>(getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-std::unique_ptr<GLImage> OSDText::create(gl::ivec2 logicalSize)
+std::unique_ptr<GLImage> OSDText::create(gl::ivec2 viewSize)
 {
 	if (text.empty()) {
 		return std::make_unique<GLImage>(ivec2(), 0);
 	}
-	int scale = getScaleFactor(logicalSize);
+	int scale = getScaleFactor(viewSize);
 	if (font.empty()) {
 		try {
 			font = TTFFont(systemFileContext().resolve(fontFile),
@@ -170,7 +170,7 @@ std::unique_ptr<GLImage> OSDText::create(gl::ivec2 logicalSize)
 		}
 	}
 	try {
-		vec2 pSize = getParent()->getSize(logicalSize);
+		vec2 pSize = getParent()->getSize(viewSize);
 		int maxWidth = narrow_cast<int>(lrintf(wrapw * narrow<float>(scale) + wraprelw * pSize.x));
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.

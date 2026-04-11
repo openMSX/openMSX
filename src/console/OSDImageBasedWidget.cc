@@ -146,9 +146,9 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
 	const auto* parentImage = dynamic_cast<const OSDImageBasedWidget*>(getParent());
 	if (!parentImage) return {};
 
-	gl::ivec2 logicalSize = getDisplay().getLogicalSize();
-	auto [parentPos, parentSize] = parentImage->getBoundingBox(logicalSize);
-	auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(logicalSize));
+	gl::ivec2 viewSize = getDisplay().getViewSize();
+	auto [parentPos, parentSize] = parentImage->getBoundingBox(viewSize);
+	auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(viewSize));
 
 	auto thisWidth = getRenderedSize().x;
 	auto scrollWidth = thisWidth - parentWidth;
@@ -277,10 +277,10 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-vec2 OSDImageBasedWidget::getTransformedPos(gl::ivec2 logicalSize) const
+vec2 OSDImageBasedWidget::getTransformedPos(gl::ivec2 viewSize) const
 {
 	return getParent()->transformPos(
-		logicalSize, float(getScaleFactor(logicalSize)) * getPos(), getRelPos());
+		viewSize, float(getScaleFactor(viewSize)) * getPos(), getRelPos());
 }
 
 void OSDImageBasedWidget::setError(std::string message)
@@ -299,11 +299,11 @@ void OSDImageBasedWidget::setError(std::string message)
 	}
 }
 
-void OSDImageBasedWidget::createImage(gl::ivec2 logicalSize)
+void OSDImageBasedWidget::createImage(gl::ivec2 viewSize)
 {
 	if (!image && !hasError()) {
 		try {
-			image = create(logicalSize);
+			image = create(viewSize);
 		} catch (MSXException& e) {
 			setError(std::move(e).getMessage());
 		}
@@ -313,8 +313,8 @@ void OSDImageBasedWidget::createImage(gl::ivec2 logicalSize)
 vec2 OSDImageBasedWidget::getRenderedSize() const
 {
 	// force creating image (does not yet draw it on screen)
-	auto logicalSize = getDisplay().getLogicalSize();
-	const_cast<OSDImageBasedWidget*>(this)->createImage(logicalSize);
+	auto viewSize = getDisplay().getViewSize();
+	const_cast<OSDImageBasedWidget*>(this)->createImage(viewSize);
 
 	vec2 imageSize = [&] {
 		if (image) {
@@ -322,10 +322,10 @@ vec2 OSDImageBasedWidget::getRenderedSize() const
 		} else {
 			// Couldn't be rendered, maybe an (intentionally)
 			// invisible rectangle
-			return getBoundingBox(logicalSize).size;
+			return getBoundingBox(viewSize).size;
 		}
 	}();
-	return imageSize / float(getScaleFactor(logicalSize));
+	return imageSize / float(getScaleFactor(viewSize));
 }
 
 void OSDImageBasedWidget::paint(const OutputDimensions& output)
@@ -333,13 +333,13 @@ void OSDImageBasedWidget::paint(const OutputDimensions& output)
 	// Note: Even when alpha == 0 we still create the image:
 	//    It may be needed to get the dimensions to be able to position
 	//    child widgets.
-	auto logicalSize = output.getLogicalSize();
-	createImage(logicalSize);
+	auto viewSize = output.getViewSize();
+	createImage(viewSize);
 
 	if (auto fadedAlpha = getFadedAlpha();
 	    (fadedAlpha != 0) && image) {
-		ivec2 drawPos = round(getTransformedPos(logicalSize));
-		image->draw(logicalSize, drawPos, fadedAlpha);
+		ivec2 drawPos = round(getTransformedPos(viewSize));
+		image->draw(viewSize, drawPos, fadedAlpha);
 	}
 }
 

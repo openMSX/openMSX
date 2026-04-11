@@ -192,7 +192,7 @@ void PostProcessor::paint(const OutputDimensions& output)
 {
 	if (!paintFrame) return;
 
-	auto dstSize = output.getLogicalSize();
+	auto dstSize = output.getViewSize();
 	bool needReUpload = false;
 
 	// New scaler algorithm selected?

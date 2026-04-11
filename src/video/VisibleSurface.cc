@@ -93,9 +93,8 @@ VisibleSurface::VisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #endif
 
-	int flags = SDL_WINDOW_OPENGL;
-	//flags |= SDL_RESIZABLE;
-	auto size = display.getLogicalSize();
+	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+	auto size = display.getScaleFactorSize();
 	createSurface(size, flags);
 	WindowEvent::setMainWindowId(SDL_GetWindowID(window.get()));
 
@@ -223,6 +222,7 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 		std::string err = SDL_GetError();
 		throw InitException("Could not create window: ", err);
 	}
+	SDL_SetWindowMinimumSize(window.get(), 320, 240);
 
 	updateWindowTitle();
 
@@ -326,7 +326,11 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 
 void VisibleSurface::resize()
 {
-	auto size = display.getLogicalSize();
+	resize(display.getScaleFactorSize());
+}
+
+void VisibleSurface::resize(gl::ivec2 size)
+{
 	SDL_SetWindowSize(window.get(), size.x, size.y);
 }
 

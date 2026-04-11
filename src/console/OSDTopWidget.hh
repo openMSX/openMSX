@@ -17,7 +17,7 @@ class OSDTopWidget final : public OSDWidget
 public:
 	explicit OSDTopWidget(Display& display);
 	[[nodiscard]] std::string_view getType() const override;
-	[[nodiscard]] gl::vec2 getSize(gl::ivec2 logicalSize) const override;
+	[[nodiscard]] gl::vec2 getSize(gl::ivec2 viewSize) const override;
 	[[nodiscard]] bool isVisible() const override;
 	[[nodiscard]] bool isRecursiveFading() const override;
 

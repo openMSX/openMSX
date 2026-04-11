@@ -1,6 +1,7 @@
 #ifndef DISPLAY_HH
 #define DISPLAY_HH
 
+#include "OutputDimensions.hh"
 #include "RenderSettings.hh"
 
 #include "Command.hh"
@@ -48,7 +49,8 @@ public:
 	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
 	[[nodiscard]] auto getRenderer() const { return currentRenderer; }
 	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
-	[[nodiscard]] gl::ivec2 getLastWindowSize() const { return lastWindowSize; }
+	[[nodiscard]] OutputDimensions getLastOutputDim() const { return outputDim; }
+	[[nodiscard]] gl::ivec2 getViewSize() const { return outputDim.getViewSize(); }
 
 	/** Redraw the display.
 	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.
@@ -78,7 +80,7 @@ public:
 	void storeWindowPosition(gl::ivec2 pos);
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition();
 
-	[[nodiscard]] gl::ivec2 getLogicalSize() const;
+	[[nodiscard]] gl::ivec2 getScaleFactorSize() const;
 
 	// Get the latest fps value
 	[[nodiscard]] float getFps() const;
@@ -134,7 +136,7 @@ private:
 	// the current renderer
 	RenderSettings::RendererID currentRenderer = RenderSettings::RendererID::UNINITIALIZED;
 
-	gl::ivec2 lastWindowSize; // (only) for screenshot
+	OutputDimensions outputDim; // (only) for screenshot
 
 	bool renderFrozen = false;
 	bool switchInProgress = false;

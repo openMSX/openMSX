@@ -64,7 +64,7 @@ GLScopedClip::GLScopedClip(const OutputDimensions& output, vec2 xy, vec2 wh)
 	auto& [x, y] = xy;
 	auto& [w, h] = wh;
 	normalize(x, w); normalize(y, h);
-	y = narrow_cast<float>(output.getLogicalHeight()) - y - h; // openGL sets (0,0) in LOWER-left corner
+	y = narrow_cast<float>(output.getViewSize().y) - y - h; // openGL sets (0,0) in LOWER-left corner
 
 	// transform view-space coordinates to clip-space coordinates
 	vec2 scale = output.getViewScale();
@@ -272,7 +272,7 @@ void OSDWidget::paintRecursive(const OutputDimensions& output)
 
 	std::optional<GLScopedClip> scopedClip;
 	if (clip) {
-		auto [clipPos, size] = getBoundingBox(output.getLogicalSize());
+		auto [clipPos, size] = getBoundingBox(output.getViewSize());
 		scopedClip.emplace(output, clipPos, size);
 	}
 
@@ -281,35 +281,35 @@ void OSDWidget::paintRecursive(const OutputDimensions& output)
 	}
 }
 
-int OSDWidget::getScaleFactor(gl::ivec2 logicalSize) const
+float OSDWidget::getScaleFactor(gl::ivec2 viewSize) const
 {
 	if (scaled) {
-		return logicalSize.x / 320;
+		return float(viewSize.x) / 320.0f;
 	} else if (getParent()) {
-		return getParent()->getScaleFactor(logicalSize);
+		return getParent()->getScaleFactor(viewSize);
 	} else {
 		return 1;
 	}
 }
 
-vec2 OSDWidget::transformPos(gl::ivec2 logicalSize, vec2 trPos, vec2 trRelPos) const
+vec2 OSDWidget::transformPos(gl::ivec2 viewSize, vec2 trPos, vec2 trRelPos) const
 {
 	vec2 out = trPos
-	         + (float(getScaleFactor(logicalSize)) * getPos())
-		 + (trRelPos * getSize(logicalSize));
+	         + (float(getScaleFactor(viewSize)) * getPos())
+		 + (trRelPos * getSize(viewSize));
 	if (const auto* p = getParent()) {
-		out = p->transformPos(logicalSize, out, getRelPos());
+		out = p->transformPos(viewSize, out, getRelPos());
 	}
 	return out;
 }
 
-vec2 OSDWidget::transformReverse(gl::ivec2 logicalSize, vec2 trPos) const
+vec2 OSDWidget::transformReverse(gl::ivec2 viewSize, vec2 trPos) const
 {
 	if (const auto* p = getParent()) {
-		trPos = p->transformReverse(logicalSize, trPos);
+		trPos = p->transformReverse(viewSize, trPos);
 		return trPos
-		       - (getRelPos() * p->getSize(logicalSize))
-		       - (getPos() * float(getScaleFactor(logicalSize)));
+		       - (getRelPos() * p->getSize(viewSize))
+		       - (getPos() * float(getScaleFactor(viewSize)));
 	} else {
 		return trPos;
 	}
@@ -342,9 +342,9 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	gl::ivec2 logicalSize = getDisplay().getLogicalSize();
-	vec2 out = transformReverse(logicalSize, vec2(*mouse));
-	vec2 size = getSize(logicalSize);
+	gl::ivec2 viewSize = getDisplay().getViewSize();
+	vec2 out = transformReverse(viewSize, vec2(*mouse));
+	vec2 size = getSize(viewSize);
 	if ((size.x == 0.0f) || (size.y == 0.0f)) {
 		throw CommandException(
 			"-can't get mouse coordinates: "
@@ -353,10 +353,10 @@ vec2 OSDWidget::getMouseCoord() const
 	return out / size;
 }
 
-OSDWidget::BoundingBox OSDWidget::getBoundingBox(gl::ivec2 logicalSize) const
+OSDWidget::BoundingBox OSDWidget::getBoundingBox(gl::ivec2 viewSize) const
 {
-	vec2 topLeft     = transformPos(logicalSize, vec2(), vec2(0.0f));
-	vec2 bottomRight = transformPos(logicalSize, vec2(), vec2(1.0f));
+	vec2 topLeft     = transformPos(viewSize, vec2(), vec2(0.0f));
+	vec2 bottomRight = transformPos(viewSize, vec2(), vec2(1.0f));
 	return {.pos = topLeft, .size = bottomRight - topLeft};
 }
 

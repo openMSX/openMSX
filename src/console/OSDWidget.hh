@@ -57,12 +57,12 @@ public:
 	void invalidateRecursive();
 	void paintRecursive(const OutputDimensions& output);
 
-	[[nodiscard]] int getScaleFactor(gl::ivec2 logicalSize) const;
-	[[nodiscard]] gl::vec2 transformPos(gl::ivec2 logicalSize,
+	[[nodiscard]] float getScaleFactor(gl::ivec2 viewSize) const;
+	[[nodiscard]] gl::vec2 transformPos(gl::ivec2 viewSize,
 	                                    gl::vec2 pos, gl::vec2 relPos) const;
 	struct BoundingBox { gl::vec2 pos; gl::vec2 size; };
-	[[nodiscard]] BoundingBox getBoundingBox(gl::ivec2 logicalSize) const;
-	[[nodiscard]] virtual gl::vec2 getSize(gl::ivec2 logicalSize) const = 0;
+	[[nodiscard]] BoundingBox getBoundingBox(gl::ivec2 viewSize) const;
+	[[nodiscard]] virtual gl::vec2 getSize(gl::ivec2 viewSize) const = 0;
 
 	// Is visible? Or may become visible (fading-in).
 	[[nodiscard]] virtual bool isVisible() const = 0;
@@ -79,7 +79,7 @@ protected:
 
 private:
 	[[nodiscard]] gl::vec2 getMouseCoord() const;
-	[[nodiscard]] gl::vec2 transformReverse(gl::ivec2 logicalSize,
+	[[nodiscard]] gl::vec2 transformReverse(gl::ivec2 viewSize,
 	                                        gl::vec2 pos) const;
 	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (const OSDWidget* elem);

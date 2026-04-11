@@ -41,6 +41,9 @@ public:
 		SIMPLE, SCALE, HQ, RGBTRIPLET, TV,
 		NO
 	};
+	enum class ScaleMode : uint8_t {
+		FREE, FIXED_ASPECT_RATIO, INTEGER,
+	};
 
 	enum class DisplayDeform : uint8_t {
 		NORMAL, _3D
@@ -126,6 +129,10 @@ public:
 	[[nodiscard]] ScaleAlgorithm getScaleAlgorithm() const {
 		return scaleAlgorithmSetting.getEnum();
 	}
+	[[nodiscard]] auto& getScaleModeSetting() { return scaleModeSetting; }
+	[[nodiscard]] ScaleMode getScaleMode() const {
+		return scaleModeSetting.getEnum();
+	}
 
 	/** The current scaling factor. */
 	[[nodiscard]] IntegerSetting& getScaleFactorSetting() { return scaleFactorSetting; }
@@ -200,9 +207,6 @@ public:
 	[[nodiscard]] gl::vec3 transformRGB(gl::vec3 rgb) const;
 
 private:
-	[[nodiscard]] static EnumSetting<ScaleAlgorithm>::Map getScalerMap();
-	[[nodiscard]] static EnumSetting<RendererID>::Map getRendererMap();
-
 	// Observer:
 	void update(const Setting& setting) noexcept override;
 
@@ -229,6 +233,7 @@ private:
 	RendererSetting rendererSetting;
 	IntegerSetting horizontalBlurSetting;
 	EnumSetting<ScaleAlgorithm> scaleAlgorithmSetting;
+	EnumSetting<ScaleMode> scaleModeSetting;
 	IntegerSetting scaleFactorSetting;
 	IntegerSetting scanlineAlphaSetting;
 	BooleanSetting limitSpritesSetting;
