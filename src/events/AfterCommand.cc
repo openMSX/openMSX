@@ -27,13 +27,34 @@
 
 namespace openmsx {
 
+class AfterCmd;
+class AfterCommand;
+
+// Helper struct to hold the essential data needed to execute a command,
+// decoupled from the Schedulable machinery. This allows us to extract the
+// command before destroying the Schedulable, avoiding use-after-free when
+// the Scheduler is deleted by the executed command.
+struct DelayedCommand {
+	TclObject command;
+	AfterCommand& afterCommand;
+
+	void execute() {
+		try {
+			command.executeCommand(afterCommand.getInterpreter());
+		} catch (CommandException& e) {
+			afterCommand.getCommandController().getCliComm().printWarning(
+				"Error executing delayed command: ", e.getMessage());
+		}
+	}
+};
+
 class AfterCmd
 {
 public:
 	[[nodiscard]] const auto& getCommand() const { return command; }
 	[[nodiscard]] auto getId() const { return id; }
 	[[nodiscard]] auto getIdStr() const { return tmpStrCat("after#", id); }
-	void execute();
+	[[nodiscard]] DelayedCommand extractCommand();
 protected:
 	AfterCmd(AfterCommand& afterCommand,
 		 TclObject command);
@@ -374,9 +395,10 @@ void AfterCommand::executeMatches(std::predicate<Index> auto pred)
 	auto p = partition_copy_remove(afterCmds, std::back_inserter(matches), pred);
 	afterCmds.erase(p.second, end(afterCmds));
 	for (auto idx : matches) {
-		std::visit([](AfterCmd& cmd) { cmd.execute(); },
-		           afterCmdPool[idx]);
+		auto delayed = std::visit([](AfterCmd& cmd) { return cmd.extractCommand(); },
+		                          afterCmdPool[idx]);
 		afterCmdPool.remove(idx);
+		delayed.execute();
 	}
 	matches.clear(); // for next call (but keep capacity)
 }
@@ -452,14 +474,9 @@ AfterCmd::AfterCmd(AfterCommand& afterCommand_, TclObject command_)
 {
 }
 
-void AfterCmd::execute()
+DelayedCommand AfterCmd::extractCommand()
 {
-	try {
-		command.executeCommand(afterCommand.getInterpreter());
-	} catch (CommandException& e) {
-		afterCommand.getCommandController().getCliComm().printWarning(
-			"Error executing delayed command: ", e.getMessage());
-	}
+	return DelayedCommand{.command = std::move(command), .afterCommand = afterCommand};
 }
 
 AfterCommand::Index AfterCmd::removeSelf()
@@ -586,8 +603,9 @@ void AfterRealTimeCmd::executeRT()
 	// this method. Otherwise execute could execute 'after cancel ..' and
 	// removeSelf() asserts that it can't find itself anymore.
 	auto idx = removeSelf();
-	execute();
+	auto delayed = extractCommand();
 	afterCmdPool.remove(idx);
+	delayed.execute();
 }
 
 } // namespace openmsx
