@@ -12,6 +12,14 @@ namespace openmsx {
 class RomBlockDebuggableBase : public SimpleDebuggable
 {
 public:
+	explicit RomBlockDebuggableBase(const MSXDevice& device, std::string name_)
+		: SimpleDebuggable(
+			device.getMotherBoard(),
+			name_,
+		        "Shows for each byte of the mapper which memory block is selected.",
+		        0x10000)
+	{
+	}
 	explicit RomBlockDebuggableBase(const MSXDevice& device)
 		: SimpleDebuggable(
 			device.getMotherBoard(),

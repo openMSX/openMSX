@@ -22,6 +22,7 @@ namespace openmsx {
 RomAscii16X::RomAscii16X(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, debuggable(*this)
+	, debuggableExt(*this, getName() + " romblocks ext")
 	, flash(rom, AmdFlashChip::S29GL064S70TFI040, {}, config)
 {
 	reset(EmuTime::dummy());
@@ -29,7 +30,8 @@ RomAscii16X::RomAscii16X(DeviceConfig& config, Rom&& rom_)
 
 void RomAscii16X::reset(EmuTime /*time*/)
 {
-	ranges::iota(bankRegs, uint16_t(0));
+	std::ranges::fill(mappedHigh, 0);
+	ranges::iota(mappedLow, uint8_t(0));
 
 	flash.reset();
 
@@ -38,7 +40,8 @@ void RomAscii16X::reset(EmuTime /*time*/)
 
 unsigned RomAscii16X::getFlashAddr(uint16_t addr) const
 {
-	uint16_t bank = bankRegs[((addr >> 14) & 1) ^ 1];
+	const uint16_t index = ((addr >> 14) & 1) ^ 1;
+	uint16_t bank = (mappedHigh[index] << 8) | mappedLow[index];
 	return (bank << 14) | (addr & 0x3FFF);
 }
 
@@ -63,7 +66,8 @@ void RomAscii16X::writeMem(uint16_t addr, byte value, EmuTime time)
 
 	if ((addr & 0x3FFF) >= 0x2000) {
 		const uint16_t index = (addr >> 12) & 1;
-		bankRegs[index] = (addr & 0x0F00) | value;
+		mappedLow[index] = value;
+		mappedHigh[index] = (addr >> 8) & 0x0F;
 		invalidateDeviceRCache(0x4000 ^ (index << 14), 0x4000);
 		invalidateDeviceRCache(0xC000 ^ (index << 14), 0x4000);
 	}
@@ -77,7 +81,8 @@ byte* RomAscii16X::getWriteCacheLine(uint16_t /* addr */)
 unsigned RomAscii16X::Debuggable::readExt(unsigned address)
 {
 	auto& outer = OUTER(RomAscii16X, debuggable);
-	return outer.bankRegs[((address >> 14) & 1) ^ 1];
+	uint8_t index = ((address >> 14) & 1) ^ 1;
+	return (outer.mappedHigh[index] << 8) | outer.mappedLow[index];
 }
 
 template<typename Archive>
@@ -87,7 +92,8 @@ void RomAscii16X::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	ar.serialize("flash",       flash,
-	             "bankRegs",    bankRegs);
+	             "mappedLow",   mappedLow,
+	             "mappedHigh",  mappedHigh);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii16X);
 REGISTER_MSXDEVICE(RomAscii16X, "RomAscii16X");
