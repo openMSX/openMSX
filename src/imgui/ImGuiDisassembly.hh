@@ -2,6 +2,7 @@
 #define IMGUI_DISASSEMBLY_HH
 
 #include "ImGuiPart.hh"
+#include "RomBlockDebuggable.hh"
 
 #include <optional>
 #include <span>
@@ -11,6 +12,7 @@
 namespace openmsx {
 
 class Debugger;
+class Debuggable;
 class MSXDevice;
 class MSXCPUInterface;
 class MSXRom;
@@ -35,8 +37,8 @@ public:
 
 public:
 	void actionToggleBp(MSXMotherBoard& motherBoard);
-	[[nodiscard]] static std::pair<const MSXRom*, RomBlockDebuggableBase*>
-		getRomBlocks(Debugger& debugger, const MSXDevice* device);
+	[[nodiscard]] static std::pair<const MSXRom*, RomBlockDebuggableBase::Debuggable16*>
+		getDebuggable(Debugger& debugger, const MSXDevice* device);
 
 private:
 	unsigned disassemble(

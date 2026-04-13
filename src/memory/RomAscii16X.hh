@@ -27,18 +27,15 @@ public:
 private:
 	[[nodiscard]] unsigned getFlashAddr(uint16_t addr) const;
 
-	struct Debuggable final : RomBlockDebuggableBase {
-		explicit Debuggable(const RomAscii16X& device)
+	struct Blocks final : RomBlockDebuggableBase {
+		explicit Blocks(const RomAscii16X& device)
 			: RomBlockDebuggableBase(device) {}
-		explicit Debuggable(const RomAscii16X& device, std::string name_)
-			: RomBlockDebuggableBase(device, name_) {}
 		[[nodiscard]] unsigned readExt(unsigned address) override;
-	} debuggable, debuggableExt;
+
+		std::array<uint16_t, 2> bankRegs = {0, 0};
+	} romBlockDebug;
 
 	AmdFlash flash;
-
-	std::array<uint8_t, 2> mappedLow = {0, 0};
-	std::array<uint8_t, 2> mappedHigh = {0, 0};
 };
 
 } // namespace openmsx

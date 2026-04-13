@@ -66,14 +66,14 @@ void ImGuiDisassembly::setGotoTarget(uint16_t target)
 	setDisassemblyScrollY.reset(); // don't restore initial scroll position
 }
 
-std::pair<const MSXRom*, RomBlockDebuggableBase*>
-	ImGuiDisassembly::getRomBlocks(Debugger& debugger, const MSXDevice* device)
+std::pair<const MSXRom*, RomBlockDebuggableBase::Debuggable16*>
+	ImGuiDisassembly::getDebuggable(Debugger& debugger, const MSXDevice* device)
 {
-	RomBlockDebuggableBase* debuggable = nullptr;
+	RomBlockDebuggableBase::Debuggable16* debuggable = nullptr;
 	const auto* rom = dynamic_cast<const MSXRom*>(device);
 	if (rom && !dynamic_cast<const RomPlain*>(rom)) {
-		debuggable = dynamic_cast<RomBlockDebuggableBase*>(
-			debugger.findDebuggable(tmpStrCat(rom->getName(), " romblocks")));
+		debuggable = dynamic_cast<RomBlockDebuggableBase::Debuggable16*>(
+			debugger.findDebuggable(tmpStrCat(rom->getName(), " romblocks16")));
 	}
 	return {rom, debuggable};
 }
@@ -98,8 +98,8 @@ struct CurrentSlot {
 		const auto* device = cpuInterface.getVisibleMSXDevice(page);
 		if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
 			result.seg = mapper->getSelectedSegment(narrow<uint8_t>(page));
-		} else if (auto [_, romBlocks] = ImGuiDisassembly::getRomBlocks(debugger, device); romBlocks) {
-			result.seg = romBlocks->readExt(addr);
+		} else if (auto [_, debuggable] = ImGuiDisassembly::getDebuggable(debugger, device); debuggable) {
+			result.seg = debuggable->readExt(addr);
 		}
 	}
 	return result;

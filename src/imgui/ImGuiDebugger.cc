@@ -461,12 +461,12 @@ ImGuiDebugger::SlotInfo ImGuiDebugger::getSlotInfo(MSXCPUInterface& cpuInterface
 		const auto* device = cpuInterface.getVisibleMSXDevice(page);
 		if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
 			r.segment = strCat(mapper->getSelectedSegment(page));
-		} else if (auto [rom, romBlocks] = ImGuiDisassembly::getRomBlocks(debugger, device); romBlocks) {
+		} else if (auto [rom, debuggable] = ImGuiDisassembly::getDebuggable(debugger, device); debuggable) {
 			if (unsigned blockSize = RomInfo::getBlockSize(rom->getRomType())) {
 				auto addr = 0x4000 * page;
 				char separator = 'R';
 				for (int offset = 0; offset < 0x4000; offset += blockSize) {
-					auto seg = romBlocks->readExt(addr + offset);
+					auto seg = debuggable->readExt(addr + offset);
 					strAppend(r.segment, separator, strCat_if(seg != unsigned(-1), seg).else_('-'));
 					separator = '/';
 				}
