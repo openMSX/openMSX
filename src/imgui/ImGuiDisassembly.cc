@@ -69,13 +69,15 @@ void ImGuiDisassembly::setGotoTarget(uint16_t target)
 std::pair<const MSXRom*, RomBlockDebuggableBase*>
 	ImGuiDisassembly::getRomBlocks(Debugger& debugger, const MSXDevice* device)
 {
-	RomBlockDebuggableBase* debuggable = nullptr;
+	RomBlockDebuggableBase* romBlocks = nullptr;
 	const auto* rom = dynamic_cast<const MSXRom*>(device);
 	if (rom && !dynamic_cast<const RomPlain*>(rom)) {
-		debuggable = dynamic_cast<RomBlockDebuggableBase*>(
-			debugger.findDebuggable(tmpStrCat(rom->getName(), " romblocks")));
+		if (auto* debug8 = dynamic_cast<RomBlockDebuggableBase::Debuggable8*>(
+			debugger.findDebuggable(tmpStrCat(rom->getName(), " romblocks")))) {
+			romBlocks = &debug8->getRomBlocks();
+		}
 	}
-	return {rom, debuggable};
+	return {rom, romBlocks};
 }
 
 struct CurrentSlot {

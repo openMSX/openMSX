@@ -20,16 +20,16 @@ public:
 	// To support larger than 8 bit segment numbers.
 	[[nodiscard]] virtual unsigned readExt(unsigned address) = 0;
 
-protected:
-	~RomBlockDebuggableBase() = default;
-
-private:
 	struct Debuggable8 final : SimpleDebuggable {
-                explicit Debuggable8(const MSXDevice& device)
+		explicit Debuggable8(const MSXDevice& device)
 			: SimpleDebuggable(device.getMotherBoard(),
 			                   device.getName() + " romblocks",
 			                   "Shows for each byte of the mapper which memory block is selected.",
 			                   0x10000) {}
+
+		[[nodiscard]] RomBlockDebuggableBase& getRomBlocks() {
+			return OUTER(RomBlockDebuggableBase, debuggable8);
+		}
 
 		[[nodiscard]] uint8_t read(unsigned address) override {
 			auto& outer = OUTER(RomBlockDebuggableBase, debuggable8);
@@ -51,6 +51,9 @@ private:
 			return narrow_cast<uint8_t>((address & 1) ? (full >> 8) : (full & 0xff));
 		}
 	} debuggable16;
+
+protected:
+	~RomBlockDebuggableBase() = default;
 };
 
 // Generic implementation. This (only) works when the segment numbers are stored
