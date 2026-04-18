@@ -33,6 +33,7 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
 
+	ImGui::SetNextWindowSize({480, 720}, ImGuiCond_FirstUseEver);
 	im::Window("Plotter viewer", &show, [&]{
 		if (!motherBoard) {
 			ImGui::TextUnformatted("No machine present.");
