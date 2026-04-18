@@ -65,7 +65,7 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 		// Calculate available space and aspect ratio
 		const auto& style = ImGui::GetStyle();
 		auto panelHeight = 2.0f * ImGui::GetTextLineHeight() + 4.0f * style.ItemSpacing.y + 2.0f * style.FramePadding.y + 2.0f;
-		auto availableSize = ImGui::GetContentRegionAvail() - gl::vec2{0.0f, panelHeight};
+		auto availableSize = max(ImGui::GetContentRegionAvail() - gl::vec2{0.0f, panelHeight}, gl::vec2{0.0f});
 
 		auto paperSize = gl::vec2(paper->size());
 		auto scaleVec = availableSize / paperSize;
@@ -73,7 +73,7 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 		auto displaySize = paperSize * scale; // largest fit with same aspect ratio
 
 		auto screenPos = ImGui::GetCursorScreenPos();
-		auto& texture = paper->updateTexture(trunc(displaySize));
+		auto& texture = paper->updateTexture(max(trunc(displaySize), gl::ivec2{1}));
 		ImGui::Image(texture.getImGui(), displaySize);
 
 		// Draw crosshair at pen position
