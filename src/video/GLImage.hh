@@ -19,13 +19,17 @@ gl::Texture loadTexture(const std::string& filename, gl::ivec2& size);
 class GLImage
 {
 public:
+	struct Scale {
+		gl::vec2 factor;
+	};
+
 	explicit GLImage(const std::string& filename);
 	explicit GLImage(SDLSurfacePtr image);
-	GLImage(const std::string& filename, float scaleFactor);
+	GLImage(const std::string& filename, Scale scale);
 	GLImage(const std::string& filename, gl::ivec2 size);
 	GLImage(gl::ivec2 size, uint32_t rgba);
 	GLImage(gl::ivec2 size, std::span<const uint32_t, 4> rgba,
-	        int borderSize, uint32_t borderRGBA);
+	        gl::ivec2 borderSize, uint32_t borderRGBA);
 
 	void draw(gl::ivec2 screenSize, gl::ivec2 pos, uint8_t alpha = 255) {
 		draw(screenSize, pos, 255, 255, 255, alpha);
@@ -50,7 +54,7 @@ private:
 	std::array<gl::BufferObject, 3> vbo;
 	gl::BufferObject elementsBuffer;
 	gl::Texture texture{gl::Null()}; // must come after size
-	int borderSize{0};
+	gl::ivec2 borderSize{0};
 	std::array<uint16_t, 4> bgA; // 0..256
 	uint16_t borderA{0}; // 0..256
 	std::array<uint8_t, 4> bgR, bgG, bgB;

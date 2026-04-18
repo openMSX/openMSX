@@ -148,7 +148,7 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
 
 	gl::ivec2 viewSize = getDisplay().getViewSize();
 	auto [parentPos, parentSize] = parentImage->getBoundingBox(viewSize);
-	auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(viewSize));
+	auto parentWidth = parentSize.x / getScaleFactor(viewSize).x;
 
 	auto thisWidth = getRenderedSize().x;
 	auto scrollWidth = thisWidth - parentWidth;
@@ -280,7 +280,7 @@ void OSDImageBasedWidget::invalidateLocal()
 vec2 OSDImageBasedWidget::getTransformedPos(gl::ivec2 viewSize) const
 {
 	return getParent()->transformPos(
-		viewSize, float(getScaleFactor(viewSize)) * getPos(), getRelPos());
+		viewSize, getScaleFactor(viewSize) * getPos(), getRelPos());
 }
 
 void OSDImageBasedWidget::setError(std::string message)
@@ -325,7 +325,7 @@ vec2 OSDImageBasedWidget::getRenderedSize() const
 			return getBoundingBox(viewSize).size;
 		}
 	}();
-	return imageSize / float(getScaleFactor(viewSize));
+	return imageSize / getScaleFactor(viewSize);
 }
 
 void OSDImageBasedWidget::paint(const OutputDimensions& output)

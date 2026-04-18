@@ -280,21 +280,21 @@ void OSDWidget::paintRecursive(const OutputDimensions& output)
 	}
 }
 
-float OSDWidget::getScaleFactor(gl::ivec2 viewSize) const
+gl::vec2 OSDWidget::getScaleFactor(gl::ivec2 viewSize) const
 {
 	if (scaled) {
-		return float(viewSize.x) / 320.0f;
+		return gl::vec2(viewSize) * gl::vec2(1.0f / 320.0f, 1.0f / 240.0f);
 	} else if (getParent()) {
 		return getParent()->getScaleFactor(viewSize);
 	} else {
-		return 1;
+		return gl::vec2(1.0f);
 	}
 }
 
 vec2 OSDWidget::transformPos(gl::ivec2 viewSize, vec2 trPos, vec2 trRelPos) const
 {
 	vec2 out = trPos
-	         + (float(getScaleFactor(viewSize)) * getPos())
+	         + (getScaleFactor(viewSize) * getPos())
 		 + (trRelPos * getSize(viewSize));
 	if (const auto* p = getParent()) {
 		out = p->transformPos(viewSize, out, getRelPos());
@@ -308,7 +308,7 @@ vec2 OSDWidget::transformReverse(gl::ivec2 viewSize, vec2 trPos) const
 		trPos = p->transformReverse(viewSize, trPos);
 		return trPos
 		       - (getRelPos() * p->getSize(viewSize))
-		       - (getPos() * float(getScaleFactor(viewSize)));
+		       - (getPos() * getScaleFactor(viewSize));
 	} else {
 		return trPos;
 	}

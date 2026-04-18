@@ -78,10 +78,10 @@ GLImage::GLImage(const std::string& filename)
 {
 }
 
-GLImage::GLImage(const std::string& filename, float scaleFactor)
+GLImage::GLImage(const std::string& filename, Scale scale)
 	: texture(loadTexture(filename, size))
 {
-	size = trunc(vec2(size) * scaleFactor);
+	size = trunc(vec2(size) * scale.factor);
 	checkSize(size);
 }
 
@@ -107,7 +107,7 @@ GLImage::GLImage(ivec2 size_, uint32_t rgba)
 }
 
 GLImage::GLImage(ivec2 size_, std::span<const uint32_t, 4> rgba,
-                 int borderSize_, uint32_t borderRGBA)
+                 ivec2 borderSize_, uint32_t borderRGBA)
 	: borderSize(borderSize_)
 	, borderR(narrow_cast<uint8_t>((borderRGBA >> 24) & 0xff))
 	, borderG(narrow_cast<uint8_t>((borderRGBA >> 16) & 0xff))
@@ -153,8 +153,8 @@ void GLImage::draw(ivec2 screenSize, ivec2 pos, uint8_t r, uint8_t g, uint8_t b,
 	// |   1-------- 2   |
 	// |                 |
 	// 5-----------------6
-	int bx = (size.x > 0) ? borderSize : -borderSize;
-	int by = (size.y > 0) ? borderSize : -borderSize;
+	int bx = (size.x > 0) ? borderSize.x : -borderSize.y;
+	int by = (size.y > 0) ? borderSize.x : -borderSize.y;
 	std::array<ivec2, 8> positions = {
 		pos + ivec2(       + bx,        + by), // 0
 		pos + ivec2(       + bx, size.y - by), // 1
@@ -214,13 +214,13 @@ void GLImage::draw(ivec2 screenSize, ivec2 pos, uint8_t r, uint8_t g, uint8_t b,
 		                 narrow<float>(borderB) * (1.0f / 255.0f),
 		                 narrow<float>(borderA * alpha) * (1.0f / (255.0f * 255.0f)));
 
-		if ((2 * borderSize >= abs(size.x)) ||
-		    (2 * borderSize >= abs(size.y))) {
+		if ((2 * borderSize.x >= abs(size.x)) ||
+		    (2 * borderSize.y >= abs(size.y))) {
 			// only border
 			glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
 		} else {
 			// border
-			if (borderSize > 0) {
+			if (borderSize.x > 0 && borderSize.y > 0) {
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsBuffer.get());
 				glDrawElements(GL_TRIANGLE_STRIP, 10, GL_UNSIGNED_BYTE, nullptr);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

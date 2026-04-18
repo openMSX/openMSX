@@ -57,7 +57,7 @@ public:
 	void invalidateRecursive();
 	void paintRecursive(const OutputDimensions& output);
 
-	[[nodiscard]] float getScaleFactor(gl::ivec2 viewSize) const;
+	[[nodiscard]] gl::vec2 getScaleFactor(gl::ivec2 viewSize) const;
 	[[nodiscard]] gl::vec2 transformPos(gl::ivec2 viewSize,
 	                                    gl::vec2 pos, gl::vec2 relPos) const;
 	struct BoundingBox { gl::vec2 pos; gl::vec2 size; };

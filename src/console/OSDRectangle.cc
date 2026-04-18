@@ -130,7 +130,7 @@ vec2 OSDRectangle::getSize(gl::ivec2 viewSize) const
 	if (!imageName.empty() && image && takeImageDimensions()) {
 		return vec2(image->getSize());
 	} else {
-		return (size * float(getScaleFactor(viewSize)) * scale) +
+		return (size * getScaleFactor(viewSize) * scale) +
 		       (getParent()->getSize(viewSize) * relSize);
 	}
 }
@@ -153,15 +153,15 @@ std::unique_ptr<GLImage> OSDRectangle::create(gl::ivec2 viewSize)
 			return nullptr;
 		}
 		vec2 sz = getSize(viewSize);
-		auto factor = narrow<float>(getScaleFactor(viewSize)) * scale;
-		auto bs = narrow_cast<int>(lrintf(factor * borderSize + sz.x * relBorderSize));
-		assert(bs >= 0);
+		auto factor = getScaleFactor(viewSize) * scale;
+		auto bs = gl::ivec2(factor * borderSize + sz * relBorderSize);
+		assert(bs.x >= 0 && bs.y >= 0);
 		return std::make_unique<GLImage>(round(sz), getRGBA4(), bs, borderRGBA);
 	} else {
 		auto file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
-			auto factor = narrow<float>(getScaleFactor(viewSize)) * scale;
-			return std::make_unique<GLImage>(file, factor);
+			auto factor = getScaleFactor(viewSize) * scale;
+			return std::make_unique<GLImage>(file, GLImage::Scale(factor));
 		} else {
 			ivec2 iSize = round(getSize(viewSize));
 			return std::make_unique<GLImage>(file, iSize);

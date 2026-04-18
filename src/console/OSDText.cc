@@ -160,18 +160,18 @@ std::unique_ptr<GLImage> OSDText::create(gl::ivec2 viewSize)
 	if (text.empty()) {
 		return std::make_unique<GLImage>(ivec2(), 0);
 	}
-	int scale = getScaleFactor(viewSize);
+	auto scale = getScaleFactor(viewSize);
 	if (font.empty()) {
 		try {
 			font = TTFFont(systemFileContext().resolve(fontFile),
-			               size * scale, fontFaceIndex);
+			               int(float(size) * scale.x), fontFaceIndex);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: ", e.getMessage());
 		}
 	}
 	try {
 		vec2 pSize = getParent()->getSize(viewSize);
-		int maxWidth = narrow_cast<int>(lrintf(wrapw * narrow<float>(scale) + wraprelw * pSize.x));
+		int maxWidth = narrow_cast<int>(lrintf(wrapw * scale.x + wraprelw * pSize.x));
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);
