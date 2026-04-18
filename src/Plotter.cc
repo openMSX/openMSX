@@ -523,16 +523,15 @@ void MSXPlotter::executeGraphicCommand()
 			penPosition.x = 0.0f;
 			break;
 		case 1: // 90 CW (Down): Feed X- (Left), CR Y=0
-			penPosition.x -= drop;
-			// Check X < 0 ? (Left margin)
+			penPosition.x = std::max(penPosition.x - drop, 0.0f);
 			penPosition.y = 0.0f;
 			break;
 		case 2: // 180 (Left): Feed Y+ (Up), CR X=0
-			penPosition.y += drop;
+			penPosition.y = std::min(penPosition.y + drop, 30.0f);
 			penPosition.x = 0.0f;
 			break;
 		case 3: // 270 CW (Up): Feed X+ (Right), CR Y=0
-			penPosition.x += drop;
+			penPosition.x = std::min(penPosition.x + drop, RIGHT_BORDER);
 			penPosition.y = 0.0f;
 			break;
 		}

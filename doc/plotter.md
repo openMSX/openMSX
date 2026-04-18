@@ -301,6 +301,54 @@ The printer has 4 buttons:
 270 END
 ```
 
+### F command rotation bounds test
+Exercises the F (new line) command in each rotation (Q0..Q3). Each rotation
+starts near the "far" edge of its feed direction and then fires `P B` + `F`
+in a loop to push the pen toward the opposite edge. With correct bounds
+handling the glyphs pile up at the paper edge; without it they walk off
+the paper.
+
+Expected edges: rot 1 clamps at X=0, rot 2 at Y=30, rot 3 at X=960; rot 0
+still flushes to a new page.
+```
+10 ' Test F (new line) bounds for each rotation
+110 LPRINT:LPRINT CHR$(&H1B);"#"
+120 LPRINT "S2"
+140 ' --- Rotation 1: feeds X-, start near right edge ---
+150 LPRINT "H"
+160 LPRINT "M900,-100"
+170 LPRINT "Q1"
+180 FOR I=1 TO 50
+190 LPRINT "PB"
+200 LPRINT "F"
+210 NEXT I
+230 ' --- Rotation 2: feeds Y+, start near bottom ---
+240 LPRINT "H"
+250 LPRINT "M100,-1300"
+260 LPRINT "Q2"
+270 FOR I=1 TO 80
+280 LPRINT "PB"
+290 LPRINT "F"
+300 NEXT I
+320 ' --- Rotation 3: feeds X+, start near left edge ---
+330 LPRINT "H"
+340 LPRINT "M50,-200"
+350 LPRINT "Q3"
+360 FOR I=1 TO 50
+370 LPRINT "PB"
+380 LPRINT "F"
+390 NEXT I
+410 ' --- Rotation 0 sanity check: should flush to a new page ---
+420 LPRINT "H"
+430 LPRINT "Q0"
+440 FOR I=1 TO 80
+450 LPRINT "PB"
+460 LPRINT "F"
+470 NEXT I
+490 LPRINT "A"
+500 END
+```
+
 ## Daewoo DPL-400 / Talent DPL-400 (not emulated yet)
 The command set is almost the same as the Sony PRN-C41(D), but there are some differences. The manual is available, but there is no software that supports this plotter.
 
