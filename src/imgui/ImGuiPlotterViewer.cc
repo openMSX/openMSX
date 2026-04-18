@@ -103,7 +103,7 @@ void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::ColorButton("##pencolor", c, ImGuiColorEditFlags_NoTooltip,
 		                   gl::vec2{ImGui::GetFontSize()});
 		ImGui::SameLine();
-		ImGui::Text("  Pos: (%.1f, %.1f)", plotPos.x, plotPos.y);
+		ImGui::Text("  Pos: (%.1f, %.1f)", double(plotPos.x), double(plotPos.y));
 		ImGui::SameLine();
 		ImGui::StrCat("  Mode: ", plotter->isGraphicMode() ? "Graphic"sv : "Text"sv);
 
