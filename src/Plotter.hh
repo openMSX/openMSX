@@ -162,10 +162,10 @@ public:
 
 	// Pen colors: 0=no ink, 1=full ink for subtractive model
 	static constexpr std::array<gl::vec3, 4> inkColors = {{
-		{0.80f, 0.80f, 0.80f}, // black
-		{0.80f, 0.80f, 0.00f}, // blue
-		{0.65f, 0.32f, 0.52f}, // green
-		{0.00f, 0.80f, 0.80f}, // red
+		{0.48f, 0.48f, 0.48f}, // black
+		{0.48f, 0.48f, 0.00f}, // blue
+		{0.39f, 0.192f, 0.312f}, // green
+		{0.00f, 0.48f, 0.48f}, // red
 	}};
 };
 
