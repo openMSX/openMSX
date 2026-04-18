@@ -67,9 +67,8 @@ GLScopedClip::GLScopedClip(const OutputDimensions& output, vec2 xy, vec2 wh)
 	y = narrow_cast<float>(output.getViewSize().y) - y - h; // openGL sets (0,0) in LOWER-left corner
 
 	// transform view-space coordinates to clip-space coordinates
-	vec2 scale = output.getViewScale();
-	auto [ix, iy] = round(xy * scale) + output.getViewOffset();
-	auto [iw, ih] = round(wh * scale);
+	auto [ix, iy] = round(xy) + output.getViewOffset();
+	auto [iw, ih] = round(wh);
 
 	if (glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE) {
 		origClip.emplace();

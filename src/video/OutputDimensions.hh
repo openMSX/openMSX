@@ -16,13 +16,11 @@ public:
 	[[nodiscard]] gl::ivec2 getPhysicalSize() const { return m_physSize; }
 	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }
 	[[nodiscard]] gl::ivec2 getViewSize()   const { return m_viewSize; }
-	[[nodiscard]] gl::vec2  getViewScale()  const { return m_viewScale; }
 
 private:
 	gl::ivec2 m_physSize;
 	gl::ivec2 m_viewOffset;
 	gl::ivec2 m_viewSize;
-	gl::vec2 m_viewScale{1.0f};
 };
 
 } // namespace openmsx
