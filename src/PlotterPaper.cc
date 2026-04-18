@@ -370,6 +370,9 @@ Canvas<RgbPixel> PlotterPaper::getRGB() const
 
 gl::Texture& PlotterPaper::updateTexture(gl::ivec2 targetSize)
 {
+	assert(targetSize.x >= 1);
+	assert(targetSize.y >= 1);
+
 	auto fullSize = paper.size();
 	auto clampedTargetSize = min(targetSize, gl::ivec2(1024)); // ensure below 2048 x 2028
 	auto factor = max_component(trunc(fullSize / clampedTargetSize));
@@ -385,16 +388,17 @@ gl::Texture& PlotterPaper::updateTexture(gl::ivec2 targetSize)
 	}
 	auto dstTl = damage.tl / factor;
 	auto dstBr = damage.br / factor;
-	auto dstSize = dstBr - dstTl;
+	auto dstSize = max(dstBr - dstTl, gl::ivec2(1));
 	auto srcOffset = dstTl * factor;
 
 	auto sample_direct = [&](int x, int y) { return paper.getLine(y + srcOffset.y)[x + srcOffset.x]; };
 	auto down_sample_generic = [&](int x, int y) { // run-time 'factor'
 		auto srcPos = gl::ivec2(x, y) * factor + srcOffset;
 		auto sum = gl::vec3(0.0f);
-		for (int sy = 0; sy < factor; ++sy) {
-			auto line = subspan(paper.getLine(srcPos.y + sy), srcPos.x, factor);
-			for (int sx = 0; sx < factor; ++sx) {
+		auto factorXY = min(paper.size(), gl::ivec2(factor));
+		for (int sy = 0; sy < factorXY.y; ++sy) {
+			auto line = subspan(paper.getLine(srcPos.y + sy), srcPos.x, factorXY.x);
+			for (int sx = 0; sx < factorXY.x; ++sx) {
 				sum += line[sx];
 			}
 		}
