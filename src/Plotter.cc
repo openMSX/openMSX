@@ -465,7 +465,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'L': // Line type - L n (0-15)
 		if (!coords.empty()) {
-			lineType = std::clamp(int(coords[0]), 0, 15);
+			lineType = uint8_t(std::clamp(int(coords[0]), 0, 15));
 			dashDistance = 0.0f; // Reset pattern phase
 			printDebug("Plotter: L - Line type set to ", lineType);
 		}
@@ -572,7 +572,7 @@ void MSXPlotter::executeGraphicCommand()
 			auto newPen = unsigned(coords[0]);
 			if (newPen != selectedPen) {
 				printDebug("Plotter: C - Select color ", newPen, " (Pen change delay applied)");
-				selectedPen = newPen;
+				selectedPen = uint8_t(newPen);
 			}
 		}
 		break;
