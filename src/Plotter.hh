@@ -89,6 +89,7 @@ private:
 	void drawLine(gl::vec2 from, gl::vec2 to);
 	void drawCharacter(uint8_t c);
 	void drawDot(gl::vec2 pos);
+	void setPenDown(bool newState);
 	void drawDashedLine(gl::vec2 A, gl::vec2 B, float halfPeriod);
 	void drawSolidLine(gl::vec2 A, gl::vec2 B);
 	[[nodiscard]] gl::vec2 toPaperPos(gl::vec2 plotterPos) const;
@@ -120,7 +121,7 @@ private:
 
 	// Pen/color state
 	uint8_t selectedPen = 0; // 0=black, 1=blue, 2=green, 3=red
-	bool penDown = true; // pen starts down for drawing   TODO this isn't used ??
+	bool penDown = false; // true while executing a drawing command (D/J/P or text-mode printable)
 
 	// Plotter head position (logical steps, relative to origin)
 	gl::vec2 penPosition{0.0f, 0.0f};

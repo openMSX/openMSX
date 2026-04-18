@@ -437,18 +437,22 @@ void MSXPlotter::executeGraphicCommand()
 	case 'D': // Draw (absolute) - D x,y[,x,y,...]
 		// The D command draws a series of absolute line segments
 		printDebug("Plotter: D - Draw absolute, ", coords.size() / 2, " segments, penDown=", penDown);
+		setPenDown(true);
 		for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 			gl::vec2 target{coords[i], coords[i + 1]};
 			lineTo(target);
 		}
+		setPenDown(false);
 		break;
 
 	case 'J': // Draw relative - J dx,dy[,dx,dy,...]
 		// The J command draws a series of relative line segments
 		printDebug("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penDown);
+		setPenDown(true);
 		for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 			lineTo(penPosition + gl::vec2{coords[i], coords[i + 1]});
 		}
+		setPenDown(false);
 		break;
 
 	case 'S': // Scale set - S n (0-15)
@@ -621,9 +625,23 @@ void MSXPlotter::drawDot(gl::vec2 pos)
 	paper->draw_dot(toPaperPos(pos), penRadius(), penColor());
 }
 
+void MSXPlotter::setPenDown(bool newState)
+{
+	if (newState == penDown) return;
+	if (newState) {
+		// Pen touches down: deposit a dwell dot (extra ink while stationary).
+		penDown = true;
+		drawDot(penPosition);
+	} else {
+		// Pen about to lift: deposit a dwell dot, then raise.
+		drawDot(penPosition);
+		penDown = false;
+	}
+}
+
 void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
 {
-	if (!penDown) return; // TODO increase dashDistance?
+	assert(penDown);
 
 	ensurePrintPage();
 	// TODO handle begin/end point with draw_dot() ??
@@ -723,7 +741,7 @@ void MSXPlotter::resetSettings()
 	mode = Mode::TEXT;
 	escState = EscState::NONE;
 	selectedPen = 0;
-	penDown = true;
+	penDown = false;
 	penPosition = gl::vec2{0.0f, 30.0f};
 	origin = gl::vec2{0.0f, 1354.0f};
 	lineType = 0;
@@ -748,7 +766,6 @@ void MSXPlotter::moveTo(gl::vec2 pos)
 
 void MSXPlotter::lineTo(gl::vec2 pos)
 {
-	// lineTo calls drawLine, which now handles addMoveDelay
 	drawLine(penPosition, pos);
 	penPosition = pos;
 }
@@ -757,6 +774,10 @@ void MSXPlotter::drawCharacter(uint8_t c)
 {
 	ScopedAssign savedLineType(lineType, 0);
 	ScopedAssign savedDashDistance(dashDistance, dashDistance); // value doesn't matter, just restore at the end
+	// Character glyphs are drawn as short strokes from the glyph grid; the pen is
+	// logically down during the call. Skip dwell dots (setPenDown) because the
+	// cursor/baseline position is not where the pen physically touches paper.
+	ScopedAssign savedPenDown(penDown, true);
 
 	// Select font based on character set setting
 	auto font = [&] {
