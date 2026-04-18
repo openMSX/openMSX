@@ -343,7 +343,11 @@ void Display::repaint()
 
 void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
 {
-	outputDim = OutputDimensions{windowSize, renderSettings.getScaleMode()};
+	auto newOutputDim = OutputDimensions{windowSize, renderSettings.getScaleMode()};
+	if (newOutputDim != outputDim) {
+		outputDim = newOutputDim;
+		osdLayer->invalidateAll();
+	}
 
 	if (auto* video = findActiveLayer()) {
 		video->paint(outputDim);

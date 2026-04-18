@@ -14,6 +14,8 @@ public:
 
 	[[nodiscard]] OSDGUI& getGUI() { return gui; }
 
+	void invalidateAll();
+
 	// Layer
 	void paint(const OutputDimensions& output);
 

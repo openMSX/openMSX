@@ -12,6 +12,11 @@ OSDGUILayer::OSDGUILayer(OSDGUI& gui_)
 
 OSDGUILayer::~OSDGUILayer()
 {
+	invalidateAll();
+}
+
+void OSDGUILayer::invalidateAll()
+{
 	getGUI().getTopWidget().invalidateRecursive();
 }
 

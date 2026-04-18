@@ -17,6 +17,8 @@ public:
 	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }
 	[[nodiscard]] gl::ivec2 getViewSize()   const { return m_viewSize; }
 
+	[[nodiscard]] bool operator==(const OutputDimensions&) const = default;
+
 private:
 	gl::ivec2 m_physSize;
 	gl::ivec2 m_viewOffset;
