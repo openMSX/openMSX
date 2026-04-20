@@ -338,6 +338,15 @@ void saveRGBA(size_t width, std::span<const uint32_t*> rowPointers,
 	save(surface.get(), filename);
 }
 
+
+void saveRGB(size_t width, std::span<const uint8_t*> rowPointers,
+	     const std::string& filename)
+{
+	// Each row is width*3 bytes (packed RGB)
+	std::span rowPtrs{std::bit_cast<const void**>(rowPointers.data()), rowPointers.size()};
+	IMG_SavePNG_RW(width, rowPtrs, filename, true);
+}
+
 void saveGrayscale(size_t width, std::span<const uint8_t*> rowPointers_,
                    const std::string& filename)
 {

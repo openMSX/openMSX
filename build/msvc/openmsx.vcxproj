@@ -515,6 +515,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiOsdIcons.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPalette.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPlot.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPlotterViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiRasterViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.cc" />
@@ -867,6 +868,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\PluggableFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PluggingController.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Printer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Paper.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Plotter.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXCharacterSets.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortLogger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortSimpl.cc" />
