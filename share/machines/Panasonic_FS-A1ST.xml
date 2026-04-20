@@ -185,6 +185,7 @@
       <secondary slot="2">
         <TC8566AF id="Memory Mapped FDC">
           <io_regs>7FF2</io_regs>
+          <connectionstyle>National</connectionstyle>
           <rom>
             <firstblock>48</firstblock>
             <lastblock>55</lastblock>
