@@ -152,6 +152,7 @@ void MSXPlotter::write(uint8_t data)
 				executeGraphicCommand();
 				graphicCmdBuffer.clear();
 			}
+			flushPendingPenUp(); // end any open path on mode change
 			mode = Mode::TEXT;
 			escState = NONE;
 		} else if (data == 'C') {
@@ -167,6 +168,7 @@ void MSXPlotter::write(uint8_t data)
 
 	case ESC_C: // Got ESC C, waiting for color digit '0'-'3'
 		if ('0' <= data && data <= '3') {
+			flushPendingPenUp(); // lift dot belongs to old color
 			selectedPen = data - '0';
 			printDebug("Plotter: selected pen ", selectedPen);
 			terminatorSkip = TerminatorSkip::START;
@@ -414,6 +416,13 @@ void MSXPlotter::executeGraphicCommand()
 		}
 	}
 
+	// Any command other than D/J ends a drawing path — flush the deferred
+	// pen-lift dot at the last draw position (in the current pen color,
+	// before any 'C' color change below).
+	if (cmd != 'D' && cmd != 'J') {
+		flushPendingPenUp();
+	}
+
 	switch (cmd) {
 	case 'H': // Home - move to origin
 		printDebug("Plotter: H - Home");
@@ -626,16 +635,29 @@ void MSXPlotter::drawDot(gl::vec2 pos)
 
 void MSXPlotter::setPenDown(bool newState)
 {
-	if (newState == penDown) return;
 	if (newState) {
-		// Pen touches down: deposit a dwell dot (extra ink while stationary).
+		if (pendingPenUp) {
+			// Continuing a path (another D/J with no move in between):
+			// cancel deferred lift, no new touchdown dot.
+			pendingPenUp = false;
+			return;
+		}
+		if (penDown) return;
 		penDown = true;
 		drawDot(penPosition);
 	} else {
-		// Pen about to lift: deposit a dwell dot, then raise.
-		drawDot(penPosition);
-		penDown = false;
+		if (!penDown || pendingPenUp) return;
+		// Defer the lift dot; another D/J may continue the path.
+		pendingPenUp = true;
 	}
+}
+
+void MSXPlotter::flushPendingPenUp()
+{
+	if (!pendingPenUp) return;
+	drawDot(penPosition);
+	pendingPenUp = false;
+	penDown = false;
 }
 
 void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
@@ -712,6 +734,7 @@ void MSXPlotter::ensurePrintPage()
 
 void MSXPlotter::flushEmulatedPrinter()
 {
+	flushPendingPenUp();
 	if (!paper) return;
 
 	if (!paper->empty()) {
@@ -741,6 +764,7 @@ void MSXPlotter::resetSettings()
 	escState = EscState::NONE;
 	selectedPen = 0;
 	penDown = false;
+	pendingPenUp = false;
 	penPosition = gl::vec2{0.0f, 30.0f};
 	origin = gl::vec2{0.0f, 1354.0f};
 	lineType = 0;
@@ -813,6 +837,28 @@ void MSXPlotter::drawCharacter(uint8_t c)
 		return penPosition + rotations[rotation] * p;
 	};
 
+	// Count filled neighbors of glyph pixel (dx,dy) across all 8 directions.
+	// A pixel with 0 neighbors is isolated and needs an explicit dot to be
+	// visible; with exactly 1 neighbor it is a stroke endpoint (touchdown or
+	// lift) and gets a dwell dot; interior pixels (>= 2 neighbors) are fully
+	// covered by the lines that meet there — an extra dot would just darken
+	// the grid intersection.
+	auto countNeighbors = [&](int dx, int dy) {
+		int count = 0;
+		for (int ny = -1; ny <= 1; ++ny) {
+			int gy = dy + ny;
+			if (gy < 0 || gy > 7) continue;
+			uint8_t row = glyph[gy];
+			for (int nx = -1; nx <= 1; ++nx) {
+				if (nx == 0 && ny == 0) continue;
+				int gx = dx + nx;
+				if (gx < 0 || gx > 7) continue;
+				if (row & (0x80 >> gx)) ++count;
+			}
+		}
+		return count;
+	};
+
 	for (int dy = 0; dy < 8; ++dy) {
 		uint8_t rowPattern = glyph[dy];
 		// dy=0 is top row, dy=7 is bottom row.
@@ -867,7 +913,9 @@ void MSXPlotter::drawCharacter(uint8_t c)
 						}
 					}
 				}
-				drawDot(p);
+				if (countNeighbors(dx, dy) <= 1) {
+					drawDot(p);
+				}
 			}
 		}
 	}
