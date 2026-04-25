@@ -22,6 +22,7 @@
         <li><a class="internal" href="#cassetteplayer">cassetteplayer</a></li>
         <li><a class="internal" href="#cd">cd&lt;x&gt;</a></li>
         <li><a class="internal" href="#cycle">cycle / cycle_back</a></li>
+        <li><a class="internal" href="#cycle_machine">cycle_machine / cycle_back_machine</a></li>
         <li><a class="internal" href="#debug">debug</a></li>
         <li><a class="internal" href="#disk">disk&lt;x&gt; / virtual_drive</a></li>
         <li><a class="internal" href="#diskmanipulator">diskmanipulator</a></li>
@@ -30,6 +31,7 @@
         <li><a class="internal" href="#ext">ext / ext&lt;x&gt;</a></li>
         <li><a class="internal" href="#filepool">filepool</a></li>
         <li><a class="internal" href="#findcheat">findcheat</a></li>
+        <li><a class="internal" href="#get_clipboard_text">get_clipboard_text</a></li>
         <li><a class="internal" href="#hd">hd&lt;x&gt;</a></li>
         <li><a class="internal" href="#help">help</a></li>
         <li><a class="internal" href="#incr">incr</a></li>
@@ -60,7 +62,9 @@
         <li><a class="internal" href="#savestate">savestate / loadstate / list_savestates / delete_savestate</a></li>
         <li><a class="internal" href="#screenshot">screenshot</a></li>
         <li><a class="internal" href="#set">set</a></li>
+        <li><a class="internal" href="#set_clipboard_text">set_clipboard_text</a></li>
         <li><a class="internal" href="#setup">setup</a></li>
+        <li><a class="internal" href="#sha1sum">sha1sum</a></li>
         <li><a class="internal" href="#slotmap">slotmap</a></li>
         <li><a class="internal" href="#slotselect">slotselect</a></li>
         <li><a class="internal" href="#soundlog">soundlog</a></li>
@@ -588,6 +592,28 @@
   </div>
 
 
+  <h3><a id="cycle_machine">cycle_machine / cycle_back_machine</a></h3>
+
+  <p>Cycle through the current running machines.</p>
+
+  <p><code>cycle_back_machine</code> does the same as <code>cycle_machine</code>, but it goes in the opposite direction.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>cycle_machine</code></td>
+      <td>Changes the current machine to the next one in the cycle</td>
+    </tr>
+    <tr>
+      <td><code>cycle_back_machine</code></td>
+      <td>Changes the current machine to the previous one in the cycle</td>
+    </tr>
+  </table>
+
+
   <h3><a id="debug">debug</a></h3>
 
   <p>This command provides access to the debugger functionality of openMSX. It can be used by an external debugger (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>), but openMSX has since evolved to include its own debugger. The general format of the debug command is:</p>
@@ -920,6 +946,22 @@
 
   <p>Vampier made a video tutorial on how to use <code>findcheat</code>, you can find it <a class="external" href="http://www.youtube.com/watch?v=F11ltfkCtKo">here</a>.</p>
 
+  <h3><a id="get_clipboard_text">get_clipboard_text</a></h3>
+
+  <p>Shows the (text) content of the clipboard as a string.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>get_clipboard_text</code></td>
+
+      <td>Returns the text content of the clipboard as a string.</td>
+    </tr>
+  </table>
+
 
   <h3><a id="hd">hd&lt;x&gt;</a></h3>
 
@@ -1246,6 +1288,7 @@
     <code>message "Something bad happened" error</code><br />
   </div>
 
+
   <h3><a id="monitor_type">monitor_type</a></h3>
 
   <p>Select a monitor color profile.</p>
@@ -1277,6 +1320,7 @@
   <div class="note">
     Note: This command is a convenience wrapper around the <code><a class="internal" href="#color_matrix">color_matrix</a></code> setting.
   </div>
+
 
   <h3><a id="mute_channels">mute_channels / unmute_channels / solo</a></h3>
 
@@ -1856,6 +1900,7 @@
     </tr>
   </table>
 
+
   <h3><a id="set">set</a></h3>
 
   <p>Change or query the value of various settings. See also: <code><a class="internal" href="#unset">unset</a></code>.</p>
@@ -1891,6 +1936,31 @@
     <code>set deinterlace on</code><br />
   </div>
 
+
+  <h3><a id="set_clipboard_text">set_clipboard_text</a></h3>
+
+  <p>Sends the given string to the clipboard.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set_clipboard_text &lt;text&gt;</code></td>
+
+      <td>Sends the text to the clipboard as a string.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+  <div class="examples">
+    <code>set_clipboard_text "Hello world!"</code><br />
+  </div>
+
+
   <h3><a id="setup">setup</a></h3>
 
   <p>Switch to a previously saved setup.</p>
@@ -1911,6 +1981,24 @@
     Note: The machine handle is mostly used by external applications controlling openMSX (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). For interactive use you can omit the machine handle to have the commands operate on the current machine.
   </div>
 
+
+  <h3><a id="sha1sum">sha1sum</a></h3>
+
+  <p>Calculates sha1 value for the given file. If the file is (g)zipped the sha1 is calculated on the unzipped version.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>sha1sum &lt;filename&gt;</code></td>
+
+      <td>Returns a string with the sha1 value for the specified file.</td>
+    </tr>
+  </table>
+
+
   <h3><a id="slotmap">slotmap</a></h3>
 
   <p>Shows what devices are inserted into which slots. The related command <code><a class="internal" href="#iomap">iomap</a></code> shows a similar overview, but for I/O mapped devices.</p>
@@ -1927,6 +2015,7 @@
     </tr>
   </table>
 
+
   <h3><a id="slotselect">slotselect</a></h3>
 
   <p>Shows the currently selected slots. To see what devices are located in the slots, use the <code><a class="internal" href="#slotmap">slotmap</a></code> command.</p>
@@ -1942,6 +2031,7 @@
       <td>Shows the currently selected slot for each page</td>
     </tr>
   </table>
+
 
   <h3><a id="soundlog">soundlog</a></h3>
 
@@ -2018,6 +2108,7 @@
     Note: These commands are pretty low level. The <code><a class="internal" href="#savestate">savestate</a></code> and <code><a class="internal" href="#savestate">loadstate</a></code> scripts are built on top of this and are much more convenient to use.
   </div>
 
+
   <h3><a id="store_setup">store_setup</a></h3>
 
   <p>Store the current setup in a file.</p>
@@ -2047,6 +2138,7 @@
   <p>Storing the current setup can also be done with the GUI via <span class="menu-reference">Main menu bar
 &rarr; Machine &rarr; Save setup</span>.</p>
 
+
   <h3><a id="test_machine">test_machine / test_all_machines / test_all_extensions</a></h3>
 
   <p>Test whether the given MSX machine configuration works. For example whether you have all required system ROMs for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>. This is an alternative to using the equivalent option in the GUI <span class="menu-reference">Main menu bar
@@ -2063,6 +2155,7 @@
   </table>
 
   <p>Use the convenience commands <code>test_all_machines</code> and <code>test_all_extensions</code> to get a full overview on which system ROMs you are still missing.</p>
+
 
   <h3><a id="toggle">toggle</a></h3>
 
@@ -2089,6 +2182,7 @@
     <code>toggle mute</code><br />
     <code>toggle throttle</code>
   </div>
+
 
   <h3><a id="trainer">trainer</a></h3>
 
@@ -2140,6 +2234,7 @@
     <code>trainer "Circus Charlie" 1 2</code><br />
     <code>trainer Pippols lives "jump shoes"</code>
   </div>
+
 
   <h3><a id="type">type / type_via_keyboard</a></h3>
 
@@ -2208,6 +2303,7 @@
     </tr>
   </table>
 
+
   <h3><a id="unset">unset</a></h3>
 
   <p>Undefines a Tcl variable. When used on openMSX settings, they are reverted to their default value. See also: <code><a class="internal" href="#set">set</a></code>.</p>
@@ -2230,7 +2326,9 @@
     </tr>
   </table>
 
+
   <h3><a id="user_setting">user_setting</a></h3>
+
   <p>This command is only meant to be used in Tcl scripts. It allows to create Tcl variables that act very much like built-in openMSX settings. They have a description (can be queried with "<code>help set &lt;setting-name&gt;</code>") and their value is stored saved/restored when openMSX is quit/restarted.</p>
 
   <!-- do we really have to repeat the help text from the openmsx source code here? -->
@@ -2264,7 +2362,11 @@
   <table>
     <tr>
       <td><code>about</code></td>
-      <td>Search command and setting help-texts for the given keyword</td>
+      <td>Searches command and setting help-texts for the given keyword</td>
+    </tr>
+    <tr>
+      <td><code>address_in_slot</code></td>
+      <td>Tests whether an address is inside a certain slot</td>
     </tr>
     <tr>
       <td><code>cpuregs</code></td>
@@ -2276,23 +2378,31 @@
     </tr>
     <tr>
       <td><code>disasm</code></td>
-      <td>Print disassembled instructions at the given memory location</td>
+      <td>Prints disassembled instructions at the given memory location</td>
     </tr>
     <tr>
       <td><code>getcolor</code></td>
-      <td>Query V99x8 palette settings</td>
+      <td>Queries V99x8 palette settings</td>
     </tr>
     <tr>
       <td><code>get_active_cpu</code></td>
       <td>Returns the active cpu, z80 or r800</td>
     </tr>
     <tr>
+      <td><code>get_breakponts_dir</code></td>
+      <td>Returns breakpoints directory for this user</td>
+    </tr>
+    <tr>
       <td><code>get_color_count</code></td>
       <td>Gives an overview of the used colors in the current screen</td>
     </tr>
     <tr>
+      <td><code>get_mapper_size</code></td>
+      <td>Returns the size of the memory mapper in a given slot or 0 when there is no memory mapper in the slot</td>
+    </tr>
+    <tr>
       <td><code>get_screen</code></td>
-      <td>Capture the content of an MSX text screen in a Tcl string</td>
+      <td>Captures the content of an MSX text screen in a Tcl string</td>
     </tr>
     <tr>
       <td><code>get_screen_mode</code></td>
@@ -2304,7 +2414,7 @@
     </tr>
     <tr>
       <td><code>guess_title</code></td>
-      <td>Use heuristics to guess the title of the current game (cartridge, disk or tape). For specific media use <code>guess_cassette_title</code>, <code>guess_disk_title</code> or <code>guess_rom_title</code>.</td>
+      <td>Uses heuristics to guess the title of the current game (cartridge, disk or tape). For specific media use <code>guess_cassette_title</code>, <code>guess_disk_title</code> or <code>guess_rom_title</code>.</td>
     </tr>
     <tr>
       <td><code>listing</code></td>
@@ -2312,47 +2422,67 @@
     </tr>
     <tr>
       <td><code>load_debuggable</code></td>
-      <td>Write the content of a file to a openMSX debuggable</td>
+      <td>Writes the content of a file to a openMSX debuggable</td>
+    </tr>
+    <tr>
+      <td><code>load_breakpoints</code></td>
+      <td>Loads all breakpoint subtypes (breakpoints, watchpoints and conditions) from a given file</td>
+    </tr>
+    <tr>
+      <td><code>msxcode2unicode</code></td>
+      <td>Returns a unicode string converted from a MSX-string, i.e. a string based on MSX character codes</td>
     </tr>
     <tr>
       <td><code>multi_screenshot</code></td>
-      <td>Take screenshots of multiple successive frames</td>
+      <td>Takes screenshots of multiple successive frames</td>
+    </tr>
+    <tr>
+      <td><code>next_frame</code></td>
+      <td>Emulates until the (start of) the next frame, then pause emulation</td>
+    </tr>
+    <tr>
+      <td><code>prev_frame</code></td>
+      <td>Rewinds to the (start of) the previous frame</td>
     </tr>
     <tr>
       <td><code>pc_in_slot</code></td>
-      <td>Check whether CPU is executing from the specified slot (useful as breakpoint condition)</td>
+      <td>Checks whether CPU is executing from the specified slot (useful as breakpoint condition)</td>
     </tr>
     <tr>
       <td><code>peek</code></td>
-      <td>Read a byte from the given memory location</td>
+      <td>Reads a byte from the given memory location</td>
     </tr>
     <tr>
       <td><code>peek16</code></td>
-      <td>Read a 16 bit word from the given memory location</td>
+      <td>Reads a 16 bit word from the given memory location</td>
     </tr>
     <tr>
       <td><code>poke</code></td>
-      <td>Write a byte to the given memory location. Use <code>dpoke</code> to only write if the value to be written is different from the current value.</td>
+      <td>Writes a byte to the given memory location. Use <code>dpoke</code> to only write if the value to be written is different from the current value.</td>
     </tr>
     <tr>
       <td><code>poke16</code></td>
-      <td>Write a 16 bit word to the given memory location</td>
+      <td>Writes a 16 bit word to the given memory location</td>
     </tr>
     <tr>
       <td><code>psg_log</code></td>
-      <td>Log or replay PSG register values in binary format</td>
+      <td>Logs or replays PSG register values in binary format</td>
     </tr>
     <tr>
       <td><code>ram_watch</code></td>
-      <td>Add or remove RAM watch addresses to/from the list on the right side of the screen, useful for debugging or tool assisted speedrunning (TAS)</td>
+      <td>Adds or removes RAM watch addresses to/from the list on the right side of the screen, useful for debugging or tool assisted speedrunning (TAS)</td>
     </tr>
     <tr>
       <td><code>reg</code></td>
-      <td>Read or write CPU registers</td>
+      <td>Reads or writes CPU registers</td>
     </tr>
     <tr>
       <td><code>reg_log</code></td>
-      <td>Log or replay register values for the specified debuggable in ASCII format</td>
+      <td>Logs or replays register values for the specified debuggable in ASCII format</td>
+    </tr>
+    <tr>
+      <td><code>reverse_bookmarks</code></td>
+      <td>Controls the reverse bookmarks functionality</td>
     </tr>
     <tr>
       <td><code>rom_info</code></td>
@@ -2360,11 +2490,15 @@
     </tr>
     <tr>
       <td><code>run_to</code></td>
-      <td>Execute instructions until the PC reaches the specified address</td>
+      <td>Executes instructions until the PC reaches the specified address</td>
+    </tr>
+    <tr>
+      <td><code>save_breakpoints</code></td>
+      <td>Saves all breakpoints subtypes (breakpoints, watchpoints, conditions) to a given file</td>
     </tr>
     <tr>
       <td><code>save_debuggable</code></td>
-      <td>Save the (partial) content of a debuggable to a file</td>
+      <td>Saves the (partial) content of a debuggable to a file</td>
     </tr>
     <tr>
       <td><code>save_msx_screen</code></td>
@@ -2376,27 +2510,31 @@
     </tr>
     <tr>
       <td><code>setcolor</code></td>
-      <td>Change V99x8 palette settings</td>
+      <td>Changes V99x8 palette settings</td>
+    </tr>
+    <tr>
+      <td><code>set_help_proc</code></td>
+      <td>Associates help text with a Tcl proc</td>
     </tr>
     <tr>
       <td><code>set_help_text</code></td>
-      <td>Associate help text with a Tcl proc</td>
+      <td>Associates help text with a Tcl proc</td>
     </tr>
     <tr>
       <td><code>set_tabcompletion_proc</code></td>
-      <td>Associate tab completion with a Tcl proc</td>
+      <td>Associates tab completion with a Tcl proc</td>
     </tr>
     <tr>
       <td><code>showdebuggable</code></td>
-      <td>Print the content of a debuggable in a table</td>
+      <td>Prints the content of a debuggable in a table</td>
     </tr>
     <tr>
       <td><code>showmem</code></td>
-      <td>Print the content of memory in a table</td>
+      <td>Prints the content of memory in a table</td>
     </tr>
     <tr>
       <td><code>show_osd</code></td>
-      <td>Print an overview of the defined OSD elements</td>
+      <td>Prints an overview of the defined OSD elements</td>
     </tr>
     <tr>
       <td><code>shuffler</code></td>
@@ -2404,71 +2542,79 @@
     </tr>
     <tr>
       <td><code>skip_instruction</code></td>
-      <td>Skip the current CPU instruction</td>
+      <td>Skips the current CPU instruction</td>
     </tr>
     <tr>
       <td><code>stack</code></td>
-      <td>Print the top of the CPU stack</td>
+      <td>Prints the top of the CPU stack</td>
+    </tr>
+    <tr>
+      <td><code>start_of_frame</code></td>
+      <td>Rewinds to the start of the current frame</td>
+    </tr>
+    <tr>
+      <td><code>step</code></td>
+      <td>Same as step_in</td>
     </tr>
     <tr>
       <td><code>step_in</code></td>
-      <td>Execute one CPU instruction, go into subroutines</td>
+      <td>Executes one CPU instruction, go into subroutines</td>
     </tr>
     <tr>
       <td><code>step_over</code></td>
-      <td>Execute one CPU instruction, but don't go into subroutines</td>
+      <td>Executes one CPU instruction, but don't go into subroutines</td>
     </tr>
     <tr>
       <td><code>step_out</code></td>
-      <td>Step out of the current subroutine</td>
+      <td>Steps out of the current subroutine</td>
     </tr>
     <tr>
       <td><code>step_back</code></td>
-      <td>Step one instruction back in time</td>
+      <td>Steps one instruction back in time</td>
     </tr>
     <tr>
       <td><code>text_echo</code></td>
-      <td>Echo all printed MSX text on stderr</td>
+      <td>Echoes all printed MSX text on stderr</td>
     </tr>
     <tr>
       <td><code>toggle_cursors</code></td>
-      <td>Show (or hide) a widget which shows which keys are pressed</td>
+      <td>Shows (or hides) a widget which shows which keys are pressed</td>
     </tr>
     <tr>
       <td><code>toggle_frame_counter</code></td>
-      <td>Show (or hide) a widget which shows the current frame number since start-up</td>
+      <td>Shows (or hides) a widget which shows the current frame number since start-up</td>
     </tr>
     <tr>
       <td><code>toggle_freq</code></td>
-      <td>Switch between PAL/NTSC</td>
+      <td>Switches between PAL/NTSC</td>
     </tr>
     <tr>
       <td><code>toggle_mog_overlay</code></td>
-      <td>Enable (or disable) graphical extra information and game hints when playing The Maze of Galious</td>
+      <td>Enables (or disables) graphical extra information and game hints when playing The Maze of Galious</td>
     </tr>
     <tr>
       <td><code>toggle_mog_editor</code></td>
-      <td>Enable (or disable) wall drawing and Popolon-placement with the mouse when playing The Maze of Galious; needs to have the MoG overlay enabled, see <code>toggle_mog_overlay</code></td>
+      <td>Enables (or disables) wall drawing and Popolon-placement with the mouse when playing The Maze of Galious; needs to have the MoG overlay enabled, see <code>toggle_mog_overlay</code></td>
     </tr>
     <tr>
       <td><code>toggle_music_keyboard</code></td>
-      <td>Enable (or disable) keyboard view of all existing music channels. EXPERIMENTAL! Be careful, it's very slow when many channels are present in the system</td>
+      <td>Enables (or disables) keyboard view of all existing music channels. EXPERIMENTAL! Be careful, it's very slow when many channels are present in the system</td>
     </tr>
     <tr>
       <td><code>toggle_nemesis_1_shield</code></td>
-      <td>Enable (or disable) an OSD drawn shield in Nemesis (Gradius) 1, all enemy objects will repel from it</td>
+      <td>Enables (or disables) an OSD drawn shield in Nemesis (Gradius) 1, all enemy objects will repel from it</td>
     </tr>
     <tr>
       <td><code>toggle_psg2scc</code></td>
-      <td>Enable (or disable) playing PSG sound on SCC</td>
+      <td>Enables (or disables) playing PSG sound on SCC</td>
     </tr>
     <tr>
       <td><code>toggle_scc_editor</code></td>
-      <td>Show a graphical view of the SCC chip(s) of the system, showing waveforms and volume per channel and also enables you to edit the waveforms per channel</td>
+      <td>Shows a graphical view of the SCC chip(s) of the system, showing waveforms and volume per channel and also enables you to edit the waveforms per channel</td>
     </tr>
     <tr>
       <td><code>toggle_scc_viewer</code></td>
-      <td>Show a graphical view of the SCC chip(s) of the system, showing
+      <td>Shows a graphical view of the SCC chip(s) of the system, showing
           waveforms and volume per channel. In the future, this will be fully
           replaced by <span class="menu-reference">Main menu bar &rarr; Tools
           &rarr; SCC viewer</span>.
@@ -2476,15 +2622,15 @@
     </tr>
     <tr>
       <td><code>toggle_tron</code></td>
-      <td>Show (or hide) an OSD implementation of the MSX-BASIC TRON command to trace what the current line number of the BASIC interpreter is</td>
+      <td>Shows (or hides) an OSD implementation of the MSX-BASIC TRON command to trace what the current line number of the BASIC interpreter is</td>
     </tr>
     <tr>
       <td><code>toggle_vdp_access_test</code></td>
-      <td>Enable (or disable) reporting in the console when VDP I/O is done which could possibly cause data corruption on the slowest VDP (TMS9xxx), which is not emulated</td>
+      <td>Enables (or disables) reporting in the console when VDP I/O is done which could possibly cause data corruption on the slowest VDP (TMS9xxx), which is not emulated</td>
     </tr>
     <tr>
       <td><code>toggle_vdp_busy</code></td>
-      <td>Enable (or disable) display on the OSD how busy the VDP is</td>
+      <td>Enables (or disables) display on the OSD of how busy the VDP is</td>
     </tr>
     <tr>
       <td><code>type_via_keybuf</code></td>
@@ -2500,15 +2646,15 @@
     </tr>
     <tr>
       <td><code>v9990reg</code></td>
-      <td>Read or write a V9990 register</td>
+      <td>Reads or writes a V9990 register</td>
     </tr>
     <tr>
       <td><code>v9990regs</code></td>
-      <td>Print an overview of all V9990 registers</td>
+      <td>Prints an overview of all V9990 registers</td>
     </tr>
     <tr>
       <td><code>vdpreg</code></td>
-      <td>Read or write a V99x8 register</td>
+      <td>Reads or writes a V99x8 register</td>
     </tr>
     <tr>
       <td><code>vdpstatus</code></td>
@@ -2524,11 +2670,11 @@
     </tr>
     <tr>
       <td><code>vgm_rec</code></td>
-      <td>Record the music played by PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC into a VGM file</td>
+      <td>Records the music played by PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC into a VGM file</td>
     </tr>
     <tr>
       <td><code>vpeek/vpoke</code></td>
-      <td>Read/write bytes from/to video RAM</td>
+      <td>Reads/writes bytes from/to video RAM</td>
     </tr>
   </table>
 
@@ -2537,6 +2683,7 @@
   <h2><a id="settings">Settings</a></h2>
 
   <p>Settings control many aspects of openMSX. Below, the available settings are listed and described. You can change setting values with the <code><a class="internal" href="#set">set</a></code> command.</p>
+
 
   <h3><a id="accuracy">accuracy</a></h3>
 
@@ -2587,6 +2734,7 @@
     </tr>
   </table>
 
+
   <h3><a id="audio-inputfilename">audio-inputfilename</a></h3>
 
   <p>Sets the audio file from which the wave input is read for the sampler.</p>
@@ -2614,6 +2762,7 @@
   <div class="note">
     Note: The file is fully read into memory, so under Linux/UNIX do not attempt to read from a device node such as <code>/dev/dsp</code>.
   </div>
+
 
   <h3><a id="autoruncassettes">autoruncassettes</a></h3>
 
@@ -2648,6 +2797,7 @@
     Note: Autorun works practically always for cassette images in the CAS and TSX formats. If that fails or for WAV files, openMSX will try to find a hint of the loading instruction (in upper case) in the filename.
   </div>
 
+
   <h3><a id="autorunlaserdisc">autorunlaserdisc</a></h3>
 
   <p>Switches the "auto-run laserdisc" feature on or off. When it's enabled, openMSX will try to type the proper loading
@@ -2677,6 +2827,7 @@
     </tr>
   </table>
 
+
   <h3><a id="auto_enable_reverse">auto_enable_reverse</a></h3>
 
   <p>Using the <code><a class="internal" href="#reverse">reverse</a></code> feature comes at a small memory and performance cost. Therefore it has to be enabled before it can be used. This setting controls whether the reverse feature should automatically be activated when openMSX starts. While with desktop computers this generally won't be a problem, the performance drop might be more noticeable on older/smaller handheld devices.</p>
@@ -2700,9 +2851,11 @@
     </tr>
   </table>
 
+
   <h3><a id="auto_save_replay">auto_save_replay</a></h3>
 
   <p>Enable this setting to make automatic backups of your current replay. The replay is saved to the filename specified in the <code>auto_save_replay_filename</code> setting (default: "auto_save") at an interval as specified by the <code>auto_save_replay_interval</code> setting (default: 30 seconds). The interval is in real clock time, not in MSX time.</p>
+
 
   <h3><a id="blur">blur</a></h3>
 
@@ -2730,6 +2883,7 @@
     Note: Only some <a class="internal" href="#scale_algorithm">scale algorithms</a> apply horizontal blur; the default algorithm "simple" does.
   </div>
 
+
   <h3><a id="bootsector">bootsector</a></h3>
 
   <p>Sets the boot sector type for DirAsDSK. Default: DOS2. Only relevant on turboR, because it boots differently
@@ -2752,6 +2906,7 @@
       <td>Use a DOS1 boot sector</td>
     </tr>
   </table>
+
 
   <h3><a id="brightness">brightness</a></h3>
 
@@ -2776,6 +2931,7 @@
       <td>Make the video output a bit brighter than default</td>
     </tr>
   </table>
+
 
   <h3><a id="cmdtiming">cmdtiming</a></h3>
 
@@ -2810,6 +2966,7 @@
   <div class="note">
     Note: When set to <code>broken</code> the emulated MSX acts different from a real MSX. This might cause some software to fail.
   </div>
+
 
   <h3><a id="color_matrix">color_matrix</a></h3>
 
@@ -2855,6 +3012,7 @@
     Note: It is often more convenient to use the <code><a class="internal" href="#monitor_type">monitor_type</a></code> command.
   </div>
 
+
   <h3><a id="console">console</a></h3>
 
   <p>Turns the openMSX on-screen console on or off.</p>
@@ -2883,6 +3041,7 @@
     </tr>
   </table>
 
+
   <h3><a id="contrast">contrast</a></h3>
 
   <p>Controls the contrast of the video output. Can be between -100 and 100. Lower values are less contrast, higher values are more contrast. The default is 0, which is neutral.</p>
@@ -2906,6 +3065,7 @@
       <td>Reduce the video contrast a bit</td>
     </tr>
   </table>
+
 
   <h3><a id="cputrace">cputrace</a></h3>
 
@@ -2934,6 +3094,7 @@
       <td>Disables CPU tracing</td>
     </tr>
   </table>
+
 
   <h3><a id="debugoutput">Debug Device output</a></h3>
 
@@ -2975,6 +3136,7 @@
     Note: This setting only exists if the <code>debugdevice</code> extension is present in the current MSX machine.
   </div>
 
+
   <h3><a id="default_machine">default_machine</a></h3>
 
   <p>Selects the default MSX model. openMSX uses this machine when it is started without the <code>-machine</code> option and without the <code>-setup</code> option and the <code><a class="internal" href="#default_setup">default_setup</a></code> setting is empty or pointing to a non-existing setup. This is a typical setting that should be saved, see also <a class="internal" href="#save_settings"><code>save_settings</code></a>.</p>
@@ -2999,6 +3161,7 @@
       <td>Use the turboR GT the next time openMSX is started</td>
     </tr>
   </table>
+
 
   <h3><a id="default_setup">default_setup</a></h3>
 
@@ -3028,6 +3191,7 @@
   <div class="note">
     If you set this setting to the same value as the <code><a class="internal" href="#save_setup_at_exit_name">save_setup_at_exit_name</a></code> setting and have the <code><a class="internal" href="#save_setup_at_exit_depth">save_setup_at_exit_depth</a></code> setting set to another depth than <code>none</code> , openMSX will automatically continue with the last setup when being started up again (and no other machine or setup is specified).
   </div>
+
 
   <h3><a id="DirAsDSKmode">DirAsDSKmode</a></h3>
 
@@ -3214,6 +3378,7 @@
   <p>Sessions can also be saved manually with the command <code>save_session</code>, and explicitly loaded with <code>load_session</code>. A list of saved sessions can be retrieved with <code>list_sessions</code>.
   </p>
 
+
   <h3><a id="fastforward">fastforward</a></h3>
 
   <p>Chooses between normal speed (off) and fastforward speed (on).</p>
@@ -3242,6 +3407,7 @@
     </tr>
   </table>
 
+
   <h3><a id="fastforwardspeed">fastforwardspeed</a></h3>
 
   <p>Sets the emulation speed relative to the speed of a real MSX when we are running in <a class="internal" href="#fastforward">fastforward mode</a>. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
@@ -3263,6 +3429,7 @@
       <td>Sets new fastforward speed to &lt;num&gt;% of real time</td>
     </tr>
   </table>
+
 
   <h3><a id="frequency">frequency</a></h3>
 
@@ -3317,6 +3484,7 @@
     </tr>
   </table>
 
+
   <h3><a id="fullscreen">fullscreen</a></h3>
 
   <p>Switch to/from fullscreen mode.</p>
@@ -3344,6 +3512,7 @@
       <td>Switch to windowed mode</td>
     </tr>
   </table>
+
 
   <h3><a id="fullspeedwhenloading">fullspeedwhenloading</a></h3>
 
@@ -3375,6 +3544,7 @@
     </tr>
   </table>
 
+
   <h3><a id="full_stretch">full_stretch</a></h3>
 
   <p>Stretches the image to fill the entire screen when in fullscreen mode. This setting is useful when you want to use the full screen real estate, for example when displaying 4:3 content on a 16:9 monitor, or when you prefer to eliminate any black borders around the image.</p>
@@ -3399,6 +3569,7 @@
       <td>Disable full screen stretching</td>
     </tr>
   </table>
+
 
   <h3><a id="gamma">gamma</a></h3>
 
@@ -3426,6 +3597,7 @@
     </tr>
   </table>
 
+
   <h3><a id="glow">glow</a></h3>
 
   <p>Sets the amount of afterglow effect: 0 is off and 100 is a very heavy afterglow.</p>
@@ -3447,6 +3619,7 @@
       <td>Change the amount of afterglow</td>
     </tr>
   </table>
+
 
   <h3><a id="grabinput">grabinput</a></h3>
 
@@ -3477,6 +3650,7 @@
       <td>Stops grabbing all input events</td>
     </tr>
   </table>
+
 
   <h3><a id="horizontal_stretch">horizontal_stretch</a></h3>
 
@@ -3510,6 +3684,7 @@
     <code>set horizontal_stretch 280</code> (default: show all generated border pixels, so that all border demo effects are still visible)<br />
     <code>set horizontal_stretch 256</code> (borders are not visible at all; doesn't work well in combination with set-adjust)
   </div>
+
 
   <h3><a id="inputdelay">inputdelay</a></h3>
 
@@ -3759,6 +3934,7 @@
     Note: This only works on MSX models for which the CODE/KANA key locks (e.g. Japanese MSX models and the Philips VG8010). On other models, this setting is ignored.
   </div>
 
+
   <h3><a id="kbd_code_kana_host_key">kbd_code_kana_host_key</a></h3>
 
   <p>Host key that maps to the MSX CODE/KANA key. By default right-ALT (RALT) key.</p>
@@ -3791,6 +3967,7 @@
       <td>Binds the HENKAN_MODE key on the host keyboard to the MSX CODE/KANA key</td>
     </tr>
   </table>
+
 
   <h3><a id="kbd_deadkey1_host_key">kbd_deadkey1_host_key</a></h3>
 
@@ -3959,6 +4136,7 @@
 
   </table>
 
+
   <h3><a id="kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></h3>
 
   <p>Some real MSX computers do not have a numeric keypad. openMSX will ignore
@@ -3985,6 +4163,7 @@
       <td>Enables numeric keypad, even if the emulated MSX does not have one</td>
     </tr>
   </table>
+
 
   <h3><a id="kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></h3>
 
@@ -4018,6 +4197,7 @@
     </tr>
   </table>
 
+
   <h3><a id="kbd_trace_key_presses">kbd_trace_key_presses</a></h3>
 
   <p>Log SDL key code, SDL modifiers and Unicode value for each key that gets
@@ -4046,6 +4226,7 @@
     </tr>
 
   </table>
+
 
   <h3><a id="led">led_&lt;name&gt;</a></h3>
 
@@ -4084,6 +4265,7 @@
     </tr>
   </table>
 
+
   <h3><a id="master_volume">master_volume</a></h3>
 
   <p>Controls the overall openMSX volume. The volume of individual sound devices can be controlled with the <code><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></code> settings.</p>
@@ -4105,6 +4287,7 @@
       <td>Sets master volume to 50%</td>
     </tr>
   </table>
+
 
   <h3><a id="maxframeskip">maxframeskip</a></h3>
 
@@ -4132,6 +4315,7 @@
     </tr>
   </table>
 
+
   <h3><a id="midi-in-readfilename">midi-in-readfilename</a></h3>
 
   <p>Sets the file from which the MIDI input is read. By default, it is set to <code>/dev/midi</code> when available.</p>
@@ -4154,6 +4338,7 @@
     </tr>
   </table>
 
+
   <h3><a id="midi-out-logfilename">midi-out-logfilename</a></h3>
 
   <p>Sets the file to which the MIDI output is logged. By default, it logs to <code>/dev/midi</code> when available.</p>
@@ -4175,6 +4360,7 @@
       <td>Log MIDI events to "mymidilog.dat"</td>
     </tr>
   </table>
+
 
   <h3><a id="minframeskip">minframeskip</a></h3>
 
@@ -4202,6 +4388,7 @@
       <td>Sets the number of frame skips</td>
     </tr>
   </table>
+
 
   <h3><a id="mode">mode</a></h3>
 
@@ -4250,6 +4437,7 @@
 
   <p>Note that this mode may change in future releases!</p>
 
+
   <h3><a id="mute">mute</a></h3>
 
   <p>Mute/unmute all sound output.</p>
@@ -4278,6 +4466,7 @@
     </tr>
   </table>
 
+
   <h3><a id="noise">noise</a></h3>
 
   <p>Controls the amount of Gaussian noise that is added to the video output. A small amount of noise can give a more authentic look to the video output on TFTs. Values can be between 0 and 100, where 0 is no noise and 100 is lots of noise.</p>
@@ -4301,6 +4490,7 @@
       <td>Add a moderate amount of noise</td>
     </tr>
   </table>
+
 
   <h3><a id="pause">pause</a></h3>
 
@@ -4334,6 +4524,7 @@
     Note: Some video settings cannot be applied to an already rendered frame and will therefore not take effect until openMSX is unpaused.
   </div>
 
+
   <h3><a id="pause_on_lost_focus">pause_on_lost_focus</a></h3>
 
   <p>When this setting is enabled, the emulation will be paused when the
@@ -4362,6 +4553,7 @@
       <td>Emulation will continue when the openMSX window loses focus (default)</td>
     </tr>
   </table>
+
 
   <h3><a id="pointer_hide_delay">pointer_hide_delay</a></h3>
 
@@ -4400,6 +4592,7 @@
     </tr>
   </table>
 
+
   <h3><a id="power">power</a></h3>
 
   <p>Turn the power of the emulated MSX machine on or off.</p>
@@ -4428,6 +4621,7 @@
     </tr>
   </table>
 
+
   <h3><a id="printerlogfilename">printerlogfilename</a></h3>
 
   <p>Sets the file to which the printer logger writes.</p>
@@ -4449,6 +4643,7 @@
       <td>Log to "myprinterlog.txt"</td>
     </tr>
   </table>
+
 
   <h3><a id="print-resolution">print-resolution</a></h3>
 
@@ -4473,6 +4668,7 @@
       <td>Sets resolution to 600 dpi</td>
     </tr>
   </table>
+
 
   <h3><a id="psg_detune_frequency">PSG_detune_frequency</a></h3>
 
@@ -4509,6 +4705,7 @@
   <div class="note">
     Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
   </div>
+
 
   <h3><a id="psg_detune_percent">psg_detune_percent</a></h3>
 
@@ -4547,6 +4744,7 @@
     Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
   </div>
 
+
   <h3><a id="psg_vibrato_frequency">PSG_vibrato_frequency</a></h3>
 
   <p>Sets the frequency of the vibrato (a periodic variation in a sound's frequency) effect.
@@ -4582,6 +4780,7 @@
   <div class="note">
     Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
   </div>
+
 
   <h3><a id="psg_vibrato_percent">PSG_vibrato_percent</a></h3>
 
@@ -4620,9 +4819,11 @@
     Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
   </div>
 
+
   <h3><a id="r800_freq">r800_freq / r800_freq_locked</a></h3>
 
   <p>These two settings control the R800 clock frequency. See <code><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></code> for details.</p>
+
 
   <h3><a id="renderer">renderer</a></h3>
 
@@ -4645,6 +4846,7 @@
       <td>Disable rendering completely</td>
     </tr>
   </table>
+
 
   <h3><a id="renshaturbo">renshaturbo</a></h3>
 
@@ -4671,6 +4873,7 @@
   <div class="note">
     Note: This setting is only available if the current MSX machine has hardware Ren-Sha Turbo support.
   </div>
+
 
   <h3><a id="resampler">resampler</a></h3>
 
@@ -4726,6 +4929,7 @@
     </tr>
   </table>
 
+
   <h3><a id="rs232-outputfilename">rs232-outputfilename</a></h3>
 
   <p>Sets the file to which the RS232-tester writes the data. Note that the
@@ -4750,6 +4954,7 @@
       <td>Write to "myrs232output.txt"</td>
     </tr>
   </table>
+
 
   <h3><a id="rs232-net-address">rs232-net-address</a></h3>
 
@@ -4785,6 +4990,7 @@
     </tr>
   </table>
 
+
   <h3><a id="rs232-net-ip232">rs232-net-ip232</a></h3>
 
   <p>Enable the use of the IP232 protocol when used in conjunction with the <code>TCPSer</code> software modem. Note that
@@ -4817,6 +5023,7 @@
     </tr>
 
   </table>
+
 
   <h3><a id="rtcmode">rtcmode</a></h3>
 
@@ -4852,6 +5059,7 @@
     </tr>
   </table>
 
+
   <h3><a id="samples">samples</a></h3>
 
   <p>Sets the size of the sound mixer buffer. Higher values help against buffer underruns (hickups), but increase the latency of the sound output.</p>
@@ -4873,6 +5081,7 @@
       <td>Use a mixing buffer of 1024 samples</td>
     </tr>
   </table>
+
 
   <h3><a id="save_settings_on_exit">save_settings_on_exit</a></h3>
 
@@ -4902,6 +5111,7 @@
     </tr>
   </table>
 
+
   <h3><a id="save_setup_at_exit_name">save_setup_at_exit_name</a></h3>
 
   <p>Specify the setup name to use when automatically saving the setup when exiting openMSX is active. See also the <code><a class="internal" href="#save_setup_at_exit_depth">save_setup_at_exit_depth</a></code> setting.</p>
@@ -4927,6 +5137,7 @@
     </tr>
 
   </table>
+
 
   <h3><a id="save_setup_at_exit_depth">save_setup_at_exit_depth</a></h3>
 
@@ -4964,6 +5175,7 @@
     If you enable this auto save of the setup and use the same name as for the <code><a class="internal" href="#default_setup">default_setup</a></code> setting, openMSX will automatically continue with the last setup when being started up again (and no other machine or setup is specified).
   </div>
 
+
   <h3><a id="scale_algorithm">scale_algorithm</a></h3>
 
   <p>Selects the algorithm used to transform MSX pixels to host pixels. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.
@@ -4993,6 +5205,7 @@
     </tr>
   </table>
 
+
   <h3><a id="scale_factor">scale_factor</a></h3>
 
   <p>Selects the scale factor. Scale factor &lt;n&gt; means the typical MSX pixel (MSX resolution 256&times;212) is mapped on &lt;n&gt; by &lt;n&gt; host pixels. For the moment the possible values are 2 to 4. In the future we may support a wider range or even non-integer values. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.</p>
@@ -5014,6 +5227,7 @@
       <td>Sets a new scale factor</td>
     </tr>
   </table>
+
 
   <h3><a id="scanline">scanline</a></h3>
 
@@ -5041,6 +5255,7 @@
     Note: Some scalers will not render scanlines at all.
   </div>
 
+
   <h3><a id="sound_driver">sound_driver</a></h3>
 
   <p>Select the sound output driver.</p>
@@ -5063,6 +5278,7 @@
     </tr>
   </table>
 
+
   <h3><a id="speed">speed</a></h3>
 
   <p>Sets the emulation speed relative to the speed of a real MSX. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
@@ -5084,6 +5300,7 @@
       <td>Sets new emulation speed to &lt;num&gt;% of real time</td>
     </tr>
   </table>
+
 
   <h3><a id="soundchip_balance">&lt;soundchip&gt;_balance</a></h3>
 
@@ -5129,6 +5346,7 @@
     <code>set FMPAC_balance 0</code>
   </div>
 
+
   <h3><a id="soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></h3>
 
   <p>Sets the filename to which the sound of an individual channel of
@@ -5165,6 +5383,7 @@
     <code>set SCC_ch1_record</code><br />
     <code>set PSG_ch3_record /tmp/PSG_ch3.wav</code>
   </div>
+
 
   <h3><a id="soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></h3>
 
@@ -5208,6 +5427,7 @@
     <code>set SCC_ch5_mute off</code>
   </div>
 
+
   <h3><a id="soundchip_volume">&lt;soundchip&gt;_volume</a></h3>
 
   <p>Sets the volume for individual sound chips. The overall volume is controlled by the <code><a class="internal" href="#master_volume">master_volume</a></code> setting.
@@ -5241,6 +5461,7 @@
     <code>set "FMPAC_volume" 50</code>
   </div>
 
+
   <h3><a id="throttle">throttle</a></h3>
 
   <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
@@ -5268,6 +5489,7 @@
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
   </table>
+
 
   <h3><a id="too_fast_vram_access">too_fast_vram_access</a></h3>
 
@@ -5409,6 +5631,7 @@
     Note: If you use this setting often, it may be useful to bind it to a key on your PC keyboard. See the <code><a class="internal" href="#bind">bind</a></code> and <code><a class="internal" href="#toggle">toggle</a></code> commands.
   </div>
 
+
   <h3><a id="umr_callback">umr_callback</a></h3>
 
   <p>Selects the Tcl procedure to be called when an Uninitialized Memory Read has been detected. This is useful for debugging MSX programs: uninitialized memory is not guaranteed to have any particular value, so reading it is most likely a bug.</p>
@@ -5479,6 +5702,7 @@
     </tr>
   </table>
 
+
   <h3><a id="videosource">videosource</a></h3>
 
   <p>Switch between video sources: <code>MSX</code> (V99x8, default when no
@@ -5516,6 +5740,7 @@
     Note: This setting is only available if multiple video sources are present.
   </div>
 
+
   <h3><a id="vsync">vsync</a></h3>
 
   <p>Enables or disables vsync. This setting determines whether MSX frame rendering should be synchronized to your host monitors frame rate (e.g. 60fps).</p>
@@ -5546,6 +5771,7 @@
     </tr>
 
   </table>
+
 
   <h3><a id="v9990cmdtrace">v9990cmdtrace</a></h3>
 
@@ -5580,6 +5806,7 @@
    <code>video9000</code> extension is present.
   </div>
 
+
   <h3><a id="z80_freq">z80_freq / z80_freq_locked</a></h3>
 
   <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.579545 MHz (or possibly 5.369318 MHz on machines that are able to switch the CPU to 'turbo' mode, e.g. the Panasonic MSX2+ models). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency. Note: the value of  <code>z80_freq</code> is by default the MSX Z80 standard of 3579545, so when <code>z80_freq</code> is untouched, setting <code>z80_freq_locked</code> to false will set the clock frequency of a CPU in 5.37 Mhz turbo mode back to 3.58 Mhz.</p>
@@ -5599,6 +5826,7 @@
     <code>set z80_freq 7159090</code><br />
     <code>bind F8 "toggle z80_freq_locked"</code><br />
   </div>
+
 
   <h3><a id="othersettings">other settings</a></h3>
 
