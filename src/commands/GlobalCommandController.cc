@@ -520,7 +520,7 @@ void GlobalCommandController::TabCompletionCmd::execute(
 std::string GlobalCommandController::TabCompletionCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "!!! This command will change in the future !!!\n"
-	       "Tries to completes the given argument as if it were typed in "
+	       "Tries to complete the given argument as if it were typed in "
 	       "the console. This command is only useful to provide "
 	       "tabcompletion to external console interfaces.";
 }
