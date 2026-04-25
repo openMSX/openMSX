@@ -4,7 +4,7 @@ namespace eval showdebuggable {
 # show_debuggable
 #
 set_help_text showdebuggable \
-{Print content of debuggable nicely formatted
+{Prints content of debuggable nicely formatted
 
 Usage:
    showdebuggable <debuggable> <address> [<linecount>] [<columns>]
@@ -44,7 +44,7 @@ proc showdebuggable {debuggable {address 0} {lines 8} {columns 16}} {
 # Some stuff for backwards compatibility. Do we want to deprecate them?
 # I prefer to keep this as a convenience function.
 set_help_text showmem \
-{Print the content of the CPU visible memory nicely formatted
+{Prints the content of the CPU visible memory nicely formatted
 This is a shortcut for 'showdebuggable memory <address> <linecount> <columns>'.
 
 Usage:
