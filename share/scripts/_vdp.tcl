@@ -1,7 +1,7 @@
 namespace eval vdp {
 
 set_help_text getcolor \
-{Return the current V99x8 palette settings for the given color index (0-15).
+{Returns the current V99x8 palette settings for the given color index (0-15).
 The result is format as RGB, with each component in the range 0-7.
 }
 proc getcolor {index} {
@@ -11,7 +11,7 @@ proc getcolor {index} {
 }
 
 set_help_text setcolor \
-{Change the V99x8 palette settings. See also getcolor.
+{Changes the V99x8 palette settings. See also getcolor.
 
 usage:
   setcolor <index> <r><g><b>
@@ -49,7 +49,7 @@ proc format_table {entries columns frmt sep func} {
 	return $result
 }
 
-set_help_text vdpreg "Read or write a V99x8 register."
+set_help_text vdpreg "Reads or writes a V99x8 register."
 proc vdpreg {reg {value ""}} {
 	if {$value eq ""} {
 		debug read "VDP regs" $reg
@@ -63,7 +63,7 @@ proc vdpregs {} {
 	format_table 32 4 "%2d : 0x%02x" "   " vdpreg
 }
 
-set_help_text v9990reg "Read or write a V9990 register."
+set_help_text v9990reg "Reads or writes a V9990 register."
 proc v9990reg {reg {value ""}} {
 	if {$value eq ""} {
 		debug read "Sunrise GFX9000 regs" $reg
@@ -136,7 +136,7 @@ proc get_screen_mode {} {
 }
 
 set_help_text vpeek \
-{Similar to the BASIC vpeek command, read a byte from the video RAM.
+{Similar to the BASIC vpeek command, reads a byte from the video RAM.
 This command has the same view on the VRAM as the programmer sees (as opposed
 to the physical VRAM content):
  - The whole 128kB address space is visible, if the machine has less VRAM
@@ -151,7 +151,7 @@ proc vpeek {addr} {
 }
 
 set_help_text vpoke \
-{Similar to the BASIC vpoke command, write a byte to the video RAM.
+{Similar to the BASIC vpoke command, writes a byte to the video RAM.
 See the 'vpeek' command for more info about the VRAM address space.
 }
 proc vpoke {addr val} {

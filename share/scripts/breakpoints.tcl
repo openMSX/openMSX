@@ -20,7 +20,7 @@ proc get_breakpoints_dir_help {args} {
 	return \
 {get_breakpoints_dir
 
-Return breakpoint directory for this user.
+Returns breakpoint directory for this user.
 }}
 set_help_proc get_breakpoints_dir breakpoints::get_breakpoints_dir_help
 
@@ -28,7 +28,7 @@ proc save_breakpoints_help {args} {
 	return \
 {save_breakpoints <filename>
 
-Save all breakpoint subtypes (breakpoints, watchpoint, conditions) to a given file.
+Saves all breakpoint subtypes (breakpoints, watchpoint, conditions) to a given file.
 }}
 set_help_proc save_breakpoints breakpoints::save_breakpoints_help
 
@@ -36,7 +36,7 @@ proc load_breakpoints_help {args} {
 	return \
 {load_breakpoints <filename>
 
-Load all breakpoint subtypes (breakpoints, watchpoints and conditions) from a given file.
+Loads all breakpoint subtypes (breakpoints, watchpoints and conditions) from a given file.
 }}
 set_help_proc load_breakpoints breakpoints::load_breakpoints_help
 

@@ -11,7 +11,7 @@ proc auto_enable {} {
 }
 
 set_help_text reverse_prev \
-{Go back in time to the previous 'snapshot'.
+{Goes back in time to the previous 'snapshot'.
 A 'snapshot' is actually an internal implementation detail, but the\
 important thing for this command is that the further back in the past,\
 the less dense the snapshots are. So executing this command multiple times\
@@ -179,15 +179,15 @@ set_help_proc reverse_bookmarks [namespace code reverse_bookmarks_help]
 
 proc reverse_bookmarks_help {args} {
 	switch -- [lindex $args 1] {
-		"create"    {return {Create a bookmark at the current time with the given name.
+		"create"    {return {Creates a bookmark at the current time with the given name.
 
 Syntax: reverse_bookmarks create <name>
 }}
-		"remove" {return {Remove the bookmark with the given name.
+		"remove" {return {Removes the bookmark with the given name.
 
 Syntax: reverse_bookmarks remove <name>
 }}
-		"goto"   {return {Go to the bookmark with the given name.
+		"goto"   {return {Goes to the bookmark with the given name.
 
 Syntax: reverse_bookmarks goto <name>
 }}
@@ -195,15 +195,15 @@ Syntax: reverse_bookmarks goto <name>
 
 Syntax: reverse_bookmarks clear
 }}
-		"save"   {return {Save the current reverse bookmarks to a file.
+		"save"   {return {Saves the current reverse bookmarks to a file.
 
 Syntax: reverse_bookmarks save <filename>
 }}
-		"load"   {return {Load reverse bookmarks from file.
+		"load"   {return {Loads reverse bookmarks from file.
 
 Syntax: reverse_bookmarks load <filename>
 }}
-		default {return {Control the reverse bookmarks functionality.
+		default {return {Controls the reverse bookmarks functionality.
 
 Syntax:  reverse_bookmarks <sub-command> [<arguments>]
 Where sub-command is one of:
