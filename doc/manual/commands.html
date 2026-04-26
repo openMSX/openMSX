@@ -45,6 +45,7 @@
         <li><a class="internal" href="#machine_info">machine_info</a></li>
         <li><a class="internal" href="#message">message</a></li>
         <li><a class="internal" href="#monitor_type">monitor_type</a></li>
+        <li><a class="internal" href="#msxcode2unicode">msxcode2unicode</a></li>
         <li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
         <li><a class="internal" href="#nowind">nowind&lt;x&gt;</a></li>
         <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
@@ -74,6 +75,7 @@
         <li><a class="internal" href="#toggle">toggle</a></li>
         <li><a class="internal" href="#trainer">trainer</a></li>
         <li><a class="internal" href="#type">type / type_via_keyboard</a></li>
+        <li><a class="internal" href="#unicode2msxcode">unicode2msxcode</a></li>
         <li><a class="internal" href="#unset">unset</a></li>
         <li><a class="internal" href="#user_setting">user_setting</a></li>
         <li><a class="internal" href="#vdpregs">vdpregs</a></li>
@@ -1322,6 +1324,40 @@
   </div>
 
 
+  <h3><a id="msxcode2unicode">msxcode2unicode</a></h3>
+
+  <p>Returns a unicode string converted from an MSX-string, i.e., a string based on MSX character codes.</p>
+  <p>The optional fallback used for each character that cannot be mapped for the
+current MSX model can be:</p>
+  <ul>
+    <li>omitted: then space will be used as fallback character.</li>
+    <li>an integer number: then this number will be used as unicode point to be the
+  the fallback character.</li>
+    <li>a Tcl proc, which expects one input character and must return one unicode
+  point.</li>
+  </ul>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>msxcode2unicode &lt;msx-string&gt; [&lt;fallback&gt;]</code></td>
+    </tr>
+  </table>
+  <div class="subsectiontitle">
+    examples:
+  </div>
+  <div class="examples">
+    <table>
+      <tr>
+        <td><code>msxcode2unicode [format %c 1]</code></td>
+        <td>Prints black smiley face if emulating an 'international' MSX model</td>
+      </tr>
+    </table>
+  </div>
+
+
   <h3><a id="mute_channels">mute_channels / unmute_channels / solo</a></h3>
 
   <p>Mute or unmute specific individual channels of sound devices. The syntax is very similar to the <code><a class="internal" href="#record_channels">record_channels</a></code> command.</p>
@@ -2304,6 +2340,38 @@
   </table>
 
 
+  <h3><a id="unicode2msxcode">unicode2msxcode</a></h3>
+
+  <p>Returns an MSX string, i.e. a string based on MSX character codes, converted from a unicode string.</p>
+
+  <p>The optional fallback used for each character that cannot be mapped for the current MSX model can be:</p>
+  <ul>
+    <li>omitted: then space will be used as fallback character.</li>
+    <li>an integer number: then this number will be used as MSX character number to to be the fallback character.</li>
+    <li>a Tcl proc, which expects one input character and must return one MSX character number.</li>
+  </ul>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>unicode2msxcode &lt;unicode-string&gt; [&lt;fallback&gt;]</code></td>
+    </tr>
+  </table>
+  <div class="subsectiontitle">
+    examples:
+  </div>
+  <div class="examples">
+    <table>
+      <tr>
+        <td><code>unicode2msxcode [format %c 0x263a]</code></td>
+        <td>Prints MSX code for a smiley face if emulating an 'international' MSX model</td>
+      </tr>
+    </table>
+  </div>
+
+
   <h3><a id="unset">unset</a></h3>
 
   <p>Undefines a Tcl variable. When used on openMSX settings, they are reverted to their default value. See also: <code><a class="internal" href="#set">set</a></code>.</p>
@@ -2429,10 +2497,6 @@
       <td>Loads all breakpoint subtypes (breakpoints, watchpoints and conditions) from a given file</td>
     </tr>
     <tr>
-      <td><code>msxcode2unicode</code></td>
-      <td>Returns a unicode string converted from a MSX-string, i.e. a string based on MSX character codes</td>
-    </tr>
-    <tr>
       <td><code>multi_screenshot</code></td>
       <td>Takes screenshots of multiple successive frames</td>
     </tr>
@@ -2455,6 +2519,50 @@
     <tr>
       <td><code>peek16</code></td>
       <td>Reads a 16 bit word from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek16_BE</code></td>
+      <td>Reads a 16 bit word (big endian) from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek16_LE</code></td>
+      <td>Reads a 16 bit word (little endian) from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek8</code></td>
+      <td>Reads a byte from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_s16</code></td>
+      <td>Reads a signed 16 bit word from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_s16_BE</code></td>
+      <td>Reads a signed 16 bit word (big endian) from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_s16_LE</code></td>
+      <td>Reads a signed 16 bit word (little endian) from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_s8</code></td>
+      <td>Reads a signed byte from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_u16</code></td>
+      <td>Reads an unsigned 16 bit word from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_u16_BE</code></td>
+      <td>Reads an unsigned 16 bit word (big endian) from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_u16_LE</code></td>
+      <td>Reads an unsigned 16 bit word (little endian) from the given memory location</td>
+    </tr>
+    <tr>
+      <td><code>peek_u8</code></td>
+      <td>Reads an unsigned byte from the given memory location</td>
     </tr>
     <tr>
       <td><code>poke</code></td>
@@ -2577,6 +2685,10 @@
       <td>Echoes all printed MSX text on stderr</td>
     </tr>
     <tr>
+      <td><code>toggle_breaked</code></td>
+      <td>Toggles breaked status</td>
+    </tr>
+    <tr>
       <td><code>toggle_cursors</code></td>
       <td>Shows (or hides) a widget which shows which keys are pressed</td>
     </tr>
@@ -2589,12 +2701,20 @@
       <td>Switches between PAL/NTSC</td>
     </tr>
     <tr>
-      <td><code>toggle_mog_overlay</code></td>
-      <td>Enables (or disables) graphical extra information and game hints when playing The Maze of Galious</td>
+      <td><code>toggle_metal_gear_overlay</code></td>
+      <td>Shows OSD widgets that help you play Metal Gear</td>
     </tr>
     <tr>
       <td><code>toggle_mog_editor</code></td>
       <td>Enables (or disables) wall drawing and Popolon-placement with the mouse when playing The Maze of Galious; needs to have the MoG overlay enabled, see <code>toggle_mog_overlay</code></td>
+    </tr>
+    <tr>
+      <td><code>toggle_mog_overlay</code></td>
+      <td>Enables (or disables) graphical extra information and game hints when playing The Maze of Galious</td>
+    </tr>
+    <tr>
+      <td><code>toggle_movie_length_display</code></td>
+      <td>Toggles display of the movie length in the upper right corner</td>
     </tr>
     <tr>
       <td><code>toggle_music_keyboard</code></td>
