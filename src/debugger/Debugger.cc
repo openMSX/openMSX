@@ -334,7 +334,7 @@ void Debugger::Cmd::writeBlock(std::span<const TclObject> tokens, TclObject& /*r
 	if (addr >= devSize) {
 		throw CommandException("Invalid address");
 	}
-	auto buf = tokens[4].getBinary();
+	auto buf = tokens[4].getBinary(getInterpreter());
 	if ((buf.size() + addr) > devSize) {
 		throw CommandException("Invalid size");
 	}
@@ -373,7 +373,7 @@ void Debugger::Cmd::disasm(std::span<const TclObject> tokens, TclObject& result,
 void Debugger::Cmd::disasmBlob(std::span<const TclObject> tokens, TclObject& result) const
 {
 	checkNumArgs(tokens, Between{4, 5}, Prefix{2}, "value addr ?function?");
-	std::span<const uint8_t> bin = tokens[2].getBinary();
+	std::span<const uint8_t> bin = tokens[2].getBinary(getInterpreter());
 	auto len = instructionLength(bin);
 	if (!len || *len > bin.size()) {
 		throw CommandException("Blob does not contain a complete Z80 instruction");

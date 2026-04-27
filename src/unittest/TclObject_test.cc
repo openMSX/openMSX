@@ -149,13 +149,17 @@ TEST_CASE("TclObject, operator=")
 	SECTION("binary") {
 		std::array<uint8_t, 3> buf = {1, 2, 3};
 		t = std::span{buf};
-		auto result = t.getBinary();
+		auto result = t.getBinary(interp);
 		CHECK(std::ranges::equal(buf, result));
 		// 'buf' was copied into 't'
 		CHECK(result.data() != &buf[0]);
 		CHECK(result[0] == 1);
 		buf[0] = 99;
 		CHECK(result[0] == 1);
+#if TCL_MAJOR_VERSION >= 9
+		TclObject t2("␢");
+		CHECK_THROWS(t2.getBinary(interp));
+#endif
 	}
 	SECTION("copy") {
 		TclObject t2(true);
