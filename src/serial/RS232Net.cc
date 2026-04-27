@@ -2,6 +2,8 @@
 
 #include "RS232Connector.hh"
 
+#include "CliComm.hh"
+#include "CommandController.hh"
 #include "EventDistributor.hh"
 #include "PlugException.hh"
 #include "Scheduler.hh"
@@ -269,6 +271,10 @@ void RS232Net::signal(EmuTime time)
 
 	if (!conn->acceptsData()) {
 		std::scoped_lock lock(mutex);
+		if (!queue.empty()) {
+			auto& cliComm = rs232NetUseIP232.getCommandController().getCliComm();
+			cliComm.printWarning("RS232Net: dropped ", queue.size(), " bytes, MSXRS232 is not in receive mode");
+		}
 		queue.clear();
 		return;
 	}
