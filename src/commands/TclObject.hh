@@ -162,7 +162,7 @@ public:
 	[[nodiscard]] bool getBoolean (Interpreter& interp) const;
 	[[nodiscard]] float  getFloat (Interpreter& interp) const;
 	[[nodiscard]] double getDouble(Interpreter& interp) const;
-	[[nodiscard]] std::span<const uint8_t> getBinary() const;
+	[[nodiscard]] std::span<const uint8_t> getBinary(Interpreter& interp) const;
 	[[nodiscard]] size_t getListLength(Interpreter& interp) const;
 	[[nodiscard]] TclObject getListIndex(Interpreter& interp, size_t index) const;
 	[[nodiscard]] TclObject getListIndexUnchecked(size_t index) const;

@@ -166,10 +166,19 @@ zstring_view TclObject::getString() const
 	return {buf, size_t(length)};
 }
 
-std::span<const uint8_t> TclObject::getBinary() const
+std::span<const uint8_t> TclObject::getBinary(Interpreter& interp_) const
 {
 	Tcl_Size length;
+#if TCL_MAJOR_VERSION >= 9
+	auto* interp = interp_.interp;
+	const auto* buf = Tcl_GetBytesFromObj(interp, obj, &length);
+	if (buf == nullptr) {
+		throwException(interp);
+	}
+#else
+	(void)interp_;
 	const auto* buf = Tcl_GetByteArrayFromObj(obj, &length);
+#endif
 	return {buf, size_t(length)};
 }
 

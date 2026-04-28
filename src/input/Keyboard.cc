@@ -1776,7 +1776,7 @@ void Keyboard::Msxcode2UnicodeCmd::execute(std::span<const TclObject> tokens, Tc
 	const auto& keyboard = OUTER(Keyboard, msxcode2UnicodeCmd);
 	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
 
-	auto msx = tokens[1].getBinary();
+	auto msx = tokens[1].getBinary(getInterpreter());
 	auto fallback = [&] -> std::function<uint32_t(uint8_t)> {
 		if (tokens.size() < 3) {
 			// If no fallback is given use space as replacement character
