@@ -1,5 +1,5 @@
 from components import (
-	EmulationCore, GLRenderer, Laserdisc, iterComponents
+	EmulationCore, Laserdisc, iterComponents
 	)
 
 class Configuration(object):
@@ -34,14 +34,14 @@ def getConfiguration(name):
 		optionalComponents = set(iterComponents()) - requiredComponents
 		linkStatic = False
 	elif name == '3RD_STA':
-		requiredComponents = set((EmulationCore, GLRenderer))
+		requiredComponents = set((EmulationCore, ))
 		optionalComponents = set(iterComponents()) - requiredComponents
 		linkStatic = True
 	elif name == '3RD_STA_GLES':
 		# TODO: We don't have an OpenGL ES component yet.
 		requiredComponents = set((EmulationCore, ))
 		optionalComponents = \
-			set(iterComponents()) - requiredComponents - set((GLRenderer, ))
+			set(iterComponents()) - requiredComponents
 		linkStatic = True
 	elif name == '3RD_STA_MIN':
 		requiredComponents = set((EmulationCore, ))

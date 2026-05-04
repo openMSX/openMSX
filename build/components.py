@@ -18,11 +18,6 @@ class EmulationCore(Component):
 	makeName = 'CORE'
 	dependsOn = ('SDL2', 'SDL2_TTF', 'FREETYPE', 'PNG', 'TCL', 'ZLIB')
 
-class GLRenderer(Component):
-	niceName = 'GL renderer'
-	makeName = 'GL'
-	dependsOn = ('GL', 'GLEW')
-
 class Laserdisc(Component):
 	niceName = 'Laserdisc'
 	makeName = 'LASERDISC'
@@ -37,7 +32,6 @@ def iterComponents():
 	'''Iterates through all components of openMSX.
 	'''
 	yield EmulationCore
-	yield GLRenderer
 	yield Laserdisc
 	yield ALSAMIDI
 
