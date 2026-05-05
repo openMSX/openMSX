@@ -2,6 +2,7 @@
 #define PLOTTER_HH
 
 #include "PlotterPaper.hh"
+#include "PlotterPenState.hh"
 #include "PrinterCore.hh"
 
 #include "BooleanSetting.hh"
@@ -26,7 +27,7 @@ class MSXPlotter final : public PrinterCore
 {
 public:
 	// Character set options for the plotter
-	enum class CharacterSet : uint8_t { International, Japanese, DIN };
+	enum class CharacterSet : uint8_t { International, DIN };
 	enum class PenThickness : uint8_t { Standard, Thick };
 
 public:
@@ -90,7 +91,7 @@ private:
 	void drawCharacter(uint8_t c);
 	void drawDot(gl::vec2 pos);
 	void setPenDown(bool newState);
-	void flushPendingPenUp();
+	void liftPen();
 	void drawDashedLine(gl::vec2 A, gl::vec2 B, float halfPeriod);
 	void drawSolidLine(gl::vec2 A, gl::vec2 B);
 	[[nodiscard]] gl::vec2 toPaperPos(gl::vec2 plotterPos) const;
@@ -122,8 +123,7 @@ private:
 
 	// Pen/color state
 	uint8_t selectedPen = 0; // 0=black, 1=blue, 2=green, 3=red
-	bool penDown = false; // true while executing a drawing command (D/J/P or text-mode printable)
-	bool pendingPenUp = false; // deferred pen-lift dwell dot awaiting flush
+	PlotterPenState penState;
 
 	// Plotter head position (logical steps, relative to origin)
 	gl::vec2 penPosition{0.0f, 0.0f};

@@ -2,10 +2,10 @@
 
 #include "FileOperations.hh"
 #include "IntegerSetting.hh"
-#include "MSXCharacterSets.hh"
 #include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "PNG.hh"
+#include "PlotterFont.hh"
 
 #include "ScopedAssign.hh"
 #include "gl_mat.hh"
@@ -15,7 +15,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <span>
 
 namespace openmsx {
 
@@ -48,7 +47,6 @@ MSXPlotter::MSXPlotter(MSXMotherBoard& motherBoard)
 		CharacterSet::International,
 		EnumSetting<CharacterSet>::Map{
 			{"international", CharacterSet::International},
-			{"japanese",      CharacterSet::Japanese},
 			{"din",           CharacterSet::DIN}})
 	, dipSwitch4Setting(
 		motherBoard.getCommandController(),
@@ -152,7 +150,7 @@ void MSXPlotter::write(uint8_t data)
 				executeGraphicCommand();
 				graphicCmdBuffer.clear();
 			}
-			flushPendingPenUp(); // end any open path on mode change
+			liftPen(); // end any open path on mode change
 			mode = Mode::TEXT;
 			escState = NONE;
 		} else if (data == 'C') {
@@ -168,7 +166,7 @@ void MSXPlotter::write(uint8_t data)
 
 	case ESC_C: // Got ESC C, waiting for color digit '0'-'3'
 		if ('0' <= data && data <= '3') {
-			flushPendingPenUp(); // lift dot belongs to old color
+			liftPen();
 			selectedPen = data - '0';
 			printDebug("Plotter: selected pen ", selectedPen);
 			terminatorSkip = TerminatorSkip::START;
@@ -416,11 +414,10 @@ void MSXPlotter::executeGraphicCommand()
 		}
 	}
 
-	// Any command other than D/J ends a drawing path — flush the deferred
-	// pen-lift dot at the last draw position (in the current pen color,
-	// before any 'C' color change below).
+	// Any command other than D/J ends an open drawing path before command
+	// side-effects such as color changes.
 	if (cmd != 'D' && cmd != 'J') {
-		flushPendingPenUp();
+		liftPen();
 	}
 
 	switch (cmd) {
@@ -445,7 +442,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'D': // Draw (absolute) - D x,y[,x,y,...]
 		// The D command draws a series of absolute line segments
-		printDebug("Plotter: D - Draw absolute, ", coords.size() / 2, " segments, penDown=", penDown);
+		printDebug("Plotter: D - Draw absolute, ", coords.size() / 2, " segments, penDown=", penState.isDown());
 		setPenDown(true);
 		for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 			gl::vec2 target{coords[i], coords[i + 1]};
@@ -456,7 +453,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'J': // Draw relative - J dx,dy[,dx,dy,...]
 		// The J command draws a series of relative line segments
-		printDebug("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penDown);
+		printDebug("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penState.isDown());
 		setPenDown(true);
 		for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 			lineTo(penPosition + gl::vec2{coords[i], coords[i + 1]});
@@ -636,36 +633,24 @@ void MSXPlotter::drawDot(gl::vec2 pos)
 void MSXPlotter::setPenDown(bool newState)
 {
 	if (newState) {
-		if (pendingPenUp) {
-			// Continuing a path (another D/J with no move in between):
-			// cancel deferred lift, no new touchdown dot.
-			pendingPenUp = false;
-			return;
+		if (penState.lower()) {
+			drawDot(penPosition);
 		}
-		if (penDown) return;
-		penDown = true;
-		drawDot(penPosition);
 	} else {
-		if (!penDown || pendingPenUp) return;
-		// Defer the lift dot; another D/J may continue the path.
-		pendingPenUp = true;
+		liftPen();
 	}
 }
 
-void MSXPlotter::flushPendingPenUp()
+void MSXPlotter::liftPen()
 {
-	if (!pendingPenUp) return;
-	drawDot(penPosition);
-	pendingPenUp = false;
-	penDown = false;
+	penState.lift();
 }
 
 void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
 {
-	assert(penDown);
+	assert(penState.isDown());
 
 	ensurePrintPage();
-	// TODO handle begin/end point with draw_dot() ??
 	if (0 < lineType && lineType < 15) {
 		auto halfPeriod = float(lineType + 2);
 		drawDashedLine(from, to, halfPeriod);
@@ -734,7 +719,7 @@ void MSXPlotter::ensurePrintPage()
 
 void MSXPlotter::flushEmulatedPrinter()
 {
-	flushPendingPenUp();
+	liftPen();
 	if (!paper) return;
 
 	if (!paper->empty()) {
@@ -763,8 +748,7 @@ void MSXPlotter::resetSettings()
 	mode = Mode::TEXT;
 	escState = EscState::NONE;
 	selectedPen = 0;
-	penDown = false;
-	pendingPenUp = false;
+	penState.lift();
 	penPosition = gl::vec2{0.0f, 30.0f};
 	origin = gl::vec2{0.0f, 1354.0f};
 	lineType = 0;
@@ -797,30 +781,25 @@ void MSXPlotter::drawCharacter(uint8_t c)
 {
 	ScopedAssign savedLineType(lineType, 0);
 	ScopedAssign savedDashDistance(dashDistance, dashDistance); // value doesn't matter, just restore at the end
-	// Character glyphs are drawn as short strokes from the glyph grid; the pen is
-	// logically down during the call. Skip dwell dots (setPenDown) because the
-	// cursor/baseline position is not where the pen physically touches paper.
-	ScopedAssign savedPenDown(penDown, true);
+	// Character glyphs are already vector strokes; keep the pen logically down
+	// during the call without adding extra touchdown dwell dots.
+	ScopedAssign savedPenState(penState, PlotterPenState::downForDrawing());
 
-	// Select font based on character set setting
-	auto font = [&] {
+	auto fontVariant = [&] {
 		switch (getCharacterSet()) {
 		using enum CharacterSet;
 		default:
-		case International: return getMSXFontRaw();
-		case Japanese:      return getMSXJPFontRaw();
-		case DIN:           return getMSXDINFontRaw();
+		case International: return PlotterFontVariant::International;
+		case DIN:           return PlotterFontVariant::DIN;
 		}
 	}();
-	auto glyph = subspan<8>(font, 8 * size_t(c));
+	auto glyph = decodePRNC41Glyph(fontVariant, c);
 
 	float scaleFactor = 1.0f + float(charScale);
-	float gridSpacingX = 0.94f * scaleFactor;
-	float gridSpacingY = 0.85f * scaleFactor;
-	// float gridSpacingX = 0.54f * scaleFactor;
-	// float gridSpacingY = 0.95f * scaleFactor;
+	float unitX = 0.8f * scaleFactor;
+	float unitY = 1.0f * scaleFactor;
 
-	maxLineHeight = std::max(maxLineHeight, 8.0f * gridSpacingY);
+	maxLineHeight = std::max(maxLineHeight, 6.0f * unitY);
 
 	// Transform local (u, v) [0..width, 0..height] to global (px, py)
 	// Cursor is at the START of the character baseline.
@@ -837,93 +816,22 @@ void MSXPlotter::drawCharacter(uint8_t c)
 		return penPosition + rotations[rotation] * p;
 	};
 
-	// Count filled neighbors of glyph pixel (dx,dy) across all 8 directions.
-	// A pixel with 0 neighbors is isolated and needs an explicit dot to be
-	// visible; with exactly 1 neighbor it is a stroke endpoint (touchdown or
-	// lift) and gets a dwell dot; interior pixels (>= 2 neighbors) are fully
-	// covered by the lines that meet there — an extra dot would just darken
-	// the grid intersection.
-	auto countNeighbors = [&](int dx, int dy) {
-		int count = 0;
-		for (int ny = -1; ny <= 1; ++ny) {
-			int gy = dy + ny;
-			if (gy < 0 || gy > 7) continue;
-			uint8_t row = glyph[gy];
-			for (int nx = -1; nx <= 1; ++nx) {
-				if (nx == 0 && ny == 0) continue;
-				int gx = dx + nx;
-				if (gx < 0 || gx > 7) continue;
-				if (row & (0x80 >> gx)) ++count;
-			}
+	gl::vec2 glyphPos{0.0f, 0.0f};
+	for (const auto& command : glyph) {
+		gl::vec2 nextGlyphPos = glyphPos + gl::vec2{
+			command.delta.x * unitX,
+			command.delta.y * unitY,
+		};
+		if (command.type == PlotterFontCommandType::Draw) {
+			drawLine(transform(glyphPos), transform(nextGlyphPos));
 		}
-		return count;
-	};
-
-	for (int dy = 0; dy < 8; ++dy) {
-		uint8_t rowPattern = glyph[dy];
-		// dy=0 is top row, dy=7 is bottom row.
-		// v should be height from bottom (v=0 at dy=7).
-		float v = (7.0f - float(dy)) * gridSpacingY;
-
-		for (int dx = 0; dx < 8; ++dx) {
-			// dx=0 is left, dx=7 is right.
-			float u = float(dx) * gridSpacingX;
-
-			// Check if dot is present
-			if (rowPattern & (0x80 >> dx)) {
-				gl::vec2 p = transform({u, v});
-
-				// Check Right neighbor (dx+1, dy) -> Same v, u + gridX
-				if (dx < 7) {
-					if (rowPattern & (0x80 >> (dx + 1))) {
-						drawLine(p, transform({u + gridSpacingX, v}));
-					}
-				}
-
-				// Check Down neighbor (dx, dy+1) -> v - gridY, Same u
-				// Note: dy+1 is "physically down" in the grid, so lower v.
-				if (dy < 7) {
-					uint8_t nextRow = glyph[dy + 1];
-					if (nextRow & (0x80 >> dx)) {
-						drawLine(p, transform({u, v - gridSpacingY}));
-					}
-
-					// Check Down-Right neighbor (dx+1, dy+1)
-					if (dx < 7) {
-						if (nextRow & (0x80 >> (dx + 1))) {
-							// Only connect if NOT a filled 2x2 block
-							bool hasRight = (rowPattern & (0x80 >> (dx + 1)));
-							bool hasDown  = (nextRow & (0x80 >> dx));
-
-							if (!hasRight && !hasDown) {
-								drawLine(p, transform({u + gridSpacingX, v - gridSpacingY}));
-							}
-						}
-					}
-
-					// Check Down-Left neighbor (dx-1, dy+1)
-					if (dx > 0) {
-						if (nextRow & (0x80 >> (dx - 1))) {
-							bool hasLeft = (rowPattern & (0x80 >> (dx - 1)));
-							bool hasDown = (nextRow & (0x80 >> dx));
-
-							if (!hasLeft && !hasDown) {
-								drawLine(p, transform({u - gridSpacingX, v - gridSpacingY}));
-							}
-						}
-					}
-				}
-				if (countNeighbors(dx, dy) <= 1) {
-					drawDot(p);
-				}
-			}
-		}
+		glyphPos = nextGlyphPos;
 	}
 	// Advance cursor to next character position
 	// Always use full width (char + gap). If Q rotation follows, it will undo the
 	// gap.
-	float charWidthOnly = 4.12f * gridSpacingX;  // just the character
-	float charGap = 2.3f * gridSpacingX;         // gap between characters (11.12 - 4.12 = 7.0)
+	float charWidthOnly = 5.0f * unitX;      // just the character
+	float charGap = 2.0f * scaleFactor;      // gap between characters
 	float charAdvance = charWidthOnly + charGap; // total advance
 
 	penPosition = transform({charAdvance, 0.0f});
