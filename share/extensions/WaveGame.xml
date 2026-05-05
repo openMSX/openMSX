@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <manufacturer>MSX Pico</manufacturer>
+    <code>WaveGame</code>
+    <release_year>2025</release_year>
+    <description>MSX Pico Wave Game audio cartridge. Streams WAV music files on I/O port 0x92. Use Media &gt; Wave Game to point it at a directory of NN.wav / NN.cfg files. Note: port 0x92 is unofficial, avoid combining with any device that also writes 0x92.</description>
+    <type>Cartridge</type>
+  </info>
+  <devices>
+    <WaveGame id="Wave Game">
+      <io base="0x92" num="1" type="O"/>
+      <firmware>1</firmware>
+      <sound>
+        <volume>15000</volume>
+      </sound>
+    </WaveGame>
+  </devices>
+</msxconfig>

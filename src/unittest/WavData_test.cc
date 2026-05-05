@@ -13,6 +13,8 @@ TEST_CASE("WavData, default constructor")
 	WavData wav;
 	CHECK(wav.getSize() == 0);
 	CHECK(wav.getFreq() == 0);
+	CHECK(wav.getChannels() == 0);
+	CHECK(wav.getBits() == 0);
 	for (auto i : xrange(10)) {
 		CHECK(wav.getSample(i) == 0);
 	}
@@ -96,6 +98,8 @@ TEST_CASE("WavData, parser")
 		WavData wav(memory_buffer_file(buffer));
 		CHECK(wav.getSize() == 0);
 		CHECK(wav.getFreq() == 44100);
+		CHECK(wav.getChannels() == 1);
+		CHECK(wav.getBits() == 16);
 	}
 }
 
@@ -113,6 +117,8 @@ TEST_CASE("WavData, content")
 		WavData wav(memory_buffer_file(buffer));
 		CHECK(wav.getSize() == 5);
 		CHECK(wav.getFreq() == 44100);
+		CHECK(wav.getChannels() == 1);
+		CHECK(wav.getBits() == 8);
 		CHECK(wav.getSample(0) == -0x8000);
 		CHECK(wav.getSample(1) == -0x3b00);
 		CHECK(wav.getSample(2) ==  0x0000);
@@ -132,6 +138,8 @@ TEST_CASE("WavData, content")
 		WavData wav(memory_buffer_file(buffer));
 		CHECK(wav.getSize() == 4);
 		CHECK(wav.getFreq() == 44100);
+		CHECK(wav.getChannels() == 1);
+		CHECK(wav.getBits() == 16);
 		CHECK(wav.getSample(0) ==  0x4523);
 		CHECK(wav.getSample(1) ==  0x7e00);
 		CHECK(wav.getSample(2) == -0x0001);
@@ -151,6 +159,8 @@ TEST_CASE("WavData, content")
 		WavData wav(memory_buffer_file(buffer));
 		CHECK(wav.getSize() == 4);
 		CHECK(wav.getFreq() == 44100);
+		CHECK(wav.getChannels() == 2);
+		CHECK(wav.getBits() == 8);
 		CHECK(wav.getSample(0) == -0x8000);
 		CHECK(wav.getSample(1) == -0x4000);
 		CHECK(wav.getSample(2) ==  0x0000);
@@ -169,6 +179,8 @@ TEST_CASE("WavData, content")
 		WavData wav(memory_buffer_file(buffer));
 		CHECK(wav.getSize() == 4);
 		CHECK(wav.getFreq() == 44100);
+		CHECK(wav.getChannels() == 2);
+		CHECK(wav.getBits() == 16);
 		CHECK(wav.getSample(0) ==  0x3412);
 		CHECK(wav.getSample(1) ==  0x7856);
 		CHECK(wav.getSample(2) == -0x4366);

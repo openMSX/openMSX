@@ -36,6 +36,8 @@ public:
 	explicit WavData(File file, Filter filter = {});
 
 	[[nodiscard]] unsigned getFreq() const { return freq; }
+	[[nodiscard]] unsigned getChannels() const { return channels; }
+	[[nodiscard]] unsigned getBits() const { return bits; }
 	[[nodiscard]] size_t getSize() const { return buffer.size(); }
 	[[nodiscard]] int16_t getSample(size_t pos) const {
 		return (pos < buffer.size()) ? buffer[pos] : int16_t(0);
@@ -48,6 +50,8 @@ private:
 private:
 	MemBuffer<int16_t> buffer;
 	unsigned freq = 0;
+	unsigned channels = 0;
+	unsigned bits = 0;
 };
 
 ////
@@ -85,12 +89,15 @@ inline WavData::WavData(File file, Filter filter)
 	    (std::string_view{header->fmtID.data(),    4} != "fmt ")) {
 		throw MSXException("Invalid WAV file.");
 	}
-	unsigned bits = header->wBitsPerSample;
+	bits = header->wBitsPerSample;
 	if ((header->wFormatTag != 1) || (bits != one_of(8u, 16u))) {
 		throw MSXException("WAV format unsupported, must be 8 or 16 bit PCM.");
 	}
 	freq = header->dwSamplesPerSec;
-	unsigned channels = header->wChannels;
+	channels = header->wChannels;
+	if (channels == 0) {
+		throw MSXException("Invalid WAV file.");
+	}
 
 	// Skip any extra format bytes
 	size_t pos = 20 + header->fmtSize;

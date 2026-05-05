@@ -43,6 +43,8 @@ namespace openmsx {
 
 using namespace std::literals;
 
+static constexpr zstring_view WAVEGAME_MEDIA = "wavegame";
+
 void ImGuiMedia::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -101,6 +103,9 @@ void ImGuiMedia::save(ImGuiTextBuffer& buf)
 
 	if (cassetteMediaInfo.show) buf.append("cassette.show=1\n");
 	saveGroup(cassetteMediaInfo.group, "cassette");
+
+	if (wavegameMediaInfo.show) buf.append("wavegame.show=1\n");
+	saveGroup(wavegameMediaInfo.group, "wavegame");
 
 	saveGroup(extensionMediaInfo, "extension");
 	saveGroup(laserdiscMediaInfo, "laserdisc");
@@ -186,6 +191,13 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 		} else {
 			loadGroup(cassetteMediaInfo.group, suffix);
 		}
+	} else if (name.starts_with("wavegame.")) {
+		auto suffix = name.substr(9);
+		if (suffix == "show") {
+			wavegameMediaInfo.show = StringOp::stringToBool(value);
+		} else {
+			loadGroup(wavegameMediaInfo.group, suffix);
+		}
 	} else if (name.starts_with("extension.")) {
 		loadGroup(extensionMediaInfo, name.substr(10));
 	} else if (name.starts_with("laserdisc.")) {
@@ -211,6 +223,8 @@ void ImGuiMedia::showMediaWindow(std::string_view mediaName)
 	//	} else if (auto index = getIndex("cd")) {
 		} else if (mediaName.starts_with("cassette")) {
 			cassetteMediaInfo.show = true;
+		} else if (mediaName == WAVEGAME_MEDIA) {
+			wavegameMediaInfo.show = true;
 	//	} else if (mediaName.starts_with("laserdisc")) {
 		}
 }
@@ -704,6 +718,19 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			});
 		}
 		endGroup();
+
+		// Wave Game
+		if (motherBoard->findMediaProvider(WAVEGAME_MEDIA)) {
+			elementInGroup();
+			ImGui::MenuItem("Wave Game", nullptr, &wavegameMediaInfo.show);
+			simpleToolTip([&] -> std::string {
+				auto cmdResult = manager.execute(TclObject(WAVEGAME_MEDIA));
+				if (!cmdResult) return "Empty";
+				auto s = cmdResult->getString();
+				return s.empty() || s == "empty" ? "Empty" : std::string(s);
+			});
+		}
+		endGroup();
 	});
 
 	if (switchHdAction) {
@@ -829,6 +856,12 @@ void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 	if (cassetteMediaInfo.show) {
 		if (auto* player = motherBoard->getCassettePort().getCassettePlayer()) {
 			cassetteMenu(*player);
+		}
+	}
+
+	if (wavegameMediaInfo.show) {
+		if (motherBoard->findMediaProvider(WAVEGAME_MEDIA)) {
+			wavegameMenu();
 		}
 	}
 }
@@ -1623,6 +1656,45 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 	});
 }
 
+void ImGuiMedia::wavegameMenu()
+{
+	ImGui::SetNextWindowSize(gl::vec2{40, 14} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	auto& info = wavegameMediaInfo;
+	auto& group = info.group;
+	im::Window("Wave Game", &info.show, [&]{
+		auto cmdResult = manager.execute(TclObject(WAVEGAME_MEDIA));
+		std::string current;
+		if (cmdResult) {
+			auto s = cmdResult->getString();
+			if (!s.empty() && s != "empty") current = std::string(s);
+		}
+
+		ImGui::TextUnformatted("Current samples directory"sv);
+		im::Indent([&]{
+			if (current.empty()) {
+				ImGui::TextUnformatted("No directory selected"sv);
+			} else {
+				ImGui::TextUnformatted("Directory:"sv);
+				ImGui::SameLine();
+				ImGui::TextUnformatted(ImGui::leftClip(current, ImGui::GetContentRegionAvail().x));
+			}
+			im::Disabled(current.empty(), [&]{
+				if (ImGui::Button("Eject")) {
+					manager.executeDelayed(makeTclList(WAVEGAME_MEDIA, "eject"));
+				}
+			});
+		});
+
+		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
+			ImGui::SeparatorText("Select new samples directory");
+			im::Indent([&]{
+				selectDirectory(group, "Select Wave Game samples folder", current, {});
+			});
+		});
+		insertMediaButton(WAVEGAME_MEDIA, group, &info.show);
+	});
+}
+
 void ImGuiMedia::insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed)
 {
 	TclObject cmd = makeTclList(mediaName);
@@ -1676,6 +1748,8 @@ void ImGuiMedia::addRecent(const TclObject& cmd)
 			}
 		} else if (mediaName == "cassetteplayer") {
 			return &cassetteMediaInfo.group;
+		} else if (mediaName == WAVEGAME_MEDIA) {
+			return &wavegameMediaInfo.group;
 		} else if (mediaName == "laserdiscplayer") {
 			return &laserdiscMediaInfo;
 		} else if (mediaName == "ext") {

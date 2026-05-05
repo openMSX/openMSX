@@ -117,6 +117,10 @@ public:
 		ItemGroup group;
 		bool show = false;
 	};
+	struct WaveGameMediaInfo {
+		ItemGroup group;
+		bool show = false;
+	};
 
 public:
 	bool resetOnCartChanges = true;
@@ -145,6 +149,7 @@ private:
 	void diskMenu(int i);
 	void cartridgeMenu(int cartNum);
 	void cassetteMenu(CassettePlayer& cassettePlayer);
+	void wavegameMenu();
 	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
 	void paintCurrent(const TclObject& current, std::string_view type);
 	void paintRecent(std::string_view mediaName, ItemGroup& group,
@@ -160,6 +165,7 @@ private:
 	std::array<CartridgeMediaInfo, CartridgeSlotManager::MAX_SLOTS> cartridgeMediaInfo;
 	ItemGroup extensionMediaInfo;
 	CassetteMediaInfo cassetteMediaInfo;
+	WaveGameMediaInfo wavegameMediaInfo;
 	std::array<ItemGroup, HD::MAX_HD> hdMediaInfo;
 	std::array<ItemGroup, IDECDROM::MAX_CD> cdMediaInfo;
 	ItemGroup laserdiscMediaInfo;

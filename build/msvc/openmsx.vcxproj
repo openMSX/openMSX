@@ -697,6 +697,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\VLM5030.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavAudioInput.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavWriter.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\WaveGame.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\WaveGameCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950Adpcm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950KeyboardConnector.cc" />
@@ -1305,6 +1307,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\WavAudioInput.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\WavData.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\WavWriter.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\WaveGame.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\WaveGameCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8950.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8950Adpcm.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8950KeyboardConnector.hh" />
