@@ -60,7 +60,7 @@ jobs:
             flavour: opt
     steps:
     - name: Get current master code from Git repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
     - name: Create tarball
@@ -77,7 +77,7 @@ jobs:
       shell: bash
       run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
     - name: Upload tarball as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.os }}-${{ matrix.cpu }}-${{ matrix.flavour }}_${{ steps.get_dist_name.outputs.tarball_name }}
         path: ${{ steps.get_dist_name.outputs.tarball_name }}
