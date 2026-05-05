@@ -405,6 +405,7 @@ sources = files(
     'sound/VLM5030.cc',
     'sound/WavAudioInput.cc',
     'sound/WavWriter.cc',
+    'sound/WaveGame.cc',
     'sound/Y8950.cc',
     'sound/Y8950Adpcm.cc',
     'sound/Y8950KeyboardConnector.cc',
