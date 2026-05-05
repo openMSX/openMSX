@@ -74,6 +74,34 @@ This information is copied from the original Sony manual and some parts are from
 
 When printing the test page, it prints 80 characters per line on real A4 paper.
 
+### PRN-C41 27C32 ROM contents
+
+The dumped European ROM is a 4 KiB 27C32 EPROM.
+The byte layout matches a plotter vector-font ROM:
+
+| Address range | Contents |
+|---|---|
+| `$0000-$000f` | Small unidentified header / lookup constants. |
+| `$0010-$010f` | 256-byte monotonic lookup table with values `$02-$0f`; likely scale, spacing, acceleration, or vector timing related. |
+| `$0110-$020f` | 256-entry glyph offset table. Each byte is the low byte of a glyph record address; the high byte increments whenever the offsets wrap. |
+| `$0210-$0f9e` | 256 variable-length glyph/vector records, aligned with MSX character codes. Each record ends in a command byte with bit 7 set. |
+| `$0f9f-$0fff` | Erased/unused EPROM padding (`$ff`). |
+
+
+The glyph records use chain-code vector commands. Bit 7 marks the final command
+byte in a glyph record. In the lower 7 bits, bits 6..4 encode vector length as
+`value + 1`, bit 3 is the pen state (`0` = move, `1` = draw), and bits 2..0
+select one of eight compass directions. For manual-oriented rendering the ROM
+X axis must be mirrored: direction code `0` is north, `1` appears north-east,
+..., and `7` appears north-west on the rendered sheet. The records line up with
+the plotter character codes, so `$20` is space and `$41` is `A`. Glyphs
+`$00-$1f` are present too; these are the alternate characters printed with
+`CHR$(1)` followed by `$40-$5f` as shown in the service-manual character table.
+For example, glyph `A` uses pen-up move commands (`02`, `10`, `13`) and visible
+draw commands (`38`, `19`, `1B`, `3C`, `3E`); after the X-axis mirror used for
+rendering, the `3E` crossbar is a 7-step westward draw that visually stops at
+the vertical stroke.
+
 ### Dip Switches
 The printer has four dip switches, which are by factory default all off.
 
@@ -355,4 +383,3 @@ The command set is almost the same as the Sony PRN-C41(D), but there are some di
 
 ## National CF-2311 / Panasonic KX-08P (not emulated yet)
 No documentation is available for this plotter at the moment. National did release some software for this plotter, but without the manual it is hard to say how it works.
-
