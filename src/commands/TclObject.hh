@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <climits>
 #include <cstdint>
 #include <initializer_list>
 #include <iterator>
