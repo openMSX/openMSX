@@ -189,7 +189,7 @@ class FreeType(Library):
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
-		return '`%s --ftversion`' % configScript
+		return '`%s --version`' % configScript
 
 class GL(Library):
 	libName = 'GL'
