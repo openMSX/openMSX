@@ -100,7 +100,7 @@ void SettingsManager::loadSettings(const SettingsConfig& config) const
 		if (const auto* savedValue = config.getValueForSetting(s->getBaseName())) {
 			try {
 				s->setValue(TclObject(*savedValue));
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// ignore error, instead set default value
 				s->setValue(s->getDefaultValue());
 			}
@@ -136,7 +136,7 @@ void SettingsManager::SettingInfo::execute(
 		}
 		try {
 			setting->info(result);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw CommandException(e.getMessage());
 
 		}

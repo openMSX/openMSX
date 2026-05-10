@@ -62,7 +62,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 						try {
 							auto& reactor = manager.getReactor();
 							reactor.switchMachineFromSetup(previewSetup.fullName);
-						} catch (MSXException& e) {
+						} catch (const MSXException& e) {
 							// this will be very rare, don't bother showing the error
 							previewSetup.lastExceptionMessage = e.getMessage();
 						}
@@ -102,7 +102,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 		manager.executeDelayed([&entry = entry, &manager = manager] {
 			try {
 				manager.getReactor().switchMachineFromSetup(entry.fullName);
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// this will be very rare, don't bother showing the error
 			}
 
@@ -321,7 +321,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 							try {
 								previewSetup.fullName = userDataFileContext(Reactor::SETUP_DIR).resolve(tmpStrCat(setup, Reactor::SETUP_EXTENSION));
 								loadPreviewSetup();
-							} catch (FileException&) {
+							} catch (const FileException&) {
 								manager.executeDelayed([this] {
 									previewSetup.motherBoard.reset();
 								});
@@ -422,7 +422,7 @@ void ImGuiMachine::loadPreviewSetup()
 			XmlInputArchive in(previewSetup.fullName);
 			in.serialize("machine", *newBoard);
 			previewSetup.motherBoard = newBoard;
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			previewSetup.lastExceptionMessage = e.getMessage();
 		}
 	});
@@ -1110,7 +1110,7 @@ const std::string& ImGuiMachine::getTestResult(MachineInfo& info)
 				mb.loadMachine(info.configName);
 				assert(info.testResult->empty());
 				amendConfigInfo(mb, info);
-			} catch (MSXException& e) {
+			} catch (const MSXException& e) {
 				info.testResult = e.getMessage(); // error
 			}
 		});

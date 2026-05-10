@@ -712,7 +712,7 @@ void LaserdiscPlayer::autoRun()
 		machineID, "::type_via_keyboard 1CALLLD\\\\r }\"");
 	try {
 		motherBoard.getCommandController().executeCommand(command);
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Error executing loading instruction for AutoRun: ",
 			e.getMessage(), "\n Please report a bug.");

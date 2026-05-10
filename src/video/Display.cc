@@ -283,7 +283,7 @@ void Display::doRendererSwitch(RenderSettings::RendererID newRenderer)
 		try {
 			doRendererSwitch2(newRenderer);
 			success = true;
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			auto& rendererSetting = renderSettings.getRendererSetting();
 			std::string errorMsg = strCat(
 				"Couldn't activate renderer ",
@@ -484,7 +484,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 		// take screenshot as displayed, possibly with other layers (OSD stuff, ImGUI)
 		try {
 			display.getVideoSystem().takeScreenShot(filename, withOsd);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw CommandException(
 				"Failed to take screenshot: ", e.getMessage());
 		}
@@ -498,7 +498,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 		std::optional<unsigned> height = size == "auto" ? std::nullopt : size == "640" ? std::optional(480) : std::optional(240);
 		try {
 			videoLayer->takeRawScreenShot(height, filename);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw CommandException(
 				"Failed to take screenshot: ", e.getMessage());
 		}

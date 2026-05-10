@@ -24,15 +24,15 @@ MsxChar2Unicode::MsxChar2Unicode(std::string_view mappingName)
 	try {
 		filename = systemFileContext().resolve(
 			tmpStrCat("unicodemaps/character_set_mappings/", mappingName));
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		throw MSXException("Couldn't find MSX character mapping file that was specified in unicodemap: ", mappingName, " (", e.getMessage(), ")");
 	}
 	try {
 		auto buf = File(filename).mmap<const char>();
 		parseVid(std::string_view(buf.data(), buf.size()));
-	} catch (FileException&) {
+	} catch (const FileException&) {
 		throw MSXException("Couldn't load MSX character mapping file that was specified in unicodemap: ", filename);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException(e.getMessage(), " in ", filename);
 	}
 }

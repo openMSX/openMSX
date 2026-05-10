@@ -1097,7 +1097,7 @@ void Debugger::Cmd::symbolsLoad(std::span<const TclObject> tokens, TclObject& /*
 	}();
 	try {
 		getSymbolManager().reloadFile(filename, SymbolManager::LoadEmpty::ALLOWED, type, {}, {});
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw CommandException("Couldn't load symbol file '", filename, "': ", e.getMessage());
 	}
 }

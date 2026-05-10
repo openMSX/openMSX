@@ -29,13 +29,13 @@ static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .w
 		try {
 			auto filename = tmpStrCat(baseName, i, ".wav");
 			result[i] = WavData(context.resolve(filename));
-		} catch (MSXException& e1) {
+		} catch (const MSXException& e1) {
 			try {
 				if (alternativeName.empty()) throw;
 				auto filename = tmpStrCat(
 					alternativeName, i, ".wav");
 				result[i] = WavData(context.resolve(filename));
-			} catch (MSXException& /*e2*/) {
+			} catch (const MSXException& /*e2*/) {
 				if (!alreadyWarned) {
 					alreadyWarned = true;
 					// print message from the 1st error

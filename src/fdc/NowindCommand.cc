@@ -86,7 +86,7 @@ void NowindCommand::processHdimage(
 				motherboard);
 			drive->changeDisk(std::unique_ptr<Disk>(std::move(partition)));
 			drives.push_back(std::move(drive));
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			if (failOnError) throw;
 		}
 	});

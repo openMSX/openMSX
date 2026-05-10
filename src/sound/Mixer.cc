@@ -93,7 +93,7 @@ void Mixer::reloadDriver()
 			// nothing, NullSoundDriver already created
 			break;
 		}
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
 	}
 }

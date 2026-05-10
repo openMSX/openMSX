@@ -216,7 +216,7 @@ void ImagePrinter::flushEmulatedPrinter()
 				auto filename = paper->save();
 				motherBoard.getMSXCliComm().printInfo(
 					"Printed to ", filename);
-			} catch (MSXException& e) {
+			} catch (const MSXException& e) {
 				motherBoard.getMSXCliComm().printWarning(
 					"Failed to print: ", e.getMessage());
 			}

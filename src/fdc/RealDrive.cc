@@ -66,7 +66,7 @@ RealDrive::~RealDrive()
 {
 	try {
 		flushTrack();
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 	doSetMotor(false, getCurrentTime()); // to send LED event
@@ -400,7 +400,7 @@ void RealDrive::invalidateTrack()
 {
 	try {
 		flushTrack();
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 	trackValid = false;

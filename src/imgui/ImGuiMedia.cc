@@ -308,7 +308,7 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 				mb->getMSXCliComm().setSuppressMessages(true);
 				try {
 					mb->loadMachine("C-BIOS_MSX1");
-				} catch (MSXException& e1) {
+				} catch (const MSXException& e1) {
 					// Incomplete installation!! Missing C-BIOS machines!
 					// Do a minimal attempt to recover.
 					try {
@@ -319,7 +319,7 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 						} else {
 							throw e1;
 						}
-					} catch (MSXException&) {
+					} catch (const MSXException&) {
 						// if this also fails, then prefer the original error
 						throw e1;
 					}
@@ -327,7 +327,7 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 				auto ext = mb->loadExtension(info.configName, "any");
 				mb->insertExtension(info.configName, std::move(ext));
 				assert(info.testResult->empty());
-			} catch (MSXException& e) {
+			} catch (const MSXException& e) {
 				info.testResult = e.getMessage(); // error
 			}
 		});
@@ -1290,7 +1290,7 @@ void ImGuiMedia::diskMenu(int i)
 									auto& diskManipulator = manager.getReactor().getDiskManipulator();
 									try {
 										diskManipulator.create(fn, MSXBootSectorType::DOS2, {1440});
-									} catch (MSXException& e) {
+									} catch (const MSXException& e) {
 										manager.printError("Couldn't create new disk image: ", e.getMessage());
 									}
 								},
@@ -1315,7 +1315,7 @@ void ImGuiMedia::diskMenu(int i)
 									group.edit.name = fn;
 									try {
 										FileOperations::mkdirp(fn);
-									} catch (MSXException& e) {
+									} catch (const MSXException& e) {
 										manager.printError("Couldn't create directory: ", e.getMessage());
 									}
 								},

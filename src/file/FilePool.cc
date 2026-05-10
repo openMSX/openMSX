@@ -69,7 +69,7 @@ std::optional<Sha1Sum> FilePool::getSha1Sum(zstring_view filename)
 	try {
 		File file(filename);
 		return getSha1Sum(file, filename);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		return {};
 	}
 }
@@ -134,7 +134,7 @@ FilePoolCore::Directories FilePool::getDirectories() const
 			}
 			result.push_back(std::move(dir));
 		}
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		reactor.getCliComm().printWarning(
 			"Error while parsing '__filepool' setting", e.getMessage());
 	}

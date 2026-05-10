@@ -80,7 +80,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 			File file(config.getFileContext().resolve(filename));
 			auto size = std::min(file.getSize(), ram.size());
 			file.read(subspan(ram, 0, size));
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			throw MSXException("Error reading file: ", filename);
 		}
 	}

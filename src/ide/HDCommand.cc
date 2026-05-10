@@ -59,7 +59,7 @@ void HDCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 			// Note: the diskX command doesn't do this either,
 			// so this has not been converted to TclObject style here
 			// return filename;
-		} catch (FileException& e) {
+		} catch (const FileException& e) {
 			throw CommandException("Can't change hard disk image: ",
 			                       e.getMessage());
 		}

@@ -33,7 +33,7 @@ void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message,
 		} else {
 			messageCallback.execute(message, toString(level));
 		}
-	} catch (TclObject& command) {
+	} catch (const TclObject& command) {
 		// Command for this message could not be executed yet.
 		// Buffer until we can redo them.
 		postponedCommands.push_back(command);

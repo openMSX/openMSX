@@ -15,7 +15,7 @@ void Filename::updateAfterLoadState()
 	try {
 		resolvedFilename = FileOperations::getAbsolutePath(
 			userFileContext().resolve(originalFilename));
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// nothing
 	}
 }

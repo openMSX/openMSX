@@ -185,7 +185,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 			bool state = [&] {
 				try {
 					return icon.expr.evalBool(manager.getInterpreter());
-				} catch (CommandException&) {
+				} catch (const CommandException&) {
 					return false; // TODO report warning??
 				}
 			}();

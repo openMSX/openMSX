@@ -442,7 +442,7 @@ void XmlInputArchive::load(unsigned& u) const
 	std::string_view str = loadStr();
 	try {
 		fastAtoi(str, u);
-	} catch (XMLException&) {
+	} catch (const XMLException&) {
 		// One reason could be that the type of a member was corrected
 		// from 'int' to 'unsigned'. In that case loading an old
 		// savestate (that contains a negative value) might fail. So try

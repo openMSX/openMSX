@@ -213,7 +213,7 @@ void CassettePlayer::autoRun()
 		"}");
 	try {
 		motherBoard.getCommandController().executeCommand(command);
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Error executing loading instruction using command \"",
 			command, "\" for AutoRun: ",
@@ -603,7 +603,7 @@ void CassettePlayer::flushOutput()
 		recordImage->write(subspan(buf, 0, sampCnt));
 		sampCnt = 0;
 		recordImage->flush(); // update wav header
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Failed to write to tape: ", e.getMessage());
 	}
@@ -718,7 +718,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		}
 		try {
 			insertTape(casImage, time);
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			if (oldChecksum.empty()) {
 				// It's OK if we cannot reinsert an empty
 				// image. One likely scenario for this case is

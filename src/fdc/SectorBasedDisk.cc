@@ -128,7 +128,7 @@ void SectorBasedDisk::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 
 		write(182, 0x4E); // gap4b
 		assert(idx == RawTrack::STANDARD_SIZE);
-	} catch (MSXException& /*e*/) {
+	} catch (const MSXException& /*e*/) {
 		// There was an error while reading the actual sector data.
 		// Most likely this is because we're reading the 81th track on
 		// a disk with only 80 tracks (or similar). If you do this on a

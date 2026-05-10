@@ -271,7 +271,7 @@ void NowindHost::DSKCHG()
 		SectorBuffer sectorBuffer;
 		try {
 			disk->readSectors(std::span{&sectorBuffer, 1}, 1);
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// TODO read error
 			sectorBuffer.raw[0] = 0;
 		}
@@ -358,7 +358,7 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 	unsigned startSector = getStartSector();
 	try {
 		disk.readSectors(std::span{buffer.data(), sectorAmount}, startSector);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// read error
 		state = State::SYNC1;
 		return;
@@ -503,7 +503,7 @@ void NowindHost::doDiskWrite1()
 		if (auto* disk = getDisk()) {
 			try {
 				disk->writeSectors(std::span{buffer.data(), sectorAmount}, startSector);
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// TODO write error
 			}
 		}

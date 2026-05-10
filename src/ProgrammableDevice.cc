@@ -48,7 +48,7 @@ ProgrammableDevice::ProgrammableDevice(const DeviceConfig& config)
 		auto ports = parseAllPorts(portListSetting);
 		inPorts  = ports;
 		outPorts = ports;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// silently ignore error in settings.xml
 		portListSetting.setString("");
 	}
@@ -67,7 +67,7 @@ void ProgrammableDevice::update(const Setting& setting) noexcept
 		inPorts  = ports;
 		outPorts = ports;
 		doRegisterPorts();
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		getCliComm().printWarning(
 			"Parse error in \"",
 			portListSetting.getFullName(), "\": ", e.getMessage());
@@ -88,7 +88,7 @@ byte ProgrammableDevice::readIO(uint16_t port, EmuTime /*time*/)
 			throw MSXException("outside range 0..255");
 		}
 		return narrow_cast<byte>(tmp);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		getCliComm().printWarning(
 			"Wrong result for callback function \"",
 			inCallback.getSetting().getFullName(),

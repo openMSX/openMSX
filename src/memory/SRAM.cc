@@ -101,9 +101,9 @@ void SRAM::load(bool* loaded)
 			config.getCliComm().printWarning(
 				"Warning no correct SRAM file: ", filename);
 		}
-	} catch (FileNotFoundException& /*e*/) {
+	} catch (const FileNotFoundException& /*e*/) {
 		// SRAM file not found, assuming blank SRAM content.
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't load SRAM ", filename,
 			" (", e.getMessage(), ").");
@@ -122,7 +122,7 @@ void SRAM::save() const
 			file.write(std::span{header, length});
 		}
 		file.write(std::span{ram});
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't save SRAM ", filename,
 			" (", e.getMessage(), ").");

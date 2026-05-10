@@ -142,7 +142,7 @@ CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(std::string_view f
 		try {
 			File file(userFileContext().resolve(filename));
 			result = inner(file.getOriginalName());
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			// ignore
 		}
 	}
@@ -187,14 +187,14 @@ void CommandLineParser::parse(std::span<char*> argv)
 				std::string filename = "settings.xml";
 				try {
 					settingsConfig.loadSetting(context, filename);
-				} catch (XMLException& e) {
+				} catch (const XMLException& e) {
 					reactor.getCliComm().printWarning(
 						"Loading of settings failed: ",
 						e.getMessage(), "\n"
 						"Reverting to default settings.");
-				} catch (FileException&) {
+				} catch (const FileException&) {
 					// settings.xml not found
-				} catch (ConfigException& e) {
+				} catch (const ConfigException& e) {
 					throw FatalError("Error in default settings: ",
 					                 e.getMessage());
 				}
@@ -217,7 +217,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 						// Setups are specified without extension
 						filename = context.resolve(tmpStrCat(
 							defaultSetup, Reactor::SETUP_EXTENSION));
-					} catch (MSXException& e) {
+					} catch (const MSXException& e) {
 						reactor.getCliComm().printInfo(
 							"Failed to load default setup: ", e.getMessage());
 					}
@@ -225,7 +225,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 						try {
 							reactor.switchMachineFromSetup(filename);
 							haveConfig = true;
-						} catch (MSXException& e) {
+						} catch (const MSXException& e) {
 							reactor.getCliComm().printInfo(
 								"Failed to activate default setup: ",
 								e.getMessage());
@@ -239,7 +239,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 						reactor.getDefaultMachineSetting().getString();
 					try {
 						reactor.switchMachine(std::string(defaultMachine));
-					} catch (MSXException& e) {
+					} catch (const MSXException& e) {
 						reactor.getCliComm().printInfo(
 							"Failed to initialize default machine: ",
 							e.getMessage());

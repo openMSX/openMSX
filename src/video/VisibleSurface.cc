@@ -240,7 +240,7 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 #ifndef _WIN32
 		try {
 			iconSurf = PNG::load(preferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			getCliComm().printWarning(
 				"Falling back to built in 32x32 icon, because failed to load icon: ",
 				e.getMessage());

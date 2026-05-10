@@ -427,7 +427,7 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 				return keyb->getMsxChar2Unicode();
 			}
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 	static const MsxChar2Unicode defaultMsxChars("MSXVID.TXT");
@@ -549,10 +549,10 @@ void Reactor::switchMachineFromSetup(zstring_view filename)
 	try {
 		XmlInputArchive in(filename);
 		in.serialize("machine", *newBoard);
-	} catch (XMLException& e) {
+	} catch (const XMLException& e) {
 		throw CommandException("Cannot load setup, bad file format: ",
 				       e.getMessage());
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw CommandException("Cannot load setup: ", e.getMessage());
 	}
 
@@ -632,7 +632,7 @@ void Reactor::runStartupScripts(const CommandLineParser& parser)
 	try {
 		commandController.source(
 			preferSystemFileContext().resolve("init.tcl"));
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		throw FatalError("Couldn't execute \"<openmsx>/share/init.tcl\": ", e.getMessage(), "\n"
 		                 "Most likely you have an incomplete openMSX installation!!!");
 	}
@@ -641,7 +641,7 @@ void Reactor::runStartupScripts(const CommandLineParser& parser)
 	for (const auto& s : parser.getStartupScripts()) {
 		try {
 			commandController.source(userFileContext().resolve(s));
-		} catch (FileException& e) {
+		} catch (const FileException& e) {
 			throw FatalError("Couldn't execute script: ",
 			                 e.getMessage());
 		}
@@ -649,7 +649,7 @@ void Reactor::runStartupScripts(const CommandLineParser& parser)
 	for (const auto& cmd : parser.getStartupCommands()) {
 		try {
 			commandController.executeCommand(cmd);
-		} catch (CommandException& e) {
+		} catch (const CommandException& e) {
 			throw FatalError("Couldn't execute command: ", cmd,
 			                 '\n', e.getMessage());
 		}
@@ -765,7 +765,7 @@ bool Reactor::signalEvent(const Event& event)
 						Reactor::SETUP_EXTENSION);
 					try {
 						board->storeAsSetup(filename, depth);
-					} catch (MSXException& e) {
+					} catch (const MSXException& e) {
 						getGlobalCliComm().printWarning(strCat("Couldn't save setup to ",
 						filename, " at exit: ", e.getMessage()));
 					}
@@ -854,7 +854,7 @@ void MachineCommand::execute(std::span<const TclObject> tokens, TclObject& resul
 	case 2:
 		try {
 			reactor.switchMachine(std::string(tokens[1].getString()));
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw CommandException("Machine switching failed: ",
 			                       e.getMessage());
 		}
@@ -891,7 +891,7 @@ void TestMachineCommand::execute(std::span<const TclObject> tokens,
 	try {
 		MSXMotherBoard mb(reactor);
 		mb.loadMachine(std::string(tokens[1].getString()));
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		result = e.getMessage(); // error
 	}
 }
@@ -1080,10 +1080,10 @@ void RestoreMachineCommand::execute(std::span<const TclObject> tokens,
 	try {
 		XmlInputArchive in(filename);
 		in.serialize("machine", *newBoard);
-	} catch (XMLException& e) {
+	} catch (const XMLException& e) {
 		throw CommandException("Cannot load state, bad file format: ",
 		                       e.getMessage());
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw CommandException("Cannot load state: ", e.getMessage());
 	}
 
@@ -1132,7 +1132,7 @@ void SetupCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 	// switch to this setup
 	try {
 		reactor.switchMachineFromSetup(filename);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw CommandException("Switching to setup failed: ",
 				       e.getMessage());
 	}
@@ -1224,7 +1224,7 @@ void ConfigInfo::execute(std::span<const TclObject> tokens, TclObject& result) c
 					result.addDictKeyValue(c.getName(), c.getData());
 				}
 			}
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw CommandException(
 				"Couldn't get config info: ", e.getMessage());
 		}

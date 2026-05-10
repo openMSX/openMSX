@@ -137,7 +137,7 @@ void Disk::detectGeometry()
 				detectGeometryFallback();
 			}
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// read error, assume it's a 3.5" DS or SS DD disk
 		detectGeometryFallback();
 	}

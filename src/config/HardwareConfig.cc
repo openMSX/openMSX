@@ -171,7 +171,7 @@ HardwareConfig::~HardwareConfig()
 #ifndef NDEBUG
 	try {
 		testRemove();
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		std::cerr << e.getMessage() << '\n';
 		assert(false);
 	}
@@ -239,7 +239,7 @@ static void loadHelper(XMLDocument& doc, zstring_view filename)
 {
 	try {
 		doc.load(filename, "msxconfig2.dtd");
-	} catch (XMLException& e) {
+	} catch (const XMLException& e) {
 		throw MSXException(
 			"Loading of hardware configuration failed: ",
 			e.getMessage());
@@ -253,13 +253,13 @@ static std::string getFilename(std::string_view type, std::string_view name)
 		// try <name>.xml
 		return context.resolve(tmpStrCat(
 			type, '/', name, ".xml"));
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		// backwards-compatibility:
 		//  also try <name>/hardwareconfig.xml
 		try {
 			return context.resolve(tmpStrCat(
 				type, '/', name, "/hardwareconfig.xml"));
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			throw e; // signal first error
 		}
 	}

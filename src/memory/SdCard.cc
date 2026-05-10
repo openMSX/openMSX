@@ -53,7 +53,7 @@ uint8_t SdCard::readCurrentByteFromCurrentSector()
 			try {
 				hd->readSector(currentSector, sectorBuf);
 				return START_BLOCK_TOKEN;
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				return DATA_ERROR_TOKEN_ERROR;
 			}
 		} else {
@@ -138,7 +138,7 @@ uint8_t SdCard::transfer(uint8_t value, bool cs)
 			// copy buffer to SD card
 			try {
 				hd->writeSector(currentSector, sectorBuf);
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				response = DRT_WRITE_ERROR;
 			}
 			mode = COMMAND;
@@ -176,7 +176,7 @@ uint8_t SdCard::transfer(uint8_t value, bool cs)
 					hd->writeSector(currentSector, sectorBuf);
 					currentByteInSector = -1;
 					currentSector++;
-				} catch (MSXException&) {
+				} catch (const MSXException&) {
 					response = DRT_WRITE_ERROR;
 					// note: mode is not changed, should be
 					// done by the host with CMD12

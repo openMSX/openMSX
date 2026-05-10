@@ -88,14 +88,14 @@ std::vector<std::string> DiskManipulator::getDriveNamesForCurrentMachine() const
 				try {
 					SectorBuffer buf;
 					DiskImageUtils::getPartition(*disk, i, buf);
-				} catch (MSXException&) {
+				} catch (const MSXException&) {
 					break; // stop when the partition doesn't exist
 				}
 				try {
 					DiskImageUtils::checkSupportedPartition(*disk, i);
 					result.push_back(strCat(
 						drive.driveName.substr(prefix.size()), i));
-				} catch (MSXException&) {
+				} catch (const MSXException&) {
 					// skip invalid partition
 				}
 			}
@@ -146,7 +146,7 @@ std::optional<DiskManipulator::DriveAndPartition> DiskManipulator::getDriveAndDi
 		return DriveAndPartition{
 			.drive = drive,
 			.partition = std::make_unique<DiskPartition>(*disk, partitionNum)};
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		return {}; // invalid partition?
 	}
 }
@@ -475,14 +475,14 @@ void DiskManipulator::tabCompletion(std::vector<std::string>& tokens) const
 					try {
 						SectorBuffer buf;
 						DiskImageUtils::getPartition(*disk, i, buf);
-					} catch (MSXException&) {
+					} catch (const MSXException&) {
 						break;
 					}
 					try {
 						DiskImageUtils::checkSupportedPartition(*disk, i);
 						append(names,
 						       {strCat(name1, i), strCat(name2, i)});
-					} catch (MSXException&) {
+					} catch (const MSXException&) {
 						// skip invalid partition
 					}
 				}
@@ -553,7 +553,7 @@ void DiskManipulator::create(const std::string& filename, MSXBootSectorType boot
 	try {
 		File file(filename, File::OpenMode::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		throw CommandException("Couldn't create image: ", e.getMessage());
 	}
 
@@ -631,7 +631,7 @@ MSXtar DiskManipulator::getMSXtar(
 	std::string cwd = driveData.getWorkingDir(driveData.partition);
 	try {
 		result.chdir(cwd);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		driveData.setWorkingDir(driveData.partition, "/");
 		throw CommandException(
 			"Directory ", cwd,
@@ -668,7 +668,7 @@ std::string DiskManipulator::chdir(DriveSettings& driveData, std::string_view fi
 	auto workhorse = getMSXtar(partition, driveData);
 	try {
 		workhorse.chdir(filename);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw CommandException("chdir failed: ", e.getMessage());
 	}
 	// TODO clean-up this temp hack, used to enable relative paths

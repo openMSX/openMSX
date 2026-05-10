@@ -115,7 +115,7 @@ void PluggingController::PlugCmd::execute(
 			connector.plug(pluggable, time);
 			pluggingController.getCliComm().update(
 				CliComm::UpdateType::PLUG, connName, plugName);
-		} catch (PlugException& e) {
+		} catch (const PlugException& e) {
 			throw CommandException("plug: plug failed: ", e.getMessage());
 		}
 		break;

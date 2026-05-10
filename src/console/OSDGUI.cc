@@ -277,7 +277,7 @@ void OSDGUI::OSDCommand::tabCompletion(std::vector<std::string>& tokens) const
 				}
 			}();
 			completeString(tokens, properties);
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// ignore
 		}
 	}

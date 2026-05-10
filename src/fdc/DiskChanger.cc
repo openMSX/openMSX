@@ -153,7 +153,7 @@ int DiskChanger::insertDisk(const std::string& filename)
 	try {
 		insertDisk(args);
 		return 0;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		return -1;
 	}
 }
@@ -355,7 +355,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 
 			try {
 				insertDisk(args);
-			} catch (MSXException& e) {
+			} catch (const MSXException& e) {
 				throw MSXException(
 					"Couldn't reinsert disk in drive ",
 					getDriveName(), ": ", e.getMessage());

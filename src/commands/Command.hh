@@ -78,7 +78,7 @@ public:
 	void executeSubCommand(std::string_view subCmd, Args&&... args) {
 		try {
 			executeSubCommandImpl(subCmd, std::forward<Args>(args)...);
-		} catch (UnknownSubCommand&) {
+		} catch (const UnknownSubCommand&) {
 			unknownSubCommand(subCmd, std::forward<Args>(args)...);
 		}
 	}

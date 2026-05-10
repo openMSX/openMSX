@@ -380,7 +380,7 @@ void CartridgeSlotManager::removeCartridge(std::string_view cartName)
 		try {
 			motherBoard.removeExtension(*extConf);
 			motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, cartName, {});
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw CommandException("Can't remove cartridge: ", e.getMessage());
 		}
 	}

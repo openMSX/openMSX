@@ -63,7 +63,7 @@ Rom::Rom(std::string name_, static_string_view description_,
 			try {
 				init(config.getMotherBoard(), *c, config.getFileContext());
 				return;
-			} catch (MSXException& e) {
+			} catch (const MSXException& e) {
 				// remember error message, and try next
 				if (!errors.empty() && (errors.back() != '\n')) {
 					errors += '\n';
@@ -123,7 +123,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 				auto fname = resolvedFilenameElem->getData();
 				file = File(fname);
 				filename = fname;
-			} catch (FileException&) {
+			} catch (const FileException&) {
 				// ignore
 			}
 		}
@@ -148,7 +148,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 					file = File(fname);
 					filename = std::move(fname);
 					break;
-				} catch (FileException&) {
+				} catch (const FileException&) {
 					// ignore
 				}
 			}
@@ -193,7 +193,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		try {
 			mmap = file.mmap<uint8_t>();
 			rom = *mmap;
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			throw MSXException("Error reading ROM image: ", filename);
 		}
 

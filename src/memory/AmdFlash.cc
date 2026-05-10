@@ -103,7 +103,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 			config.getCliComm().printInfo(
 				"Loaded initial content for flash ROM from ",
 				rom->getFilename());
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			// ignore error
 			assert(rom == nullptr); // 'rom' remains nullptr
 			// only if an actual sha1sum was given, tell the user we failed to use it

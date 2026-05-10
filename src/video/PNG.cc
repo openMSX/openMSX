@@ -192,7 +192,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		//png_read_end(png.ptr, png.info);
 
 		return surface;
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException(
 			"Error while loading PNG file \"", filename, "\": ",
 			e.getMessage());
@@ -300,7 +300,7 @@ static void IMG_SavePNG_RW(size_t width, std::span<const void*> rowPointers,
 			png.ptr,
 			std::bit_cast<png_bytep*>(const_cast<void**>(rowPointers.data())));
 		png_write_end(png.ptr, png.info);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException(
 			"Error while writing PNG file \"", filename, "\": ",
 			e.getMessage());

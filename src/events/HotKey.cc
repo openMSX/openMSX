@@ -375,7 +375,7 @@ void HotKey::executeBinding(const Event& event, const HotKeyInfo& info)
 
 		// ignore return value
 		command.executeCommand(commandController.getInterpreter());
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		commandController.getCliComm().printWarning(
 			"Error executing hot key command: ", e.getMessage());
 	}

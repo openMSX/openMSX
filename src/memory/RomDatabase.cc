@@ -345,7 +345,7 @@ void DBParser::attribute(zstring_view name, zstring_view value)
 			if (small_compare<"sha1">(name)) {
 				try {
 					dumps.back().hash = Sha1Sum(value);
-				} catch (MSXException& e) {
+				} catch (const MSXException& e) {
 					cliComm.printWarning(
 						"Ignoring bad dump for '", fromString32(bufStart, title),
 						"': ", e.getMessage());
@@ -425,7 +425,7 @@ void DBParser::text(zstring_view txt)
 	case HASH:
 		try {
 			dumps.back().hash = Sha1Sum(txt);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			cliComm.printWarning(
 				"Ignoring bad dump for '", fromString32(bufStart, title),
 				"': ", e.getMessage());
@@ -654,7 +654,7 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 		try {
 			auto& f = files.emplace_back(p + "/softwaredb.xml");
 			bufferSize += f.getSize() + rapidsax::EXTRA_BUFFER_SPACE;
-		} catch (MSXException& /*e*/) {
+		} catch (const MSXException& /*e*/) {
 			// Ignore. It's not unusual the DB in the user
 			// directory is not found. In case there's an error
 			// with both user and system DB, we must give a
@@ -672,10 +672,10 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 			buf[size] = 0;
 
 			parseDB(cliComm, buf, buffer.data(), db, unknownTypes);
-		} catch (rapidsax::ParseError& e) {
+		} catch (const rapidsax::ParseError& e) {
 			cliComm.printWarning(
 				"Rom database parsing failed: ", e.what());
-		} catch (MSXException& /*e*/) {
+		} catch (const MSXException& /*e*/) {
 			// Ignore, see above
 		}
 	}

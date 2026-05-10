@@ -200,7 +200,7 @@ std::expected<TclObject, std::string> ImGuiWatchExpr::evalExpr(WatchExpr& watch,
 
 	try {
 		return watch.expression->eval(interp);
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		return std::unexpected(e.getMessage());
 	}
 }
@@ -219,7 +219,7 @@ void ImGuiWatchExpr::drawRow(int row)
 		auto frmtCmd = makeTclList("format", watch.format, exprVal ? *exprVal : TclObject("0"));
 		try {
 			formatted = frmtCmd.executeCommand(interp);
-		} catch (CommandException& e) {
+		} catch (const CommandException& e) {
 			formatted = std::unexpected(e.getMessage());
 		}
 	} else {

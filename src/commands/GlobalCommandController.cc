@@ -312,7 +312,7 @@ void GlobalCommandController::source(const std::string& script)
 	try {
 		LocalFileReference file(script);
 		interpreter.executeFile(file.getFilename());
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		getCliComm().printWarning(
 			 "While executing ", script, ": ", e.getMessage());
 	}
@@ -435,7 +435,7 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 				}
 				Completer::completeString(
 					tokens, std::ranges::subrange(begin, end), sensitive);
-			} catch (CommandException& e) {
+			} catch (const CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
 					"proc: ", e.getMessage());

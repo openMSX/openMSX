@@ -65,7 +65,7 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 			ar.skipSection(false);
 			try {
 				ar.serializePolymorphic("pluggable", *plugged);
-			} catch (PlugException& e) {
+			} catch (const PlugException& e) {
 				pluggingController.getCliComm().printWarning(
 					"Pluggable \"", plugName, "\" failed to replug: ",
 					e.getMessage());

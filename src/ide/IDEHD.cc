@@ -71,7 +71,7 @@ unsigned IDEHD::readBlockStart(AlignedBuffer& buf, unsigned count)
 		           *aligned_cast<SectorBuffer*>(buf));
 		++transferSectorNumber;
 		return 512;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		abortReadTransfer(UNC);
 		return 0;
 	}
@@ -86,7 +86,7 @@ void IDEHD::writeBlockComplete(AlignedBuffer& buf, unsigned count)
 			writeSector(transferSectorNumber++,
 			            *aligned_cast<SectorBuffer*>(buf + 512 * i));
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		abortWriteTransfer(UNC);
 	}
 }

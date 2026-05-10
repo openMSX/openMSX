@@ -125,7 +125,7 @@ void ImGuiSymbols::loadFile(
 			                     "\" doesn't contain any symbols");
 		}
 		if (it != fileError.end()) fileError.erase(it); // clear previous error
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		cliComm.printWarning(
 			"Couldn't load symbol file \"", filename, "\": ", e.getMessage());
 		if (it != fileError.end()) {

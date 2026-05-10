@@ -636,7 +636,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 			cliComm.printWarning("Virtual disk image full: ",
 			                     mapDir.hostName, " truncated.");
 		}
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		// Error opening or reading host file.
 		cliComm.printWarning("Error reading host file: ",
 		                     mapDir.hostName, ": ", e.getMessage(),
@@ -738,7 +738,7 @@ void DirAsDSK::addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSec
 			} else {
 				throw MSXException("Not a regular file: ", fullHostName);
 			}
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			cliComm.printWarning(e.getMessage());
 		}
 	}
@@ -851,7 +851,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		memset(&msxDir(dirIndex), 0, sizeof(MSXDirEntry)); // clear entry
 		copy_to_range(msxFilename, msxDir(dirIndex).filename);
 		return dirIndex;
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException("Couldn't add ", hostPath, ": ",
 		                   e.getMessage());
 	}
@@ -1229,7 +1229,7 @@ void DirAsDSK::exportToHostDir(DirIndex dirIndex, const std::string& hostName)
 			}
 			msxDirSector = nextMsxDirSector(msxDirSector);
 		} while (msxDirSector != unsigned(-1));
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		cliComm.printWarning("Error while syncing host directory: ",
 		                     hostName, ": ", e.getMessage());
 	}
@@ -1268,7 +1268,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const std::string& hostName)
 			if (offset >= msxSize) break;
 			curCl = readFAT(curCl);
 		}
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		cliComm.printWarning("Error while syncing host file: ",
 		                     hostName, ": ", e.getMessage());
 	}
@@ -1352,7 +1352,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 			auto writeSize = std::min<size_t>(msxSize - offset, sizeof(buf));
 			file.write(subspan(buf.raw, 0, writeSize));
 		}
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		cliComm.printWarning("Couldn't write to file ", fullHostName,
 		                     ": ", e.getMessage());
 	}

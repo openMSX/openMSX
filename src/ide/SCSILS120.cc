@@ -401,7 +401,7 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 		currentLength -= numSectors;
 		blocks = currentLength;
 		return counter;
-	} catch (FileException&) {
+	} catch (const FileException&) {
 		blocks = 0;
 		keycode = SCSI::SENSE_UNRECOVERED_READ_ERROR;
 		return 0;
@@ -439,7 +439,7 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 		blocks = currentLength - tmp;
 		unsigned counter = tmp * SECTOR_SIZE;
 		return counter;
-	} catch (FileException&) {
+	} catch (const FileException&) {
 		keycode = SCSI::SENSE_WRITE_FAULT;
 		blocks = 0;
 		return 0;
@@ -466,7 +466,7 @@ void SCSILS120::formatUnit()
 			file.write(std::span{buffer.data(), SECTOR_SIZE});
 			unitAttention = true;
 			mediaChanged = true;
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
 		}
 	}
@@ -759,7 +759,7 @@ int SCSILS120::insertDisk(const std::string& fname)
 	try {
 		insert(fname);
 		return 0;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		return -1;
 	}
 }
@@ -803,7 +803,7 @@ void LSXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 		}
 		try {
 			ls.insert(userFileContext().resolve(tokens[fileToken].getString()));
-		} catch (FileException& e) {
+		} catch (const FileException& e) {
 			throw CommandException("Can't change disk image: ",
 			                       e.getMessage());
 		}

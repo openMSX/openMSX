@@ -165,7 +165,7 @@ std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
 		try {
 			font = TTFFont(systemFileContext().resolve(fontFile),
 			               size * scale, fontFaceIndex);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw MSXException("Couldn't open font: ", e.getMessage());
 		}
 	}
@@ -200,7 +200,7 @@ std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
 		} else {
 			return std::make_unique<GLImage>(ivec2(), 0);
 		}
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException("Couldn't render text: ", e.getMessage());
 	}
 }

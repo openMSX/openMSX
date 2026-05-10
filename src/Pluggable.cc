@@ -35,7 +35,7 @@ void Pluggable::unplug(EmuTime time)
 {
 	try {
 		unplugHelper(time);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		UNREACHABLE;
 	}
 	setConnector(nullptr);

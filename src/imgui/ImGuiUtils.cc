@@ -81,7 +81,7 @@ static void settingStuff(Setting& setting, GetTooltip getTooltip = {})
 		if (ImGui::Button("Restore default")) {
 			try {
 				setting.setValue(defaultValue);
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// ignore
 			}
 			ImGui::CloseCurrentPopup();
@@ -100,7 +100,7 @@ bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, 
 	bool changed = ImGui::Checkbox(label, &value);
 	try {
 		if (changed) setting.setBoolean(value);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 	settingStuff(setting, getTooltip);
@@ -127,7 +127,7 @@ bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flag
 	bool changed = ImGui::SliderInt(label, &value, min, max, "%d", flags);
 	try {
 		if (changed) setting.setInt(value);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 	settingStuff(setting);
@@ -147,7 +147,7 @@ bool SliderFloat(const char* label, FloatSetting& setting, const char* format, I
 	bool changed = ImGui::SliderFloat(label, &value, min, max, format, flags);
 	try {
 		if (changed) setting.setFloat(value);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 	settingStuff(setting);
@@ -165,7 +165,7 @@ bool InputText(const char* label, Setting& setting)
 	bool changed = ImGui::InputText(label, &value, ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::IsItemDeactivatedAfterEdit();
 	try {
 		if (changed) setting.setValue(TclObject(value));
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 	settingStuff(setting);
@@ -184,7 +184,7 @@ void ComboBox(const char* label, Setting& setting, function_ref<std::string(cons
 			    ImGui::Selectable(display.c_str(), selected)) {
 				try {
 					setting.setValue(TclObject(entry.name));
-				} catch (MSXException&) {
+				} catch (const MSXException&) {
 					// ignore
 				}
 			}
@@ -220,7 +220,7 @@ void ComboBox(const char* label, VideoSourceSetting& setting) // TODO share code
 			if (ImGui::Selectable(std::string(value).c_str(), selected)) {
 				try {
 					setting.setValue(TclObject(value));
-				} catch (MSXException&) {
+				} catch (const MSXException&) {
 					// ignore
 				}
 			}

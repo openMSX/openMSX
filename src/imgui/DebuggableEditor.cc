@@ -174,7 +174,7 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 				} else {
 					addr = narrow<unsigned>(i);
 				}
-			} catch (MSXException& e) {
+			} catch (const MSXException& e) {
 				error = e.getMessage();
 			}
 			ImGui::SameLine();
@@ -255,7 +255,7 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 					if (exportFormatted == EXPORT_FORMATTED) {
 						makeTclList("format", exportCustomFormat, 0).executeCommand(interp);
 					}
-				} catch (MSXException& e) {
+				} catch (const MSXException& e) {
 					formatError = e.getMessage();
 				}
 				ImGui::RadioButton("Custom", &exportFormat, FORMAT_CUSTOM);
@@ -316,7 +316,7 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 					}
 					exportStatus = "Export successful";
 					exportStatusTimeout = 3.0f;
-				} catch (MSXException& e) {
+				} catch (const MSXException& e) {
 					exportStatus = e.getMessage();
 					exportStatusTimeout = 5.0f;
 					manager.printError(e.getMessage());
@@ -376,7 +376,7 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 
 	try {
 		return TclObject(str).eval(interp).getInt(interp);
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		return std::unexpected(e.getMessage());
 	}
 }

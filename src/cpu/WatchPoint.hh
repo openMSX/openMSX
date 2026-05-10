@@ -129,7 +129,7 @@ public:
 			auto [b, e] = parseAddress(interp);
 			beginAddr = b;
 			endAddr = e;
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			beginAddr = endAddr = {};
 		}
 	}
@@ -138,7 +138,7 @@ public:
 		try {
 			parseAddress(interp);
 			return {};
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			return e.getMessage();
 		}
 	}

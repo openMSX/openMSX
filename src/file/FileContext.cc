@@ -95,11 +95,11 @@ std::string FileContext::resolveCreate(std::string_view filename) const
 	std::string result;
 	try {
 		result = resolveHelper(savePaths2, filename);
-	} catch (FileException&) {
+	} catch (const FileException&) {
 		const std::string& path = savePaths2.front();
 		try {
 			FileOperations::mkdirp(path);
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			// ignore
 		}
 		result = FileOperations::join(path, filename);

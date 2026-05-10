@@ -166,7 +166,7 @@ void MSXCommandController::signalMSXEvent(
 		try {
 			getInterpreter().setVariable(
 				s->getFullNameObj(), s->getValue());
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// ignore
 		}
 	}
@@ -187,7 +187,7 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 			try {
 				getInterpreter().setVariable(
 					s->getFullNameObj(), fromSetting->getValue());
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// ignore
 			}
 		}

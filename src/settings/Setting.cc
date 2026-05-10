@@ -56,7 +56,7 @@ void Setting::init()
 		                    .getValueForSetting(getBaseName())) {
 			try {
 				setValueDirect(TclObject(*savedValue));
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// saved value no longer valid, just keep default
 			}
 		}
@@ -178,7 +178,7 @@ void Setting::setValueDirect(const TclObject& newValue_)
 	// Tcl already makes sure this doesn't result in an endless loop.
 	try {
 		getInterpreter().setVariable(getBaseNameObj(), getValue());
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore
 	}
 }

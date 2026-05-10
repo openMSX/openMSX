@@ -290,7 +290,7 @@ void MSXMotherBoard::deleteMachine()
 	while (!extensions.empty()) {
 		try {
 			removeExtension(*extensions.back());
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			std::cerr << "Internal error: failed to remove "
 			             "extension while deleting a machine: "
 			          << e.getMessage() << '\n';
@@ -353,17 +353,17 @@ std::string MSXMotherBoard::loadMachine(const std::string& machine)
 	try {
 		machineConfig2 = HardwareConfig::createMachineConfig(*this, machine);
 		setMachineConfig(machineConfig2.get());
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		throw MSXException("Machine \"", machine, "\" not found: ",
 		                   e.getMessage());
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException("Error in \"", machine, "\" machine: ",
 		                   e.getMessage());
 	}
 	try {
 		machineConfig->parseSlots();
 		machineConfig->createDevices();
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException("Error in \"", machine, "\" machine: ",
 		                   e.getMessage());
 	}
@@ -450,10 +450,10 @@ std::unique_ptr<HardwareConfig> MSXMotherBoard::loadExtension(std::string_view n
 	try {
 		return HardwareConfig::createExtensionConfig(
 			*this, std::string(name), slotName);
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		throw MSXException(
 			"Extension \"", name, "\" not found: ", e.getMessage());
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException(
 			"Error in \"", name, "\" extension: ", e.getMessage());
 	}
@@ -465,7 +465,7 @@ std::string MSXMotherBoard::insertExtension(
 	try {
 		extension->parseSlots();
 		extension->createDevices();
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException(
 			"Error in \"", name, "\" extension: ", e.getMessage());
 	}
@@ -1010,7 +1010,7 @@ void RemoveExtCmd::execute(std::span<const TclObject> tokens, TclObject& /*resul
 	}
 	try {
 		motherBoard.removeExtension(*extension);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw CommandException("Can't remove extension '", extName,
 		                       "': ", e.getMessage());
 	}

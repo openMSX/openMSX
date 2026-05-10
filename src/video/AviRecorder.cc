@@ -87,7 +87,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 			aviWriter = std::make_unique<AviWriter>(
 				filename, frameWidth, frameHeight,
 				(recordAudio && stereo) ? 2 : 1, sampleRate);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			throw CommandException("Can't start recording: ",
 			                       e.getMessage());
 		}

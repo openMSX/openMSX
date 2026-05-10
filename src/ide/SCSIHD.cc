@@ -285,7 +285,7 @@ unsigned SCSIHD::readSectors(unsigned& blocks)
 		}
 		blocks = currentLength;
 		return counter;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		blocks = 0;
 		keycode = SCSI::SENSE_UNRECOVERED_READ_ERROR;
 		return 0;
@@ -322,7 +322,7 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 		blocks = currentLength - tmp;
 		unsigned counter = tmp * SECTOR_SIZE;
 		return counter;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		keycode = SCSI::SENSE_WRITE_FAULT;
 		blocks = 0;
 		return 0;
@@ -348,7 +348,7 @@ void SCSIHD::formatUnit()
 		try {
 			writeSector(0, sbuf);
 			unitAttention = true;
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
 		}
 	}

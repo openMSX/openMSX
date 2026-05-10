@@ -357,14 +357,14 @@ void XMLDocument::load(zstring_view filename, std::string_view systemID)
 
 	try {
 		buf = File(filename).mmap<char>(rapidsax::EXTRA_BUFFER_SPACE);
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		throw XMLException(filename, ": failed to read: ", e.getMessage());
 	}
 
 	XMLDocumentHandler handler(*this);
 	try {
 		rapidsax::parse<rapidsax::zeroTerminateStrings>(handler, buf.data());
-	} catch (rapidsax::ParseError& e) {
+	} catch (const rapidsax::ParseError& e) {
 		throw XMLException(filename, ": Document parsing failed: ", e.what());
 	}
 	if (!root) {

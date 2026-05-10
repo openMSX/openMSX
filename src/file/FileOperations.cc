@@ -612,7 +612,7 @@ std::string getNextNumberedFileName(
 	std::string dirName = getUserOpenMSXDir(directory);
 	try {
 		mkdirp(dirName);
-	} catch (FileException&) {
+	} catch (const FileException&) {
 		// ignore
 	}
 

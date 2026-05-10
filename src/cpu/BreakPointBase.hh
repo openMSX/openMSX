@@ -47,7 +47,7 @@ public:
 		if (isTrue(cliComm, interp)) {
 			try {
 				command.executeCommand(interp, true); // compile command
-			} catch (CommandException& e) {
+			} catch (const CommandException& e) {
 				cliComm.printWarning(e.getMessage());
 			}
 			return onlyOnce();
@@ -70,7 +70,7 @@ private:
 		}
 		try {
 			return condition.evalBool(interp);
-		} catch (CommandException& e) {
+		} catch (const CommandException& e) {
 			cliComm.printWarning(e.getMessage());
 			return false;
 		}

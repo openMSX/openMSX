@@ -110,13 +110,13 @@ static int main(int argc, char **argv)
 			display.repaint();
 			reactor.run();
 		}
-	} catch (FatalError& e) {
+	} catch (const FatalError& e) {
 		std::cerr << "Fatal error: " << e.getMessage() << '\n';
 		exitCode = 1;
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		std::cerr << "Uncaught exception: " << e.getMessage() << '\n';
 		exitCode = 1;
-	} catch (std::exception& e) {
+	} catch (const std::exception& e) {
 		std::cerr << "Uncaught std::exception: " << e.what() << '\n';
 		exitCode = 1;
 	} catch (...) {

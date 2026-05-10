@@ -25,7 +25,7 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 		std::array<uint8_t, 1> byteBuf;
 		file.read(byteBuf);
 		setting.setBoolean(byteBuf[0] != 0);
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't load firmwareswitch status: ", e.getMessage());
 	}
@@ -39,7 +39,7 @@ FirmwareSwitch::~FirmwareSwitch()
 		          File::OpenMode::TRUNCATE);
 		std::array byteBuf = {uint8_t(setting.getBoolean() ? 0xFF : 0x00)};
 		file.write(byteBuf);
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't save firmwareswitch status: ", e.getMessage());
 	}

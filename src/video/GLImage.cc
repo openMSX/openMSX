@@ -65,7 +65,7 @@ gl::Texture loadTexture(const std::string& filename, ivec2& size)
 	SDLSurfacePtr surface(PNG::load(filename, false));
 	try {
 		return loadTexture(std::move(surface), size);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException("Error loading image ", filename, ": ",
 		                   e.getMessage());
 	}

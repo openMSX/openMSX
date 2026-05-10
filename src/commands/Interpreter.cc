@@ -194,7 +194,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 				}
 			}
 			command.execute(tokens, result);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			result = e.getMessage();
 			res = TCL_ERROR;
 		}
@@ -288,7 +288,7 @@ void Interpreter::registerSetting(BaseSetting& variable)
 		// Tcl var already existed, use this value
 		try {
 			variable.setValueDirect(TclObject(tclVarValue));
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// Ignore: can happen in case of proxy settings when
 			// the current machine doesn't have this setting.
 			// E.g.
@@ -432,7 +432,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// doesn't exist at this point
 				variable->setValueDirect(TclObject(
 					variable->getDefaultValue()));
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource
 				// setting before turning on (set power on) the

@@ -440,7 +440,7 @@ EmuTime TC8566AF::locateSector(EmuTime time, bool readId)
 			auto* drv = drive[driveSelect];
 			setDrqRate(drv->getTrackLength());
 			next = drv->getNextSector(next, sectorInfo);
-		} catch (MSXException& /*e*/) {
+		} catch (const MSXException& /*e*/) {
 			return EmuTime::infinity();
 		}
 		if ((next == EmuTime::infinity()) ||
@@ -669,7 +669,7 @@ void TC8566AF::initTrackHeader(EmuTime time)
 		write( 3, 0xC2); // index mark
 		write( 1, 0xFC); //   "    "
 		write(50, 0x4E); // gap1
-	} catch (MSXException& /*e*/) {
+	} catch (const MSXException& /*e*/) {
 		endCommand(time);
 	}
 }
@@ -820,7 +820,7 @@ void TC8566AF::executionPhaseWrite(uint8_t value, EmuTime time)
 					// write next sector
 					startReadWriteSector(time);
 				}
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				status0 |= ST0_IC0;
 				status1 |= ST1_NW;
 				resultPhase();
@@ -852,7 +852,7 @@ void TC8566AF::executionPhaseWrite(uint8_t value, EmuTime time)
 			// data for all sectors was written, now write track
 			try {
 				drv->flushTrack();
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				status0 |= ST0_IC0;
 				status1 |= ST1_NW;
 			}

@@ -45,7 +45,7 @@ void WavAudioInput::plugHelper(Connector& /*connector*/, EmuTime time)
 		if (wav.getSize() == 0) {
 			loadWave();
 		}
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw PlugException("Load of wave file failed: ", e.getMessage());
 	}
 	reference = time;
@@ -63,7 +63,7 @@ void WavAudioInput::update(const Setting& setting) noexcept
 		if (isPluggedIn()) {
 			loadWave();
 		}
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		// TODO proper error handling, message should go to console
 		setting.getCommandController().getCliComm().printWarning(
 			"Load of wave file failed: ", e.getMessage());

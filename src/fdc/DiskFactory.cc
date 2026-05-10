@@ -51,7 +51,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			filename,
 			syncDirAsDSKSetting.getEnum(),
 			bootSectorSetting.getEnum());
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// DirAsDSK didn't work, no problem
 	}
 	try {
@@ -59,20 +59,20 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		try {
 			// first try XSA
 			return std::make_unique<XSADiskImage>(filename, *file);
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// XSA didn't work, still no problem
 		}
 		try {
 			// next try dmk
 			file->seek(0);
 			return std::make_unique<DMKDiskImage>(filename, file);
-		} catch (MSXException& /*e*/) {
+		} catch (const MSXException& /*e*/) {
 			// DMK didn't work, still no problem
 		}
 		// next try normal DSK
 		return std::make_unique<DSKDiskImage>(filename, std::move(file));
 
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		// File could not be opened or (very rare) something is wrong
 		// with the DSK image. Try to interpret the filename as
 		//    <filename>:<partition-number>
@@ -89,7 +89,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		try {
 			Filename filename2(diskImage.substr(0, pos));
 			wholeDisk = std::make_shared<DSKDiskImage>(filename2);
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// If this fails we still prefer to show the
 			// previous error message, because it's most
 			// likely more descriptive.

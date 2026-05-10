@@ -53,7 +53,7 @@ std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::get
 	try {
 		auto tar = std::make_unique<MSXtar>(*disk, manager.getReactor().getMsxChar2Unicode());
 		return DrivePartitionTar{.drive = drive, .disk = std::move(disk), .tar = std::move(tar)};
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// e.g. triggers when trying to parse a partition table as a FAT-disk
 		return {};
 	}
@@ -65,7 +65,7 @@ bool ImGuiDiskManipulator::isValidMsxDirectory(DrivePartitionTar& stuff, const s
 	try {
 		stuff.tar->chdir(dir);
 		return true;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		return false;
 	}
 }
@@ -78,7 +78,7 @@ std::vector<ImGuiDiskManipulator::FileInfo> ImGuiDiskManipulator::dirMSX(DrivePa
 
 	try {
 		stuff.tar->chdir(msxDir);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		msxDir = "/";
 		editMsxDir = "/";
 		stuff.tar->chdir(msxDir);
@@ -522,7 +522,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 					try {
 						stuff->tar->chdir(msxDir);
 						error = stuff->tar->renameItem(renameFrom, editModal);
-					} catch (MSXException& e) {
+					} catch (const MSXException& e) {
 						error = e.getMessage();
 					}
 					if (!error.empty()) {
@@ -621,7 +621,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 					try {
 						stuff->tar->chdir(msxDir);
 						stuff->tar->mkdir(editModal);
-					} catch (MSXException& e) {
+					} catch (const MSXException& e) {
 						manager.printError(
 							"Couldn't create new MSX directory: ", e.getMessage());
 					}
@@ -755,7 +755,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 							drive->insertDisk(editModal); // might fail (return code), but ignore
 							msxRefresh();
 						}
-					} catch (MSXException& e) {
+					} catch (const MSXException& e) {
 						manager.printError(
 							"Couldn't create disk image: ", e.getMessage());
 					}
@@ -805,7 +805,7 @@ void ImGuiDiskManipulator::exportDiskImage()
 					disk->readSector(i, buf);
 					file.write(buf.raw);
 				}
-			} catch (MSXException& e) {
+			} catch (const MSXException& e) {
 				manager.printError(
 					"Couldn't export disk image: ", e.getMessage());
 			}
@@ -845,7 +845,7 @@ bool ImGuiDiskManipulator::setupTransferHostToMsx(DrivePartitionTar& stuff)
 {
 	try {
 		stuff.tar->chdir(msxDir);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		msxRefresh();
 		return false;
 	}
@@ -877,7 +877,7 @@ void ImGuiDiskManipulator::executeTransferHostToMsx(DrivePartitionTar& stuff)
 	transferHostToMsxPhase = IDLE;
 	try {
 		stuff.tar->chdir(msxDir);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		msxRefresh();
 		return;
 	}
@@ -888,7 +888,7 @@ void ImGuiDiskManipulator::executeTransferHostToMsx(DrivePartitionTar& stuff)
 			auto add = (transferHostToMsxPhase == EXECUTE_PRESERVE)
 			         ? MSXtar::Add::PRESERVE : MSXtar::Add::OVERWRITE;
 			stuff.tar->addItem(FileOperations::join(hostDir, item.filename), add);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			manager.printError("Couldn't import ", item.filename, ": ", e.getMessage());
 		}
 	}
@@ -899,7 +899,7 @@ void ImGuiDiskManipulator::transferMsxToHost(DrivePartitionTar& stuff)
 {
 	try {
 		stuff.tar->chdir(msxDir);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		msxRefresh();
 		return;
 	}
@@ -907,7 +907,7 @@ void ImGuiDiskManipulator::transferMsxToHost(DrivePartitionTar& stuff)
 		if (!item.isSelected) continue;
 		try {
 			stuff.tar->getItemFromDir(hostDir, item.filename);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			manager.printError("Couldn't extract ", item.filename, ": ", e.getMessage());
 		}
 	}

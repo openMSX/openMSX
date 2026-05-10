@@ -493,7 +493,7 @@ void ReverseManager::goTo(
 
 		//assert(!isCollecting()); // can't access 'this->' members anymore!
 		assert(newBoard->getReverseManager().isCollecting());
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// Make sure mixer doesn't stay muted in case of error.
 		mixer.unmute();
 		throw;
@@ -616,7 +616,7 @@ void ReverseManager::saveReplay(
 		replay.events = &history.events;
 		out.serialize("replay", replay);
 		out.close();
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		if (addSentinel) {
 			history.events.pop_back();
 		}
@@ -653,14 +653,14 @@ void ReverseManager::loadReplay(
 	try {
 		// Try filename as typed by user.
 		filename = context.resolve(fileNameArg);
-	} catch (MSXException& /*e1*/) { try {
+	} catch (const MSXException& /*e1*/) { try {
 		// Not found, try adding the normal extension
 		filename = context.resolve(tmpStrCat(fileNameArg, REPLAY_EXTENSION));
-	} catch (MSXException& e2) { try {
+	} catch (const MSXException& e2) { try {
 		// Again not found, try adding '.gz'.
 		// (this is for backwards compatibility).
 		filename = context.resolve(tmpStrCat(fileNameArg, ".gz"));
-	} catch (MSXException& /*e3*/) {
+	} catch (const MSXException& /*e3*/) {
 		// Show error message that includes the default extension.
 		throw e2;
 	}}}
@@ -673,10 +673,10 @@ void ReverseManager::loadReplay(
 	try {
 		XmlInputArchive in(filename);
 		in.serialize("replay", replay);
-	} catch (XMLException& e) {
+	} catch (const XMLException& e) {
 		throw CommandException("Cannot load replay, bad file format: ",
 		                       e.getMessage());
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw CommandException("Cannot load replay: ", e.getMessage());
 	}
 
@@ -807,7 +807,7 @@ void ReverseManager::execInputEvent()
 	try {
 		// deliver current event at current time
 		motherBoard.getStateChangeDistributor().distributeReplay(event);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// can throw in case we replay a command that fails
 		// ignore
 	}

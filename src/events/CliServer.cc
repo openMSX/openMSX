@@ -206,7 +206,7 @@ CliServer::CliServer(CommandController& commandController_,
 	try {
 		listenSock = createSocket();
 		thread = std::thread([this]() { mainLoop(); });
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		cliComm.printWarning(e.getMessage());
 	}
 }

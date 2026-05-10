@@ -45,14 +45,14 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 	transformSetting.setChecker([this, &interp](const TclObject& newValue) {
 		try {
 			parseTransformMatrix(interp, newValue);
-		} catch (CommandException& e) {
+		} catch (const CommandException& e) {
 			throw CommandException(
 				"Invalid transformation matrix: ", e.getMessage());
 		}
 	});
 	try {
 		parseTransformMatrix(interp, transformSetting.getValue());
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		// should only happen when settings.xml was manually edited
 		std::cerr << e.getMessage() << '\n';
 		// fill in safe default values

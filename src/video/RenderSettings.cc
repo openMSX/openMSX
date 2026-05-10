@@ -187,14 +187,14 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	colorMatrixSetting.setChecker([this, &interp](const TclObject& newValue) {
 		try {
 			parseColorMatrix(interp, newValue);
-		} catch (CommandException& e) {
+		} catch (const CommandException& e) {
 			throw CommandException(
 				"Invalid color matrix: ", e.getMessage());
 		}
 	});
 	try {
 		parseColorMatrix(interp, colorMatrixSetting.getValue());
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		std::cerr << e.getMessage() << '\n';
 		cmIdentity = true;
 	}

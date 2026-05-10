@@ -302,7 +302,7 @@ void ImGuiDebugger::loadSaveBreakpoints(LoadSave loadSave)
 	try {
 		manager.execute(makeTclList(loadSave == LOAD ? "load_breakpoints"sv : "save_breakpoints"sv,
 		                            breakpointFile));
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		manager.getCliComm().printWarning(e.getMessage());
 	}
 }

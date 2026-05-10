@@ -1749,7 +1749,7 @@ void Keyboard::KeyInserter::executeUntil(EmuTime time)
 			}
 		}
 		reschedule(time);
-	} catch (std::exception&) {
+	} catch (const std::exception&) {
 		// utf8 encoding error
 		text_utf8.clear();
 	}

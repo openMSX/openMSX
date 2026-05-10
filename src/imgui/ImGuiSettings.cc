@@ -1260,7 +1260,7 @@ std::span<const ImGuiSettings::FontInfo> ImGuiSettings::getAvailableFonts()
 					info.faceIndex = narrow<int>(i);
 					availableFonts.emplace_back(std::move(info));
 				}
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// ignore invalid font files
 			}
 		}

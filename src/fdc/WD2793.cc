@@ -119,7 +119,7 @@ void WD2793::setCommandReg(uint8_t value, EmuTime time)
 		// the partially written data to disk.
 		try {
 			drive.flushTrack();
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// ignore
 		}
 	}
@@ -569,7 +569,7 @@ void WD2793::type2Search(EmuTime time)
 			schedule(FSM::TYPE2_ROTATED, next);
 			return;
 		}
-	} catch (MSXException& /*e*/) {
+	} catch (const MSXException& /*e*/) {
 		// nothing
 	}
 	// Sector not found in 5 revolutions (or read error),
@@ -736,7 +736,7 @@ void WD2793::preWriteSector(EmuTime time)
 			// Moment in time when first data byte gets written
 			schedule(FSM::WRITE_SECTOR, drqTime + 1);
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
 		endCmd(time);
 	}
@@ -778,7 +778,7 @@ void WD2793::writeSectorData(EmuTime time)
 			schedule(FSM::POST_WRITE_SECTOR, drqTime + 1);
 			drqTime.reset(EmuTime::infinity()); // DRQ = false
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
 		endCmd(time);
 	}
@@ -812,7 +812,7 @@ void WD2793::postWriteSector(EmuTime time)
 				type2Loaded(time);
 			}
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// e.g. triggers when a different drive was selected during write
 		statusReg |= NOT_READY; // TODO which status bit should be set?
 		endCmd(time);
@@ -871,7 +871,7 @@ void WD2793::type3Loaded(EmuTime time)
 			dataCurrent = sectorInfo.addrIdx;
 			dataAvailable = 6;
 			sectorReg = drive.readTrackByte(dataCurrent);
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// read addr failed
 			statusReg |= RECORD_NOT_FOUND;
 			endCmd(time);
@@ -926,7 +926,7 @@ void WD2793::readTrackCmd(EmuTime time)
 		schedule(FSM::READ_TRACK, drqTime + dataAvailable);
 
 		drqTime += 1; // (first) byte can be read in a moment
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// read track failed, TODO status bits?
 		drive.invalidateWd2793ReadTrackQuirk();
 		endCmd(time);
@@ -955,7 +955,7 @@ void WD2793::startWriteTrack(EmuTime time)
 
 		// Moment in time when first track byte gets written
 		schedule(FSM::WRITE_TRACK, drqTime + 1);
-	} catch (MSXException& /*e*/) {
+	} catch (const MSXException& /*e*/) {
 		endCmd(time);
 	}
 }
@@ -1029,7 +1029,7 @@ void WD2793::writeTrackData(EmuTime time)
 			drive.flushTrack();
 			endCmd(time);
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
 		endCmd(time);
 	}

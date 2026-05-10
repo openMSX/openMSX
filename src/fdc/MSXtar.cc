@@ -200,7 +200,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk, const MsxChar2Unicode& msxChars
 		SectorBuffer buf;
 		disk.readSector(0, buf);
 		parseBootSector(buf.bootSector);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw MSXException("Bad disk image: ", e.getMessage());
 	}
 
@@ -237,7 +237,7 @@ MSXtar::~MSXtar()
 		for (auto i : xrange(sectorsPerFat)) {
 			try {
 				disk.writeSector(i + fatStart + fat * sectorsPerFat, fatBuffer[i]);
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				// nothing
 			}
 		}
@@ -644,7 +644,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const std::string& hostNam
 				},
 				[](Cluster cluster_) { return cluster_; }
 			}, curCl);
-		} catch (MSXException&) {
+		} catch (const MSXException&) {
 			// no more free clusters or invalid entry in FAT chain
 			break;
 		}
@@ -836,7 +836,7 @@ std::string MSXtar::addFileToDSK(const std::string& fullHostName, unsigned rootS
 
 	try {
 		alterFileInDSK(dirEntry, fullHostName);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// still write directory entry
 		writeLogicalSector(entry.sector, buf);
 		throw;

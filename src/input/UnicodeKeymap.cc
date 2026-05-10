@@ -97,7 +97,7 @@ UnicodeKeymap::UnicodeKeymap(std::string_view keyboardType)
 		if (!msxChars.has_value()) {
 			msxChars.emplace("MSXVID.TXT");
 		}
-	} catch (FileException&) {
+	} catch (const FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: ", filename);
 	}
 }

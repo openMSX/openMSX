@@ -50,7 +50,7 @@ void GlobalSettings::update(const Setting& setting) noexcept
 		// makes more sense
 		try {
 			getPauseSetting().setBoolean(false);
-		} catch(...) {
+		} catch (...) {
 			// Ignore. E.g. can trigger when a Tcl trace on the
 			// pause setting triggers errors in the Tcl script.
 		}

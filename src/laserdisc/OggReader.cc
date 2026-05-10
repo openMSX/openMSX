@@ -181,7 +181,7 @@ OggReader::OggReader(const std::string& filename, CliComm& cli_)
 		if (ti.pixel_fmt != TH_PF_420) {
 			throw MSXException("Video must be YUV420");
 		}
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		th_setup_free(tsi);
 		th_info_clear(&ti);
 		th_comment_clear(&tc);

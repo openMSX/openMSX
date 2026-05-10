@@ -429,7 +429,7 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 				[&](const auto& fn) {
 					try {
 						tracer.exportVCD(fn);
-					} catch (MSXException& e) {
+					} catch (const MSXException& e) {
 						manager.printError(
 							"Couldn't export VCD: ", e.getMessage());
 					}

@@ -89,7 +89,7 @@ TclObject TclCallback::executeCommon(TclObject& command) const
 {
 	try {
 		return command.executeCommand(callbackSetting.getInterpreter());
-	} catch (CommandException& e) {
+	} catch (const CommandException& e) {
 		auto message = strCat(
 			"Error executing callback function \"",
 			getSetting().getFullName(), "\": ", e.getMessage());

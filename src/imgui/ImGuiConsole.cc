@@ -635,7 +635,7 @@ void ImGuiConsole::saveHistory()
 		for (const auto& s : std::views::reverse(history)) {
 			outputFile << s << '\n';
 		}
-	} catch (FileException& e) {
+	} catch (const FileException& e) {
 		manager.getCliComm().printWarning(e.getMessage());
 	}
 }
@@ -650,7 +650,7 @@ void ImGuiConsole::loadHistory()
 			getline(inputFile, line);
 			putHistory(line);
 		}
-	} catch (FileException&) {
+	} catch (const FileException&) {
 		// Error while loading the console history, ignore
 	}
 }

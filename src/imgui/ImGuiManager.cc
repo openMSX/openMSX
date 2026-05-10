@@ -89,7 +89,7 @@ std::tuple<ImFont*, std::string> ImGuiManager::addFont(zstring_view filename, in
 				throw MSXException("parse error, possibly invalid faceIndex");
 			}
 			return {result, name};
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			getCliComm().printWarning("Couldn't load font: ", filename, ": ", e.getMessage(),
 						". Reverted to builtin font");
 		}
@@ -339,7 +339,7 @@ std::optional<TclObject> ImGuiManager::execute(TclObject command)
 {
 	try {
 		return command.executeCommand(getInterpreter());
-	} catch (CommandException&) {
+	} catch (const CommandException&) {
 		// ignore
 		return {};
 	}
@@ -362,7 +362,7 @@ void ImGuiManager::executeDelayed(TclObject command,
 		try {
 			auto result = command.executeCommand(getInterpreter());
 			if (ok) ok(result);
-		} catch (CommandException& e) {
+		} catch (const CommandException& e) {
 			if (error) error(e.getMessage());
 		}
 	});

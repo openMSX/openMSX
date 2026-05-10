@@ -33,7 +33,7 @@ FilePoolCore::FilePoolCore(std::string fileCache_,
 {
 	try {
 		readSha1sums();
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// ignore, probably .filecache doesn't exist yet
 	}
 }
@@ -153,7 +153,7 @@ static std::optional<std::tuple<Sha1Sum, const char*, std::string_view>> parse(
 	Sha1Sum sha1(Sha1Sum::UninitializedTag{});
 	try {
 		sha1.parse40(subspan<40>(line));
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		return {};
 	}
 
@@ -356,7 +356,7 @@ FilePoolCore::Result FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 				// before (or at)
 				++i;
 			}
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			// Error reading file: remove from db and continue
 			// searching.
 			remove(it);
@@ -414,7 +414,7 @@ FilePoolCore::Result FilePoolCore::scanFile(const Sha1Sum& sha1sum, zstring_view
 			if (sum == sha1sum) {
 				return {.file = std::move(file), .filename = std::string(filename)};
 			}
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			// ignore
 		}
 	} else {
@@ -436,7 +436,7 @@ FilePoolCore::Result FilePoolCore::scanFile(const Sha1Sum& sha1sum, zstring_view
 					return {.file = std::move(file), .filename = std::string(filename)};
 				}
 			}
-		} catch (FileException&) {
+		} catch (const FileException&) {
 			// error reading file, remove from db
 			remove(idx, *entry);
 		}

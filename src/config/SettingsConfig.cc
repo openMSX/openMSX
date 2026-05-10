@@ -85,7 +85,7 @@ SettingsConfig::~SettingsConfig()
 	if (mustSaveSettings) {
 		try {
 			saveSetting();
-		} catch (FileException& e) {
+		} catch (const FileException& e) {
 			commandController.getCliComm().printWarning(
 				"Auto-saving of settings failed: ", e.getMessage());
 		}
@@ -99,7 +99,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	auto buf = [&] {
 		try {
 			return File(resolved).mmap<char>(rapidsax::EXTRA_BUFFER_SPACE);
-		} catch (FileException& e) {
+		} catch (const FileException& e) {
 			throw MSXException("Failed to read settings file '", filename,
 			                   "': ", e.getMessage());
 		}
@@ -124,7 +124,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	for (const auto& bind : parser.binds) {
 		try {
 			hotKey.loadBind(bind);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			commandController.getCliComm().printWarning(
 				"Couldn't restore key-binding: ", e.getMessage());
 		}
@@ -132,7 +132,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	for (const auto& key : parser.unbinds) {
 		try {
 			hotKey.loadUnbind(key);
-		} catch (MSXException& e) {
+		} catch (const MSXException& e) {
 			commandController.getCliComm().printWarning(
 				"Couldn't restore key-binding: ", e.getMessage());
 		}

@@ -239,7 +239,7 @@ AviWriter::~AviWriter()
 		file.write(std::span{index});
 		file.seek(0);
 		file.write(avi_header);
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		// can't throw from destructor
 	}
 }

@@ -41,7 +41,7 @@ struct DelayedCommand {
 	void execute() {
 		try {
 			command.executeCommand(afterCommand.getInterpreter());
-		} catch (CommandException& e) {
+		} catch (const CommandException& e) {
 			afterCommand.getCommandController().getCliComm().printWarning(
 				"Error executing delayed command: ", e.getMessage());
 		}
@@ -210,7 +210,7 @@ void AfterCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 					InputEventFactory::createInputEvent(
 						tokens[1], getInterpreter()),
 					tokens, result);
-			} catch (MSXException&) {
+			} catch (const MSXException&) {
 				throw SyntaxError();
 			}
 		}

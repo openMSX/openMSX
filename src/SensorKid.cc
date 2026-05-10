@@ -111,7 +111,7 @@ byte SensorKid::getAnalog(byte chi) const
 			}
 			result = narrow_cast<byte>(tmp);
 		}
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		getCliComm().printWarning(
 			"Wrong result for callback function \"",
 			acquireCallback.getSetting().getFullName(),

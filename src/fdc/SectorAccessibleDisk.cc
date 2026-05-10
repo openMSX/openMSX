@@ -42,7 +42,7 @@ void SectorAccessibleDisk::readSectors(
 		patch->copyBlock(startSector * sizeof(SectorBuffer),
 		                 std::span{buffers[0].raw.data(),
 		                           buffers.size_bytes()});
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}
 }
@@ -74,7 +74,7 @@ void SectorAccessibleDisk::writeSector(size_t sector, const SectorBuffer& buf)
 	}
 	try {
 		writeSectorImpl(sector, buf);
-	} catch (MSXException& e) {
+	} catch (const MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}
 	flushCaches();
@@ -139,7 +139,7 @@ Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
 
 		setPeekMode(false);
 		return sha1.digest();
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		setPeekMode(false);
 		throw;
 	}

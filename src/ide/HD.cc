@@ -219,7 +219,7 @@ int HD::insertDisk(const std::string& newFilename)
 	try {
 		switchImage(Filename(newFilename));
 		return 0;
-	} catch (MSXException&) {
+	} catch (const MSXException&) {
 		return -1;
 	}
 }
