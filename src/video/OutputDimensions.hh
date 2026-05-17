@@ -10,8 +10,8 @@ namespace openmsx {
 class OutputDimensions
 {
 public:
-	OutputDimensions() = default;
-	OutputDimensions(gl::ivec2 physSize, RenderSettings::ScaleMode mode);
+	OutputDimensions() : OutputDimensions({640, 480}, RenderSettings::ScaleFactor::INTEGER) {}
+	OutputDimensions(gl::ivec2 physSize, RenderSettings::ScaleFactor factor);
 
 	[[nodiscard]] gl::ivec2 getPhysicalSize() const { return m_physSize; }
 	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }

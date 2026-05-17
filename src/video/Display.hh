@@ -75,9 +75,9 @@ public:
 	/** Get/set x,y coordinates of top-left window corner.
 	    Either the actual, or the last known coordinates. */
 	[[nodiscard]] gl::ivec2 getWindowPosition();
-	void setWindowPosition(gl::ivec2 pos);
+	void setWindowPositionAndSize(gl::ivec2 pos, gl::ivec2 size);
 	// should only be called from VisibleSurface
-	void storeWindowPosition(gl::ivec2 pos);
+	void storeWindowPositionAndSize(gl::ivec2 pos);
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition();
 
 	[[nodiscard]] gl::ivec2 getScaleFactorSize() const;
@@ -136,7 +136,7 @@ private:
 	// the current renderer
 	RenderSettings::RendererID currentRenderer = RenderSettings::RendererID::UNINITIALIZED;
 
-	OutputDimensions outputDim; // (only) for screenshot
+	OutputDimensions outputDim;
 
 	bool renderFrozen = false;
 	bool switchInProgress = false;

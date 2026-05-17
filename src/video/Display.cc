@@ -203,20 +203,23 @@ std::string Display::getWindowTitle()
 gl::ivec2 Display::getWindowPosition()
 {
 	if (auto pos = videoSystem->getWindowPosition()) {
-		storeWindowPosition(*pos);
+		storeWindowPositionAndSize(*pos);
 	}
 	return retrieveWindowPosition();
 }
 
-void Display::setWindowPosition(gl::ivec2 pos)
+void Display::setWindowPositionAndSize(gl::ivec2 pos, gl::ivec2 size)
 {
-	storeWindowPosition(pos);
+	if (outputDim.getPhysicalSize() != size) {
+		videoSystem->setWindowSize(size);
+	}
+	storeWindowPositionAndSize(pos);
 	videoSystem->setWindowPosition(pos);
 }
 
-void Display::storeWindowPosition(gl::ivec2 pos)
+void Display::storeWindowPositionAndSize(gl::ivec2 pos)
 {
-	reactor.getImGuiManager().storeWindowPosition(pos);
+	reactor.getImGuiManager().storeWindowPositionAndSize(pos, outputDim.getPhysicalSize());
 }
 
 gl::ivec2 Display::retrieveWindowPosition()
@@ -226,7 +229,8 @@ gl::ivec2 Display::retrieveWindowPosition()
 
 gl::ivec2 Display::getScaleFactorSize() const
 {
-	return gl::ivec2{320, 240} * renderSettings.getScaleFactor();
+	OutputDimensions dim(outputDim.getPhysicalSize(), renderSettings.getScaleFactor());
+	return dim.getViewSize();
 }
 
 float Display::getFps() const
@@ -262,30 +266,10 @@ void Display::doRendererSwitch(RenderSettings::RendererID newRenderer)
 {
 	assert(switchInProgress);
 
-	bool success = false;
-	while (!success) {
-		try {
-			doRendererSwitch2(newRenderer);
-			success = true;
-		} catch (MSXException& e) {
-			auto& rendererSetting = renderSettings.getRendererSetting();
-			std::string errorMsg = strCat(
-				"Couldn't activate renderer ",
-				rendererSetting.getString(),
-				": ", e.getMessage());
-			// now try some things that might work against this:
-			auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
-			auto curVal = scaleFactorSetting.getInt();
-			if (curVal == MIN_SCALE_FACTOR) {
-				throw FatalError(
-					e.getMessage(),
-					" (and I have no other ideas to try...)"); // give up and die... :(
-			}
-			strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
-					curVal, " to ", curVal - 1, "...");
-			scaleFactorSetting.setInt(curVal - 1);
-			getCliComm().printWarning(errorMsg);
-		}
+	try {
+		doRendererSwitch2(newRenderer);
+	} catch (MSXException& e) {
+		throw FatalError(std::move(e).getMessage());
 	}
 
 	switchInProgress = false;
@@ -343,7 +327,7 @@ void Display::repaint()
 
 void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
 {
-	auto newOutputDim = OutputDimensions{windowSize, renderSettings.getScaleMode()};
+	auto newOutputDim = OutputDimensions{windowSize, renderSettings.getScaleFactor()};
 	if (newOutputDim != outputDim) {
 		outputDim = newOutputDim;
 		osdLayer->invalidateAll();

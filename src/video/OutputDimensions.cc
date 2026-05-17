@@ -2,44 +2,36 @@
 
 namespace openmsx {
 
-OutputDimensions::OutputDimensions(gl::ivec2 physSize_, RenderSettings::ScaleMode mode)
+OutputDimensions::OutputDimensions(gl::ivec2 physSize_, RenderSettings::ScaleFactor factor)
 	: m_physSize(physSize_)
 {
 	gl::ivec2 iLogSize(320, 240);
 	gl::vec2 logSize(iLogSize); // convert int->float
 
-	using enum RenderSettings::ScaleMode;
-	switch (mode) {
-	case FREE: {
+	using enum RenderSettings::ScaleFactor;
+	switch (factor) {
+	case FREE:
 		// Stretch the logical image to the full physical output area.
 		m_viewSize = physSize_;
-		m_viewOffset = gl::ivec2(0, 0);
 		break;
-	}
 	case FIXED_ASPECT_RATIO: {
-		gl::vec2 physSize(physSize_); // convert int->float
-
-		float scale = min_component(physSize / logSize);
-
-		gl::vec2 viewSize = logSize * scale;
-		m_viewSize = round(viewSize);
-
-		gl::vec2 viewOffset = (physSize - viewSize) * 0.5f;
-		m_viewOffset = round(viewOffset);
+		float scale = min_component(gl::vec2(m_physSize) / logSize);
+		m_viewSize = round(logSize * scale);
 		break;
 	}
 	case INTEGER: {
-		gl::vec2 physSize(physSize_); // convert int->float
-
-		float scale = min_component(physSize / logSize);
+		float scale = min_component(gl::vec2(m_physSize) / logSize);
 		int intScale = (scale < 1.0f) ? 1 : int(scale);
-
 		m_viewSize = iLogSize * intScale;
-		gl::vec2 viewOffset = (physSize - gl::vec2(m_viewSize)) * 0.5f;
-		m_viewOffset = round(viewOffset);
 		break;
 	}
+	default: { // F1-F8
+		auto f = std::to_underlying(factor);
+		assert(1 <= f && f <= 8);
+		m_viewSize = iLogSize * f;
 	}
+	}
+	m_viewOffset = (m_physSize - m_viewSize) / 2;
 }
 
 } // namespace openmsx

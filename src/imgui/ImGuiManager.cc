@@ -322,8 +322,8 @@ static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
 void ImGuiManager::loadEnd()
 {
 	auto& display = reactor.getDisplay();
-	windowPos = ensureVisible(windowPos, display.getScaleFactorSize()); // TODO restore last size
-	display.setWindowPosition(windowPos);
+	windowPos = ensureVisible(windowPos, windowSize);
+	display.setWindowPositionAndSize(windowPos, windowSize);
 }
 
 Interpreter& ImGuiManager::getInterpreter()
@@ -555,8 +555,8 @@ void ImGuiManager::paintFrame(Display& display)
 			}
 		}
 		// Draw MSX layers into this window via callback (runs during ImGui::Render)
-		gl::vec2 windowSize = ImGui::GetWindowSize();
-		DrawCallbackData data{.display = &display, .windowSize = gl::ivec2(windowSize)};
+		gl::vec2 winSize = ImGui::GetWindowSize();
+		DrawCallbackData data{.display = &display, .windowSize = gl::ivec2(winSize)};
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->AddCallback(msxDisplayDrawCallback, &data);
 		drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);

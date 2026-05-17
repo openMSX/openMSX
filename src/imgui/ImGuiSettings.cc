@@ -195,7 +195,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					});
 				});
 
-				SliderInt("Scale factor", renderSettings.getScaleFactorSetting());
+				ComboBox("Scale factor", renderSettings.getScaleFactorSetting());
 				Checkbox(hotKey, "Deinterlace", renderSettings.getDeinterlaceSetting());
 				Checkbox(hotKey, "Deflicker", renderSettings.getDeflickerSetting());
 			});

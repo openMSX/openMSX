@@ -78,6 +78,8 @@ public:
 	[[nodiscard]] virtual std::optional<gl::ivec2> getWindowPosition() = 0;
 	virtual void setWindowPosition(gl::ivec2 pos) = 0;
 
+	virtual void setWindowSize(gl::ivec2 size) = 0;
+
 protected:
 	VideoSystem() = default;
 };

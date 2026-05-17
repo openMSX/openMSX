@@ -94,7 +94,10 @@ public:
 	void paintFrame(Display& display);
 	void paintImGui(bool msxDisplayAreaFocused);
 
-	void storeWindowPosition(gl::ivec2 pos) { windowPos = pos; }
+	void storeWindowPositionAndSize(gl::ivec2 pos, gl::ivec2 size) {
+		windowPos = pos;
+		windowSize = size;
+	}
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition() const { return windowPos; }
 
 	void configStatusBarVisibilityItems();
@@ -206,6 +209,7 @@ private:
 	RomType selectedRomType = RomType::UNKNOWN;
 	float insertedInfoTimeout = 0.0f;
 	gl::ivec2 windowPos;
+	gl::ivec2 windowSize;
 	bool mainMenuBarUndocked = false;
 	bool handleDropped = false;
 	bool openInsertedInfo = false;
@@ -221,6 +225,7 @@ private:
 		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked},
 		PersistentElement{"mainMenuBarFade",     &ImGuiManager::menuFade},
 		PersistentElement{"windowPos",           &ImGuiManager::windowPos},
+		PersistentElement{"windowSize",          &ImGuiManager::windowSize},
 		PersistentElement{"statusBarVisible",    &ImGuiManager::statusBarVisible},
 		PersistentElement{"statusBarItemvisibility.fps",                 &ImGuiManager::statusBarItemVisibilityFps},
 		PersistentElement{"statusBarItemVisibility.screenModeInfo",      &ImGuiManager::statusBarItemVisibilityScreenModeInfo},
