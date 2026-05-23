@@ -57,6 +57,7 @@
 #include "RomSynthesizer.hh"
 #include "RomTypes.hh"
 #include "RomWonderKid.hh"
+#include "RomKorean128in1.hh"
 #include "RomZemina126in1.hh"
 #include "RomZemina25in1.hh"
 #include "RomZemina80in1.hh"
@@ -377,6 +378,8 @@ std::unique_ptr<MSXDevice> create(DeviceConfig& config)
 		return std::make_unique<RomColecoMegaCart>(config, std::move(rom));
 	case WONDERKID:
 		return std::make_unique<RomWonderKid>(config, std::move(rom));
+	case KOREAN128IN1:
+		return std::make_unique<RomKorean128in1>(config, std::move(rom));
 	case NUM: case UNKNOWN: break; // no actual rom types
 	}
 	throw MSXException("Unknown ROM type");

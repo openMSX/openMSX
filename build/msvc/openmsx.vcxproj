@@ -608,6 +608,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomKonami.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomKonamiKeyboardMaster.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomKonamiSCC.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomKorean128in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMajutsushi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomManbow2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />
@@ -1205,6 +1206,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomKonami.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomKonamiKeyboardMaster.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomKonamiSCC.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomKorean128in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMajutsushi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomManbow2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.hh" />
