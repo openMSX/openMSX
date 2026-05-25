@@ -4,8 +4,6 @@
 #include "VideoSystem.hh"
 #include "gl_vec.hh"
 
-#include "EventListener.hh"
-
 #include "Observer.hh"
 
 #include "components.hh"
@@ -23,7 +21,7 @@ class RenderSettings;
 class Setting;
 class VisibleSurface;
 
-class SDLVideoSystem final : public VideoSystem, private EventListener
+class SDLVideoSystem final : public VideoSystem
                            , private Observer<Setting>
 {
 public:
@@ -58,8 +56,6 @@ public:
 	void setWindowSize(gl::ivec2 size) override;
 
 private:
-	// EventListener
-	bool signalEvent(const Event& event) override;
 	// Observer
 	void update(const Setting& subject) noexcept override;
 

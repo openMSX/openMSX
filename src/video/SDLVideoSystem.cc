@@ -48,16 +48,10 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 
 	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
-
-	auto& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
-	auto& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
-
 	renderSettings.getScaleFactorSetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
@@ -194,21 +188,6 @@ void SDLVideoSystem::update(const Setting& subject) noexcept
 	} else {
 		UNREACHABLE;
 	}
-}
-
-bool SDLVideoSystem::signalEvent(const Event& event)
-{
-	std::visit(overloaded{
-		[&](const WindowEvent& e) {
-			const auto& evt = e.getSdlWindowEvent();
-			if (evt.event == SDL_WINDOWEVENT_RESIZED) {
-				gl::ivec2 size{evt.data1, evt.data2};
-				screen->resize(size);
-			}
-		},
-		[](const EventBase&) { /*ignore*/ }
-	}, event);
-	return false;
 }
 
 } // namespace openmsx
