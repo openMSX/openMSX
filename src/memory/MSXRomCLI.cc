@@ -13,8 +13,8 @@ namespace openmsx {
 
 std::span<const std::string_view> MSXRomCLI::getExtensions()
 {
-	static constexpr std::array<std::string_view, 5> extensions = {
-		"ri", "rom", "mx1", "mx2", "sg"
+	static constexpr std::array<std::string_view, 6> extensions = {
+		"ri", "rom", "mx1", "mx2", "sg", "col"
 	};
 	return extensions;
 }
