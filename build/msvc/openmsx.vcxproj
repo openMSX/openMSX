@@ -618,6 +618,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNamco.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNational.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo8.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo16.cc" />
@@ -1216,6 +1217,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomNamco.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNational.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNeo8.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNeo16.hh" />

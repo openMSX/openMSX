@@ -885,6 +885,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNamco.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNational.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -2422,6 +2425,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomNamco.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomNational.hh">

@@ -58,6 +58,7 @@ enum class RomType : uint8_t {
 	MSXTRA,
 	MSXWRITE,
 	MULTIROM,
+	NAMCO,
 	NATIONAL,
 	NEO8,
 	NEO16,
