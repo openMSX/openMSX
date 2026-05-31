@@ -39,6 +39,7 @@
 #include "RomMatraInk.hh"
 #include "RomMitsubishiMLTS2.hh"
 #include "RomMultiRom.hh"
+#include "RomNamco.hh"
 #include "RomNational.hh"
 #include "RomNeo16.hh"
 #include "RomNeo8.hh"
@@ -308,6 +309,8 @@ std::unique_ptr<MSXDevice> create(DeviceConfig& config)
 		return std::make_unique<RomPanasonic>(config, std::move(rom));
 	case NATIONAL:
 		return std::make_unique<RomNational>(config, std::move(rom));
+	case NAMCO:
+		return std::make_unique<RomNamco>(config, std::move(rom));
 	case NEO8:
 		return std::make_unique<RomNeo8>(config, std::move(rom));
 	case NEO16:
