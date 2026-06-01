@@ -118,6 +118,17 @@ const array_with_enum_index<RomType, RomInfo::RomTypeInfo>& RomInfo::getRomTypeI
 	return romTypeInfoArray;
 }
 
+constexpr auto sortedRomTypes = []{ // sorted on description
+	std::array<RomType, std::size(romTypeInfoArray)> result = {};
+	std::ranges::generate(result, [i = 0]() mutable { return RomType(i++); });
+	std::ranges::sort(result, {}, [](auto i) { return romTypeInfoArray[i].description; });
+	return result;
+}();
+const std::array<RomType, size_t(RomType::NUM)>& RomInfo::getSortedRomTypes()
+{
+	return sortedRomTypes;
+}
+
 struct RomTypeAndName {
 	RomType romType;
 	std::string_view name;
