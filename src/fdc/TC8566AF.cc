@@ -731,9 +731,16 @@ void TC8566AF::doSeek(int n)
 	};
 
 	if (currentDrive.isDummyDrive()) {
+		// No drive connected. Do NOT take a fast-fail shortcut here:
+		// real hardware keeps stepping until the 255 step-pulse limit
+		// is exhausted, with the drive-busy bit held high the whole
+		// time. Probes like FastCopy 3.0 only consult ST0 (via SENSE
+		// INTERRUPT STATUS) after observing the busy bit, so an
+		// instant completion would hide the error from them. Mark the
+		// drive as Not Ready and fall through; the regular
+		// SEEK/RECALIBRATE logic below will step the (no-op) DummyDrive
+		// and eventually set Equipment Check on RECALIBRATE.
 		status0 |= ST0_NR;
-		endSeek();
-		return;
 	}
 
 	bool direction = false; // initialize to avoid warning
