@@ -39,7 +39,8 @@
         <ROM id="Painter">
           <mem base="0x0000" size="0x10000"/>
           <rom>
-            <sha1>7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</sha1>
+            <sha1>41e056e33ee4f548f6af30257717bc40e3cf8238</sha1> <!-- SSR byte clear -->
+            <sha1>7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</sha1> <!-- SSR byte not clear -->
             <filename>yis805-128r2_painter.rom</filename>
           </rom>
         </ROM>
