@@ -2,7 +2,6 @@
 #define PLOTTER_HH
 
 #include "PlotterPaper.hh"
-#include "PlotterPenState.hh"
 #include "PrinterCore.hh"
 
 #include "BooleanSetting.hh"
@@ -123,7 +122,7 @@ private:
 
 	// Pen/color state
 	uint8_t selectedPen = 0; // 0=black, 1=blue, 2=green, 3=red
-	PlotterPenState penState;
+	bool penDown = false;
 
 	// Plotter head position (logical steps, relative to origin)
 	gl::vec2 penPosition{0.0f, 0.0f};

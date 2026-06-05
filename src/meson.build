@@ -545,7 +545,6 @@ test_sources = files(
     'unittest/MemoryBufferFile_test.cc',
     'unittest/ObjectPool_test.cc',
     'unittest/PlotterFont_test.cc',
-    'unittest/PlotterPenState_test.cc',
     'unittest/ScopedAssign_test.cc',
     'unittest/SimpleHashSet_test.cc',
     'unittest/StringOp_test.cc',

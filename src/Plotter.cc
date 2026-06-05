@@ -442,7 +442,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'D': // Draw (absolute) - D x,y[,x,y,...]
 		// The D command draws a series of absolute line segments
-		printDebug("Plotter: D - Draw absolute, ", coords.size() / 2, " segments, penDown=", penState.isDown());
+		printDebug("Plotter: D - Draw absolute, ", coords.size() / 2, " segments, penDown=", penDown);
 		setPenDown(true);
 		for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 			gl::vec2 target{coords[i], coords[i + 1]};
@@ -453,7 +453,7 @@ void MSXPlotter::executeGraphicCommand()
 
 	case 'J': // Draw relative - J dx,dy[,dx,dy,...]
 		// The J command draws a series of relative line segments
-		printDebug("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penState.isDown());
+		printDebug("Plotter: J - Draw relative, ", coords.size() / 2, " segments, penDown=", penDown);
 		setPenDown(true);
 		for (size_t i = 0; i + 1 < coords.size(); i += 2) {
 			lineTo(penPosition + gl::vec2{coords[i], coords[i + 1]});
@@ -633,7 +633,9 @@ void MSXPlotter::drawDot(gl::vec2 pos)
 void MSXPlotter::setPenDown(bool newState)
 {
 	if (newState) {
-		if (penState.lower()) {
+		// Only the first lowering of a stroke emits a touchdown dot.
+		if (!penDown) {
+			penDown = true;
 			drawDot(penPosition);
 		}
 	} else {
@@ -643,12 +645,12 @@ void MSXPlotter::setPenDown(bool newState)
 
 void MSXPlotter::liftPen()
 {
-	penState.lift();
+	penDown = false;
 }
 
 void MSXPlotter::drawLine(gl::vec2 from, gl::vec2 to)
 {
-	assert(penState.isDown());
+	assert(penDown);
 
 	ensurePrintPage();
 	if (0 < lineType && lineType < 15) {
@@ -748,7 +750,7 @@ void MSXPlotter::resetSettings()
 	mode = Mode::TEXT;
 	escState = EscState::NONE;
 	selectedPen = 0;
-	penState.lift();
+	penDown = false;
 	penPosition = gl::vec2{0.0f, 30.0f};
 	origin = gl::vec2{0.0f, 1354.0f};
 	lineType = 0;
@@ -783,7 +785,7 @@ void MSXPlotter::drawCharacter(uint8_t c)
 	ScopedAssign savedDashDistance(dashDistance, dashDistance); // value doesn't matter, just restore at the end
 	// Character glyphs are already vector strokes; keep the pen logically down
 	// during the call without adding extra touchdown dwell dots.
-	ScopedAssign savedPenState(penState, PlotterPenState::downForDrawing());
+	ScopedAssign savedPenState(penDown, true);
 
 	auto fontVariant = [&] {
 		switch (getCharacterSet()) {
