@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <!--
+      NOTE: This version of SKW-05 is the one found embedded in the
+      YIS-805/256 computer, extracted for use as an openMSX
+      extension. An actual standalone SKW-05 still needs to be found
+      and studied, and may well reveal differences compared to this
+      reconstructed version. One of the unverified assumptions is
+      that SKW-05 contains a Toshiba-style JIS Level 1 Kanji ROM
+      exposed via I/O ports.
+
+      As soon as we have studied a real SKW-05, we'll improve this extension to
+      be more accurate.
+    -->
+  <info>
+
+    <!-- Note: the switch to disable SRAM is not emulated! -->
+    <name>Kanji Word Processor Unit (embedded)</name>
+    <manufacturer>Yamaha</manufacturer>
+    <code>SKW-05</code>
+    <release_year>1985</release_year>
+    <description>Japanese Word Processor, as it's embedded in the YIS-805/256 machine.</description>
+    <type>word processor cartridge</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <YamahaSKW01 id="Kanji Word Processor Unit">
+          <mem base="0x0000" size="0xC000"/>
+          <rom id="main">
+            <!-- register values set to 00 -->
+            <sha1>e1fbe1bdc76b0c81d5652655731fe9007cf600f6</sha1>
+            <filename>skw-05_main.rom</filename>
+          </rom>
+          <rom id="data">
+            <sha1>0247d1ea0e757255f4470e032655509172c2af21</sha1>
+            <filename>skw-05_data.rom</filename>
+          </rom>
+          <sramname>skw-05.sram</sramname>
+          <initialContent encoding="hex">00</initialContent> <!-- assumed based on the SRAM dump by Takamichi Suzukawa of the SKW-01 -->
+        </YamahaSKW01>
+      </secondary>
+    </primary>
+
+  </devices>
+</msxconfig>

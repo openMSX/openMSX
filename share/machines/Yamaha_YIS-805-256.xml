@@ -1,0 +1,258 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Yamaha</manufacturer>
+    <code>YIS-805/256</code> <!-- this is on the back plate -->
+    <release_year>1986</release_year>
+    <description>Japanese MSX2 with 256kB RAM, 60-pin module slot and built in software The Painter and Japanese Word Processor V2.</description>
+    <type>MSX2</type>
+    <region>jp</region>
+  </info>
+
+  <!-- based on bsittler's machine with serial number 1001171.
+
+       This is a Japanese MSX2 and has:
+       - A separate JIS-layout Japanese keyboard with hiragana legends and a
+         numeric keypad connected with a 13-position DIN-like connector to a
+         port on the front of the computer, A reset button and power switch
+         also on the front,
+       - A built-in 50Hz/60Hz 100VAC power supply including two unswitched AC
+         pass-through connectors on the back,
+       - A two-prong Japanese-style power cord and a fastener on the back for
+         electrical grounding,
+       - An 8-pin DIN cassette connector on the back,
+       - An unused rear case opening covered by a built-in extra panel (not
+         intended to be user-removable; this covers what would be the special
+         expansion slot 3-1 in the related YIS-805/128 model),
+       - An RCA-style connector for Japanese RF television output on the back
+         with a selector switch for determining the channel (1 or 2),
+       - Dual RCA-style connectors on the back for monaural audio output and
+         NTSC composite video output,
+       - An 8-pin DIN connector on the back for RGB video output,
+       - Two general-purpose connectors on the front,
+       - A built-in Toshiba-style JIS Level 1 Kanji ROM accessible via I/O
+         ports (but apparently no Kanji BASIC support apart from PUT KANJI, and
+         the I/O ports are mirrored such that applications expecting JIS Level
+         2 Kanji will instead get JIS Level 1 Kanji from the corresponding ROM
+         offset),
+       - Internally expanded slots 0 and 3,
+       - An RS-232C serial interface in slot 0-1 with a 25-position D connector
+         on the back with RS-232C BASIC (including e.g. _COMHELP/CALL COMHELP
+         and _COMTERM/CALL COMTERM),
+       - The MSX2 Sub ROM and Disk ROM and Memory-mapped FDC in slot 0-2
+         connected to two built-in 2DD floppy disk drives on the front,
+       - Two front-facing cartridge slots (slot 1 and slot 2),
+       - Graphics software called The Painter invoked by _PAINTER/CALL PAINTER
+         in internal slot 3-0,
+       - Japanese-language word processing software from Yamaha called
+         日本語ワードプロセッサ (Nihongo Word Processor, i.e. "Japanese Word
+         Processor") invoked by _JWP/CALL JWP in internal slot 3-1 using more
+         or less the same memory mapping scheme as Yamaha's SKW-01 except that
+         the main ROM is 48KB and there is no memory-mapped Kanji font ROM (it
+         uses the I/O-mapped Toshiba-style JIS Level 1 Kanji ROM instead),
+       - A 256KB memory mapper in internal slot 3-2 (8x Fujitsu MB81464-12
+         DRAM),
+       - 128 kB VRAM (4x Fujitsu MB81464-12),
+       - A Yamaha-style 60-pin module slot on the right-hand side as slot 3-3
+         (in mine there was a Yamaha SFG-05 FM Sound Synthesizer Unit II), and
+       - A Sharp LH0080A Z80-CPU-D.
+  -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <Kanji id="Kanji ROM">
+      <rom> <!-- Toshiba TC531000P 0071 -->
+        <filename>yis805-256_kanjifont.rom</filename>
+        <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1>
+      </rom>
+      <io_ports_mirror_if_only_level1_installed>true</io_ports_mirror_if_only_level1_installed>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+      <io base="0xDA" num="2" type="O"/> <!-- mirror 1 -->
+      <io base="0xDB" num="1" type="I"/> <!-- mirror 1 -->
+    </Kanji>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
+      <sramname>yis805-256_s1985.sram</sramname>
+    </S1985>
+
+    <primary slot="0">
+      <secondary slot="0">
+        <ROM id="MSX BIOS with BASIC ROM">
+          <mem base="0x0000" size="0x8000"/>
+          <rom>
+            <!-- Confirmed by ROM IC dump: PCB NEP-14D XA888B0, position IC320, label XA904B0 -->
+            <sha1>609dbcbd2add28137e5c459d34cdb8012c8a1535</sha1>
+            <filename>yis805-256_basic-bios2.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
+      <secondary slot="1">
+        <MSX-RS232 id="MSX RS-232">
+          <!-- Supports RS-232C BASIC `_COMHELP`/`CALL COMHELP`,
+               `_COMTERM`/`CALL COMTERM`, etc. -->
+          <rom>
+            <!-- Confirmed by ROM IC dump: PCB NEP-14D XA890B0, position IC511, label XA980C0 -->
+            <filename>yis805-256_rs232c.rom</filename>
+            <sha1>1cba8232f3aa7240149c50db25c230fd0df93f00</sha1>
+          </rom>
+          <io base="0x80" num="8"/>
+          <mem base="0x4000" size="0x4000"/>
+        </MSX-RS232>
+      </secondary>
+      <secondary slot="2">
+        <ROM id="MSX Sub ROM">
+          <mem base="0x0000" size="0x4000"/>
+          <rom>
+            <filename>yis805-256_IC328.rom</filename>
+            <sha1>5d04cfc0ee49aa012068a7050c4d912f402c08a7</sha1>
+            <window base="0x0000" size="0x4000"/>
+          </rom>
+        </ROM>
+
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>National</connectionstyle>
+          <mem base="0x4000" size="0x8000"/>
+          <rom>
+            <filename>yis805-256_IC328.rom</filename>
+            <sha1>5d04cfc0ee49aa012068a7050c4d912f402c08a7</sha1>
+            <window base="0x4000" size="0x4000"/>
+          </rom>
+          <drives>2</drives>
+        </WD2793>
+      </secondary>
+
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <!-- The Painter, drawing software invoked by `_PAINTER`/`CALL PAINTER` -->
+        <!-- NOTE: this is actually implemented using two ROM IC's:
+             0x0000-0x08000: PCB NEP-14D XA888B0, position IC332, label XA911C0
+             0x8000-0x10000: PCB NEP-14D XA888B0, position IC336, label XA912C0
+        <ROM id="The Painter (Page 0/1)">
+          <mem base="0x0000" size="0x8000"/>
+          <rom>
+            <sha1>622ba75c587cc9c6b6aebb54ee4bf3653c49de36</sha1>
+            <filename>yis805-256_painter_page01.rom</filename>
+          </rom>
+        </ROM>
+        <ROM id="The Painter (Page 2/3)">
+          <mem base="0x8000" size="0x8000"/>
+          <rom>
+            <sha1>b72e2d4e29df14549e467a12e815795b152bf8fa</sha1>
+            <filename>yis805-256_painter_page23.rom</filename>
+          </rom>
+        </ROM>
+          -->
+        <!-- Concatenation of the above halves -->
+        <ROM id="The Painter">
+          <mem base="0x0000" size="0x10000"/>
+          <rom>
+            <sha1>41e056e33ee4f548f6af30257717bc40e3cf8238</sha1>
+            <filename>yis805-256_painter.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
+
+      <secondary slot="1">
+        <!--
+            Apparently in the related YIS-805/128 model this slot is a
+            rear expansion port with a specific connector, but here in
+            YIS-805/256 it's blocked by a cover and used internally
+            for version 2.0 of Yamaha's `日本語ワードプロセッサ`
+            (Nihongo Word Processor, i.e. "Japanese Word Processor"),
+            invoked by `_JWP`/`CALL JWP`.
+
+            It is similar to Yamaha's SKW-01 Kanji Word Processor Unit, except:
+            - The software has been updated to version 2.0 with some
+              visible improvements like kana voicing marks already
+              sharing a character cell with the base kana character
+              during input editing phase.
+            - Floppy disk support has been added.
+            - It is installed internally, leaving the module slot free
+              for SFG-05 or other Yamaha-style modules.
+            - There is additional 16KB ROM in page 2.
+            - There is no memory-mapped Kanji ROM, since it uses the
+              Toshiba-style I/O port mapping for the JIS level 1 Kanji ROM instead.
+        -->
+        <YamahaSKW01 id="Kanji Word Processor v2">
+          <mem base="0x0000" size="0xC000"/>
+          <rom id="main">
+            <!-- 0x0000-0x8000: PCB NEP-14D XA890B0, position IC513, label XA977C0
+                 0x8000-0xC000: PCB NEP-14D XA890B0, position IC512, label XA978C0
+                 Live register values from 0x7FC0..0x7FCF are replaced by 0x00, as confirmed by the maskROM dump: -->
+            <sha1>e1fbe1bdc76b0c81d5652655731fe9007cf600f6</sha1>
+            <filename>yis805-256_jwp2_main.rom</filename>
+          </rom>
+          <rom id="data">
+            <!-- Confirmed by ROM IC dump: PCB NEP-14D XA890B0, position IC510, label XA979A0 -->
+            <sha1>0247d1ea0e757255f4470e032655509172c2af21</sha1>
+            <filename>yis805-256_jwp2_data.rom</filename>
+          </rom>
+          <sramname>yis805-256_jwp2.sram</sramname>
+          <initialContent encoding="hex">00</initialContent> <!-- observed in bsittler's YIS-805/256 after startup was a rather chaotic pattern, but it seems to be mostly 0x00 based, so let's assume that -->
+        </YamahaSKW01>
+      </secondary>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <size>256</size>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary external="true" slot="3"/> <!-- 60-pin module slot, e.g. for SFG-05 -->
+
+    </primary>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="8"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
+      <version>V9938</version>
+      <vram>128</vram>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
+      <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <io base="0xB4" num="4" type="IO"/> <!-- S-1985 mirrors -->
+      <sramname>yis805-256.cmos</sramname>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="8" type="IO"/> <!-- S-1985 mirrors -->
+      <bidirectional>true</bidirectional> <!-- S-1985 feature (but not used, nor implemented) -->
+      <unused_bits>0x00</unused_bits>
+    </PrinterPort>
+
+  </devices>
+
+</msxconfig>

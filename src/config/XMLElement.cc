@@ -28,6 +28,15 @@ const XMLElement* XMLElement::findChild(std::string_view childName) const
 	}
 	return nullptr;
 }
+const XMLElement* XMLElement::findChildWithAttribute(std::string_view childName, std::string_view attrName, std::string_view attrValue) const
+{
+	for (const auto* child = firstChild; child; child = child->nextSibling) {
+		if (child->name == childName && child->getAttributeValue(attrName, "") == attrValue) {
+			return child;
+		}
+	}
+	return nullptr;
+}
 XMLElement* XMLElement::findChild(std::string_view childName)
 {
 	for (auto* child = firstChild; child; child = child->nextSibling) {

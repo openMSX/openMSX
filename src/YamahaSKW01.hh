@@ -60,7 +60,7 @@ public:
 
 private:
 	Rom mainRom;
-	Rom fontRom;
+	std::optional<Rom> fontRom;
 	Rom dataRom;
 	SRAM sram;
 	std::array<uint16_t, 4> fontAddress;

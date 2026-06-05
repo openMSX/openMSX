@@ -20,6 +20,14 @@
 // address registers (other wise the READY bit wouldn't need to be read out) is
 // not emulated. Because of that, the READY bit will always just be enabled.
 
+// Addendum:
+// It looks like the SKW-05-like device built in the Yamaha YIS-805/256 is very
+// similar, although it does not have a printer port of course and also no font
+// ROM. And the main ROM is 48kB instead. We don't know about the real SKW-05,
+// so let's not make any assumptions on that, but the stuff in the YIS-805/256
+// we do know about and that part is emulated, to a similar level as the
+// SKW-01.
+
 namespace openmsx {
 
 // Printer port part of the SKW-01, as it needs to be optional in that class for the National CF-SM003
@@ -91,17 +99,19 @@ void YamahaSKW01PrinterPort::serialize(Archive& ar, unsigned /*version*/)
 YamahaSKW01::YamahaSKW01(DeviceConfig& config)
 	: MSXDevice(config)
 	, mainRom(MSXDevice::getName() + " main"     , "rom", config, "main")
-	, fontRom(MSXDevice::getName() + " kanjifont", "rom", config, "kanjifont")
+	, fontRom(config.getXML()->findChildWithAttribute("rom", "id", "kanjifont") ?
+		 std::make_optional<Rom>(MSXDevice::getName() + " kanjifont", "rom", config, "kanjifont") : std::nullopt)
 	, dataRom(MSXDevice::getName() + " data"     , "rom", config, "data")
 	, sram(MSXDevice::getName() + " SRAM", 0x800, config)
 {
 	if (config.getChildDataAsBool("hasprinterport", true)) {
 		printerPort.emplace(getPluggingController(), getName() + " printerport");
 	}
-	if (mainRom.size() != 32 * 1024) {
-		throw MSXException("Main ROM must be exactly 32kB in size.");
+
+	if (mainRom.size() != one_of(size_t(32 * 1024), size_t(48 * 1024))) {
+		throw MSXException("Main ROM must be exactly 32kB or 48kB in size.");
 	}
-	if (fontRom.size() != 128 * 1024) {
+	if (fontRom && fontRom->size() != 128 * 1024) {
 		throw MSXException("Font ROM must be exactly 128kB in size.");
 	}
 	if (dataRom.size() != 32 * 1024) {
@@ -127,12 +137,13 @@ byte YamahaSKW01::readMem(uint16_t address, EmuTime time)
 byte YamahaSKW01::peekMem(uint16_t address, EmuTime time) const
 {
 	if (address == one_of(0x7FC0, 0x7FC2, 0x7FC4, 0x7FC6)) {
-		return 0x01; // for now, always READY to read
+		return fontRom ? 0x01 /* for now, always READY to read */ : 0x00;
 	} else if (address == one_of(0x7FC1, 0x7FC3, 0x7FC5, 0x7FC7)) {
+		if (!fontRom) return 0x00;
 		unsigned group = (address - 0x7FC1) / 2;
 		unsigned base = 0x8000 * group;
 		unsigned offset = fontAddress[group] & 0x7FFF;
-		return fontRom[base + offset];
+		return (*fontRom)[base + offset];
 	} else if (address == 0x7FC8 || address == 0x7FC9) {
 		return 0xFF;
 	} else if (address == 0x7FCA || address == 0x7FCB) {
@@ -145,7 +156,7 @@ byte YamahaSKW01::peekMem(uint16_t address, EmuTime time) const
 		// bit 1 = status / other bits always 1
 		return printerPort->getStatus(time)
 		       ? 0xFF : 0xFD;
-	} else if (address < 0x8000) {
+	} else if (address < mainRom.size()) {
 		return mainRom[address];
 	} else {
 		return 0xFF;
@@ -183,7 +194,7 @@ const byte* YamahaSKW01::getReadCacheLine(uint16_t start) const
 	if ((start & CacheLine::HIGH) == (0x7FC0 & CacheLine::HIGH)) {
 		// 0x7FC0-0x7FCF memory mapped registers
 		return nullptr; // not cacheable
-	} else if (start < 0x8000) {
+	} else if (start < mainRom.size()) {
 		return &mainRom[start];
 	} else {
 		return unmappedRead.data();
