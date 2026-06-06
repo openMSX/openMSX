@@ -4,7 +4,7 @@
 #
 # A debugger written in Tcl that uses `SDCC --debug` parameter to create breakpoints and much more.
 #
-# The main difference between SDCC Debugger's breakpoints and the built-in OpenMSX breakpoints is the
+# The main difference between SDCC Debugger's breakpoints and the built-in openMSX breakpoints is the
 # C code integration:
 # [*] allow users to create breakpoints on C code:
 #     > sdcdb break main.c:55
@@ -75,7 +75,7 @@ proc ASM {} { return ".asm" }
 set_help_proc sdcdb [namespace code sdcdb_help]
 proc sdcdb_help {args} {
     if {[llength $args] == 1} {
-        return {The SDCDB debugger in Tcl connects OpenMSX to the CDB file created by SDCC.
+        return {The SDCDB debugger in Tcl connects openMSX to the CDB file created by SDCC.
 
 Recognized commands: open, break, list, step, next, info, whereis, laddr, map
 
@@ -91,7 +91,7 @@ Syntax: sdcdb open <directories> [<.cdbFile>]
 }}
         "break" { return {Creates a breakpoint
 
-Create a OpenMSX breakpoint, but using the C source files as reference. 'sdcdb info -break' replaces 'debug break' for extra details about C code execution.
+Create an openMSX breakpoint, but using the C source files as reference. 'sdcdb info -break' replaces 'debug break' for extra details about C code execution.
 
 Syntax: sdcdb break <file>:<line>
         sdcdb break <file>:<functionName>
