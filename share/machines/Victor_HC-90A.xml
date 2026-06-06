@@ -141,7 +141,6 @@
       <WD2793 id="Memory Mapped FDC"> <!-- see http://usbsecretbase.michikusa.jp/hc-95/fdc.html -->
         <connectionstyle>Victor</connectionstyle>
         <mem base="0x4000" size="0x3FFD"/>
-        <broken_fdc_read>false</broken_fdc_read>
         <rom>
           <sha1>c991440778d5dc9ba54cc0e0f8e032d2f451366f</sha1> <!-- direct ROM dump by Daniel Padilla, 2nd half of IC052 JVC 024 C 27C256 -->
           <filename>IC052 RS232C FDD JVC024C 27C256.BIN</filename>

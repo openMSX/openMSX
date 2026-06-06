@@ -58,7 +58,6 @@
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>National</connectionstyle>
           <mem base="0x4000" size="0x8000"/>
-          <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>3a481c7b7e4f0406a55952bc5b9f8cf9d699376c</sha1>
             <filename>yis805-128r2_disk.rom</filename>

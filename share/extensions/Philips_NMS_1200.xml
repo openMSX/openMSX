@@ -15,7 +15,6 @@
         <WD2793 id="Philips NMS 1200 diskROM/FDC">
           <mem base="0x4000" size="0x4000"/>
           <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
-          <broken_fdc_read>false</broken_fdc_read>
           <connectionstyle>Philips</connectionstyle>
           <rom>
             <filename>nms1200_6.rom</filename>

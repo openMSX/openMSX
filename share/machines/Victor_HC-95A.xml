@@ -122,7 +122,6 @@
       <WD2793 id="Memory Mapped FDC"> <!-- see http://usbsecretbase.michikusa.jp/hc-95/fdc.html -->
         <connectionstyle>Victor</connectionstyle>
         <mem base="0x4000" size="0x3FFD"/>
-        <broken_fdc_read>false</broken_fdc_read>
         <rom>
           <filename>hc-95a_normal_disk.rom</filename>
           <sha1>a7a34671bddb48fa6c74182e2977f9129558ec32</sha1>

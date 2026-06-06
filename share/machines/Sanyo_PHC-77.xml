@@ -106,7 +106,6 @@
       <secondary slot="0">
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Sanyo</connectionstyle>
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <sha1>a427b0c9a344c87b587568ecca7fee0abbe72189</sha1>

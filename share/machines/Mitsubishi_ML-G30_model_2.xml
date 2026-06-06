@@ -103,7 +103,6 @@
         </ROM>
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Philips</connectionstyle>
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>2</drives>
           <rom>
             <sha1>6069d63c68b03fa56de040fb5f52eeadbffe2a2c</sha1>
