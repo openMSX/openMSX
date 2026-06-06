@@ -208,6 +208,7 @@
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
           <size>256</size>
+          <initialContent encoding="gz-base64">eJztwQEBAAAAASD/TzNElQAAbwoA3Bnqa/hq</initialContent> <!-- 2kB of 0x00, then 2kB of 0xFF, repeated -->
         </MemoryMapper>
       </secondary>
 
