@@ -108,7 +108,7 @@ YamahaSKW01::YamahaSKW01(DeviceConfig& config)
 		printerPort.emplace(getPluggingController(), getName() + " printerport");
 	}
 
-	if (mainRom.size() != one_of(size_t(32 * 1024), size_t(48 * 1024))) {
+	if (mainRom.size() != one_of(32 * 1024u, 48 * 1024u)) {
 		throw MSXException("Main ROM must be exactly 32kB or 48kB in size.");
 	}
 	if (fontRom && fontRom->size() != 128 * 1024) {
