@@ -872,6 +872,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\Printer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Paper.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Plotter.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\PlotterFont.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\PlotterPaper.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXCharacterSets.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortLogger.cc" />
