@@ -10,10 +10,9 @@
 #ifndef PRINTER_HH
 #define PRINTER_HH
 
-#include "PrinterPortDevice.hh"
+#include "PrinterCore.hh"
 
 #include <array>
-#include <cstdint>
 #include <memory>
 #include <utility>
 
@@ -22,32 +21,6 @@ namespace openmsx {
 class MSXMotherBoard;
 class IntegerSetting;
 class Paper;
-
-
-// Abstract printer class
-class PrinterCore : public PrinterPortDevice
-{
-public:
-	// PrinterPortDevice
-	[[nodiscard]] bool getStatus(EmuTime time) override;
-	void setStrobe(bool strobe, EmuTime time) override;
-	void writeData(uint8_t data, EmuTime time) override;
-
-	// Pluggable
-	void plugHelper(Connector& connector, EmuTime time) override;
-	void unplugHelper(EmuTime time) override;
-
-protected:
-	PrinterCore() = default;
-	~PrinterCore() override = default;
-	virtual void write(uint8_t data) = 0;
-	virtual void forceFormFeed() = 0;
-
-private:
-	uint8_t toPrint = 0;
-	bool prevStrobe = true;
-};
-
 
 // Abstract image printer
 class ImagePrinter : public PrinterCore
