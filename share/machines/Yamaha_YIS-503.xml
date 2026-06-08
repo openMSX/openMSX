@@ -72,7 +72,7 @@
     this slot to have this adapter connected... -->
     <primary external="true" slot="2"/>
 
-    <primary slot="3"/> <!-- module slot -->
+    <primary slot="3" external="true" /> <!-- module slot -->
 
   </devices>
 
