@@ -76,6 +76,7 @@
           <connectionstyle>Sony</connectionstyle>
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
+          <singlesided/>
           <rom>
             <filename>hb-701fd_disk.rom</filename>
             <sha1>be86a0c2004142f2e8b7d65bf03733cc3d041ec1</sha1>
