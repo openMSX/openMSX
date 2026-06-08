@@ -26,6 +26,7 @@
           </rom>
           <singlesided/>
           <drives>1</drives>
+          <singlesided/>
         </WD2793>
       </secondary>
     </primary>
