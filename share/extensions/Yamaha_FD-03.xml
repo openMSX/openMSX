@@ -23,6 +23,7 @@
             <filename>fd-03.rom</filename>
           </rom>
           <drives>1</drives>
+          <singlesided/>
         </WD2793>
       </secondary>
     </primary>
