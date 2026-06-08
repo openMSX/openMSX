@@ -21,6 +21,8 @@
             <sha1>633ad62599361bbb8ba6803cdcfaa14c54521c43</sha1> <!-- Confirmed by mohai -->
             <filename>avt_dpf-550_disk.rom</filename>
           </rom>
+          <singlesided/>
+          <tracks>40</tracks> <!-- single-sided 40-track 180kB drive; disk ROM only accepts media 0xFC -->
           <drives>1</drives>
         </WD1770>
       </secondary>

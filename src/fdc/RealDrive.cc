@@ -29,7 +29,7 @@ std::shared_ptr<RealDrive::DrivesInUse> RealDrive::getDrivesInUse(MSXMotherBoard
 }
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration motorTimeout_,
-                     bool signalsNeedMotorOn_, bool doubleSided,
+                     bool signalsNeedMotorOn_, bool doubleSided, unsigned nbTracks,
                      DiskDrive::TrackMode trackMode_)
 	: syncLoadingTimeout(motherBoard_.getScheduler())
 	, syncMotorTimeout  (motherBoard_.getScheduler())
@@ -57,7 +57,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration motorTimeout_,
 		throw MSXException("Duplicated drive name: ", driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, driveName, "add");
-	changer.emplace(motherBoard, driveName, true, doubleSizedDrive,
+	changer.emplace(motherBoard, driveName, true, doubleSizedDrive, nbTracks,
 	                [this]() { invalidateTrack(); });
 	motherBoard.registerMediaProvider(changer->getDriveName(), *this);
 }
