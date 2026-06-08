@@ -24,7 +24,6 @@
             <sha1>5a5cc35ffb7f78ef440df9548c7360ab56719c5a</sha1> <!-- 16K ROM Version 3.5. (live register/RAM values in dump) -->
             <filename>fd-03.rom</filename>
           </rom>
-          <singlesided/>
           <drives>1</drives>
           <singlesided/>
         </WD2793>
