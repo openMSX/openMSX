@@ -1328,6 +1328,10 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	assert(sector >= firstDataSector);
 	assert(sector < nofSectors);
 
+	// Remember the previous content of this sector so we can detect whether
+	// the MSX actually changes anything (see below).
+	auto oldSector = sectors[sector];
+
 	// Buffer the write, whether the sector is mapped to a file or not.
 	sectors[sector] = buf;
 
@@ -1342,16 +1346,32 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	const auto* v = lookup(mapDirs, entry->dirIndex);
 	if (!v) return; // sector was not mapped to a file, nothing more to do.
 
+	// Determine which part of this sector actually belongs to the file.
+	unsigned msxSize = msxDir(entry->dirIndex).size;
+	if (msxSize <= offset) return; // nothing of this sector belongs to the file
+	auto writeSize = std::min<size_t>(msxSize - offset, sizeof(buf));
+
+	// If the MSX wrote data that is identical to what was already there,
+	// this is a no-op. Don't rewrite the host file in that case: it wouldn't
+	// change the content, but it would needlessly bump the host file's
+	// modification time. The MSX disk driver regularly flushes unchanged
+	// sector buffers (e.g. while saving a *different* file it may rewrite the
+	// sectors of an earlier file), so without this check saving one file
+	// would re-stamp unrelated files.
+	// We only compare the [0, writeSize) range (the part that maps to the
+	// host file), not the full sector: bytes past EOF are never written to
+	// the host file, so a change there must not trigger a host write.
+	if (std::ranges::equal(subspan(buf.raw, 0, writeSize),
+	                       subspan(oldSector.raw, 0, writeSize))) {
+		return;
+	}
+
 	// Actually write data to host file.
 	std::string fullHostName = hostDir + v->hostName;
 	try {
 		File file(fullHostName, "rb+"); // don't uncompress
 		file.seek(offset);
-		unsigned msxSize = msxDir(entry->dirIndex).size;
-		if (msxSize > offset) {
-			auto writeSize = std::min<size_t>(msxSize - offset, sizeof(buf));
-			file.write(subspan(buf.raw, 0, writeSize));
-		}
+		file.write(subspan(buf.raw, 0, writeSize));
 	} catch (FileException& e) {
 		cliComm.printWarning("Couldn't write to file ", fullHostName,
 		                     ": ", e.getMessage());
