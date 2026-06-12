@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1781150763">
+<softwaredb timestamp="1781281255">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1002,7 +1002,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Bee" system="MSX" company="N.I" year="2016" country="JP">
     <rom sha1="b1ce0053b176282274137e633a03653cbba7d472" type="Mirrored" />
   </software>
-  <software title="Bee &amp; Flower" system="MSX" company="REIZON" year="1983" country="JP" genmsxid="59">
+  <software title="Bee &amp; Flower" system="MSX" company="Compile" year="1983" country="JP" genmsxid="59">
     <rom sha1="3197d73a5400a72420f91def6d3aa8bdcb392754" type="Mirrored" status="GoodMSX" remark="Requires a machine with RAM in a main slot" />
     <rom sha1="250d4c7c6565b0c4935f6301e8de2c182e659fd0" type="Mirrored" remark="Requires a machine with RAM in a main slot" />
     <rom sha1="a2de457567e87c794fba8e35c992eac352da78be" type="Mirrored" />
@@ -1952,8 +1952,8 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="05a0b3eab0c2d1649f413edc63568b2620f51b07" type="Mirrored" status="Bad" remark="Korean 128" />
     <rom sha1="1c6e9e0ad551b4d03df0928947245c914aa3e3a6" type="Mirrored" status="Hack" remark="Hi-Com" />
     <rom sha1="71672deee1b6f7c77cac419bdadcc3dd5f08b72f" type="Mirrored" status="Hack" remark="Korean Hack" />
-    <rom sha1="67ec5859d293d9236d21b71e63580b6a53b90244" type="Mirrored" status="Bad" />
-    <rom sha1="34899ad454a56826d53028bef8fed7f5d2c6a78a" type="Mirrored" status="Bad" />
+    <rom sha1="67ec5859d293d9236d21b71e63580b6a53b90244" type="Mirrored" />
+    <rom sha1="34899ad454a56826d53028bef8fed7f5d2c6a78a" type="Mirrored" />
   </software>
   <software title="City Connection" system="MSX" company="Nippon Dexter" year="1986" country="JP" genmsxid="760">
     <rom sha1="0071b2eb214ff002dbbb7532653585b35b56f243" type="Mirrored" status="GoodMSX" />
@@ -4666,7 +4666,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="c453edd61113219e23874c00eb76960216edb0b5" type="Mirrored" status="Bad" remark="Korean 128" />
     <rom sha1="4ed2d10ede63423ca82515da17ab70e407021647" type="Mirrored" status="Hack" remark="Hi-Com" />
     <rom sha1="132369f3a115d4c2ac26b9cc0c6766947f0cbb9f" type="Mirrored" status="Hack" remark="Hi-Com" />
-    <rom sha1="33072bafc25b83577886e91a75d0b6439a80374c" type="Mirrored" status="Bad" />
+    <rom sha1="33072bafc25b83577886e91a75d0b6439a80374c" type="Mirrored" />
     <rom sha1="50f15f9b4b8b070880c8de14b220669d20b2534c" type="Mirrored" status="Bad" />
   </software>
   <software title="Hyper Sports 3" system="MSX" company="Konami" year="1985" country="JP" genmsxid="579">
@@ -5997,7 +5997,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="a3d1212eb4c58958f063aa8577ddfa07903b28b3" type="Mirrored" status="Hack" remark="Protection Removed" />
     <rom sha1="71765b3095f4b9f2f04e553402e7406191506a8b" type="Mirrored" status="Hack" remark="Ulver crack" />
     <rom sha1="d8561d9943b21c0298b80f9baef30872b479c2a7" />
-    <rom sha1="fd24b501046cf811b04386129be0362a1eabf6b3" type="Mirrored" status="Hack" remark="Taiwanese release" />
+    <rom sha1="fd24b501046cf811b04386129be0362a1eabf6b3" type="Mirrored" />
     <rom sha1="d799590bd04e9bd0cd30800dfc4b64e98df17633" type="Mirrored" status="Hack" remark="Invulnerable" />
   </software>
   <software title="Magical Stones" system="MSX" company="Dioniso" year="2005" country="ES" genmsxid="3697">
@@ -6019,7 +6019,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="e96ab281cf0ec6ba77362c4d94f5269572c46057" type="Mirrored" status="Bad" remark="Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation" />
     <rom sha1="b68f98ac8fc5755263a4a6b5a4d5de9f03ecdce9" type="Mirrored" status="Bad" remark="Korean 128" />
     <rom sha1="a82c31dadd66899d92819bf31bc253a434030f4a" type="Mirrored" status="Hack" remark="Hi-Com" />
-    <rom sha1="2aecbc9429060ee3adfc865369f67f53408a5881" type="Mirrored" status="Bad" />
+    <rom sha1="2aecbc9429060ee3adfc865369f67f53408a5881" type="Mirrored" />
     <rom sha1="3d4986adb3e90459b8ebee3a0aaa43372f00901a" type="Mirrored" status="Bad" />
   </software>
   <software title="Magnet" system="MSX" company="Xor" year="1990" country="JP">
@@ -8207,7 +8207,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="9e06939700ebfebc28d5fb8837a84da5c89fcf2a" type="Normal" />
     <rom sha1="8f3ec8301e9d21a937cc4f3cbc15b07ce5491d2f" type="Mirrored" status="Bad" />
     <rom sha1="5ad581075397ea7de010b1cd8475d45fd7738195" type="KonamiSCC" status="Hack" remark="GDX SCC Version" />
-    <rom sha1="0c1957a5faae5254c69f3331e79d87499dd7cf48" type="Mirrored" remark="TW" />
+    <rom sha1="0c1957a5faae5254c69f3331e79d87499dd7cf48" type="Mirrored" />
     <rom sha1="1896418e4ff8fa29f0297fe06b197ffb2b75991c" type="Mirrored" status="Bad" remark="Korean 128" />
   </software>
   <software title="RAM" system="MSX" company="Topo Soft" year="1990" country="ES" genmsxid="2311">
@@ -8361,7 +8361,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="a8ad80780884962de89a388fb93b836a908e5fb4" type="KonamiSCC" status="Bad" remark="Snatcher SCCI" />
     <rom sha1="709962d4dd1f8f4b278ad9851ed2fa0634a2d780" type="KonamiSCC" status="Bad" remark="No Music" />
     <rom sha1="8cac50ecd064cdb12e34c985aec53a2462a365dc" type="Mirrored" />
-    <rom sha1="2755f74019dc94559fd0c2248e2ecb7f48879b90" type="Mirrored" remark="TW" />
+    <rom sha1="2755f74019dc94559fd0c2248e2ecb7f48879b90" type="Mirrored" />
     <rom sha1="8e3b84fd9a38590f1435848abfcb467be2e801e6" type="KonamiSCC" status="Bad" remark="No Music" />
     <rom sha1="191129f2b82660e17cd4f03f9fad80e603fbef7e" type="KonamiSCC" status="Hack" remark="SCC" />
     <rom sha1="ba3502e6ba047649b23469eda178a190fd1fbe5d" type="KonamiSCC" status="Bad" remark="No Music" />
@@ -9931,7 +9931,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Tech Demo - Ghosts &apos;n Goblins" system="MSX" company="Amusement Factory" year="2008" country="ES">
     <rom sha1="c3708302a0c757a2efb50de7de666c6097d58913" type="ASCII8" status="Hack" remark="DSK2ROM Conversion" />
   </software>
-  <software title="Tech Demo - h7n9" system="MSX" company="Paulo Silva" year="2015" country="EU">
+  <software title="Tech Demo - H7N9" system="MSX" company="Paulo Silva" year="2015" country="EU">
     <rom sha1="383345c8587523b30d1e70fe9e9d997560dee5fe" type="Mirrored" status="Author" />
     <rom sha1="a61f93dc4d02f00831825758b07721e3a5c25c0b" type="Mirrored" />
   </software>
@@ -11612,9 +11612,6 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="f57d7f284040e71bf1f652b7c21f676d5beca8fc" type="ASCII16" remark="Dual Philips/Pony Canyon version" />
     <rom sha1="93b8ad5ff40be8e50506e28dbd3927771e2d7f2f" type="Mirrored" />
     <rom sha1="2a771af0a5aa696b6cc9fa5407de8cb6d67f6a68" type="Mirrored" status="Bad" remark="Korean 128" />
-  </software>
-  <software title="Zaxxon II" system="MSX" company="Sega" year="2021" country="JP">
-    <rom sha1="c6e2b0e8452c745d1d3cde9cf6c8a4193f07f9ae" type="Mirrored" />
   </software>
   <software title="Zemina 30 Multi Rom Pack" system="MSX" company="Zemina" country="KR">
     <rom sha1="f19a9664ffc8756b78fce0d9f9250ddaeba5e529" type="KonamiSCC" />
@@ -14117,16 +14114,6 @@ The Database is located at https://romdb.vampier.net/
   <software title="Beyond Terra (Demo)" system="ColecoVision" company="Scott Huggins" year="2007" country="US">
     <rom sha1="36862db51366a97a7b23563f50ec57f09762b313" type="Page23" remark="attract mode" />
   </software>
-  <software title="Black Onyx" system="ColecoVision" company="Bruce Tomlin" year="2007" country="US">
-    <rom sha1="751477c5fcf419e206913ec0c91f61287cf6fe0a" type="Page23" />
-    <rom sha1="a711d2e4edea4ddd6eb1edbb5edb42b65820a3f3" type="Page23" />
-    <rom sha1="88f4d23528dfb05e9a06201016360cc495407578" type="Page23" />
-    <rom sha1="f312f15f1f63167060960604b38d73a605892ff0" type="Page23" />
-    <rom sha1="f5cad21a2b0f9e4700d2d5d89b0e6fd47daa8d55" type="Page23" />
-    <rom sha1="fc2b2003bcec3ef388f28f615f8d82e583edf951" type="Page23" />
-    <rom sha1="c73772e6031d3e8b668ad014014b526665d95211" type="Page23" />
-    <rom sha1="9bc148c38bd94ba52efa335a08f5c2660b5dbf32" type="Page23" status="Overdump" />
-  </software>
   <software title="Blockade Runner" system="ColecoVision" company="Interphase" year="1984" country="JP" genmsxid="631">
     <rom sha1="28fc9bf517bce3d901c61d6fd1e297d2af421c70" type="Page23" />
     <rom sha1="09fc6bd4cfba5664b45cb89e2daa7e3bc3f50c4b" type="Page23" status="GoodCol" />
@@ -15970,6 +15957,16 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="4086b27bb43888721269382cdb30ddd11f3a37a9" type="Page23" />
     <rom sha1="37f5a474e94d37ed7a3643cd7edeb59a1401a00c" type="Page23" remark="Dragon Option" />
   </software>
+  <software title="The Black Onyx" system="ColecoVision" company="Bruce Tomlin" year="2007" country="US">
+    <rom sha1="751477c5fcf419e206913ec0c91f61287cf6fe0a" type="Page23" />
+    <rom sha1="a711d2e4edea4ddd6eb1edbb5edb42b65820a3f3" type="Page23" />
+    <rom sha1="88f4d23528dfb05e9a06201016360cc495407578" type="Page23" />
+    <rom sha1="f312f15f1f63167060960604b38d73a605892ff0" type="Page23" />
+    <rom sha1="f5cad21a2b0f9e4700d2d5d89b0e6fd47daa8d55" type="Page23" />
+    <rom sha1="fc2b2003bcec3ef388f28f615f8d82e583edf951" type="Page23" />
+    <rom sha1="c73772e6031d3e8b668ad014014b526665d95211" type="Page23" />
+    <rom sha1="9bc148c38bd94ba52efa335a08f5c2660b5dbf32" type="Page23" status="Overdump" />
+  </software>
   <software title="The Castle" system="ColecoVision" company="ASCII" year="2018" country="JP">
     <rom sha1="53a9bca24151466a576f8fb55b56a558a360411c" type="Page23" />
   </software>
@@ -16189,6 +16186,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="5b6bde9746d7b57291a9acc519962717e2c12aaa" type="Page23" />
     <rom sha1="ff2f4844ba688046a4b5dea86d9ff59010eafb90" type="Page23" />
   </software>
+  <software title="Zaxxon II" system="ColecoVision" company="Sega" year="2021" country="JP">
+    <rom sha1="c6e2b0e8452c745d1d3cde9cf6c8a4193f07f9ae" type="Page23" />
+  </software>
   <software title="Zenji" system="ColecoVision" company="Activision" year="1984" country="US" genmsxid="201">
     <rom sha1="9119f3a485eb4215e7d41c7cf0e412d903458647" type="Page23" status="GoodCol" />
     <rom sha1="5f3b572fba7b2fade1cd02e332e8b7477d741102" type="Page23" status="Translated" remark="Spanish" />
@@ -16221,6 +16221,597 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Zoom 909" system="ColecoVision" company="Mystery Man" year="2021">
     <rom sha1="b672b38de22c2d318d568d2584cadf991f7012e6" type="Page23" />
+  </software>
+  <software title="007 James Bond" system="SG-1000" company="Parker Brothers" year="1984" country="US">
+    <rom sha1="88d8c1f56f06ec76be285c29f41322a748f7c4db" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="f0b594fa0d371b31bc517afec8e28d4917193f0e" type="Mirrored" status="Hack" remark="Othello Multivision" />
+    <rom sha1="c4c947a00155412c4e8b492e19ac229cc61fb401" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="6b0b9ca950e0c0cb2e8e406cf00b328c68ff7037" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Alcazar - The Forgotten Fortress" system="SG-1000" company="Activision" year="1985" country="US">
+    <rom sha1="562f58ce8881a2aff99acf3283a44c5cf7a9e1b2" type="Mirrored" />
+  </software>
+  <software title="Aquapolis SOS" system="SG-1000" company="Compile" year="1983" country="JP">
+    <rom sha1="cbf0a6489f8adc5b74f06f906838f11ec7e5da46" type="Mirrored" />
+  </software>
+  <software title="Arno Dash" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="445e32896395aa61cb9b260775a0924d0acf1f41" type="Mirrored" status="Hack" />
+    <rom sha1="b2dd23a7c41bfc74a16894e99647c7e3cd9a1c41" type="Mirrored" status="Hack" />
+    <rom sha1="fcbc953fd133afcf19fbb81bc3165ea6394f824f" type="Mirrored" />
+  </software>
+  <software title="Arno Dash 2" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="8372540fd3a17f798702648da5e7f4ac2e56a8e4" type="Mirrored" />
+  </software>
+  <software title="Bank Panic" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="8e1dc4d79c5bc45fc6112969ea9a2c68b3c86666" type="Mirrored" />
+    <rom sha1="18f7ab9fe95aeacceab36297cdf9374dc7e3233f" type="Mirrored" />
+    <rom sha1="7bb7786f2139c05331ed81cfa9c5f1147d26ccab" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Battlot" system="SG-1000" company="Inufuto" year="2021" country="JP">
+    <rom sha1="f66932832acd5b11ba5d7c1bdaff1021a4b01294" type="Mirrored" />
+  </software>
+  <software title="Becky" system="SG-1000" company="MIA" year="1983" country="JP">
+    <rom sha1="2603689aa9c0bfb229516f55e769f67846e97be1" type="Mirrored" />
+    <rom sha1="5d7d3c0637529374dd5c9f2b0d6805ee29b8fed5" type="Mirrored" />
+  </software>
+  <software title="Bee and Flower" system="SG-1000" company="Compile" year="1983" country="JP">
+    <rom sha1="ce9ba35cafa940f247af84922d4eedfcd3c2c994" type="Mirrored" remark="MSX2SG" />
+  </software>
+  <software title="Bomb Jack" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="7859b9ee5614c595cb57a832ef7a8f1ab473b45b" type="Mirrored" />
+    <rom sha1="835d0ea1c0cf1723ae95ba60ea0a929780ebaf71" type="Mirrored" status="Hack" remark="English Logo" />
+    <rom sha1="b6b36a0280344214bdb8d9184244e21e9fb7371f" type="Mirrored" status="Hack" remark="Korean Logo" />
+    <rom sha1="ac94ddc1839dcd2ade443da0e8667e643b11f3e7" type="Mirrored" />
+    <rom sha1="8d7b786283e5b42e34432ecf1b3744eae00575de" type="Mirrored" />
+    <rom sha1="8d41bf8517f391fbbd5358101e8c108540fa2d6a" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Bomberman Special" system="SG-1000" company="Hudson Soft" year="1986" country="JP">
+    <rom sha1="d1d56bcd996df94458f5901dc537a5e30021256b" type="Mirrored" status="Hack" remark="English Logo" />
+    <rom sha1="455838571dd8287d491431e03269b0ccd292c8b8" type="Mirrored" status="Hack" remark="Chinese Logo" />
+  </software>
+  <software title="Boogie Woogi Jungle" system="SG-1000" company="Ample Software" year="1983" country="JP">
+    <rom sha1="fa381472d16e7d3893a3137fa4ac575727617873" type="Mirrored" />
+  </software>
+  <software title="Boomerang" system="SG-1000" company="ASCII" year="1984" country="JP">
+    <rom sha1="04ab85edf47ec5f880164c9a278ec2d5d9219ae7" type="Mirrored" />
+  </software>
+  <software title="Bootskell" system="SG-1000" company="Inufuto" year="2021" country="JP">
+    <rom sha1="f44c2912e4a9ff580a4a3cd7837c7ceece2b8da3" type="Mirrored" />
+  </software>
+  <software title="Borderline" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="b967340fa91d960f86548f15e6d25a8e7e2c5043" type="Mirrored" />
+    <rom sha1="68d9775850653d107820f16470bd3c18cbc6a476" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Cabbage Patch Kids" system="SG-1000" company="Konami" year="1984" country="JP">
+    <rom sha1="25ded7847f6e096ee40d86c523435260bb1c1073" type="Mirrored" />
+  </software>
+  <software title="Car Race" system="SG-1000" company="Ample Software" year="1983" country="JP">
+    <rom sha1="e8fa933d1ec275a0e72cbb344e2934489a60ecd1" type="Mirrored" />
+  </software>
+  <software title="Cavit" system="SG-1000" company="Inufuto" year="2021" country="JP">
+    <rom sha1="5c494bfcdf22fb6a8aef78b4227ab6b01f639196" type="Mirrored" />
+  </software>
+  <software title="Chack&apos;n Pop" system="SG-1000" company="TAITO" year="1984" country="JP">
+    <rom sha1="c81b116de04468cd605078c78dbd17124556c8a5" type="Mirrored" />
+    <rom sha1="08b5c1135f9678465ece6a886c948ce091637372" type="Mirrored" />
+    <rom sha1="75855a3148a57b102c15a436e7e4ffd1ab4808c3" type="Mirrored" />
+  </software>
+  <software title="Challenge Derby" system="SG-1000" company="Tsukuda Original" year="1984" country="JP">
+    <rom sha1="8a5e6c9b10c9a99c1eaaee48374d1fede5966340" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="47239898cc2ad5c4aeae1815dc54de6f87a8aa35" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="6c0ffd66695e8bd4bc503c40ee49834c3f95082b" type="Mirrored" remark="Othello Multivision" />
+  </software>
+  <software title="Champion Baseball" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="737b9478c4ce6df2afcd36f78011019f5d669226" type="Mirrored" />
+    <rom sha1="85e5c2f354b9110e5f7c7dfcc7ab9814598b7956" type="Mirrored" />
+    <rom sha1="b674ea2ea50f45b20c60d9dec5bf2e88e2b1cba5" type="Mirrored" status="hack" />
+  </software>
+  <software title="Champion Billiards" system="SG-1000" company="Sega" year="1986" country="JP">
+    <rom sha1="f517e6a6123643a5e7e5fff6b413139afa412d8e" type="Mirrored" />
+    <rom sha1="37dc5e7b3ebc3a3b0480b16d27bc394d57aac697" type="Mirrored" status="hack" />
+    <rom sha1="f291557893eb951fd50fffdfa276ecc8ce0c7b52" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Champion Boxing" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="7a7ace132090f11bac4f4aec58bcbf6a2a1c6168" type="Mirrored" />
+    <rom sha1="8cd55ee1efcab917087b80629ca18b4629edc15d" type="Mirrored" />
+    <rom sha1="e55396be42c6cfbf47ff43d3e8faee1dc8fad807" type="Mirrored" />
+    <rom sha1="4d2bc7810877b890081e058a24cd209b3ea3b414" type="Mirrored" />
+  </software>
+  <software title="Champion Golf" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="05deb000f24b7d8625c6e9332dcc91416ed3258f" type="Mirrored" />
+    <rom sha1="f58f14581919c431ac85da72fd1a39bbe1da5e66" type="Mirrored" />
+    <rom sha1="40ac48ef0ba23653d1763cd04774b00abc49f9a4" type="Mirrored" status="hack" />
+  </software>
+  <software title="Champion Ice Hockey" system="SG-1000" company="Sega" year="1986" country="JP">
+    <rom sha1="ff6440fc7e5c5faa0b9868d5cb5110d1d8635284" type="Mirrored" />
+    <rom sha1="3efbef93040fffbecb8e1d00b8470ac92f002c9b" type="Mirrored" status="Hack" />
+    <rom sha1="a316058604eb47b547986fec8ef18c6017694746" type="Mirrored" />
+    <rom sha1="c1a8862e6421716012e1eb476dd52482dd58b804" type="Mirrored" />
+  </software>
+  <software title="Champion Kendou" system="SG-1000" company="Sega" year="1986" country="JP">
+    <rom sha1="8565fc398d0206100da785d10e008f7f6a3c225e" type="Mirrored" />
+    <rom sha1="621cf09649e9244714fa01652b066cd1a477279e" type="Mirrored" status="hack" />
+  </software>
+  <software title="Champion Pro Wrestling" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="3bdb1e9d8b1a04d8fcc242c47be790c427a75403" type="Mirrored" />
+    <rom sha1="165d23acce36c8ceaf97548831574f67844a513a" type="Mirrored" />
+  </software>
+  <software title="Champion Soccer" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="0b3cf82f020ac9249ea52766ffbad41515d0b8b4" type="Mirrored" />
+    <rom sha1="ad2a72dff1959e3e148c48962ab382897bc06627" type="Mirrored" />
+  </software>
+  <software title="Champion Tennis" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="8b90300dcabc2cf8d58ee4800dce3084b739886b" type="Mirrored" />
+  </software>
+  <software title="Championship Kendo" system="SG-1000" company="Sega" year="1986" country="JP">
+    <rom sha1="df6483a7ea023be958bfd57ccc92176ba9c68c95" type="Mirrored" />
+  </software>
+  <software title="Championship Lode Runner" system="SG-1000" company="Doug Smith" year="1985" country="GB">
+    <rom sha1="a0dad095489da2bdf8ec03f1acc83f809db2371f" type="Mirrored" />
+    <rom sha1="321e2c97645dd9af3e52c66b5db06304250d1bf2" type="Mirrored" />
+    <rom sha1="77d6e2aa6c08efca4eaefa744451352a49fa4539" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Cheril Perils Classic" system="SG-1000" company="The Mojon Twins" year="2018" country="ES">
+    <rom sha1="877c7f71daf10c451745d68c2c88e5c06abc5c42" type="Mirrored" status="Hack" />
+    <rom sha1="d6f4632ec4edb4f585aeec5a297474d1ef733093" type="Mirrored" status="Hack" />
+  </software>
+  <software title="Choplifter" system="SG-1000" company="Broderbund" year="1985" country="US">
+    <rom sha1="e0828517fdc9a5537fda39dbc49942494eb3196d" type="Mirrored" />
+    <rom sha1="da92459e64ed6cc0ce93b03a60fad049e13a505f" type="Mirrored" />
+    <rom sha1="ef746a242ffd4d624ea378b6d9f20a6bc206f859" type="Mirrored" status="Hack" />
+    <rom sha1="af6c40febe02fe2b424ea99e666cf3f451eb5a1f" type="Mirrored" />
+    <rom sha1="61d1afe62b2be0da26d8a185828387063dd4b06e" type="Mirrored" />
+    <rom sha1="daf36c050b0e507d2f2470050299a648716c9158" type="Mirrored" />
+    <rom sha1="97a53be1e46e8549f389b9129831b633a9873f25" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Circus Charlie" system="SG-1000" company="Konami" year="1984" country="JP">
+    <rom sha1="3cfbe060b0c54c091597b5d373edc7e12e97db82" type="Mirrored" />
+  </software>
+  <software title="Comic Bakery" system="SG-1000" company="Konami" year="1984" country="JP">
+    <rom sha1="9a1a7786aaf87068455ea674e687032db7cc4211" type="Mirrored" />
+  </software>
+  <software title="Congo Bongo" system="SG-1000" company="Sega" year="1984" country="JP">
+    <rom sha1="9e153c7822a36230e85e9ac0ddc53d6fee810089" type="Mirrored" />
+    <rom sha1="4ea22b9a655c4cfe13500beb97e84da451752148" type="Mirrored" />
+    <rom sha1="47aba6a295e5695db4c3aaa1dea8ad8ac961b5f9" type="Mirrored" />
+    <rom sha1="3fe3272374135e8b5e849bdcd12812a90bb9901c" type="Mirrored" status="Hack" />
+    <rom sha1="24d5d62149d68fa24d8e04ab92038284b57dd546" type="Mirrored" status="Translated" remark="Spanish" />
+    <rom sha1="96dd55a63bae0abc666fe317d50612116100d7b1" type="Mirrored" />
+  </software>
+  <software title="C_So!" system="SG-1000" company="Compile" year="1985" country="JP">
+    <rom sha1="7101c42289815d7e0d04b523f8f0e833f2f089b3" type="Mirrored" status="Hack" remark="Taiwan" />
+    <rom sha1="d45a230b3cbf2d2dcfe7b94691fc7f1a5d747625" type="Mirrored" />
+  </software>
+  <software title="Dig Dug" system="SG-1000" company="NAMCO" year="1984" country="JP">
+    <rom sha1="0486201068b6a40f34f4418e867977bba5915a55" type="Mirrored" />
+  </software>
+  <software title="Doki Doki Penguin Land" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="176e2d2648b20e6fac823021697138803ef38b27" type="Mirrored" status="Hack" />
+    <rom sha1="ac09d8461160310a020a51cf4ca0904e20b2d543" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Dragon Wang" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="43807c9f634b8cf85aa5c3b2459885eedbb99955" type="Mirrored" />
+    <rom sha1="78f26d0a1d4f08a6378700b81ab38fc7c0f6bdc0" type="Mirrored" remark="Cleaned" />
+    <rom sha1="57ade81eaa044d69621741d8c5f5c5e8650f6c2b" type="Mirrored" status="hack" remark="Chinese Logo" />
+    <rom sha1="b2a3c886677ba3926cb56a1a781e7926852499c7" type="Mirrored" status="hack" remark="English Logo" />
+    <rom sha1="ec653572eb952c1d71ff14eb2380896a196c521a" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Drainer" system="SG-1000" company="Fun Project" year="1987" country="JP">
+    <rom sha1="44f2676d01873ab954265f8834066da6709f8cac" type="Mirrored" />
+  </software>
+  <software title="Drol" system="SG-1000" company="Aik Beng" year="1983" country="US">
+    <rom sha1="607b2b9a946eaaebb938800bd3b1df7d9342388c" type="Mirrored" />
+    <rom sha1="37baf9aac77436b4939c80d6a575e23a7d5cd76d" type="Mirrored" status="Hack" />
+    <rom sha1="8bb117df0a86508cf3fc139bd070c0aa8c6487dd" type="Mirrored" />
+    <rom sha1="88acc26fc6f118468937bd473fd61756c880443d" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Earth Attack" system="SG-1000" company="TheGeps" year="2021" country="IT">
+    <rom sha1="92636a511152051a593976a4651c85c8affea614" type="Mirrored" />
+  </software>
+  <software title="Elevator Action" system="SG-1000" company="TAITO" year="1985" country="JP">
+    <rom sha1="f72b3e44309e7c2e447c46928ce795453102f717" type="Mirrored" />
+    <rom sha1="0c419fdd769371f97c66030c51b21c786b89a105" type="Mirrored" />
+    <rom sha1="4436cf8598a5c84f7d16ed8780338ec23d147db6" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Exerion" system="SG-1000" company="Jaleco" year="1984" country="JP">
+    <rom sha1="839e19487b96d02222ff397b047cbc6a0fbc08ff" type="Mirrored" />
+    <rom sha1="3f569c9d95bc83896bc44dba7c469356961d659c" type="Mirrored" status="hack" />
+    <rom sha1="75555c1a05a14401e4136bffb9fb52f88a17ecfc" type="Mirrored" status="hack" />
+    <rom sha1="58373ff8344624117cd886aac6f5a7b08cee5eb3" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Flicky" system="SG-1000" company="Micronet" year="1986" country="JP">
+    <rom sha1="51947fc0ae2bc3442b0fee2cccf2344b7a94a167" type="Mirrored" />
+    <rom sha1="39a91b5ad6b139ca5d8ac60b78520210e84944bd" type="Mirrored" />
+    <rom sha1="a04ce8c70eddfac0adbf9489c0abbaaae613037c" type="Mirrored" />
+    <rom sha1="c11dd630ef48e90b3d6a2e04bbe70891dbe4ff57" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Foryster" system="SG-1000" company="Siudym" year="2022" country="PL">
+    <rom sha1="e51e047610930f8e44f3788be5a9970a7118d794" type="Mirrored" />
+    <rom sha1="f59be1768fbab79d1bffb886f4074d1e06498f9f" type="Mirrored" remark="00.9 - Level 10 Fix" />
+  </software>
+  <software title="Girl&apos;s Garden" system="SG-1000" company="Sega" year="2010" country="JP">
+    <rom sha1="0e08786587fb76909b3f9806ba1f5d57ea17728c" type="Mirrored" />
+    <rom sha1="94089be091af476c5628225e0262396faa5394f1" type="Mirrored" />
+    <rom sha1="e805b217f9e8172f6fb45184833d1e89121b731f" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Golgo 13" system="SG-1000" company="Sega" year="1984" country="JP">
+    <rom sha1="bf27536c6ae71b333da8b362479da0a838d0715e" type="Mirrored" />
+    <rom sha1="3147c0c3d38d4d242990b8e7f201d790378e65d5" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="GP World" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="40ae9c24c61188c6f02eba1b83109c5c4d86e64b" type="Mirrored" />
+    <rom sha1="37aa4812d37445c9e86bc4e02f056fb50d19dc6a" type="Mirrored" />
+    <rom sha1="11773e7eb2dca727ea293b5aa50ed8094df29f41" type="Mirrored" />
+  </software>
+  <software title="Gulkave" system="SG-1000" company="Sega" year="1986" country="JP">
+    <rom sha1="3fb197d16b25bc128a2866c4b78b0535ab8dc412" type="Mirrored" />
+    <rom sha1="deabfe970bb450e51909c181430e7de2bd1b1a9e" type="Mirrored" status="Hack" />
+    <rom sha1="2129bde1b5def5766084a9e3dcf5b81d20dd0144" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Guzzler" system="SG-1000" company="Tehkan" year="1983" country="JP">
+    <rom sha1="d42b2c5f1da4e0fbd29fcea91bfc092ae46da4b8" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="5c51f9846fb8220ab7dd6db5d6911cf4e985bfe9" type="Mirrored" remark="Othello Multivision" />
+  </software>
+  <software title="H.E.R.O." system="SG-1000" company="Activision" year="1984" country="US">
+    <rom sha1="19acb69b7b64da5083349d8bc40a47beacc88c41" type="Mirrored" />
+    <rom sha1="3b2d3dfe948a734c3d18b504c89c61b7b1f3d81b" type="Mirrored" />
+    <rom sha1="82b530feef7c011361e21b62d2c359c626ab8a9c" type="Mirrored" />
+    <rom sha1="98fcfecc251fc1b3ddda1483aeebf0384f54dd21" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Hang On II" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="e636e889d4e81c024ee7dae8943c2b8d9d4a5414" type="Mirrored" />
+    <rom sha1="154669944d899faa1db1cea3fecce9eb162eb3fd" type="Mirrored" status="hack" remark="Chinese Logo" />
+    <rom sha1="1e25fc699baa715710f3f6375dbcb107bfc044f5" type="Mirrored" status="hack" remark="English Logo" />
+    <rom sha1="abffcdcd91f273fc7218f448906468c5baea4036" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Hang-On" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="72491c5be33ff3b19c45a7d7341c3315b4928147" type="Mirrored" />
+  </software>
+  <software title="Home Mahjong" system="SG-1000" company="Sega" year="1984" country="JP">
+    <rom sha1="0202c0d86c4b793c58af021edfb3c077ae3169a5" type="Mirrored" />
+    <rom sha1="ac38a279f24e132acf6ac9fd27b53d1b939d2e7e" type="Mirrored" />
+    <rom sha1="db98d7461e88cef8160089c44fcd432388e3c9df" type="Mirrored" status="hack" />
+  </software>
+  <software title="Hopman" system="SG-1000" company="Inufuto" year="2023" country="JP">
+    <rom sha1="b9ca846d0dbdbd32ed00fa106fb162a0aceda259" type="Mirrored" />
+  </software>
+  <software title="Hustle Chumy" system="SG-1000" company="Compile" year="2019" country="JP">
+    <rom sha1="1f1bad94b2d869c10a2373ca40d4076d227cc302" type="Mirrored" />
+    <rom sha1="e7800d107ef0a7773eea2d482b5db9d866ba74f9" type="Mirrored" />
+  </software>
+  <software title="Hyper Sports" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="8a13ee297f861f436b9529a5e2193cb697baa56f" type="Mirrored" />
+    <rom sha1="43d67e8c386012d0694f09a2fe31a46d32d39f17" type="Mirrored" status="hack" />
+    <rom sha1="bf4218aebc07aa7179cc52853a55436db985b81e" type="Mirrored" status="hack" />
+    <rom sha1="65cdd870b4f3f1835c6e91ce78b0c34c9b4869fd" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Hyper Sports 3" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="ac84ead5a062ba6f6a13a626bf1b8ecdbebac402" type="Mirrored" />
+  </software>
+  <software title="I.Q." system="SG-1000" company="Thinking Rabbit" year="1984" country="JP">
+    <rom sha1="3a8505aabd165bd9de51369f588ae8c867b7671f" type="Mirrored" status="hack" />
+  </software>
+  <software title="Impetus" system="SG-1000" company="Inufuto" year="2021" country="JP">
+    <rom sha1="11f995fb7e9e93ffc53a5fdab083731b35eb9c16" type="Mirrored" />
+  </software>
+  <software title="Jet Paco and Jet Puri" system="SG-1000" company="Mojon Twins" year="2020" country="ES">
+    <rom sha1="e2dbe48a9a4490857ae7d51e306f6afba5aac3fa" type="Mirrored" />
+  </software>
+  <software title="King&apos;s Valley" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="922d23895c12707b2fc382ea5cb769c5cb9b5755" type="Mirrored" />
+  </software>
+  <software title="Klondike Solitaire" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="c52e3ff244bc55802b2856054fb01aba7f747620" type="Mirrored" />
+    <rom sha1="33c694911a7b261bbb01baa2cf4825233af49817" type="Mirrored" />
+    <rom sha1="d4a4adaf73a2ac03ecc2ec877084892ad4b14ca8" type="Mirrored" />
+  </software>
+  <software title="Knightmare" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="babdb6b109b20e81c28cd892c2042723e9cbff49" type="Mirrored" />
+  </software>
+  <software title="Konami&apos;s Golf" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="a49ff4a73f1880025281b38924b16670cce9e299" type="Mirrored" />
+  </software>
+  <software title="Lift" system="SG-1000" company="Inufuto" year="2021" country="JP">
+    <rom sha1="586a5cbd351f7bd878ac17148cecdec4d4723b16" type="Mirrored" />
+  </software>
+  <software title="Lode Runner" system="SG-1000" company="Doug Smith" year="1983" country="GB">
+    <rom sha1="f14f216edfda7dfd113f5cb32375a27be8a6409d" type="Mirrored" />
+    <rom sha1="23f22b407df4ae8d7931051eb229efd862bea5f7" type="Mirrored" status="Hack" />
+    <rom sha1="fb226a489e5a47eb0182a067fa1031ec944ab455" type="Mirrored" />
+  </software>
+  <software title="Mahjong" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="81015cea7e5ff08bd7d20953a702d47efdb8c11c" type="Mirrored" />
+    <rom sha1="2e6810c0c0c02c0fdda6fcaeae835cf94ab9bcba" type="Mirrored" />
+    <rom sha1="bd5130d36fc0ad008abfc524bb0c37290e7d0189" type="Mirrored" status="hack" />
+  </software>
+  <software title="Mahjong Solitaire" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="7524486ce0fa3c7a21c5231cce35133ef2f20a57" type="Mirrored" />
+    <rom sha1="19ab4bbb963ce2726f2705781b19e783d2d44cb0" type="Mirrored" />
+  </software>
+  <software title="Megalopolis SOS" system="SG-1000" company="Compile" year="1983" country="JP">
+    <rom sha1="ce0d062ccd8afb05bdc12b894b3a194ce7bc8093" type="Mirrored" />
+  </software>
+  <software title="Monaco GP" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="694228631d09ed06c8850fd164c6d99b12ff173d" type="Mirrored" />
+    <rom sha1="4ca8182b8f7c798d7222295978e2556ff115b848" type="Mirrored" />
+    <rom sha1="bea768b27c09bec805f0c70545d2f1435e3a3ddf" type="Mirrored" />
+    <rom sha1="464ec3c9acfefd0ad244a43033985e88798905f9" type="Mirrored" status="hack" />
+    <rom sha1="4c495df541162ab35121176aa7928098bc58d0c3" type="Mirrored" status="Translated" remark="Spanish" />
+    <rom sha1="6476bc0fc1608dd69a1ae62617ea4719bc7eaa50" type="Mirrored" />
+  </software>
+  <software title="N-Sub" system="SG-1000" company="Mystery Man" year="2021">
+    <rom sha1="aa3eae849553a5a176762466b101f312b8b968e4" type="Mirrored" />
+    <rom sha1="2640e267441bf25463a19273c46f3edb5e459496" type="Mirrored" />
+    <rom sha1="55a36c77cbdf87530611feccf2f1807bdd2ac0ec" type="Mirrored" />
+    <rom sha1="32a263110434288d3720e2370241d1e93b3f07a9" type="Mirrored" />
+  </software>
+  <software title="Neuras" system="SG-1000" company="Inufuto" year="2021" country="JP">
+    <rom sha1="feae43ba860a55adf5c1d7adf185eb990a6f0eae" type="Mirrored" />
+  </software>
+  <software title="Ninja Princess" system="SG-1000" company="Pony Canyon" year="1986" country="JP">
+    <rom sha1="f142bb823cebc4e31488e7a9a94644af24186d99" type="Mirrored" />
+    <rom sha1="dac76d52c9d88f7b6bf71fc897669d7e6440d143" type="Mirrored" />
+    <rom sha1="0473f6ca89948f08f504c634e00cf2cf72f94fc6" type="Mirrored" status="Translated" remark="English" />
+    <rom sha1="529064aabefc16f267840356ae9aa25a70ba580a" type="Mirrored" status="Bad" remark="MSX2SG" />
+  </software>
+  <software title="Okamoto Ayako no Match Play Golf" system="SG-1000" company="Tsukuda Original" year="1984" country="JP">
+    <rom sha1="bcb03afd3bbd5dadf00474eac44bb66a5df419cf" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="2fe5e6811aa340f10b67f78ee9ed566a94326bad" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="543046650e07b10dbd2dca6f20bcafb9dd6dda77" type="Mirrored" status="hack" remark="Othello Multivision" />
+  </software>
+  <software title="Orguss" system="SG-1000" company="Sega" year="1984" country="JP">
+    <rom sha1="c50b133dac95718e3a92a7ed45b6c7e83927abb0" type="Mirrored" />
+    <rom sha1="310f43ea99e926dbcc8f3aa3ed9c201229b69ef5" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Othello" system="SG-1000" company="Pony Canyon" year="1984" country="JP">
+    <rom sha1="d0cd594ddb321f707ddba8a044fa3e9b906e720a" type="Mirrored" />
+    <rom sha1="242c29989149b94ff27d59a94f067d0f1c84b4a7" type="Mirrored" />
+    <rom sha1="c5a67b95" type="Mirrored" />
+  </software>
+  <software title="Pac-Man" system="SG-1000" company="NAMCO" year="1984" country="JP">
+    <rom sha1="1ff1979a5e387d78ef3746bcde4c978992876108" type="Mirrored" />
+  </software>
+  <software title="Pacar" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="5e89857a374cbf3efa32efb62d26973d46a856ae" type="Mirrored" />
+    <rom sha1="91fd213308b83bb1bda1dfc7e971e576caace291" type="Mirrored" />
+    <rom sha1="0833be2743608983012cab6e3bdd6fd56453114e" type="Mirrored" />
+  </software>
+  <software title="Pachinko" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="aeaa15155e7d4275880c35c866c45626daa4dab9" type="Mirrored" />
+  </software>
+  <software title="Pachinko II" system="SG-1000" company="Sega" year="1984" country="JP">
+    <rom sha1="1dbc4babbbb377a1ff59a11e550a9b1b5e742b02" type="Mirrored" />
+    <rom sha1="ca0c66b4d48d6ade38e7f9093eea74ad090ecdb7" type="Mirrored" status="hack" />
+  </software>
+  <software title="Palikat" system="SG-1000" company="Harri Helmroos" year="2020" country="FI">
+    <rom sha1="77493202ba6e5eec599c054e96fe8f86b84b0c96" type="Mirrored" />
+  </software>
+  <software title="Pastfinder" system="SG-1000" company="Activision" year="1984" country="US">
+    <rom sha1="c0380946fc1c4911a4a461e3c601b72c27775b2a" type="Mirrored" />
+  </software>
+  <software title="Pegged" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="c524f5f682e3b39608f4a04f4a29f80b923dce1b" type="Mirrored" />
+    <rom sha1="f9c57bbcd285c963f04119a3d7ba9d5f53fca0cf" type="Mirrored" />
+  </software>
+  <software title="Pippols" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="4a95b98e127fb0c6428d6debcfc92152069ac531" type="Mirrored" />
+  </software>
+  <software title="Pitfall II - The Lost Caverns" system="SG-1000" company="Activision" year="1985" country="US">
+    <rom sha1="356db6edcd337a06063957bd8cb27edeb7160f6c" type="Mirrored" remark="The Lost Caverns" />
+    <rom sha1="38c25d7730863877fdae5491724a3aed9c6b04d5" type="Mirrored" status="Hack" remark="Chinese Logo" />
+    <rom sha1="c98a5bdb2f97e2e85d0a131d58e311544adb416e" type="Mirrored" status="Hack" remark="English Logo" />
+    <rom sha1="a14453650b6b2ef85e03b9637f08f691878acff4" type="Mirrored" />
+    <rom sha1="3bcffaf2a41ce21d5bfe483ff326bd563a713387" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Pitman" system="SG-1000" company="Inufuto" year="2021" country="JP">
+    <rom sha1="22b6c05f186bc87bfbeb734e8ef107d314f6825d" type="Mirrored" />
+  </software>
+  <software title="Pooyan" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="cd87e62f48f8670db7e0e928f0cf5376fa0c766a" type="Mirrored" />
+  </software>
+  <software title="Pop Flamer" system="SG-1000" company="Jaleco" year="1983" country="JP">
+    <rom sha1="84b59a9f855ef5e953c43495d7a15dd78386d0a8" type="Mirrored" />
+    <rom sha1="25d5cdc7fdd5cba97abbd9d32f61a39aacceb2c0" type="Mirrored" status="Hack" />
+    <rom sha1="78d623f5c1ae41a05ea7e4b17576d461ab732aad" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Poppaq The Fish" system="SG-1000" company="Mass Tael" year="1984" country="HK">
+    <rom sha1="522c9f2a234f7927cdf419193a0a34ac57486ceb" type="Mirrored" />
+  </software>
+  <software title="Q-bert" system="SG-1000" company="Konami" year="1986" country="JP">
+    <rom sha1="ae23fce5dbbc1536275d57ca65d2aa9170d46ea4" type="Mirrored" remark="Othello Multivision" />
+  </software>
+  <software title="Rally-X" system="SG-1000" company="NAMCO" year="1984" country="JP">
+    <rom sha1="21770691191b62bafec9099bbe0f9942f5480f83" type="Mirrored" />
+  </software>
+  <software title="Road Fighter" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="4f1a139974e3db27af5973bc9572ed68acd6ea68" type="Mirrored" />
+  </software>
+  <software title="Robofrog" system="SG-1000" company="Mass Tael" year="1985" country="HK">
+    <rom sha1="cafc310383bbe1ceb499bb85c10e0142c523b68c" type="Mirrored" />
+  </software>
+  <software title="Rock n&apos; Bolt" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="d5e8e7ca7623521d4291ae5ab2740816fc674389" type="Mirrored" />
+    <rom sha1="18a6b34d071feaad416704d5e6fd7680374dd669" type="Mirrored" status="hack" remark="Chinese Logo" />
+    <rom sha1="e3be08bda8459fc60836abe332e9864e7c596202" type="Mirrored" status="hack" remark="English Logo" />
+    <rom sha1="ca6a4a530a13c8e50a4080caaf3a13591de7b733" type="Mirrored" remark="Subset - Overtime Overload" />
+  </software>
+  <software title="Safari Hunting" system="SG-1000" company="Compile" year="1983" country="JP">
+    <rom sha1="902dbabbfa98d71299adda0638b87152188e1cf1" type="Mirrored" />
+    <rom sha1="e3aa37f4c9f213a673e369f62561f3f80513e4f3" type="Mirrored" status="hack" />
+    <rom sha1="002fb5a0edbfbf0ee4e829e96ab1e6d243a4781e" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Safari Race" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="ecbba909f2227786e7ba3360d2dd158f6513cfd4" type="Mirrored" />
+    <rom sha1="06fe09074bef542b590761ba585911d0998af646" type="Mirrored" />
+    <rom sha1="1d2ca62c894fc8aab97605e65078e834bbbe3d8b" type="Mirrored" />
+    <rom sha1="f8b26830016e78569fc049ab6c1a998bd476df86" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="San - Nin Mahjong" system="SG-1000" company="Tsukuda Original" year="1984" country="JP">
+    <rom sha1="245e9adf0fdb33849f1e6ef872c1b204cbed5754" type="Mirrored" status="Hack" remark="Othello Multivision" />
+    <rom sha1="a5c2acba93cd3809577f401c00fa9d728627ed60" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="75dd13ea139a91f4e471e658ab19f9847e15576c" type="Mirrored" remark="Othello Multivision" />
+  </software>
+  <software title="Scramble Eggs" system="SG-1000" company="Ample Software" year="1983" country="JP">
+    <rom sha1="4ad9bb9f78ef79ce1a936aa4f46362bcf7e5479a" type="Mirrored" />
+  </software>
+  <software title="Sega - Galaga" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="32e776b3a17f7c0df0fa9eb49a3e451cfe702bfd" type="Mirrored" />
+    <rom sha1="9b093878f92ce8b918beaa44dcc8a41282f9f267" type="Mirrored" />
+    <rom sha1="6c049daa08af7b1f08b98d6998ba52d7cf3cc4de" type="Mirrored" status="Hack" />
+    <rom sha1="3915b2d6a6cfe55f473071c06fb3ecc90594bd0a" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Sega Flipper" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="e0605e23d80b8b975743d3417f548b28810e0ba3" type="Mirrored" />
+    <rom sha1="d713dcbd79a3db8f1ef2cfb27da31a286fff16d1" type="Mirrored" />
+    <rom sha1="b7eb254a014772a83829e1991dcd32396e8dd9cc" type="Mirrored" status="hack" />
+  </software>
+  <software title="SEGABTL VRAM CLEAN" system="SG-1000" company="">
+    <rom sha1="75c176b69c34323dbaf085d09b2c067303824848" type="Mirrored" />
+  </software>
+  <software title="Serizawa Hachidan no Tsumeshougi" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="c2d3882874a5a9b79a5dc9fdeb7af750bc52ca21" type="Mirrored" />
+  </software>
+  <software title="SG-1000 M2 Check Program" system="SG-1000" company="Sega" year="1984" country="JP">
+    <rom sha1="35141a11fff42ff33b9154e030501656925d271c" type="Mirrored" />
+  </software>
+  <software title="Shinnyushain Tooru - kun" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="83784e8248e2367546115382dac157ca8e6fe3ab" type="Mirrored" />
+    <rom sha1="e47e56be455d46c6cc5334895e54069a85da6c3b" type="Mirrored" status="Hack" />
+  </software>
+  <software title="Sindbad Mystery" system="SG-1000" company="Team Pixelboy" year="2021" country="US">
+    <rom sha1="90bb8b8337866339f32b3fd48b4d25d78d682b55" type="Mirrored" />
+    <rom sha1="9a4e44ccd3cabd092aae59fcabda8f047609a675" type="Mirrored" />
+  </software>
+  <software title="Snake" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="878c600b866b5c355215eebe846167049ce996ed" type="Mirrored" />
+    <rom sha1="99bfa54859f28f40b42fc930a323b9917fbd0ba8" type="Mirrored" />
+    <rom sha1="47829d776889e2f4cf48d41ce07a374d14c521a2" type="Mirrored" />
+  </software>
+  <software title="Soukoban" system="SG-1000" company="Qnix" year="1984" country="KR">
+    <rom sha1="94e79b4a8b4a5fb77c837ea0a1e28bc5993d36af" type="Mirrored" />
+    <rom sha1="a9d77c6dee31956bb382abd14245ff581369578d" type="Mirrored" status="Hack" />
+    <rom sha1="4216770efbaf49f832ff7a78fbc9cd2c8300f52c" type="Mirrored" />
+    <rom sha1="a9dfd3d4deb4aac3775cd6bfae35f5f993b7c08a" type="Mirrored" />
+  </software>
+  <software title="Space Armor" system="SG-1000" company="Tsukuda Original" year="1984" country="JP">
+    <rom sha1="3c3b59321321061642f8cf609ae3e2cab56eb83b" type="Mirrored" remark="Othello Multivision" />
+    <rom sha1="bbffe62f8f851e3c4a62981437facb518054a8ab" type="Mirrored" status="Overdump" remark="Othello Multivision" />
+    <rom sha1="a968b1debb39909cd83203244cc60da1e0003f71" type="Mirrored" remark="Othello Multivision" />
+  </software>
+  <software title="Space Invaders" system="SG-1000" company="TAITO" year="1986" country="JP">
+    <rom sha1="a4e4b0c2967e39c4931fba8bc87428f296e461c5" type="Mirrored" />
+    <rom sha1="5a7904697ea8a360066ea8403793227021735969" type="Mirrored" />
+  </software>
+  <software title="Space Mountain" system="SG-1000" company="Tsukuda Original" year="1984" country="JP">
+    <rom sha1="08d9360d6e92b081d99b7629f91d4fe482383a18" type="Mirrored" />
+  </software>
+  <software title="Space Slalom" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="798b5f3742cb3f95fd5977d9a2cb48ba2dc804e6" type="Mirrored" />
+  </software>
+  <software title="Star Force" system="SG-1000" company="Tehkan" year="1985" country="JP">
+    <rom sha1="d38875cb08de0ea892e5ef80f93987bbc445ef8f" type="Mirrored" />
+    <rom sha1="f3ddf97ddf0e40289e38d9105300f15ec7eab78c" type="Mirrored" />
+    <rom sha1="ff6e3bdb830e6f74f9997b4d36604fd07d7e6019" type="Mirrored" />
+    <rom sha1="d522678e897d200be97985339a22dab31b8a2c74" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Star Jacker" system="SG-1000" company="Sega" year="2021" country="JP">
+    <rom sha1="5d074708edf6c40dc6d80032cd91ff6197aa79c7" type="Mirrored" />
+    <rom sha1="a2a06e7545ca1e0d522d0eb75a72b5b520f42330" type="Mirrored" />
+    <rom sha1="be078bfa5340f2e1d307b85d3648192972529e46" type="Mirrored" />
+    <rom sha1="2bc990615a6ea7f005e8458c9791f0098c4d4a85" type="Mirrored" />
+  </software>
+  <software title="Star Soldier" system="SG-1000" company="Hudson Soft" year="1986" country="JP">
+    <rom sha1="c1984257809ec5bce80a65d22b9b32561e04922c" type="Mirrored" />
+  </software>
+  <software title="Super Drinker" system="SG-1000" company="Ample Software" year="1983" country="JP">
+    <rom sha1="e3d4c0f7f0050241718304cf40b363c7e20c5831" type="Mirrored" />
+  </software>
+  <software title="Super Tank" system="SG-1000" company="Sega" year="1986" country="JP">
+    <rom sha1="58d7d51b91b763d812376d56643a4f8a331e826b" type="Mirrored" />
+    <rom sha1="0a49de909b07b69a24b5c02ad08446e2cd1787d2" type="Mirrored" status="Hack" />
+    <rom sha1="0d014fc9db775b62ff55196b85b8e91c5e3249f3" type="Mirrored" />
+    <rom sha1="9c01f4368defa9cf45f527bfec853b9c0ebce70b" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Super Uwol" system="SG-1000" company="Mojon Twins" year="2016" country="ES">
+    <rom sha1="ffd3c645662d8926965d4e334f68764648db851f" type="Mirrored" />
+  </software>
+  <software title="Tank Battalion" system="SG-1000" company="NAMCO" year="1984" country="JP">
+    <rom sha1="0ca3b740b28266a2a606127ed8967c684b67cb44" type="Mirrored" />
+  </software>
+  <software title="Tech Demo - Asteroids 3D" system="SG-1000" company="Under4Mhz" country="AU">
+    <rom sha1="09cababdf65f70749608d973d6b9ecf3b13ddc9d" type="Mirrored" />
+  </software>
+  <software title="Tech Demo - H7N9" system="SG-1000" company="Paulo Silva" year="2015" country="EU">
+    <rom sha1="5848cc4a8116ce428caa8b775829ed4ffee8fb52" type="Mirrored" />
+  </software>
+  <software title="Tech Demo - Mazenstein 3D" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="3e94de5487aab92efd7e4e0b10e141a7419b98eb" type="Mirrored" />
+  </software>
+  <software title="Tech Demo - Road 3D" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
+    <rom sha1="2ee9ede257d1cb2daf938a681aff61af2b0ed332" type="Mirrored" />
+  </software>
+  <software title="Terebi Oekaki" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="12296f2bb57d80d1774749d3002a039e0940c6fa" type="Mirrored" remark="Cart has Special Hardware" />
+  </software>
+  <software title="The Black Onyx" system="SG-1000" company="BPS" year="1987" country="JP">
+    <rom sha1="7ecb9ac646346900046a61ff0242d6c90a812eda" type="Mirrored" />
+    <rom sha1="5c46089a417add0f00a3cebf01dc59f53465d47b" type="Mirrored" status="Translated" remark="Improvements - English" />
+    <rom sha1="2e2baee16a34839770587d5fab890080bbcd9550" type="Mirrored" status="Translated" remark="English" />
+  </software>
+  <software title="The Castle" system="SG-1000" company="ASCII" year="1986" country="JP">
+    <rom sha1="2681786bffccf58b59410c331865d30a4d027087" type="Mirrored" />
+    <rom sha1="5a81d5103487695cabd811aabd9e71f48b9e7996" type="Mirrored" />
+  </software>
+  <software title="The Goonies" system="SG-1000" company="Konami" year="1986" country="JP">
+    <rom sha1="40414556" type="Mirrored" />
+    <rom sha1="e4e78125fd5fdb9e9434a6d92e7b8f97b172adf1" type="Mirrored" />
+  </software>
+  <software title="The Legend of Kage" system="SG-1000" company="TAITO" year="1986" country="JP">
+    <rom sha1="902dbb122bf0efc76604a876c3fae51c074bdc6a" type="Mirrored" />
+  </software>
+  <software title="TwinBee" system="SG-1000" company="Konami" year="1986" country="JP">
+    <rom sha1="a8c30043c145e63f79a3265dde167529f0e08d49" type="Mirrored" />
+  </software>
+  <software title="Vexed" system="SG-1000" company="Under4Mhz" year="2020" country="AU">
+    <rom sha1="aff1f34dab6f92685348d850db28048c43760a6a" type="Mirrored" status="Hack" />
+    <rom sha1="288c9d76c946b925eb65b167b7cf730c954ce913" type="Mirrored" />
+    <rom sha1="70e38bcffadc67b3d6294e61cc0f4a81ed4cb4cc" type="Mirrored" />
+    <rom sha1="829ef083113352872bb9a0ac35f5afedf9b1905f" type="Mirrored" />
+  </software>
+  <software title="Wonder Boy" system="SG-1000" company="" year="2012">
+    <rom sha1="240600a0dda16809f49b173f731c7fdaf921466a" type="Mirrored" />
+    <rom sha1="4a54933135cdff546fd79cbc61a38355f7335f3f" type="Mirrored" />
+    <rom sha1="8f261b955162c179fe4c936ece767bbf25c4888c" type="Mirrored" status="Hack" />
+    <rom sha1="907a3679c1a40bd6a6dbda9383fbd92b4763aba5" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Yamato" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="fe86e669f3e4b808236d7b80aeb5a83172edb9ac" type="Mirrored" />
+    <rom sha1="4d746558fb699c5cb480ba26130518105b2e2031" type="Mirrored" />
+    <rom sha1="6fbdc967f5c7c39eb1fdea08d2dcabfd64b8e7ee" type="Mirrored" status="hack" />
+  </software>
+  <software title="Yellow Submarine" system="SG-1000" company="Brother Industries" year="1987" country="JP">
+    <rom sha1="34306834e3936ebf0aa1c807974a043d95b5dab0" type="Mirrored" />
+  </software>
+  <software title="Yie Ar Kung-Fu" system="SG-1000" company="Konami" year="1985" country="JP">
+    <rom sha1="0a6157837af2e5dec2e9b30d475b48fa7c14cc3e" type="Mirrored" status="Hack" />
+  </software>
+  <software title="Yie Ar Kung-Fu II" system="SG-1000" company="Konami" year="1986" country="JP">
+    <rom sha1="44fb2dca3774f859f0ae0ad4d809a67f760cf9ae" type="Mirrored" status="Bad" remark="Taiwan" />
+  </software>
+  <software title="Zaxxon" system="SG-1000" company="Coleco" year="1985" country="US">
+    <rom sha1="e32f536c3576d41ab485e07809c4404e6b462443" type="Mirrored" />
+    <rom sha1="172a8ff1a574d7920906c5cf60e1d39f31b9b639" type="Mirrored" />
+  </software>
+  <software title="Zippy Race" system="SG-1000" company="IREM" year="1983" country="JP">
+    <rom sha1="8c48dbe187ff4b26d6244d38075565f284536d0c" type="Mirrored" />
+    <rom sha1="f6926d0c3c654a038cd5eec9aaa6876bce86fdaa" type="Mirrored" />
+    <rom sha1="ff1abb3dd31010ef2fe5434af9dc7d9945acdf0a" type="Mirrored" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Zoom 909" system="SG-1000" company="Sega" year="1985" country="JP">
+    <rom sha1="09552aaa7140f9fc780b5f7d541478b534320075" type="Mirrored" />
+    <rom sha1="7a998a0da19471f7e3e5bd82a9fbaf82a966ee40" type="Mirrored" />
+    <rom sha1="cf7c7cf80041b95f195db8483089e3f9771a19ba" type="Mirrored" />
+    <rom sha1="579d7166fb6c6d6ab7836fa319855aa6d1f2890b" type="Mirrored" status="Translated" remark="Spanish" />
   </software>
   <software title="Flipper Slipper" system="SVI" company="Spectravideo" year="1983" country="GB" genmsxid="297">
     <rom sha1="7acd00c9053fbf7f7d698485759d170a483b123d" type="Mirrored" remark="SD-291C" />
@@ -16256,6 +16847,6 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="b6dd7af36c8d16b04fca4963f081db534e91b360" type="Mirrored" remark="SD-003C" />
   </software>
 
-<!-- Roms in this XML file: 9208 - Created on Thu Jun 11 2026 - 04:06:03
-      Per platform: ColecoVision: 1069 | MSX: 6724 | MSX Turbo-R: 11 | MSX2: 1389 | MSX2Plus: 4 | SVI: 11 -->
+<!-- Roms in this XML file: 9519 - Created on Fri Jun 12 2026 - 16:20:55
+      Per platform: ColecoVision: 1070 | MSX: 6723 | MSX Turbo-R: 11 | MSX2: 1389 | MSX2Plus: 4 | SG-1000: 311 | SVI: 11 -->
 </softwaredb>
