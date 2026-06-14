@@ -357,7 +357,7 @@ static constexpr auto regFunctions = std::array{
 		return TemporaryString(COMMANDS[v]);
 	}},
 	R{{S{46, 0}}, "", [](uint32_t) { return TemporaryString("-"); }},
-	R{{S{46, 0x0F}}, "command code", [](uint32_t v) {
+	R{{S{46, 0x0F}}, "logical operation", [](uint32_t v) {
 		static constexpr std::array<zstring_view, 16> OPS = {
 			"IMP ","AND ","OR  ","XOR ","NOT ","NOP ","NOP ","NOP ",
 			"TIMP","TAND","TOR ","TXOR","TNOT","NOP ","NOP ","NOP "

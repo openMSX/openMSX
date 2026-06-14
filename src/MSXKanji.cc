@@ -13,6 +13,7 @@ MSXKanji::MSXKanji(DeviceConfig& config)
 	, rom(getName(), "Kanji ROM", config)
 	, isLascom(config.getChildData("type", {}) == "lascom")
 	, highAddressMask(config.getChildData("type", {}) == "hangul" ? 0x7F : 0x3F)
+	, mirrorsIfOnlyLevel1Installed(config.getChildDataAsBool("io_ports_mirror_if_only_level1_installed", false))
 {
 	auto size = rom.size();
 	if (size != one_of(0x20000u, 0x40000u)) {
@@ -33,7 +34,7 @@ void MSXKanji::reset(EmuTime /*time*/)
 
 void MSXKanji::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
-	switch (port & 0x03) {
+	switch (port & (mirrorsIfOnlyLevel1Installed ? 0x01 : 0x03)) {
 	case 0:
 		adr1 = (adr1 & 0x1f800) | ((value & 0x3f) << 5);
 		break;
@@ -52,7 +53,7 @@ void MSXKanji::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 byte MSXKanji::readIO(uint16_t port, EmuTime time)
 {
 	byte result = peekIO(port, time);
-	switch (port & 0x03) {
+	switch (port & (mirrorsIfOnlyLevel1Installed ? 0x01 : 0x03)) {
 	case 0:
 		if (!isLascom) {
 			break;
@@ -71,7 +72,7 @@ byte MSXKanji::readIO(uint16_t port, EmuTime time)
 byte MSXKanji::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	byte result = 0xff;
-	switch (port & 0x03) {
+	switch (port & (mirrorsIfOnlyLevel1Installed ? 0x01 : 0x03)) {
 	case 0:
 		if (!isLascom) {
 			break;

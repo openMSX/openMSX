@@ -45,6 +45,7 @@ proc vdpcmdinprogresscallback {reg val} {
 # Callback on setting invalid PSG port directions.
 set psg_directions_warning_printed false
 proc psgdirectioncallback {} {
+	if {[string first "MSX" [machine_info type]] == -1} return
 	if {$::psg_directions_warning_printed} return
 	set ::psg_directions_warning_printed true
 	message {The running MSX software has set unsafe PSG port directions.

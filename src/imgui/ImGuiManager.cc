@@ -16,6 +16,7 @@
 #include "ImGuiOpenFile.hh"
 #include "ImGuiOsdIcons.hh"
 #include "ImGuiPalette.hh"
+#include "ImGuiPlotterViewer.hh"
 #include "ImGuiRasterViewer.hh"
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSCCViewer.hh"
@@ -175,6 +176,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	traceViewer = std::make_unique<ImGuiTraceViewer>(*this);
 	vdpRegs = std::make_unique<ImGuiVdpRegs>(*this);
 	palette = std::make_unique<ImGuiPalette>(*this);
+	plotterViewer = std::make_unique<ImGuiPlotterViewer>(*this);
 	rasterViewer = std::make_unique<ImGuiRasterViewer>(*this, *traceViewer);
 	osdIcons = std::make_unique<ImGuiOsdIcons>(*this);
 	openFile = std::make_unique<ImGuiOpenFile>(*this);
@@ -837,8 +839,12 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 
 void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 {
-	if (ImGui::BeginViewportSideBar("##MainStatusBar", nullptr, ImGuiDir_Down, ImGui::GetFrameHeight(),
-			ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
+	ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_MenuBar |
+		ImGuiWindowFlags_NoFocusOnAppearing;
+	if (ImGui::BeginViewportSideBar("##MainStatusBar", nullptr, ImGuiDir_Down, ImGui::GetFrameHeight(), flags)) {
 		im::MenuBar([&]{
 			auto pos = ImGui::GetCursorPos();
 

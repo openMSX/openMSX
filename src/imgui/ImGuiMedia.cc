@@ -954,15 +954,15 @@ bool ImGuiMedia::selectMapperType(const char* label, RomType& romType)
 			interacted = true;
 			romType = RomType::UNKNOWN;
 		}
-		int count = 0;
-		for (const auto& romInfo : RomInfo::getRomTypeInfo()) {
-			bool selected = romType == static_cast<RomType>(count);
+		const auto& romTypeInfo = RomInfo::getRomTypeInfo();
+		for (auto rt : RomInfo::getSortedRomTypes()) {
+			const auto& romInfo = romTypeInfo[rt];
+			bool selected = romType == rt;
 			if (ImGui::Selectable(std::string(romInfo.description).c_str(), selected)) {
 				interacted = true;
-				romType = static_cast<RomType>(count);
+				romType = rt;
 			}
 			simpleToolTip(romTypeToolTipText(romInfo.name));
-			++count;
 		}
 	});
 	interacted |= ImGui::IsItemActive();

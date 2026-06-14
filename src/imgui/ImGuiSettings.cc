@@ -28,6 +28,8 @@
 #include "MSXJoystick.hh"
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
+#include "Plotter.hh"
+#include "PluggingController.hh"
 #include "ProxySetting.hh"
 #include "R800.hh"
 #include "Reactor.hh"
@@ -384,6 +386,40 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 			ImGui::MenuItem("Configure messages", nullptr, &manager.messages->configureWindow.open);
+		});
+		im::Menu("MSX Plotter", motherBoard != nullptr, [&]{
+			// Find the MSXPlotter in the pluggables
+			MSXPlotter* plotter = nullptr;
+			for (const auto& plug : motherBoard->getPluggingController().getPluggables()) {
+				if (auto* p = dynamic_cast<MSXPlotter*>(plug.get())) {
+					plotter = p;
+					break;
+				}
+			}
+
+			// Character Set dropdown
+			static constexpr std::array charSetNames = { // must be in sync with Plotter
+				"International", "Japanese", "DIN (German)"
+			};
+			auto currentCharSet = int(plotter->getCharacterSet());
+			if (ImGui::Combo("Character set", &currentCharSet, charSetNames.data(), int(charSetNames.size()))) {
+				plotter->setCharacterSet(static_cast<MSXPlotter::CharacterSet>(currentCharSet));
+			}
+
+			// Dipswitch 4
+			bool dipSwitch4 = plotter->getDipSwitch4();
+			if (ImGui::Checkbox("Dipswitch 4", &dipSwitch4)) {
+				plotter->setDipSwitch4(dipSwitch4);
+			}
+
+			// Pen thickness
+			static constexpr std::array thicknessNames = {
+				"Standard (PRK-C41)", "Thick (PRK-C42)"
+			};
+			auto currentThickness = int(plotter->getPenThicknessSetting().getEnum());
+			if (ImGui::Combo("Pen thickness", &currentThickness, thicknessNames.data(), int(thicknessNames.size()))) {
+				plotter->getPenThicknessSetting().setEnum(static_cast<MSXPlotter::PenThickness>(currentThickness));
+			}
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{

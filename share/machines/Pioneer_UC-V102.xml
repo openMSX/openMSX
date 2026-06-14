@@ -152,7 +152,6 @@
       <secondary slot="0">
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Philips</connectionstyle>
-          <broken_fdc_read>false</broken_fdc_read>
           <drives>2</drives>
           <rom>
             <sha1>f7c3ac138918a493eb91628ed88cf37999059579</sha1>

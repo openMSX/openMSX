@@ -130,7 +130,7 @@ public:
 			return a * recip(v);
 		} else {
 			vecN r;
-			for (auto i : xrange(2)) r[i] = a * v[i];
+			for (auto i : xrange(2)) r[i] = a / v[i];
 			return r;
 		}
 	}
@@ -259,7 +259,7 @@ public:
 			return a * recip(v);
 		} else {
 			vecN r;
-			for (auto i : xrange(3)) r[i] = a * v[i];
+			for (auto i : xrange(3)) r[i] = a / v[i];
 			return r;
 		}
 	}
@@ -391,7 +391,7 @@ public:
 			return a * recip(v);
 		} else {
 			vecN r;
-			for (auto i : xrange(4)) r[i] = a * v[i];
+			for (auto i : xrange(4)) r[i] = a / v[i];
 			return r;
 		}
 	}
@@ -490,7 +490,16 @@ template<int N, typename T>
 	return r;
 }
 
-// min(vector, vector)
+// max(vector, vector)
+template<int N, typename T>
+[[nodiscard]] constexpr vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
+{
+	vecN<N, T> r;
+	for (auto i : xrange(N)) r[i] = std::max(x[i], y[i]);
+	return r;
+}
+
+// min(vector.x, vector.y, ...)
 template<int N, typename T>
 [[nodiscard]] constexpr T min_component(const vecN<N, T>& x)
 {
@@ -499,12 +508,12 @@ template<int N, typename T>
 	return r;
 }
 
-// max(vector, vector)
+// max(vector.x, vector.y, ...)
 template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
+[[nodiscard]] constexpr T max_component(const vecN<N, T>& x)
 {
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = std::max(x[i], y[i]);
+	T r = x[0];
+	for (auto i : xrange(1, N)) r = std::max(r, x[i]);
 	return r;
 }
 
@@ -594,6 +603,22 @@ template<int N, typename T>
 {
 	vecN<N, int> r;
 	for (auto i : xrange(N)) r[i] = int(x[i]);
+	return r;
+}
+// Similar, but floor.
+template<int N, typename T>
+[[nodiscard]] inline vecN<N, int> floor(const vecN<N, T>& x)
+{
+	vecN<N, int> r;
+	for (auto i : xrange(N)) r[i] = int(std::floor(x[i]));
+	return r;
+}
+// Similar, but ceil.
+template<int N, typename T>
+[[nodiscard]] inline vecN<N, int> ceil(const vecN<N, T>& x)
+{
+	vecN<N, int> r;
+	for (auto i : xrange(N)) r[i] = int(std::ceil(x[i]));
 	return r;
 }
 

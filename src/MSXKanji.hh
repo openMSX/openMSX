@@ -26,6 +26,7 @@ private:
 	unsigned adr1, adr2;
 	const bool isLascom;
 	const byte highAddressMask;
+	const bool mirrorsIfOnlyLevel1Installed;
 };
 
 } // namespace openmsx

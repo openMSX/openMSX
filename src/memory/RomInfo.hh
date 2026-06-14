@@ -71,6 +71,7 @@ public:
 		return std::views::transform(getRomTypeInfo(), &RomTypeInfo::name);
 	}
 	[[nodiscard]] static const array_with_enum_index<RomType, RomInfo::RomTypeInfo>& getRomTypeInfo();
+	[[nodiscard]] static const std::array<RomType, size_t(RomType::NUM)>& getSortedRomTypes();
 
 private:
 	String32 title;

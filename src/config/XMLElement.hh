@@ -207,6 +207,7 @@ public:
 	[[nodiscard]] const XMLElement* getFirstChild() const { return firstChild; }
 	[[nodiscard]] XMLElement* getFirstChild() { return firstChild; }
 	[[nodiscard]] const XMLElement* findChild(std::string_view childName) const;
+	[[nodiscard]] const XMLElement* findChildWithAttribute(std::string_view childName, std::string_view attrName, std::string_view attrValue) const;
 	[[nodiscard]] XMLElement* findChild(std::string_view childName);
 	[[nodiscard]] XMLElement* findChild(std::string_view childName, XMLElement*& hint);
 	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;

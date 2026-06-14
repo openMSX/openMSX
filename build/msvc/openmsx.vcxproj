@@ -514,6 +514,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiOsdIcons.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPalette.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPlot.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPlotterViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiRasterViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.cc" />
@@ -617,6 +618,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNamco.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNational.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo8.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo16.cc" />
@@ -866,6 +868,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\PluggableFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PluggingController.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Printer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Paper.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Plotter.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\PlotterFont.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\PlotterPaper.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXCharacterSets.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortLogger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortSimpl.cc" />
@@ -1213,6 +1220,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomNamco.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNational.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNeo8.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNeo16.hh" />

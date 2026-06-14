@@ -20,6 +20,9 @@ namespace openmsx::PNG {
 
 	void saveRGBA(size_t width, std::span<const uint32_t*> rowPointers,
 	              const std::string& filename);
+	/** Save an RGB (24bpp) buffer as a PNG file. Each row is width*3 bytes. */
+	void saveRGB(size_t width, std::span<const uint8_t*> rowPointers,
+	       const std::string& filename);
 	void saveGrayscale(size_t width, std::span<const uint8_t*> rowPointers,
 	                   const std::string& filename);
 

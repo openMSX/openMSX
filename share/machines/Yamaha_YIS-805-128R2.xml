@@ -39,7 +39,8 @@
         <ROM id="Painter">
           <mem base="0x0000" size="0x10000"/>
           <rom>
-            <sha1>7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</sha1>
+            <sha1>41e056e33ee4f548f6af30257717bc40e3cf8238</sha1> <!-- SSR byte clear -->
+            <sha1>7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</sha1> <!-- SSR byte not clear -->
             <filename>yis805-128r2_painter.rom</filename>
           </rom>
         </ROM>
@@ -57,7 +58,6 @@
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>National</connectionstyle>
           <mem base="0x4000" size="0x8000"/>
-          <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>3a481c7b7e4f0406a55952bc5b9f8cf9d699376c</sha1>
             <filename>yis805-128r2_disk.rom</filename>
