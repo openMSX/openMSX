@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1781373734">
+<softwaredb timestamp="1781663453">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -418,7 +418,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Altered Beast" system="MSX" company="Sega" year="1988" country="JP">
     <rom sha1="1b4bbfad9f9651d863dcc0128c461fd98a127adf" type="KonamiSCC" status="Hack" remark="Disk Conversion" />
   </software>
-  <software title="alunizaje" system="MSX" company="Ignacio Jose Ferriz" year="1985" country="ES">
+  <software title="Alunizaje" system="MSX" company="Ignacio Jose Ferriz" year="1985" country="ES">
     <rom sha1="84b46499e72992401b88c20a9908cfe6b6b76fdd" type="Page2" status="Hack" />
   </software>
   <software title="Amadeus Classical Beats" system="MSX" company="Amaury Carvalho" year="2021" country="BR">
@@ -6108,6 +6108,7 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Mantis 1 &amp; 2" system="MSX" company="Raven" year="1989" country="ES">
     <rom sha1="ca3498700e95506e7926af8537df90e390a0290e" type="ASCII16" remark="Conversation by SXM Team &amp; FX" />
+    <rom sha1="1564c86a4410985232ed70d95af83a8be555e491" type="Mirrored" remark="Mantis 1 &amp; 2 - Raven (1989)(FX)" />
   </software>
   <software title="Mantis 2" system="MSX" company="Raven" year="1989" country="ES">
     <rom sha1="37a32a015420e7c43dd603eeeeca1adf66238a8e" type="ASCII16" remark="Conversation by SXM Team &amp; FX" />
@@ -9925,6 +9926,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="f34e1870a574c3d21addb153b3ee8395011e62f5" type="KonamiSCC" status="Author" remark="Needs FM-PAC or MSX-Audio" />
     <rom sha1="7f929f49a01a512ce3a0167787c1d24a367cf026" type="ASCII8" status="Author" remark="Needs FM-PAC or MSX-Audio" />
   </software>
+  <software title="Tech Demo - COLOR ZERO Cemitiere" system="MSX" company="Uillaume" year="2026" country="FR">
+    <rom sha1="7b48741c619359fba0abb636d62b75d64a1b1000" type="Mirrored" />
+  </software>
   <software title="Tech Demo - Cross" system="MSX" company="Fabrizio Caruso" year="2020" country="ES">
     <rom sha1="751318169568bfd3f89f79d8b1780426e03c52eb" type="Mirrored" status="Author" />
   </software>
@@ -13501,6 +13505,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="a5128e37fad7eaa50d0f30bdd126d3a5f0475282" type="Mirrored" />
     <rom sha1="df2d0a6ce5069b53f3de7a518d0c1cb948077948" type="KonamiSCC" status="Author" />
   </software>
+  <software title="Tech Demo - Saint Dragon Sprite Test" system="MSX2" company="Jon Cortazar" year="2026" country="ES">
+    <rom sha1="eaa3c01c70ab3ec2618278e995f90f44721445fe" type="Mirrored" />
+  </software>
   <software title="Tech Demo - Usas - A tale of Shiroki and Kuroki" system="MSX2" company="Team NXT" year="2023" country="NL">
     <rom sha1="55894e34b16d2ed5353316ac74b6d8b80c2ec63d" type="ASCII16" status="Author" remark="Prototype" />
   </software>
@@ -13972,6 +13979,10 @@ The Database is located at https://romdb.vampier.net/
   <software title="Tech Demo - Boing Ball" system="MSX2Plus" company="Edd Biddulph" year="2026" country="GB">
     <rom sha1="e6be6556223fe99cdb4dd0d87d480038d4822220" type="Mirrored" status="Author" />
   </software>
+  <software title="10 Years of ColecoVision Homebrew" system="ColecoVision" company="Daniel Bienvenu" year="2009" country="US">
+    <rom sha1="78b029b29e53d65afc62f64ae37622244c2c66e6" type="Page23" />
+    <rom sha1="196c35d2a8abc8d3fe2835ea21ac93c9dfe95c48" type="Page23" />
+  </software>
   <software title="1942" system="ColecoVision" company="TAITO" year="1987" country="JP">
     <rom sha1="c086ea4b0dbeae7e22eab370c9fe70953b0e86ad" type="ColecoMegaCart" />
   </software>
@@ -14000,6 +14011,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Adamcon 17 Demo" system="ColecoVision" company="Daniel Bienvenu" year="2005" country="US">
     <rom sha1="e9be2158352c6da610a0befb81aab2e8a5275597" type="Page23" status="GoodCol" />
   </software>
+  <software title="AdamCon Fifteen Promo" system="ColecoVision" company="Daniel Bienvenu" year="2003" country="US">
+    <rom sha1="a527ab2133b0501e8723352a3ccb7edfaa06bf48" type="Page23" />
+  </software>
   <software title="Adventure Of A Witch - The Flightful Night" system="ColecoVision" company="Kiwi" year="2015" country="US">
     <rom sha1="972638a188b4ab13633be02decd20f49a581373d" type="Page23" remark="WIP" />
   </software>
@@ -14011,6 +14025,9 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Air Battle V0.4" system="ColecoVision" company="Daniel Bienvenu" year="2000" country="US">
     <rom sha1="b3f191439440e9682183e703f9018f29fd1355f0" type="Page23" status="GoodCol" remark="(July 10)" />
+  </software>
+  <software title="Album Club CCJVQ Demo" system="ColecoVision" company="Daniel Bienvenu" year="2000" country="US">
+    <rom sha1="3d6f9258262cb86e745c25e69f6a1d133220602e" type="Page23" />
   </software>
   <software title="Alcazar - The Forgotten Fortress" system="ColecoVision" company="Telegames" year="1985" country="US" genmsxid="374">
     <rom sha1="c3a820e6a73ef42dc88982d835c60c36b4b9505f" type="Page23" />
@@ -14042,6 +14059,7 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="AntiISDA Warrior" system="ColecoVision" company="Ventzislav Tzvetkov" year="2004" country="BG">
     <rom sha1="43c9fada96ad7d5fc480432f862e0e677d0e3687" type="Page23" />
+    <rom sha1="43b38e74629055a354907909fd58abd90527034e" type="Page23" />
   </software>
   <software title="Aquattack" system="ColecoVision" company="Interphase" year="1984" country="JP" genmsxid="90">
     <rom sha1="4782f1d6225d9b6501a9ab1ab72f9e66f3ff66d8" type="Page23" status="GoodCol" />
@@ -14049,8 +14067,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="88f7ee626623be0c60ec0b27dad233a19c9db76e" type="Page23" status="Translated" remark="Russian by Cool-Spot" />
   </software>
   <software title="Arkanoid" system="ColecoVision" company="TAITO" year="1986" country="JP">
-    <rom sha1="1746622cce091265b0cc9098f4ae80460d8c0491" type="ColecoMegaCart" />
+    <rom sha1="1746622cce091265b0cc9098f4ae80460d8c0491" type="Page23" />
     <rom sha1="e9ca40536c1b8c8b486d96d45a9cb88c8ba4e13b" type="Page23" />
+    <rom sha1="61099bee2fd9474385a35e62b863053408d83666" type="Page23" status="Bad" />
   </software>
   <software title="Armageddon" system="ColecoVision" company="CollectorVision" year="2011" country="US">
     <rom sha1="344c967ec6004b9185c98eded30957aeefa283ee" type="Page23" />
@@ -14076,17 +14095,21 @@ The Database is located at https://romdb.vampier.net/
   <software title="Astrostorm" system="ColecoVision" company="AnalogKid" year="2021" country="US">
     <rom sha1="37ae2be33dbcf87d85a07958ca67635657695298" type="Page23" />
   </software>
+  <software title="Bacachase" system="ColecoVision" company="Paulo Silva" year="2016" country="EU">
+    <rom sha1="81796a16ca7236337d647f0ef0df89fc994057a7" type="Page23" />
+  </software>
   <software title="Bagman" system="ColecoVision" company="CollectorVision" year="2015" country="US">
     <rom sha1="359516da9459fb743a15f21febbb01c5230f0c6d" type="Page23" />
   </software>
   <software title="Bank Panic" system="ColecoVision" company="Sega" year="1985" country="JP">
     <rom sha1="0a24de36acf6d9f8261a31f5dea93eb1414b6e90" type="Page23" status="Verified" />
   </software>
-  <software title="Bankruptcy Builder" system="ColecoVision" company="Philipp Klaus Krause" year="2008" country="US">
+  <software title="Bankruptcy Builder" system="ColecoVision" company="Philipp Klaus Krause" year="2008" country="DE">
+    <rom sha1="a797b4b2a7df9562e32c902ab6a1f89b7ffee3c8" type="Page23" remark="2008-07-20" />
     <rom sha1="f3a8887709bb8dce98e62c381cfccfc801053362" type="Page23" remark="2008-05-15" />
     <rom sha1="9c74c597eac815b0bb16f58b584b916cd736964c" type="Page23" remark="2008-05-17" />
     <rom sha1="b749d24bad5afd41b864d57735039aea58c57e15" type="Page23" remark="2008-05-18" />
-    <rom sha1="a797b4b2a7df9562e32c902ab6a1f89b7ffee3c8" type="Page23" remark="2008-07-20" />
+    <rom sha1="7615a94354f25369ee6ab40d31c25626c656341e" type="Page23" remark="2008-05-18" />
   </software>
   <software title="Battle Of Hoth" system="ColecoVision" company="Jean-Philippe Meola" year="2013" country="FR">
     <rom sha1="e6c80b2de7a5a0a05c1a3289c6ad9498bc62e52c" type="Page23" />
@@ -14156,7 +14179,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="299033917ae7e0c4f9667b406644e6180dca1958" type="Page23" />
   </software>
   <software title="Bosconian" system="ColecoVision" company="Opcode" year="2016" country="BR">
-    <rom sha1="e818bfb31fa5770793956106b32a184ecea6b234" type="ColecoMegaCart" />
+    <rom sha1="e818bfb31fa5770793956106b32a184ecea6b234" type="Page23" />
   </software>
   <software title="Boulder Dash" system="ColecoVision" company="Telegames" year="1985" country="US" genmsxid="2697">
     <rom sha1="bad7a976f37df875f4fa9646e5426c45344ec102" type="Page23" />
@@ -14165,6 +14188,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="0d10fd3589a87a941d174aa8ce885335aa87a2d6" type="Page23" status="Hack" remark="Trained 50 lived" />
     <rom sha1="c05b08e13f614c196725b0324112872fedd06e17" type="Page23" status="Translated" remark="Spanish" />
     <rom sha1="f0c4e604a5e82ebdd20253c3fa5b3619b51c3ce4" type="Page23" status="Translated" remark="Brasislian by Patryck" />
+  </software>
+  <software title="Boxgame 0.1" system="ColecoVision" company="" year="2013">
+    <rom sha1="a3af9c9fc114159a6ed45f1765a8fb53feeaa5bd" type="Page23" remark="WIP" />
   </software>
   <software title="Boxxle" system="ColecoVision" company="Team Pixelboy" year="2015" country="US">
     <rom sha1="98dc774cb4e954a026a298d2cb91d662f0f484cd" type="Page23" />
@@ -14234,6 +14260,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="57b4b045797b1f18ce22759d2ed1acc36a2e2207" type="Page23" status="GoodCol" remark="Prototype" />
     <rom sha1="8ed72bcbeb4858ef8aa3c219234f1865622c1f01" type="Page23" status="GoodCol" />
     <rom sha1="bf3c5726ce6dea23447b958a6126dd2de0b48202" type="Page23" status="Translated" remark="Spanish" />
+    <rom sha1="947316b4295d6af623f45a3fa7d162807e9dec62" type="Page23" status="Hack" remark="Super Cabbage Patch Kids - Adam-Prototype" />
   </software>
   <software title="Cabbage Patch Kids Picture Show" system="ColecoVision" company="Coleco" year="1984" country="US">
     <rom sha1="e083b81f7a5d47571214eac56b352e5a8a2b08b5" type="Page23" status="GoodCol" />
@@ -14248,7 +14275,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="c9ced69ec7df07cf56d9cfe5c0d160e47640e59a" type="Page23" />
   </software>
   <software title="Caos Begins" system="ColecoVision" company="Team Pixelboy" year="2016" country="US">
-    <rom sha1="57edfe7db9edbfcd5fbbac6cea017e536bac417f" type="ColecoMegaCart" />
+    <rom sha1="57edfe7db9edbfcd5fbbac6cea017e536bac417f" type="Page23" />
   </software>
   <software title="Car Fighter" system="ColecoVision" company="Casio" year="1985" country="JP">
     <rom sha1="489b4da5926dda497035fce5fb8dc07d6cc5871d" type="Page23" />
@@ -14275,16 +14302,22 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="a6e6d0e13ad51aa0e6c9de9feb30e04f3e6eea3d" type="Page23" />
   </software>
   <software title="Caverns of Titan" system="ColecoVision" company="José Luis Tur" year="2005" country="ES" genmsxid="3692">
-    <rom sha1="fb191968b0a8d106d378826ebc700905cc6eb9e0" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="fb191968b0a8d106d378826ebc700905cc6eb9e0" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Cavit" system="ColecoVision" company="Inufuto" year="2022" country="JP">
     <rom sha1="e9822ee24c72c24418288f15096a6e160e8a1a80" type="Page23" />
+  </software>
+  <software title="CCJVQ PhillyClassic 4 Beta-Demo" system="ColecoVision" company="Daniel Bienvenu" year="2003" country="US">
+    <rom sha1="7d5d22d1c079e33157275d9cb09975aa6de16570" type="Page23" />
+    <rom sha1="8ac1482a5bc2c35bdfd961ba74a856c41bc70815" type="Page23" remark="C.C.J.V.A." />
+    <rom sha1="701153c8c8ee169d5888046cc7e259c8ad2a0030" type="Page23" remark="2003-03-27 Final" />
   </software>
   <software title="Centipede" system="ColecoVision" company="Atarisoft" year="1983" country="US">
     <rom sha1="d89c49bbbf002e075c5964ca74d7c94a502740ff" type="Page23" status="GoodCol" />
     <rom sha1="397f3551030aa70453c4a0795c9e9f1ede732efc" type="Page23" />
     <rom sha1="c82f99ae847290171f1682fd3b00fd38b3bf1a10" type="Page23" status="Translated" remark="Spanish" />
     <rom sha1="3dfe81167dee07159e5a101979e997fe244017e8" type="Page23" status="Translated" remark="Brasilian by Patryck 2016" />
+    <rom sha1="244cc39a3af2a97a4dc624e82e32c9904c7683f6" type="Page23" remark="note: Vectopede (2006) (Sly DC)" />
   </software>
   <software title="Chack&apos;n Pop" system="ColecoVision" company="TAITO" year="2011" country="JP">
     <rom sha1="8448feff0a21037eb22dd968ab57d3312b153de0" type="Page23" />
@@ -14297,6 +14330,7 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Chateau du Dragon, Le" system="ColecoVision" company="Daniel Bienvenu" year="2001" country="US">
     <rom sha1="0029fe15165165e95db2a5702cb162c770170637" type="Page23" status="GoodCol" />
+    <rom sha1="2bed90086f769a656567bc2c117692b5fea437cc" type="Page23" />
   </software>
   <software title="Chess Challenger" system="ColecoVision" company="CollectorVision" year="2011" country="US">
     <rom sha1="e0d25815ebfda14b2dbd27f08f364bcc702bb2c9" type="Page23" status="Author" />
@@ -14329,7 +14363,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="b9eebd5984f543a714ab5845e10052f5b94d635c" type="Page23" />
   </software>
   <software title="Cold Blood" system="ColecoVision" company="Paxanga Soft" year="2010" country="ES" genmsxid="4246">
-    <rom sha1="3449c1aabdcfc64fe672f393be017f7c6faafc04" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="3449c1aabdcfc64fe672f393be017f7c6faafc04" type="Page23" status="Author" remark="Published by team Pixelboy" />
+  </software>
+  <software title="Coleco Telstar Gemini Demo" system="ColecoVision" company="">
+    <rom sha1="a37be03f535a324d5d6ed18220d2be91499dafa4" type="Page23" />
   </software>
   <software title="ColecoVision BIOS" system="ColecoVision" company="Coleco" year="1982" country="US">
     <rom sha1="99ba9be24ada3e86e5c17aeecb7a2d68c5edfe59" type="Page23" status="Hack" remark="Different Font Hack" />
@@ -14373,7 +14410,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="6cf13b4080c84938b90445ac854a31de10e65150" type="Page23" remark="(V008)" />
     <rom sha1="650862676d8d03500ff6629914aea7a02a3fe513" type="Page23" remark="(V014)" />
   </software>
-  <software title="Colored Gravity Demo" system="ColecoVision" company="Philipp Klaus Krause" year="2008" country="US">
+  <software title="Colored Gravity Demo" system="ColecoVision" company="Philipp Klaus Krause" year="2008" country="DE">
     <rom sha1="11063680e503fef9fc251475ae3ec5e633611ff3" type="Page23" />
     <rom sha1="b59a00a0cd449cffd4912175e182ca4bdfe44f52" type="Page23" />
     <rom sha1="cc976a53f55c9081dd1934c9e0442f1b6f1962fd" type="Page23" />
@@ -14399,6 +14436,10 @@ The Database is located at https://romdb.vampier.net/
   <software title="Console Diagnostic" system="ColecoVision" company="AtariMax" year="2007" country="US">
     <rom sha1="cbc6c65b15bf61ae3de44915b1663efc32e93086" type="Page23" />
   </software>
+  <software title="Controller demo for ColecoVision" system="ColecoVision" company="Darrel Spice Jr" year="2012" country="US">
+    <rom sha1="0f2f14653438521350b0bca874f42cb6d084fe3a" type="Page23" remark="21-02-2012" />
+    <rom sha1="e4de4c9f5593adb03a6c2a7fde828bc2bea0cd71" type="Page23" remark="19-02-2012" />
+  </software>
   <software title="Conway&apos;s Game of Life" system="ColecoVision" company="Dale Wick" year="2007" country="US">
     <rom sha1="77199ff553eec9cd4600b0b0100186b5fc1ce38b" type="Page23" />
   </software>
@@ -14411,10 +14452,12 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="081a40414021a51b3219e8957e948163680a9ada" type="Page23" status="GoodCol" remark="EU" />
     <rom sha1="ea9b79ac1b51f4337c2e2e24ad0d765d25e73fde" type="Page23" status="GoodCol" />
     <rom sha1="0475f1eef685579aad2e2e807f8f44f0d49a68a4" type="Page23" status="GoodCol" />
+    <rom sha1="84eb331e39ae305c8ea5648f15cbbe22fd2f2cd7" type="Page23" status="Overdump" />
   </software>
   <software title="Cosmo Challenge" system="ColecoVision" company="Marcel de Kogel" year="1997" country="US">
     <rom sha1="d9adaae3ff8dce384c00790999f2fd1f9b29213e" type="Page23" status="GoodCol" />
     <rom sha1="91d986581b0928483f81186aa878441a53f63157" type="Page23" status="GoodCol" remark="Trainer Menu" />
+    <rom sha1="d62eb6df4de6ba35116645c91aed52e150baa5ce" type="Page23" />
   </software>
   <software title="Cosmo Fighter 2" system="ColecoVision" company="Marcel de Kogel" year="1996" country="US">
     <rom sha1="e9f07b63332ea11b03abcee70536a05db93c5942" type="Page23" status="GoodCol" />
@@ -14435,7 +14478,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="CVDrum Demo" system="ColecoVision" company="E-Mancanics" year="2003" country="US">
     <rom sha1="15681e3b1d63b9d1af5c324334ff702c04ba649a" type="Page23" status="GoodCol" />
   </software>
-  <software title="Cye" system="ColecoVision" company="Philipp Klaus Krause" year="2007" country="US">
+  <software title="Cye" system="ColecoVision" company="Philipp Klaus Krause" year="2007" country="DE">
     <rom sha1="22bdea2e5eca03d5fb733be7f18f5c6730b0ac4e" type="Page23" remark="Demo" />
     <rom sha1="6e5f11826910a60e447b450e7f83c0775afd9d1e" type="Page23" remark="Beta" />
     <rom sha1="8cf4c5b717fc9f808edfe9cb1a5021acb0e987b1" type="Page23" remark="Final Demo" />
@@ -14465,16 +14508,22 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="631a9ea999d6bef4db68502274d499fa44e4cec4" type="Page23" status="GoodCol" />
   </software>
   <software title="Danger Tower" system="ColecoVision" company="Danger Team" year="2009" country="NL" genmsxid="3765">
-    <rom sha1="94c367f6209a97528dc91f68dc9f4af4925cd997" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="94c367f6209a97528dc91f68dc9f4af4925cd997" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Daniel&apos;s Turbo" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
     <rom sha1="44428c1cd547f197f518cb63a134616869d692a5" type="Page23" />
+  </software>
+  <software title="Dantructor" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="2dd34cbbf8a295e32e44f7bef125550442e72316" type="Page23" remark="Destructor Hack" />
   </software>
   <software title="Data Drive Burn - In DDP Test" system="ColecoVision" company="Coleco" country="US">
     <rom sha1="17cf4168f1f82204bd23e160c7451ff5dc69aa06" type="Page23" />
   </software>
   <software title="Dead Tomb." system="ColecoVision" company="CollectorVision" year="2020" country="US">
     <rom sha1="b5722d9a385dbb42efcb2e31f5af1daf7b43c312" type="ColecoMegaCart" remark="Phoenix hardware needed" />
+  </software>
+  <software title="Death Dearby" system="ColecoVision" company="David Widel" year="2003" country="US">
+    <rom sha1="4dd0bd52cbcb1e34e92e7b84e022455da422a5fb" type="Page23" />
   </software>
   <software title="Death Race" system="ColecoVision" company="PD" country="US">
     <rom sha1="9f97a9594b39fdc32e530c18ba14f75852efc61e" type="Page23" status="GoodCol" />
@@ -14571,6 +14620,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="a77f1b686f203d638ff110dd99ad68e0ced47ff0" type="Page23" />
     <rom sha1="1357e8abcd65dd4c3c4b7181d02b204fdb03304e" type="Page23" remark="Demo" />
   </software>
+  <software title="Dracula (Unreleased) (2011.01.07 00.43)" system="ColecoVision" company="Dale Wick" year="2011" country="US">
+    <rom sha1="014f3fe74b316f631a4e84eccdccfde577cf2742" type="Page23" remark="Unreleased Prototype - 2011.01.07 00.43" />
+  </software>
   <software title="Dragon&apos;s Lair" system="ColecoVision" company="Coleco" year="1984" country="US">
     <rom sha1="e74f80fef5276ee6d58b2ed6ee8ebeec668db324" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
     <rom sha1="e398ec4a225e470afde625945abed8fb264453a1" type="Page23" remark="Prototype" />
@@ -14587,9 +14639,20 @@ The Database is located at https://romdb.vampier.net/
   <software title="Dungeon and Trolls" system="ColecoVision" company="CollectorVision" year="2014" country="US">
     <rom sha1="8f2ad6a7abe91ae98304c4cad1ea5295ad31d1ab" type="Page23" />
   </software>
+  <software title="Dvik&apos;s Music Box" system="ColecoVision" company="Dvik" country="US">
+    <rom sha1="0e33b9aaf85164eb01bb08a2402a851296ef2c54" type="Page23" remark="Sabrina&apos;s Boys 16kHz" />
+    <rom sha1="d473d45419782214de21862429e1851544eb8778" type="Page23" remark="Alice in Chain&apos;s California 7.5kHz" />
+  </software>
   <software title="Earth Defend 2083" system="ColecoVision" company="CollectorVision" year="2013" country="US">
     <rom sha1="477c823242d8cc8d2199142f6f9349ce235e4da2" type="Page23" />
     <rom sha1="8d23f2eefd418519e40d07da696e49eef9e29ef8" type="Page23" />
+  </software>
+  <software title="Earth from space" system="ColecoVision" company="Daniel Bienvenu" year="2009" country="US">
+    <rom sha1="61eb1a02f6f0b5850c20e505fe48cb13d0d45394" type="Page23" remark="Colorfull Bitmap" />
+    <rom sha1="4bcc8571929515bbd95183f547faed96de6d58d4" type="Page23" remark="Colorfull Bitmap" />
+  </software>
+  <software title="Easter Bunny" system="ColecoVision" company="Daniel Bienvenu" year="2007" country="US">
+    <rom sha1="25e54650eb4590d4b7824d5e39edfebe6b1172f5" type="Page23" remark="old version" />
   </software>
   <software title="Eggerland Mystery" system="ColecoVision" company="HAL Laboratory" year="1985" country="JP">
     <rom sha1="e1c687e8bc9fa8735ea7c51fd439ff26272fe111" type="ColecoMegaCart" />
@@ -14626,6 +14689,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Fall Guy, The" system="ColecoVision" company="20th Century Fox" year="1983" country="US">
     <rom sha1="0e5c84d8fb8a9428aed399f4a9f9309b26bce990" type="Page23" status="GoodCol" remark="Prototype" />
     <rom sha1="4158a3296dcd876b1ea5b1dd8b236a8b6f2f5304" type="Page23" status="GoodCol" remark="Prototype" />
+    <rom sha1="68158824f0fe09d9588814d6db77f6e87369a16e" type="Page23" status="Overdump" remark="Prototype" />
   </software>
   <software title="Fathom" system="ColecoVision" company="Imagic" year="1983" country="JP" genmsxid="571">
     <rom sha1="145d1758347306e36a8039671a1088841bccaad5" type="Page23" />
@@ -14648,6 +14712,7 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Flipper" system="ColecoVision" company="Sega" year="1983" country="JP">
     <rom sha1="4a6d106f0fe36ed9dbe7823f1c9044e17aeea181" type="Page23" />
+    <rom sha1="cf729e5563406a409600dfd82aef708b320da1e0" type="Page23" status="Bad" />
   </software>
   <software title="Flipper Slipper" system="ColecoVision" company="Spectravideo" year="1983" country="GB" genmsxid="297">
     <rom sha1="e78e370fc7b3138010606f2eb9db1ea40fc37c5c" type="Page23" />
@@ -14657,6 +14722,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Flora And The Ghost Mirror" system="ColecoVision" company="Daniel Bienvenu" year="2012" country="US">
     <rom sha1="845f23b15763f92a4dfca95189bae691eb1c2d16" type="Page23" />
     <rom sha1="b593e309ac9b4d9df4a873b5b4ddaeb96720bf7a" type="Page23" />
+    <rom sha1="e5a38f20349ef68756cedaf68adad7d64118c49a" type="Page23" remark="Demo 2012-11-30" />
   </software>
   <software title="Food Fight" system="ColecoVision" company="Kiwi" year="2023" country="US">
     <rom sha1="8f6f77f2d80b45fb99a59f23bf9d29dd03d48638" type="Page23" />
@@ -14719,7 +14785,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="92ed60d081e192053823b62b90a647279b241dd5" type="Page23" />
   </software>
   <software title="Galaga" system="ColecoVision" company="NAMCO" year="2014" country="JP">
-    <rom sha1="b5365ada274896d8934d9d4fe10bf48621f1e5da" type="ColecoMegaCart" />
+    <rom sha1="b5365ada274896d8934d9d4fe10bf48621f1e5da" type="Page23" />
     <rom sha1="d47a1d38b57a46a5512607760a933f83c4e140b9" type="Page23" />
   </software>
   <software title="Galaxian" system="ColecoVision" company="Atarisoft" year="1983" country="US" genmsxid="142">
@@ -14740,6 +14806,11 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="33731751df3cefe7c9ad1f9ba2d4fc6b638fd356" type="Page23" status="GoodCol" remark="(May 20) - Demo 1" />
     <rom sha1="6b38dd9bc21a34ad0edc9e7f47e6168835d2a2bd" type="Page23" status="GoodCol" remark="Demo 2" />
     <rom sha1="e9ce28fd2370d1b6660d5e13682af8fff24f1667" type="Page23" status="GoodCol" remark="(Jun 18) VIC-20 Demo" />
+    <rom sha1="8d6117b260bcfe24b5d93c7901258c1a4137b5b1" type="Page23" />
+  </software>
+  <software title="GamePack II" system="ColecoVision" company="Daniel Bienvenu" year="2002" country="US">
+    <rom sha1="b99da300bf26c35e53b62c350b3baec62b371a5c" type="Page23" />
+    <rom sha1="e2e27db42bdf67a56f3b8547ff533bcfbf67f228" type="Page23" />
   </software>
   <software title="Gamester 81" system="ColecoVision" company="Jean-Philippe Meola" year="2017" country="FR">
     <rom sha1="4146923aed04f1bf575243c2030a673d3e37a463" type="Page23" />
@@ -14815,6 +14886,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Grail Of The Gods" system="ColecoVision" company="Kiwi" year="2026" country="US">
     <rom sha1="fbe56c453794e5dbe7713594111c3e1d32e6cb06" type="Page23" />
   </software>
+  <software title="Gran Tourista 5" system="ColecoVision" company="Jean-Philippe Meola" year="2010" country="FR">
+    <rom sha1="3b88bdc790c41032b93d3f77a4074dea8e032b55" type="Page23" remark="April Fools Joke" />
+  </software>
   <software title="Gulkave" system="ColecoVision" company="Sega" year="2010" country="JP">
     <rom sha1="6339135828d4ce4b1d5bda4afa795bfe81283584" type="Page23" />
   </software>
@@ -14838,6 +14912,9 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="H.E.R.O." system="ColecoVision" company="Activision" year="1984" country="US" genmsxid="282">
     <rom sha1="1febd0de031402c2d2dc88f0c60d18c35feee6f3" type="Page23" status="GoodCol" />
+  </software>
+  <software title="Halloween Card Rom" system="ColecoVision" company="Jean-Philippe Meola" year="2011" country="FR">
+    <rom sha1="a5ec5bcbbb6d47cb7053e6a9a7fc7d5a441a3b82" type="Page23" remark="\" />
   </software>
   <software title="Hang" system="ColecoVision" company="Sega" year="2016" country="JP">
     <rom sha1="d7735f1da86421cc92c8339515a7f192c9ddef22" type="Page23" />
@@ -14863,7 +14940,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="11f56bac3f01d4e1238639549a7035ccdda28f89" type="Page23" />
   </software>
   <software title="Heroes Arena" system="ColecoVision" company="Imanok" year="2011" country="ES" genmsxid="3831">
-    <rom sha1="46c31708300e4a431cc6732d2963c798aba4d7d9" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="46c31708300e4a431cc6732d2963c798aba4d7d9" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Hole in One" system="ColecoVision" company="Crazy Boss" year="2017" country="NL">
     <rom sha1="e8d46ef058782d83b886e82f64a28c7d66cf1434" type="Page23" />
@@ -14876,6 +14953,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="3c69bd148a08e06cb7de5e3285ab2c7dc78a8d27" type="Page23" remark="Rev03 (2011.05.29 21.59)" />
     <rom sha1="b1d6e853e996325ead53f3042f0ff770cf4a4df1" type="Page23" remark="Rev04 (2011.06.02 13.52)" />
     <rom sha1="84de8cda9ddc42f9d8c2de47da87dbebfa71d983" type="Page23" remark="Rev05 (2011.06.03 21.50)" />
+  </software>
+  <software title="Horse Racing Isometric Rev01 (2011.06.10 15.51)" system="ColecoVision" company="">
+    <rom sha1="52f63947765c56b85176633c7a3fe37e6385bd46" type="Page23" remark="Rev01 (2011.06.10 15.51)" />
   </software>
   <software title="Hustle" system="ColecoVision" company="Bruce Tomlin" year="2006" country="US">
     <rom sha1="a54f53738a120b3edd430005bd6a9b54e935a983" type="Page23" />
@@ -14908,7 +14988,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="781c5eff520418fc9f284314be082c143427cb16" type="Page23" status="GoodCol" />
   </software>
   <software title="J.E.T.P.A.C" system="ColecoVision" company="Imanok" year="2011" country="ES" genmsxid="3746">
-    <rom sha1="d8c091c33d63465d3b24ea77dff5e91d880f9d49" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="d8c091c33d63465d3b24ea77dff5e91d880f9d49" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Jack B. Quick" system="ColecoVision" company="Mark2008" year="2008" country="GB">
     <rom sha1="7a179f52a58b3f7d9f36183d0e9cf7c0e53d0566" type="Page23" />
@@ -14934,6 +15014,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Jester" system="ColecoVision" company="CollectorVision" year="2023" country="US">
     <rom sha1="e71953100de29068bec99cd5a828e3b4e8cd008e" type="Page23" remark="Needs SGM and F18A" />
   </software>
+  <software title="Jet Pack!" system="ColecoVision" company="Harvey deKleine" year="2014" country="US">
+    <rom sha1="6b29ede3b65a3b70ecb8f4d8dbea4a09c04ac3ec" type="Page23" remark="Jet Pack!" />
+  </software>
   <software title="Jet Ready" system="ColecoVision" company="Maltanto" year="2019" country="ES">
     <rom sha1="d40ef6033972d94930bccae2ecf34ef0161815a1" type="Page23" />
   </software>
@@ -14957,12 +15040,16 @@ The Database is located at https://romdb.vampier.net/
   <software title="Jukebox" system="ColecoVision" company="Spinnaker" year="1984" country="US">
     <rom sha1="16f08d667334332a69cc09762dea5bb2a06ac82b" type="Page23" status="GoodCol" />
   </software>
+  <software title="Jump Gunnar Jump" system="ColecoVision" company="Dale Wick" year="2009" country="US">
+    <rom sha1="1dd8b3a2cde2159b00f4c93a813aa0400d392d1b" type="Page23" />
+    <rom sha1="128cd0940a207502d44cd882fb2687961ee3d602" type="Page23" />
+  </software>
   <software title="Jump or Die" system="ColecoVision" company="Daniel Bienvenu" year="2006" country="US">
     <rom sha1="7fcaef64fa7fc142a358ce34bfbe04d29085d11b" type="Page23" status="GoodCol" remark="(Compo Version)" />
     <rom sha1="aabca82c56bfb2c0587022ea87402fde75a42da9" type="Page23" status="GoodCol" remark="(Post Compo Version)" />
   </software>
   <software title="Jumpland" system="ColecoVision" company="Nippon Columbia" year="2016" country="JP">
-    <rom sha1="9a8cb268a4a19d27794a19009349586423e47cee" type="ColecoMegaCart" />
+    <rom sha1="9a8cb268a4a19d27794a19009349586423e47cee" type="Page23" />
   </software>
   <software title="Jumpman Junior" system="ColecoVision" company="Epyx" year="1984" country="GB">
     <rom sha1="b79d4312e2d5fc30e37ee46916dc31908c84590e" type="Page23" status="GoodCol" />
@@ -14978,7 +15065,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="6a22a6052b256de2d733bc8630b4bfb01856c89d" type="Page23" />
   </software>
   <software title="Juno First" system="ColecoVision" company="Konami" year="2017" country="JP">
-    <rom sha1="6206e912f231aea46306c4427fc1cd5383ec72d4" type="ColecoMegaCart" />
+    <rom sha1="6206e912f231aea46306c4427fc1cd5383ec72d4" type="Page23" />
   </software>
   <software title="Kaboom" system="ColecoVision" company="Activision" year="1981" country="US">
     <rom sha1="d58688758f18552e23f5ff44741a2f8422482b41" type="Page23" />
@@ -15007,10 +15094,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="40324590797f32915021cfd0d6eb4112020939bf" type="Page23" status="GoodCol" />
   </software>
   <software title="King &amp; Balloon" system="ColecoVision" company="Team Pixelboy" year="2018" country="US">
-    <rom sha1="38a2c30a2e85daf9a8ee32036f010fcb943b2485" type="ColecoMegaCart" />
+    <rom sha1="38a2c30a2e85daf9a8ee32036f010fcb943b2485" type="Page23" />
   </software>
   <software title="King&apos;s Valley 1" system="ColecoVision" company="Konami" year="1985" country="JP">
-    <rom sha1="70e267f45de3a91fd867d0bc17d8259018515648" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="70e267f45de3a91fd867d0bc17d8259018515648" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Klondike Solitaire" system="ColecoVision" company="Under4Mhz" year="2021" country="AU">
     <rom sha1="f753ea5a69551b1854d81e75f068707328ee1a7c" type="Page23" />
@@ -15069,7 +15156,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="bf89ff961056e0d3614746e8ff371c8298a80bc7" type="Page23" />
   </software>
   <software title="Loco-Motion" system="ColecoVision" company="CollectorVision" year="2017" country="US">
-    <rom sha1="a23032064cb9a75ce769957253ebb1a48e4fcfd9" type="ColecoMegaCart" />
+    <rom sha1="a23032064cb9a75ce769957253ebb1a48e4fcfd9" type="Page23" />
   </software>
   <software title="Lode Runner" system="ColecoVision" company="Broderbund" year="2013" country="US">
     <rom sha1="fc954f67bb92c93c42afadb066beaf6fb61e68b8" type="Page23" />
@@ -15078,14 +15165,18 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="77c46391de8073f6af9754f2b4eba150f258b182" type="Page23" status="GoodCol" />
     <rom sha1="c5a4d39c1aa5a643daabc9a163f366f9ba5afef2" type="Page23" status="GoodCol" />
   </software>
-  <software title="Looping" system="ColecoVision" company="Coleco" year="1983" country="US">
+  <software title="Looping" system="ColecoVision" company="CBS Electronics" year="1983" country="US">
     <rom sha1="83ee624c22dd42650bcd585b9cc8cc87da6811d5" type="Page23" status="GoodCol" />
     <rom sha1="c4d1ff3843bf1fe884703b7ee81409b51bf9493a" type="Page23" status="GoodCol" />
     <rom sha1="2fd84b089e04c4f9929154498b0d5fd4e330b1d8" type="Page23" />
+    <rom sha1="bc6507c8744c5256b16058e4d8f7bd5e6db834d4" type="Page23" remark="Cart # 4L2328 - Box # 74-269A" />
   </software>
   <software title="Lord Of The Dungeon" system="ColecoVision" company="NAP" year="1983" country="US">
     <rom sha1="681fa9f5c4130f65616c11ad7c598b667a3177f4" type="Page23" remark="Prototype" />
     <rom sha1="29dcf49c4d93be4029968f3bdd2e3fda921ffde1" type="Page23" />
+    <rom sha1="699c60ef8b095006d5faa92093a008f5294729a9" type="Page23" />
+    <rom sha1="d3dcf2d2ae391878b4ceb9630d7891110a8dc831" type="Page23" />
+    <rom sha1="7e6e1ab227f5a6e1bb0c96d4b6adba187225b167" type="Page23" />
   </software>
   <software title="Lunar Ball" system="ColecoVision" company="Compile" year="1985" country="JP">
     <rom sha1="495cbd8de4c6b9129c602038d59cbb9c45ea1c16" type="Page23" />
@@ -15104,14 +15195,19 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="d1dc508d78e3d213dec7199ea305090a05339a3f" type="Page23" />
   </software>
   <software title="Majikazo!" system="ColecoVision" company="Team Pixelboy" year="2016" country="US">
-    <rom sha1="40289c243bcc1dae964517ea49d352c1959dde4c" type="ColecoMegaCart" />
+    <rom sha1="40289c243bcc1dae964517ea49d352c1959dde4c" type="Page23" />
+    <rom sha1="09400328f91070e8bc3d45bd67c0b235c6e16da7" type="Page23" remark="Promo" />
   </software>
   <software title="Mappy" system="ColecoVision" company="Team Pixelboy" year="2016" country="US">
-    <rom sha1="4260926bb7a6c76158a7680cd2b678cf806811f9" type="ColecoMegaCart" />
+    <rom sha1="4260926bb7a6c76158a7680cd2b678cf806811f9" type="Page23" />
   </software>
   <software title="Mario Bros" system="ColecoVision" company="Nintendo" year="2009" country="JP">
     <rom sha1="8c27cf5a3b54b4cb8e843b9c85af40dcfd31076b" type="ColecoMegaCart" />
     <rom sha1="cf36ea335ad730049a099a90d4e1876f417dc120" type="Page23" status="Bad" />
+    <rom sha1="3fc847db3fd4dfe46f1d4d7d06a165250d25bb57" type="Page23" remark="Early version - intro screen only" />
+  </software>
+  <software title="Mario DC Demo" system="ColecoVision" company="Daniel Bienvenu" year="2000" country="US">
+    <rom sha1="48f6156731acb5544ed63ba8b50ca6a77c4a666c" type="Page23" />
   </software>
   <software title="Masters Of The Universe" system="ColecoVision" company="Mattel" year="1983" country="US">
     <rom sha1="d5ea5aa25fa074dce0a4f871e0f9f45887938c54" type="Page23" />
@@ -15154,6 +15250,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="06f3fd038fa903597bec67cdc5c9ab9572c9c799" type="Page23" status="GoodCol" />
     <rom sha1="b5bd18379236c40b2341c9550b45e3295a8fc990" type="Page23" status="GoodCol" />
     <rom sha1="c1abf277d2b5a7f42c2264a848b54547571edad6" type="Page23" status="GoodCol" />
+    <rom sha1="bd3b06ecd97467fdd29f0dc77d89a4b841808249" type="Page23" />
   </software>
   <software title="Memotech MTX Series Games Collection Vol.1" system="ColecoVision" company="Claus Bækkel" year="2013" country="DK">
     <rom sha1="6ab484f0cb022ae6b93e516d102ad6cbe63b11bd" type="Page23" />
@@ -15174,10 +15271,11 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Miner 2049er" system="ColecoVision" company="Micro Fun" year="1983" country="US">
     <rom sha1="b29cd441e9edebc37abc08c3fd932f1d4185bacd" type="Page23" status="GoodCol" />
-    <rom sha1="591a08c17bbd716e13770e3b14e57a0c21229fc4" type="Page23" remark="Alternate ROM Dump" />
+    <rom sha1="591a08c17bbd716e13770e3b14e57a0c21229fc4" type="Page23" />
     <rom sha1="f1bbbc8025a744c46e4f3e242f8904d2bc57f175" type="Page23" status="GoodCol" />
     <rom sha1="b999c22c320c6f3915eca73eada4928e951be62f" type="Page23" status="GoodCol" />
     <rom sha1="f4882ebf4f8a445381b89e8c4680419b8ec8b6b3" type="Page23" status="GoodCol" />
+    <rom sha1="bccc2192580d42de093b63aee6050db90372401b" type="Page23" />
   </software>
   <software title="Minesweeper" system="ColecoVision" company="Under4Mhz" year="2021" country="AU">
     <rom sha1="f8eb14dd0916042028907477997ab9ee44655208" type="Page23" />
@@ -15202,7 +15300,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="099280f3e4fbc37afe5987116ea8cc46bd916fcf" type="Page23" status="GoodCol" />
   </software>
   <software title="Monster House (Youkai Yashiki)" system="ColecoVision" company="Casio" year="2017" country="JP">
-    <rom sha1="75f177d95c0c6adb2d1d81c6020dfdbcfb6cf090" type="ColecoMegaCart" />
+    <rom sha1="75f177d95c0c6adb2d1d81c6020dfdbcfb6cf090" type="Page23" />
+  </software>
+  <software title="Monster Masher" system="ColecoVision" company="Philipp Klaus Krause" year="2005" country="DE">
+    <rom sha1="a1f292eccc802dc515762a64e85bea620ab98ce5" type="Page23" />
   </software>
   <software title="Montezuma&apos;s Revenge" system="ColecoVision" company="Parker Brothers" year="1984" country="US" genmsxid="4146">
     <rom sha1="44862334e171bccd80d41a2afbc5d7af46d68d07" type="Page23" status="GoodCol" />
@@ -15215,6 +15316,17 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="dada6846654d8d9b025e3e3d51841ba6d78ea139" type="Page23" remark="Prototype" />
     <rom sha1="a739855468693a1f107e377d171815e2be9f8896" type="Page23" />
     <rom sha1="a0bcdc726369b97044a07590fac097f29d062f69" type="Page23" />
+    <rom sha1="7ef012adf90da02609c0a6d7883d8c99dada3742" type="Page23" remark="Tilt Cyan KevinMos3 hack" />
+    <rom sha1="78fed0d0561d1cd5d4179f06c4fca25605748468" type="Page23" remark="KevinMos3 hack" />
+    <rom sha1="0667eae39601a36bcad186f4bd3f9027735bd5e0" type="Page23" remark="KevinMos3 hack" />
+    <rom sha1="053f72013bf08b7b94c6461f5fd6f78a370fc745" type="Page23" remark="Tilt KevinMos3 Hack" />
+    <rom sha1="a1ad7bb4c8c399f25b2444abc51fe20e1e881619" type="Page23" remark="Reversed graphics hack by newcoleco 2009" />
+    <rom sha1="7641d566236991438dd22e1b4a8f1c6906e758ed" type="Page23" remark="krananka Final WIP" />
+  </software>
+  <software title="Moon Patrol (3 Pack)" system="ColecoVision" company="Atarisoft" year="2013" country="US">
+    <rom sha1="4222a6eca4777bfbd7e61b4cdc30ec5d00560117" type="Page23" />
+    <rom sha1="4bf6a137a438339c239b5db775d615487886fd9a" type="Page23" remark="Tilt" />
+    <rom sha1="6b266c94b0099547c19cf3f90c61eaba21c2b3c1" type="Page23" remark="Blue WiP" />
   </software>
   <software title="Moonsweeper" system="ColecoVision" company="Imagic" year="1983" country="JP" genmsxid="386">
     <rom sha1="eeccf73225e03ce10f6f6a02a808dc04f5bb0242" type="Page23" status="GoodCol" />
@@ -15238,6 +15350,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="bde8f3e4be86d175b544225b129b9bd41dce0d78" type="Page23" status="GoodCol" />
     <rom sha1="ce3632a4acd8c010c591f51bd1849e284fa1f2b8" type="Page23" status="GoodCol" />
     <rom sha1="e3722da238983dcdf4c0bc904ce39d047ebd0ca9" type="Page23" />
+    <rom sha1="f6323f004df6daf7aebb28d80f35a85d7910f1c3" type="Page23" remark="Cart # 4L1989 - Box # 7429-4A" />
+  </software>
+  <software title="Mowleco" system="ColecoVision" company="Sebastian Miahi" year="2012" country="US">
+    <rom sha1="163fa90ee101f74c92fa85f3e98aeaf655240afc" type="Page23" />
   </software>
   <software title="Mr Turtle" system="ColecoVision" company="Leo Gerald Brophy" year="2015" country="IE">
     <rom sha1="0a3f196bdb8fa9dde46ca1f71c20e106fa3d35b1" type="Page23" />
@@ -15273,10 +15389,57 @@ The Database is located at https://romdb.vampier.net/
   <software title="Multiverse" system="ColecoVision" company="Hikaru Games" year="2019" country="ES">
     <rom sha1="86cd2a4011957f417d50c3de8dd52c4c14e8e52a" type="Page23" />
   </software>
+  <software title="Music Box - Sonic the Hedgedog.col" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="ec0e748c19cec242ac8f83a2d69b34636f23abbc" type="Page23" />
+  </software>
+  <software title="Music Demo - Boxxle Jukebox" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="954ff1a4713e8d27fe6685f17d5c55f83abfa26d" type="Page23" />
+  </software>
+  <software title="Music Demo - Commando" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="9a3542d5ba6f83b727059b485ad1fc3a0954a75e" type="Page23" remark="Commando Jukebox" />
+    <rom sha1="42d433a37c905e1aaba7e330fa6c8177b37e0021" type="Page23" remark="Bass And Drum Loop PAL 2010.04.28 08.51" />
+    <rom sha1="0feee28150a48c8010d39080d129fa95112a66ab" type="Page23" remark="Theme Song Remix v2 (PAL)" />
+  </software>
+  <software title="Music Demo - Delta Remix 1" system="ColecoVision" company="Daniel Bienvenu" year="2012" country="US">
+    <rom sha1="866f4478f64618594dca2b3342a3b956a654f334" type="Page23" />
+  </software>
+  <software title="Music Demo - Delta Remix 2" system="ColecoVision" company="Daniel Bienvenu" year="2012" country="US">
+    <rom sha1="5e0822dfcc4130a9c7d125c40b64506b76217cfe" type="Page23" />
+  </software>
   <software title="Music Demo - Europe The Final Countdown" system="ColecoVision" company="" year="2011">
     <rom sha1="8363258a610b041bd66294e49f4acb26b71667af" type="Page23" remark="Day 1" />
     <rom sha1="ce7e342f11333225e2443ddb532bdcc91c7f9eb9" type="Page23" remark="Day 1.5" />
     <rom sha1="ac8f5c7b2c1650b5f986d7046c8d77e0a9b2cdc0" type="Page23" remark="Day 2" />
+  </software>
+  <software title="Music Demo - Haddaway Jukebox" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="25322fd02ba639a24b895f217f91335fee20e595" type="Page23" />
+  </software>
+  <software title="Music Demo - Jump by Van Halen" system="ColecoVision" company="Daniel Bienvenu" year="2013" country="US">
+    <rom sha1="1f90e0d825cf2674945c10bba945c9982aa03566" type="Page23" />
+  </software>
+  <software title="Music Demo - Lady Gaga Poker Face" system="ColecoVision" company="Daniel Bienvenu" year="2013" country="US">
+    <rom sha1="dd908ced34206bd0aeae4a30d99b8ef303efda56" type="Page23" />
+  </software>
+  <software title="Music Demo - Mario Bros Music SFX" system="ColecoVision" company="">
+    <rom sha1="5e869157a1a3c6cab283b341b2e85bb14681fead" type="Page23" />
+  </software>
+  <software title="Music Demo - Mod2PSG RePlayer Example" system="ColecoVision" company="Daniel Bienvenu" year="2000" country="US">
+    <rom sha1="2443a051078944d1fa79b3deff689a1b152017ed" type="Page23" />
+  </software>
+  <software title="Music Demo - Mortal Kombat Jukebox" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="6d607c4c4376d7f0cfd49401aa0a65890f53742a" type="Page23" />
+  </software>
+  <software title="Music Demo - SideTrak MusicBox" system="ColecoVision" company="Daniel Bienvenu" year="2011" country="US">
+    <rom sha1="4e969555659960bf261af2f9c3e97d9dc1faefc2" type="Page23" remark="Feb Mar 2011" />
+  </software>
+  <software title="Music Demo - Sonic" system="ColecoVision" company="">
+    <rom sha1="66319807acade8e328c9640ddd71855f0838752d" type="Page23" />
+  </software>
+  <software title="Music Demo - Splash Wave (OutRun)" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="608c57dc24793a1a8f73a3c304f0ec57dfd834af" type="Page23" />
+  </software>
+  <software title="Music Demo - Zelda 2" system="ColecoVision" company="" year="2009">
+    <rom sha1="2573f7d478cdcfdbec9e9f20faa412e4d6706016" type="Page23" remark="2009.07.30 17.27" />
   </software>
   <software title="Music Vol 1" system="ColecoVision" company="Daniel Bienvenu" year="2000" country="US">
     <rom sha1="c1a46e580b9dfa551bf0dae7f18e345416aec062" type="Page23" status="GoodCol" />
@@ -15289,6 +15452,9 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="New" system="ColecoVision" company="Daniel Bienvenu" country="US">
     <rom sha1="e64a55af600aa73596a4f14372c02b326a50e4e1" type="Page23" status="GoodCol" />
+  </software>
+  <software title="New Coleco YouTube Channel Thanks" system="ColecoVision" company="Daniel Bienvenu" year="2009" country="US">
+    <rom sha1="98e91b862a6c80120f55a8a1434ce8a19749f867" type="Page23" />
   </software>
   <software title="NewColeco Screen" system="ColecoVision" company="">
     <rom sha1="4ae8e40df5e0aa6b980bd8d9bf8e34075fa86667" type="Page23" />
@@ -15310,8 +15476,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="88cdb8ea518602fad212f0557945e70cea726fdb" type="Page23" status="GoodCol" />
     <rom sha1="10bff953804acb2ba7ccd0d9d1279f6acff81106" type="Page23" status="Translated" remark="Spanish" />
   </software>
-  <software title="Number Bumper" system="ColecoVision" company="Sunrise" year="1984" country="NL">
+  <software title="Number Bumper" system="ColecoVision" company="Sunrise Software Inc" year="1984" country="US">
     <rom sha1="50d40fa769c3b92fe7d4eae23c15c429e020e023" type="Page23" status="GoodCol" remark="Prototype" />
+    <rom sha1="f2f916d56b5e0cd717a6cc7ae5e92fdf9d4cb7c3" type="Page23" />
   </software>
   <software title="Oil&apos;s Well" system="ColecoVision" company="Sierra On Line" year="1984" country="GB" genmsxid="405">
     <rom sha1="779e43f183dbdb692dc26ae41dde6b35891f8f8b" type="Page23" status="GoodCol" />
@@ -15357,10 +15524,16 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="d6b67e8f43afe666cdd79a718ddf808e27d6512d" type="Page23" status="GoodCol" remark="Demo" />
     <rom sha1="6d0ddc8002a60634edcefe712a0331dd1f6fe94a" type="Page23" status="GoodCol" remark="Music Demo" />
     <rom sha1="b88ea5f1b052a224068bcc920c6a18760f263c8f" type="ColecoMegaCart" />
+    <rom sha1="a9eeed49ae007add98dd16e3c19b1bd9b2e1b2e9" type="Page23" remark="Demo 2005-09-12 10.38" />
   </software>
   <software title="Pacar" system="ColecoVision" company="Mystery Man" year="1983">
     <rom sha1="d92d3e285d126dfafc6c2e65e02dd09dfa72d315" type="Page23" />
     <rom sha1="6fd2921e36dea2b39f6e0ef7b54cdf5152e48dd3" type="Page23" remark="Demo Steve BCgin 2010" />
+  </software>
+  <software title="Pacific Fleet" system="ColecoVision" company="Mark2008" year="2007" country="GB">
+    <rom sha1="b4708a7ab6d7e110ce1b4901f2761d4e6c26b942" type="Page23" remark="2007-11-16 23.30" />
+    <rom sha1="5804bbb43521d2f961d42edf55fa91bd17e0de94" type="Page23" remark="2007-11-26 00.40" />
+    <rom sha1="5979db15d67885fac464b362ddc3d1268fb00d3d" type="Page23" remark="2007-11-28 19.51" />
   </software>
   <software title="Peek-a-boo" system="ColecoVision" company="DVIK &amp; Joyrex productions" year="2008" country="US">
     <rom sha1="6f93bf153d3595e1a79751acb3550f7912723b7c" type="Page23" />
@@ -15438,6 +15611,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Porky&apos;s" system="ColecoVision" company="20th Century Fox" year="1983" country="US">
     <rom sha1="4471f402c0cb8be232ece0ea84dcaef9ee002398" type="Page23" status="GoodCol" remark="Prototype" />
   </software>
+  <software title="Powder Snow" system="ColecoVision" company="Nicolas Campion" year="2017" country="FR">
+    <rom sha1="fdf99e0b297922f2d40fe749ee0612d8fec199d3" type="Page23" />
+  </software>
   <software title="Power Lords Quest For Volcan" system="ColecoVision" company="NAP" year="1983" country="US">
     <rom sha1="bf81f1254f0c5eb11d46ef5e8b8c03e8b02801b4" type="Page23" remark="Prototype" />
     <rom sha1="6712b866fa0d2d57fef1ac292b679fe4aeb69b62" type="Page23" status="GoodCol" remark="Prototype" />
@@ -15481,6 +15657,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Q-bert II" system="ColecoVision" company="Parker Brothers" year="1984" country="US">
     <rom sha1="7119f43faf35e0c346446deade468adfcf6c3afc" type="Page23" status="GoodCol" />
     <rom sha1="77b54047cd3a9c7d15432e0556cf82eed44719eb" type="Page23" status="GoodCol" />
+    <rom sha1="4e167f7d36f7161e7957206c2f32b15bf7cbe2a5" type="Page23" />
   </software>
   <software title="Q-Bert&apos;s QUBES" system="ColecoVision" company="Parker Brothers" year="1984" country="US">
     <rom sha1="523fd9fce7047ae76dd4219cdb89a4f298fe14ab" type="Page23" status="GoodCol" />
@@ -15524,7 +15701,8 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="cc9e9219ccfa36ce28c49a12f37ee7b0e6e8ebec" type="ColecoMegaCart" />
   </software>
   <software title="Rally-X" system="ColecoVision" company="Team Pixelboy" year="2016" country="US">
-    <rom sha1="53afbd266e34d0e590e967e7a6e4bcb87a02a8eb" type="ColecoMegaCart" />
+    <rom sha1="53afbd266e34d0e590e967e7a6e4bcb87a02a8eb" type="Page23" />
+    <rom sha1="819c47123eb65181106a0bd2178874feaf66b9cc" type="Page23" remark="2005.09.06 08.00" />
   </software>
   <software title="Raptus" system="ColecoVision" company="Inufuto" year="2022" country="JP">
     <rom sha1="42343aa73acdb6f4ce4bd776019589c1bdf283ca" type="Page23" />
@@ -15572,6 +15750,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Rock &apos;N Bolt" system="ColecoVision" company="Telegames" year="1984" country="US">
     <rom sha1="2b2f337ba597af5eee2b10e70a129638b4679c9e" type="Page23" status="GoodCol" />
     <rom sha1="fda438a9d57bdb5aa178c6748db695627805ce15" type="Page23" status="GoodCol" />
+    <rom sha1="94eee5f9d91bc21802277edad53f7acf7f3223bb" type="Page23" status="Overdump" />
   </software>
   <software title="Rocky Super Action Boxing" system="ColecoVision" company="Coleco" year="1983" country="US">
     <rom sha1="11def2adb622bbf62bfd2ac14d8151c8f2f772eb" type="Page23" />
@@ -15579,7 +15758,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="50af8fb35be989c9addbc0e9a082190eeab70d8d" type="Page23" status="GoodCol" />
   </software>
   <software title="Roller Ball" system="ColecoVision" company="HAL Laboratory" year="2013" country="JP">
-    <rom sha1="6b12aecc232385666644e2f73baf0d824f9b787f" type="ColecoMegaCart" />
+    <rom sha1="6b12aecc232385666644e2f73baf0d824f9b787f" type="Page23" />
   </software>
   <software title="Rolloverture" system="ColecoVision" company="Sunrise" year="1983" country="NL">
     <rom sha1="5bd7c21d64eee044c88ae438479d22802a510677" type="Page23" />
@@ -15605,13 +15784,14 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="d7cd2cc79928ccf4a860c06bb7c5dc80e0ba56aa" type="Page23" />
   </software>
   <software title="Sasa" system="ColecoVision" company="Mass Tael" year="2016" country="HK">
-    <rom sha1="4fa9e81ca295bddbd333f0d09e01e744a7e37352" type="ColecoMegaCart" />
+    <rom sha1="4fa9e81ca295bddbd333f0d09e01e744a7e37352" type="Page23" />
   </software>
-  <software title="Schlange CV Demo" system="ColecoVision" company="Philipp Klaus Krause" year="2005" country="US">
+  <software title="Schlange CV Demo" system="ColecoVision" company="Philipp Klaus Krause" year="2005" country="DE">
     <rom sha1="09c3a505db39754bd0054c6cf3f585329e799fee" type="Page23" status="GoodCol" remark="(Jun 02)" />
     <rom sha1="05e371464c743602829a6422fae2910b2edd7345" type="Page23" status="GoodCol" remark="(May 08)" />
     <rom sha1="5d6f0fbf74a97874acd8f3fcdb5900e3f0319b7d" type="Page23" status="GoodCol" />
     <rom sha1="4a7cbc9ec211b438040e1664aeccff22882bb93e" type="Page23" remark="2006" />
+    <rom sha1="ebf9d94260eaec853b4eb4f073f8c702540e6fc1" type="Page23" />
   </software>
   <software title="Scroll Demo" system="ColecoVision" company="PD" country="US">
     <rom sha1="b55192bbdc08801e7344a37f96153748de5d99c5" type="Page23" status="GoodCol" />
@@ -15619,22 +15799,27 @@ The Database is located at https://romdb.vampier.net/
   <software title="Scroll Demo" system="ColecoVision" company="Daniel Bienvenu" year="2004" country="US">
     <rom sha1="eeefb1e9ddff363f9129d86501a5c476fcc30697" type="Page23" status="GoodCol" />
   </software>
-  <software title="Search for the Stolen Crown Jewels" system="ColecoVision" company="Philipp Klaus Krause" year="2005" country="US">
+  <software title="SCUMM style game" system="ColecoVision" company="Kiwi" year="2013" country="US">
+    <rom sha1="4b0b79495556f4d10f37e9de4812337bdf317974" type="Page23" remark="WIP 2013.09.05" />
+  </software>
+  <software title="Search for the Stolen Crown Jewels" system="ColecoVision" company="Philipp Klaus Krause" year="2005" country="DE">
     <rom sha1="24a209ba6fe8ead416e3991bc361af8b5311187e" type="Page23" status="GoodCol" remark="(Jun 01)" />
     <rom sha1="09e9347706a9077de4dec06466103ff07884b97c" type="Page23" status="GoodCol" remark="(May 08)" />
     <rom sha1="fe6c1753419e8b49f23318758f3ab9cc42a8e0e5" type="Page23" status="GoodCol" remark="(Sep 19) Demo" />
     <rom sha1="cb00a383e7b53bd4dfd12a2597b7e8f852b33709" type="Page23" status="GoodCol" remark="(Sep 24) Demo" />
     <rom sha1="1e2e883604e3b8559bd36c88313567dabd8444ac" type="Page23" status="GoodCol" />
   </software>
-  <software title="Search for the stolen Crown Jewels II" system="ColecoVision" company="Philipp Klaus Krause" year="2007" country="US">
+  <software title="Search for the stolen Crown Jewels II" system="ColecoVision" company="Philipp Klaus Krause" year="2007" country="DE">
     <rom sha1="3b61b43d42e4e205e502789cbf80384013cbbe5f" type="Page23" remark="Demo" />
     <rom sha1="8e20a89350277f4d6f2b67e4e84fce21c1c62fa9" type="Page23" remark="Demo" />
     <rom sha1="bab03754b7e7047d6e32527d53b55c8e60c57924" type="Page23" status="GoodCol" remark="Demo" />
     <rom sha1="0d144f191629570213694fd63b54e651338c89e3" type="Page23" remark="Demo" />
   </software>
-  <software title="Search for the Stolen Crown Jewels III" system="ColecoVision" company="Philipp Klaus Krause" year="2008" country="US">
+  <software title="Search for the Stolen Crown Jewels III" system="ColecoVision" company="Philipp Klaus Krause" year="2008" country="DE">
     <rom sha1="7102fd7a776ec16c4dd93b6e4caf729e6db4156f" type="Page23" />
     <rom sha1="19c574aa12ce727e7d620f0c9a38864cc1f13e9e" type="Page23" />
+    <rom sha1="6a8ac08fac29d535aaffae31b776c1a85c8e8e19" type="Page23" remark="Demo" />
+    <rom sha1="33688e97636255206bba5210db30354274942255" type="Page23" remark="2 level demo" />
   </software>
   <software title="Secret Treasure of Moai" system="ColecoVision" company="Casio" year="1986" country="JP">
     <rom sha1="d8ced1a384ad1e88fd8b69fd3a5b265fa3975f31" type="ColecoMegaCart" />
@@ -15652,23 +15837,28 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="2570fcf9d93e46ffce1d3f4a29681c9eac3bbd5f" type="Page23" status="GoodCol" />
     <rom sha1="fb2fea387eed84f0ca0fbf6736060a1612c971b3" type="Page23" status="GoodCol" />
     <rom sha1="6a4fbfbdcc8cc530a4dac5225c1d551e812e73ae" type="Page23" status="GoodCol" />
+    <rom sha1="1ffd0b8c8630373a85ee06532992d8575fa97b5e" type="Page23" remark="Fixed by Nanochess" />
+    <rom sha1="18da960683bdcb0e9933381718c7a0e9dedc0e20" type="Page23" remark="Fixed by Nanochess" />
   </software>
   <software title="Sewer Sam" system="ColecoVision" company="Interphase" year="1984" country="JP" genmsxid="183">
     <rom sha1="407c2a1bef81522dfd88ace7abd7d80c0f7de357" type="Page23" status="GoodCol" />
     <rom sha1="b0cb88d41d9b1b3698a799caacb3a7ddcb5c19ec" type="Page23" status="GoodCol" />
   </software>
   <software title="SHMUP!" system="ColecoVision" company="Imanok" year="2013" country="ES" genmsxid="4127">
-    <rom sha1="8bdee6c288bc76eb9ad49b909bcf0dbfcbc714e9" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="8bdee6c288bc76eb9ad49b909bcf0dbfcbc714e9" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Shouganai" system="ColecoVision" company="Paxanga Soft" year="2013" country="ES" genmsxid="4403">
-    <rom sha1="e234cff528a71a4451c7e485de817eb0d7abf421" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="e234cff528a71a4451c7e485de817eb0d7abf421" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
-  <software title="Shunting Puzzle" system="ColecoVision" company="Philipp Klaus Krause" year="2013" country="US">
+  <software title="Shunting Puzzle" system="ColecoVision" company="Philipp Klaus Krause" year="2013" country="DE">
     <rom sha1="c015dd603fcccad5662526b145005446a304d725" type="Page23" />
     <rom sha1="042b00c4c7ac1355c7af1a4e5b5601e3003805a6" type="Page23" status="Bad" remark="2009 - pdrc v4.01 entry" />
   </software>
   <software title="Side Trak" system="ColecoVision" company="Exidy" year="2012" country="JP">
     <rom sha1="7696ab416ce452fd34ebcedec84bf73605758220" type="Page23" />
+  </software>
+  <software title="Simon The Snake" system="ColecoVision" company="Paulo Silva" year="2015" country="EU">
+    <rom sha1="cf3514948c865370f7bcf4ed5ad032113fda843e" type="Page23" remark="20160803" />
   </software>
   <software title="Simple Screen Show" system="ColecoVision" company="Daniel Bienvenu" year="2001" country="US">
     <rom sha1="d24a957da8fe7fd49b536ce153af6da326421ec6" type="Page23" status="GoodCol" />
@@ -15689,14 +15879,22 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="5b050516b33fc0be01700d8f3c5ef863da718fcd" type="Page23" remark="WIP (2011-04-17)" />
     <rom sha1="110d0f7ef7e89adf53d2fdd7aa83a0cdca553472" type="Page23" remark="WIP (2011-04-17)" />
   </software>
-  <software title="Skiing" system="ColecoVision" company="Telegames" year="1986" country="US">
+  <software title="Skiing" system="ColecoVision" company="Coleco" year="1982" country="US">
     <rom sha1="2cfd62a4b403fc2f5344d0e095d1028cc11e4ecc" type="Page23" status="GoodCol" />
     <rom sha1="ae77a13fee7b3828f36736a6ffd1139ec35df6a6" type="Page23" status="GoodCol" />
     <rom sha1="0d77d8bdc34c6782f2409ac7222c2eecbe772a2e" type="Page23" status="Translated" remark="Spanish" />
+    <rom sha1="e29cf38c556fb3706f0c8c9d86fbe4ed071ce3fb" type="Page23" />
+    <rom sha1="34c8015bcdc9dfcdc0360d76dc90c156a03fe7b3" type="Page23" status="Bad" />
   </software>
-  <software title="Sky Jaguar" system="ColecoVision" company="Konami" year="1984" country="JP" genmsxid="522">
+  <software title="Sky Jaguar" system="ColecoVision" company="Konami" year="2004" country="JP" genmsxid="522">
     <rom sha1="630b793f81e1d130c1824ae34cd75704e8ed5f6e" type="Page23" status="GoodCol" />
     <rom sha1="932cf8b6184ae688c15ab826e64eb35e51aefc79" type="Page23" />
+    <rom sha1="f1f2b64c5e44b062614acb592112334811cf68aa" type="Page23" />
+    <rom sha1="a7c32e938e9354b92a87bd29dc1422765478d401" type="Page23" />
+    <rom sha1="ea9b8b3731d57e0d1811e1f6cf7ed3b5446a73dc" type="Page23" />
+  </software>
+  <software title="Slide Show" system="ColecoVision" company="Mermaid" country="NO">
+    <rom sha1="37976f4bfea3d753d9adac281df8f5b38a190fa7" type="Page23" />
   </software>
   <software title="Slither" system="ColecoVision" company="Coleco" year="1983" country="US">
     <rom sha1="b11de2476f867c7c4efb2977777e12fcb454f10b" type="Page23" status="GoodCol" />
@@ -15709,6 +15907,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="b3f621a3955b01005adcd5104cea7e0cdeafcd72" type="Page23" />
     <rom sha1="b4a82a880f246071789b458af5874ead86ff9f0e" type="Page23" status="Bad" remark="AtGames Valve" />
     <rom sha1="e28c00aa64353948092454c9e773c01e5d9fa207" type="Page23" status="Translated" remark="Spanish" />
+  </software>
+  <software title="Sly DC Demo" system="ColecoVision" company="Daniel Bienvenu" year="2000" country="US">
+    <rom sha1="78fbdcdfaf36bac7447817811d95064e827e40cc" type="Page23" />
   </software>
   <software title="Smash" system="ColecoVision" company="Daniel Bienvenu" year="2004" country="US">
     <rom sha1="0692904ffcb39bb81564819e6925aecd2d4ca9df" type="Page23" status="GoodCol" />
@@ -15738,6 +15939,13 @@ The Database is located at https://romdb.vampier.net/
   <software title="So, You Want to Be a Knight" system="ColecoVision" company="Nicolas Campion" year="2015" country="FR">
     <rom sha1="d39daa4a7a0b5f5e2611d6ea518df66247b176d8" type="Page23" />
   </software>
+  <software title="Sokoban" system="ColecoVision" company="Thinking Rabbit" year="1985" country="JP">
+    <rom sha1="c50e55ec3b1ff581124f68bcb35863ee41dfc412" type="Page23" />
+  </software>
+  <software title="Sonic Rpg Console" system="ColecoVision" company="gameblabla" year="2011" country="FR">
+    <rom sha1="bfad799a7403f7e3e40384ed2e98078a3fcd9330" type="Page23" />
+    <rom sha1="93002b49ead2696dadb322de8a51d0e29fb4918a" type="Page23" />
+  </software>
   <software title="Sound FX Vol 1" system="ColecoVision" company="Daniel Bienvenu" year="2000" country="US">
     <rom sha1="3d51bf597c4537cbb855e10d79c7be370c4f515d" type="Page23" status="GoodCol" />
   </software>
@@ -15764,6 +15972,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="5ecd4928cb33843246921bab152e9a99c0cf23d3" type="Page23" status="GoodCol" remark="Demo" />
     <rom sha1="5f57aad6d1c2466f9186d636fb7cc8e8871f9180" type="Page23" />
     <rom sha1="f55a9b5077a0499fa9d4e81803c962992c100b8a" type="Page23" />
+    <rom sha1="c5bd9cc5a15f5c6bb1b245c8a690aafaa0c0f4ba" type="Page23" />
+  </software>
+  <software title="Space Invaders Collection Slide Show" system="ColecoVision" company="Opcode" year="2003" country="BR">
+    <rom sha1="f046da81a668e95438193b30f084137e5bc8b085" type="Page23" />
   </software>
   <software title="Space Invasion" system="ColecoVision" company="John Dondzila" year="1998" country="US">
     <rom sha1="617f7bd6723f47017b7c0b0df68799b87fe6e09d" type="Page23" status="GoodCol" />
@@ -15785,7 +15997,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="3a4c6b5ab5daea525aabf50e1f0ad38b1033070e" type="Page23" remark="Kamshaft 2026 Conversion" />
   </software>
   <software title="Sparkie" system="ColecoVision" company="Konami" year="2017" country="JP">
-    <rom sha1="8e96c24976c8f31dc319f9a39c5c104be5788f6a" type="ColecoMegaCart" />
+    <rom sha1="8e96c24976c8f31dc319f9a39c5c104be5788f6a" type="Page23" />
   </software>
   <software title="Spaz Attak" system="ColecoVision" company="Howard Uman" year="2006" country="US">
     <rom sha1="0ccbe626bb22dfe8e245b43bc6d2e3b3d60e6899" type="Page23" status="GoodCol" />
@@ -15813,6 +16025,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Spunky&apos;s Super Car!" system="ColecoVision" company="Kiwi" year="2014" country="US">
     <rom sha1="4db0e8ac89278dce93e548e1198682dc0552ca6e" type="Page23" />
     <rom sha1="4483a9989ed3e097350e9f6b34121f6a4fab8e4e" type="Page23" />
+    <rom sha1="d19d5c480b9857160fbbcea7e79e20101e8d12ba" type="Page23" remark="Early Demo" />
   </software>
   <software title="Spy Hunter" system="ColecoVision" company="Coleco" year="1984" country="US">
     <rom sha1="f95fb554b211bde690a85d1f14ff5501cbcaf8bd" type="Page23" remark="Prototype" />
@@ -15858,6 +16071,7 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Star Ocean - The Missed Hope" system="ColecoVision" company="Kiwi" year="2015" country="US">
     <rom sha1="3ff76dc2922389bdae031f26e071cdc7cc92ba45" type="Page23" status="Verified" />
+    <rom sha1="35c4923064d156cfc923e90fac8ed7d2dabf7891" type="Page23" />
   </software>
   <software title="Star Soldier" system="ColecoVision" company="Hudson Soft" year="2016" country="JP">
     <rom sha1="afb20a41cd383c11b8d006082f0d61d33368e49c" type="ColecoMegaCart" />
@@ -15892,7 +16106,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="ff79250d27c2fbc1f040ecde34a5bec23d753939" type="ColecoMegaCart" />
   </software>
   <software title="Stray Cat" system="ColecoVision" company="Imanok" year="2009" country="ES" genmsxid="3810">
-    <rom sha1="49b8cbcac380278438233913b05d03c625c7b7e4" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="49b8cbcac380278438233913b05d03c625c7b7e4" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Strike It!" system="ColecoVision" company="Telegames" year="1986" country="US">
     <rom sha1="a455e93e5ce6e562092d2c0b06070a746296395b" type="Page23" status="GoodCol" />
@@ -15949,11 +16163,15 @@ The Database is located at https://romdb.vampier.net/
   <software title="Super Action Soccer 1" system="ColecoVision" company="Team Pixelboy" year="2012" country="US">
     <rom sha1="01d064ac9bf27f8b5bf5dcc8914dbb38dc8e5646" type="Page23" />
   </software>
+  <software title="Super Cobra" system="ColecoVision" company="" year="2010">
+    <rom sha1="69e54be26f4d1f9b7226fedd7abc2da24cb74ce3" type="Page23" />
+  </software>
   <software title="Super Cobra" system="ColecoVision" company="Parker Brothers" year="1983" country="US" genmsxid="36">
     <rom sha1="d5fe20060be49cfbda2742460e64e4cafa07a937" type="Page23" status="Hack" remark="ADAM Patch" />
     <rom sha1="3bf730acbfb0404d2e2411169c8fc6a81b907053" type="Page23" status="GoodCol" />
     <rom sha1="c0ff64668723f5f353ce98d3ee6089ebe0201369" type="Page23" status="GoodCol" />
     <rom sha1="803c9da965809cda40357763b7c5eab856b792bc" type="Page23" />
+    <rom sha1="d08ec54791f98b908f9f4b5e53dea13f52c6539f" type="Page23" />
   </software>
   <software title="Super Cross Force" system="ColecoVision" company="Spectravideo" year="1983" country="GB" genmsxid="2071">
     <rom sha1="42a22d2314081450e8cb2a5e8ba4aa0987971063" type="Page23" status="GoodCol" />
@@ -15970,11 +16188,15 @@ The Database is located at https://romdb.vampier.net/
   <software title="Super Game Module Tester" system="ColecoVision" company="Oscar Toledo Gutierrez" year="2013" country="MX">
     <rom sha1="4355b4667d939b962830ab4370346a6b8613a800" type="Page23" />
   </software>
+  <software title="Super Ghouls N&apos; Ghosts music" system="ColecoVision" company="Daniel Bienvenu" year="2010" country="US">
+    <rom sha1="9cc6e2df6a5aa0a121012fbfbb14e34d6108aa49" type="Page23" remark="Music 1" />
+    <rom sha1="0fe9d3fd9f17c72a1b13f7ad9a1e2c92195c2ece" type="Page23" remark="Music 2" />
+  </software>
   <software title="Super Minefield" system="ColecoVision" company="Claus Bækkel" year="2013" country="DK">
     <rom sha1="aec38f4d253da88764c8af6f38a50c7a3092bf87" type="Page23" />
   </software>
   <software title="Super Pacman" system="ColecoVision" company="Team Pixelboy" year="2016" country="US">
-    <rom sha1="35fce5981648b1239865eaf053b315d4c11c6e62" type="ColecoMegaCart" />
+    <rom sha1="35fce5981648b1239865eaf053b315d4c11c6e62" type="Page23" />
   </software>
   <software title="Super Sketch Sketch-Master" system="ColecoVision" company="Personal Peripherals" year="1984" country="US">
     <rom sha1="3acbae2580c38bfea9ce7ec06274edd39607016d" type="Page23" status="GoodCol" />
@@ -15991,6 +16213,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="109eaf1992cbc50395a091d93857cad06a2d6bb8" type="Page23" remark="2009-10-31" />
     <rom sha1="3776816b244efe3cf7979ebb6e2e27228cf272d0" type="Page23" remark="2009-12-06" />
     <rom sha1="b124645f46a2c9833598e4935b03fafc1c299c76" type="Page23" remark="2011-01-24" />
+    <rom sha1="0618277e464a367c2a7e39e2855bd2cf390b6954" type="Page23" remark="2015-06-13" />
   </software>
   <software title="Super Space Acer" system="ColecoVision" company="Mike Ward" year="1992" country="CA">
     <rom sha1="2b462af0166924db9803649d7d3640986b1eb13a" type="Page23" remark="Julius Software 1992" />
@@ -16002,7 +16225,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="ff8f73f9bf16bb67799bbe8e52c541d727f501f4" type="Page23" status="GoodCol" />
   </software>
   <software title="Sweet Acorn" system="ColecoVision" company="Opcode" year="2019" country="BR">
-    <rom sha1="60d30936791efdd1652ab61de88af303f80c5d7c" type="ColecoMegaCart" />
+    <rom sha1="60d30936791efdd1652ab61de88af303f80c5d7c" type="Page23" />
   </software>
   <software title="Sword And The Sorcerer, The" system="ColecoVision" company="Coleco" year="1983" country="US">
     <rom sha1="461a3715416a1b9f71b1af1dfc531a8f77862645" type="Page23" remark="Demo" />
@@ -16018,7 +16241,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="843683ca5d7e712392a0a27b200e2df421f3453a" type="ColecoMegaCart" />
   </software>
   <software title="Tank Battalion" system="ColecoVision" company="Opcode" year="2016" country="BR">
-    <rom sha1="9dd8db9b2b59a0182cfead079b02ed284d5ae3be" type="ColecoMegaCart" />
+    <rom sha1="9dd8db9b2b59a0182cfead079b02ed284d5ae3be" type="Page23" />
   </software>
   <software title="Tank Challenge" system="ColecoVision" company="Todd Sprangler" year="2014" country="US">
     <rom sha1="e532dd08ae984b8d27b9da90686f06265e016281" type="Page23" />
@@ -16041,8 +16264,83 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="59cb8dec033c3b1df476c7c93109aba9562ba3d4" type="Page23" status="GoodCol" />
     <rom sha1="2d61d96fd15c614bde450813aa88092cf814e60a" type="Page23" status="GoodCol" />
   </software>
+  <software title="Tech Demo - Ambigram" system="ColecoVision" company="Daniel Bienvenu" year="2011" country="US">
+    <rom sha1="b784b353d796632f1a7f2cf445abae0d71ef2fbe" type="Page23" remark="Demo 1 - 6fps" />
+    <rom sha1="4342409fcf9044c781108b9d0d55958660353bf8" type="Page23" remark="Demo 2 - 6fps" />
+    <rom sha1="d408935ac7f26e1e06078beaae78091f84b5436a" type="Page23" remark="Demo 3 - 6fps" />
+  </software>
+  <software title="Tech Demo - Bresshot" system="ColecoVision" company="" year="2011">
+    <rom sha1="9b978336ad399500461a99ed6f85264f7af5d564" type="Page23" remark="Bresshot (2011.12.31 15.44)" />
+  </software>
+  <software title="Tech Demo - Cart Menu Example" system="ColecoVision" company="" year="2005">
+    <rom sha1="394e0af4afecad8782268e2ef829bd40544ab435" type="Page23" remark="The best is yet to come (cv win01) (2005.04.04 14.15)" />
+  </software>
+  <software title="Tech Demo - Colecovision Mock up pictures slideshow" system="ColecoVision" company="Kiwi" year="2013" country="US">
+    <rom sha1="fe97936fcb493080c95e7f22f88fde1521a7d307" type="Page23" remark="2013.02.19 01.24" />
+  </software>
+  <software title="Tech Demo - Compression demo" system="ColecoVision" company="">
+    <rom sha1="bb22df9264d2609b4ce7f1527243f631b5bc244e" type="Page23" />
+  </software>
+  <software title="Tech Demo - Cursor" system="ColecoVision" company="">
+    <rom sha1="4018eec8280c6bcb9826e5f2f56076272f89df89" type="Page23" />
+    <rom sha1="49b95e8f2003ba98e6247eed489d6e950146b738" type="Page23" />
+  </software>
+  <software title="Tech Demo - Digital Sounds By Tone Channel Volume Variations" system="ColecoVision" company="Daniel Bienvenu" year="2009" country="US">
+    <rom sha1="285faf2ea6a42a5206e9291251d38887621ad2a8" type="Page23" remark="2009.12.12 Sabrina - Boys Boys Boys" />
+    <rom sha1="56a231878a23ef15831c330344328f508983f4b0" type="Page23" />
+  </software>
+  <software title="Tech Demo - Earthbound" system="ColecoVision" company="Kiwi" year="2013" country="US">
+    <rom sha1="6a479fd24abb72a62e2bc804dc90bebb24763222" type="Page23" remark="Battle Scene Mock up 1 (2013.07.18 19.37)" />
+    <rom sha1="1bfb658cf5b16d5f5de5be747739784a13b4a9dc" type="Page23" remark="Battle Scene Mock-up 2 (2013.07.19 13.17)" />
+  </software>
+  <software title="Tech Demo - H7N9" system="ColecoVision" company="Paulo Silva" year="2016" country="EU">
+    <rom sha1="1b59809c6436a90ebd0e37790e079c70dde7e54f" type="Page23" remark="20160807" />
+  </software>
+  <software title="Tech Demo - Kitten Picture" system="ColecoVision" company="Daniel Bienvenu" year="2009" country="US">
+    <rom sha1="0ad973c5a80f5fe24720ca9ae1e2a2f2d07e90f4" type="Page23" />
+  </software>
+  <software title="Tech Demo - Map" system="ColecoVision" company="">
+    <rom sha1="1d1da4fcebf6c7a9129619b2656a278c3797ea0e" type="Page23" />
+  </software>
+  <software title="Tech Demo - Masters of the Universe II mock up" system="ColecoVision" company="CollectorVision" year="2011" country="US">
+    <rom sha1="9884787889df01ef9c8109be9ceae2119c86072a" type="Page23" remark="2011.05.20 15.50" />
+  </software>
+  <software title="Tech Demo - Milon&apos;s Secret Castle Mockup" system="ColecoVision" company="Kiwi" year="2011" country="US">
+    <rom sha1="484266e800eedba7c11b749ecef7ebbadf9d6e0b" type="Page23" remark="2011.03.11 16.58" />
+    <rom sha1="f1135d7fa874ef9ff7f5254cfa55094aa09972ce" type="Page23" />
+  </software>
+  <software title="Tech Demo - Moon patrol data viewer" system="ColecoVision" company="">
+    <rom sha1="7596e22968bf4395992d5d3b827a9f36ab01489b" type="Page23" />
+  </software>
+  <software title="Tech Demo - Scrolling Effect" system="ColecoVision" company="Daniel Bienvenu" year="2013" country="US">
+    <rom sha1="47670c4198436f0103f79ca45a22e4d8ac0cf0df" type="Page23" remark="Day 2" />
+  </software>
+  <software title="Tech Demo - Sly DC" system="ColecoVision" company="Daniel Bienvenu" year="2003" country="US">
+    <rom sha1="f362e0b56cb6192ecddc760abbe868037c7ea7bd" type="Page23" />
+  </software>
+  <software title="Tech Demo - Smooth Scroll 2" system="ColecoVision" company="">
+    <rom sha1="8ec7ea348c0c96dbe2b28812ff2c7d7c118e7d98" type="Page23" remark="2016-07-11" />
+  </software>
+  <software title="Tech Demo - Sound Demo" system="ColecoVision" company="">
+    <rom sha1="e56759d19cc4ba82822820e30a36a393f0287e10" type="Page23" />
+  </software>
   <software title="Tech Demo - Space Harrier" system="ColecoVision" company="hardhat" year="2009" country="US">
     <rom sha1="c6c4395cf0d49aa61cae42b266fd92acd6fa9aa1" type="Page23" />
+  </software>
+  <software title="Tech Demo - Tempest mockup" system="ColecoVision" company="" year="2010">
+    <rom sha1="85c6102dbb53169cca51d072fa8b63e6f745f910" type="Page23" />
+  </software>
+  <software title="Tech Demo - Todd Music" system="ColecoVision" company="CVGus" year="2016" country="US">
+    <rom sha1="401edda65ef768b2b8701b1d23d04ab42cc597bc" type="Page23" />
+  </software>
+  <software title="Tech Demo - Tokio Scramble Formation" system="ColecoVision" company="Nitrofurano" year="2014" country="PT">
+    <rom sha1="7658e6a5c42b3112258957eb6d46d959a5bef6f0" type="Page23" />
+  </software>
+  <software title="Tech Demo - Zelda 2 Bossmusic Mockup" system="ColecoVision" company="" year="2013">
+    <rom sha1="19093b6bc653942dfb4f608b852ee4cb1e41ca5c" type="Page23" />
+  </software>
+  <software title="Tech Demop - Flying Shark" system="ColecoVision" company="Nitrofurano" year="2014" country="PT">
+    <rom sha1="100a24eea568a0187cf89f8b0afce27530b1648d" type="Page23" />
   </software>
   <software title="Tele Bunny" system="ColecoVision" company="Crazy Boss" year="2014" country="NL">
     <rom sha1="be3e055fe283b570b4e16d70544d20d88e4dec6c" type="Page23" />
@@ -16070,6 +16368,7 @@ The Database is located at https://romdb.vampier.net/
   <software title="Text Adventure" system="ColecoVision" company="Kiwi" year="2015" country="US">
     <rom sha1="4086b27bb43888721269382cdb30ddd11f3a37a9" type="Page23" />
     <rom sha1="37f5a474e94d37ed7a3643cd7edeb59a1401a00c" type="Page23" remark="Dragon Option" />
+    <rom sha1="54db8132f6e93e06f31ae39e1a15c49e65aa72fb" type="Page23" />
   </software>
   <software title="The Black Onyx" system="ColecoVision" company="Bruce Tomlin" year="2007" country="US">
     <rom sha1="751477c5fcf419e206913ec0c91f61287cf6fe0a" type="Page23" />
@@ -16133,7 +16432,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="39a90ef25c2a2a404e2caf5a6ad1ff828f8c72fc" type="Page23" />
   </software>
   <software title="Traffic Jam" system="ColecoVision" company="Imanok" year="2006" country="ES" genmsxid="3716">
-    <rom sha1="9fe1532e417baefa5d5844ae3abd8c09a385f281" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="9fe1532e417baefa5d5844ae3abd8c09a385f281" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Treasure Hunt" system="ColecoVision" company="Soundic" year="1983" country="CN">
     <rom sha1="de065a964cdc6cbe5bc485ade8d68e21f7f15b0b" type="Page23" />
@@ -16143,15 +16442,17 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Tunnels &amp; Trolls" system="ColecoVision" company="Coleco" year="1984" country="US">
     <rom sha1="0f5b61f650e26e681d7b8a28fcb9d2db7c3bcddb" type="Page23" status="GoodCol" remark="Demo" />
+    <rom sha1="59eb2c750a5af6079a0a66e6e58cb99dd6b7da83" type="Page23" status="Bad" remark="Demo" />
   </software>
   <software title="Tunnels &amp; Trolls Demo" system="ColecoVision" company="Adam" year="1983" country="US">
     <rom sha1="19452eb2a020939245dc100d2736c6f479eb518f" type="Page23" status="GoodCol" />
     <rom sha1="50de0d2726b11873607fe776a8161b3f73c18e6d" type="Page23" />
   </software>
-  <software title="Turbo" system="ColecoVision" company="Coleco" year="1982" country="US">
+  <software title="Turbo" system="ColecoVision" company="Sega" year="1982" country="JP">
     <rom sha1="27f39b9e42cce0cead88c0d0691d56ce46b97111" type="Page23" />
     <rom sha1="732d1f3b2f24895a1f79d15d830aa989ea12fe5e" type="Page23" status="GoodCol" />
     <rom sha1="8b2b55a4db9c5956df41610ad1d800f9a3721bae" type="Page23" remark="Standard Controller Edition" />
+    <rom sha1="b833ec0930289059458873d92ee7e04b941fb7fa" type="Page23" />
   </software>
   <software title="Turmoil 2022 (A)" system="ColecoVision" company="8 Bit Milli Games" year="2021" country="US">
     <rom sha1="f1b5ab42a4df5cd07472917e79eadea641d70f2a" type="Page23" />
@@ -16166,7 +16467,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="d64011dababd4141920e21725d300923f26b8197" type="ColecoMegaCart" />
   </software>
   <software title="Txupinazo!" system="ColecoVision" company="Imanok" year="2007" country="ES" genmsxid="3747">
-    <rom sha1="3bf1b3d0ca7b92707d5b3f626ff51f13f18612a7" type="ColecoMegaCart" status="Author" remark="Published by team Pixelboy" />
+    <rom sha1="3bf1b3d0ca7b92707d5b3f626ff51f13f18612a7" type="Page23" status="Author" remark="Published by team Pixelboy" />
   </software>
   <software title="Up&apos;n Down" system="ColecoVision" company="Sega" year="1984" country="JP">
     <rom sha1="96d83945d041f6f795a3107904a9986de86df8a6" type="Page23" status="GoodCol" />
@@ -16182,6 +16483,25 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Vanguard" system="ColecoVision" company="Kiwi" year="2019" country="US">
     <rom sha1="1feea815f254b9c165397d92de4dc4f0ecbbf9c7" type="ColecoMegaCart" />
+  </software>
+  <software title="Various Tests" system="ColecoVision" company="" year="2013">
+    <rom sha1="ea0f757f43f84648aa2c91660bafefc770b24558" type="Page23" remark="F-Cycle Test 48 Sprites" />
+    <rom sha1="7a4f88d39e90508521d9276f3f2d058c45cf81bc" type="Page23" remark="F-Cycle Test VideoMode MultiColor" />
+    <rom sha1="2f10de13a6551841752387b21867383c33262372" type="Page23" remark="F-Cycle Test VideoMode Text" />
+    <rom sha1="c764266fdf2d53e9ab08b759fbf31cb6602ad15f" type="Page23" remark="F-Cycle Test Sprite Tests sprite color" />
+    <rom sha1="06279cc9f2d00f45cb3df22f53a7608cd3ceef8f" type="Page23" remark="F-Cycle Test Sprite Tests sprite mag" />
+    <rom sha1="7e3010a9c122b534fbd2c8bb63b47db9ed175989" type="Page23" remark="F-Cycle Test Sprite Tests sprite xpos test 1" />
+    <rom sha1="a816d1ba4873471cbd9ca77e95302eb25a78ba37" type="Page23" remark="F-Cycle Test Sprite Tests sprite xpos test 2" />
+    <rom sha1="d2e84a6bacca59e58993670da07103597c7e3cd5" type="Page23" remark="F-Cycle Test Box Sprite Test (2011.03.23)" />
+    <rom sha1="5d3d1e80d446ac892ca284ddad1e231f20bfa942" type="Page23" remark="CV VDP Status by Nanochess" />
+    <rom sha1="1c0a3886c1b2f33788f80e8d51641664fdfbed08" type="Page23" remark="Example 01z1c3 First Test" />
+    <rom sha1="9ef480600d7cc1b9d4b2dc9d7bbd698bb0ea9f1c" type="Page23" remark="NMI Test" />
+    <rom sha1="317d70a40679d5c06db226d362b2356d724ae975" type="Page23" remark="Test ROM" />
+    <rom sha1="e6f5f029e65bc4f4bb7f24e1c1bf57a80c90380a" type="Page23" remark="Gridtest day3" />
+    <rom sha1="32b167a3de6793fd8cb1b83d32ec8a6282cefa17" type="Page23" remark="Gamma Test Utility" />
+    <rom sha1="7a8fd7a8bfbb724260048a49afe18000415226d1" type="Page23" remark="Final Test Utility" />
+    <rom sha1="eaa6df3e253af5a1f7ca69ca9833f117f14428d8" type="Page23" remark="Example 01z1c4 NMI Halt Wait VBL" />
+    <rom sha1="f39d54257348f6a634be09cc4c39d1dbbbec36ab" type="Page23" remark="Example 01z1c5 Vpoke not working" />
   </software>
   <software title="Vecto-Rollerpede" system="ColecoVision" company="SWAMI" year="2023" country="US">
     <rom sha1="e674f16f6df5cf6a3e5f61fe84abac13a64a19ec" type="Page23" />
@@ -16200,14 +16520,17 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="327727222226d0c95d7557389d79a0c974cebf2a" type="Page23" status="GoodCol" />
     <rom sha1="071306581a8f3f229af246f4c11a06253c7b94d5" type="Page23" />
     <rom sha1="41756f14de96b7d57ac07f4732fde1e2d1e8aa86" type="Page23" status="Hack" remark="Daniel Bienvenu - Standard Controller" />
+    <rom sha1="0e124ee6f75dbc93a650049fcb9833de3085c9c1" type="Page23" remark="Cart # 4L4065 - Box # 74-359C" />
   </software>
   <software title="Video Hustler" system="ColecoVision" company="Konami" year="1984" country="JP" genmsxid="62">
     <rom sha1="08172d85140c004241ab585fc41cdc7841f8290b" type="Page23" status="GoodCol" remark="Prototype" />
     <rom sha1="5f481ff47762a812c73bb120e60f31ee99fd6b5f" type="Page23" remark="Prototype" />
     <rom sha1="47f0fddca5a04268d5f9f4c0f55baf80d833deea" type="Page23" status="GoodCol" remark="Prototype" />
+    <rom sha1="7d35bc72eba38b88b13ae96d36aff833a4ba410d" type="Page23" status="Overdump" remark="Prototype" />
   </software>
   <software title="Vision 8" system="ColecoVision" company="Marcel de Kogel" year="1997" country="US">
     <rom sha1="d04f0283a1f598089a9c3a6296c015ec873e05df" type="Page23" status="GoodCol" />
+    <rom sha1="86afd1fc7ce0f7f76c01a2490303dbd42eaf9990" type="Page23" />
   </software>
   <software title="War" system="ColecoVision" company="Leo Gerald Brophy" year="2014" country="IE">
     <rom sha1="12ade24161b9f67adb246c7c273a3cfde1b7ff8d" type="Page23" />
@@ -16225,11 +16548,14 @@ The Database is located at https://romdb.vampier.net/
   <software title="WarGames" system="ColecoVision" company="Coleco" year="1984" country="US">
     <rom sha1="1e3b525f2d895105727fee76076dd5ecccbf1778" type="Page23" remark="Prototype" />
   </software>
+  <software title="Warlords" system="ColecoVision" company="Paulo Silva" year="2007" country="EU">
+    <rom sha1="bc200647b0fddcfbf00287f297cc40abeca5aed0" type="Page23" />
+  </software>
   <software title="Warm Fuzzy - Quest For Salad" system="ColecoVision" company="Dale Wick" year="2005" country="US">
     <rom sha1="bca61548018cda5fea3ebe800142cd935c1caea1" type="Page23" />
   </software>
   <software title="Warp &amp; Warp" system="ColecoVision" company="Opcode" year="2016" country="BR">
-    <rom sha1="e319d10fc31c07a58d47d8c39ab020a8abbadc15" type="ColecoMegaCart" />
+    <rom sha1="e319d10fc31c07a58d47d8c39ab020a8abbadc15" type="Page23" />
   </software>
   <software title="Waterville Rescue" system="ColecoVision" company="Mike Ward" year="2009" country="CA">
     <rom sha1="3c37eea4207e42a48fc9f311a0a35712e9611a1e" type="Page23" />
@@ -16237,6 +16563,10 @@ The Database is located at https://romdb.vampier.net/
   <software title="Where&apos;s Derpy" system="ColecoVision" company="gameblabla" year="2013" country="FR">
     <rom sha1="a595ebac485814cd6e4c40b33dfbcab25d0e9c03" type="Page23" />
     <rom sha1="857e978cd7e038b85c0bd001b4405605bcfcb0d6" type="Page23" />
+  </software>
+  <software title="Who is your valentine" system="ColecoVision" company="">
+    <rom sha1="80f24b230b14ba39bd9cd9b30bb93d6023b7a306" type="Page23" remark="christina milian" />
+    <rom sha1="131efef0d0e6a3827f67819523b85082cae16485" type="Page23" remark="venus watch spagirls" />
   </software>
   <software title="Wild Western" system="ColecoVision" company="Eduardo Mello" year="2005" country="US">
     <rom sha1="e98f90cc5d955c928a69f3a11994e6285e248433" type="Page23" />
@@ -16275,11 +16605,20 @@ The Database is located at https://romdb.vampier.net/
   <software title="Wrong Way!" system="ColecoVision" company="5-11under" year="2007" country="CA">
     <rom sha1="7dd17dd71bb349a03147c856745a9a0eb72651fd" type="Page23" />
   </software>
+  <software title="xpmck songs" system="ColecoVision" company="mic_">
+    <rom sha1="d4bda43a6674a6a6c38c68ffc71fb095c3a6c218" type="Page23" remark="Lucifer song xpmck-18" />
+    <rom sha1="efedec31513b9ac84b3f3372befafe2998ffdaba" type="Page23" remark="Lucifer Song" />
+    <rom sha1="b5505624c69b684a0388932d5d7da330472bed28" type="Page23" remark="Lucifer" />
+    <rom sha1="bb3a0c179ea8e8336b4a1f7cc32838a579968f8a" type="Page23" remark="v32 Dracula (Vampire Killer)" />
+    <rom sha1="0d9841998f72a1d5c24878f13984143decedb4b6" type="Page23" remark="Dracula xpmck-18 music test" />
+    <rom sha1="0ac96eec2c0eefc9e1f05758823a71366aabe35c" type="Page23" remark="Dracula Music" />
+  </software>
   <software title="Xyzolog" system="ColecoVision" company="Opcode" year="2019" country="BR">
-    <rom sha1="59b1f64819e3b53e6acd6d086ad8f4a171893b54" type="ColecoMegaCart" />
+    <rom sha1="59b1f64819e3b53e6acd6d086ad8f4a171893b54" type="Page23" />
   </software>
   <software title="Yank Bash" system="ColecoVision" company="Richard Drushel" year="2004" country="US">
     <rom sha1="31c7a5d78886eb1df477d14b21105e7f21734b9c" type="Page23" remark="ADAMcon 16" />
+    <rom sha1="32dd2063aa880aad596cbc7b091315479d99e055" type="Page23" />
   </software>
   <software title="Yar&apos;s Revenge" system="ColecoVision" company="Kiwi" year="2019" country="US">
     <rom sha1="94778a32bc822f0306fbeb6d6a3dde798b629148" type="Page23" />
@@ -16322,18 +16661,18 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Zombie Near" system="ColecoVision" company="Oscar Toledo Gutierrez" year="2011" country="MX">
     <rom sha1="27da333a0fb43a101c8cea5cba4f47f2424953a2" type="ColecoMegaCart" status="Author" />
-    <rom sha1="fe145666d3168c455c77ff24befc64789b21086c" type="ColecoMegaCart" status="Author" />
-    <rom sha1="f4729395c34853009a262a51e65ea91032caca8f" type="ColecoMegaCart" status="Author" />
-    <rom sha1="d4637d31b9737d1d76a572d6bcce87eb03195536" type="ColecoMegaCart" status="Author" />
-    <rom sha1="cef206bf1a802c0c59a18749b86c25562c3302a3" type="ColecoMegaCart" status="Author" />
-    <rom sha1="c961d4f10ff866e65006e30d559801eeb98cc817" type="ColecoMegaCart" status="Author" />
-    <rom sha1="aaa24419466c7bd4252f4166bbaf9f9935fc682c" type="ColecoMegaCart" status="Author" />
-    <rom sha1="157952827f2448f1ca532dceca11ab5829ab5f82" type="ColecoMegaCart" status="Author" />
-    <rom sha1="2485dcb11f78fc75c59cbfcac33d10de1851302a" type="ColecoMegaCart" status="Author" />
+    <rom sha1="fe145666d3168c455c77ff24befc64789b21086c" type="Page23" status="Author" />
+    <rom sha1="f4729395c34853009a262a51e65ea91032caca8f" type="Page23" status="Author" />
+    <rom sha1="d4637d31b9737d1d76a572d6bcce87eb03195536" type="Page23" status="Author" />
+    <rom sha1="cef206bf1a802c0c59a18749b86c25562c3302a3" type="Page23" status="Author" />
+    <rom sha1="c961d4f10ff866e65006e30d559801eeb98cc817" type="Page23" status="Author" />
+    <rom sha1="aaa24419466c7bd4252f4166bbaf9f9935fc682c" type="Page23" status="Author" />
+    <rom sha1="157952827f2448f1ca532dceca11ab5829ab5f82" type="Page23" status="Author" />
+    <rom sha1="2485dcb11f78fc75c59cbfcac33d10de1851302a" type="Page23" status="Author" />
     <rom sha1="703cfa1f94298a1a95537363f730404745e9385a" type="ColecoMegaCart" status="Author" />
-    <rom sha1="c5a1883fec1c3279fecfa63cfd0e2b64e7f593f6" type="ColecoMegaCart" status="Author" />
-    <rom sha1="bbbe55135e5546c28e9f45fe29ba810539baf1cb" type="ColecoMegaCart" status="Author" remark="Infinite Lifes" />
-    <rom sha1="a47a820241db528b656427d07a53f4c3570f282f" type="ColecoMegaCart" status="Author" />
+    <rom sha1="c5a1883fec1c3279fecfa63cfd0e2b64e7f593f6" type="Page23" status="Author" />
+    <rom sha1="bbbe55135e5546c28e9f45fe29ba810539baf1cb" type="Page23" status="Author" remark="Infinite Lifes" />
+    <rom sha1="a47a820241db528b656427d07a53f4c3570f282f" type="Page23" status="Author" />
     <rom sha1="591639b548e735a51d3f77a9a92ce80ad6592e21" type="ColecoMegaCart" status="Author" />
   </software>
   <software title="Zoom 909" system="ColecoVision" company="Mystery Man" year="2021">
@@ -16498,6 +16837,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="3fe3272374135e8b5e849bdcd12812a90bb9901c" type="Mirrored" status="Hack" />
     <rom sha1="24d5d62149d68fa24d8e04ab92038284b57dd546" type="Mirrored" status="Translated" remark="Spanish" />
     <rom sha1="96dd55a63bae0abc666fe317d50612116100d7b1" type="Mirrored" />
+    <rom sha1="01b65ecfb5307bff0d8222f266b9d641b6a203db" type="Mirrored" />
   </software>
   <software title="C_So!" system="SG-1000" company="Compile" year="1985" country="JP">
     <rom sha1="7101c42289815d7e0d04b523f8f0e833f2f089b3" type="Mirrored" status="Hack" remark="Taiwan" />
@@ -16549,6 +16889,22 @@ The Database is located at https://romdb.vampier.net/
   <software title="Foryster" system="SG-1000" company="Siudym" year="2022" country="PL">
     <rom sha1="e51e047610930f8e44f3788be5a9970a7118d794" type="Mirrored" />
     <rom sha1="f59be1768fbab79d1bffb886f4074d1e06498f9f" type="Mirrored" remark="00.9 - Level 10 Fix" />
+  </software>
+  <software title="Fudebrowser ROMs" system="SG-1000" company="" year="2000">
+    <rom sha1="185575d35e32cd9280015a4b63a4b24c3179f220" type="Mirrored" status="Bad" remark="ExpoSALT Logo (2000)(Bittencourt, Ricardo)" />
+    <rom sha1="09590758b33f704cc520d80ac28942a1558c0f05" type="Mirrored" status="Bad" remark="SkyBaby&apos;s SMSList (2000)(SkyBaby)(PD)" />
+    <rom sha1="3463d5fc43e15a045abd048c04acf4bdd9eab683" type="Mirrored" status="Bad" remark="Sandy Style Picture (2003)(Newo)(PD)" />
+    <rom sha1="45a2ba5e299194515c2097efc0814c8f2fcfba6f" type="Mirrored" status="Bad" remark="Winnie Cooper 3 Pictures (2000)(Bittencourt, Ricardo)(PD)" />
+    <rom sha1="4a7aafb9059a701ec3ea4742169476371f75d9e5" type="Mirrored" status="Bad" remark="Shurato Picture (2000)(Bittencourt, Ricardo)(PD)" />
+    <rom sha1="4aa7d2466c314be8881c88be5ed4abb0accac1b2" type="Mirrored" status="Bad" remark="Jiraiya Picture (2000)(Bittencourt, Ricardo)(PD)" />
+    <rom sha1="5ce20d2b6db811deafc83f8b42144fc1bc519efd" type="Mirrored" status="Bad" remark="I Am Newo (2000)(Newo)(PD)" />
+    <rom sha1="8bd5fb07dff9548afa12a48a263e569036eddb7b" type="Mirrored" status="Bad" remark="How Do They Do That With HTML (2000)(Bittencourt, Ricardo)(PD)" />
+    <rom sha1="96c6fd49694e08beaf43c2fac7876c56491f9876" type="Mirrored" status="Bad" remark="BrMSX Manual (2000)(Bittencourt, Ricardo)(PD)" />
+    <rom sha1="b160f3a273bf9f675ba13f6a5a61c92c2b16bd36" type="Mirrored" status="Bad" remark="BrSMS Manual (2000)(Bittencourt, Ricardo)(PD)" />
+    <rom sha1="cf546c0a5e75c70c12ce0fb272766dd07562c956" type="Mirrored" status="Bad" remark="Sobre as Vidas do Coelho da Pascoa que se Transformaram em Moinhos (2000)" />
+    <rom sha1="cfe16bd68f409de8c21631dc8fa63322ae959f5c" type="Mirrored" status="Bad" remark="Chrissy M Picture (2003)(Newo)(PD)" />
+    <rom sha1="d59897788ead1515667c9005f85736e121765acb" type="Mirrored" status="Bad" remark="Winnie Cooper Picture (2000)(Bittencourt, Ricardo)(PD)" />
+    <rom sha1="e77f199938a5a63a1a167a449a2891e694715f79" type="Mirrored" status="Bad" remark="Goatse Picture (2003)(Newo)(PD)" />
   </software>
   <software title="Girl&apos;s Garden" system="SG-1000" company="Sega" year="2010" country="JP">
     <rom sha1="0e08786587fb76909b3f9806ba1f5d57ea17728c" type="Mirrored" />
@@ -16669,6 +17025,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Neuras" system="SG-1000" company="Inufuto" year="2021" country="JP">
     <rom sha1="feae43ba860a55adf5c1d7adf185eb990a6f0eae" type="Mirrored" />
   </software>
+  <software title="Nihonshi Nenpyou" system="SG-1000" company="Stratford Computer Center" year="1983" country="JP">
+    <rom sha1="972cf86f8f627c7b8e1ac9c5a837bd4673be6e54" type="Mirrored" />
+  </software>
   <software title="Ninja Princess" system="SG-1000" company="Pony Canyon" year="1986" country="JP">
     <rom sha1="f142bb823cebc4e31488e7a9a94644af24186d99" type="Mirrored" />
     <rom sha1="dac76d52c9d88f7b6bf71fc897669d7e6440d143" type="Mirrored" />
@@ -16786,6 +17145,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="d713dcbd79a3db8f1ef2cfb27da31a286fff16d1" type="Mirrored" />
     <rom sha1="b7eb254a014772a83829e1991dcd32396e8dd9cc" type="Mirrored" status="hack" />
   </software>
+  <software title="Sega Home BASIC" system="SG-1000" company="Sega" year="1983" country="JP">
+    <rom sha1="f1e1e7e9687cf4f9f498779a44134c2d70bb8d4b" type="Mirrored" status="Bad" />
+  </software>
   <software title="SEGABTL VRAM CLEAN" system="SG-1000" company="">
     <rom sha1="75c176b69c34323dbaf085d09b2c067303824848" type="Mirrored" />
   </software>
@@ -16799,9 +17161,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="83784e8248e2367546115382dac157ca8e6fe3ab" type="Mirrored" />
     <rom sha1="e47e56be455d46c6cc5334895e54069a85da6c3b" type="Mirrored" status="Hack" />
   </software>
-  <software title="Sindbad Mystery" system="SG-1000" company="Team Pixelboy" year="2021" country="US">
+  <software title="Sindbad Mystery" system="SG-1000" company="Sega" year="1983" country="JP">
     <rom sha1="90bb8b8337866339f32b3fd48b4d25d78d682b55" type="Mirrored" />
     <rom sha1="9a4e44ccd3cabd092aae59fcabda8f047609a675" type="Mirrored" />
+    <rom sha1="a3b3f96685815d6ab0751e6442c7349d5b91d60c" type="Mirrored" status="Bad" />
   </software>
   <software title="Snake" system="SG-1000" company="Under4Mhz" year="2021" country="AU">
     <rom sha1="878c600b866b5c355215eebe846167049ce996ed" type="Mirrored" />
@@ -16860,6 +17223,9 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Tank Battalion" system="SG-1000" company="NAMCO" year="1984" country="JP">
     <rom sha1="0ca3b740b28266a2a606127ed8967c684b67cb44" type="Mirrored" status="Bad" />
+  </software>
+  <software title="Tanoshii Sansuu - Elementary School 6th Mathematics - Volume 2" system="SG-1000" company="Stratford Computer Center" year="1984" country="JP">
+    <rom sha1="751d82119e19d46a20165c8debbfe95b3241a701" type="Mirrored" />
   </software>
   <software title="Tech Demo - Asteroids 3D" system="SG-1000" company="Under4Mhz" country="AU">
     <rom sha1="09cababdf65f70749608d973d6b9ecf3b13ddc9d" type="Mirrored" />
@@ -16973,6 +17339,6 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="b6dd7af36c8d16b04fca4963f081db534e91b360" type="Mirrored" remark="SD-003C" />
   </software>
 
-<!-- Roms in this XML file: 9623 - Created on Sat Jun 13 2026 - 18:02:14
-      Per platform: ColecoVision: 1165 | MSX: 6726 | MSX Turbo-R: 11 | MSX2: 1390 | MSX2Plus: 4 | SG-1000: 316 | SVI: 11 -->
+<!-- Roms in this XML file: 9821 - Created on Wed Jun 17 2026 - 02:30:53
+      Per platform: ColecoVision: 1341 | MSX: 6728 | MSX Turbo-R: 11 | MSX2: 1391 | MSX2Plus: 4 | SG-1000: 335 | SVI: 11 -->
 </softwaredb>
