@@ -70,8 +70,4 @@ void DummyVideoSystem::setWindowPosition(gl::ivec2 /*pos*/)
 {
 }
 
-void DummyVideoSystem::setWindowSize(gl::ivec2 /*size*/)
-{
-}
-
 } // namespace openmsx

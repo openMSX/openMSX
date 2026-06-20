@@ -1,8 +1,6 @@
 #ifndef OUTPUTDIMENSIONS_HH
 #define OUTPUTDIMENSIONS_HH
 
-#include "RenderSettings.hh"
-
 #include "gl_vec.hh"
 
 namespace openmsx {
@@ -10,8 +8,11 @@ namespace openmsx {
 class OutputDimensions
 {
 public:
-	OutputDimensions() : OutputDimensions({640, 480}, RenderSettings::ScaleFactor::INTEGER) {}
-	OutputDimensions(gl::ivec2 physSize, RenderSettings::ScaleFactor factor);
+	OutputDimensions() : OutputDimensions({640, 480}, 2.0f) {}
+	OutputDimensions(gl::ivec2 physSize_, float factor)
+		: m_physSize(physSize_)
+		, m_viewSize(gl::round(gl::vec2(320.0f, 240.0f) * factor))
+		, m_viewOffset((m_physSize - m_viewSize) / 2) {}
 
 	[[nodiscard]] gl::ivec2 getPhysicalSize() const { return m_physSize; }
 	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }
@@ -21,8 +22,8 @@ public:
 
 private:
 	gl::ivec2 m_physSize;
-	gl::ivec2 m_viewOffset;
 	gl::ivec2 m_viewSize;
+	gl::ivec2 m_viewOffset;
 };
 
 } // namespace openmsx

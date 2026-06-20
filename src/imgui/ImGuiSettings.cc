@@ -197,7 +197,26 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					});
 				});
 
-				ComboBox("Scale factor", renderSettings.getScaleFactorSetting());
+				auto& factorSetting = renderSettings.getScaleFactorSetting();
+				float factor = renderSettings.getScaleFactor();
+				if (renderSettings.getScaleMode() == RenderSettings::ScaleMode::INTEGER) {
+					int iFactor = int(factor);
+					if (ImGui::SliderInt("Scale factor", &iFactor,
+							narrow_cast<int>(factorSetting.getMinValue()),
+							narrow_cast<int>(factorSetting.getMaxValue()))) {
+						manager.executeDelayed([&, iFactor]{ factorSetting.setFloat(float(iFactor)); });
+					}
+				} else {
+					if (ImGui::SliderFloat("Scale factor", &factor,
+							narrow_cast<float>(factorSetting.getMinValue()),
+							narrow_cast<float>(factorSetting.getMaxValue()))) {
+						manager.executeDelayed([&, factor]{ factorSetting.setFloat(factor); });
+					}
+				}
+
+				im::Indent([&]{
+					ComboBox("Scale mode", renderSettings.getScaleModeSetting());
+				});
 				Checkbox(hotKey, "Deinterlace", renderSettings.getDeinterlaceSetting());
 				Checkbox(hotKey, "Deflicker", renderSettings.getDeflickerSetting());
 			});

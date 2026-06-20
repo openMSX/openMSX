@@ -174,11 +174,6 @@ void SDLVideoSystem::setWindowPosition(gl::ivec2 pos)
 	screen->setWindowPosition(pos);
 }
 
-void SDLVideoSystem::setWindowSize(gl::ivec2 size)
-{
-	screen->resize(size);
-}
-
 void SDLVideoSystem::update(const Setting& subject) noexcept
 {
 	if (&subject == &renderSettings.getFullScreenSetting()) {

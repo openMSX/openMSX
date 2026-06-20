@@ -41,9 +41,8 @@ public:
 		SIMPLE, SCALE, HQ, RGBTRIPLET, TV,
 		NO
 	};
-	enum class ScaleFactor : uint8_t {
-		F1 = 1, F2, F3, F4, F5, F6, F7, F8,
-		FREE, FIXED_ASPECT_RATIO, INTEGER,
+	enum class ScaleMode : uint8_t {
+		INTEGER, FLOAT
 	};
 
 	enum class DisplayDeform : uint8_t {
@@ -130,14 +129,20 @@ public:
 	[[nodiscard]] ScaleAlgorithm getScaleAlgorithm() const {
 		return scaleAlgorithmSetting.getEnum();
 	}
-	//[[nodiscard]] auto& getScaleModeSetting() { return scaleModeSetting; }
-	//[[nodiscard]] ScaleMode getScaleMode() const {
-	//	return scaleModeSetting.getEnum();
-	//}
+	[[nodiscard]] auto& getScaleModeSetting() { return scaleModeSetting; }
+	[[nodiscard]] ScaleMode getScaleMode() const {
+		return scaleModeSetting.getEnum();
+	}
 
 	/** The current scaling factor. */
 	[[nodiscard]] auto& getScaleFactorSetting() { return scaleFactorSetting; }
-	[[nodiscard]] auto getScaleFactor() const { return scaleFactorSetting.getEnum(); }
+	[[nodiscard]] auto getScaleFactor() const {
+		auto f = scaleFactorSetting.getFloat();
+		if (scaleModeSetting.getEnum() == ScaleMode::INTEGER) {
+			f = std::floor(f);
+		}
+		return f;
+	}
 
 	/** Limit number of sprites per line?
 	  * If true, limit number of sprites per line as real VDP does.
@@ -234,8 +239,8 @@ private:
 	RendererSetting rendererSetting;
 	IntegerSetting horizontalBlurSetting;
 	EnumSetting<ScaleAlgorithm> scaleAlgorithmSetting;
-	//EnumSetting<ScaleMode> scaleModeSetting;
-	EnumSetting<ScaleFactor> scaleFactorSetting;
+	EnumSetting<ScaleMode> scaleModeSetting;
+	FloatSetting scaleFactorSetting;
 	IntegerSetting scanlineAlphaSetting;
 	BooleanSetting limitSpritesSetting;
 	BooleanSetting disableSpritesSetting;

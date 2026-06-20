@@ -168,7 +168,7 @@ VisibleSurface::~VisibleSurface()
 	// the window gets recreated when changing renderers, for instance.
 	// Do not store if we're full screen, the location is the top-left
 	if (auto pos = getWindowPosition()) {
-		display.storeWindowPositionAndSize(*pos);
+		display.storeWindowPosition(*pos);
 	}
 
 	for (auto type : {EventType::IMGUI_ACTIVE,

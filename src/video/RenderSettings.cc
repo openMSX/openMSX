@@ -30,23 +30,14 @@ namespace openmsx {
 	return scalerMap;
 }
 
-[[nodiscard]] static auto getScaleFactorMap()
+[[nodiscard]] static EnumSetting<RenderSettings::ScaleMode>::Map getScaleModeMap()
 {
-	using enum RenderSettings::ScaleFactor;
-	EnumSetting<RenderSettings::ScaleFactor>::Map result = {
-		{"free",               FREE},
-		{"fixed_aspect_ratio", FIXED_ASPECT_RATIO},
-		{"integer",            INTEGER},
-		{"1",                  F1},
-		{"2",                  F2},
-		{"3",                  F3},
-		{"4",                  F4},
-		{"5",                  F5},
-		{"6",                  F6},
-		{"7",                  F7},
-		{"8",                  F8},
+	using enum RenderSettings::ScaleMode;
+	EnumSetting<RenderSettings::ScaleMode>::Map map = {
+		{"integer", INTEGER},
+		{"float",   FLOAT},
 	};
-	return result;
+	return map;
 }
 
 [[nodiscard]] static EnumSetting<RenderSettings::RendererID>::Map getRendererMap()
@@ -121,13 +112,13 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		commandController, "scale_algorithm", "scale algorithm",
 		ScaleAlgorithm::SIMPLE, getScalerMap())
 
-	//, scaleModeSetting(
-	//	commandController, "scale_mode", "scale mode",
-	//	ScaleMode::FIXED_ASPECT_RATIO, getScaleModeMap())
+	, scaleModeSetting(
+		commandController, "scale_mode", "scale mode",
+		ScaleMode::INTEGER, getScaleModeMap())
 
 	, scaleFactorSetting(commandController,
 		"scale_factor", "scale factor",
-		ScaleFactor::INTEGER, getScaleFactorMap())
+		2.0f, 1.0f, 8.0f)
 
 	, scanlineAlphaSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",

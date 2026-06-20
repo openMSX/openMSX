@@ -53,7 +53,6 @@ public:
 	void setClipboardText(zstring_view text) override;
 	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() override;
 	void setWindowPosition(gl::ivec2 pos) override;
-	void setWindowSize(gl::ivec2 size) override;
 
 private:
 	// Observer

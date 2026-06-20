@@ -203,23 +203,20 @@ std::string Display::getWindowTitle()
 gl::ivec2 Display::getWindowPosition()
 {
 	if (auto pos = videoSystem->getWindowPosition()) {
-		storeWindowPositionAndSize(*pos);
+		storeWindowPosition(*pos);
 	}
 	return retrieveWindowPosition();
 }
 
-void Display::setWindowPositionAndSize(gl::ivec2 pos, gl::ivec2 size)
+void Display::setWindowPosition(gl::ivec2 pos)
 {
-	if (outputDim.getPhysicalSize() != size) {
-		videoSystem->setWindowSize(size);
-	}
-	storeWindowPositionAndSize(pos);
+	storeWindowPosition(pos);
 	videoSystem->setWindowPosition(pos);
 }
 
-void Display::storeWindowPositionAndSize(gl::ivec2 pos)
+void Display::storeWindowPosition(gl::ivec2 pos)
 {
-	reactor.getImGuiManager().storeWindowPositionAndSize(pos, outputDim.getPhysicalSize());
+	reactor.getImGuiManager().storeWindowPosition(pos);
 }
 
 gl::ivec2 Display::retrieveWindowPosition()
@@ -229,6 +226,7 @@ gl::ivec2 Display::retrieveWindowPosition()
 
 gl::ivec2 Display::getScaleFactorSize() const
 {
+	// TODO simplify?
 	OutputDimensions dim(outputDim.getPhysicalSize(), renderSettings.getScaleFactor());
 	return dim.getViewSize();
 }
@@ -327,10 +325,20 @@ void Display::repaint()
 
 void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
 {
-	auto newOutputDim = OutputDimensions{windowSize, renderSettings.getScaleFactor()};
+	auto factor = gl::min_component(gl::vec2(windowSize) / gl::vec2(320.0f, 240.0f));
+	if (renderSettings.getScaleMode() == RenderSettings::ScaleMode::INTEGER) {
+		factor = std::floor(factor);
+	}
+	renderSettings.getScaleFactorSetting().setFloat(factor);
+	auto newOutputDim = OutputDimensions{windowSize, factor};
 	if (newOutputDim != outputDim) {
 		outputDim = newOutputDim;
 		osdLayer->invalidateAll();
+	}
+	if (windowSize != newOutputDim.getViewSize()) {
+		if (auto* surf = videoSystem->getSurface()) {
+			surf->resize(newOutputDim.getViewSize());
+		}
 	}
 
 	if (auto* video = findActiveLayer()) {
