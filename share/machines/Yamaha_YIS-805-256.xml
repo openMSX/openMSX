@@ -69,11 +69,11 @@
         <filename>yis805-256_kanjifont.rom</filename>
         <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1>
       </rom>
-      <io_ports_mirror_if_only_level1_installed>true</io_ports_mirror_if_only_level1_installed>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
       <io base="0xDA" num="2" type="O"/> <!-- mirror 1 -->
       <io base="0xDB" num="1" type="I"/> <!-- mirror 1 -->
+      <level_2_via>only_level_1</level_2_via>
     </Kanji>
 
     <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->

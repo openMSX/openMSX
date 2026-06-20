@@ -26,6 +26,7 @@
       <io base="0xD9" num="1" type="I"/>
       <io base="0xDA" num="2" type="O"/>
       <io base="0xDB" num="1" type="I"/>
+      <level_2_via>interlocked_write_read</level_2_via>
     </Kanji>
 
     <PPI id="ppi">
