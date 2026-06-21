@@ -43,7 +43,7 @@ MSXKanji::MSXKanji(DeviceConfig& config)
 
 void MSXKanji::reset(EmuTime /*time*/)
 {
-	std::ranges::fill(adr, 0); // TODO check inital value
+	adr = 0; // TODO check inital value
 	writeLevel = 0;
 }
 
@@ -52,56 +52,47 @@ void MSXKanji::writeIO(uint16_t port, uint8_t value, EmuTime /*time*/)
 	port &= portMask;
 	writeLevel = (port & 2) ? 1 : 0;
 
-	auto adrLevel = (level2Via == Level2Via::Read) ? writeLevel : 0;
-	auto& a = adr[adrLevel];
-
 	switch (port & 1) {
 	case 0:
-		a = (a & 0x3f800) | ((value & 0x3f) << 5); // 6 bit column
+		adr = (adr & 0x3f800) | ((value & 0x3f) << 5); // 6 bit column
 		break;
 	case 1:
-		a = (a & 0x007e0) | ((value & highAddressMask) << 11); // 6 or 7 (for 'hangul') bit row
+		adr = (adr & 0x007e0) | ((value & highAddressMask) << 11); // 6 or 7 (for 'hangul') bit row
 		break;
 	}
 	// note: write to either row/column resets the counter
-	// note: only mode "Level2Via::Read" has separate level1/2 adr, other modes share the same adr[0]
 }
 
 MSXKanji::ReadImplResult MSXKanji::readImpl(uint16_t port) const
 {
 	uint8_t readLevel = (port & portMask & 2) ? 1 : 0;
 
-	uint8_t adrLevel = 0;
 	unsigned address = 0;
 	switch (level2Via) {
 	case Level2Via::Read:
-		adrLevel = readLevel;
-		address = adr[adrLevel] | (readLevel << 17);
+		address = adr | (readLevel << 17);
 		break;
 	case Level2Via::InterlockedWriteRead:
-		if (readLevel != writeLevel) return {.adrLevel = {}, .value = 0xFF};
+		if (readLevel != writeLevel) return {.valid = false, .value = 0xFF};
 		[[fallthrough]];
 	case Level2Via::Write:
-		adrLevel = 0; // shared between level1/2
-		address = adr[adrLevel] | (writeLevel << 17);
+		address = adr | (writeLevel << 17);
 		break;
 	}
 
-	return {.adrLevel = adrLevel, .value = rom[address & (rom.size() - 1)]};
+	return {.valid = true, .value = rom[address & (rom.size() - 1)]};
 }
 
 uint8_t MSXKanji::peekIO(uint16_t port, EmuTime /*time*/) const
 {
-	auto [_, value] = readImpl(port);
-	return value;
+	return readImpl(port).value;
 }
 
 uint8_t MSXKanji::readIO(uint16_t port, EmuTime /*time*/)
 {
-	auto [adrLevel, value] = readImpl(port);
-	if (adrLevel) {
-		auto& a = adr[*adrLevel];
-		a = (a & ~0x1f) | ((a + 1) & 0x1f);
+	auto [valid, value] = readImpl(port);
+	if (valid) {
+		adr = (adr & ~0x1f) | ((adr + 1) & 0x1f);
 	}
 	return value;
 }
@@ -112,15 +103,15 @@ void MSXKanji::getExtraDeviceInfo(TclObject& result) const
 }
 
 // version 1 : initial version
-// version 2 : replaced adr1/adr2 with adr[2], added writeLevel
+// version 2 : replaced adr1/adr2 with a single shared adr, added writeLevel
 template<typename Archive>
 void MSXKanji::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	if (ar.versionBelow(version, 2)) {
 		assert(Archive::IS_LOADER);
-		ar.serialize("adr1", adr[0],
-		             "adr2", adr[1]);
+		ar.serialize("adr1", adr);
+		//ar.serialize("adr2", adr); // ignored
 		writeLevel = 0;
 	} else {
 		ar.serialize("adr",        adr,

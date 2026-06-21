@@ -4,9 +4,6 @@
 #include "MSXDevice.hh"
 #include "Rom.hh"
 
-#include <array>
-#include <optional>
-
 namespace openmsx {
 
 class MSXKanji final : public MSXDevice
@@ -26,7 +23,7 @@ public:
 
 private:
 	struct ReadImplResult {
-		std::optional<uint8_t> adrLevel; // 0/1 for level1/2, or nullopt for read/write mismatch
+		bool valid = false;
 		uint8_t value = 0xFF;
 	};
 	ReadImplResult readImpl(uint16_t port) const;
@@ -35,17 +32,15 @@ private:
 	enum class Level2Via : uint8_t {
 		//OnlyLevel1, // only level 1 is present, level2 ports (if configured) are mirrors for level1
 		Read, // Level1 or level2 is decided via the port-set (level1 or 2) used for reading
-		      // In the current implementation this mode implies NOT-shared address+counter
 		Write, // Level1 or level 2 is decided via the port-set used during writing.
-		       //  This mode implies a shared address+counter.
 		InterlockedWriteRead, // Write to port-set for level1/2 must be followed by read for the same set.
 		                      // Reading from the other port-set returns 0xFF.
 	};
 
 	Rom rom;
-	std::array<uint32_t, 2> adr; // 2 x 17 bits   (6 row + 6 column + 5 counter), the 18th bit (level) is not included
-	                             //  exception: for 'hangul', the address is 18 bit
-	                             // Note: adr[1] only used in mode "Level2Via::Read", other modes share adr[0] for level1+2
+	uint32_t adr; // 17 bits   (6 row + 6 column + 5 counter), the 18th bit (level) is not included
+	              //  exception: for 'hangul', the address is 18 bit
+	              // Note: adr[1] only used in mode "Level2Via::Read", other modes share adr[0] for level1+2
 	uint8_t writeLevel; // '0' for level1, '1' for level2
 
 	uint8_t highAddressMask;
