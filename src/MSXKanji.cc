@@ -80,7 +80,8 @@ MSXKanji::ReadImplResult MSXKanji::readImpl(uint16_t port) const
 		break;
 	}
 
-	return {.valid = true, .value = rom[address & (rom.size() - 1)]};
+	auto value = (address < rom.size()) ? rom[address] : uint8_t(0xff);
+	return {.valid = true, .value = value};
 }
 
 uint8_t MSXKanji::peekIO(uint16_t port, EmuTime /*time*/) const
