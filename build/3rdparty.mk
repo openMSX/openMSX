@@ -166,6 +166,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL3)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL3)/.extracted \
   $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
+	CFLAGS="$(_CFLAGS) -I$(PWD)/$(INSTALL_DIR)/include" \
+	LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib" \
 	cmake -B $(@D) -S $(PWD)/$(<D) \
 		-DSDL_SHARED=OFF \
 		-DSDL_STATIC=ON \
@@ -173,9 +175,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL3)/Makefile: \
 		-DSDL_POWER=OFF \
 		-DSDL_SENSOR=OFF \
 		-DCMAKE_INSTALL_PREFIX="$(PWD)/$(INSTALL_DIR)" \
-		CFLAGS="$(_CFLAGS)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+		-DCMAKE_PREFIX_PATH="$(PWD)/$(INSTALL_DIR)"
 # Some modules are enabled because of internal SDL2 dependencies:
 # - "audio" depends on "atomic" and "threads"
 # - "joystick" depends on "haptic" (at least in the Windows back-end)
@@ -186,21 +186,21 @@ $(BUILD_DIR)/$(PACKAGE_SDL3_TTF)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL3_TTF)/.extracted \
   $(call installdeps,PKG_CONFIG SDL3 FREETYPE)
 	mkdir -p $(@D)
+	CFLAGS="$(_CFLAGS) -I$(PWD)/$(INSTALL_DIR)/include" \
+	LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib" \
 	cmake -B $(@D) -S $(PWD)/$(<D) \
 		-DSDLTTF_INSTALL=ON \
 		-DSDLTTF_INSTALL_CPACK=OFF \
 		-DSDLTTF_INSTALL_MAN=OFF \
 		-DSDLTTF_RELOCATABLE=OFF \
-		-DSDLTTF_BUILD_SHARED_LIBS=OFF \
 		-DSDLTTF_STRICT=ON \
 		-DSDLTTF_VENDORED=OFF \
 		-DSDLTTF_HARFBUZZ=OFF \
 		-DSDLTTF_PLUTOSVG=OFF \
 		-DSDLTTF_SAMPLES=OFF \
+		-DBUILD_SHARED_LIBS=OFF \
 		-DCMAKE_INSTALL_PREFIX="$(PWD)/$(INSTALL_DIR)" \
-		CFLAGS="$(_CFLAGS)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+		-DCMAKE_PREFIX_PATH="$(PWD)/$(INSTALL_DIR)"
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
