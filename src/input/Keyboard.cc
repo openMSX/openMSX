@@ -1166,15 +1166,14 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 	}
 #ifdef __APPLE__
 	bool positional = mode == KeyboardSettings::MappingMode::POSITIONAL;
-	if ((key.sym.mod & SDL_KMOD_GUI) &&
+	if ((key.mod & SDL_KMOD_GUI) &&
 	    (( positional && (keyEvent.getScanCode() == SDL_SCANCODE_I)) ||
 	     (!positional && (keyCode == SDLK_I)))) {
 		// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
 		keyCode = SDLK_INSERT;
 		key.keycode = SDLK_INSERT;
-		key.sym.scancode = SDL_SCANCODE_INSERT;
-		key.sym.mod &= ~SDL_KMOD_GUI;
-		key.sym.unused = 0; // unicode
+		key.scancode = SDL_SCANCODE_INSERT;
+		key.mod &= ~SDL_KMOD_GUI;
 	}
 #endif
 
