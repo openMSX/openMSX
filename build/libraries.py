@@ -291,7 +291,7 @@ class SDL3(Library):
 	libName = 'SDL3'
 	makeName = 'SDL3'
 	header = '<SDL3/SDL.h>'
-	staticLibsOption = '--static'
+	staticLibsOption = '--libs --static'
 	function = 'SDL_Init'
 
 	@classmethod
