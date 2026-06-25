@@ -18,27 +18,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: ubuntu-latest
+          - image: ubuntu-26.04
             name: Unit Tests (on Linux)
             cpu: x86_64
             os: linux
             flavour: unittest
-          - image: ubuntu-latest
+          - image: ubuntu-26.04
             name: Linux (native, super-opt)
             cpu: x86_64
             os: linux
             flavour: super-opt
-          - image: ubuntu-latest
+          - image: ubuntu-26.04
             name: Linux (native, debug, minimal g++)
             cpu: x86_64
             os: linux
             flavour: debug
-          - image: ubuntu-latest
+          - image: ubuntu-26.04
             name: Linux
             cpu: x86_64
             os: linux
             flavour: opt
-#          - image: ubuntu-latest
+#          - image: ubuntu-26.04
 #            name: Linux
 #            cpu: aarch64
 #            os: linux
@@ -60,7 +60,7 @@ jobs:
             cpu: aarch64
             os: darwin
             flavour: opt
-#          - image: ubuntu-latest
+#          - image: ubuntu-26.04
 #            name: Android
 #            cpu: arm
 #            os: android
