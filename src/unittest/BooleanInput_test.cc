@@ -157,7 +157,7 @@ TEST_CASE("BooleanInput: capture")
 	}
 	SECTION("other SDL") {
 		sdl.window = SDL_WindowEvent{};
-		sdl.window.type = SDL_WINDOWEVENT;
+		sdl.window.type = SDL_EVENT_WINDOW_FOCUS_GAINED;
 		check(WindowEvent(sdl), "");
 	}
 	SECTION("other") {

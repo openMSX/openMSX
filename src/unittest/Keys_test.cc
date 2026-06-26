@@ -5,11 +5,10 @@ using namespace openmsx;
 
 static bool equal(const SDLKey& x, const SDLKey& y)
 {
-	if (x.sym.sym      != y.sym.sym)      return false;
-	if (x.sym.scancode != y.sym.scancode) return false;
-	if (x.sym.mod      != y.sym.mod)      return false;
-	if (x.sym.unused   != y.sym.unused)   return false;
-	if (x.down         != y.down)         return false;
+	if (x.keycode  != y.keycode)  return false;
+	if (x.scancode != y.scancode) return false;
+	if (x.mod      != y.mod)      return false;
+	if (x.down     != y.down)     return false;
 	return true;
 }
 
