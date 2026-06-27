@@ -316,7 +316,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 
 			drawList->AddRectFilled(middleTopLeft, middleBottomRight, color(gl::vec4(1.0f, 0.5f, 0.0f, 0.75f)));
 			drawList->AddRect(
-				outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
+				outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 2.0f);
 
 			auto timeStr = tmpStrCat(formatTime(playLength), " / ", formatTime(totalLength));
 			auto timeSize = ImGui::CalcTextSize(timeStr).x;
