@@ -9,7 +9,7 @@
 
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdl3.h>
 #include <imgui_internal.h>
 
 #include <SDL3/SDL.h>
@@ -28,7 +28,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDL2_NewFrame();
+	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 
 	// Allow docking in main window
