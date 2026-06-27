@@ -29,6 +29,7 @@
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
+      <level_2_via>only_level_1</level_2_via> <!-- checked by kanjitest v1.x on iyatemu's -->
     </Kanji>
 
     <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
