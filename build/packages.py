@@ -102,15 +102,15 @@ class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'
 
-class PkgConfig(DownloadablePackage):
-	downloadURL = 'https://pkg-config.freedesktop.org/releases'
+class PkgConf(DownloadablePackage):
+	downloadURL = 'https://distfiles.ariadne.space/pkgconf'
 	niceName = 'pkg-config'
-	sourceName = 'pkg-config'
-	version = '0.29.2'
-	fileLength = 2016830
+	sourceName = 'pkgconf'
+	version = '2.4.3'
+	fileLength = 468948
 	checksums = {
 		'sha256':
-			'6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591',
+			'cf6be37c79265802f2cb1dfc412e18de23a35b5204fc5868bc09fcfd092ac225',
 		}
 
 class SDL2(DownloadablePackage):
