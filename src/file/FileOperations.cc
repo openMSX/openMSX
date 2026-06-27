@@ -400,8 +400,8 @@ const std::string& getUserOpenMSXDir()
 		return expandTilde("~/openMSX");
 #elif PLATFORM_ANDROID
 		// TODO: do something to query whether the storage is available
-		// via SDL_AndroidGetExternalStorageState
-		return strCat(SDL_AndroidGetExternalStoragePath(), "/openMSX");
+		// via SDL_GetAndroidExternalStorageState
+		return strCat(SDL_GetAndroidExternalStoragePath(), "/openMSX");
 #else
 		return expandTilde("~/.openMSX");
 #endif

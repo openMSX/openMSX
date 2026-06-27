@@ -167,7 +167,7 @@ VisibleSurface::~VisibleSurface()
 	ImGui_ImplSDL3_Shutdown();
 
 	gl::context.reset();
-	SDL_GL_DeleteContext(glContext);
+	SDL_GL_DestroyContext(glContext);
 
 	// store last known position for when we recreate it
 	// the window gets recreated when changing renderers, for instance.
@@ -213,7 +213,7 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 	}
 #ifdef __APPLE__
 	// See VisibleSurface::setViewPort() for why only macos (for now).
-	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
 	assert(!window);
@@ -259,7 +259,7 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 #ifndef _WIN32
 		}
 #endif
-		SDL_SetColorKey(iconSurf.get(), true, 0);
+		SDL_SetSurfaceColorKey(iconSurf.get(), true, 0);
 		SDL_SetWindowIcon(window.get(), iconSurf.get());
 	}
 }
@@ -422,7 +422,7 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 {
 	gl::ivec2 physicalSize = [&] {
 #ifndef __APPLE__
-		// On macos we set 'SDL_WINDOW_ALLOW_HIGHDPI', and in that case
+		// On macos we set 'SDL_WINDOW_HIGH_PIXEL_DENSITY', and in that case
 		// it's required to use SDL_GL_GetDrawableSize(), but then this
 		// 'full screen'-workaround/hack is counter-productive.
 		if (!fullScreen) {

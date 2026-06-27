@@ -13,7 +13,7 @@ JoystickManager::JoystickManager(CommandController& commandController_)
 	: commandController(commandController_)
 {
 	// Note: we don't explicitly enumerate all joysticks which are already
-	// present at startup. Instead we rely on SDL_JOYDEVICEADDED events:
+	// present at startup. Instead we rely on SDL_EVENT_JOYSTICK_ADDED events:
 	// these also get send for the initial joysticks.
 
 	// joysticks generate events
@@ -23,7 +23,7 @@ JoystickManager::JoystickManager(CommandController& commandController_)
 JoystickManager::~JoystickManager()
 {
 	for (auto& info : infos) {
-		if (info.joystick) SDL_JoystickClose(info.joystick);
+		if (info.joystick) SDL_CloseJoystick(info.joystick);
 	}
 }
 
@@ -46,8 +46,8 @@ void JoystickManager::add(int deviceIndex)
 {
 	auto idx = getFreeSlot();
 	auto& info = infos[idx];
-	info.joystick = SDL_JoystickOpen(deviceIndex);
-	info.instanceId = info.joystick ? SDL_JoystickInstanceID(info.joystick) : -1;
+	info.joystick = SDL_OpenJoystick(deviceIndex);
+	info.instanceId = info.joystick ? SDL_GetJoystickID(info.joystick) : -1;
 }
 
 void JoystickManager::remove(int instanceId)
@@ -55,7 +55,7 @@ void JoystickManager::remove(int instanceId)
 	auto it = std::ranges::find(infos, instanceId, &Info::instanceId);
 	if (it == infos.end()) return; // this shouldn't happen
 
-	SDL_JoystickClose(it->joystick);
+	SDL_CloseJoystick(it->joystick);
 	it->joystick = nullptr;
 	it->instanceId = -1;
 }
@@ -81,7 +81,7 @@ std::string JoystickManager::getDisplayName(JoystickId joyId) const
 {
 	unsigned id = joyId.raw();
 	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
-	return joystick ? SDL_JoystickName(joystick) : "[Not plugged in]";
+	return joystick ? SDL_GetJoystickName(joystick) : "[Not plugged in]";
 }
 
 std::optional<unsigned> JoystickManager::getNumButtons(JoystickId joyId) const
@@ -89,7 +89,7 @@ std::optional<unsigned> JoystickManager::getNumButtons(JoystickId joyId) const
 	unsigned id = joyId.raw();
 	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
 	if (!joystick) return {};
-	return SDL_JoystickNumButtons(joystick);
+	return SDL_GetNumJoystickButtons(joystick);
 }
 
 std::optional<JoystickId> JoystickManager::translateSdlInstanceId(SDL_Event& evt) const

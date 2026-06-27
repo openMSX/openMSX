@@ -28,11 +28,11 @@ namespace openmsx::InputEventFactory {
 	e.keysym = key->sym;
 	e.keysym.unused = unicode;
 	if (key->down) {
-		e.type = SDL_KEYDOWN;
+		e.type = SDL_EVENT_KEY_DOWN;
 		e.state = SDL_PRESSED;
 		return KeyDownEvent(evt);
 	} else {
-		e.type = SDL_KEYUP;
+		e.type = SDL_EVENT_KEY_UP;
 		e.state = SDL_RELEASED;
 		return KeyUpEvent(evt);
 	}
@@ -94,7 +94,7 @@ namespace openmsx::InputEventFactory {
 				evt.motion = SDL_MouseMotionEvent{};
 				auto& e = evt.motion;
 
-				e.type = SDL_MOUSEMOTION;
+				e.type = SDL_EVENT_MOUSE_MOTION;
 				e.timestamp = SDL_GetTicks();
 				e.x = absX;
 				e.y = absY;
@@ -116,11 +116,11 @@ namespace openmsx::InputEventFactory {
 					e.timestamp = SDL_GetTicks();
 					e.button = narrow<uint8_t>(*button);
 					if (upDown(str.getListIndex(interp, 2).getString())) {
-						e.type = SDL_MOUSEBUTTONUP;
+						e.type = SDL_EVENT_MOUSE_BUTTON_UP;
 						e.state = SDL_RELEASED;
 						return MouseButtonUpEvent(evt);
 					} else {
-						e.type = SDL_MOUSEBUTTONDOWN;
+						e.type = SDL_EVENT_MOUSE_BUTTON_DOWN;
 						e.state = SDL_PRESSED;
 						return MouseButtonDownEvent(evt);
 					}
@@ -136,7 +136,7 @@ namespace openmsx::InputEventFactory {
 				evt.wheel = SDL_MouseWheelEvent{};
 				auto& e = evt.wheel;
 
-				e.type = SDL_MOUSEWHEEL;
+				e.type = SDL_EVENT_MOUSE_WHEEL;
 				e.timestamp = SDL_GetTicks();
 				e.direction = SDL_MOUSEWHEEL_NORMAL;
 				e.x = str.getListIndex(interp, 2).getInt(interp);
@@ -222,11 +222,11 @@ namespace openmsx::InputEventFactory {
 						e.which = joystick;
 						e.button = narrow_cast<uint8_t>(*button);
 						if (upDown(comp2.getString())) {
-							e.type = SDL_JOYBUTTONUP;
+							e.type = SDL_EVENT_JOYSTICK_BUTTON_UP;
 							e.state = SDL_RELEASED;
 							return JoystickButtonUpEvent(evt);
 						} else {
-							e.type = SDL_JOYBUTTONDOWN;
+							e.type = SDL_EVENT_JOYSTICK_BUTTON_DOWN;
 							e.state = SDL_PRESSED;
 							return JoystickButtonDownEvent(evt);
 						}
@@ -237,7 +237,7 @@ namespace openmsx::InputEventFactory {
 						evt.jaxis = SDL_JoyAxisEvent{};
 						auto& e = evt.jaxis;
 
-						e.type = SDL_JOYAXISMOTION;
+						e.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
 						e.timestamp = SDL_GetTicks();
 						e.which = joystick;
 						e.axis = narrow_cast<uint8_t>(*axis);
@@ -265,7 +265,7 @@ namespace openmsx::InputEventFactory {
 						evt.jhat = SDL_JoyHatEvent{};
 						auto& e = evt.jhat;
 
-						e.type = SDL_JOYHATMOTION;
+						e.type = SDL_EVENT_JOYSTICK_HAT_MOTION;
 						e.timestamp = SDL_GetTicks();
 						e.which = joystick;
 						e.hat = narrow_cast<uint8_t>(*hat);
@@ -293,7 +293,7 @@ namespace openmsx::InputEventFactory {
 	e.type = SDL_WINDOWEVENT;
 	e.timestamp = SDL_GetTicks();
 	e.windowID = WindowEvent::getMainWindowId();
-	e.event = gained ? SDL_WINDOWEVENT_FOCUS_GAINED : SDL_WINDOWEVENT_FOCUS_LOST;
+	e.event = gained ? SDL_EVENT_WINDOW_FOCUS_GAINED : SDL_EVENT_WINDOW_FOCUS_LOST;
 	return WindowEvent(evt);
 }
 
@@ -336,7 +336,7 @@ Event createInputEvent(const TclObject& str, Interpreter& interp)
 	} else if (type == "command") {
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
-		evt.key.type = SDL_KEYUP;
+		evt.key.type = SDL_EVENT_KEY_UP;
 		evt.key.state = SDL_RELEASED;
 		return KeyUpEvent(evt); // dummy event, for bw compat
 		//return parseCommandEvent(str);

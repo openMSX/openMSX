@@ -27,7 +27,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	desired.freq     = narrow<int>(wantedFreq);
 	desired.samples  = narrow<Uint16>(std::bit_ceil(wantedSamples));
 	desired.channels = 2; // stereo
-	desired.format   = AUDIO_F32SYS;
+	desired.format   = SDL_AUDIO_F32;
 	desired.callback = audioCallbackHelper; // must be a static method
 	desired.userdata = this;
 

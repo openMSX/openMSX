@@ -16,7 +16,7 @@
 
 /** Wrapper around a SDL_Surface.
  *
- * Makes sure SDL_FreeSurface() is called when this object goes out of scope.
+ * Makes sure SDL_DestroySurface() is called when this object goes out of scope.
  * It's modeled after std::unique_ptr, so it has the usual get(), reset() and
  * release() methods. Like unique_ptr it can be moved but not copied.
  *
@@ -71,7 +71,7 @@ public:
 
 	~SDLSurfacePtr()
 	{
-		if (surface) SDL_FreeSurface(surface);
+		if (surface) SDL_DestroySurface(surface);
 	}
 
 	void reset(SDL_Surface* surface_ = nullptr)

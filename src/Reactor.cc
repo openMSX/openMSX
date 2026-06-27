@@ -619,7 +619,7 @@ void Reactor::enterMainLoop()
 		// Wake SDL_WaitEventTimeout() in case main thread is blocked
 		// waiting for events. SDL_PushEvent() is thread-safe.
 		SDL_Event wakeEvent{};
-		wakeEvent.type = SDL_USEREVENT;
+		wakeEvent.type = SDL_EVENT_USER;
 		SDL_PushEvent(&wakeEvent);
 	}
 }
@@ -788,9 +788,9 @@ bool Reactor::signalEvent(const Event& event)
 				// part of the sound processing. The Display class makes sure that it wont try
 				// to render anything to the (temporary missing) graphics resources but the
 				// main emulation should also be temporary stopped, in order to minimize CPU usage
-				if (e.getSdlWindowEvent().type == SDL_WINDOWEVENT_FOCUS_GAINED) {
+				if (e.getSdlWindowEvent().type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
 					unblock();
-				} else if (e.getSdlWindowEvent().type == SDL_WINDOWEVENT_FOCUS_LOST) {
+				} else if (e.getSdlWindowEvent().type == SDL_EVENT_WINDOW_FOCUS_LOST) {
 					block();
 				}
 			}

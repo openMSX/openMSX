@@ -18,7 +18,7 @@ TEST_CASE("BooleanInput: toString, parse")
 	using ID = JoystickId;
 
 	SECTION("keyboard") {
-		compare(BooleanKeyboard(SDLK_a), "keyb A");
+		compare(BooleanKeyboard(SDLK_A), "keyb A");
 		compare(BooleanKeyboard(SDLK_LALT), "keyb Left Alt");
 
 		// old key names
@@ -99,19 +99,19 @@ TEST_CASE("BooleanInput: capture")
 	SDL_Event sdl = {};
 
 	SECTION("keyboard") {
-		check(KeyDownEvent::create(SDLK_h), "keyb H");
-		check(KeyUpEvent  ::create(SDLK_h), "");
+		check(KeyDownEvent::create(SDLK_H), "keyb H");
+		check(KeyUpEvent  ::create(SDLK_H), "");
 	}
 	SECTION("mouse") {
 		sdl.button = SDL_MouseButtonEvent{};
-		sdl.button.type = SDL_MOUSEBUTTONDOWN;
+		sdl.button.type = SDL_EVENT_MOUSE_BUTTON_DOWN;
 		sdl.button.button = 2;
 		check(MouseButtonDownEvent(sdl), "mouse button2");
-		sdl.button.type = SDL_MOUSEBUTTONUP;
+		sdl.button.type = SDL_EVENT_MOUSE_BUTTON_UP;
 		check(MouseButtonUpEvent(sdl), "");
 
 		sdl.motion = SDL_MouseMotionEvent{};
-		sdl.motion.type = SDL_MOUSEMOTION;
+		sdl.motion.type = SDL_EVENT_MOUSE_MOTION;
 		sdl.motion.xrel = 10;
 		sdl.motion.yrel = 20;
 		sdl.motion.x = 30;
@@ -119,22 +119,22 @@ TEST_CASE("BooleanInput: capture")
 		check(MouseMotionEvent(sdl), "");
 
 		sdl.wheel = SDL_MouseWheelEvent{};
-		sdl.wheel.type = SDL_MOUSEWHEEL;
+		sdl.wheel.type = SDL_EVENT_MOUSE_WHEEL;
 		sdl.wheel.x = 2;
 		sdl.wheel.y = 4;
 		check(MouseWheelEvent(sdl), "");
 	}
 	SECTION("joystick") {
 		sdl.jbutton = SDL_JoyButtonEvent{};
-		sdl.jbutton.type = SDL_JOYBUTTONDOWN;
+		sdl.jbutton.type = SDL_EVENT_JOYSTICK_BUTTON_DOWN;
 		sdl.jbutton.which = 0;
 		sdl.jbutton.button = 3;
 		check(JoystickButtonDownEvent(sdl), "joy1 button3");
-		sdl.jbutton.type = SDL_JOYBUTTONUP;
+		sdl.jbutton.type = SDL_EVENT_JOYSTICK_BUTTON_UP;
 		check(JoystickButtonUpEvent(sdl), "");
 
 		sdl.jhat = SDL_JoyHatEvent{};
-		sdl.jhat.type = SDL_JOYHATMOTION;
+		sdl.jhat.type = SDL_EVENT_JOYSTICK_HAT_MOTION;
 		sdl.jhat.which = 1;
 		sdl.jhat.hat = 1;
 		sdl.jhat.value = SDL_HAT_LEFT;
@@ -145,7 +145,7 @@ TEST_CASE("BooleanInput: capture")
 		check(JoystickHatEvent(sdl), "");
 
 		sdl.jaxis = SDL_JoyAxisEvent{};
-		sdl.jaxis.type = SDL_JOYAXISMOTION;
+		sdl.jaxis.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
 		sdl.jaxis.which = 2;
 		sdl.jaxis.axis = 1;
 		sdl.jaxis.value = 32000;
@@ -169,55 +169,55 @@ TEST_CASE("BooleanInput: capture")
 TEST_CASE("BooleanInput: match")
 {
 	// define various events
-	auto keyDownA = KeyDownEvent::create(SDLK_a);
-	auto keyDownB = KeyDownEvent::create(SDLK_b);
-	auto keyUpA   = KeyUpEvent::create(SDLK_a);
-	auto keyUpB   = KeyUpEvent::create(SDLK_b);
+	auto keyDownA = KeyDownEvent::create(SDLK_A);
+	auto keyDownB = KeyDownEvent::create(SDLK_B);
+	auto keyUpA   = KeyUpEvent::create(SDLK_A);
+	auto keyUpB   = KeyUpEvent::create(SDLK_B);
 
 	SDL_Event sdl;
 	sdl.button = SDL_MouseButtonEvent{};
-	sdl.button.type = SDL_MOUSEBUTTONDOWN;
+	sdl.button.type = SDL_EVENT_MOUSE_BUTTON_DOWN;
 	sdl.button.button = 1;
 	auto mouseDown1 = MouseButtonDownEvent(sdl);
 	sdl.button.button = 2;
 	auto mouseDown2 = MouseButtonDownEvent(sdl);
 
-	sdl.button.type = SDL_MOUSEBUTTONUP;
+	sdl.button.type = SDL_EVENT_MOUSE_BUTTON_UP;
 	sdl.button.button = 1;
 	auto mouseUp1 = MouseButtonUpEvent(sdl);
 	sdl.button.button = 2;
 	auto mouseUp2 = MouseButtonUpEvent(sdl);
 
 	sdl.wheel = SDL_MouseWheelEvent{};
-	sdl.wheel.type = SDL_MOUSEWHEEL;
+	sdl.wheel.type = SDL_EVENT_MOUSE_WHEEL;
 	sdl.wheel.x = 2;
 	sdl.wheel.y = 4;
 	auto mouseWheel = MouseWheelEvent(sdl);
 
 	sdl.jbutton = SDL_JoyButtonEvent{};
-	sdl.jbutton.type = SDL_JOYBUTTONDOWN;
+	sdl.jbutton.type = SDL_EVENT_JOYSTICK_BUTTON_DOWN;
 	sdl.jbutton.which = 0;
 	sdl.jbutton.button = 2;
 	auto joy1button2Down = JoystickButtonDownEvent(sdl);
-	sdl.jbutton.type = SDL_JOYBUTTONUP;
+	sdl.jbutton.type = SDL_EVENT_JOYSTICK_BUTTON_UP;
 	auto joy1button2Up = JoystickButtonUpEvent(sdl);
 
-	sdl.jbutton.type = SDL_JOYBUTTONDOWN;
+	sdl.jbutton.type = SDL_EVENT_JOYSTICK_BUTTON_DOWN;
 	sdl.jbutton.which = 0;
 	sdl.jbutton.button = 3;
 	auto joy1button3Down = JoystickButtonDownEvent(sdl);
-	sdl.jbutton.type = SDL_JOYBUTTONUP;
+	sdl.jbutton.type = SDL_EVENT_JOYSTICK_BUTTON_UP;
 	auto joy1button3Up = JoystickButtonUpEvent(sdl);
 
-	sdl.jbutton.type = SDL_JOYBUTTONDOWN;
+	sdl.jbutton.type = SDL_EVENT_JOYSTICK_BUTTON_DOWN;
 	sdl.jbutton.which = 1;
 	sdl.jbutton.button = 2;
 	auto joy2button2Down = JoystickButtonDownEvent(sdl);
-	sdl.type = SDL_JOYBUTTONUP;
+	sdl.type = SDL_EVENT_JOYSTICK_BUTTON_UP;
 	auto joy2button2Up = JoystickButtonUpEvent(sdl);
 
 	sdl.jhat = SDL_JoyHatEvent{};
-	sdl.jhat.type = SDL_JOYHATMOTION;
+	sdl.jhat.type = SDL_EVENT_JOYSTICK_HAT_MOTION;
 	sdl.jhat.which = 0;
 	sdl.jhat.hat = 1;
 	sdl.jhat.value = SDL_HAT_LEFT;
@@ -227,7 +227,7 @@ TEST_CASE("BooleanInput: match")
 	sdl.jhat.value = SDL_HAT_DOWN;
 	auto joy1hat1down = JoystickHatEvent(sdl);
 
-	sdl.jhat.type = SDL_JOYHATMOTION;
+	sdl.jhat.type = SDL_EVENT_JOYSTICK_HAT_MOTION;
 	sdl.jhat.which = 0;
 	sdl.jhat.hat = 2;
 	sdl.jhat.value = SDL_HAT_LEFT;
@@ -237,7 +237,7 @@ TEST_CASE("BooleanInput: match")
 	sdl.jhat.value = SDL_HAT_DOWN;
 	auto joy1hat2down = JoystickHatEvent(sdl);
 
-	sdl.jhat.type = SDL_JOYHATMOTION;
+	sdl.jhat.type = SDL_EVENT_JOYSTICK_HAT_MOTION;
 	sdl.jhat.which = 1;
 	sdl.jhat.hat = 1;
 	sdl.jhat.value = SDL_HAT_LEFT;
@@ -248,7 +248,7 @@ TEST_CASE("BooleanInput: match")
 	auto joy2hat1down = JoystickHatEvent(sdl);
 
 	sdl.jaxis = SDL_JoyAxisEvent{};
-	sdl.jaxis.type = SDL_JOYAXISMOTION;
+	sdl.jaxis.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
 	sdl.jaxis.which = 0;
 	sdl.jaxis.axis = 1;
 	sdl.jaxis.value = 32000;
@@ -258,7 +258,7 @@ TEST_CASE("BooleanInput: match")
 	sdl.jaxis.value = -27000;
 	auto joy1axis1M27000 = JoystickAxisMotionEvent(sdl);
 
-	sdl.jaxis.type = SDL_JOYAXISMOTION;
+	sdl.jaxis.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
 	sdl.jaxis.which = 0;
 	sdl.jaxis.axis = 2;
 	sdl.jaxis.value = 32000;
@@ -268,7 +268,7 @@ TEST_CASE("BooleanInput: match")
 	sdl.jaxis.value = -27000;
 	auto joy1axis2M27000 = JoystickAxisMotionEvent(sdl);
 
-	sdl.jaxis.type = SDL_JOYAXISMOTION;
+	sdl.jaxis.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
 	sdl.jaxis.which = 1;
 	sdl.jaxis.axis = 1;
 	sdl.jaxis.value = 32000;
