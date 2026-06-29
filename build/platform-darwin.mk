@@ -10,10 +10,12 @@ USE_SYMLINK:=true
 SET_WINDOW_ICON:=false
 
 ifeq ($(OPENMSX_TARGET_CPU),aarch64)
-TARGET_FLAGS+=-arch arm64
+OSX_ARCH:=arm64
 else
-TARGET_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
+OSX_ARCH:=$(OPENMSX_TARGET_CPU)
 endif
+TARGET_FLAGS+=-arch $(OSX_ARCH)
+CMAKE_TARGET_FLAGS+=-DCMAKE_OSX_ARCHITECTURES=$(OSX_ARCH)
 
 # File name extension of executables.
 EXEEXT:=
@@ -28,6 +30,7 @@ LIBRARYEXT:=.so
 # Version 13.3 required for std::format
 OSX_VER:=13.3
 TARGET_FLAGS+=-mmacosx-version-min=$(OSX_VER)
+CMAKE_TARGET_FLAGS+=-DCMAKE_OSX_DEPLOYMENT_TARGET=$(OSX_VER)
 
 # Select Clang as the compiler.
 CXX:=clang++

@@ -99,6 +99,9 @@ endif
 # Flags that specify the target platform.
 # These should be inherited by the 3rd party libs Makefile.
 TARGET_FLAGS:=
+# Flags for CMake-based 3rd party libraries.
+CMAKE_TARGET_FLAGS:=
+CMAKE_COMPILE_FLAGS:=
 
 
 # Customisation
@@ -180,7 +183,9 @@ $(call DEFCHECK,EXEEXT)
 $(call BOOLCHECK,USE_SYMLINK)
 
 # Get CPU specific flags.
-TARGET_FLAGS+=$(shell $(PYTHON) build/cpu2flags.py $(OPENMSX_TARGET_CPU))
+CPU_FLAGS:=$(shell $(PYTHON) build/cpu2flags.py $(OPENMSX_TARGET_CPU))
+TARGET_FLAGS+=$(CPU_FLAGS)
+CMAKE_COMPILE_FLAGS+=$(CPU_FLAGS)
 
 
 # Flavours
@@ -623,6 +628,8 @@ run-3rdparty:
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		_CC=$(CC) _CFLAGS="$(TARGET_FLAGS) $(CXXFLAGS)" \
 		_LDFLAGS="$(TARGET_FLAGS)" \
+		CMAKE_TARGET_FLAGS="$(CMAKE_TARGET_FLAGS)" \
+		CMAKE_COMPILE_FLAGS="$(CMAKE_COMPILE_FLAGS) $(CXXFLAGS)" \
 		WINDRES=$(WINDRES) \
 		LINK_MODE=$(LINK_MODE) \
 		PYTHON=$(PYTHON)
