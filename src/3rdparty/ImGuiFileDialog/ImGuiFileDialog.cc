@@ -3335,7 +3335,7 @@ bool IGFD::KeyExplorerFeature::m_FlashableSelectable(const char* label, bool sel
         const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
         RenderFrame(bb.Min, bb.Max, col, false, 0.0f);
     }
-    if (g.NavId == id) RenderNavCursor(bb, id, ImGuiNavRenderCursorFlags_Compact | ImGuiNavRenderCursorFlags_NoRounding);
+    if (g.NavId == id) RenderNavCursor(bb, id, ImGuiNavRenderCursorFlags_Compact, 0.0f);
 
     if (span_all_columns && window->DC.CurrentColumns)
         PopColumnsBackground();

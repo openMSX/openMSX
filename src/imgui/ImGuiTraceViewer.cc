@@ -249,7 +249,7 @@ static void drawEventsVoid(
 		bool hover = event.time == highLightTime;
 		auto color = hover ? colorHover : colorNormal;
 		auto thickness = hover ? 2.0f : 1.0f;
-		drawList->AddPolyline(points.data(), narrow<int>(points.size()), color, 0, thickness);
+		drawList->AddPolyline(points.data(), narrow<int>(points.size()), color, thickness);
 		drawList->AddLine({x0, y0}, {x0, y1}, color, thickness);
 	};
 	auto dummyFormat = Tracer::Trace::Format::DEC;
@@ -290,7 +290,7 @@ static void drawEventsBool(
 		auto hover = rowHovered && xf0 <= mouseX && mouseX < xf1;
 		auto color = hover ? colorHover : colorNormal;
 		auto thickness = hover ? 2.0f : 1.0f;
-		drawList->AddPolyline(points.data(), (yp == y) ? 2 : 3, color, 0, thickness);
+		drawList->AddPolyline(points.data(), (yp == y) ? 2 : 3, color, thickness);
 
 		yp = y;
 	};
@@ -389,13 +389,13 @@ static void drawEventsValue(
 					gl::vec2{xf1 - h5, y1},
 					gl::vec2{xf1,      y2},
 				};
-				drawList->AddPolyline(points.data(), 6, color, ImDrawFlags_Closed, thickness);
+				drawList->AddPolyline(points.data(), 6, color, thickness, ImDrawFlags_Closed);
 				drawList->PushClipRect(tl, br, true);
 				auto textX = std::max(xf0 + h5, topLeft.x);
 				drawText(drawList, gl::vec2{textX, y0 + style.FramePadding.y}, colorText, valueStr);
 				drawList->PopClipRect();
 			} else {
-				drawList->AddRect(tl, br, color, {}, {}, thickness);
+				drawList->AddRect(tl, br, color, {}, thickness);
 			}
 			if (hover) {
 				im::Tooltip([&]{
@@ -564,14 +564,14 @@ static void thinWhiteLine(ImDrawList* drawList, const std::array<ImVec2, N>& poi
 {
 	auto color = getColor(imColor::TEXT);
 	drawList->AddLine(points[0], points[1], color, 1.0f);
-	drawList->AddPolyline(points.data(), narrow<int>(points.size()), color, 0, 1.0f);
+	drawList->AddPolyline(points.data(), narrow<int>(points.size()), color, 1.0f);
 }
 template<size_t N>
 static void thinWhiteLine(ImDrawList* drawList, const std::array<ImVec2, N>& points)
 	requires(N != 2)
 {
 	auto color = getColor(imColor::TEXT);
-	drawList->AddPolyline(points.data(), narrow<int>(points.size()), color, 0, 1.0f);
+	drawList->AddPolyline(points.data(), narrow<int>(points.size()), color, 1.0f);
 }
 static void arrowLeft(ImDrawList* drawList, gl::vec2 center, float u)
 {

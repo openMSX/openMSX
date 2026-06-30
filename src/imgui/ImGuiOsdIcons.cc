@@ -218,7 +218,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::SetCursorPos(cursor);
 				gl::vec2 rectMin = ImGui::GetCursorScreenPos();
 				gl::vec2 rectMax = rectMin + gl::vec2(maxIconSize);
-				ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 1.0f);
+				ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, IM_COL32(255, 0, 0, 128), 0.0f, 1.0f);
 			}
 
 			// advance to next icon position
