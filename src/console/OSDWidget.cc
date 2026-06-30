@@ -341,7 +341,7 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	gl::ivec2 viewSize = getDisplay().getViewSize();
+	gl::ivec2 viewSize = getDisplay().getScaleFactorSize();
 	vec2 out = transformReverse(viewSize, vec2(*mouse));
 	vec2 size = getSize(viewSize);
 	if ((size.x == 0.0f) || (size.y == 0.0f)) {
