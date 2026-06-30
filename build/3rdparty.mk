@@ -158,7 +158,7 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		--program-prefix=$(TARGET_TRIPLE)- \
 		--prefix=$(PWD)/$(TOOLS_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		CFLAGS="-Wno-error=int-conversion" \
+		CFLAGS="-Wno-error=int-conversion -std=gnu17" \
 		CC= LD= AR= RANLIB= STRIP=
 
 # Configure SDL3.
