@@ -19,31 +19,6 @@
 
 namespace openmsx {
 
-class JoyHandleState final : public StateChange
-{
-public:
-	JoyHandleState() = default; // for serialize
-	JoyHandleState(EmuTime time_, uint8_t id_,
-	               uint8_t press_, uint8_t release_)
-		: StateChange(time_), id(id_)
-		, press(press_), release(release_) {}
-
-	[[nodiscard]] auto getId()      const { return id; }
-	[[nodiscard]] auto getPress()   const { return press; }
-	[[nodiscard]] auto getRelease() const { return release; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/) {
-		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("id",      id,
-		             "press",   press,
-		             "release", release);
-	}
-
-private:
-	uint8_t id, press, release;
-};
-REGISTER_POLYMORPHIC_CLASS(StateChange, JoyHandleState, "JoyHandleState");
-
 TclObject JoyHandle::getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager)
 {
 	auto buttons = joystickManager.getNumButtons(joyId);
@@ -251,19 +226,18 @@ std::optional<int8_t> matchAnalog(const BooleanInput& binding, const Event& even
 // StateChangeListener
 void JoyHandle::signalStateChange(const StateChange& event)
 {
-	const auto* kjs = dynamic_cast<const JoyHandleState*>(&event);
-	if (!kjs) return;
-	if (kjs->getId() != id) return;
+	const auto* js = std::get_if<JoyHandleState*>(&event);
+	if (!js) return;
+	if (js->getId() != id) return;
 
-	status = (status & ~kjs->getPress()) | kjs->getRelease();
+	status = (status & ~js->getPress()) | js->getRelease();
 
 	// TODO receive analogValue from JoyHandleState
 }
 
 void JoyHandle::stopReplay(EmuTime time) noexcept
 {
-	uint8_t newStatus = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	                    JOY_BUTTONA | JOY_BUTTONB;
+	unsigned newStatus = 0xfff;
 	if (newStatus != status) {
 		uint8_t release = newStatus & ~status;
 		stateChangeDistributor.distributeNew<JoyHandleState>(

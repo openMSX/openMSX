@@ -846,13 +846,20 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 
 namespace joyhandle {
 
-enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, WHEEL_LEFT, WHEEL_RIGHT, NUM_BUTTONS};
+enum : uint8_t {UP, DOWN, LEFT, RIGHT,
+				TRIG_A, TRIG_B,
+				WHEEL_LEFT, WHEEL_RIGHT,
+				NUM_BUTTONS};
 
-static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = {
-	"Up", "Down", "Left", "Right", "A", "B", "Wheel left", "Wheel right" // show in the GUI
+static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show in the GUI
+	"Up", "Down", "Left", "Right",
+	"A", "B",
+	"Wheel left", "Wheel right",
 };
-static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = {
-	"UP", "DOWN", "LEFT", "RIGHT", "A", "B", "WHEEL_LEFT", "WHEEL_RIGHT" // keys in Tcl dict
+static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = { // keys in Tcl dict
+	"UP", "DOWN", "LEFT", "RIGHT",
+	"A", "B",
+	"WHEEL_LEFT", "WHEEL_RIGHT"
 };
 
 // TODO just copied from msxjoystick
