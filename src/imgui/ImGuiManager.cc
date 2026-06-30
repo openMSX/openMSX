@@ -502,8 +502,8 @@ static DrawCallbackData callBackData;
 static void msxDisplayDrawCallback(const ImDrawList* /*parent_list*/, const ImDrawCmd* pcmd)
 {
 	auto& data = *static_cast<DrawCallbackData*>(pcmd->UserCallbackData);
-	// TODO eventually use ImGui window dimensions
-	data.display->paintLayers(data.windowSize);
+	data.display->updateOutputDimensions(data.windowSize);
+	data.display->paintLayers(true);
 }
 
 void ImGuiManager::paintFrame(Display& display)

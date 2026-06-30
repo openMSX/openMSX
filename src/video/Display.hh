@@ -57,7 +57,8 @@ public:
 	  */
 	void repaint();
 	void repaintDelayed(uint64_t delta);
-	void paintLayers(gl::ivec2 windowSize, bool withOsd = true);
+	void updateOutputDimensions(gl::ivec2 windowSize);
+	void paintLayers(bool withOsd);
 
 	void setSnowLayer(GLSnow* snow) { snowLayer = snow; }
 	void setOSDLayer(OSDGUILayer* osd) { osdLayer = osd; }

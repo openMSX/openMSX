@@ -111,7 +111,7 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 {
 	OutputDimensions dim = display.getLastOutputDim();
 	OffScreenSurface offScreen(dim); // setup FBO
-	display.paintLayers(dim.getPhysicalSize(), withOsd);
+	display.paintLayers(withOsd);
 	VisibleSurface::saveScreenshotGL(dim, filename);
 }
 

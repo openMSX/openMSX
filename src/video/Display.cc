@@ -321,7 +321,7 @@ void Display::repaint()
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
+void Display::updateOutputDimensions(gl::ivec2 windowSize)
 {
 	auto factor = gl::min_component(gl::vec2(windowSize) / gl::vec2(320.0f, 240.0f));
 	if (renderSettings.getScaleMode() == RenderSettings::ScaleMode::INTEGER) {
@@ -338,7 +338,10 @@ void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
 			surf->resize(getScaleFactorSize());
 		}
 	}
+}
 
+void Display::paintLayers(bool withOsd)
+{
 	if (auto* video = findActiveLayer()) {
 		video->paint(outputDim);
 	} else {
