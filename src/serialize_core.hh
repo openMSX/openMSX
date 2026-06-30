@@ -68,6 +68,32 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
 	static constexpr unsigned value = 0;
 };
 
+template<typename Archive, typename T>
+void serialize(Archive& ar, std::optional<T>& o, unsigned /*version*/)
+{
+	if constexpr (Archive::IS_LOADER) {
+		bool valid = false;
+		ar.serialize("valid", valid);
+		if (valid) {
+			T t;
+			ar.serialize("value", t);
+			o = std::move(t);
+		} else {
+			o.reset();
+		}
+	} else {
+		bool valid = o.has_value();
+		ar.serialize("valid", valid);
+		if (valid) {
+			ar.serialize("value", *o);
+		}
+	}
+}
+template<typename T> struct SerializeClassVersion<std::optional<T>>
+{
+	static constexpr unsigned value = 0;
+};
+
 ///////////
 
 /** serialize_as_enum<T>

@@ -90,6 +90,7 @@
 #include "VDPIODelay.hh"
 #include "VictorFDC.hh"
 #include "Video9000.hh"
+#include "WaveGame.hh"
 #include "XMLElement.hh"
 #include "YamahaFDC.hh"
 #include "YamahaSKW01.hh"
@@ -322,6 +323,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		// Ignore for now. We might want to create a real device for it later.
 	} else if (type == "MSXPiDevice") {
 		result = std::make_unique<MSXPiDevice>(conf);
+	} else if (type == "WaveGame") {
+		result = std::make_unique<WaveGame>(conf);
 	} else {
 		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");
