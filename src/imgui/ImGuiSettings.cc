@@ -902,7 +902,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	auto* drawList = ImGui::GetWindowDrawList();
 
 	auto color = getColor(imColor::TEXT);
-	drawList->AddRect(scrnPos, scrnPos + boundingBox, color, corner, 0, thickness);
+	drawList->AddRect(scrnPos, scrnPos + boundingBox, color, corner, thickness);
 
 	drawDPad(scrnPos + centerDPad, sizeDPad, subspan<4>(hovered), hoveredRow);
 

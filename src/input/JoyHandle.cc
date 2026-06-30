@@ -226,11 +226,11 @@ std::optional<int8_t> matchAnalog(const BooleanInput& binding, const Event& even
 // StateChangeListener
 void JoyHandle::signalStateChange(const StateChange& event)
 {
-	const auto* js = std::get_if<JoyHandleState*>(&event);
-	if (!js) return;
-	if (js->getId() != id) return;
+	const auto* jhs = std::get_if<JoyHandleState>(&event);
+	if (!jhs) return;
+	if (jhs->getId() != id) return;
 
-	status = (status & ~js->getPress()) | js->getRelease();
+	status = (status & ~jhs->getPress()) | jhs->getRelease();
 
 	// TODO receive analogValue from JoyHandleState
 }
