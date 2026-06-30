@@ -563,7 +563,7 @@ void ImGuiManager::paintFrame(Display& display)
 		callBackData.windowSize = gl::ivec2(windowSize);
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->AddCallback(msxDisplayDrawCallback, &callBackData);
-		drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
+		drawList->AddCallback(ImGui::GetPlatformIO().DrawCallback_ResetRenderState, nullptr);
 		ImGui::Dummy(ImGui::GetContentRegionAvail());
 	});
 
