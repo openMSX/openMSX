@@ -162,6 +162,10 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		CC= LD= AR= RANLIB= STRIP=
 
 # Configure SDL3.
+CONFIGURE_OVERRIDE_SDL3:=
+ifeq ($(TRIPLE_OS),mingw32)
+CONFIGURE_OVERRIDE_SDL3+=-DCMAKE_TOOLCHAIN_FILE=build-scripts/cmake-toolchain-mingw64-$(TRIPLE_MACHINE).cmake
+endif
 $(BUILD_DIR)/$(PACKAGE_SDL3)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL3)/.extracted \
   $(call installdeps,PKG_CONFIG)
@@ -176,6 +180,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL3)/Makefile: \
 		-DCMAKE_PREFIX_PATH="$(PWD)/$(INSTALL_DIR)" \
 		-DCMAKE_C_FLAGS="$(CMAKE_COMPILE_FLAGS)" \
 		-DCMAKE_OBJC_FLAGS="$(CMAKE_COMPILE_FLAGS)" \
+		$(CONFIGURE_OVERRIDE_SDL3) \
 		$(CMAKE_TARGET_FLAGS)
 # Some modules are enabled because of internal SDL2 dependencies:
 # - "audio" depends on "atomic" and "threads"
