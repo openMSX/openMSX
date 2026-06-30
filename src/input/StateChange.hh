@@ -398,7 +398,8 @@ using StateChange = std::variant<
 	PaddleState,
 	TouchpadState,
 	MouseState,
-	JoyMegaState
+	JoyMegaState,
+	JoyHandleState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -421,7 +422,8 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"PaddleState",         index<PaddleState>        },
 		{"TouchpadState",       index<TouchpadState>      },
 		{"MouseState",          index<MouseState>         },
-		{"JoyMegaState",        index<JoyMegaState>       }
+		{"JoyMegaState",        index<JoyMegaState>       },
+		{"JoyHandleState",      index<JoyHandleState>     }
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;
