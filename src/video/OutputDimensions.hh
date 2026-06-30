@@ -8,10 +8,10 @@ namespace openmsx {
 class OutputDimensions
 {
 public:
-	OutputDimensions() : OutputDimensions({640, 480}, 2.0f) {}
-	OutputDimensions(gl::ivec2 physSize_, float factor)
+	OutputDimensions() : OutputDimensions({640, 480}, {640, 480}) {}
+	OutputDimensions(gl::ivec2 physSize_, gl::ivec2 viewSize_)
 		: m_physSize(physSize_)
-		, m_viewSize(gl::round(gl::vec2(320.0f, 240.0f) * factor))
+		, m_viewSize(viewSize_)
 		, m_viewOffset((m_physSize - m_viewSize) / 2) {}
 
 	[[nodiscard]] gl::ivec2 getPhysicalSize() const { return m_physSize; }

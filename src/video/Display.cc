@@ -226,9 +226,7 @@ gl::ivec2 Display::retrieveWindowPosition()
 
 gl::ivec2 Display::getScaleFactorSize() const
 {
-	// TODO simplify?
-	OutputDimensions dim(outputDim.getPhysicalSize(), renderSettings.getScaleFactor());
-	return dim.getViewSize();
+	return gl::round(gl::vec2(320.0f, 240.0f) * renderSettings.getScaleFactor());
 }
 
 float Display::getFps() const
@@ -330,14 +328,14 @@ void Display::paintLayers(gl::ivec2 windowSize, bool withOsd)
 		factor = std::floor(factor);
 	}
 	renderSettings.getScaleFactorSetting().setFloat(factor);
-	auto newOutputDim = OutputDimensions{windowSize, factor};
+	auto newOutputDim = OutputDimensions{windowSize, getScaleFactorSize()};
 	if (newOutputDim != outputDim) {
 		outputDim = newOutputDim;
 		osdLayer->invalidateAll();
 	}
-	if (windowSize != newOutputDim.getViewSize()) {
+	if (windowSize != getScaleFactorSize()) {
 		if (auto* surf = videoSystem->getSurface()) {
-			surf->resize(newOutputDim.getViewSize());
+			surf->resize(getScaleFactorSize());
 		}
 	}
 
