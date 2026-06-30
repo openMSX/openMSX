@@ -280,12 +280,11 @@ public:
 	[[nodiscard]] auto getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/) {
-		ar.template serializeBase<StateChange>(*this);
+		ar.template serializeBase<StateChangeBase>(*this);
 		ar.serialize("id",      id,
 		             "press",   press,
 		             "release", release);
 	}
-
 private:
 	uint8_t id, press, release;
 };
