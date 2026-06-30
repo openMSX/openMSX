@@ -125,13 +125,13 @@ bool OSDRectangle::takeImageDimensions() const
 	return (size == vec2()) && (relSize == vec2());
 }
 
-vec2 OSDRectangle::getSize(const OutputSurface& output) const
+vec2 OSDRectangle::getSize(gl::ivec2 viewSize) const
 {
 	if (!imageName.empty() && image && takeImageDimensions()) {
 		return vec2(image->getSize());
 	} else {
-		return (size * float(getScaleFactor(output)) * scale) +
-		       (getParent()->getSize(output) * relSize);
+		return (size * getScaleFactor(viewSize) * scale) +
+		       (getParent()->getSize(viewSize) * relSize);
 	}
 }
 
@@ -140,7 +140,7 @@ uint8_t OSDRectangle::getFadedAlpha() const
 	return uint8_t(255 * getRecursiveFadeValue());
 }
 
-std::unique_ptr<GLImage> OSDRectangle::create(OutputSurface& output)
+std::unique_ptr<GLImage> OSDRectangle::create(gl::ivec2 viewSize)
 {
 	if (imageName.empty()) {
 		if (hasConstantAlpha() && ((getRGBA(0) & 0xff) == 0) &&
@@ -152,18 +152,18 @@ std::unique_ptr<GLImage> OSDRectangle::create(OutputSurface& output)
 			//   creating it till alpha changes.
 			return nullptr;
 		}
-		vec2 sz = getSize(output);
-		auto factor = narrow<float>(getScaleFactor(output)) * scale;
-		auto bs = narrow_cast<int>(lrintf(factor * borderSize + sz.x * relBorderSize));
-		assert(bs >= 0);
+		vec2 sz = getSize(viewSize);
+		auto factor = getScaleFactor(viewSize) * scale;
+		auto bs = gl::ivec2(factor * borderSize + sz * relBorderSize);
+		assert(bs.x >= 0 && bs.y >= 0);
 		return std::make_unique<GLImage>(round(sz), getRGBA4(), bs, borderRGBA);
 	} else {
 		auto file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
-			auto factor = narrow<float>(getScaleFactor(output)) * scale;
-			return std::make_unique<GLImage>(file, factor);
+			auto factor = getScaleFactor(viewSize) * scale;
+			return std::make_unique<GLImage>(file, GLImage::Scale(factor));
 		} else {
-			ivec2 iSize = round(getSize(output));
+			ivec2 iSize = round(getSize(viewSize));
 			return std::make_unique<GLImage>(file, iSize);
 		}
 	}

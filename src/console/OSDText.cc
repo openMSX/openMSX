@@ -139,7 +139,7 @@ std::string_view OSDText::getType() const
 	return "text";
 }
 
-vec2 OSDText::getSize(const OutputSurface& /*output*/) const
+vec2 OSDText::getSize(gl::ivec2 /*viewSize*/) const
 {
 	if (image) {
 		return vec2(image->getSize());
@@ -155,23 +155,23 @@ uint8_t OSDText::getFadedAlpha() const
 	return narrow_cast<uint8_t>(narrow_cast<float>(getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
+std::unique_ptr<GLImage> OSDText::create(gl::ivec2 viewSize)
 {
 	if (text.empty()) {
 		return std::make_unique<GLImage>(ivec2(), 0);
 	}
-	int scale = getScaleFactor(output);
+	auto scale = getScaleFactor(viewSize);
 	if (font.empty()) {
 		try {
 			font = TTFFont(systemFileContext().resolve(fontFile),
-			               size * scale, fontFaceIndex);
+			               int(float(size) * scale.x), fontFaceIndex);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: ", e.getMessage());
 		}
 	}
 	try {
-		vec2 pSize = getParent()->getSize(output);
-		int maxWidth = narrow_cast<int>(lrintf(wrapw * narrow<float>(scale) + wraprelw * pSize.x));
+		vec2 pSize = getParent()->getSize(viewSize);
+		int maxWidth = narrow_cast<int>(lrintf(wrapw * scale.x + wraprelw * pSize.x));
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);

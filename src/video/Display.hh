@@ -1,6 +1,7 @@
 #ifndef DISPLAY_HH
 #define DISPLAY_HH
 
+#include "OutputDimensions.hh"
 #include "RenderSettings.hh"
 
 #include "Command.hh"
@@ -18,13 +19,14 @@
 
 namespace openmsx {
 
-class Layer;
-class Reactor;
-class VideoSystem;
 class CliComm;
-class VideoSystemChangeListener;
+class GLSnow;
+class OSDGUILayer;
+class Reactor;
 class Setting;
-class OutputSurface;
+class VideoLayer;
+class VideoSystem;
+class VideoSystemChangeListener;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -37,8 +39,6 @@ public:
 	static constexpr std::string_view SCREENSHOT_EXTENSION = ".png";
 
 public:
-	using Layers = std::vector<Layer*>;
-
 	explicit Display(Reactor& reactor);
 	~Display();
 
@@ -49,26 +49,27 @@ public:
 	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
 	[[nodiscard]] auto getRenderer() const { return currentRenderer; }
 	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
+	[[nodiscard]] OutputDimensions getLastOutputDim() const { return outputDim; }
+	[[nodiscard]] gl::ivec2 getViewSize() const { return outputDim.getViewSize(); }
 
 	/** Redraw the display.
 	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.
 	  */
 	void repaint();
 	void repaintDelayed(uint64_t delta);
-	void repaintImpl();
-	void repaintImpl(OutputSurface& surface);
+	void updateOutputDimensions(gl::ivec2 windowSize, gl::ivec2 framebufferScale);
+	void paintLayers(bool withOsd);
 
-	void addLayer(Layer& layer);
-	void removeLayer(Layer& layer);
-	void updateZ(Layer& layer);
+	void setSnowLayer(GLSnow* snow) { snowLayer = snow; }
+	void setOSDLayer(OSDGUILayer* osd) { osdLayer = osd; }
+	void addVideoLayer(VideoLayer& layer);
+	void removeVideoLayer(VideoLayer& layer);
 
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
-	[[nodiscard]] Layer* findActiveLayer() const;
-	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
-
-	[[nodiscard]] OutputSurface* getOutputSurface();
+	[[nodiscard]] VideoLayer* findActiveLayer();
+	[[nodiscard]] const auto& getAllLayers() const { return videoLayers; }
 
 	[[nodiscard]] std::string getWindowTitle();
 
@@ -80,7 +81,7 @@ public:
 	void storeWindowPosition(gl::ivec2 pos);
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition();
 
-	[[nodiscard]] gl::ivec2 getWindowSize() const;
+	[[nodiscard]] gl::ivec2 getScaleFactorSize() const;
 
 	// Get the latest fps value
 	[[nodiscard]] float getFps() const;
@@ -101,12 +102,10 @@ private:
 	void doRendererSwitch(RenderSettings::RendererID newRenderer);
 	void doRendererSwitch2(RenderSettings::RendererID newRenderer);
 
-	/** Find front most opaque layer.
-	  */
-	[[nodiscard]] Layers::iterator baseLayer();
-
 private:
-	Layers layers; // sorted on z
+	GLSnow* snowLayer = nullptr;
+	OSDGUILayer* osdLayer = nullptr;
+	std::vector<VideoLayer*> videoLayers;
 	std::unique_ptr<VideoSystem> videoSystem;
 
 	std::vector<VideoSystemChangeListener*> listeners; // unordered
@@ -137,6 +136,8 @@ private:
 
 	// the current renderer
 	RenderSettings::RendererID currentRenderer = RenderSettings::RendererID::UNINITIALIZED;
+
+	OutputDimensions outputDim;
 
 	bool renderFrozen = false;
 	bool switchInProgress = false;

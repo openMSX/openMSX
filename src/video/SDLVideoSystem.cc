@@ -1,7 +1,9 @@
 #include "SDLVideoSystem.hh"
 
 #include "Display.hh"
+#include "GLSnow.hh"
 #include "GlobalSettings.hh"
+#include "OSDGUILayer.hh"
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "SDLRasterizer.hh"
@@ -41,10 +43,8 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
-	imGuiLayer = screen->createImGUILayer(reactor.getImGuiManager());
-	display.addLayer(*snowLayer);
-	display.addLayer(*osdGuiLayer);
-	display.addLayer(*imGuiLayer);
+	display.setSnowLayer(snowLayer.get());
+	display.setOSDLayer(osdGuiLayer.get());
 
 	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
@@ -55,9 +55,8 @@ SDLVideoSystem::~SDLVideoSystem()
 	renderSettings.getScaleFactorSetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
-	display.removeLayer(*imGuiLayer);
-	display.removeLayer(*osdGuiLayer);
-	display.removeLayer(*snowLayer);
+	display.setSnowLayer(nullptr);
+	display.setOSDLayer(nullptr);
 }
 
 std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
@@ -68,7 +67,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
 	return std::make_unique<SDLRasterizer>(
-		vdp, display, *screen,
+		vdp, display,
 		std::make_unique<PostProcessor>(
 			motherBoard, display, *screen,
 			videoSource, 640, 240, true));
@@ -83,7 +82,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	return std::make_unique<V9990SDLRasterizer>(
-		vdp, display, *screen,
+		vdp, display,
 		std::make_unique<PostProcessor>(
 			motherBoard, display, *screen,
 			videoSource, 1280, 240, true));
@@ -110,18 +109,10 @@ void SDLVideoSystem::flush()
 
 void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 {
-	if (withOsd) {
-		// we can directly save current content as screenshot
-		screen->saveScreenshot(filename);
-	} else {
-		// we first need to re-render to an off-screen surface
-		// with OSD layers disabled
-		ScopedLayerHider hideOsd(*osdGuiLayer);
-		ScopedLayerHider hideImgui(*imGuiLayer);
-		std::unique_ptr<OutputSurface> surf = screen->createOffScreenSurface();
-		display.repaintImpl(*surf);
-		surf->saveScreenshot(filename);
-	}
+	OutputDimensions dim = display.getLastOutputDim();
+	OffScreenSurface offScreen(dim); // setup FBO
+	display.paintLayers(withOsd);
+	VisibleSurface::saveScreenshotGL(dim, filename);
 }
 
 void SDLVideoSystem::updateWindowTitle()
@@ -134,7 +125,7 @@ std::optional<gl::ivec2> SDLVideoSystem::getMouseCoord()
 	return screen->getMouseCoord();
 }
 
-OutputSurface* SDLVideoSystem::getOutputSurface()
+VisibleSurface* SDLVideoSystem::getSurface()
 {
 	return screen.get();
 }
@@ -183,12 +174,6 @@ void SDLVideoSystem::setWindowPosition(gl::ivec2 pos)
 	screen->setWindowPosition(pos);
 }
 
-void SDLVideoSystem::repaint()
-{
-	// With SDL we can simply repaint the display directly.
-	display.repaintImpl();
-}
-
 void SDLVideoSystem::update(const Setting& subject) noexcept
 {
 	if (&subject == &renderSettings.getFullScreenSetting()) {
@@ -198,16 +183,6 @@ void SDLVideoSystem::update(const Setting& subject) noexcept
 	} else {
 		UNREACHABLE;
 	}
-}
-
-bool SDLVideoSystem::signalEvent(const Event& /*event*/)
-{
-	// TODO: Currently window size depends only on scale factor.
-	//       Maybe in the future it will be handled differently.
-	//const auto& resizeEvent = get_event<ResizeEvent>(event);
-	//resize(resizeEvent.getX(), resizeEvent.getY());
-	//resize();
-	return false;
 }
 
 } // namespace openmsx

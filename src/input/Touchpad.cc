@@ -16,7 +16,7 @@
 #include "CommandException.hh"
 #include "Display.hh"
 #include "Event.hh"
-#include "OutputSurface.hh"
+#include "OutputDimensions.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
@@ -164,11 +164,8 @@ void Touchpad::write(uint8_t value, EmuTime time)
 
 ivec2 Touchpad::transformCoords(ivec2 xy)
 {
-	if (const auto* output = display.getOutputSurface()) {
-		vec2 uv = vec2(xy) / vec2(output->getLogicalSize());
-		xy = ivec2(m * vec3(uv, 1.0f));
-	}
-	return clamp(xy, 0, 255);
+	vec2 uv = vec2(xy) / vec2(display.getScaleFactorSize());
+	return clamp(ivec2(m * vec3(uv, 1.0f)), 0, 255);
 }
 
 // MSXEventListener

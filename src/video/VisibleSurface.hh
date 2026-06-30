@@ -3,7 +3,8 @@
 
 #include "EventListener.hh"
 #include "Observer.hh"
-#include "OutputSurface.hh"
+#include "OffScreenSurface.hh"
+#include "OutputDimensions.hh"
 #include "RTSchedulable.hh"
 #include "SDLSurfacePtr.hh"
 
@@ -16,10 +17,11 @@ class CliComm;
 class CommandConsole;
 class Display;
 class EventDistributor;
+class GLSnow;
 class ImGuiManager;
 class InputEventGenerator;
-class Layer;
 class OSDGUI;
+class OSDGUILayer;
 class Reactor;
 class Setting;
 class VideoSystem;
@@ -28,8 +30,8 @@ class BooleanSetting;
 /** An OutputSurface which is visible to the user, such as a window or a
   * full screen display.
   */
-class VisibleSurface final : public OutputSurface, public EventListener
-                                , private Observer<Setting>, private RTSchedulable
+class VisibleSurface final : public EventListener
+                           , private Observer<Setting>, private RTSchedulable
 {
 public:
 	VisibleSurface(Display& display,
@@ -39,18 +41,19 @@ public:
 	               CliComm& cliComm,
 	               VideoSystem& videoSystem,
 		       BooleanSetting& pauseSetting);
-	~VisibleSurface() override;
+	~VisibleSurface();
 
 	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
 	[[nodiscard]] Display& getDisplay() const { return display; }
 
-	static void saveScreenshotGL(const OutputSurface& output,
+	static void saveScreenshotGL(const OutputDimensions& output,
 	                             const std::string& filename);
 
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() const;
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 	void resize();
+	void resize(gl::ivec2 size);
 
 	/** When a complete frame is finished, call this method.
 	  * It will 'actually' display it. E.g. when using double buffering
@@ -58,25 +61,13 @@ public:
 	  */
 	void finish();
 
-	[[nodiscard]] std::unique_ptr<Layer> createSnowLayer();
-	[[nodiscard]] std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
-	[[nodiscard]] std::unique_ptr<Layer> createImGUILayer(ImGuiManager& manager);
-
-	/** Create an off-screen OutputSurface which has similar properties
-	  * as this VisibleSurface. E.g. used to re-render the current frame
-	  * without OSD elements to take a screenshot.
-	  */
-	[[nodiscard]] std::unique_ptr<OutputSurface> createOffScreenSurface();
-
-	void fullScreenUpdated(bool fullScreen);
+	[[nodiscard]] std::unique_ptr<GLSnow> createSnowLayer();
+	[[nodiscard]] std::unique_ptr<OSDGUILayer> createOSDGUILayer(OSDGUI& gui);
 
 	/** Returns x,y coordinates of top-left window corner,
 	    or returns a nullopt when in fullscreen mode. */
 	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() const;
 	void setWindowPosition(gl::ivec2 pos);
-
-	// OutputSurface
-	void saveScreenshot(const std::string& filename) override;
 
 	// Observer
 	void update(const Setting& setting) noexcept override;
@@ -90,7 +81,6 @@ public:
 private:
 	void updateCursor();
 	void createSurface(gl::ivec2 size, unsigned flags);
-	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 private:
 	Display& display;

@@ -1,12 +1,13 @@
 #include "Display.hh"
 
+#include "GLSnow.hh"
 #include "ImGuiManager.hh"
-#include "Layer.hh"
-#include "OutputSurface.hh"
+#include "OSDGUILayer.hh"
 #include "RendererFactory.hh"
 #include "VideoLayer.hh"
 #include "VideoSystem.hh"
 #include "VideoSystemChangeListener.hh"
+#include "VisibleSurface.hh"
 
 #include "BooleanSetting.hh"
 #include "CliComm.hh"
@@ -94,11 +95,6 @@ VideoSystem& Display::getVideoSystem()
 	return *videoSystem;
 }
 
-OutputSurface* Display::getOutputSurface()
-{
-	return videoSystem ? videoSystem->getOutputSurface() : nullptr;
-}
-
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();
@@ -123,29 +119,18 @@ void Display::detach(VideoSystemChangeListener& listener)
 	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
-Layer* Display::findActiveLayer() const
+VideoLayer* Display::findActiveLayer()
 {
-	auto it = std::ranges::find_if(layers, &Layer::isActive);
-	return (it != layers.end()) ? *it : nullptr;
-}
+	if (videoLayers.empty()) return nullptr;
 
-Display::Layers::iterator Display::baseLayer()
-{
-	// Note: It is possible to cache this, but since the number of layers is
-	//       low at the moment, it's not really worth it.
-	auto it = end(layers);
-	while (true) {
-		if (it == begin(layers)) {
-			// There should always be at least one opaque layer.
-			// TODO: This is not true for DummyVideoSystem.
-			//       Anyway, a missing layer will probably stand out visually,
-			//       so do we really have to assert on it?
-			//UNREACHABLE;
-			return it;
-		}
-		--it;
-		if ((*it)->getCoverage() == Layer::Coverage::FULL) return it;
-	}
+	// fast path
+	if (auto* f = videoLayers.front(); f->isActive()) return f;
+
+	// slow path, find new active layer (if any) and swap to front
+	auto it = std::ranges::find_if(videoLayers.begin() + 1, videoLayers.end(), &VideoLayer::isActive);
+	if (it == videoLayers.end()) return nullptr;
+	std::swap(*it, videoLayers.front());
+	return videoLayers.front();
 }
 
 void Display::executeRT()
@@ -239,10 +224,9 @@ gl::ivec2 Display::retrieveWindowPosition()
 	return reactor.getImGuiManager().retrieveWindowPosition();
 }
 
-gl::ivec2 Display::getWindowSize() const
+gl::ivec2 Display::getScaleFactorSize() const
 {
-	int factor = renderSettings.getScaleFactor();
-	return {320 * factor, 240 * factor};
+	return gl::round(gl::vec2(320.0f, 240.0f) * renderSettings.getScaleFactor());
 }
 
 float Display::getFps() const
@@ -278,30 +262,10 @@ void Display::doRendererSwitch(RenderSettings::RendererID newRenderer)
 {
 	assert(switchInProgress);
 
-	bool success = false;
-	while (!success) {
-		try {
-			doRendererSwitch2(newRenderer);
-			success = true;
-		} catch (MSXException& e) {
-			auto& rendererSetting = renderSettings.getRendererSetting();
-			std::string errorMsg = strCat(
-				"Couldn't activate renderer ",
-				rendererSetting.getString(),
-				": ", e.getMessage());
-			// now try some things that might work against this:
-			auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
-			auto curVal = scaleFactorSetting.getInt();
-			if (curVal == MIN_SCALE_FACTOR) {
-				throw FatalError(
-					e.getMessage(),
-					" (and I have no other ideas to try...)"); // give up and die... :(
-			}
-			strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
-					curVal, " to ", curVal - 1, "...");
-			scaleFactorSetting.setInt(curVal - 1);
-			getCliComm().printWarning(errorMsg);
-		}
+	try {
+		doRendererSwitch2(newRenderer);
+	} catch (MSXException& e) {
+		throw FatalError(std::move(e).getMessage());
 	}
 
 	switchInProgress = false;
@@ -322,7 +286,7 @@ void Display::doRendererSwitch2(RenderSettings::RendererID newRenderer)
 	}
 }
 
-void Display::repaintImpl()
+void Display::repaint()
 {
 	if (switchInProgress) {
 		// The checkRendererSwitch() method will queue a
@@ -339,10 +303,11 @@ void Display::repaintImpl()
 
 	if (!renderFrozen) {
 		assert(videoSystem);
-		if (OutputSurface* surface = videoSystem->getOutputSurface()) {
-			repaintImpl(*surface);
-			videoSystem->flush();
-		}
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		reactor.getImGuiManager().paintFrame(*this);
+		videoSystem->flush();
 	}
 
 	// update fps statistics
@@ -352,25 +317,39 @@ void Display::repaintImpl()
 	frameDurationSum += duration - frameDurations.pop_back();
 	frameDurations.push_front(duration);
 
-	// TODO maybe revisit this later (and/or simplify other calls to repaintDelayed())
 	// This ensures a minimum framerate for ImGui
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::repaintImpl(OutputSurface& surface)
+void Display::updateOutputDimensions(gl::ivec2 windowSize, gl::ivec2 framebufferScale)
 {
-	for (auto it = baseLayer(); it != end(layers); ++it) {
-		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
-			(*it)->paint(surface);
+	auto factor = gl::min_component(gl::vec2(windowSize) / gl::vec2(320.0f, 240.0f));
+	if (renderSettings.getScaleMode() == RenderSettings::ScaleMode::INTEGER) {
+		factor = std::floor(factor);
+	}
+	renderSettings.getScaleFactorSetting().setFloat(factor);
+	auto newOutputDim = OutputDimensions{windowSize * framebufferScale, getScaleFactorSize() * framebufferScale};
+	if (newOutputDim != outputDim) {
+		outputDim = newOutputDim;
+		osdLayer->invalidateAll();
+	}
+	if (windowSize != getScaleFactorSize()) {
+		if (auto* surf = videoSystem->getSurface()) {
+			surf->resize(getScaleFactorSize());
 		}
 	}
 }
 
-void Display::repaint()
+void Display::paintLayers(bool withOsd)
 {
-	// Request a repaint from the VideoSystem. This may call repaintImpl()
-	// directly or for example defer to a signal callback on VisibleSurface.
-	videoSystem->repaint();
+	if (auto* video = findActiveLayer()) {
+		video->paint(outputDim);
+	} else {
+		snowLayer->paint();
+	}
+	if (withOsd) {
+		osdLayer->paint(outputDim);
+	}
 }
 
 void Display::repaintDelayed(uint64_t delta)
@@ -382,32 +361,14 @@ void Display::repaintDelayed(uint64_t delta)
 	scheduleRT(unsigned(delta));
 }
 
-void Display::addLayer(Layer& layer)
+void Display::addVideoLayer(VideoLayer& layer)
 {
-	auto z = layer.getZ();
-	auto it = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() > z; });
-	layers.insert(it, &layer);
-	layer.setDisplay(*this);
+	videoLayers.push_back(&layer);
 }
 
-void Display::removeLayer(Layer& layer)
+void Display::removeVideoLayer(VideoLayer& layer)
 {
-	layers.erase(rfind_unguarded(layers, &layer));
-}
-
-void Display::updateZ(Layer& layer)
-{
-	auto oldPos = rfind_unguarded(layers, &layer);
-	auto z = layer.getZ();
-	auto newPos = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() >= z; });
-
-	if (oldPos == newPos) {
-		return;
-	} else if (oldPos < newPos) {
-		std::rotate(oldPos, oldPos + 1, newPos);
-	} else {
-		std::rotate(newPos, oldPos, oldPos + 1);
-	}
+	videoLayers.erase(rfind_unguarded(videoLayers, &layer));
 }
 
 
@@ -489,8 +450,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 				"Failed to take screenshot: ", e.getMessage());
 		}
 	} else {
-		auto* videoLayer = dynamic_cast<VideoLayer*>(
-			display.findActiveLayer());
+		auto* videoLayer = display.findActiveLayer();
 		if (!videoLayer) {
 			throw CommandException(
 				"Current renderer doesn't support taking screenshots.");
