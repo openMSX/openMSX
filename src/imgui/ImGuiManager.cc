@@ -497,6 +497,7 @@ struct DrawCallbackData {
 	Display* display;
 	gl::ivec2 windowSize;
 };
+static DrawCallbackData callBackData;
 
 static void msxDisplayDrawCallback(const ImDrawList* /*parent_list*/, const ImDrawCmd* pcmd)
 {
@@ -558,9 +559,10 @@ void ImGuiManager::paintFrame(Display& display)
 		}
 		// Draw MSX layers into this window via callback (runs during ImGui::Render)
 		gl::vec2 windowSize = ImGui::GetWindowSize();
-		static DrawCallbackData data{.display = &display, .windowSize = gl::ivec2(windowSize)};
+		callBackData.display = &display;
+		callBackData.windowSize = gl::ivec2(windowSize);
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		drawList->AddCallback(msxDisplayDrawCallback, &data);
+		drawList->AddCallback(msxDisplayDrawCallback, &callBackData);
 		drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
 		ImGui::Dummy(ImGui::GetContentRegionAvail());
 	});
