@@ -321,14 +321,14 @@ void Display::repaint()
 	repaintDelayed(40 * 1000); // 25fps
 }
 
-void Display::updateOutputDimensions(gl::ivec2 windowSize)
+void Display::updateOutputDimensions(gl::ivec2 windowSize, gl::ivec2 framebufferScale)
 {
 	auto factor = gl::min_component(gl::vec2(windowSize) / gl::vec2(320.0f, 240.0f));
 	if (renderSettings.getScaleMode() == RenderSettings::ScaleMode::INTEGER) {
 		factor = std::floor(factor);
 	}
 	renderSettings.getScaleFactorSetting().setFloat(factor);
-	auto newOutputDim = OutputDimensions{windowSize, getScaleFactorSize()};
+	auto newOutputDim = OutputDimensions{windowSize * framebufferScale, getScaleFactorSize() * framebufferScale};
 	if (newOutputDim != outputDim) {
 		outputDim = newOutputDim;
 		osdLayer->invalidateAll();
