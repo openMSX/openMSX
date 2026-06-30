@@ -13,7 +13,7 @@ void main()
 {
 	gl_Position = u_mvpMatrix * a_position;
 
-	float BIAS = 0.001f;
+	float BIAS = 0.001;
 	vec3 texOffset = (0.5 + BIAS) / dstSize.xyy;
 	texOffset.y *= texSize.z / texSize.y;
 	vec3 texCoord = a_texCoord + texOffset;
