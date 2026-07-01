@@ -307,7 +307,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						im::Indent([&]{
 							im::Disabled(!unlocked, [&]{
 								float fval = float(value.getInt()) / 1.0e6f;
-								if (ImGui::InputFloat(tmpStrCat("frequency (MHz)##", name).c_str(), &fval, 0.01f,   1.0f, "%.2f")) {
+								if (ImGui::InputFloat(tmpStrCat("frequency (MHz)##", name).c_str(), &fval, 0.01f, 1.0f, "%.2f")) {
 									value.setInt(int(fval * 1.0e6f));
 								}
 								im::PopupContextItem(tmpStrCat("freq-context##", name).c_str(), [&]{
@@ -665,9 +665,9 @@ static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = {
 static constexpr auto boundingBox = gl::vec2{300.0f, 100.0f};
 static constexpr auto radius = 20.0f;
 static constexpr auto corner = 10.0f;
-static constexpr auto centerA = gl::vec2{200.0f,  50.0f};
-static constexpr auto centerB = gl::vec2{260.0f,  50.0f};
-static constexpr auto centerDPad = gl::vec2{50.0f,  50.0f};
+static constexpr auto centerA = gl::vec2{200.0f, 50.0f};
+static constexpr auto centerB = gl::vec2{260.0f, 50.0f};
+static constexpr auto centerDPad = gl::vec2{50.0f, 50.0f};
 static constexpr auto sizeDPad = 30.0f;
 
 [[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
@@ -739,11 +739,11 @@ static constexpr auto centerC = gl::vec2{269.7f,  83.9f};
 static constexpr auto centerX = gl::vec2{194.8f,  75.2f};
 static constexpr auto centerY = gl::vec2{223.0f,  61.3f};
 static constexpr auto centerZ = gl::vec2{252.2f,  52.9f};
-static constexpr auto selectBox = Rectangle{gl::vec2{130.0f,  60.0f}, gl::vec2{160.0f,  70.0f}};
-static constexpr auto startBox  = Rectangle{gl::vec2{130.0f,  86.0f}, gl::vec2{160.0f,  96.0f}};
+static constexpr auto selectBox = Rectangle{gl::vec2{130.0f, 60.0f}, gl::vec2{160.0f, 70.0f}};
+static constexpr auto startBox  = Rectangle{gl::vec2{130.0f, 86.0f}, gl::vec2{160.0f, 96.0f}};
 static constexpr auto radiusABC = 16.2f;
 static constexpr auto radiusXYZ = 12.2f;
-static constexpr auto centerDPad = gl::vec2{65.6f,  82.7f};
+static constexpr auto centerDPad = gl::vec2{65.6f, 82.7f};
 static constexpr auto sizeDPad = 34.0f;
 static constexpr auto fractionDPad = 1.0f / 3.0f;
 
@@ -809,9 +809,9 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	drawDPad(tr(centerDPad), sizeDPad, subspan<4>(hovered), hoveredRow);
 	drawList->AddCircle(tr(centerDPad), 43.0f, color);
 	std::array dPadCurve = {
-		gl::vec2{77.0f,  33.0f}, gl::vec2{ 69.2f,   0.0f},
-		gl::vec2{54.8f, 135.2f}, gl::vec2{-66.9f,   0.0f},
-		gl::vec2{77.0f,  33.0f}, gl::vec2{ 69.2f,   0.0f},
+		gl::vec2{77.0f,  33.0f}, gl::vec2{ 69.2f, 0.0f},
+		gl::vec2{54.8f, 135.2f}, gl::vec2{-66.9f, 0.0f},
+		gl::vec2{77.0f,  33.0f}, gl::vec2{ 69.2f, 0.0f},
 	};
 	drawBezierCurve(dPadCurve);
 
@@ -828,18 +828,18 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	drawFilledCircle(tr(centerZ), radiusXYZ, hovered[TRIG_Z] || (hoveredRow == TRIG_Z));
 	drawLetterZ(tr(centerZ));
 	std::array buttonCurve = {
-		gl::vec2{221.1f,  28.9f}, gl::vec2{ 80.1f,   0.0f},
-		gl::vec2{236.9f, 139.5f}, gl::vec2{-76.8f,   0.0f},
-		gl::vec2{221.1f,  28.9f}, gl::vec2{ 80.1f,   0.0f},
+		gl::vec2{221.1f,  28.9f}, gl::vec2{ 80.1f, 0.0f},
+		gl::vec2{236.9f, 139.5f}, gl::vec2{-76.8f, 0.0f},
+		gl::vec2{221.1f,  28.9f}, gl::vec2{ 80.1f, 0.0f},
 	};
 	drawBezierCurve(buttonCurve);
 
 	auto corner = (selectBox.bottomRight.y - selectBox.topLeft.y) * 0.5f;
 	auto trR = [&](Rectangle r) { return Rectangle{tr(r.topLeft), tr(r.bottomRight)}; };
 	drawFilledRectangle(trR(selectBox), corner, hovered[TRIG_SELECT] || (hoveredRow == TRIG_SELECT));
-	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({123.0f,  46.0f}), color, "Select");
+	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({123.0f, 46.0f}), color, "Select");
 	drawFilledRectangle(trR(startBox), corner, hovered[TRIG_START] || (hoveredRow == TRIG_START));
-	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({128.0f,  97.0f}), color, "Start");
+	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({128.0f, 97.0f}), color, "Start");
 }
 
 } // namespace joymega
