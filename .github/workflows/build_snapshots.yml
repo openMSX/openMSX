@@ -3,13 +3,12 @@ name: Build Snapshots
 on:
   push:
     branches:
-      - fsjh1-2026
-  #     - master
-  #     - WIP-keyboard-stuff
-  #     - sdl3
-  # pull_request:
-  #   branches:
-  #     - master
+      - master
+      - WIP-keyboard-stuff
+      - sdl3
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -19,53 +18,53 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#           - image: ubuntu-latest
-#             name: Unit Tests (on Linux)
-#             cpu: x86_64
-#             os: linux
-#             flavour: unittest
-#           - image: ubuntu-latest
-#             name: Linux (native, super-opt)
-#             cpu: x86_64
-#             os: linux
-#             flavour: super-opt
-#           - image: ubuntu-latest
-#             name: Linux (native, debug, minimal g++)
-#             cpu: x86_64
-#             os: linux
-#             flavour: debug
-#           - image: ubuntu-latest
-#             name: Linux
-#             cpu: x86_64
-#             os: linux
-#             flavour: opt
-# #          - image: ubuntu-latest
-# #            name: Linux
-# #            cpu: aarch64
-# #            os: linux
-# #            flavour: opt
-#           - image: ubuntu-24.04
-#             name: Windows
-#             cpu: x86_64
-#             os: mingw-w64
-#             flavour: opt
-#           - image: macos-15
-#             xcode_version: 16.4
-#             name: MacOS
-#             cpu: x86_64
-#             os: darwin
-#             flavour: opt
-#           - image: macos-15
-#             xcode_version: 16.4
-#             name: MacOS
-#             cpu: aarch64
-#             os: darwin
-#             flavour: opt
-# #          - image: ubuntu-latest
-# #            name: Android
-# #            cpu: arm
-# #            os: android
-# #            flavour: opt
+          - image: ubuntu-latest
+            name: Unit Tests (on Linux)
+            cpu: x86_64
+            os: linux
+            flavour: unittest
+          - image: ubuntu-latest
+            name: Linux (native, super-opt)
+            cpu: x86_64
+            os: linux
+            flavour: super-opt
+          - image: ubuntu-latest
+            name: Linux (native, debug, minimal g++)
+            cpu: x86_64
+            os: linux
+            flavour: debug
+          - image: ubuntu-latest
+            name: Linux
+            cpu: x86_64
+            os: linux
+            flavour: opt
+#          - image: ubuntu-latest
+#            name: Linux
+#            cpu: aarch64
+#            os: linux
+#            flavour: opt
+          - image: ubuntu-24.04
+            name: Windows
+            cpu: x86_64
+            os: mingw-w64
+            flavour: opt
+          - image: macos-15
+            xcode_version: 16.4
+            name: MacOS
+            cpu: x86_64
+            os: darwin
+            flavour: opt
+          - image: macos-15
+            xcode_version: 16.4
+            name: MacOS
+            cpu: aarch64
+            os: darwin
+            flavour: opt
+#          - image: ubuntu-latest
+#            name: Android
+#            cpu: arm
+#            os: android
+#            flavour: opt
           - image: windows-latest
             name: Windows-VC
             cpu: x64
@@ -76,30 +75,30 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-    # - name: Select Xcode version
-    #   if: ${{ matrix.xcode_version }}
-    #   run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
-    # - name: Preparations for signing binaries on Darwin builds
-    #   # Don't fail build for pull requests if vars and secrets are not defined.
-    #   if: ${{ matrix.os == 'darwin' && vars.CODE_SIGN_IDENTITY }}
-    #   uses: ./.github/actions/prepare-sign
-    #   env:
-    #     BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-    #     P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-    #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-    #   with:
-    #     os: ${{ matrix.os }}
-    # - name: Preparations for notarizing binaries on Darwin builds
-    #   # Don't fail build for pull requests if vars and secrets are not defined.
-    #   if: ${{ matrix.os == 'darwin' && vars.NOTARY_PROFILE }}
-    #   uses: ./.github/actions/prepare-notarize
-    #   env:
-    #     NOTARY_API_KEY: ${{ secrets.NOTARY_API_KEY }}
-    #     NOTARY_API_KEY_ID: ${{ vars.NOTARY_API_KEY_ID }}
-    #     NOTARY_API_ISSUER: ${{ vars.NOTARY_API_ISSUER }}
-    #     NOTARY_PROFILE: ${{ vars.NOTARY_PROFILE }}
-    #   with:
-    #     os: ${{ matrix.os }}
+    - name: Select Xcode version
+      if: ${{ matrix.xcode_version }}
+      run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
+    - name: Preparations for signing binaries on Darwin builds
+      # Don't fail build for pull requests if vars and secrets are not defined.
+      if: ${{ matrix.os == 'darwin' && vars.CODE_SIGN_IDENTITY }}
+      uses: ./.github/actions/prepare-sign
+      env:
+        BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+        P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      with:
+        os: ${{ matrix.os }}
+    - name: Preparations for notarizing binaries on Darwin builds
+      # Don't fail build for pull requests if vars and secrets are not defined.
+      if: ${{ matrix.os == 'darwin' && vars.NOTARY_PROFILE }}
+      uses: ./.github/actions/prepare-notarize
+      env:
+        NOTARY_API_KEY: ${{ secrets.NOTARY_API_KEY }}
+        NOTARY_API_KEY_ID: ${{ vars.NOTARY_API_KEY_ID }}
+        NOTARY_API_ISSUER: ${{ vars.NOTARY_API_ISSUER }}
+        NOTARY_PROFILE: ${{ vars.NOTARY_PROFILE }}
+      with:
+        os: ${{ matrix.os }}
     - name: Perform the actual build
       env:
         CODE_SIGN_IDENTITY: ${{ vars.CODE_SIGN_IDENTITY }}
