@@ -1119,7 +1119,8 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
     bd->HasPolygonMode = (!bd->GlProfileIsES2 && !bd->GlProfileIsES3);
 #endif
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
-    bd->HasBindSampler = (bd->GlVersion >= 330 || bd->GlProfileIsES3);
+    //bd->HasBindSampler = (bd->GlVersion >= 330 || bd->GlProfileIsES3);
+    bd->HasBindSampler = false;
 #endif
     bd->HasClipOrigin = (bd->GlVersion >= 450);
 #ifdef IMGUI_IMPL_OPENGL_HAS_EXTENSIONS
