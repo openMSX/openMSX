@@ -331,6 +331,12 @@ void VisibleSurface::resize()
 
 void VisibleSurface::resize(gl::ivec2 size)
 {
+	auto flags = SDL_GetWindowFlags(window.get());
+	bool isMaximized = (flags & SDL_WINDOW_MAXIMIZED);
+	bool isFullscreen = (flags & SDL_WINDOW_FULLSCREEN) ||
+	                    (flags & SDL_WINDOW_FULLSCREEN_DESKTOP);
+	if (isMaximized || isFullscreen) return;
+
 	SDL_SetWindowSize(window.get(), size.x, size.y);
 }
 
