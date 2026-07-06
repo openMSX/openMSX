@@ -333,9 +333,20 @@ void Display::updateOutputDimensions(gl::ivec2 windowSize, gl::ivec2 framebuffer
 		outputDim = newOutputDim;
 		osdLayer->invalidateAll();
 	}
-	if (windowSize != getScaleFactorSize()) {
-		if (auto* surf = videoSystem->getSurface()) {
-			surf->resize(getScaleFactorSize());
+
+	// Workaround for gnome/Xwayland bug:
+	//  Attempt to not call SDL_SetWindowSize() while the user is still actively resizing.
+	//  Such calls should be ignored during active resize, but in gnome it glitches.
+	static int counter = 0;
+	static gl::ivec2 prevWindowSize;
+	if (windowSize != prevWindowSize) counter = 30;
+	prevWindowSize = windowSize;
+	if (counter > 0) --counter;
+	if (counter == 0) {
+		if (windowSize != getScaleFactorSize()) {
+			if (auto* surf = videoSystem->getSurface()) {
+				surf->resize(getScaleFactorSize());
+			}
 		}
 	}
 }
