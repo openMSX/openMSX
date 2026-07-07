@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>UnapiNet</name>
+    <manufacturer>openMSXnet</manufacturer>
+    <code/>
+    <release_year>2026</release_year>
+    <description>UNAPI TCP/IP bridge. Provides real network access to MSX via I/O ports 0x28-0x29 (same range as the DenYoNet Ethernet card; both are UNAPI Ethernet bridges and are not loaded together).</description>
+    <type>network</type>
+  </info>
+  <devices>
+    <UnapiNet id="UnapiNet">
+      <io base="0x28" num="2"/>
+    </UnapiNet>
+  </devices>
+</msxconfig>
