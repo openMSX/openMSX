@@ -31,8 +31,7 @@ VDP: TMS9118NL
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
-      <level_2_via>only_level_1</level_2_via> <!-- confirmed by a Hit Bit U owner with test v3.1 on 2026-07-06 -->
-
+      <level_2_via>only_level_1</level_2_via> <!-- confirmed by theNestruo with test v3.1 -->
     </Kanji>
 
     <PPI id="ppi">
