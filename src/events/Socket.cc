@@ -117,6 +117,16 @@ void sock_setIntOption(SOCKET sd, int level, int optName, int value)
 	setsockopt(sd, level, optName, std::bit_cast<const char*>(&value), sizeof(value));
 }
 
+int sock_getIntOption(SOCKET sd, int level, int optName)
+{
+	int value = 0;
+	::socklen_t len = sizeof(value);
+	if (getsockopt(sd, level, optName, std::bit_cast<char*>(&value), &len) != 0) {
+		return 0;
+	}
+	return value;
+}
+
 bool sock_readable(SOCKET sd)
 {
 	fd_set rfds;

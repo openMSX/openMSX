@@ -1,5 +1,6 @@
 #include "UnapiNet.hh"
 
+#include "one_of.hh"
 #include "serialize.hh"
 
 #ifdef _WIN32
@@ -81,6 +82,8 @@ UnapiNet::UnapiNet(const DeviceConfig& config)
 {
 	paramBuf.reserve(MAX_TRANSFER + 16);
 	resultBuf.reserve(MAX_TRANSFER + 16);
+
+	reset(EmuTime::dummy()); // keep constructor and reset() in sync
 
 	// Start background threads
 	running = true;
@@ -440,10 +443,7 @@ void UnapiNet::cmdPing()
 
 void UnapiNet::cmdQueryCap()
 {
-	QueryCapResult r{};
-	r.cap0 = CAP_BYTE0;
-	r.cap1 = CAP_BYTE1;
-	setResult(r);
+	setResult(QueryCapResult{.cap0 = CAP_BYTE0, .cap1 = CAP_BYTE1});
 }
 
 // DNS_QUERY (0x01)
@@ -552,10 +552,7 @@ void UnapiNet::cmdDnsStatus()
 		setResult(r);
 	} else if (s == DnsStatus::Error) {
 		// Error
-		DnsStatusError r{};
-		r.status    = 0xFF;
-		r.errorCode = dns.errorCode;
-		setResult(r);
+		setResult(DnsStatusError{.status = 0xFF, .errorCode = dns.errorCode});
 	} else {
 		// idle (0) or in_progress (1)
 		setResultByte(static_cast<uint8_t>(s));
@@ -698,7 +695,7 @@ void UnapiNet::cmdTcpSend()
 	}
 	auto& c = *cp;
 	if (c.sock == OPENMSX_INVALID_SOCKET ||
-		(c.tcpState != TcpState::Established && c.tcpState != TcpState::CloseWait)) {
+		c.tcpState.load() != one_of(TcpState::Established, TcpState::CloseWait)) {
 		setResultByte(1);
 		return;
 	}
