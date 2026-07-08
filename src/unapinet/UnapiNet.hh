@@ -3,9 +3,6 @@
 
 #include "MSXDevice.hh"
 #include "Socket.hh"
-#ifdef interface
-#undef interface  // winsock2.h (pulled in by Socket.hh) #defines `interface`;
-#endif            // undo it so it can't clobber other openMSX headers.
 #include "UnapiNetWire.hh"
 
 #include <atomic>

@@ -16,6 +16,11 @@
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#ifdef interface
+// windows.h (via winsock2.h) defines an 'interface' macro; undo it so it
+// cannot clobber other openMSX code that uses the word as an identifier.
+#undef interface
+#endif
 #endif
 
 namespace openmsx {

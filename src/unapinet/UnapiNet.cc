@@ -1,12 +1,9 @@
-// Include Socket.hh BEFORE our own header so that SOCKET is defined.
-// We use a trick: undefine the "interface" macro that windows.h defines
-// and which breaks other openMSX headers.
-#include "Socket.hh"
+#include "UnapiNet.hh"
+
+#include "serialize.hh"
+
 #ifdef _WIN32
 #include <ws2tcpip.h>
-#ifdef interface
-#undef interface
-#endif
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -15,9 +12,6 @@
 #include <errno.h>
 #include <poll.h>
 #endif
-
-#include "UnapiNet.hh"
-#include "serialize.hh"
 
 #include <algorithm>
 #include <cassert>
