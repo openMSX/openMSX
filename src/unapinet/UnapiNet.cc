@@ -190,7 +190,7 @@ void UnapiNet::setResult(std::span<const uint8_t> data)
 
 void UnapiNet::setResultByte(uint8_t b)
 {
-	setResult(std::span(&b, 1));
+	setResult(std::span<const uint8_t>(&b, 1));
 }
 
 void UnapiNet::setError()

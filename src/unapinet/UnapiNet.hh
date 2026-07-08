@@ -7,6 +7,7 @@
 
 #include <array>
 #include <atomic>
+#include <concepts>
 #include <cstdint>
 #include <deque>
 #include <mutex>
@@ -178,8 +179,12 @@ private:
 	// read from the data port (and set state/statusReg accordingly).
 	void setResult(std::span<const uint8_t> data);
 	// Wire-layout struct (see UnapiNetWire.hh): the compiler lays out the
-	// exact on-wire bytes.
+	// exact on-wire bytes. The requires-clause keeps span-like types (which
+	// accidentally satisfy wire_layout, being trivially-copyable objects
+	// holding a pointer) on the span overload above - serializing a span
+	// OBJECT would emit its pointer bytes, not the pointed-to data.
 	template<wire_layout T>
+		requires (!std::convertible_to<const T&, std::span<const uint8_t>>)
 	void setResult(const T& d)
 	{
 		setResult(std::span<const uint8_t>(toBytes(d)));
@@ -202,7 +207,7 @@ private:
 	void closeTcp(TcpConnection& c);
 	// Quick teardown of a live connection from the receiver/send paths: record
 	// the reason, close the socket and mark it CLOSED (does not clear the
-	// remote/local metadata — that is closeTcpSocket's job).
+	// remote/local metadata — that is closeTcp's job).
 	void forceClose(TcpConnection& c, CloseReason reason);
 	[[nodiscard]] int allocUdpHandle();
 	[[nodiscard]] UdpConnection* udpForHandle(int wireHandle);
