@@ -1143,6 +1143,23 @@ void Debugger::Cmd::symbolsLookup(std::span<const TclObject> tokens, TclObject& 
 	}
 }
 
+// A tiny structural string type, because we're not using C++26 yet that let's you constexpr + std::string
+template<size_t N>
+struct FixedStr {
+	char buf[N]{};
+	constexpr FixedStr() = default;
+	constexpr FixedStr(const char(&str)[N]) { std::copy_n(str, N, buf); }
+	constexpr operator std::string_view() const { return {buf, N - 1}; }
+	// Allows you to use + natively on your constexpr variables!
+	template<size_t M>
+	constexpr auto operator+(FixedStr<M> rhs) const {
+		FixedStr<N + M - 1> out{};
+		std::copy_n(buf, N - 1, out.buf);
+		std::copy_n(rhs.buf, M, out.buf + N - 1);
+		return out;
+	}
+};
+
 std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 {
 	constexpr auto generalHelp =
@@ -1268,23 +1285,26 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  * <key> is the debug condition ID\n"
 		"  * <value> is another Tcl dict containing the properties of the debug condition.\n"
 		"            See 'help debug condition create' for a description of these properties.\n";
-	constexpr auto breakPointCreateHelp =
+	constexpr FixedStr addressNote = "An address is just a number [0:0xFFFF] but can also be dynamically evaluated from a known symbol by specifying {$sym(MySymbol)}\n";
+	constexpr auto breakPointCreateHelp = FixedStr(
 		"debug breakpoint create [<property-name> <property-value>]...\n"
 		"  Create a new breakpoint with given properties. The following properties are supported:\n"
 		"  -address    the address where the breakpoint should trigger\n"
+		"              ") +  addressNote + FixedStr(
 		"  -condition  a Tcl expression that must evaluate to true for the breakpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the breakpoint triggers (default = 'debug break')\n"
 		"  -enabled    set to false to (temporarily) disable this breakpoint\n"
-		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
-	constexpr auto watchPointCreateHelp =
+		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n");
+	constexpr auto watchPointCreateHelp = FixedStr(
 		"debug watchpoint create [<property-name> <property-value>]...\n"
 		"  Create a new watchpoint with given properties. The following properties are supported:\n"
 		"  -type       one of 'read_io', 'write_io', 'read_mem', 'write_mem'\n"
 		"  -address    the address(es) where the watchpoint should trigger, can be a single address or a begin/end-pair\n"
+		"              ") + addressNote + FixedStr(
 		"  -condition  a Tcl expression that must evaluate to true for the watchpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the watchpoint triggers (default = 'debug break')\n"
 		"  -enabled    set to false to (temporarily) disable this watchpoint\n"
-		"  -once       if 'true' the watchpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
+		"  -once       if 'true' the watchpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n");
 	constexpr auto watchExprCreateHelp =
 		"debug watchexpr create [<property-name> <property-value>]...\n"
 		"  Create a new watch expression with given properties. The following properties are supported:\n"
@@ -1452,7 +1472,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"debug breaked\n"
 		"  Query the CPU breaked status. Returns '1' when CPU was "
 		"breaked, '0' otherwise.\n";
-	constexpr auto disasmHelp =
+	constexpr auto disasmHelp = FixedStr(
 		"debug disasm <addr>\n"
 		"  Disassemble the instruction at the given address. The result "
 		"is a Tcl list. The first element in the list contains a textual "
@@ -1461,8 +1481,9 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"resulting list can be used to derive the number of bytes in the "
 		"instruction).\n"
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
-		"more convenient to use than this subcommand.";
-	constexpr auto disasmBlobHelp =
+		"more convenient to use than this subcommand.\n  ")
+		+ addressNote + FixedStr("\n");
+	constexpr auto disasmBlobHelp = FixedStr(
 		"debug disasm_blob <value> <addr> [<function>]\n"
 		"  This is a more generic version of the disasm subcommand, but it "
 		"works on a Tcl binary string (see Tcl manual) to disassemble a "
@@ -1470,7 +1491,8 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"address to jump to is necessary. The optional fuction will be "
 		"called with an address as parameter and may return a symbol name "
 		"that replaces that address if a symbol that matches the address "
-		"is found.\n";
+		"is found.\n  ")
+		+ addressNote + FixedStr("\n");
 	constexpr auto symbolsHelp =
 		"debug symbols <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
@@ -1512,7 +1534,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		} else if (tokens[2] == "list") {
 			return breakPointListHelp;
 		} else if (tokens[2] == "create") {
-			return breakPointCreateHelp;
+			return std::string(breakPointCreateHelp);
 		} else if (tokens[2] == "configure") {
 			return breakPointConfigureHelp;
 		} else if (tokens[2] == "remove") {
@@ -1526,7 +1548,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		} else if (tokens[2] == "list") {
 			return watchPointListHelp;
 		} else if (tokens[2] == "create") {
-			return watchPointCreateHelp;
+			return std::string(watchPointCreateHelp);
 		} else if (tokens[2] == "configure") {
 			return watchPointConfigureHelp;
 		} else if (tokens[2] == "remove") {
@@ -1591,9 +1613,9 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 	} else if (tokens[1] == "breaked") {
 		return breakedHelp;
 	} else if (tokens[1] == "disasm") {
-		return disasmHelp;
+		return std::string(disasmHelp);
 	} else if (tokens[1] == "disasm_blob") {
-		return disasmBlobHelp;
+		return std::string(disasmBlobHelp);
 	} else if (tokens[1] == "symbols") {
 		return symbolsHelp;
 	} else if (tokens[1] == "trace") {
