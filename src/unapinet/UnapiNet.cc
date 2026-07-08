@@ -40,6 +40,11 @@ static constexpr size_t MAX_TRANSFER = 4096;
 // BBS ANSI screens can be 16-32KB, needs big buffer
 static constexpr size_t MAX_RECV_BUF = 65536;
 
+// Upper bound on accumulated command parameters. Large enough for any legal
+// command (16-bit payload length + header); a runaway MSX program hammering
+// the data port must not be able to exhaust host memory.
+static constexpr size_t MAX_PARAM_BUF = 64 * 1024 + 16;
+
 namespace openmsx {
 
 // Constructor / Destructor
@@ -87,40 +92,41 @@ void UnapiNet::reset(EmuTime /*time*/)
 
 // Port reads
 
-byte UnapiNet::readIO(uint16_t port, EmuTime /*time*/)
+byte UnapiNet::peekIO(uint16_t port, EmuTime /*time*/) const
 {
-	switch (port & 0xFF) {
-
-	case 0x28: // status register
-		return statusReg;
-
-	case 0x29: // data register
+	if (port & 1) {
+		// data register (typically 0x29)
 		if (state == State::RESULT_READY && resultPos < resultBuf.size()) {
-			uint8_t b = resultBuf[resultPos++];
-			if (resultPos >= resultBuf.size()) {
+			return resultBuf[resultPos];
+		}
+		return 0x00;
+	} else {
+		// status register (typically 0x28)
+		return statusReg;
+	}
+}
+
+byte UnapiNet::readIO(uint16_t port, EmuTime time)
+{
+	byte b = peekIO(port, time);
+	if (port & 1) {
+		// reading the data register consumes one result byte
+		if (state == State::RESULT_READY && resultPos < resultBuf.size()) {
+			if (++resultPos >= resultBuf.size()) {
 				state     = State::IDLE;
 				statusReg = STATUS_OK;
 			}
-			return b;
 		}
-		return 0x00;
-
-	default:
-		return 0xFF;
 	}
+	return b;
 }
 
 // Port writes
 
 void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
-	switch (port & 0xFF) {
-
-	case 0x28: // command
-		processCmd(value);
-		break;
-
-	case 0x29: // parameter (accumulate)
+	if (port & 1) {
+		// parameter (accumulate), typically 0x29
 		// If there is a pending unread result, discard it
 		// so that the new parameters are accepted
 		if (state == State::RESULT_READY) {
@@ -129,8 +135,14 @@ void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 			resultBuf.clear();
 			resultPos = 0;
 		}
-		paramBuf.push_back(value);
-		break;
+		if (paramBuf.size() < MAX_PARAM_BUF) {
+			paramBuf.push_back(value);
+		}
+		// else: drop the byte; the command's size checks will report an
+		// error to the MSX, and host memory stays bounded
+	} else {
+		// command (typically 0x28)
+		processCmd(value);
 	}
 }
 
