@@ -76,6 +76,9 @@
     <Filter Include="serial">
       <UniqueIdentifier>{8fe6dae8-765e-428c-abf4-662e83a99385}</UniqueIdentifier>
     </Filter>
+    <Filter Include="unapinet">
+      <UniqueIdentifier>{5a21c62d-f283-48c5-81c1-dca7dfe3dd2c}</UniqueIdentifier>
+    </Filter>
     <Filter Include="security">
       <UniqueIdentifier>{ce8126f9-f849-4f95-85bf-f6919a3a4e9a}</UniqueIdentifier>
     </Filter>
@@ -1142,6 +1145,9 @@
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc">
       <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\unapinet\UnapiNet.cc">
+      <Filter>unapinet</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Base64.cc">
       <Filter>utils</Filter>
@@ -2717,6 +2723,12 @@
     </None>
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh">
       <Filter>thread</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\unapinet\UnapiNet.hh">
+      <Filter>unapinet</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\unapinet\UnapiNetWire.hh">
+      <Filter>unapinet</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh">
       <Filter>utils</Filter>
