@@ -81,9 +81,6 @@ static constexpr uint8_t STATUS_DATA  = 0x02;
 
 UnapiNet::UnapiNet(const DeviceConfig& config)
 	: MSXDevice(config)
-	, state(State::IDLE)
-	, statusReg(STATUS_OK)
-	, resultPos(0)
 {
 	paramBuf.reserve(MAX_TRANSFER + 16);
 	resultBuf.reserve(MAX_TRANSFER + 16);
@@ -484,10 +481,9 @@ void UnapiNet::cmdDnsQuery()
 		dns.status = DnsStatus::Complete; // complete
 		dns.errorCode = 0;
 
-		DnsQueryResult r{};
-		r.status = 1; // resolved immediately
-		r.ip     = ip;
-		setResult(r);
+		setResult(DnsQueryResult{
+			.status = 1, // resolved immediately
+			.ip     = Endian::UA_B32(ip)});
 		return;
 	}
 
@@ -547,10 +543,9 @@ void UnapiNet::cmdDnsStatus()
 
 	if (s == DnsStatus::Complete) {
 		// Complete
-		DnsStatusResult r{};
-		r.status = 2;
-		r.ip     = dns.resolvedIp;
-		setResult(r);
+		setResult(DnsStatusResult{
+			.status = 2,
+			.ip     = Endian::UA_B32(dns.resolvedIp)});
 	} else if (s == DnsStatus::Error) {
 		// Error
 		setResult(DnsStatusError{.status = 0xFF, .errorCode = dns.errorCode});
@@ -771,8 +766,7 @@ void UnapiNet::cmdTcpRecv()
 		c.recvBuf.erase(c.recvBuf.begin(), c.recvBuf.begin() + avail);
 	}
 
-	TcpRecvResultHeader hdr{};
-	hdr.actualLen = static_cast<uint16_t>(payload.size());
+	TcpRecvResultHeader hdr{.actualLen = Endian::UA_L16(uint16_t(payload.size()))};
 	setResult(hdr, payload);
 }
 
@@ -887,9 +881,7 @@ void UnapiNet::cmdTcpAbort()
 
 void UnapiNet::cmdGetLocalIP()
 {
-	GetLocalIpResult r{};
-	r.ip = sock_localIPv4();
-	setResult(r);
+	setResult(GetLocalIpResult{.ip = Endian::UA_B32(sock_localIPv4())});
 }
 
 // NET_STATE (0x0E)
@@ -1043,9 +1035,7 @@ void UnapiNet::cmdUdpState()
 			}
 		}
 	}
-	UdpStateResult r{};
-	r.firstDgramSize = size;
-	setResult(r);
+	setResult(UdpStateResult{.firstDgramSize = Endian::UA_L16(size)});
 }
 
 // UDP_SEND (0x0C)
@@ -1124,10 +1114,10 @@ void UnapiNet::cmdUdpRecv()
 	uint16_t actual = static_cast<uint16_t>(
 		std::min(static_cast<size_t>(maxlen), dg.data.size()));
 
-	UdpRecvResultHeader hdr{};
-	hdr.srcIp     = dg.srcIp;
-	hdr.srcPort   = dg.srcPort;
-	hdr.actualLen = actual;
+	UdpRecvResultHeader hdr{
+		.srcIp     = Endian::UA_B32(dg.srcIp),
+		.srcPort   = Endian::UA_L16(dg.srcPort),
+		.actualLen = Endian::UA_L16(actual)};
 	setResult(hdr, std::span<const uint8_t>(dg.data.data(), actual));
 }
 
@@ -1263,14 +1253,13 @@ void UnapiNet::cmdIcmpRecv()
 		return;
 	}
 
-	IcmpRecvResult out{};
-	out.hasData    = 1;
-	out.srcIp      = r.srcIp;
-	out.ttl        = r.ttl;
-	out.identifier = r.identifier;
-	out.sequence   = r.sequence;
-	out.dataLen    = r.dataLen;
-	setResult(out);
+	setResult(IcmpRecvResult{
+		.hasData    = 1,
+		.srcIp      = Endian::UA_B32(r.srcIp),
+		.ttl        = r.ttl,
+		.identifier = Endian::UA_L16(r.identifier),
+		.sequence   = Endian::UA_L16(r.sequence),
+		.dataLen    = Endian::UA_L16(r.dataLen)});
 }
 
 // Serialization (save state)

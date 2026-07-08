@@ -45,15 +45,15 @@ private:
 
 	// --- I/O protocol state ---
 	enum class State { IDLE, RESULT_READY };
-	State    state;
-	uint8_t  statusReg;
+	State    state = State::IDLE;
+	uint8_t  statusReg = 0x00; // STATUS_OK
 
 	// Parameter buffer (written to 0x29 before the command)
 	std::vector<uint8_t> paramBuf;
 
 	// Result buffer (read from 0x29 after the command)
 	std::vector<uint8_t> resultBuf;
-	size_t resultPos;
+	size_t resultPos = 0;
 
 	// --- TCP connections ---
 	static constexpr int MAX_TCP = 4;
@@ -189,7 +189,7 @@ private:
 		requires (!std::convertible_to<const T&, std::span<const uint8_t>>)
 	void setResult(const T& d)
 	{
-		setResult(std::span<const uint8_t>(toBytes(d)));
+		setResult(asBytes(d));
 	}
 	// Fixed-size header struct followed by a variable payload
 	// (used by TCP_RECV / UDP_RECV).
@@ -197,7 +197,7 @@ private:
 		requires (!std::convertible_to<const T&, std::span<const uint8_t>>)
 	void setResult(const T& hdr, std::span<const uint8_t> payload)
 	{
-		setResult(std::span<const uint8_t>(toBytes(hdr)));
+		setResult(asBytes(hdr));
 		resultBuf.insert(resultBuf.end(), payload.begin(), payload.end());
 	}
 	void setResultByte(uint8_t b);
