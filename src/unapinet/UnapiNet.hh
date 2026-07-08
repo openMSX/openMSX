@@ -83,19 +83,19 @@ private:
 	// --- TCP connections ---
 	static constexpr int MAX_TCP = 4;
 
-	// TCP states (UNAPI spec)
-	enum TcpState : uint8_t {
-		TCP_CLOSED      = 0,
-		TCP_LISTEN      = 1,
-		TCP_SYN_SENT    = 2,
-		TCP_SYN_RECV    = 3,
-		TCP_ESTABLISHED = 4,
-		TCP_FIN_WAIT1   = 5,
-		TCP_FIN_WAIT2   = 6,
-		TCP_CLOSE_WAIT  = 7,
-		TCP_CLOSING     = 8,
-		TCP_LAST_ACK    = 9,
-		TCP_TIME_WAIT   = 10,
+	// TCP states (UNAPI spec wire values)
+	enum class TcpState : uint8_t {
+		Closed      = 0,
+		Listen      = 1,
+		SynSent     = 2,
+		SynRecv     = 3,
+		Established = 4,
+		FinWait1    = 5,
+		FinWait2    = 6,
+		CloseWait   = 7,
+		Closing     = 8,
+		LastAck     = 9,
+		TimeWait    = 10,
 	};
 
 	// Wire-defined TCP close-reason codes (read back by the UNAPI TSR).
@@ -106,7 +106,7 @@ private:
 
 	struct TcpConnection {
 		SOCKET sock = OPENMSX_INVALID_SOCKET;
-		std::atomic<uint8_t> tcpState{TCP_CLOSED};
+		std::atomic<TcpState> tcpState{TcpState::Closed};
 		CloseReason closeReason = CloseReason::NeverUsed;
 		bool     resident = false;
 		uint32_t remoteIp = 0;

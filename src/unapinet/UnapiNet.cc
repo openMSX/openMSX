@@ -175,7 +175,7 @@ int UnapiNet::allocTcpHandle()
 {
 	for (int i = 0; i < MAX_TCP; i++) {
 		if (tcp[i].sock == OPENMSX_INVALID_SOCKET &&
-			tcp[i].tcpState == TCP_CLOSED) {
+			tcp[i].tcpState == TcpState::Closed) {
 			return i + 1; // handles 1-based
 		}
 	}
@@ -201,7 +201,7 @@ void UnapiNet::closeTcpSocket(int h)
 		sock_close(static_cast<SOCKET>(c.sock));
 		c.sock = OPENMSX_INVALID_SOCKET;
 	}
-	c.tcpState   = TCP_CLOSED;
+	c.tcpState   = TcpState::Closed;
 	c.connecting  = false;
 	c.remoteIp    = 0;
 	c.remotePort  = 0;
@@ -237,7 +237,7 @@ void UnapiNet::forceClose(TcpConnection& c, CloseReason reason)
 		sock_close(c.sock);
 		c.sock = OPENMSX_INVALID_SOCKET;
 	}
-	c.tcpState   = TCP_CLOSED;
+	c.tcpState   = TcpState::Closed;
 	c.connecting = false;
 }
 
@@ -298,7 +298,7 @@ void UnapiNet::receiverLoop()
 					getsockopt(sd, SOL_SOCKET, SO_ERROR,
 					           reinterpret_cast<char*>(&err), &elen);
 					if (err == 0) {
-						c.tcpState   = TCP_ESTABLISHED;
+						c.tcpState   = TcpState::Established;
 						c.connecting = false;
 					} else {
 						forceClose(c, CloseReason::ConnectFailed);
@@ -310,7 +310,7 @@ void UnapiNet::receiverLoop()
 			if (!FD_ISSET(sd, &rfds)) continue;
 
 			// Listening socket: accept the pending connection.
-			if (c.tcpState == TCP_LISTEN) {
+			if (c.tcpState == TcpState::Listen) {
 				struct sockaddr_in peer;
 				::socklen_t plen = sizeof(peer);
 				SOCKET a = accept(sd, reinterpret_cast<struct sockaddr*>(&peer), &plen);
@@ -326,15 +326,15 @@ void UnapiNet::receiverLoop()
 				sock_setNonBlocking(a);
 				sock_setIntOption(a, IPPROTO_TCP, TCP_NODELAY);
 				c.sock = a;
-				c.tcpState = TCP_ESTABLISHED;
+				c.tcpState = TcpState::Established;
 				c.remoteIp = peerIp;
 				c.remotePort = ntohs(peer.sin_port);
 				continue;
 			}
 
 			// Incoming data (ESTABLISHED or CLOSE_WAIT).
-			if (c.tcpState != TCP_ESTABLISHED &&
-			    c.tcpState != TCP_CLOSE_WAIT) {
+			if (c.tcpState != TcpState::Established &&
+			    c.tcpState != TcpState::CloseWait) {
 				continue;
 			}
 			char buf[512];
@@ -347,7 +347,7 @@ void UnapiNet::receiverLoop()
 					}
 				}
 			} else if (n == 0) {
-				c.tcpState = TCP_CLOSE_WAIT;
+				c.tcpState = TcpState::CloseWait;
 			} else {
 				forceClose(c, CloseReason::ConnectionReset);
 			}
@@ -596,7 +596,7 @@ void UnapiNet::cmdTcpOpen()
 			return;
 		}
 		c.sock       = s;
-		c.tcpState   = TCP_LISTEN;
+		c.tcpState   = TcpState::Listen;
 		c.connecting = false;
 
 		// Read back actual local port
@@ -614,7 +614,7 @@ void UnapiNet::cmdTcpOpen()
 		int ret = connect(s, reinterpret_cast<struct sockaddr*>(&dest), sizeof(dest));
 		if (ret == 0) {
 			c.sock       = s;
-			c.tcpState   = TCP_ESTABLISHED;
+			c.tcpState   = TcpState::Established;
 			c.connecting = false;
 		} else {
 #ifdef _WIN32
@@ -624,7 +624,7 @@ void UnapiNet::cmdTcpOpen()
 			if (errno == EINPROGRESS) {
 #endif
 				c.sock       = s;
-				c.tcpState   = TCP_SYN_SENT;
+				c.tcpState   = TcpState::SynSent;
 				c.connecting = true;
 			} else {
 				sock_close(s);
@@ -675,7 +675,7 @@ void UnapiNet::cmdTcpSend()
 	}
 	auto& c = *cp;
 	if (c.sock == OPENMSX_INVALID_SOCKET ||
-		(c.tcpState != TCP_ESTABLISHED && c.tcpState != TCP_CLOSE_WAIT)) {
+		(c.tcpState != TcpState::Established && c.tcpState != TcpState::CloseWait)) {
 		setResultByte(1);
 		return;
 	}
@@ -804,7 +804,7 @@ void UnapiNet::cmdTcpClose()
 	shutdown(c.sock, SHUT_WR);
 #endif
 	c.closeReason = CloseReason::ClosedByUser;
-	c.tcpState = TCP_CLOSE_WAIT;
+	c.tcpState = TcpState::CloseWait;
 
 	setResultByte(0);
 }
@@ -830,7 +830,7 @@ void UnapiNet::cmdTcpState()
 				avail = static_cast<uint16_t>(
 					std::min(c.recvBuf.size(), static_cast<size_t>(0xFFFF)));
 			}
-			r.state       = c.tcpState;
+			r.state       = static_cast<uint8_t>(c.tcpState.load());
 			r.avail       = avail;
 			r.closeReason = static_cast<uint8_t>(c.closeReason);
 			r.remoteIp    = c.remoteIp;
