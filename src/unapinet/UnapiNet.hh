@@ -5,10 +5,12 @@
 #include "Socket.hh"
 #include "UnapiNetWire.hh"
 
+#include <array>
 #include <atomic>
 #include <cstdint>
 #include <deque>
 #include <mutex>
+#include <span>
 #include <string>
 #include <thread>
 #include <vector>
@@ -52,33 +54,10 @@ private:
 	std::vector<uint8_t> resultBuf;
 	size_t resultPos;
 
-	// --- Bridge commands ---
-	static constexpr uint8_t CMD_PING       = 0x00;
-	static constexpr uint8_t CMD_DNS_QUERY  = 0x01;
-	static constexpr uint8_t CMD_DNS_STATUS = 0x02;
-	static constexpr uint8_t CMD_TCP_OPEN   = 0x03;
-	static constexpr uint8_t CMD_TCP_SEND   = 0x04;
-	static constexpr uint8_t CMD_TCP_RECV   = 0x05;
-	static constexpr uint8_t CMD_TCP_CLOSE  = 0x06;
-	static constexpr uint8_t CMD_TCP_STATE  = 0x07;
-	static constexpr uint8_t CMD_TCP_ABORT  = 0x08;
-	static constexpr uint8_t CMD_UDP_OPEN   = 0x09;
-	static constexpr uint8_t CMD_UDP_CLOSE  = 0x0A;
-	static constexpr uint8_t CMD_UDP_STATE  = 0x0B;
-	static constexpr uint8_t CMD_UDP_SEND   = 0x0C;
-	static constexpr uint8_t CMD_GET_LOCALIP = 0x0D;
-	static constexpr uint8_t CMD_NET_STATE  = 0x0E;
-	static constexpr uint8_t CMD_UDP_RECV   = 0x0F;
-	static constexpr uint8_t CMD_QUERY_CAP  = 0x10;
-	static constexpr uint8_t CMD_ICMP_SEND  = 0x11;
-	static constexpr uint8_t CMD_ICMP_RECV  = 0x12;
-
 	// --- Status register values ---
 	static constexpr uint8_t STATUS_OK    = 0x00;
 	static constexpr uint8_t STATUS_ERROR = 0x01;
 	static constexpr uint8_t STATUS_DATA  = 0x02;
-
-	static constexpr uint8_t MAGIC = 0xAB;
 
 	// --- TCP connections ---
 	static constexpr int MAX_TCP = 4;
@@ -113,10 +92,11 @@ private:
 		uint16_t remotePort = 0;
 		uint16_t localPort = 0;
 		bool     connecting = false;
-		std::deque<uint8_t> recvBuf;
-		std::mutex mutex;
+		std::deque<uint8_t> recvBuf; // guarded by 'mutex'
+		std::mutex mutex; // protects recvBuf only; the other fields are
+		                  // atomics or only touched per the threading rules
 	};
-	TcpConnection tcp[MAX_TCP]; // handles 1..MAX_TCP
+	std::array<TcpConnection, MAX_TCP> tcp; // handles 1..MAX_TCP
 
 	// --- UDP connections ---
 	static constexpr int MAX_UDP = 4;
@@ -131,10 +111,10 @@ private:
 		SOCKET sock = OPENMSX_INVALID_SOCKET;
 		uint16_t localPort = 0;
 		bool     resident = false;
-		std::deque<UdpDatagram> recvQueue;
-		std::mutex mutex;
+		std::deque<UdpDatagram> recvQueue; // guarded by 'mutex'
+		std::mutex mutex; // protects recvQueue only
 	};
-	UdpConnection udp[MAX_UDP];
+	std::array<UdpConnection, MAX_UDP> udp;
 
 	// --- ICMP echo reply queue ---
 	struct IcmpReply {
@@ -144,17 +124,17 @@ private:
 		uint16_t sequence = 0;
 		uint16_t dataLen = 0;
 	};
-	std::deque<IcmpReply> icmpReplies;
-	std::mutex icmpMutex;
+	std::deque<IcmpReply> icmpReplies; // guarded by icmpMutex
+	std::mutex icmpMutex; // protects icmpReplies only
 	std::thread icmpWorker;
 	std::atomic<bool> icmpPending{false};
 	// ICMP request for worker to handle
 	struct IcmpRequest {
-		uint32_t dstIp;
-		uint8_t  ttl;
-		uint16_t identifier;
-		uint16_t sequence;
-		uint16_t dataLen;
+		uint32_t dstIp = 0;
+		uint8_t  ttl = 0;
+		uint16_t identifier = 0;
+		uint16_t sequence = 0;
+		uint16_t dataLen = 0;
 	} icmpRequest;
 
 	// --- Async DNS ---
@@ -195,31 +175,26 @@ private:
 	void icmpWorkerLoop();
 
 	// --- Helpers ---
-	void setResult(const uint8_t* data, size_t len);
-	void setResultByte(uint8_t b);
-	void setError();
-
-	// Serialize a wire-layout struct (an Endian::UA_* record from
-	// UnapiNetWire.hh) straight into the result buffer, replacing manual
-	// byte packing. The compiler lays out the exact on-wire bytes.
+	// The three setResult() overloads queue a command result for the MSX to
+	// read from the data port (and set state/statusReg accordingly).
+	void setResult(std::span<const uint8_t> data);
+	// Wire-layout struct (see UnapiNetWire.hh): the compiler lays out the
+	// exact on-wire bytes.
 	template<wire_layout T>
 	void setResult(const T& d)
 	{
-		auto bytes = toBytes(d);
-		setResult(bytes.data(), bytes.size());
+		setResult(std::span<const uint8_t>(toBytes(d)));
 	}
 	// Fixed-size header struct followed by a variable payload
 	// (used by TCP_RECV / UDP_RECV).
 	template<wire_layout T>
 	void setResult(const T& hdr, std::span<const uint8_t> payload)
 	{
-		auto h = toBytes(hdr);
-		resultBuf.assign(h.begin(), h.end());
+		setResult(std::span<const uint8_t>(toBytes(hdr)));
 		resultBuf.insert(resultBuf.end(), payload.begin(), payload.end());
-		resultPos = 0;
-		state     = State::RESULT_READY;
-		statusReg = STATUS_DATA;
 	}
+	void setResultByte(uint8_t b);
+	void setError();
 
 	[[nodiscard]] int allocTcpHandle();
 	// Validate a 1-based handle and return the connection, or nullptr.

@@ -45,6 +45,30 @@ static constexpr size_t MAX_RECV_BUF = 65536;
 // the data port must not be able to exhaust host memory.
 static constexpr size_t MAX_PARAM_BUF = 64 * 1024 + 16;
 
+// Bridge command opcodes (wire protocol, shared with the Z80 driver)
+static constexpr uint8_t CMD_PING        = 0x00;
+static constexpr uint8_t CMD_DNS_QUERY   = 0x01;
+static constexpr uint8_t CMD_DNS_STATUS  = 0x02;
+static constexpr uint8_t CMD_TCP_OPEN    = 0x03;
+static constexpr uint8_t CMD_TCP_SEND    = 0x04;
+static constexpr uint8_t CMD_TCP_RECV    = 0x05;
+static constexpr uint8_t CMD_TCP_CLOSE   = 0x06;
+static constexpr uint8_t CMD_TCP_STATE   = 0x07;
+static constexpr uint8_t CMD_TCP_ABORT   = 0x08;
+static constexpr uint8_t CMD_UDP_OPEN    = 0x09;
+static constexpr uint8_t CMD_UDP_CLOSE   = 0x0A;
+static constexpr uint8_t CMD_UDP_STATE   = 0x0B;
+static constexpr uint8_t CMD_UDP_SEND    = 0x0C;
+static constexpr uint8_t CMD_GET_LOCALIP = 0x0D;
+static constexpr uint8_t CMD_NET_STATE   = 0x0E;
+static constexpr uint8_t CMD_UDP_RECV    = 0x0F;
+static constexpr uint8_t CMD_QUERY_CAP   = 0x10;
+static constexpr uint8_t CMD_ICMP_SEND   = 0x11;
+static constexpr uint8_t CMD_ICMP_RECV   = 0x12;
+
+// PING reply magic
+static constexpr uint8_t MAGIC = 0xAB;
+
 namespace openmsx {
 
 // Constructor / Destructor
@@ -148,9 +172,9 @@ void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 
 // Result helpers
 
-void UnapiNet::setResult(const uint8_t* data, size_t len)
+void UnapiNet::setResult(std::span<const uint8_t> data)
 {
-	resultBuf.assign(data, data + len);
+	resultBuf.assign(data.begin(), data.end());
 	resultPos = 0;
 	state     = State::RESULT_READY;
 	statusReg = STATUS_DATA;
@@ -158,7 +182,7 @@ void UnapiNet::setResult(const uint8_t* data, size_t len)
 
 void UnapiNet::setResultByte(uint8_t b)
 {
-	setResult(&b, 1);
+	setResult(std::span(&b, 1));
 }
 
 void UnapiNet::setError()
@@ -341,11 +365,10 @@ void UnapiNet::receiverLoop()
 			auto n = sock_recv(sd, buf, sizeof(buf));
 			if (n > 0) {
 				std::scoped_lock lock(c.mutex);
-				for (ptrdiff_t j = 0; j < n; j++) {
-					if (c.recvBuf.size() < MAX_RECV_BUF) {
-						c.recvBuf.push_back(static_cast<uint8_t>(buf[j]));
-					}
-				}
+				size_t room = MAX_RECV_BUF - std::min(MAX_RECV_BUF, c.recvBuf.size());
+				auto count = std::min(static_cast<size_t>(n), room);
+				const auto* d = reinterpret_cast<const uint8_t*>(buf);
+				c.recvBuf.insert(c.recvBuf.end(), d, d + count);
 			} else if (n == 0) {
 				c.tcpState = TcpState::CloseWait;
 			} else {
@@ -743,15 +766,11 @@ void UnapiNet::cmdTcpRecv()
 	if (maxlen > MAX_TRANSFER) maxlen = static_cast<uint16_t>(MAX_TRANSFER);
 
 	std::vector<uint8_t> payload;
-	payload.reserve(maxlen);
 	{
 		std::scoped_lock lock(c.mutex);
-		uint16_t avail = static_cast<uint16_t>(
-			std::min(static_cast<size_t>(maxlen), c.recvBuf.size()));
-		for (uint16_t i = 0; i < avail; i++) {
-			payload.push_back(c.recvBuf.front());
-			c.recvBuf.pop_front();
-		}
+		size_t avail = std::min(static_cast<size_t>(maxlen), c.recvBuf.size());
+		payload.assign(c.recvBuf.begin(), c.recvBuf.begin() + avail);
+		c.recvBuf.erase(c.recvBuf.begin(), c.recvBuf.begin() + avail);
 	}
 
 	TcpRecvResultHeader hdr{};
