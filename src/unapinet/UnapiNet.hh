@@ -93,10 +93,12 @@ private:
 		uint16_t localPort = 0;
 		bool     connecting = false;
 		std::deque<uint8_t> recvBuf; // guarded by 'mutex'
-		std::mutex mutex; // protects recvBuf only; the other fields are
-		                  // atomics or only touched per the threading rules
+		std::mutex mutex; // protects recvBuf only. tcpState is atomic; the
+		                  // remaining metadata fields are plain and shared
+		                  // between the emulation and receiver threads (see
+		                  // 'known limitations' in the PR description)
 	};
-	std::array<TcpConnection, MAX_TCP> tcp; // handles 1..MAX_TCP
+	std::array<TcpConnection, MAX_TCP> tcp; // indexed by 0-based internal handle
 
 	// --- UDP connections ---
 	static constexpr int MAX_UDP = 4;
@@ -192,6 +194,7 @@ private:
 	// Fixed-size header struct followed by a variable payload
 	// (used by TCP_RECV / UDP_RECV).
 	template<wire_layout T>
+		requires (!std::convertible_to<const T&, std::span<const uint8_t>>)
 	void setResult(const T& hdr, std::span<const uint8_t> payload)
 	{
 		setResult(std::span<const uint8_t>(toBytes(hdr)));
