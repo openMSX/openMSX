@@ -203,27 +203,26 @@ int UnapiNet::allocTcpHandle()
 	for (int i = 0; i < MAX_TCP; i++) {
 		if (tcp[i].sock == OPENMSX_INVALID_SOCKET &&
 			tcp[i].tcpState == TcpState::Closed) {
-			return i + 1; // handles 1-based
+			return i;
 		}
 	}
-	return 0; // no free handles
+	return INVALID_HANDLE;
 }
 
-UnapiNet::TcpConnection* UnapiNet::tcpForHandle(int h)
+// The wire handle is a byte from the MSX: 1-based, 0 = error. These two are
+// the only places that map wire handles to the 0-based internal arrays.
+UnapiNet::TcpConnection* UnapiNet::tcpForHandle(int wireHandle)
 {
-	return (h >= 1 && h <= MAX_TCP) ? &tcp[h - 1] : nullptr;
+	return (wireHandle >= 1 && wireHandle <= MAX_TCP) ? &tcp[wireHandle - 1] : nullptr;
 }
 
-UnapiNet::UdpConnection* UnapiNet::udpForHandle(int h)
+UnapiNet::UdpConnection* UnapiNet::udpForHandle(int wireHandle)
 {
-	return (h >= 1 && h <= MAX_UDP) ? &udp[h - 1] : nullptr;
+	return (wireHandle >= 1 && wireHandle <= MAX_UDP) ? &udp[wireHandle - 1] : nullptr;
 }
 
-void UnapiNet::closeTcpSocket(int h)
+void UnapiNet::closeTcp(TcpConnection& c)
 {
-	auto* cp = tcpForHandle(h);
-	if (!cp) return;
-	auto& c = *cp;
 	if (c.sock != OPENMSX_INVALID_SOCKET) {
 		sock_close(static_cast<SOCKET>(c.sock));
 		c.sock = OPENMSX_INVALID_SOCKET;
@@ -242,12 +241,12 @@ void UnapiNet::closeTcpSocket(int h)
 
 void UnapiNet::closeAllConnections()
 {
-	for (int i = 1; i <= MAX_TCP; i++) {
-		closeTcpSocket(i);
-		tcp[i - 1].closeReason = CloseReason::NeverUsed;
+	for (auto& c : tcp) {
+		closeTcp(c);
+		c.closeReason = CloseReason::NeverUsed;
 	}
-	for (int i = 1; i <= MAX_UDP; i++) {
-		closeUdpSocket(i);
+	for (auto& u : udp) {
+		closeUdp(u);
 	}
 }
 
@@ -580,12 +579,12 @@ void UnapiNet::cmdTcpOpen()
 	bool resident = (flags & 0x02) != 0;
 
 	int h = allocTcpHandle();
-	if (h == 0) {
+	if (h == INVALID_HANDLE) {
 		setResultByte(0);
 		return;
 	}
 
-	auto& c = tcp[h - 1];
+	auto& c = tcp[h];
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s == OPENMSX_INVALID_SOCKET) {
@@ -670,7 +669,7 @@ void UnapiNet::cmdTcpOpen()
 		c.recvBuf.clear();
 	}
 
-	setResultByte(static_cast<uint8_t>(h));
+	setResultByte(static_cast<uint8_t>(h + 1)); // wire handles are 1-based
 }
 
 // TCP_SEND (0x04)
@@ -790,10 +789,10 @@ void UnapiNet::cmdTcpClose()
 
 	if (h == 0) {
 		// Close all transient connections
-		for (int i = 0; i < MAX_TCP; i++) {
-			if (!tcp[i].resident && tcp[i].sock != OPENMSX_INVALID_SOCKET) {
-				tcp[i].closeReason = CloseReason::ClosedByUser;
-				closeTcpSocket(i + 1);
+		for (auto& c : tcp) {
+			if (!c.resident && c.sock != OPENMSX_INVALID_SOCKET) {
+				c.closeReason = CloseReason::ClosedByUser;
+				closeTcp(c);
 			}
 		}
 		setResultByte(0);
@@ -876,7 +875,7 @@ void UnapiNet::cmdTcpAbort()
 	}
 
 	cp->closeReason = CloseReason::Aborted;
-	closeTcpSocket(h);
+	closeTcp(*cp);
 	setResultByte(0);
 }
 
@@ -907,17 +906,14 @@ int UnapiNet::allocUdpHandle()
 {
 	for (int i = 0; i < MAX_UDP; i++) {
 		if (udp[i].sock == OPENMSX_INVALID_SOCKET) {
-			return i + 1;
+			return i;
 		}
 	}
-	return 0;
+	return INVALID_HANDLE;
 }
 
-void UnapiNet::closeUdpSocket(int h)
+void UnapiNet::closeUdp(UdpConnection& u)
 {
-	auto* up = udpForHandle(h);
-	if (!up) return;
-	auto& u = *up;
 	if (u.sock != OPENMSX_INVALID_SOCKET) {
 		sock_close(static_cast<SOCKET>(u.sock));
 		u.sock = OPENMSX_INVALID_SOCKET;
@@ -943,11 +939,11 @@ void UnapiNet::cmdUdpOpen()
 	uint16_t localPort = fromBytes<UdpOpenParams>(paramBuf).localPort;
 
 	int h = allocUdpHandle();
-	if (h == 0) {
+	if (h == INVALID_HANDLE) {
 		setResultByte(0);
 		return;
 	}
-	auto& u = udp[h - 1];
+	auto& u = udp[h];
 
 	SOCKET s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (s == OPENMSX_INVALID_SOCKET) {
@@ -992,7 +988,7 @@ void UnapiNet::cmdUdpOpen()
 		u.recvQueue.clear();
 	}
 
-	setResultByte(static_cast<uint8_t>(h));
+	setResultByte(static_cast<uint8_t>(h + 1)); // wire handles are 1-based
 }
 
 // UDP_CLOSE (0x0A)
@@ -1008,9 +1004,9 @@ void UnapiNet::cmdUdpClose()
 	int h = paramBuf[0];
 
 	if (h == 0) {
-		for (int i = 0; i < MAX_UDP; i++) {
-			if (!udp[i].resident && udp[i].sock != OPENMSX_INVALID_SOCKET) {
-				closeUdpSocket(i + 1);
+		for (auto& u : udp) {
+			if (!u.resident && u.sock != OPENMSX_INVALID_SOCKET) {
+				closeUdp(u);
 			}
 		}
 		setResultByte(0);
@@ -1022,7 +1018,7 @@ void UnapiNet::cmdUdpClose()
 		setResultByte(1);
 		return;
 	}
-	closeUdpSocket(h);
+	closeUdp(*up);
 	setResultByte(0);
 }
 

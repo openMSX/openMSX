@@ -61,6 +61,10 @@ private:
 
 	// --- TCP connections ---
 	static constexpr int MAX_TCP = 4;
+	// Internal handles are 0-based array indices; only the wire protocol is
+	// 1-based (a 0 handle byte means failure there). Conversion happens in
+	// tcpForHandle()/udpForHandle() and in the OPEN replies, nowhere else.
+	static constexpr int INVALID_HANDLE = -1;
 
 	// TCP states (UNAPI spec wire values)
 	enum class TcpState : uint8_t {
@@ -196,17 +200,18 @@ private:
 	void setResultByte(uint8_t b);
 	void setError();
 
+	// Returns a free 0-based index, or INVALID_HANDLE.
 	[[nodiscard]] int allocTcpHandle();
-	// Validate a 1-based handle and return the connection, or nullptr.
-	[[nodiscard]] TcpConnection* tcpForHandle(int h);
-	void closeTcpSocket(int h);
+	// Validate a 1-based wire handle and return the connection, or nullptr.
+	[[nodiscard]] TcpConnection* tcpForHandle(int wireHandle);
+	void closeTcp(TcpConnection& c);
 	// Quick teardown of a live connection from the receiver/send paths: record
 	// the reason, close the socket and mark it CLOSED (does not clear the
 	// remote/local metadata — that is closeTcpSocket's job).
 	void forceClose(TcpConnection& c, CloseReason reason);
 	[[nodiscard]] int allocUdpHandle();
-	[[nodiscard]] UdpConnection* udpForHandle(int h);
-	void closeUdpSocket(int h);
+	[[nodiscard]] UdpConnection* udpForHandle(int wireHandle);
+	void closeUdp(UdpConnection& u);
 	void closeAllConnections();
 
 };
