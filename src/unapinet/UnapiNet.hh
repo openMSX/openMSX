@@ -54,11 +54,6 @@ private:
 	std::vector<uint8_t> resultBuf;
 	size_t resultPos;
 
-	// --- Status register values ---
-	static constexpr uint8_t STATUS_OK    = 0x00;
-	static constexpr uint8_t STATUS_ERROR = 0x01;
-	static constexpr uint8_t STATUS_DATA  = 0x02;
-
 	// --- TCP connections ---
 	static constexpr int MAX_TCP = 4;
 	// Internal handles are 0-based array indices; only the wire protocol is

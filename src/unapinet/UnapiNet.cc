@@ -27,6 +27,8 @@
 // Supports: async DNS, TCP (up to 4 simultaneous connections),
 // circular receive buffer with a background thread.
 
+namespace openmsx {
+
 // --- Capabilities for QUERY_CAP (Phase 2) ---
 // Byte 0: bit0=PING bit1=DNS_HOSTS(local) bit2=DNS bit3=TCP_ACTIVE... (see spec)
 // Bits 0,2,3,10 = PING + DNS + TCP active + UDP
@@ -70,7 +72,10 @@ static constexpr uint8_t CMD_ICMP_RECV   = 0x12;
 // PING reply magic
 static constexpr uint8_t MAGIC = 0xAB;
 
-namespace openmsx {
+// Status register values (wire protocol)
+static constexpr uint8_t STATUS_OK    = 0x00;
+static constexpr uint8_t STATUS_ERROR = 0x01;
+static constexpr uint8_t STATUS_DATA  = 0x02;
 
 // Constructor / Destructor
 
@@ -319,10 +324,7 @@ void UnapiNet::receiverLoop()
 				if (FD_ISSET(sd, &efds)) {
 					forceClose(c, CloseReason::ConnectFailed);
 				} else if (FD_ISSET(sd, &wfds)) {
-					int err = 0;
-					::socklen_t elen = sizeof(err);
-					getsockopt(sd, SOL_SOCKET, SO_ERROR,
-					           reinterpret_cast<char*>(&err), &elen);
+					int err = sock_getIntOption(sd, SOL_SOCKET, SO_ERROR);
 					if (err == 0) {
 						c.tcpState   = TcpState::Established;
 						c.connecting = false;
@@ -359,8 +361,8 @@ void UnapiNet::receiverLoop()
 			}
 
 			// Incoming data (ESTABLISHED or CLOSE_WAIT).
-			if (c.tcpState != TcpState::Established &&
-			    c.tcpState != TcpState::CloseWait) {
+			if (c.tcpState.load() != one_of(TcpState::Established,
+			                                TcpState::CloseWait)) {
 				continue;
 			}
 			char buf[512];
