@@ -1160,6 +1160,14 @@ struct FixedStr {
 	}
 };
 
+// 1. Handles: "literal" + FixedStr
+template<size_t N, size_t M>
+constexpr auto operator+(const char(&lhs)[N], FixedStr<M> rhs) { return FixedStr<N>(lhs) + rhs; }
+
+// 2. Handles: FixedStr + "literal"
+template<size_t N, size_t M>
+constexpr auto operator+(FixedStr<N> lhs, const char(&rhs)[M]) { return lhs + FixedStr<M>(rhs); }
+
 std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 {
 	constexpr auto generalHelp =
@@ -1286,25 +1294,25 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  * <value> is another Tcl dict containing the properties of the debug condition.\n"
 		"            See 'help debug condition create' for a description of these properties.\n";
 	constexpr FixedStr addressNote = "An address is just a number [0:0xFFFF] but can also be dynamically evaluated from a known symbol by specifying {$sym(MySymbol)}\n";
-	constexpr auto breakPointCreateHelp = FixedStr(
+	constexpr auto breakPointCreateHelp =
 		"debug breakpoint create [<property-name> <property-value>]...\n"
 		"  Create a new breakpoint with given properties. The following properties are supported:\n"
 		"  -address    the address where the breakpoint should trigger\n"
-		"              ") +  addressNote + FixedStr(
+		"              " +  addressNote +
 		"  -condition  a Tcl expression that must evaluate to true for the breakpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the breakpoint triggers (default = 'debug break')\n"
 		"  -enabled    set to false to (temporarily) disable this breakpoint\n"
-		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n");
-	constexpr auto watchPointCreateHelp = FixedStr(
+		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
+	constexpr auto watchPointCreateHelp =
 		"debug watchpoint create [<property-name> <property-value>]...\n"
 		"  Create a new watchpoint with given properties. The following properties are supported:\n"
 		"  -type       one of 'read_io', 'write_io', 'read_mem', 'write_mem'\n"
 		"  -address    the address(es) where the watchpoint should trigger, can be a single address or a begin/end-pair\n"
-		"              ") + addressNote + FixedStr(
+		"              " + addressNote +
 		"  -condition  a Tcl expression that must evaluate to true for the watchpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the watchpoint triggers (default = 'debug break')\n"
 		"  -enabled    set to false to (temporarily) disable this watchpoint\n"
-		"  -once       if 'true' the watchpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n");
+		"  -once       if 'true' the watchpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
 	constexpr auto watchExprCreateHelp =
 		"debug watchexpr create [<property-name> <property-value>]...\n"
 		"  Create a new watch expression with given properties. The following properties are supported:\n"
@@ -1472,7 +1480,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"debug breaked\n"
 		"  Query the CPU breaked status. Returns '1' when CPU was "
 		"breaked, '0' otherwise.\n";
-	constexpr auto disasmHelp = FixedStr(
+	constexpr auto disasmHelp =
 		"debug disasm <addr>\n"
 		"  Disassemble the instruction at the given address. The result "
 		"is a Tcl list. The first element in the list contains a textual "
@@ -1481,9 +1489,9 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"resulting list can be used to derive the number of bytes in the "
 		"instruction).\n"
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
-		"more convenient to use than this subcommand.\n  ")
-		+ addressNote + FixedStr("\n");
-	constexpr auto disasmBlobHelp = FixedStr(
+		"more convenient to use than this subcommand.\n  "
+		+ addressNote + "\n";
+	constexpr auto disasmBlobHelp =
 		"debug disasm_blob <value> <addr> [<function>]\n"
 		"  This is a more generic version of the disasm subcommand, but it "
 		"works on a Tcl binary string (see Tcl manual) to disassemble a "
@@ -1491,8 +1499,8 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"address to jump to is necessary. The optional fuction will be "
 		"called with an address as parameter and may return a symbol name "
 		"that replaces that address if a symbol that matches the address "
-		"is found.\n  ")
-		+ addressNote + FixedStr("\n");
+		"is found.\n  "
+		+ addressNote + "\n";
 	constexpr auto symbolsHelp =
 		"debug symbols <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
