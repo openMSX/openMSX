@@ -14,6 +14,9 @@ echo checking for source files &&
         type -p openmsx ||
             echo ' ... no openmsx in $PATH '
     )" "$(
+        type -p sox ||
+            echo ' ... no sox in $PATH '
+    )" "$(
         type -p zip ||
             echo ' ... no zip in $PATH '
     )" "$(
@@ -32,7 +35,7 @@ echo checking for source files &&
         type -p wc ||
             echo ' ... no wc in $PATH '
     )" &&
-    rm -vf zma.log zma.sym cktst31.asm cktst31.bin "ktst31 [RUN'CAS-'].cas" "ktst31 [RUN'CAS-'].wav" ktst31.dsk ktst31.zip &&
+    rm -vf zma.log zma.sym cktst31.asm cktst31.bin "ktst31 [RUN'CAS-'].cas" "ktst31 [RUN'CAS-'].wav" "ktst31 [RUN'CAS-'] [2400bps].wav" ktst31.dsk ktst31.zip &&
     {
         openmsx --version &&
         msx_bacon -original -O3 cktst31.asc cktst31.asm &&
@@ -93,19 +96,34 @@ echo checking for source files &&
                     dd bs=1 count=10 if=/dev/zero 2>/dev/null |
                         LC_ALL=C tr '\0' $'\xea'
                 )"
-                LC_ALL=C printf '%s%s%-6s\xfe\0\0\0\0\0\0\0%s' "$hdr" "$e" "KTST31" "$hdr"
+                fmt='%s%s%-6s\xfe\0\0\0\0\0\0\0%s'
+                LC_ALL=C printf "$fmt" "$hdr" "$e" "KTST31" "$hdr"
                 _cat ktst31.asc
-                LC_ALL=C printf '%s%s%-6s\xfe\0\0\0\0\0\0\0%s' "$hdr" "$e" "KT31A" "$hdr"
+                LC_ALL=C printf "$fmt" "$hdr" "$e" "KT31A" "$hdr"
                 _cat ktst31a.asc
-                LC_ALL=C printf '%s%s%-6s\xfe\0\0\0\0\0\0\0%s' "$hdr" "$e" "KT31B" "$hdr"
+                LC_ALL=C printf "$fmt" "$hdr" "$e" "KT31B" "$hdr"
                 _cat ktst31b.asc
-                LC_ALL=C printf '%s%s%-6s\xfe\0\0\0\0\0\0\0%s' "$hdr" "$e" "KT31C" "$hdr"
+                LC_ALL=C printf "$fmt" "$hdr" "$e" "KT31C" "$hdr"
                 _cat ktst31c.asc
             ) | LC_ALL=C sed 's,BLOAD,REM *,gi;s,KTST31[.]ASC,CAS:KTST31,gi;s,\(KT\)ST\(31[A-Z]\)[.]ASC",CAS:\1\2"  ,gi' > "ktst31 [RUN'CAS-'].cas" &&
-            rm -vf "ktst31 [RUN'CAS-'].wav" &&
             python3 cas2wav.py "ktst31 [RUN'CAS-'].cas" "ktst31 [RUN'CAS-'].wav" &&
-            rm -vf ktst31.zip &&
-            zip -9v ktst31.zip * &&
-            ls &&
+            sox -r 44100 "ktst31 [RUN'CAS-'].wav" "ktst31 [RUN'CAS-'] [2400bps].wav" &&
+            zip -9v ktst31.zip \
+                BACONLDR.BIN \
+                autoexec.bas \
+                cas2wav.py \
+                cktst31.asc \
+                cktst31.bcl \
+                cktst31.bin \
+                "ktst31 [RUN'CAS-'] [2400bps].wav" \
+                "ktst31 [RUN'CAS-'].cas" \
+                "ktst31 [RUN'CAS-'].wav" \
+                ktst31.asc \
+                ktst31.dsk \
+                ktst31.md \
+                ktst31a.asc \
+                ktst31b.asc \
+                ktst31c.asc \
+                rebuild.sh &&
             echo "Success, all rebuild steps completed"
     }
