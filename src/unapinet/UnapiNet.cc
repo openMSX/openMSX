@@ -96,12 +96,14 @@ struct IoResult {
 	IoStatus status = IoStatus::Error;
 };
 
+// 'try again later' rather than a broken connection.
 [[nodiscard]] static bool ioWouldBlock()
 {
 #ifdef _WIN32
-	return WSAGetLastError() == WSAEWOULDBLOCK;
+	int err = WSAGetLastError();
+	return (err == WSAEWOULDBLOCK) || (err == WSAEINTR);
 #else
-	return (errno == EWOULDBLOCK) || (errno == EAGAIN);
+	return (errno == EWOULDBLOCK) || (errno == EAGAIN) || (errno == EINTR);
 #endif
 }
 
@@ -115,8 +117,16 @@ struct IoResult {
 
 [[nodiscard]] static IoResult netSend(SOCKET sd, const uint8_t* buf, size_t count)
 {
+	// MSG_NOSIGNAL: writing to a connection the peer has reset raises SIGPIPE
+	// otherwise, and nothing in openMSX ignores that signal - it would take
+	// the whole emulator down.
+#ifdef MSG_NOSIGNAL
+	constexpr int SEND_FLAGS = MSG_NOSIGNAL;
+#else
+	constexpr int SEND_FLAGS = 0; // Windows has no SIGPIPE
+#endif
 	auto n = send(sd, reinterpret_cast<const char*>(buf),
-	              static_cast<int>(count), 0);
+	              static_cast<int>(count), SEND_FLAGS);
 	if (n >= 0) return {static_cast<size_t>(n), IoStatus::Ok};
 	return {0, ioWouldBlock() ? IoStatus::WouldBlock : IoStatus::Error};
 }
@@ -160,8 +170,17 @@ UnapiNet::~UnapiNet()
 	running = false;
 	if (recvThread.joinable()) recvThread.join();
 	if (icmpWorker.joinable()) icmpWorker.join();
+	// The DNS lookup is blocking: joining it is deliberate, so getaddrinfo()
+	// cannot write into a destroyed object.
 	if (dnsThread.joinable())  dnsThread.join();
 	closeAllConnections();
+	// The receiver stopped without draining its queue: close what is left,
+	// or we leak every fd handed over in the last select cycle.
+	{
+		std::scoped_lock lock(closeMutex);
+		for (SOCKET sd : socksToClose) sock_close(sd);
+		socksToClose.clear();
+	}
 }
 
 // Reset
@@ -368,19 +387,27 @@ void UnapiNet::requestClose(UdpConnection& u)
 // CLOSE_TIMEOUT passes and it never does).
 void UnapiNet::gracefulClose(TcpConnection& c)
 {
-	if (c.tcpState != one_of(TcpState::Established, TcpState::CloseWait)) {
-		requestClose(c, CloseReason::ClosedByUser, true);
-		return;
-	}
-	std::scoped_lock lock(c.mutex);
-	c.closeReason = CloseReason::ClosedByUser;
-	c.tcpState = TcpState::FinWait1;
-	c.closeDeadline = std::chrono::steady_clock::now() + CLOSE_TIMEOUT;
-	c.finSent = false;
-	if (c.sendBuf.empty()) {
-		shutdownSend(c.sock);
-		c.finSent = true;
-	}
+	{
+		// Test and act under one lock: the receiver may have dropped this
+		// connection (peer reset) between the two, which would leave FinWait1
+		// stamped on a slot that has no socket - unusable and unrecoverable.
+		std::scoped_lock lock(c.mutex);
+		SOCKET sd = c.sock;
+		if (sd != OPENMSX_INVALID_SOCKET &&
+		    c.tcpState == one_of(TcpState::Established, TcpState::CloseWait)) {
+			c.closeReason = CloseReason::ClosedByUser;
+			c.tcpState = TcpState::FinWait1;
+			c.closeDeadline = std::chrono::steady_clock::now() + CLOSE_TIMEOUT;
+			c.finSent = false;
+			if (c.sendBuf.empty()) {
+				shutdownSend(sd);
+				c.finSent = true;
+			}
+			return;
+		}
+	} // drop the lock: requestClose() takes it
+	// Nothing to half-close (listening, still connecting, or already gone).
+	requestClose(c, CloseReason::ClosedByUser, true);
 }
 
 void UnapiNet::receiverLoop()
@@ -706,13 +733,7 @@ void UnapiNet::cmdDnsQuery()
 		return;
 	}
 
-	// Async resolution
-	if (dns.status == DnsStatus::InProgress) {
-		// A query is already in progress
-		setError();
-		return;
-	}
-
+	// Async resolution (the 'already busy' case returned at the top)
 	dns.status = DnsStatus::InProgress;
 	dns.resolvedIp = 0;
 
