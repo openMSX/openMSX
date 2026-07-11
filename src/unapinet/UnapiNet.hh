@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <deque>
 #include <mutex>
+#include <optional>
 #include <span>
 #include <string>
 #include <thread>
@@ -44,8 +45,9 @@ private:
 	[[no_unique_address]] SocketActivator socketActivator;
 
 	// --- I/O protocol state ---
-	enum class State { IDLE, RESULT_READY };
-	State    state = State::IDLE;
+	// The status register alone describes the state: STATUS_DATA means a
+	// result is waiting to be read from the data port, anything else means
+	// idle. (STATUS_* live in the .cc.)
 	uint8_t  statusReg = 0x00; // STATUS_OK
 
 	// Parameter buffer (written to 0x29 before the command)
@@ -91,7 +93,6 @@ private:
 		uint32_t remoteIp = 0;
 		uint16_t remotePort = 0;
 		uint16_t localPort = 0;
-		bool     connecting = false;
 		std::deque<uint8_t> recvBuf; // guarded by 'mutex'
 		std::mutex mutex; // protects recvBuf only. tcpState is atomic; the
 		                  // remaining metadata fields are plain and shared
@@ -144,7 +145,6 @@ private:
 	struct {
 		std::atomic<DnsStatus> status{DnsStatus::Idle};
 		uint32_t resolvedIp = 0;
-		uint8_t  errorCode = 0;
 	} dns;
 	std::thread dnsThread;
 

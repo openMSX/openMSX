@@ -78,6 +78,9 @@ static constexpr uint8_t CMD_ICMP_RECV   = 0x12;
 // PING reply magic
 static constexpr uint8_t MAGIC = 0xAB;
 
+// UNAPI DNS error code reported on a failed lookup (host name does not exist)
+static constexpr uint8_t DNS_ERR_NO_SUCH_HOST = 3;
+
 // Status register values (wire protocol)
 static constexpr uint8_t STATUS_OK    = 0x00;
 static constexpr uint8_t STATUS_ERROR = 0x01;
@@ -112,7 +115,6 @@ UnapiNet::~UnapiNet()
 
 void UnapiNet::reset(EmuTime /*time*/)
 {
-	state     = State::IDLE;
 	statusReg = STATUS_OK;
 	paramBuf.clear();
 	resultBuf.clear();
@@ -122,7 +124,6 @@ void UnapiNet::reset(EmuTime /*time*/)
 
 	dns.status = DnsStatus::Idle;
 	dns.resolvedIp = 0;
-	dns.errorCode = 0;
 }
 
 // Port reads
@@ -131,7 +132,7 @@ byte UnapiNet::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	if (port & 1) {
 		// data register (typically 0x29)
-		if (state == State::RESULT_READY && resultPos < resultBuf.size()) {
+		if (statusReg == STATUS_DATA && resultPos < resultBuf.size()) {
 			return resultBuf[resultPos];
 		}
 		return 0x00;
@@ -146,10 +147,9 @@ byte UnapiNet::readIO(uint16_t port, EmuTime time)
 	byte b = peekIO(port, time);
 	if (port & 1) {
 		// reading the data register consumes one result byte
-		if (state == State::RESULT_READY && resultPos < resultBuf.size()) {
+		if (statusReg == STATUS_DATA && resultPos < resultBuf.size()) {
 			if (++resultPos >= resultBuf.size()) {
-				state     = State::IDLE;
-				statusReg = STATUS_OK;
+				statusReg = STATUS_OK; // result fully consumed
 			}
 		}
 	}
@@ -164,8 +164,7 @@ void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 		// parameter (accumulate), typically 0x29
 		// If there is a pending unread result, discard it
 		// so that the new parameters are accepted
-		if (state == State::RESULT_READY) {
-			state     = State::IDLE;
+		if (statusReg == STATUS_DATA) {
 			statusReg = STATUS_OK;
 			resultBuf.clear();
 			resultPos = 0;
@@ -187,7 +186,6 @@ void UnapiNet::setResult(std::span<const uint8_t> data)
 {
 	resultBuf.assign(data.begin(), data.end());
 	resultPos = 0;
-	state     = State::RESULT_READY;
 	statusReg = STATUS_DATA;
 }
 
@@ -200,7 +198,6 @@ void UnapiNet::setError()
 {
 	resultBuf.clear();
 	resultPos = 0;
-	state     = State::IDLE;
 	statusReg = STATUS_ERROR;
 }
 
@@ -236,7 +233,6 @@ void UnapiNet::closeTcp(TcpConnection& c)
 		c.sock = OPENMSX_INVALID_SOCKET;
 	}
 	c.tcpState   = TcpState::Closed;
-	c.connecting  = false;
 	c.remoteIp    = 0;
 	c.remotePort  = 0;
 	c.localPort   = 0;
@@ -272,7 +268,6 @@ void UnapiNet::forceClose(TcpConnection& c, CloseReason reason)
 		c.sock = OPENMSX_INVALID_SOCKET;
 	}
 	c.tcpState   = TcpState::Closed;
-	c.connecting = false;
 }
 
 void UnapiNet::receiverLoop()
@@ -288,10 +283,9 @@ void UnapiNet::receiverLoop()
 		FD_ZERO(&wfds);
 		FD_ZERO(&efds);
 		SOCKET maxSock = 0;
-		bool any = false;
 		for (auto& c : tcp) {
 			if (c.sock == OPENMSX_INVALID_SOCKET) continue;
-			if (c.connecting) {
+			if (c.tcpState == TcpState::SynSent) {
 				// connect() completion shows up as writable (POSIX) or in
 				// the exception set (Windows).
 				FD_SET(c.sock, &wfds);
@@ -300,16 +294,14 @@ void UnapiNet::receiverLoop()
 				FD_SET(c.sock, &rfds);
 			}
 			maxSock = std::max(maxSock, c.sock);
-			any = true;
 		}
 		for (auto& u : udp) {
 			if (u.sock == OPENMSX_INVALID_SOCKET) continue;
 			FD_SET(u.sock, &rfds);
 			maxSock = std::max(maxSock, u.sock);
-			any = true;
 		}
-		if (!any) {
-			// Nothing open yet: avoid a tight loop (select() needs >=1 fd).
+		if (maxSock == 0) { // nothing open (fd 0 is never a socket here)
+			// Avoid a tight loop: select() needs at least one fd.
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			continue;
 		}
@@ -323,14 +315,13 @@ void UnapiNet::receiverLoop()
 			SOCKET sd = c.sock;
 
 			// Pending connect() completion.
-			if (c.connecting) {
+			if (c.tcpState == TcpState::SynSent) {
 				if (FD_ISSET(sd, &efds)) {
 					forceClose(c, CloseReason::ConnectFailed);
 				} else if (FD_ISSET(sd, &wfds)) {
 					int err = sock_getIntOption(sd, SOL_SOCKET, SO_ERROR);
 					if (err == 0) {
 						c.tcpState   = TcpState::Established;
-						c.connecting = false;
 					} else {
 						forceClose(c, CloseReason::ConnectFailed);
 					}
@@ -479,8 +470,7 @@ void UnapiNet::cmdDnsQuery()
 		// It's a direct IP
 		uint32_t ip = ntohl(addr.s_addr);
 		dns.resolvedIp = ip;
-		dns.status = DnsStatus::Complete; // complete
-		dns.errorCode = 0;
+		dns.status = DnsStatus::Complete;
 
 		setResult(DnsQueryResult{
 			.status = 1, // resolved immediately
@@ -495,9 +485,8 @@ void UnapiNet::cmdDnsQuery()
 		return;
 	}
 
-	dns.status = DnsStatus::InProgress; // in_progress
+	dns.status = DnsStatus::InProgress;
 	dns.resolvedIp = 0;
-	dns.errorCode = 0;
 
 	// Wait for the previous DNS thread if it is still around
 	if (dnsThread.joinable()) {
@@ -517,13 +506,11 @@ void UnapiNet::cmdDnsQuery()
 			// Store IP in big-endian (network order) as-is
 			// so bytes extract as octets: (ip>>24)=first, (ip>>0)=last
 			dns.resolvedIp = ntohl(addr4->sin_addr.s_addr);
-			dns.errorCode = 0;
-			dns.status = DnsStatus::Complete; // complete
+			dns.status = DnsStatus::Complete;
 			freeaddrinfo(res);
 		} else {
 			if (res) freeaddrinfo(res);
-			dns.errorCode = 3; // host name does not exist
-			dns.status = DnsStatus::Error; // error
+			dns.status = DnsStatus::Error;
 		}
 	});
 
@@ -549,7 +536,8 @@ void UnapiNet::cmdDnsStatus()
 			.ip     = dns.resolvedIp});
 	} else if (s == DnsStatus::Error) {
 		// Error
-		setResult(DnsStatusError{.status = 0xFF, .errorCode = dns.errorCode});
+		// The only failure the resolver reports is 'host name does not exist'.
+		setResult(DnsStatusError{.status = 0xFF, .errorCode = DNS_ERR_NO_SUCH_HOST});
 	} else {
 		// idle (0) or in_progress (1)
 		setResultByte(static_cast<uint8_t>(s));
@@ -614,7 +602,6 @@ void UnapiNet::cmdTcpOpen()
 		}
 		c.sock       = s;
 		c.tcpState   = TcpState::Listen;
-		c.connecting = false;
 
 		// Read back actual local port
 		::socklen_t alen = sizeof(addr);
@@ -632,7 +619,6 @@ void UnapiNet::cmdTcpOpen()
 		if (ret == 0) {
 			c.sock       = s;
 			c.tcpState   = TcpState::Established;
-			c.connecting = false;
 		} else {
 #ifdef _WIN32
 			int err = WSAGetLastError();
@@ -642,7 +628,6 @@ void UnapiNet::cmdTcpOpen()
 #endif
 				c.sock       = s;
 				c.tcpState   = TcpState::SynSent;
-				c.connecting = true;
 			} else {
 				sock_close(s);
 				setResultByte(0);
@@ -1095,30 +1080,28 @@ void UnapiNet::cmdUdpRecv()
 	}
 	auto& u = *up;
 
-	UdpDatagram dg;
-	bool haveDg = false;
+	std::optional<UdpDatagram> dg;
 	{
 		std::scoped_lock lock(u.mutex);
 		if (!u.recvQueue.empty()) {
 			dg = std::move(u.recvQueue.front());
 			u.recvQueue.pop_front();
-			haveDg = true;
 		}
 	}
 
-	if (!haveDg) {
-		setResult(UdpRecvResultHeader{}, std::span<const uint8_t>{});
+	if (!dg) {
+		setResult(UdpRecvResultHeader{});
 		return;
 	}
 
 	uint16_t actual = static_cast<uint16_t>(
-		std::min(static_cast<size_t>(maxlen), dg.data.size()));
+		std::min(static_cast<size_t>(maxlen), dg->data.size()));
 
 	UdpRecvResultHeader hdr{
-		.srcIp     = dg.srcIp,
-		.srcPort   = dg.srcPort,
+		.srcIp     = dg->srcIp,
+		.srcPort   = dg->srcPort,
 		.actualLen = actual};
-	setResult(hdr, std::span<const uint8_t>(dg.data.data(), actual));
+	setResult(hdr, std::span<const uint8_t>(dg->data.data(), actual));
 }
 
 // ICMP Echo (ping)
@@ -1205,29 +1188,27 @@ void UnapiNet::cmdIcmpSend()
 // Result: 1 byte has_data + [if 1: IP(4)+TTL(1)+ID(2)+SEQ(2)+len(2) = 11 bytes]
 void UnapiNet::cmdIcmpRecv()
 {
-	IcmpReply r;
-	bool have;
+	std::optional<IcmpReply> r;
 	{
 		std::scoped_lock lock(icmpMutex);
-		have = !icmpReplies.empty();
-		if (have) {
+		if (!icmpReplies.empty()) {
 			r = icmpReplies.front();
 			icmpReplies.pop_front();
 		}
 	}
 
-	if (!have) {
+	if (!r) {
 		setResultByte(0); // status 0 = no data
 		return;
 	}
 
 	setResult(IcmpRecvResult{
 		.hasData    = 1,
-		.srcIp      = r.srcIp,
-		.ttl        = r.ttl,
-		.identifier = r.identifier,
-		.sequence   = r.sequence,
-		.dataLen    = r.dataLen});
+		.srcIp      = r->srcIp,
+		.ttl        = r->ttl,
+		.identifier = r->identifier,
+		.sequence   = r->sequence,
+		.dataLen    = r->dataLen});
 }
 
 // Serialization (save state)
