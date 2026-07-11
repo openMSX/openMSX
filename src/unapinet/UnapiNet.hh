@@ -85,19 +85,37 @@ private:
 		Aborted = 3, ConnectionReset = 4, ConnectFailed = 6,
 	};
 
+	// Threading contract between the emulation thread (readIO/writeIO and
+	// everything they call) and the receiver thread (receiverLoop):
+	//
+	// * While the receiver thread runs, only IT closes a live socket. Any
+	//   other thread calls requestClose(), which marks the connection closed
+	//   for the MSX at once and sets 'pendingClose'; the receiver performs the
+	//   sock_close() on its next pass (bounded by its select() timeout).
+	//   Closing an fd another thread is sitting on inside select()/recv() is
+	//   not safe: the descriptor can be recycled underneath it.
+	//   closeTcp()/closeUdp() close directly and are only for the destructor,
+	//   which has already joined the receiver.
+	// * 'mutex' guards the buffers AND the endpoint metadata, so that TCP_STATE
+	//   reads a coherent snapshot and the accept path publishes the state and
+	//   the address together. The receiver re-checks 'pendingClose' under the
+	//   lock before publishing anything, so it can never resurrect a
+	//   connection the MSX has just closed.
+	// * Hold at most one connection mutex at a time, and never across
+	//   select()/accept()/recv()/connect(). Non-blocking send/shutdown/close
+	//   under the lock are fine.
 	struct TcpConnection {
-		SOCKET sock = OPENMSX_INVALID_SOCKET;
+		std::atomic<SOCKET> sock{OPENMSX_INVALID_SOCKET};
 		std::atomic<TcpState> tcpState{TcpState::Closed};
-		CloseReason closeReason = CloseReason::NeverUsed;
-		bool     resident = false;
-		uint32_t remoteIp = 0;
-		uint16_t remotePort = 0;
-		uint16_t localPort = 0;
-		std::deque<uint8_t> recvBuf; // guarded by 'mutex'
-		std::mutex mutex; // protects recvBuf only. tcpState is atomic; the
-		                  // remaining metadata fields are plain and shared
-		                  // between the emulation and receiver threads (see
-		                  // 'known limitations' in the PR description)
+		std::atomic<bool> pendingClose{false}; // receiver: close it and clear this
+		CloseReason closeReason = CloseReason::NeverUsed; // guarded by 'mutex'
+		uint32_t remoteIp = 0;    // guarded by 'mutex'
+		uint16_t remotePort = 0;  // guarded by 'mutex'
+		uint16_t localPort = 0;   // guarded by 'mutex'
+		bool     resident = false; // emulation thread only
+		std::deque<uint8_t> recvBuf;  // guarded by 'mutex'
+		std::vector<uint8_t> sendBuf; // guarded by 'mutex'
+		std::mutex mutex;
 	};
 	std::array<TcpConnection, MAX_TCP> tcp; // indexed by 0-based internal handle
 
@@ -110,12 +128,13 @@ private:
 		std::vector<uint8_t> data;
 	};
 
-	struct UdpConnection {
-		SOCKET sock = OPENMSX_INVALID_SOCKET;
-		uint16_t localPort = 0;
-		bool     resident = false;
+	struct UdpConnection { // same threading contract as TcpConnection above
+		std::atomic<SOCKET> sock{OPENMSX_INVALID_SOCKET};
+		std::atomic<bool> pendingClose{false};
+		uint16_t localPort = 0;   // guarded by 'mutex'
+		bool     resident = false; // emulation thread only
 		std::deque<UdpDatagram> recvQueue; // guarded by 'mutex'
-		std::mutex mutex; // protects recvQueue only
+		std::mutex mutex;
 	};
 	std::array<UdpConnection, MAX_UDP> udp;
 
@@ -207,11 +226,16 @@ private:
 	[[nodiscard]] int allocTcpHandle();
 	// Validate a 1-based wire handle and return the connection, or nullptr.
 	[[nodiscard]] TcpConnection* tcpForHandle(int wireHandle);
+	// Direct close. Only legal with the receiver thread stopped (destructor).
 	void closeTcp(TcpConnection& c);
-	// Quick teardown of a live connection from the receiver/send paths: record
-	// the reason, close the socket and mark it CLOSED (does not clear the
-	// remote/local metadata — that is closeTcp's job).
-	void forceClose(TcpConnection& c, CloseReason reason);
+	// Mark a connection closed for the MSX right away and let the receiver
+	// thread do the actual sock_close(). Safe from either thread.
+	// clearMetadata also wipes the endpoint info and the buffers (what
+	// TCP_CLOSE / TCP_ABORT / reset want); the receiver's error paths leave
+	// them, so the MSX can still drain data that already arrived.
+	void requestClose(TcpConnection& c, CloseReason reason,
+	                  bool clearMetadata = false);
+	void requestClose(UdpConnection& u);
 	[[nodiscard]] int allocUdpHandle();
 	[[nodiscard]] UdpConnection* udpForHandle(int wireHandle);
 	void closeUdp(UdpConnection& u);
