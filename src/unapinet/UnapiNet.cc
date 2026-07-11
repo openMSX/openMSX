@@ -82,6 +82,16 @@ static constexpr uint8_t CMD_ICMP_RECV   = 0x12;
 // PING reply magic
 static constexpr uint8_t MAGIC = 0xAB;
 
+// Half-close: tell the peer we are done sending (FIN).
+static void shutdownSend(SOCKET sd)
+{
+#ifdef _WIN32
+	shutdown(sd, SD_SEND);
+#else
+	shutdown(sd, SHUT_WR);
+#endif
+}
+
 // UNAPI DNS error code reported on a failed lookup (host name does not exist)
 static constexpr uint8_t DNS_ERR_NO_SUCH_HOST = 3;
 
@@ -243,6 +253,7 @@ void UnapiNet::closeTcp(TcpConnection& c)
 		c.sock = OPENMSX_INVALID_SOCKET;
 	}
 	c.pendingClose = false;
+	c.pendingShutdown = false;
 	c.tcpState   = TcpState::Closed;
 	c.remoteIp   = 0;
 	c.remotePort = 0;
@@ -282,6 +293,7 @@ void UnapiNet::requestClose(TcpConnection& c, CloseReason reason,
 		c.recvBuf.clear();
 	}
 	c.sendBuf.clear();
+	c.pendingShutdown = false;
 	c.tcpState = TcpState::Closed;
 	if (c.sock != OPENMSX_INVALID_SOCKET) {
 		c.pendingClose = true; // the receiver thread owns the sock_close()
@@ -440,6 +452,13 @@ void UnapiNet::receiverLoop()
 				if (sendFailed) {
 					requestClose(c, CloseReason::ConnectionReset);
 					continue;
+				}
+				// A TCP_CLOSE that arrived with data still queued: now that the
+				// data is out, it is safe to send the FIN.
+				std::scoped_lock lock(c.mutex);
+				if (c.pendingShutdown && c.sendBuf.empty()) {
+					shutdownSend(sd);
+					c.pendingShutdown = false;
 				}
 			}
 
@@ -741,6 +760,7 @@ void UnapiNet::cmdTcpOpen()
 		c.resident    = resident;
 		c.recvBuf.clear();
 		c.sendBuf.clear();
+		c.pendingShutdown = false;
 		c.tcpState    = newState;
 		c.sock        = s;
 	}
@@ -873,11 +893,13 @@ void UnapiNet::cmdTcpClose()
 		// Graceful shutdown: send FIN and let the receiver thread notice the
 		// remote close. (Closing the socket here would race with the receiver,
 		// which may be inside select()/recv() on this very fd.)
-#ifdef _WIN32
-		shutdown(sd, SD_SEND);
-#else
-		shutdown(sd, SHUT_WR);
-#endif
+		// If the MSX still has data queued, the FIN has to wait for it: the
+		// receiver sends it once sendBuf has drained.
+		if (c.sendBuf.empty()) {
+			shutdownSend(sd);
+		} else {
+			c.pendingShutdown = true;
+		}
 		c.closeReason = CloseReason::ClosedByUser;
 		c.tcpState = TcpState::CloseWait;
 	}

@@ -108,6 +108,9 @@ private:
 		std::atomic<SOCKET> sock{OPENMSX_INVALID_SOCKET};
 		std::atomic<TcpState> tcpState{TcpState::Closed};
 		std::atomic<bool> pendingClose{false}; // receiver: close it and clear this
+		// TCP_CLOSE with data still queued: the receiver sends the FIN once
+		// sendBuf has drained, so a graceful close cannot truncate the data.
+		std::atomic<bool> pendingShutdown{false};
 		CloseReason closeReason = CloseReason::NeverUsed; // guarded by 'mutex'
 		uint32_t remoteIp = 0;    // guarded by 'mutex'
 		uint16_t remotePort = 0;  // guarded by 'mutex'
