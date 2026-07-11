@@ -5,13 +5,19 @@
 
 #ifdef _WIN32
 #include <ws2tcpip.h>
+#include <iphlpapi.h>
+#include <icmpapi.h>
+#ifdef interface
+// The Microsoft headers above define the 'interface' macro again (Socket.hh
+// already undoes the one from winsock2). Undo it here too, so it cannot
+// clobber openMSX code that uses the word as an identifier.
+#undef interface
+#endif
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
-#include <fcntl.h>
 #include <errno.h>
-#include <poll.h>
 #endif
 
 #include <algorithm>
@@ -358,17 +364,17 @@ void UnapiNet::receiverLoop()
 			}
 
 			// Incoming data (ESTABLISHED or CLOSE_WAIT).
-			if (c.tcpState.load() != one_of(TcpState::Established,
+			if (c.tcpState != one_of(TcpState::Established,
 			                                TcpState::CloseWait)) {
 				continue;
 			}
-			char buf[512];
-			auto n = sock_recv(sd, buf, sizeof(buf));
+			std::array<char, 512> buf;
+			auto n = sock_recv(sd, buf.data(), buf.size());
 			if (n > 0) {
 				std::scoped_lock lock(c.mutex);
 				size_t room = MAX_RECV_BUF - std::min(MAX_RECV_BUF, c.recvBuf.size());
 				auto count = std::min(static_cast<size_t>(n), room);
-				const auto* d = reinterpret_cast<const uint8_t*>(buf);
+				const auto* d = reinterpret_cast<const uint8_t*>(buf.data());
 				c.recvBuf.insert(c.recvBuf.end(), d, d + count);
 			} else if (n == 0) {
 				c.tcpState = TcpState::CloseWait;
@@ -381,16 +387,16 @@ void UnapiNet::receiverLoop()
 			if (u.sock == OPENMSX_INVALID_SOCKET) continue;
 			if (!FD_ISSET(u.sock, &rfds)) continue;
 			SOCKET sd = u.sock;
-			char buf[2048];
+			std::array<char, 2048> buf;
 			struct sockaddr_in src;
 			::socklen_t slen = sizeof(src);
-			int n = recvfrom(sd, buf, sizeof(buf), 0,
+			int n = recvfrom(sd, buf.data(), buf.size(), 0,
 			                 reinterpret_cast<struct sockaddr*>(&src), &slen);
 			if (n <= 0) continue;
 			UdpDatagram dg;
 			dg.srcIp = ntohl(src.sin_addr.s_addr);
 			dg.srcPort = ntohs(src.sin_port);
-			dg.data.assign(buf, buf + n);
+			dg.data.assign(buf.data(), buf.data() + n);
 			std::scoped_lock lock(u.mutex);
 			if (u.recvQueue.size() < 16) { // cap pending datagrams
 				u.recvQueue.push_back(std::move(dg));
@@ -454,16 +460,11 @@ void UnapiNet::cmdQueryCap()
 
 void UnapiNet::cmdDnsQuery()
 {
-	if (paramBuf.empty()) {
-		setError();
-		return;
-	}
-
-	// Extract hostname (null-terminated)
+	// The driver sends the hostname 0-terminated; the terminator and anything
+	// after it are ignored. An empty parameter block yields an empty hostname,
+	// which the check below rejects.
 	std::string hostname(paramBuf.begin(), paramBuf.end());
-	// Ensure termination
-	auto pos = hostname.find('\0');
-	if (pos != std::string::npos) {
+	if (auto pos = hostname.find('\0'); pos != std::string::npos) {
 		hostname.resize(pos);
 	}
 
@@ -483,7 +484,7 @@ void UnapiNet::cmdDnsQuery()
 
 		setResult(DnsQueryResult{
 			.status = 1, // resolved immediately
-			.ip     = Endian::UA_B32(ip)});
+			.ip     = ip});
 		return;
 	}
 
@@ -539,13 +540,13 @@ void UnapiNet::cmdDnsQuery()
 
 void UnapiNet::cmdDnsStatus()
 {
-	auto s = dns.status.load();
+	DnsStatus s = dns.status; // implicit atomic load ('auto' would try to copy it)
 
 	if (s == DnsStatus::Complete) {
 		// Complete
 		setResult(DnsStatusResult{
 			.status = 2,
-			.ip     = Endian::UA_B32(dns.resolvedIp)});
+			.ip     = dns.resolvedIp});
 	} else if (s == DnsStatus::Error) {
 		// Error
 		setResult(DnsStatusError{.status = 0xFF, .errorCode = dns.errorCode});
@@ -651,7 +652,7 @@ void UnapiNet::cmdTcpOpen()
 		c.remoteIp   = ip;
 		c.remotePort = remotePort;
 
-		// Obtener puerto local asignado
+		// Read back the local port the OS assigned
 		struct sockaddr_in local;
 		::socklen_t len = sizeof(local);
 		if (getsockname(s, reinterpret_cast<struct sockaddr*>(&local), &len) == 0) {
@@ -691,7 +692,7 @@ void UnapiNet::cmdTcpSend()
 	}
 	auto& c = *cp;
 	if (c.sock == OPENMSX_INVALID_SOCKET ||
-		c.tcpState.load() != one_of(TcpState::Established, TcpState::CloseWait)) {
+		c.tcpState != one_of(TcpState::Established, TcpState::CloseWait)) {
 		setResultByte(1);
 		return;
 	}
@@ -766,7 +767,7 @@ void UnapiNet::cmdTcpRecv()
 		c.recvBuf.erase(c.recvBuf.begin(), c.recvBuf.begin() + avail);
 	}
 
-	TcpRecvResultHeader hdr{.actualLen = Endian::UA_L16(uint16_t(payload.size()))};
+	TcpRecvResultHeader hdr{.actualLen = uint16_t(payload.size())};
 	setResult(hdr, payload);
 }
 
@@ -835,14 +836,13 @@ void UnapiNet::cmdTcpState()
 		int h = paramBuf[0];
 		if (auto* cp = tcpForHandle(h)) {
 			auto& c = *cp;
-			uint16_t avail;
-			{
-				std::scoped_lock lock(c.mutex);
-				avail = static_cast<uint16_t>(
-					std::min(c.recvBuf.size(), static_cast<size_t>(0xFFFF)));
-			}
-			r.state       = static_cast<uint8_t>(c.tcpState.load());
-			r.avail       = avail;
+			// One coherent snapshot: the receiver thread publishes the state
+			// and the endpoint metadata together under this same lock.
+			std::scoped_lock lock(c.mutex);
+			TcpState state = c.tcpState;
+			r.state       = static_cast<uint8_t>(state);
+			r.avail       = static_cast<uint16_t>(
+				std::min(c.recvBuf.size(), static_cast<size_t>(0xFFFF)));
 			r.closeReason = static_cast<uint8_t>(c.closeReason);
 			r.remoteIp    = c.remoteIp;
 			r.remotePort  = c.remotePort;
@@ -881,7 +881,7 @@ void UnapiNet::cmdTcpAbort()
 
 void UnapiNet::cmdGetLocalIP()
 {
-	setResult(GetLocalIpResult{.ip = Endian::UA_B32(sock_localIPv4())});
+	setResult(GetLocalIpResult{.ip = sock_localIPv4()});
 }
 
 // NET_STATE (0x0E)
@@ -1035,7 +1035,7 @@ void UnapiNet::cmdUdpState()
 			}
 		}
 	}
-	setResult(UdpStateResult{.firstDgramSize = Endian::UA_L16(size)});
+	setResult(UdpStateResult{.firstDgramSize = size});
 }
 
 // UDP_SEND (0x0C)
@@ -1115,9 +1115,9 @@ void UnapiNet::cmdUdpRecv()
 		std::min(static_cast<size_t>(maxlen), dg.data.size()));
 
 	UdpRecvResultHeader hdr{
-		.srcIp     = Endian::UA_B32(dg.srcIp),
-		.srcPort   = Endian::UA_L16(dg.srcPort),
-		.actualLen = Endian::UA_L16(actual)};
+		.srcIp     = dg.srcIp,
+		.srcPort   = dg.srcPort,
+		.actualLen = actual};
 	setResult(hdr, std::span<const uint8_t>(dg.data.data(), actual));
 }
 
@@ -1127,43 +1127,11 @@ void UnapiNet::cmdUdpRecv()
 // A worker thread handles the (blocking) call and pushes replies
 // to a queue that the MSX polls via RCV_ECHO.
 
-#ifdef _WIN32
-// Minimal declarations to avoid pulling iphlpapi.h / icmpapi.h
-// (which trigger the "interface" macro conflict in windows.h).
-extern "C" {
-	struct IcmpIpOptions {
-		unsigned char Ttl;
-		unsigned char Tos;
-		unsigned char Flags;
-		unsigned char OptionsSize;
-		unsigned char* OptionsData;
-	};
-	struct IcmpEchoReply {
-		unsigned long  Address;
-		unsigned long  Status;
-		unsigned long  RoundTripTime;
-		unsigned short DataSize;
-		unsigned short Reserved;
-		void*          Data;
-		IcmpIpOptions  Options;
-	};
-	__declspec(dllimport) void* __stdcall IcmpCreateFile(void);
-	__declspec(dllimport) int   __stdcall IcmpCloseHandle(void*);
-	__declspec(dllimport) unsigned long __stdcall IcmpSendEcho(
-		void* h, unsigned long addr,
-		void* data, unsigned short size,
-		IcmpIpOptions* opts,
-		void* reply, unsigned long replySize,
-		unsigned long timeout);
-}
-#pragma comment(lib, "iphlpapi.lib")
-#endif
-
 void UnapiNet::icmpWorkerLoop()
 {
 #ifdef _WIN32
-	void* hIcmp = IcmpCreateFile();
-	if (!hIcmp || hIcmp == reinterpret_cast<void*>(-1)) return;
+	HANDLE hIcmp = IcmpCreateFile();
+	if (hIcmp == INVALID_HANDLE_VALUE) return;
 
 	while (running) {
 		if (!icmpPending.exchange(false)) {
@@ -1177,10 +1145,10 @@ void UnapiNet::icmpWorkerLoop()
 		for (size_t i = 0; i < payload.size(); i++)
 			payload[i] = static_cast<uint8_t>(i);
 
-		unsigned long replySize = sizeof(IcmpEchoReply) + req.dataLen + 8;
+		unsigned long replySize = sizeof(ICMP_ECHO_REPLY) + req.dataLen + 8;
 		std::vector<uint8_t> replyBuf(replySize);
 
-		IcmpIpOptions opt = {};
+		IP_OPTION_INFORMATION opt = {};
 		opt.Ttl = req.ttl ? req.ttl : 255;
 
 		unsigned long ret = IcmpSendEcho(hIcmp,
@@ -1193,8 +1161,8 @@ void UnapiNet::icmpWorkerLoop()
 										 2000);
 
 		if (ret > 0) {
-			auto* reply = reinterpret_cast<IcmpEchoReply*>(replyBuf.data());
-			if (reply->Status == 0 /* IP_SUCCESS */) {
+			auto* reply = reinterpret_cast<ICMP_ECHO_REPLY*>(replyBuf.data());
+			if (reply->Status == IP_SUCCESS) {
 				IcmpReply r;
 				r.srcIp = ntohl(reply->Address);
 				r.ttl = reply->Options.Ttl;
@@ -1255,11 +1223,11 @@ void UnapiNet::cmdIcmpRecv()
 
 	setResult(IcmpRecvResult{
 		.hasData    = 1,
-		.srcIp      = Endian::UA_B32(r.srcIp),
+		.srcIp      = r.srcIp,
 		.ttl        = r.ttl,
-		.identifier = Endian::UA_L16(r.identifier),
-		.sequence   = Endian::UA_L16(r.sequence),
-		.dataLen    = Endian::UA_L16(r.dataLen)});
+		.identifier = r.identifier,
+		.sequence   = r.sequence,
+		.dataLen    = r.dataLen});
 }
 
 // Serialization (save state)

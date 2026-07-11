@@ -27,8 +27,10 @@
 // All UA_* members have alignof==1, so each struct is naturally packed (no
 // interior padding); the static_assert on each size guards that.
 //
-// USAGE (UA_* has operator= only, no int constructor):
-//   result:  TcpStateResult r{}; r.state = ...; r.remoteIp = ...; setResult(r);
+// USAGE:
+//   result:  setResult(TcpStateResult{.state = ..., .remoteIp = ip, ...});
+//            (plain integers convert to the UA_* fields; '{}' value-initialises
+//             every field to zero, so partially-filled records are still defined)
 //   param:   auto p = fromBytes<TcpOpenParams>(paramBuf); uint32_t ip = p.remoteIp;
 
 namespace openmsx {
