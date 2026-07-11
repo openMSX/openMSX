@@ -7,6 +7,7 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <concepts>
 #include <cstdint>
 #include <deque>
@@ -88,29 +89,30 @@ private:
 	// Threading contract between the emulation thread (readIO/writeIO and
 	// everything they call) and the receiver thread (receiverLoop):
 	//
-	// * While the receiver thread runs, only IT closes a live socket. Any
-	//   other thread calls requestClose(), which marks the connection closed
-	//   for the MSX at once and sets 'pendingClose'; the receiver performs the
-	//   sock_close() on its next pass (bounded by its select() timeout).
-	//   Closing an fd another thread is sitting on inside select()/recv() is
-	//   not safe: the descriptor can be recycled underneath it.
+	// * Only the receiver thread ever calls sock_close(). requestClose() (any
+	//   thread) invalidates the connection's socket immediately - so the MSX
+	//   can reuse the handle at once - and hands the raw fd to socksToClose;
+	//   the receiver closes it at the top of its next pass. The fd therefore
+	//   stays open until then, so its number cannot be recycled while another
+	//   thread is still sitting on it inside select()/recv().
 	//   closeTcp()/closeUdp() close directly and are only for the destructor,
 	//   which has already joined the receiver.
 	// * 'mutex' guards the buffers AND the endpoint metadata, so that TCP_STATE
 	//   reads a coherent snapshot and the accept path publishes the state and
-	//   the address together. The receiver re-checks 'pendingClose' under the
-	//   lock before publishing anything, so it can never resurrect a
-	//   connection the MSX has just closed.
+	//   the address together. The receiver re-checks that the socket is still
+	//   the one it was watching before publishing anything, so it can never
+	//   act on a connection the MSX has closed and reopened underneath it.
 	// * Hold at most one connection mutex at a time, and never across
 	//   select()/accept()/recv()/connect(). Non-blocking send/shutdown/close
 	//   under the lock are fine.
 	struct TcpConnection {
 		std::atomic<SOCKET> sock{OPENMSX_INVALID_SOCKET};
 		std::atomic<TcpState> tcpState{TcpState::Closed};
-		std::atomic<bool> pendingClose{false}; // receiver: close it and clear this
-		// TCP_CLOSE with data still queued: the receiver sends the FIN once
-		// sendBuf has drained, so a graceful close cannot truncate the data.
-		std::atomic<bool> pendingShutdown{false};
+		// FinWait1 = the MSX called TCP_CLOSE. The FIN goes out once sendBuf has
+		// drained (finSent), and the connection is dropped when the peer closes
+		// too, or when closeDeadline passes and it never does.
+		bool finSent = false; // guarded by 'mutex'
+		std::chrono::steady_clock::time_point closeDeadline; // guarded by 'mutex'
 		CloseReason closeReason = CloseReason::NeverUsed; // guarded by 'mutex'
 		uint32_t remoteIp = 0;    // guarded by 'mutex'
 		uint16_t remotePort = 0;  // guarded by 'mutex'
@@ -133,7 +135,6 @@ private:
 
 	struct UdpConnection { // same threading contract as TcpConnection above
 		std::atomic<SOCKET> sock{OPENMSX_INVALID_SOCKET};
-		std::atomic<bool> pendingClose{false};
 		uint16_t localPort = 0;   // guarded by 'mutex'
 		bool     resident = false; // emulation thread only
 		std::deque<UdpDatagram> recvQueue; // guarded by 'mutex'
@@ -166,7 +167,7 @@ private:
 	enum class DnsStatus : uint8_t { Idle = 0, InProgress = 1, Complete = 2, Error = 3 };
 	struct {
 		std::atomic<DnsStatus> status{DnsStatus::Idle};
-		uint32_t resolvedIp = 0;
+		std::atomic<uint32_t> resolvedIp{0};
 	} dns;
 	std::thread dnsThread;
 
@@ -200,7 +201,7 @@ private:
 
 	// --- Helpers ---
 	// The three setResult() overloads queue a command result for the MSX to
-	// read from the data port (and set state/statusReg accordingly).
+	// read from the data port, and mark the status register accordingly.
 	void setResult(std::span<const uint8_t> data);
 	// Wire-layout struct (see UnapiNetWire.hh): the compiler lays out the
 	// exact on-wire bytes. The requires-clause keeps span-like types (which
@@ -236,9 +237,22 @@ private:
 	// clearMetadata also wipes the endpoint info and the buffers (what
 	// TCP_CLOSE / TCP_ABORT / reset want); the receiver's error paths leave
 	// them, so the MSX can still drain data that already arrived.
+	// Drop a connection now: the socket is invalidated (so the handle is free
+	// again immediately) and the raw fd is queued for the receiver to close.
+	// Safe from either thread. clearMetadata also wipes the endpoint info and
+	// the buffers; the receiver's error paths leave them, so the MSX can still
+	// drain data that already arrived.
 	void requestClose(TcpConnection& c, CloseReason reason,
 	                  bool clearMetadata = false);
 	void requestClose(UdpConnection& u);
+	// TCP_CLOSE: half-close (FIN) and let the peer finish, rather than dropping
+	// data the MSX has already been told we accepted.
+	void gracefulClose(TcpConnection& c);
+	// Hand a raw fd to the receiver thread to close.
+	void deferSockClose(SOCKET sd);
+	std::vector<SOCKET> socksToClose; // guarded by closeMutex
+	std::mutex closeMutex; // lock order: a connection mutex may be held when
+	                       // taking this one, never the other way round
 	[[nodiscard]] int allocUdpHandle();
 	[[nodiscard]] UdpConnection* udpForHandle(int wireHandle);
 	void closeUdp(UdpConnection& u);
