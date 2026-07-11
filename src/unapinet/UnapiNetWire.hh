@@ -53,6 +53,10 @@ template<wire_layout T>
 	return std::span<const uint8_t, sizeof(T)>(
 		reinterpret_cast<const uint8_t*>(&d), sizeof(T));
 }
+// Viewing a temporary would leave the span dangling the moment the full
+// expression ends, so make that a compile error rather than a bug.
+template<wire_layout T>
+[[nodiscard]] std::span<const uint8_t, sizeof(T)> asBytes(const T&&) = delete;
 
 // Copy a wire-layout value to its exact on-wire bytes.
 template<wire_layout T>

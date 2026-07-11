@@ -994,8 +994,9 @@ void UnapiNet::cmdTcpRecv()
 		std::scoped_lock lock(c.mutex);
 		auto avail = static_cast<uint16_t>(
 			std::min(static_cast<size_t>(maxlen), c.recvBuf.size()));
-		auto hdr = asBytes(TcpRecvResultHeader{.actualLen = avail});
-		resultBuf.assign(hdr.begin(), hdr.end());
+		const TcpRecvResultHeader hdr{.actualLen = avail};
+		auto bytes = asBytes(hdr); // a view: 'hdr' must outlive it
+		resultBuf.assign(bytes.begin(), bytes.end());
 		resultBuf.insert(resultBuf.end(), c.recvBuf.begin(),
 		                 c.recvBuf.begin() + avail);
 		c.recvBuf.erase(c.recvBuf.begin(), c.recvBuf.begin() + avail);
