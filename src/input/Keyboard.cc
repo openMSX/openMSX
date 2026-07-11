@@ -253,7 +253,8 @@ static constexpr auto getMSXMapping()
 		M{P{0x74}, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
 		M{P{0x75}, K{SDLK_BACKSPACE},   S{SDL_SCANCODE_BACKSPACE}},
 		M{P{0x76}, K{SDLK_F7},          S{SDL_SCANCODE_F7}}, // SELECT
-		M{P{0x77}, K{SDLK_RETURN},      S{SDL_SCANCODE_RETURN}},
+		M{P{0x77}, K{SDLK_RETURN,         SDLK_KP_ENTER},
+				   S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
 
 		M{P{0x80}, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
 		M{P{0x81}, K{SDLK_HOME},        S{SDL_SCANCODE_HOME}},
@@ -371,7 +372,8 @@ static constexpr auto getSVIMapping()
 		M{P{0x63}, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}},
 		M{P{0x64}, K{SDLK_ESCAPE},      S{SDL_SCANCODE_ESCAPE}},
 		M{P{0x65}, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
-		M{P{0x66}, K{SDLK_RETURN},      S{SDL_SCANCODE_RETURN}},
+		M{P{0x66}, K{SDLK_RETURN,         SDLK_KP_ENTER},
+				   S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
 		M{P{0x67}, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
 
 		M{P{0x70}, K{SDLK_F1},          S{SDL_SCANCODE_F1}},
@@ -993,7 +995,8 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 	} else if (key.sym.sym == SDLK_LALT) {
 		processGraphChange(time, down);
 		return false;
-	} else if (key.sym.sym == SDLK_KP_ENTER) {
+	// KEYPAD_RETURN and KEYPAD_COMMA exist at the same physical position on the host side.
+	} else if ((key.sym.sym == SDLK_KP_ENTER) || (key.sym.sym == SDLK_KP_COMMA)) {
 		processKeypadEnterKey(time, down);
 		return false;
 	} else {
@@ -1067,9 +1070,9 @@ void Keyboard::processKeypadEnterKey(EmuTime time, bool down)
 		return;
 	}
 	processSdlKey(time,
-	              SDLKey::create(keyboardSettings.getKpEnterMode() == KeyboardSettings::KpEnterMode::MSX_KP_COMMA
-	                                 ? SDLK_KP_ENTER : SDLK_RETURN,
-	                             down));
+		keyboardSettings.getKpEnterMode() == KeyboardSettings::KpEnterMode::MSX_KP_COMMA ?
+		SDLKey::create(SDLK_KP_COMMA, SDL_SCANCODE_KP_COMMA, down) :
+		SDLKey::create(SDLK_KP_ENTER, SDL_SCANCODE_KP_ENTER, down));
 }
 
 /*
