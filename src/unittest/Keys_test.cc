@@ -34,36 +34,36 @@ static void test(const std::string& name1, SDLKey code1, bool canonical)
 
 TEST_CASE("Keys")
 {
-	test("P", SDLKey::createDown(SDLK_p), true);
-	test("p", SDLKey::createDown(SDLK_p), false);
-	test("1", SDLKey::createDown(SDLK_1), true);
-	test("z", SDLKey::createDown(SDLK_z), false);
-	test("AT", SDLKey::createDown(SDLK_AT), false);
-	test("@", SDLKey::createDown(SDLK_AT), true);
-	test("Hash", SDLKey::createDown(SDLK_HASH), false);
-	test("slash", SDLKey::createDown(SDLK_SLASH), false);
-	test("EXCLAIM", SDLKey::createDown(SDLK_EXCLAIM), false);
-	test("!", SDLKey::createDown(SDLK_EXCLAIM), true);
-	test("PeRiOd", SDLKey::createDown(SDLK_PERIOD), false);
-	test("CARET", SDLKey::createDown(SDLK_CARET), false);
-	test("delete", SDLKey::createDown(SDLK_DELETE), false);
-	test("Keypad 7", SDLKey::createDown(SDLK_KP_7), true);
-	test("KP7", SDLKey::createDown(SDLK_KP_7), false);
-	test("KP_ENTER", SDLKey::createDown(SDLK_KP_ENTER), false);
-	test("up", SDLKey::createDown(SDLK_UP), false);
-	test("End", SDLKey::createDown(SDLK_END), false);
-	test("pageup", SDLKey::createDown(SDLK_PAGEUP), false);
-	test("PageDown", SDLKey::createDown(SDLK_PAGEDOWN), true);
-	test("PAGEDOWN", SDLKey::createDown(SDLK_PAGEDOWN), false);
-	test("F8", SDLKey::createDown(SDLK_F8), true);
-	test("RCTRL", SDLKey::createDown(SDLK_RCTRL), false);
-	test("Right Ctrl", SDLKey::createDown(SDLK_RCTRL), true);
+	test("P",          SDLKey::createDown(SDLK_p,        SDL_SCANCODE_UNKNOWN), true);
+	test("p",          SDLKey::createDown(SDLK_p,        SDL_SCANCODE_UNKNOWN), false);
+	test("1",          SDLKey::createDown(SDLK_1,        SDL_SCANCODE_UNKNOWN), true);
+	test("z",          SDLKey::createDown(SDLK_z,        SDL_SCANCODE_UNKNOWN), false);
+	test("AT",         SDLKey::createDown(SDLK_AT,       SDL_SCANCODE_UNKNOWN), false);
+	test("@",          SDLKey::createDown(SDLK_AT,       SDL_SCANCODE_UNKNOWN), true);
+	test("Hash",       SDLKey::createDown(SDLK_HASH,     SDL_SCANCODE_UNKNOWN), false);
+	test("slash",      SDLKey::createDown(SDLK_SLASH,    SDL_SCANCODE_UNKNOWN), false);
+	test("EXCLAIM",    SDLKey::createDown(SDLK_EXCLAIM,  SDL_SCANCODE_UNKNOWN), false);
+	test("!",          SDLKey::createDown(SDLK_EXCLAIM,  SDL_SCANCODE_UNKNOWN), true);
+	test("PeRiOd",     SDLKey::createDown(SDLK_PERIOD,   SDL_SCANCODE_UNKNOWN), false);
+	test("CARET",      SDLKey::createDown(SDLK_CARET,    SDL_SCANCODE_UNKNOWN), false);
+	test("delete",     SDLKey::createDown(SDLK_DELETE,   SDL_SCANCODE_UNKNOWN), false);
+	test("Keypad 7",   SDLKey::createDown(SDLK_KP_7,     SDL_SCANCODE_UNKNOWN), true);
+	test("KP7",        SDLKey::createDown(SDLK_KP_7,     SDL_SCANCODE_UNKNOWN), false);
+	test("KP_ENTER",   SDLKey::createDown(SDLK_KP_ENTER, SDL_SCANCODE_UNKNOWN), false);
+	test("up",         SDLKey::createDown(SDLK_UP,       SDL_SCANCODE_UNKNOWN), false);
+	test("End",        SDLKey::createDown(SDLK_END,      SDL_SCANCODE_UNKNOWN), false);
+	test("pageup",     SDLKey::createDown(SDLK_PAGEUP,   SDL_SCANCODE_UNKNOWN), false);
+	test("PageDown",   SDLKey::createDown(SDLK_PAGEDOWN, SDL_SCANCODE_UNKNOWN), true);
+	test("PAGEDOWN",   SDLKey::createDown(SDLK_PAGEDOWN, SDL_SCANCODE_UNKNOWN), false);
+	test("F8",         SDLKey::createDown(SDLK_F8,       SDL_SCANCODE_UNKNOWN), true);
+	test("RCTRL",      SDLKey::createDown(SDLK_RCTRL,    SDL_SCANCODE_UNKNOWN), false);
+	test("Right Ctrl", SDLKey::createDown(SDLK_RCTRL,    SDL_SCANCODE_UNKNOWN), true);
 
-	test("P+SHIFT", SDLKey::create(SDLK_p, true, KMOD_SHIFT), true);
-	test("q,shift", SDLKey::create(SDLK_q, true, KMOD_SHIFT), false);
-	test("R/shift", SDLKey::create(SDLK_r, true, KMOD_SHIFT), false);
-	test("ctrl+c", SDLKey::create(SDLK_c, true, KMOD_CTRL), false);
-	test("ALT/E", SDLKey::create(SDLK_e, true, KMOD_ALT), false);
-	test("E+ALT", SDLKey::create(SDLK_e, true, KMOD_ALT), true);
-	test("5,release", SDLKey::create(SDLK_5, false), false);
+	test("P+SHIFT",   SDLKey::create(SDLK_p, SDL_SCANCODE_UNKNOWN, true, KMOD_SHIFT), true);
+	test("q,shift",   SDLKey::create(SDLK_q, SDL_SCANCODE_UNKNOWN, true, KMOD_SHIFT), false);
+	test("R/shift",   SDLKey::create(SDLK_r, SDL_SCANCODE_UNKNOWN, true, KMOD_SHIFT), false);
+	test("ctrl+c",    SDLKey::create(SDLK_c, SDL_SCANCODE_UNKNOWN, true, KMOD_CTRL ), false);
+	test("ALT/E",     SDLKey::create(SDLK_e, SDL_SCANCODE_UNKNOWN, true, KMOD_ALT  ), false);
+	test("E+ALT",     SDLKey::create(SDLK_e, SDL_SCANCODE_UNKNOWN, true, KMOD_ALT  ), true);
+	test("5,release", SDLKey::create(SDLK_5, SDL_SCANCODE_UNKNOWN, false           ), false);
 }
