@@ -19,17 +19,17 @@ struct SDLKey {
 	SDL_Keysym sym;
 	bool down; // down=press / up=release
 
-	[[nodiscard]] static SDLKey create(SDL_Keycode code, bool down, uint16_t mod = 0) {
+	[[nodiscard]] static SDLKey create(SDL_Keycode code, SDL_Scancode scancode, bool down, uint16_t mod = 0) {
 		SDL_Keysym sym;
-		sym.scancode = SDL_SCANCODE_UNKNOWN;
+		sym.scancode = scancode; // scancode needs for POSITIONAL mapping mode
 		sym.sym = code;
 		sym.mod = mod;
 		sym.unused = 0; // unicode
 		return {.sym = sym, .down = down};
 	}
 
-	[[nodiscard]] static SDLKey createDown(SDL_Keycode code) {
-		return create(code, true);
+	[[nodiscard]] static SDLKey createDown(SDL_Keycode code, SDL_Scancode scancode) {
+		return create(code, scancode, true);
 	}
 
 	[[nodiscard]] static std::optional<SDLKey> fromString(std::string_view name);
