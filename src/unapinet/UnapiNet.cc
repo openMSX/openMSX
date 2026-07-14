@@ -435,7 +435,8 @@ void UnapiNet::receiverLoop()
 		FD_ZERO(&wfds);
 		FD_ZERO(&efds);
 		SOCKET maxSock = 0;
-		bool any = false;
+		bool any = false;   // at least one socket is open
+		bool armed = false; // at least one fd went into one of the sets
 		// Remember exactly which fd we armed for each slot: after select() the
 		// emulation thread may have closed and reopened one, and a stale bit in
 		// the fd sets must not be applied to the new socket.
@@ -473,14 +474,26 @@ void UnapiNet::receiverLoop()
 				// the exception set (Windows).
 				FD_SET(sd, &wfds);
 				FD_SET(sd, &efds);
+				armed = true;
 			} else {
-				FD_SET(sd, &rfds);
+				// Only ask for incoming data while recvBuf has room for it.
+				// Leaving a full socket unread lets the kernel receive buffer
+				// fill up, which closes the TCP window and makes the peer stop
+				// sending - that is the flow control TCP already provides.
+				// recv()ing anyway and dropping whatever doesn't fit would
+				// silently truncate the stream instead.
+				// While recvBuf is full we don't notice the peer closing its
+				// side either; that is picked up as soon as the MSX drains
+				// some bytes and the socket is armed again.
 				bool pendingSend;
+				bool hasRoom;
 				{
 					std::scoped_lock lock(c.mutex);
 					pendingSend = !c.sendBuf.empty();
+					hasRoom = c.recvBuf.size() < MAX_RECV_BUF;
 				}
-				if (pendingSend) FD_SET(sd, &wfds);
+				if (hasRoom)     { FD_SET(sd, &rfds); armed = true; }
+				if (pendingSend) { FD_SET(sd, &wfds); armed = true; }
 			}
 			maxSock = std::max(maxSock, sd);
 			any = true;
@@ -493,10 +506,20 @@ void UnapiNet::receiverLoop()
 			FD_SET(sd, &rfds);
 			maxSock = std::max(maxSock, sd);
 			any = true;
+			armed = true;
 		}
 		if (!any) {
 			// Nothing open: avoid a tight loop (select() needs at least one fd).
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			continue;
+		}
+		if (!armed) {
+			// Sockets are open, but every one of them is waiting for the MSX to
+			// drain its recvBuf. Calling select() with three empty sets is an
+			// error on Windows (WSAEINVAL), which would spin this loop, so wait
+			// a moment instead. This costs no throughput: the MSX still has a
+			// full buffer to work through before it needs more data.
+			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			continue;
 		}
 		struct timeval tv = {0, 100000}; // 100 ms
@@ -589,18 +612,27 @@ void UnapiNet::receiverLoop()
 				}
 			}
 
-			// Incoming data.
+			// Incoming data. Never ask the kernel for more than fits: whatever
+			// we take out of its buffer and cannot store would be lost, and the
+			// peer would never know. Reading only 'room' bytes leaves the rest
+			// in the kernel, where it keeps the TCP window closed until the MSX
+			// makes space.
 			if (!FD_ISSET(sd, &rfds)) continue;
+			size_t room;
+			{
+				std::scoped_lock lock(c.mutex);
+				if (c.sock != sd) continue;
+				room = MAX_RECV_BUF - std::min(MAX_RECV_BUF, c.recvBuf.size());
+			}
+			if (room == 0) continue; // full: we shouldn't even have armed it
 			std::array<char, 512> buf;
-			auto r = netRecv(sd, buf.data(), buf.size());
+			auto r = netRecv(sd, buf.data(), std::min(buf.size(), room));
 			switch (r.status) {
 			case IoStatus::Ok: {
 				std::scoped_lock lock(c.mutex);
 				if (c.sock != sd) break;
-				size_t room = MAX_RECV_BUF - std::min(MAX_RECV_BUF, c.recvBuf.size());
-				auto count = std::min(r.bytes, room);
 				const auto* d = reinterpret_cast<const uint8_t*>(buf.data());
-				c.recvBuf.insert(c.recvBuf.end(), d, d + count);
+				c.recvBuf.insert(c.recvBuf.end(), d, d + r.bytes);
 				break;
 			}
 			case IoStatus::Closed:
