@@ -42,7 +42,8 @@ namespace openmsx {
 static constexpr uint8_t CAP_BYTE0 = 0x0F; // PING + DNS + TCP + UDP caps summary
 static constexpr uint8_t CAP_BYTE1 = 0x04; // bridge version 4
 
-// Maximum transfer size per TCP_SEND/TCP_RECV command
+// Maximum result payload per TCP_RECV command. TCP_SEND is not clamped to
+// this; the driver keeps to the same bound by convention.
 static constexpr size_t MAX_TRANSFER = 4096;
 
 // Maximum receive buffer size per connection
@@ -434,8 +435,11 @@ void UnapiNet::receiverLoop()
 		FD_ZERO(&rfds);
 		FD_ZERO(&wfds);
 		FD_ZERO(&efds);
-		SOCKET maxSock = 0;
-		bool any = false;   // at least one socket is open
+		// Empty optional = no socket open. An empty optional compares less
+		// than any engaged one, so std::max() works unchanged - and unlike a
+		// sentinel it cannot collide with a real descriptor (fd 0 is valid on
+		// POSIX, and on Windows INVALID_SOCKET is the LARGEST value).
+		std::optional<SOCKET> maxSock;
 		bool armed = false; // at least one fd went into one of the sets
 		// Remember exactly which fd we armed for each slot: after select() the
 		// emulation thread may have closed and reopened one, and a stale bit in
@@ -495,8 +499,7 @@ void UnapiNet::receiverLoop()
 				if (hasRoom)     { FD_SET(sd, &rfds); armed = true; }
 				if (pendingSend) { FD_SET(sd, &wfds); armed = true; }
 			}
-			maxSock = std::max(maxSock, sd);
-			any = true;
+			maxSock = std::max(maxSock, std::optional(sd));
 		}
 		for (int i = 0; i < MAX_UDP; ++i) {
 			auto& u = udp[i];
@@ -504,11 +507,10 @@ void UnapiNet::receiverLoop()
 			if (sd == OPENMSX_INVALID_SOCKET) continue;
 			watchedUdp[i] = sd;
 			FD_SET(sd, &rfds);
-			maxSock = std::max(maxSock, sd);
-			any = true;
+			maxSock = std::max(maxSock, std::optional(sd));
 			armed = true;
 		}
-		if (!any) {
+		if (!maxSock) {
 			// Nothing open: avoid a tight loop (select() needs at least one fd).
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			continue;
@@ -523,7 +525,7 @@ void UnapiNet::receiverLoop()
 			continue;
 		}
 		struct timeval tv = {0, 100000}; // 100 ms
-		if (select(static_cast<int>(maxSock) + 1, &rfds, &wfds, &efds, &tv) <= 0) {
+		if (select(static_cast<int>(*maxSock) + 1, &rfds, &wfds, &efds, &tv) <= 0) {
 			continue; // timeout or error: re-check running and rebuild the set
 		}
 
@@ -1039,23 +1041,19 @@ void UnapiNet::cmdTcpRecv()
 	// Clamp to the maximum transfer size
 	if (maxlen > MAX_TRANSFER) maxlen = static_cast<uint16_t>(MAX_TRANSFER);
 
-	// Move the bytes straight from recvBuf into resultBuf: no intermediate
-	// buffer, and no allocation while holding the connection lock (resultBuf
-	// was reserved in the constructor).
-	resultBuf.clear();
-	{
-		std::scoped_lock lock(c.mutex);
-		auto avail = static_cast<uint16_t>(
-			std::min(static_cast<size_t>(maxlen), c.recvBuf.size()));
-		const TcpRecvResultHeader hdr{.actualLen = avail};
-		auto bytes = asBytes(hdr); // a view: 'hdr' must outlive it
-		resultBuf.assign(bytes.begin(), bytes.end());
-		resultBuf.insert(resultBuf.end(), c.recvBuf.begin(),
-		                 c.recvBuf.begin() + avail);
-		c.recvBuf.erase(c.recvBuf.begin(), c.recvBuf.begin() + avail);
-	}
-	resultPos = 0;
-	statusReg = STATUS_DATA;
+	// Build the whole result under the connection lock: the length in the
+	// header and the bytes copied behind it must agree, and requestClose()
+	// clears recvBuf from another thread. setResult() does the resultPos /
+	// statusReg bookkeeping; appending the payload afterwards doesn't
+	// disturb it. Nothing allocates while the lock is held: resultBuf was
+	// reserved in the constructor and avail <= MAX_TRANSFER.
+	std::scoped_lock lock(c.mutex);
+	auto avail = static_cast<uint16_t>(
+		std::min(static_cast<size_t>(maxlen), c.recvBuf.size()));
+	setResult(TcpRecvResultHeader{.actualLen = avail});
+	resultBuf.insert(resultBuf.end(), c.recvBuf.begin(),
+	                 c.recvBuf.begin() + avail);
+	c.recvBuf.erase(c.recvBuf.begin(), c.recvBuf.begin() + avail);
 }
 
 // TCP_CLOSE (0x06)
