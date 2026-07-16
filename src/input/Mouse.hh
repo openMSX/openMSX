@@ -1,13 +1,12 @@
 #ifndef MOUSE_HH
 #define MOUSE_HH
 
+#include "Display.hh"
 #include "EmuTime.hh"
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 #include "serialize_meta.hh"
-#include "VideoSystemChangeListener.hh"
-#include "Display.hh"
 
 namespace openmsx {
 

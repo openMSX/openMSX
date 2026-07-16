@@ -36,10 +36,10 @@ static constexpr int STROBE = 0x04;
 
 Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_,
-	         Display& display)
+	         Display& display_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, display(display)
+	, display(display_)
 	, phase(PHASE_YLOW2)
 {
 }
@@ -243,7 +243,7 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime time) noexcept
 				// zero, so different direction for positive and
 				// negative values. But we get smoother output
 				// with a uniform rounding direction.
-				float scale= SCALE;
+				float scale = SCALE;
 				if (const auto* output = display.getOutputSurface()) {
 					scale = output->getPhysicalSize().y / 240;
 				}
