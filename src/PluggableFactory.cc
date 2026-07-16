@@ -61,7 +61,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<ArkanoidPad>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(std::make_unique<Mouse>(
-		msxEventDistributor, stateChangeDistributor));
+		msxEventDistributor, stateChangeDistributor, display));
 	controller.registerPluggable(std::make_unique<Paddle>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(std::make_unique<Trackball>(

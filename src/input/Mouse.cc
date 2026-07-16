@@ -9,6 +9,9 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
+#include "Display.hh"
+#include "OutputSurface.hh"
+
 #include "Math.hh"
 #include "unreachable.hh"
 
@@ -19,7 +22,7 @@
 namespace openmsx {
 
 static constexpr int THRESHOLD = 2;
-static constexpr int SCALE = 2;
+static constexpr int SCALE = 2; // Magic number for old version archive, see StateChange.hh / serialize::serialize<MouseState>
 static constexpr int PHASE_XHIGH1 = 0;
 static constexpr int PHASE_XLOW1  = 1;
 static constexpr int PHASE_YHIGH1 = 2;
@@ -32,9 +35,11 @@ static constexpr int STROBE = 0x04;
 
 
 Mouse::Mouse(MSXEventDistributor& eventDistributor_,
-             StateChangeDistributor& stateChangeDistributor_)
+             StateChangeDistributor& stateChangeDistributor_,
+	         Display& display_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
+	, display(display_)
 	, phase(PHASE_YLOW2)
 {
 }
@@ -238,8 +243,12 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime time) noexcept
 				// zero, so different direction for positive and
 				// negative values. But we get smoother output
 				// with a uniform rounding direction.
-				auto qrX = Math::div_mod_floor(e.getX() + fractionalX, SCALE);
-				auto qrY = Math::div_mod_floor(e.getY() + fractionalY, SCALE);
+				float scale = SCALE;
+				if (const auto* output = display.getOutputSurface()) {
+					scale = output->getPhysicalSize().y / 240;
+				}
+				auto qrX = Math::div_mod_floor(e.getX() + fractionalX, scale);
+				auto qrY = Math::div_mod_floor(e.getY() + fractionalY, scale);
 				fractionalX = qrX.remainder;
 				fractionalY = qrY.remainder;
 

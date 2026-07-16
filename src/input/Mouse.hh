@@ -1,6 +1,7 @@
 #ifndef MOUSE_HH
 #define MOUSE_HH
 
+#include "Display.hh"
 #include "EmuTime.hh"
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
@@ -17,7 +18,8 @@ class Mouse final : public JoystickDevice, private MSXEventListener
 {
 public:
 	Mouse(MSXEventDistributor& eventDistributor,
-	      StateChangeDistributor& stateChangeDistributor);
+	      StateChangeDistributor& stateChangeDistributor,
+		  Display& display);
 	~Mouse() override;
 
 	template<typename Archive>
@@ -49,6 +51,8 @@ private:
 private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
+	Display& display;   // Display object, used to get the display resolution
+
 	EmuTime lastTime = EmuTime::zero();
 	int phase;
 	int xRel = 0, yRel = 0;               // latched X/Y values, these are returned to the MSX
