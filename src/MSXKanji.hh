@@ -48,6 +48,7 @@ private:
 	uint8_t portMask; // '1' if only level1 is present (level2 mirrors level1)
 	                  // '3' is both level1 and level2 are present
 };
+SERIALIZE_CLASS_VERSION(MSXKanji, 2);
 
 } // namespace openmsx
 
