@@ -3,6 +3,7 @@
 
 #include "JoystickDevice.hh"
 
+#include "AnalogInput.hh"
 #include "BooleanInput.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
@@ -19,7 +20,7 @@ class MSXEventDistributor;
 class StateChangeDistributor;
 
 class JoyHandle final : public JoystickDevice, private MSXEventListener
-                        , private StateChangeListener
+                      , private StateChangeListener
 {
 public:
 	JoyHandle(CommandController& commandController,
@@ -61,18 +62,20 @@ private:
 	JoystickManager& joystickManager;
 	StringSetting configSetting;
 
-	// up, down, left, right, a, b, wheel_left, wheel_right (in sync with order in JoystickDevice)
-	std::array<std::vector<BooleanInput>, 8> bindings; // calculated from 'configSetting'
+	// up, down, left, right, a, b, wheel (in sync with order in JoystickDevice)
+	std::array<std::vector<BooleanInput>, 6> bindings; // calculated from 'configSetting'
+	struct AnalogStatus {
+		AnalogInput binding;
+		int value = 0;
+	};
+	std::vector<AnalogStatus> wheelBindings;
 
 	const std::string description;
 	const uint8_t id;
 	uint8_t status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	                 JOY_BUTTONA | JOY_BUTTONB;
-	int8_t analogValue = 0;
+	int analogValue = 0;
 };
-
-[[nodiscard]] std::optional<int8_t> matchAnalog(const BooleanInput& binding, const Event& event,
-												function_ref<int(JoystickId)> getJoyDeadZone);
 
 } // namespace openmsx
 

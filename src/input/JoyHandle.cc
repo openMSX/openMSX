@@ -10,12 +10,13 @@
 #include "StateChangeDistributor.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "build-info.hh"
 
 #include "join.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
+#include <cstdlib>
 
 namespace openmsx {
 
@@ -30,14 +31,13 @@ TclObject JoyHandle::getDefaultConfig(JoystickId joyId, const JoystickManager& j
 		((b & 1) ? listB : listA).addListElement(tmpStrCat(joy, " button", b));
 	}
 	return TclObject(TclObject::MakeDictTag{},
-		"UP",          makeTclList(tmpStrCat(joy, " hat0 up")),
-		"DOWN",        makeTclList(tmpStrCat(joy, " hat0 down")),
-		"LEFT",        makeTclList(tmpStrCat(joy, " hat0 left")),
-		"RIGHT",       makeTclList(tmpStrCat(joy, " hat0 right")),
-		"A",           listA,
-		"B",           listB,
-		"WHEEL_LEFT",  makeTclList(tmpStrCat(joy, " -axis0")),
-		"WHEEL_RIGHT", makeTclList(tmpStrCat(joy, " +axis0")));
+		"UP",     makeTclList(tmpStrCat(joy, " hat0 up")),
+		"DOWN",   makeTclList(tmpStrCat(joy, " hat0 down")),
+		"LEFT",   makeTclList(tmpStrCat(joy, " hat0 left")),
+		"RIGHT",  makeTclList(tmpStrCat(joy, " hat0 right")),
+		"A",      listA,
+		"B",      listB,
+		"WHEEL",  makeTclList(tmpStrCat(joy, " axis0")));
 }
 
 JoyHandle::JoyHandle(CommandController& commandController_,
@@ -69,7 +69,8 @@ JoyHandle::~JoyHandle()
 
 void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 {
-	std::array<std::vector<BooleanInput>, 8> newBindings;
+	std::array<std::vector<BooleanInput>, 6> newBindings;
+	std::vector<AnalogStatus> newWheelBindings;
 
 	auto& interp = commandController.getInterpreter();
 	unsigned n = newValue.getListLength(interp);
@@ -79,7 +80,7 @@ void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 	for (unsigned i = 0; i < n; i += 2) {
 		static constexpr std::array<std::string_view, 8> keys = {
 			// order is important!
-			"UP", "DOWN", "LEFT", "RIGHT", "A", "B", "WHEEL_LEFT", "WHEEL_RIGHT"
+			"UP", "DOWN", "LEFT", "RIGHT", "A", "B", "WHEEL"
 		};
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
 		auto it = std::ranges::find(keys, key);
@@ -92,16 +93,25 @@ void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		for (auto j : xrange(value.getListLength(interp))) {
 			std::string_view val = value.getListIndex(interp, j).getString();
-			auto bind = parseBooleanInput(val);
-			if (!bind) {
-				throw CommandException("Invalid binding: ", val);
+			if (key == "WHEEL") {
+				auto bind = parseAnalogInput(val);
+				if (!bind) {
+					throw CommandException("Invalid binding: ", val);
+				}
+				newWheelBindings.emplace_back(*bind, 0);
+			} else {
+				auto bind = parseBooleanInput(val);
+				if (!bind) {
+					throw CommandException("Invalid binding: ", val);
+				}
+				newBindings[idx].push_back(*bind);
 			}
-			newBindings[idx].push_back(*bind);
 		}
 	}
 
 	// only change current bindings when parsing was fully successful
 	copy_to_range(newBindings, bindings);
+	wheelBindings = std::move(newWheelBindings);
 }
 
 // Pluggable
@@ -140,10 +150,11 @@ uint8_t JoyHandle::read(EmuTime time)
 	Clock<2> clock(EmuTime::zero()); // ticks at 2Hz
 	uint8_t cycle = clock.getTicksTill(time) & 1;
 
+	static constexpr int HALF = 20000; // TODO tune?
 	const uint8_t wheelStatus =
-			((analogValue < 0) && ((analogValue == -100) || (cycle == 1))) ? JOY_LEFT
-		  : ((analogValue > 0) && ((analogValue ==  100) || (cycle == 1))) ? JOY_RIGHT
-		  : 0;
+	    ((analogValue < 0) && ((analogValue < -HALF) || (cycle == 1))) ? JOY_LEFT
+	  : ((analogValue > 0) && ((analogValue >  HALF) || (cycle == 1))) ? JOY_RIGHT
+	  : 0;
 	return status & ~wheelStatus;
 }
 
@@ -156,13 +167,13 @@ void JoyHandle::write(uint8_t /*value*/, EmuTime /*time*/)
 void JoyHandle::signalMSXEvent(const Event& event,
                                EmuTime time) noexcept
 {
-	uint8_t press = 0;
-	uint8_t release = 0;
-
 	auto getJoyDeadZone = [&](JoystickId joyId) {
 		const auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
 		return setting ? setting->getInt() : 0;
 	};
+
+	uint8_t press = 0;
+	uint8_t release = 0;
 	for (int i : xrange(6)) {
 		for (const auto& binding : bindings[i]) {
 			if (auto onOff = match(binding, event, getJoyDeadZone)) {
@@ -171,56 +182,20 @@ void JoyHandle::signalMSXEvent(const Event& event,
 		}
 	}
 
-	for (int i = 6; i < 8; i++) {
-		for (const auto& binding : bindings[i]) {
-			if (auto value = matchAnalog(binding, event, getJoyDeadZone)) {
-				analogValue = *value;
-			}
+	int newAnalog = 0;
+	for (auto& [binding, value] : wheelBindings) {
+		if (auto v = match(binding, event, getJoyDeadZone)) {
+			value = *v;
+		}
+		if (std::abs(value) > std::abs(newAnalog)) {
+			newAnalog = value;
 		}
 	}
 
-	// TODO send analogValue to JoyHandleState
-
-	if (((status & ~press) | release) != status) {
+	if ((((status & ~press) | release) != status) || (newAnalog != analogValue)) {
 		stateChangeDistributor.distributeNew<JoyHandleState>(
-			time, id, press, release);
+			time, id, press, release, newAnalog);
 	}
-}
-
-std::optional<int8_t> matchAnalog(const BooleanInput& binding, const Event& event,
-                                  function_ref<int(JoystickId)> getJoyDeadZone)
-{
-	return std::visit(overloaded{
-		[&](const BooleanJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<int8_t> {
-			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
-			if (bind.getAxis() != e.getAxis()) return std::nullopt;
-			int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
-			int threshold = (deadZone * 32768) / 100; // 0..32768
-			/*
-			 * Modern gamepad saturate analog values halfway already,
-			 * so let's use a minimal upper dead zone (99%) for now
-			 * instead of mirroring the lower dead zone percentage
-			int halfwayZone = (100 - deadZone); // percentage 0..100
-			 */
-			int halfwayZone = 99;
-			int halfwayThreshold = (halfwayZone * 32768) / 100; // 0..32768
-			if (bind.getDirection() == BooleanJoystickAxis::Direction::POS) {
-				if (e.getValue() < 0) return std::nullopt;
-				return e.getValue() >  halfwayThreshold ? 100
-					 : e.getValue() >  threshold        ?  50
-					 									:   0;
-			} else {
-				if (e.getValue() > 0) return std::nullopt;
-				return e.getValue() < -halfwayThreshold ? -100
-					 : e.getValue() < -threshold        ?  -50
-					 									:    0;
-			}
-		},
-
-		[](const auto& /*bind*/, const auto& /*event*/) -> std::optional<int8_t> {
-			return std::nullopt;
-		}
-	}, binding, event);
 }
 
 // StateChangeListener
@@ -231,8 +206,7 @@ void JoyHandle::signalStateChange(const StateChange& event)
 	if (jhs->getId() != id) return;
 
 	status = (status & ~jhs->getPress()) | jhs->getRelease();
-
-	// TODO receive analogValue from JoyHandleState
+	analogValue = jhs->getAnalog();
 }
 
 void JoyHandle::stopReplay(EmuTime time) noexcept
@@ -241,7 +215,7 @@ void JoyHandle::stopReplay(EmuTime time) noexcept
 	if (newStatus != status) {
 		uint8_t release = newStatus & ~status;
 		stateChangeDistributor.distributeNew<JoyHandleState>(
-			time, id, uint8_t(0), release);
+			time, id, uint8_t(0), release, 0);
 	}
 }
 
@@ -250,7 +224,7 @@ template<typename Archive>
 void JoyHandle::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("status",      status,
-				 "analogValue", analogValue);
+	             "analogValue", analogValue);
 	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
 			plugHelper(*getConnector(), EmuTime::dummy());

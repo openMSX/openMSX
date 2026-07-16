@@ -1,6 +1,7 @@
 #ifndef IMGUI_SETTINGS_HH
 #define IMGUI_SETTINGS_HH
 
+#include "AnalogInput.hh"
 #include "FileListWidget.hh"
 #include "ImGuiPart.hh"
 #include "ImGuiUtils.hh"
@@ -58,6 +59,12 @@ private:
 	unsigned popupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;
+
+	struct AnalogStatus {
+		AnalogInput binding;
+		int value = 0;
+	};
+	std::vector<AnalogStatus> analogBindings;
 
 	int selectedStyle = -1; // no style loaded yet
 	std::string saveLayoutName;
