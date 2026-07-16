@@ -40,7 +40,7 @@ Every operation is one synchronous transaction:
    connection establishment, ICMP echo - return immediately and are polled
    with their own dedicated commands; see "Asynchronous operations".)
 3. The MSX reads the status register (port 0x28). `0x02` (`STATUS_DATA`)
-   means a result is waiting.
+   means the result is ready to be read.
 4. The MSX reads the result, one byte per IN, from port 0x29. Each read
    consumes one byte; reading past the end returns 0x00.
 
