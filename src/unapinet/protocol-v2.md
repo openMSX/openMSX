@@ -54,7 +54,7 @@ the device side is what this proposal adds):
 | 4    | ERR_INV_PARAM   | malformed parameter block (rule 3), empty hostname, a TCP_SEND length beyond `MAX_TRANSFER`, an undefined flag bit set, UDP_RECV with maxlen 0 |
 | 5    | ERR_QUERY_EXISTS| DNS_QUERY while a lookup is already running      |
 | 9    | ERR_NO_FREE_CONN| TCP_OPEN / UDP_OPEN with all handles in use      |
-| 11   | ERR_NO_CONN     | handle out of range (0 included, save the CLOSE commands' close-all form); or no open connection on it — except TCP_STATE / TCP_RECV, which answer for any in-range handle (see notes) |
+| 11   | ERR_NO_CONN     | handle out of range (0 included, save the close-all forms of TCP_CLOSE / UDP_CLOSE / TCP_ABORT); or no open connection on it — except TCP_STATE / TCP_RECV, which answer for any in-range handle (see notes) |
 | 12   | ERR_CONN_STATE  | a connection exists but its state forbids the command — including a TCP send whose socket write fails, which resets the connection and answers 12 |
 | 13   | ERR_BUFFER      | TCP_SEND with the 64 KiB send queue full (recoverable: retry later; nothing is partially queued) |
 
@@ -98,7 +98,8 @@ parameter/result), the synchronous transaction model, parameter
 accumulation, the parameter-buffer cap, opcode numbers (except 0x10,
 retired — below), parameter block layouts, handles (1-based, 1..4, TCP
 and UDP independent), `handle 0 = close all transient` in the CLOSE
-commands, MAX_TRANSFER/MAX_RECV_BUF/MAX_SEND_BUF, the graceful-close
+commands (v2 extends the same form to TCP_ABORT — see the handles
+notes), MAX_TRANSFER/MAX_RECV_BUF/MAX_SEND_BUF, the graceful-close
 semantics, and the receive-side backpressure. Byte order stays as it is:
 IPs as network-order octets, 16-bit quantities little-endian.
 
@@ -109,9 +110,10 @@ them over from the v1 document:
   gates each command on `status register == STATUS_DATA (2)`. In v2,
   past-end reads return `0xFF` (rule 4) and the register is a mirror; a
   v1-style `== 2` gate would misread success as "no result".
-* v1 ignores anything after DNS_QUERY's NUL terminator. v2 rejects it
-  (rule 3). This is the only change at the block-form level; no layout
-  moved. (Two *value* checks are also new — TCP_OPEN's undefined flag
+* v1's DNS_QUERY takes a NUL-terminated name (terminator effectively
+  optional, trailing bytes ignored). v2 drops the terminator entirely:
+  the parameter block *is* the hostname. This is the only change at the
+  block-form level; no other layout moved. (Two *value* checks are also new — TCP_OPEN's undefined flag
   bits and UDP_RECV's maxlen 0, both `{4}`: v1 ignored the former and
   destroyed a datagram on the latter.)
 
@@ -140,7 +142,9 @@ reads, and the magic bump v2 needs anyway.
 The driver accepts the device if and only if bytes 0-2 are exactly
 `00 55 02`. Bytes 3-4 are data, not part of the acceptance rule: a driver
 must tolerate unknown capability bits (and any value in byte 4), or it
-will reject future devices for advertising more.
+will reject future devices for advertising more. Byte 2 is the upgrade
+path: a hypothetical v3 reports 3 there, a v2 driver rejects it cleanly,
+and a v3 driver may accept both if v3 is a superset.
 
 Capabilities are honest and enforced: bit4 (ICMP) is set only when the
 host can actually ping — platform support compiled in *and* the ICMP
@@ -150,11 +154,15 @@ is clear, the ICMP commands answer `ERR_NOT_IMP`. Bits 0-3 are always set
 on this device today (byte 3 reads 0x0F or 0x1F); they are informational,
 and no command is gated on them.
 
-One corner is worth a recipe: if a previous program wrote parameter bytes
-and crashed before issuing any opcode, the first DETECT sees a stray
-block and answers `{4}` — but that failed command clears the buffer, so
-the driver simply issues DETECT once more. Detection is therefore:
-issue DETECT; on `{4}`, issue it again; apply the acceptance rule.
+One corner is worth a recipe: a crashed predecessor may have left stray
+parameter bytes buffered, and a strict DETECT would then answer `{4}` —
+yet DETECT is also the stream-resynchronization command, so it must work
+from any state. Wouter's resolution: keep DETECT strict, and have the
+driver issue it **twice unconditionally**, reading only the second
+reply. The first either succeeds and is abandoned (issuing a command
+discards a pending result — the recovery rule) or answers `{4}` and
+clears the stray block; either way the second DETECT runs on a clean
+buffer. No conditional on either side.
 
 Opcode 0x10 (QUERY_CAP) is retired and answers `ERR_NOT_IMP` like any
 other unknown opcode.
@@ -194,8 +202,12 @@ rule 3.
 ### Handles, slots, and what survives a close
 
 * Handles are 1..4. **Handle 0 is out of range** (`{11}`) everywhere
-  except TCP_CLOSE / UDP_CLOSE, where it means "close all transient" —
-  and succeeds (`{0}`) even when nothing is open.
+  except TCP_CLOSE, UDP_CLOSE and TCP_ABORT, where it means "close (or
+  abort) all transient" — and succeeds (`{0}`) even when nothing is
+  open. The ABORT form is new in v2: UNAPI defines it (TCPIP_TCP_ABORT,
+  B = 0), but v1 silently no-opped it — the device rejected handle 0 and
+  the driver never looked at the reply, so the caller got ERR_OK with
+  nothing aborted.
 * `ERR_NO_CONN` (11) means the handle is out of range — or, for the
   commands that act on a live connection (SEND, CLOSE, ABORT, and all of
   UDP), that no open connection sits on it. **TCP_STATE and TCP_RECV
@@ -235,7 +247,8 @@ rule 3.
   Buffered received data stays readable throughout (and after, per the
   sticky-slot rule). Closing a Listen handle is valid and frees it. A
   second CLOSE while the close is in progress is idempotent (`{0}`).
-  **TCP_ABORT** drops immediately (closeReason 3).
+  **TCP_ABORT** drops immediately (closeReason 3); handle 0 aborts
+  every transient connection, mirroring UNAPI's TCPIP_TCP_ABORT.
 * **TCP_OPEN**: the `timeout` field stays in the layout, is accepted with
   any value, and is ignored (reserved). Undefined flag bits (2-7) must be
   0; a set one answers `{4}`. Remote IP / port are not semantically
@@ -278,8 +291,11 @@ rule 3.
   well-formed ICMP_SEND cannot fail: `{0}` acknowledges queueing to the
   worker, not delivery — an unreachable destination simply never yields
   a reply.
-* Replies queue FIFO, at most 16 deep; when the queue is full new
-  replies are dropped. Each successful ICMP_RECV consumes exactly one.
+* Replies queue FIFO, at most 16 deep; when the queue is full the
+  **oldest** reply is dropped — a reply nobody polled for is worth less
+  than the fresh one the current program is waiting for (v1 dropped the
+  newest; that was code, not design). Each successful ICMP_RECV consumes
+  exactly one.
   The device does not correlate replies with requests — matching
   identifier/sequence is the driver's job.
 
@@ -298,15 +314,16 @@ rule 3.
 
 ## DNS
 
-`DNS_QUERY` — parameters: the hostname bytes followed by a NUL, which
-must be the last byte of the block; anything else answers `{4}`. The
+`DNS_QUERY` — parameters: the hostname itself. The whole parameter
+block is the name; there is no terminator (the block length already
+delimits it — v1's NUL was redundant, as Wouter noted). The
 device applies no syntax or charset rules to the hostname — beyond the
 dotted-quad fast path below, the bytes go to the host resolver as-is;
 the only upper length bound is the parameter-buffer cap. A block that
 parses as a strict dotted-quad (`a.b.c.d`, four decimal octets 0-255)
 resolves immediately → `{0, 1, ip4}`, and arms the sticky Complete state
 exactly as an asynchronous success does. Anything else starts the
-resolver thread → `{0, 0}`. An empty hostname (a lone NUL) answers `{4}`;
+resolver thread → `{0, 0}`. An empty hostname (an empty block) answers `{4}`;
 a lookup already running answers `{5}`; both leave the DNS state and any
 running lookup untouched.
 
