@@ -23,10 +23,7 @@
 namespace openmsx {
 
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
-static constexpr unsigned SECTORS_PER_DIR = 7;
 static constexpr unsigned NUM_FATS = 2;
-static constexpr unsigned NUM_TRACKS = 80;
-static constexpr unsigned SECTORS_PER_CLUSTER = 2;
 static constexpr unsigned SECTORS_PER_TRACK = 9;
 static constexpr unsigned FIRST_FAT_SECTOR = 1;
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR =
@@ -127,7 +124,7 @@ unsigned DirAsDSK::clusterToSector(unsigned cluster) const
 {
 	assert(cluster >= FIRST_CLUSTER);
 	assert(cluster < maxCluster);
-	return firstDataSector + SECTORS_PER_CLUSTER *
+	return firstDataSector + sectorsPerCluster *
 	            (cluster - FIRST_CLUSTER);
 }
 
@@ -136,8 +133,8 @@ std::pair<unsigned, unsigned> DirAsDSK::sectorToClusterOffset(unsigned sector) c
 	assert(sector >= firstDataSector);
 	assert(sector < nofSectors);
 	sector -= firstDataSector;
-	unsigned cluster = (sector / SECTORS_PER_CLUSTER) + FIRST_CLUSTER;
-	unsigned offset  = (sector % SECTORS_PER_CLUSTER) * SECTOR_SIZE;
+	unsigned cluster = (sector / sectorsPerCluster) + FIRST_CLUSTER;
+	unsigned offset  = (sector % sectorsPerCluster) * SECTOR_SIZE;
 	return {cluster, offset};
 }
 unsigned DirAsDSK::sectorToCluster(unsigned sector) const
@@ -168,7 +165,7 @@ unsigned DirAsDSK::nextMsxDirSector(unsigned sector)
 	} else {
 		// Subdirectory.
 		auto [cluster, offset] = sectorToClusterOffset(sector);
-		if (offset < ((SECTORS_PER_CLUSTER - 1) * SECTOR_SIZE)) {
+		if (offset < ((sectorsPerCluster - 1) * SECTOR_SIZE)) {
 			// Next sector still in same cluster.
 			return sector + 1;
 		}
@@ -265,6 +262,25 @@ static std::string msxToHostName(std::span<const char, 11> msxName)
 }
 
 
+// Select one of the standard 9-sectors/track MSX disk formats based on the
+// drive's physical track-count and number of sides. The chosen media
+// descriptor and layout must match what the drive's disk ROM expects, e.g. a
+// single-sided 40-track 5.25" drive (Talent DPF-550) only accepts 0xFC (180kB).
+//   tracks  sides  media  spCluster  dirSectors  size
+//     80      2     0xF9      2           7       720kB
+//     80      1     0xF8      2           7       360kB
+//     40      2     0xFD      2           7       360kB
+//     40      1     0xFC      1           4       180kB
+DirAsDSK::DiskFormat DirAsDSK::getDiskFormat(unsigned numTracks, bool doubleSided)
+{
+	if (numTracks == 40) {
+		return doubleSided ? DiskFormat{0xFD, 2, 7}
+		                   : DiskFormat{0xFC, 1, 4};
+	}
+	return doubleSided ? DiskFormat{0xF9, 2, 7}
+	                   : DiskFormat{0xF8, 2, 7};
+}
+
 DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
                    const Filename& hostDir_, SyncMode syncMode_,
                    BootSectorType bootSectorType)
@@ -273,12 +289,15 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	, cliComm(cliComm_)
 	, hostDir(FileOperations::expandTilde(hostDir_.getResolved() + '/'))
 	, syncMode(syncMode_)
-	, nofSectors((diskChanger_.isDoubleSidedDrive() ? 2 : 1) * SECTORS_PER_TRACK * NUM_TRACKS)
-	, nofSectorsPerFat(narrow<unsigned>((((3 * nofSectors) / (2 * SECTORS_PER_CLUSTER)) + SECTOR_SIZE - 1) / SECTOR_SIZE))
+	, diskFormat(getDiskFormat(diskChanger_.getNbTracks(), diskChanger_.isDoubleSidedDrive()))
+	, sectorsPerCluster(diskFormat.sectorsPerCluster)
+	, sectorsPerDir(diskFormat.sectorsPerDir)
+	, nofSectors((diskChanger_.isDoubleSidedDrive() ? 2 : 1) * SECTORS_PER_TRACK * diskChanger_.getNbTracks())
+	, nofSectorsPerFat(narrow<unsigned>((((3 * nofSectors) / (2 * sectorsPerCluster)) + SECTOR_SIZE - 1) / SECTOR_SIZE))
 	, firstSector2ndFAT(FIRST_FAT_SECTOR + nofSectorsPerFat)
 	, firstDirSector(FIRST_FAT_SECTOR + NUM_FATS * nofSectorsPerFat)
-	, firstDataSector(firstDirSector + SECTORS_PER_DIR)
-	, maxCluster((nofSectors - firstDataSector) / SECTORS_PER_CLUSTER + FIRST_CLUSTER)
+	, firstDataSector(firstDirSector + sectorsPerDir)
+	, maxCluster((nofSectors - firstDataSector) / sectorsPerCluster + FIRST_CLUSTER)
 	, sectors(nofSectors)
 {
 	if (!FileOperations::isDirectory(hostDir)) {
@@ -296,16 +315,16 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	std::ranges::fill(std::span{sectors[0].raw.data(), sizeof(SectorBuffer) * nofSectors}, 0xE5);
 
 	// Use selected boot sector, fill-in values.
-	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
+	uint8_t mediaDescriptor = diskFormat.mediaDescriptor;
 	const auto& protoBootSector = bootSectorType == BootSectorType::DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
 	sectors[0] = protoBootSector;
 	auto& bootSector = sectors[0].bootSector;
 	bootSector.bpSector     = SECTOR_SIZE;
-	bootSector.spCluster    = SECTORS_PER_CLUSTER;
+	bootSector.spCluster    = sectorsPerCluster;
 	bootSector.nrFats       = NUM_FATS;
-	bootSector.dirEntries   = SECTORS_PER_DIR * (SECTOR_SIZE / sizeof(MSXDirEntry));
+	bootSector.dirEntries   = sectorsPerDir * (SECTOR_SIZE / sizeof(MSXDirEntry));
 	bootSector.nrSectors    = narrow_cast<uint16_t>(nofSectors);
 	bootSector.descriptor   = mediaDescriptor;
 	bootSector.sectorsFat   = narrow_cast<uint16_t>(nofSectorsPerFat);
@@ -327,7 +346,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	init(fat2());
 
 	// Assign empty directory entries.
-	std::ranges::fill(std::span{sectors[firstDirSector].raw.data(), SECTOR_SIZE * SECTORS_PER_DIR}, 0);
+	std::ranges::fill(std::span{sectors[firstDirSector].raw.data(), SECTOR_SIZE * sectorsPerDir}, 0);
 
 	// No host files are mapped to this disk yet.
 	assert(mapDirs.empty());
@@ -594,7 +613,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 
 		while (remainingSize && (curCl < maxCluster)) {
 			unsigned logicalSector = clusterToSector(curCl);
-			for (auto i : xrange(SECTORS_PER_CLUSTER)) {
+			for (auto i : xrange(sectorsPerCluster)) {
 				unsigned sector = logicalSector + i;
 				assert(sector < nofSectors);
 				auto* buf = &sectors[sector];
@@ -770,7 +789,7 @@ void DirAsDSK::addNewDirectory(const std::string& hostSubDir, const std::string&
 		// Initialize the new directory.
 		newMsxDirSector = clusterToSector(cluster);
 		std::ranges::fill(std::span{sectors[newMsxDirSector].raw.data(),
-		                       SECTORS_PER_CLUSTER * SECTOR_SIZE},
+		                       sectorsPerCluster * SECTOR_SIZE},
 			     0);
 		DirIndex idx0(newMsxDirSector, 0); // entry for "."
 		DirIndex idx1(newMsxDirSector, 1); //           ".."
@@ -893,7 +912,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	unsigned cluster = sectorToCluster(msxDirSector);
 	unsigned newCluster = getFreeCluster(); // throws if disk full
 	unsigned sector = clusterToSector(newCluster);
-	std::ranges::fill(std::span{sectors[sector].raw.data(), SECTORS_PER_CLUSTER * SECTOR_SIZE}, 0);
+	std::ranges::fill(std::span{sectors[sector].raw.data(), sectorsPerCluster * SECTOR_SIZE}, 0);
 	writeFAT12(cluster, newCluster);
 	writeFAT12(newCluster, EOF_FAT);
 
@@ -1257,7 +1276,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const std::string& hostName)
 			visited[curCl] = true;
 
 			unsigned logicalSector = clusterToSector(curCl);
-			for (auto i : xrange(SECTORS_PER_CLUSTER)) {
+			for (auto i : xrange(sectorsPerCluster)) {
 				if (offset >= msxSize) break;
 				unsigned sector = logicalSector + i;
 				assert(sector < nofSectors);
@@ -1334,7 +1353,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	// Get first cluster in the FAT chain that contains this sector.
 	auto [cluster, offset] = sectorToClusterOffset(sector);
 	auto [startCluster, chainLength] = getChainStart(cluster);
-	offset += narrow<unsigned>((sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength);
+	offset += narrow<unsigned>((sizeof(buf) * sectorsPerCluster) * chainLength);
 
 	// Get corresponding directory entry.
 	auto entry = getDirEntryForCluster(startCluster);

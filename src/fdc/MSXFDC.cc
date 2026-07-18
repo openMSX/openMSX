@@ -32,6 +32,12 @@ MSXFDC::MSXFDC(DeviceConfig& config, const std::string& romId, bool needROM,
 	if ((0 > numDrives) || (numDrives >= 4)) {
 		throw MSXException("Invalid number of drives: ", numDrives);
 	}
+	// Number of tracks per side. Only used to select the dir-as-disk
+	// geometry: 80 -> 360kB/720kB (3.5"), 40 -> 180kB/360kB (5.25").
+	int numTracks = config.getChildDataAsInt("tracks", 80);
+	if ((numTracks != 40) && (numTracks != 80)) {
+		throw MSXException("Invalid number of tracks: ", numTracks);
+	}
 	unsigned timeout = config.getChildDataAsInt("motor_off_timeout_ms", 0);
 	const auto* styleEl = config.findChild("connectionstyle");
 	bool signalsNeedMotorOn = !styleEl || (styleEl->getData() == "Philips");
@@ -40,7 +46,7 @@ MSXFDC::MSXFDC(DeviceConfig& config, const std::string& romId, bool needROM,
 	for (/**/; i < numDrives; ++i) {
 		drives[i] = std::make_unique<RealDrive>(
 			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
-			!singleSided, trackMode);
+			!singleSided, narrow<unsigned>(numTracks), trackMode);
 	}
 	for (/**/; i < 4; ++i) {
 		drives[i] = std::make_unique<DummyDrive>();
