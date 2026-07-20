@@ -274,6 +274,28 @@ consteval size_t descriptorWireSize()
 	return descriptorWireSizeImpl<CoordT, Desc>(std::make_index_sequence<n>{});
 }
 
+// Initially `writeOne()` was a local lambda inside `packStrokeCollection()`.
+// Extracted to a standalone function to work around an MSVC compiler bug:
+// calling consteval functions inside local generic lambdas triggers false C7595 errors.
+template<typename CoordT, typename Desc, size_t N>
+consteval void writeOne(
+	ByteWriter& w, const Desc& desc, size_t& index,
+	const std::array<bool, N>& closed)
+{
+	if ((index % 8) == 0) {
+		uint8_t flags = 0;
+		for (size_t j = 0; j < 8 && (index + j) < N; ++j) {
+			if (closed[index + j]) {
+				flags |= uint8_t(1 << j);
+			}
+		}
+		w.put(flags);
+	}
+	auto bytes = packDescriptor<CoordT>(desc);
+	w.putBytes(std::span<const uint8_t>(bytes));
+	++index;
+}
+
 template<typename CoordT, typename... Desc>
 [[nodiscard]] consteval auto packStrokeCollection(Desc... desc)
 {
@@ -290,22 +312,10 @@ template<typename CoordT, typename... Desc>
 	ByteWriter w{std::span<uint8_t>{result.data(), result.size()}};
 	w.put(uint8_t(pathCount));
 
+	// Fold over the descriptors using a mutable tracking index passed by reference
+	//   Initially we wrote 'writeOne' as a local lambda function, but apparently msvc has known bugs
 	size_t index = 0;
-	auto writeOne = [&](auto item) {
-		if ((index % 8) == 0) {
-			uint8_t flags = 0;
-			for (size_t j = 0; j < 8 && (index + j) < pathCount; ++j) {
-				if (closed[index + j]) {
-					flags |= uint8_t(1 << j);
-				}
-			}
-			w.put(flags);
-		}
-		auto bytes = packDescriptor<CoordT>(item);
-		w.putBytes(std::span<const uint8_t>(bytes));
-		++index;
-	};
-	(writeOne(desc), ...);
+	(writeOne<CoordT>(w, desc, index, closed), ...);
 
 	if (w.size() != totalSize) {
 		throw "VectorPath DSL: stroke collection size mismatch";
