@@ -398,6 +398,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Tracer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AfterCommand.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\AnalogInput.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\BooleanInput.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\CliComm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\CliConnection.cc" />
@@ -992,6 +993,7 @@
     <None Include="$(OpenMSXSrcDir)\debugger\Tracer.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AfterCommand.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\AnalogInput.hh" />
     <None Include="$(OpenMSXSrcDir)\events\BooleanInput.hh" />
     <None Include="$(OpenMSXSrcDir)\events\CliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\CliConnection.hh" />
