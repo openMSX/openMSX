@@ -140,9 +140,9 @@ TEST_CASE("AnalogInput: match")
 	};
 
 	auto bMouseXaxis = parseAnalogInput("mouse X-axis");
-	check(bMouseXaxis, mouseCenter, {});
-	check(bMouseXaxis, mouseUp, {});
-	check(bMouseXaxis, mouseDown, {});
+	check(bMouseXaxis, mouseCenter, 0);
+	check(bMouseXaxis, mouseUp, 0);
+	check(bMouseXaxis, mouseDown, 0);
 	check(bMouseXaxis, mouseLeft, -9);
 	check(bMouseXaxis, mouseRight, 12);
 	check(bMouseXaxis, joyCenter, {});
@@ -152,11 +152,11 @@ TEST_CASE("AnalogInput: match")
 	check(bMouseXaxis, joyRight, {});
 
 	auto bMouseYaxis = parseAnalogInput("mouse Y-axis");
-	check(bMouseYaxis, mouseCenter, {});
+	check(bMouseYaxis, mouseCenter, 0);
 	check(bMouseYaxis, mouseUp, -15);
 	check(bMouseYaxis, mouseDown, 8);
-	check(bMouseYaxis, mouseLeft, {});
-	check(bMouseYaxis, mouseRight, {});
+	check(bMouseYaxis, mouseLeft, 0);
+	check(bMouseYaxis, mouseRight, 0);
 	check(bMouseYaxis, joyCenter, {});
 	check(bMouseYaxis, joyUp, {});
 	check(bMouseYaxis, joyDown, {});
@@ -169,7 +169,7 @@ TEST_CASE("AnalogInput: match")
 	check(bJoy1Axis1, mouseDown, {});
 	check(bJoy1Axis1, mouseLeft, {});
 	check(bJoy1Axis1, mouseRight, {});
-	check(bJoy1Axis1, joyCenter, {});
+	check(bJoy1Axis1, joyCenter, 0);
 	check(bJoy1Axis1, joyUp, {});
 	check(bJoy1Axis1, joyDown, {});
 	check(bJoy1Axis1, joyLeft, -30001);
