@@ -56,8 +56,12 @@ JoyHandle::JoyHandle(CommandController& commandController_,
 {
 	configSetting.setChecker([this](const TclObject& newValue) {
 		this->checkJoystickConfig(newValue); });
-	// fill in 'bindings'
-	checkJoystickConfig(configSetting.getValue());
+	try {
+		// fill in 'bindings'
+		checkJoystickConfig(configSetting.getValue());
+	} catch (MSXException& /*e*/) {
+		configSetting.setValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
+	}
 }
 
 JoyHandle::~JoyHandle()
