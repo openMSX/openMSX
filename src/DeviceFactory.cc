@@ -81,6 +81,7 @@
 #include "SensorKid.hh"
 #include "SpectravideoFDC.hh"
 #include "SunriseIDE.hh"
+#include "UnapiNet.hh"
 #include "TalentTDC600.hh"
 #include "ToshibaFDC.hh"
 #include "TurboRFDC.hh"
@@ -252,6 +253,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<BeerIDE>(conf);
 	} else if (type == "SunriseIDE") {
 		result = std::make_unique<SunriseIDE>(conf);
+	} else if (type == "UnapiNet") {
+		result = std::make_unique<UnapiNet>(conf);
 	} else if (type == "GoudaSCSI") {
 		result = std::make_unique<GoudaSCSI>(conf);
 	} else if (type == "MegaSCSI") {
