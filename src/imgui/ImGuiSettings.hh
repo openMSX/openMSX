@@ -56,7 +56,8 @@ private:
 	Shortcuts::ID editShortcutId = Shortcuts::ID::INVALID;
 
 	unsigned joystick = 0;
-	unsigned popupForKey = unsigned(-1);
+	unsigned addPopupForKey = unsigned(-1);
+	unsigned removePopupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;
 
