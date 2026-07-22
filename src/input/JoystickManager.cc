@@ -120,6 +120,14 @@ std::optional<unsigned> JoystickManager::getNumHats(JoystickId joyId) const
 	return SDL_JoystickNumHats(joystick);
 }
 
+std::optional<int16_t> JoystickManager::getAxis(JoystickId joyId, int axis) const
+{
+	unsigned id = joyId.raw();
+	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
+	if (!joystick) return {};
+	return SDL_JoystickGetAxis(joystick, axis);
+}
+
 std::optional<JoystickId> JoystickManager::translateSdlInstanceId(SDL_Event& evt) const
 {
 	int instanceId = evt.jbutton.which; // any SDL joystick event

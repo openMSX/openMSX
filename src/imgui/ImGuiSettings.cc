@@ -57,6 +57,7 @@
 #include <SDL.h>
 
 #include <algorithm>
+#include <functional>
 #include <optional>
 #include <utility>
 
@@ -1119,7 +1120,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow, i
 
 } // namespace joyhandle
 
-void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
+void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& joystickManager)
 {
 	ImGui::SetNextWindowSize(gl::vec2{316, 323}, ImGuiCond_FirstUseEver);
 	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
@@ -1132,7 +1133,6 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			}
 		});
 
-		const auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
 		const auto& controller = motherBoard.getMSXCommandController();
 		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
 		if (!setting) return;
@@ -1372,6 +1372,233 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				analogBindings.clear();
 			}
 		});
+		if (ImGui::Button("Mockup calibrate joystick axis")) showCalibrateJoystick = true;
+	});
+}
+
+static void verticalText(ImDrawList* drawList, gl::vec2 pos, ImU32 color, std::string_view text)
+{
+	auto vtxIdxStart = drawList->_VtxCurrentIdx;
+	drawList->AddText(pos, color, text.data(), text.data() + text.size());
+	auto vtxIdxEnd = drawList->_VtxCurrentIdx;
+
+	auto* verts = drawList->VtxBuffer.Data;
+	for (auto i = vtxIdxStart; i < vtxIdxEnd; ++i) {
+		auto offset = gl::vec2(verts[i].pos) - pos;
+		verts[i].pos = pos + gl::vec2{offset.y, -offset.x};
+	}
+}
+
+static float drawControlEdge(const char* id, gl::vec2 pos, float height, float dotY, float min, float max)
+{
+	ImGui::SetCursorScreenPos(pos - gl::vec2{2, 0});
+	ImGui::InvisibleButton(id, gl::vec2(5, height));
+	bool hovered = ImGui::IsItemHovered();
+	bool active = ImGui::IsItemActive();
+	auto current = pos.x;
+	if (active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+		current = std::clamp(current + ImGui::GetIO().MouseDelta.x, min, max);
+	}
+	if (hovered) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+	auto colSep    = ImGui::GetColorU32(ImGuiCol_Separator);
+	auto colActive = ImGui::GetColorU32(ImGuiCol_SeparatorActive);
+	auto colHover  = ImGui::GetColorU32(ImGuiCol_SeparatorHovered);
+	auto* drawList = ImGui::GetWindowDrawList();
+	auto color = active ? colActive : (hovered ? colHover : colSep);
+	drawList->AddLine(pos, pos + gl::vec2{0, height}, color, hovered ? 3.0f : 1.0f);
+	drawList->AddCircleFilled(pos + gl::vec2{0, dotY}, 10, color);
+	return current;
+}
+
+static void generateCurvePoints(
+	std::function<float(float)> func,
+	std::function<gl::vec2(gl::vec2)> transform,
+	float xStart, float xEnd,
+	std::vector<ImVec2>& points)
+{
+	auto evalScreen = [&](float x) { return transform(gl::vec2{x, func(x)}); };
+
+	std::function<void(float, gl::vec2, float, gl::vec2)> subDivide =
+		[&](float x0, gl::vec2 p0, float x1, gl::vec2 p1) {
+			float xm = (x0 + x1) * 0.5f;
+			auto pMidCurve = evalScreen(xm);
+			auto pMidLineY = (p0.y + p1.y) * 0.5f;
+			float dy = pMidCurve.y - pMidLineY;
+
+			if (std::abs(dy) > 2.0f) {
+				// too large error, subdivide further
+				subDivide(x0, p0, xm, pMidCurve); // left
+				subDivide(xm, pMidCurve, x1, p1); // right
+			} else {
+				// flat enough, stop recursion
+				points.emplace_back(pMidCurve);
+				points.emplace_back(p1);
+			}
+		};
+	auto pStart = evalScreen(xStart);
+	auto pEnd   = evalScreen(xEnd);
+	points.emplace_back(pStart);
+	subDivide(xStart, pStart, xEnd, pEnd);
+}
+
+void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
+{
+	static unsigned selectedJoystick = 0;
+	static unsigned selectedAxis = 0;
+	static float innerSetting  =  5000;
+	static float middleSetting = 25000;
+	static float outerSetting  = 30000;
+
+	auto inner  = innerSetting  * (1.0f / 32767);
+	auto middle = middleSetting * (1.0f / 32767);
+	auto outer  = outerSetting  * (1.0f / 32767);
+	auto f = std::log(0.5f) / std::log((middle - inner) / (outer - inner));
+
+	auto s = ImGui::GetFontSize();
+	ImGui::SetNextWindowSize(gl::vec2{32, 25} * s, ImGuiCond_FirstUseEver);
+	im::Window("[Mockup] Calibrate joysticks", &showCalibrateJoystick, [&]{
+		auto joysticks = joystickManager.getConnectedJoysticks();
+		bool disabled = joysticks.empty();
+		if (selectedJoystick >= joysticks.size()) selectedJoystick = 0;
+		auto numAxes = disabled ? 0 : joystickManager.getNumAxes(joysticks[selectedJoystick]).value_or(0);
+		if (selectedAxis > numAxes) selectedAxis = 0;
+		auto axisValue = disabled ? 0 : joystickManager.getAxis(joysticks[selectedJoystick], int(selectedAxis)).value_or(0);
+
+		im::Disabled(disabled, [&]{
+			im::Table("##table", 2, [&]{
+				ImGui::TableSetupColumn("joystick", ImGuiTableColumnFlags_WidthFixed, 18.0f * s);
+				ImGui::TableSetupColumn("values");
+				if (ImGui::TableNextColumn()) {
+					auto selectedName = disabled
+					                  ? "none available"
+					                  : joystickManager.getDisplayName(joysticks[selectedJoystick]);
+					im::Combo("Joystick", selectedName.c_str(), [&]{
+						for (auto i : xrange(joysticks.size())) {
+							auto name = joystickManager.getDisplayName(joysticks[selectedJoystick]);
+							if (ImGui::Selectable(name.c_str()), selectedJoystick == i) {
+								selectedJoystick = unsigned(i);
+							}
+						}
+					});
+					im::Indent([&]{
+						auto axisName = [](unsigned i) {
+							return i == unsigned(-1) ? "ALL" : strCat(i);
+						};
+						im::Combo("Axis", axisName(selectedAxis).c_str(), [&]{
+							if (ImGui::Selectable("ALL", selectedAxis == unsigned(-1))) {
+								selectedAxis = unsigned(-1);
+							}
+							for (auto i : xrange(numAxes)) {
+								if (ImGui::Selectable(tmpStrCat(i).c_str(), selectedAxis == i)) {
+									selectedAxis = i;
+								}
+							}
+						});
+					});
+				}
+				if (ImGui::TableNextColumn()) {
+					ImGui::SetNextItemWidth(4.0f * s);
+					if (ImGui::InputFloat("inner dead zone", &innerSetting, {}, {}, "%.0f")) {
+						innerSetting = std::clamp(innerSetting, 0.0f, middleSetting - 1.0f);
+					}
+					ImGui::SetNextItemWidth(4.0f * s);
+					if (ImGui::InputFloat("halfway value", &middleSetting, {}, {}, "%.0f")) {
+						middleSetting = std::clamp(middleSetting, innerSetting + 1.0f, outerSetting - 1.0f);
+					}
+					ImGui::SetNextItemWidth(4.0f * s);
+					if (ImGui::InputFloat("outer dead zone", &outerSetting, {}, {}, "%.0f")) {
+						outerSetting = std::clamp(outerSetting, middleSetting + 1.0f, 32767.0f);
+					}
+				}
+			});
+		});
+
+		//auto mouse = ImGui::GetIO().MousePos;
+		gl::vec2 pos = ImGui::GetCursorScreenPos();
+		gl::vec2 size = ImGui::GetContentRegionAvail();
+		auto* drawList = ImGui::GetWindowDrawList();
+		auto white = getColor(imColor::TEXT);
+		auto gray  = getColor(imColor::TEXT_DISABLED);
+		auto red   = getColor(imColor::ERROR);
+
+		std::string_view xLabel = "raw input";
+		std::string_view yLabel = "output";
+		auto xTextSize = ImGui::CalcTextSize(xLabel);
+		auto yTextSize = ImGui::CalcTextSize(yLabel);
+		auto unit = xTextSize.y * 0.5f;
+		auto origin = pos + gl::vec2{3 * unit, size.y - 3 * unit};
+		drawList->AddText(pos + gl::vec2{(size.x - xTextSize.x) * 0.5f, size.y - xTextSize.y}, white, xLabel.data(), xLabel.data() + xLabel.size());
+		verticalText(drawList, pos + gl::vec2{0, (size.y + yTextSize.x) * 0.5f}, white, yLabel);
+
+		auto arrowRight = gl::vec2{pos.x + size.x, origin.y};
+		auto arrowTop = gl::vec2{origin.x, pos.y};
+
+		auto graphMin = origin.x + 4 * unit;
+		auto graphMax = arrowRight.x - 4 * unit;
+		auto fullWidth = graphMax - graphMin;
+
+		auto graphLeft  = graphMin + inner  * fullWidth;
+		auto graphMidX  = graphMin + middle * fullWidth;
+		auto graphRight = graphMin + outer  * fullWidth;
+
+		auto graphTop = arrowTop.y + 2 * unit;
+		auto graphBottom = origin.y;
+		auto graphMidY = (graphTop + graphBottom) * 0.5f;
+		auto graphWidth = graphRight - graphLeft;
+		auto graphHeight = graphBottom - graphTop;
+
+		drawList->AddLine({origin.x, graphTop}, {arrowRight.x, graphTop}, gray);
+		drawList->AddLine({origin.x, graphMidY}, {arrowRight.x, graphMidY}, gray);
+		drawList->AddLine({graphMin, origin.y}, {graphMin, origin.y + unit}, gray);
+		drawList->AddLine({graphMax, origin.y}, {graphMax, origin.y + unit}, gray);
+
+		auto newLeft  = drawControlEdge("##inner",  {graphLeft,  graphTop}, graphHeight, graphHeight,        graphMin, graphMidX - 1);
+		auto newMid   = drawControlEdge("##middle", {graphMidX,  graphTop}, graphHeight, graphHeight * 0.5f, graphLeft + 1, graphRight - 1);
+		auto newRight = drawControlEdge("##outer",  {graphRight, graphTop}, graphHeight, 0,                  graphMidX + 1, graphMax);
+		if (newLeft != graphLeft) {
+			auto old = innerSetting;
+			innerSetting  = std::clamp(((newLeft - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
+			middleSetting = outerSetting - ((outerSetting - middleSetting) * (outerSetting - innerSetting) / (outerSetting - old));
+		}
+		if (newMid != graphMidX) {
+			middleSetting = std::clamp(((newMid  - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
+		}
+		if (newRight != graphRight) {
+			auto old = outerSetting;
+			outerSetting  = std::clamp(((newRight - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
+			middleSetting = innerSetting + ((middleSetting - innerSetting) * (outerSetting - innerSetting) / (old - innerSetting));
+		}
+
+		drawList->AddLine(arrowRight, origin - unit * gl::vec2{2, 0}, white, 2.0f);
+		drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1, -1}, white, 2.0f);
+		drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1,  1}, white, 2.0f);
+
+		drawList->AddLine(arrowTop, origin + unit * gl::vec2{0, 2}, white, 2.0f);
+		drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{-1, 1}, white, 2.0f);
+		drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{ 1, 1}, white, 2.0f);
+
+		//static constexpr int subDiv = 40;
+		std::vector<ImVec2> points;
+		points.reserve(40);
+		points.emplace_back(origin);
+		generateCurvePoints(
+			[&](float x) { return std::pow(x, f); },
+			[&](gl::vec2 p) { return p * gl::vec2{graphWidth, -graphHeight} + gl::vec2{graphLeft, origin.y}; },
+			0.0f, 1.0f, points);
+		points.emplace_back(arrowRight.x, graphTop);
+		std::cerr << "points=" << points.size() << '\n';
+		drawList->AddPolyline(points.data(), points.size(), white, 4.0f);
+
+		auto input = float(axisValue) / 32768.0f; //std::clamp((mouse.x - graphMin) / fullWidth, 0.0f, 1.0f);
+		auto output = pow(std::clamp((input - inner) / (outer - inner), 0.0f, 1.0f), f);
+		auto cross = gl::vec2{graphMin + input * fullWidth, origin.y - output * graphHeight};
+		drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1, -1}, red, 2.0f);
+		drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1,  1}, red, 2.0f);
+		drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{-1, -1}, red, 2.0f);
+		drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{ 1, -1}, red, 2.0f);
+		drawList->AddLine(cross + unit * gl::vec2{-1, -1}, cross + unit * gl::vec2{1,  1}, red, 2.0f);
+		drawList->AddLine(cross + unit * gl::vec2{-1,  1}, cross + unit * gl::vec2{1, -1}, red, 2.0f);
 	});
 }
 
@@ -1571,7 +1798,9 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 		selectedStyle = 0; // dark (also the default (recommended) Dear ImGui style)
 		setStyle();
 	}
-	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
+	auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
+	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard, joystickManager);
+	if (showCalibrateJoystick) paintCalibrate(joystickManager);
 	if (showFont) paintFont();
 	if (showShortcut) paintShortcut();
 }
