@@ -4,8 +4,6 @@
 #include "VideoSystem.hh"
 #include "gl_vec.hh"
 
-#include "EventListener.hh"
-
 #include "Observer.hh"
 
 #include "components.hh"
@@ -15,13 +13,15 @@
 namespace openmsx {
 
 class Display;
+class GLSnow;
 class Layer;
+class OSDGUILayer;
 class Reactor;
 class RenderSettings;
 class Setting;
 class VisibleSurface;
 
-class SDLVideoSystem final : public VideoSystem, private EventListener
+class SDLVideoSystem final : public VideoSystem
                            , private Observer<Setting>
 {
 public:
@@ -46,18 +46,15 @@ public:
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() override;
-	[[nodiscard]] OutputSurface* getOutputSurface() override;
+	[[nodiscard]] VisibleSurface* getSurface() override;
 	void showCursor(bool show) override;
 	[[nodiscard]] bool getCursorEnabled() override;
 	[[nodiscard]] std::string getClipboardText() override;
 	void setClipboardText(zstring_view text) override;
 	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() override;
 	void setWindowPosition(gl::ivec2 pos) override;
-	void repaint() override;
 
 private:
-	// EventListener
-	bool signalEvent(const Event& event) override;
 	// Observer
 	void update(const Setting& subject) noexcept override;
 
@@ -66,10 +63,8 @@ private:
 	Display& display;
 	RenderSettings& renderSettings;
 	std::unique_ptr<VisibleSurface> screen;
-	std::unique_ptr<Layer> snowLayer;
-	std::unique_ptr<Layer> iconLayer;
-	std::unique_ptr<Layer> osdGuiLayer;
-	std::unique_ptr<Layer> imGuiLayer;
+	std::unique_ptr<GLSnow> snowLayer;
+	std::unique_ptr<OSDGUILayer> osdGuiLayer;
 };
 
 } // namespace openmsx

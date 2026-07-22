@@ -109,7 +109,7 @@ void Video9000::postVideoSystemChange() noexcept
 	// new v99x8/v9990 layer may not be created yet.
 }
 
-void Video9000::paint(OutputSurface& output)
+void Video9000::paint(const OutputDimensions& output)
 {
 	if (!activeLayer) {
 		recalculate();
@@ -155,7 +155,6 @@ bool Video9000::signalEvent(const Event& event)
 
 void Video9000::update(const Setting& setting) noexcept
 {
-	VideoLayer::update(setting);
 	if (&setting == &videoSourceSetting) {
 		recalculateVideoSource();
 	}

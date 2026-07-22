@@ -6,7 +6,7 @@
 #include "VideoLayer.hh"
 
 #include "EmuTime.hh"
-#include "Schedulable.hh"
+#include "Observer.hh"
 
 #include <array>
 #include <memory>
@@ -20,28 +20,30 @@ class Deflicker;
 class DeinterlacedFrame;
 class Display;
 class DoubledFrame;
-class EventDistributor;
 class FrameSource;
 class GLScaler;
 class MSXMotherBoard;
+class OutputDimensions;
 class RawFrame;
 class RenderSettings;
+class Setting;
 class SuperImposedFrame;
+class VisibleSurface;
 
 /** A post processor builds the frame that is displayed from the MSX frame,
   * while applying effects such as scalers, noise etc.
   */
-class PostProcessor final : public VideoLayer, private Schedulable
+class PostProcessor final : public VideoLayer, private Observer<Setting>
 {
 public:
 	PostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
-		OutputSurface& screen, const std::string& videoSource,
+		VisibleSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
-	~PostProcessor() override;
+	~PostProcessor();
 
 	// Layer interface:
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output) override;
 
 	/** Sets up the "abcdFrame" variables for a new frame.
 	  * TODO: The point of passing the finished frame in and the new workFrame
@@ -108,18 +110,14 @@ private:
 	// Observer<Setting> interface:
 	void update(const Setting& setting) noexcept override;
 
-	// Schedulable
-	void executeUntil(EmuTime time) override;
-
-	/** Returns the maximum width for lines [y..y+step).
-	  */
-	[[nodiscard]] static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
-
 	void initBuffers();
 	void createRegions();
 	void uploadFrame();
 	void uploadBlock(unsigned srcStartY, unsigned srcEndY,
 	                 unsigned lineWidth);
+
+	void initAreaScaler();
+	void rescaleArea(gl::ivec2 srcSize, gl::ivec2 dstSize);
 
 	void preCalcNoise(float factor);
 	void drawNoise() const;
@@ -131,10 +129,9 @@ private:
 private:
 	Display& display;
 	RenderSettings& renderSettings;
-	EventDistributor& eventDistributor;
 
 	/** The surface which is visible to the user. */
-	OutputSurface& screen;
+	VisibleSurface& screen;
 
 	/** The last 4 fully rendered (unscaled) MSX frames. */
 	std::array<std::unique_ptr<RawFrame>, 4> lastFrames;
@@ -165,7 +162,6 @@ private:
 	const RawFrame* superImposeVideoFrame = nullptr;
 	const FrameSource* superImposeVdpFrame = nullptr;
 
-	int interleaveCount = 0; // for interleave-black-frame
 	int lastFramesCount = 0; // How many items in lastFrames[] are up-to-date
 	unsigned maxWidth; // we lazily create RawFrame objects in lastFrames[]
 	unsigned height;   // these two vars remember how big those should be
@@ -176,7 +172,6 @@ private:
 	  */
 	const bool canDoInterlace;
 
-	EmuTime lastRotate;
 	/** The currently active scaler.
 	  */
 	std::unique_ptr<GLScaler> currScaler;
@@ -187,6 +182,21 @@ private:
 		gl::FrameBufferObject fbo;
 	};
 	std::array<StoredFrame, 2> renderedFrames;
+
+	// area rescaler
+	struct Area {
+		StoredFrame frame;
+		gl::ShaderProgram program;
+		GLint unifMvpMatrix;
+		GLint unifTexelCount;
+		GLint unifPixelCount;
+		GLint unifTexelSize;
+		GLint unifPixelSize;
+		GLint unifHalfTexelSize;
+		GLint unifHalfPixelSize;
+		gl::BufferObject posBuffer;
+		gl::BufferObject texBuffer;
+	} area;
 
 	// Noise effect:
 	gl::Texture noiseTextureA{true, true}; // interpolate + wrap
@@ -203,22 +213,13 @@ private:
 	gl::ColorTexture superImposeTex;
 
 	struct Region {
-		Region(unsigned srcStartY_, unsigned srcEndY_,
-		       unsigned dstStartY_, unsigned dstEndY_,
-		       unsigned lineWidth_)
-			: srcStartY(srcStartY_)
-			, srcEndY(srcEndY_)
-			, dstStartY(dstStartY_)
-			, dstEndY(dstEndY_)
-			, lineWidth(lineWidth_) {}
+		Region(unsigned srcStartY_, unsigned srcEndY_, unsigned lineWidth_)
+			: srcStartY(srcStartY_), srcEndY(srcEndY_), lineWidth(lineWidth_) {}
 		unsigned srcStartY;
 		unsigned srcEndY;
-		unsigned dstStartY;
-		unsigned dstEndY;
 		unsigned lineWidth;
 	};
 	std::vector<Region> regions;
-	unsigned regionsDstHeight = 0; // 'regions' were calculated for this output height (relevant when changing scale_factor when paused)
 
 	unsigned frameCounter = 0;
 

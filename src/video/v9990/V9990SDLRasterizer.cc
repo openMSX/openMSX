@@ -3,7 +3,7 @@
 #include "V9990.hh"
 
 #include "Display.hh"
-#include "OutputSurface.hh"
+#include "PixelOperations.hh"
 #include "PostProcessor.hh"
 #include "RawFrame.hh"
 #include "RenderSettings.hh"
@@ -21,10 +21,9 @@
 namespace openmsx {
 
 V9990SDLRasterizer::V9990SDLRasterizer(
-		V9990& vdp_, Display& display, OutputSurface& screen_,
+		V9990& vdp_, Display& display,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, screen(screen_)
 	, workFrame(std::make_unique<RawFrame>(1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, postProcessor(std::move(postProcessor_))
@@ -269,6 +268,7 @@ void V9990SDLRasterizer::drawBxMode(
 
 void V9990SDLRasterizer::preCalcPalettes()
 {
+	PixelOperations pixelOp;
 	// the 32768 color palette
 	if (renderSettings.isColorMatrixIdentity()) {
 		// Most users use the "normal" monitor type; making this a
@@ -278,7 +278,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 			r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 31.0f)));
 		}
 		for (auto [grb, col] : enumerate(palette32768)) {
-			col = screen.mapRGB255(gl::ivec3(
+			col = pixelOp.mapRGB255(gl::ivec3(
 				intensity[(grb >>  5) & 31],
 				intensity[(grb >> 10) & 31],
 				intensity[(grb >>  0) & 31]));
@@ -291,7 +291,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 					             narrow<float>(g),
 					             narrow<float>(b)};
 					palette32768[(g << 10) + (r << 5) + b] = Pixel(
-						screen.mapRGB(renderSettings.transformRGB(rgb * (1.0f / 31.0f))));
+						pixelOp.mapRGB(renderSettings.transformRGB(rgb * (1.0f / 31.0f))));
 				}
 			}
 		}
@@ -318,7 +318,7 @@ void V9990SDLRasterizer::setPalette(int index, uint8_t r, uint8_t g, uint8_t b, 
 {
 	auto idx32768 = ((g & 31) << 10) | ((r & 31) << 5) | ((b & 31) << 0);
 	palette64_32768[index & 63] = narrow<int16_t>(idx32768); // TODO what with ys?
-	palette64[index & 63] = ys ? screen.getKeyColor()
+	palette64[index & 63] = ys ? 0u // transparent (alpha = 0)
 	                           : palette32768[idx32768];
 }
 
@@ -329,7 +329,7 @@ void V9990SDLRasterizer::resetPalette()
 		auto [r, g, b, ys] = vdp.getPalette(i);
 		setPalette(i, r, g, b, ys);
 	}
-	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor()
+	palette256[0] = vdp.isSuperimposing() ? 0u // transparent (alpha = 0)
 	                                      : palette32768[0];
 	// TODO what with palette256_32768[0]?
 }

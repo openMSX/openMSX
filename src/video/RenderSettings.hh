@@ -41,6 +41,9 @@ public:
 		SIMPLE, SCALE, HQ, RGBTRIPLET, TV,
 		NO
 	};
+	enum class ScaleMode : uint8_t {
+		INTEGER, FLOAT
+	};
 
 	enum class DisplayDeform : uint8_t {
 		NORMAL, _3D
@@ -126,10 +129,20 @@ public:
 	[[nodiscard]] ScaleAlgorithm getScaleAlgorithm() const {
 		return scaleAlgorithmSetting.getEnum();
 	}
+	[[nodiscard]] auto& getScaleModeSetting() { return scaleModeSetting; }
+	[[nodiscard]] ScaleMode getScaleMode() const {
+		return scaleModeSetting.getEnum();
+	}
 
 	/** The current scaling factor. */
-	[[nodiscard]] IntegerSetting& getScaleFactorSetting() { return scaleFactorSetting; }
-	[[nodiscard]] int getScaleFactor() const { return scaleFactorSetting.getInt(); }
+	[[nodiscard]] auto& getScaleFactorSetting() { return scaleFactorSetting; }
+	[[nodiscard]] auto getScaleFactor() const {
+		auto f = scaleFactorSetting.getFloat();
+		if (scaleModeSetting.getEnum() == ScaleMode::INTEGER) {
+			f = std::floor(f);
+		}
+		return f;
+	}
 
 	/** Limit number of sprites per line?
 	  * If true, limit number of sprites per line as real VDP does.
@@ -182,11 +195,6 @@ public:
 		return pointerHideDelaySetting.getFloat();
 	}
 
-	/** Is black frame interleaving enabled? */
-	[[nodiscard]] bool getInterleaveBlackFrame() const {
-		return interleaveBlackFrameSetting.getBoolean();
-	}
-
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color component. The component is expected to be in the range
 	  * [0.0 .. 1.0] but it's not an error if it lays outside of this range.
@@ -205,9 +213,6 @@ public:
 	[[nodiscard]] gl::vec3 transformRGB(gl::vec3 rgb) const;
 
 private:
-	[[nodiscard]] static EnumSetting<ScaleAlgorithm>::Map getScalerMap();
-	[[nodiscard]] static EnumSetting<RendererID>::Map getRendererMap();
-
 	// Observer:
 	void update(const Setting& setting) noexcept override;
 
@@ -234,7 +239,8 @@ private:
 	RendererSetting rendererSetting;
 	IntegerSetting horizontalBlurSetting;
 	EnumSetting<ScaleAlgorithm> scaleAlgorithmSetting;
-	IntegerSetting scaleFactorSetting;
+	EnumSetting<ScaleMode> scaleModeSetting;
+	FloatSetting scaleFactorSetting;
 	IntegerSetting scanlineAlphaSetting;
 	BooleanSetting limitSpritesSetting;
 	BooleanSetting disableSpritesSetting;
@@ -245,7 +251,6 @@ private:
 	BooleanSetting fullStretchSetting;
 	FloatSetting horizontalStretchSetting;
 	FloatSetting pointerHideDelaySetting;
-	BooleanSetting interleaveBlackFrameSetting;
 
 	float brightness;
 	float contrast;

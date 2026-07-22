@@ -26,11 +26,6 @@ OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 {
 }
 
-void OSDGUI::refresh() const
-{
-	getDisplay().repaintDelayed(40000); // 25 fps
-}
-
 
 // class OSDCommand
 
@@ -73,15 +68,11 @@ void OSDGUI::OSDCommand::create(std::span<const TclObject> tokens, TclObject& re
 	}
 
 	auto widget = create(type, fullname);
-	const auto* widget2 = widget.get();
 	configure(*widget, tokens.subspan(4));
 	top.addName(*widget);
 	parent->addWidget(std::move(widget));
 
 	result = fullname;
-	if (widget2->isVisible()) {
-		gui.refresh();
-	}
 }
 
 std::unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
@@ -118,9 +109,6 @@ void OSDGUI::OSDCommand::destroy(std::span<const TclObject> tokens, TclObject& r
 		throw CommandException("Can't destroy the top widget.");
 	}
 
-	if (widget->isVisible()) {
-		gui.refresh();
-	}
 	top.removeName(*widget);
 	parent->deleteWidget(*widget);
 	result = true;
@@ -164,10 +152,6 @@ void OSDGUI::OSDCommand::configure(std::span<const TclObject> tokens, TclObject&
 	checkNumArgs(tokens, AtLeast{3}, "name ?property value ...?");
 	auto& widget = getWidget(tokens[2].getString());
 	configure(widget, tokens.subspan(3));
-	if (widget.isVisible()) {
-		const auto& gui = OUTER(OSDGUI, osdCommand);
-		gui.refresh();
-	}
 }
 
 void OSDGUI::OSDCommand::configure(OSDWidget& widget, std::span<const TclObject> tokens) const

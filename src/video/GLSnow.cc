@@ -13,10 +13,8 @@ using namespace gl;
 
 namespace openmsx {
 
-GLSnow::GLSnow(Display& display_)
-	: Layer(Coverage::FULL, ZIndex::BACKGROUND)
-	, display(display_)
-	, noiseTexture(true, true) // enable interpolation + wrapping
+GLSnow::GLSnow()
+	: noiseTexture(true, true) // enable interpolation + wrapping
 {
 	// Create noise texture.
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
@@ -49,7 +47,7 @@ GLSnow::GLSnow(Display& display_)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void GLSnow::paint(OutputSurface& /*output*/)
+void GLSnow::paint()
 {
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.
@@ -85,8 +83,6 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	display.repaintDelayed(100 * 1000); // 10fps
 }
 
 } // namespace openmsx

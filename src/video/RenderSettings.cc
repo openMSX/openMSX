@@ -17,10 +17,10 @@ using namespace gl;
 
 namespace openmsx {
 
-EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
+[[nodiscard]] static EnumSetting<RenderSettings::ScaleAlgorithm>::Map getScalerMap()
 {
-	using enum ScaleAlgorithm;
-	EnumSetting<ScaleAlgorithm>::Map scalerMap = {
+	using enum RenderSettings::ScaleAlgorithm;
+	EnumSetting<RenderSettings::ScaleAlgorithm>::Map scalerMap = {
 		{"simple",     SIMPLE},
 		{"ScaleNx",    SCALE},
 		{"hq",         HQ},
@@ -30,10 +30,20 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 	return scalerMap;
 }
 
-EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
+[[nodiscard]] static EnumSetting<RenderSettings::ScaleMode>::Map getScaleModeMap()
 {
-	using enum RendererID;
-	EnumSetting<RendererID>::Map rendererMap = {
+	using enum RenderSettings::ScaleMode;
+	EnumSetting<RenderSettings::ScaleMode>::Map map = {
+		{"integer", INTEGER},
+		{"float",   FLOAT},
+	};
+	return map;
+}
+
+[[nodiscard]] static EnumSetting<RenderSettings::RendererID>::Map getRendererMap()
+{
+	using enum RenderSettings::RendererID;
+	EnumSetting<RenderSettings::RendererID>::Map rendererMap = {
 		{"uninitialized", UNINITIALIZED},
 		{"none",          DUMMY},
 		{"SDLGL-PP",      SDLGL_PP}
@@ -102,9 +112,13 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		commandController, "scale_algorithm", "scale algorithm",
 		ScaleAlgorithm::SIMPLE, getScalerMap())
 
+	, scaleModeSetting(
+		commandController, "scale_mode", "scale mode",
+		ScaleMode::INTEGER, getScaleModeMap())
+
 	, scaleFactorSetting(commandController,
 		"scale_factor", "scale factor",
-		std::clamp(2, MIN_SCALE_FACTOR, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR)
+		2.0f, 1.0f, 8.0f)
 
 	, scanlineAlphaSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
@@ -171,13 +185,6 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"number of seconds after which the mouse pointer is hidden in the openMSX "
 		"window; negative = no hiding, 0 = immediately",
 		2.0, -1.0, 60.0)
-
-	, interleaveBlackFrameSetting(commandController,
-		"interleave_black_frame",
-		"Insert a black frame in between each normal MSX frame. "
-		"Useful on (100Hz+) lightboost enabled monitors to reduce "
-		"motion blur and double frame artifacts.",
-		false)
 {
 	brightnessSetting.attach(*this);
 	contrastSetting  .attach(*this);
