@@ -1587,10 +1587,9 @@ void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
 			[&](gl::vec2 p) { return p * gl::vec2{graphWidth, -graphHeight} + gl::vec2{graphLeft, origin.y}; },
 			0.0f, 1.0f, points);
 		points.emplace_back(arrowRight.x, graphTop);
-		std::cerr << "points=" << points.size() << '\n';
 		drawList->AddPolyline(points.data(), points.size(), white, 4.0f);
 
-		auto input = float(axisValue) / 32768.0f; //std::clamp((mouse.x - graphMin) / fullWidth, 0.0f, 1.0f);
+		auto input = float(std::abs(axisValue)) / 32768.0f; //std::clamp((mouse.x - graphMin) / fullWidth, 0.0f, 1.0f);
 		auto output = pow(std::clamp((input - inner) / (outer - inner), 0.0f, 1.0f), f);
 		auto cross = gl::vec2{graphMin + input * fullWidth, origin.y - output * graphHeight};
 		drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1, -1}, red, 2.0f);
