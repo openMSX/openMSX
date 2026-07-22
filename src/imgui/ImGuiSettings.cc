@@ -1305,7 +1305,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		// Popup for 'Add'
 		static constexpr auto addTitle = "Waiting for input";
 		if (addAction) {
-			popupForKey = *addAction;
+			addPopupForKey = *addAction;
 			popupTimeout = 5.0f;
 			initListener();
 			ImGui::OpenPopup(addTitle);
@@ -1313,15 +1313,15 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		im::PopupModal(addTitle, nullptr, ImGuiWindowFlags_NoSavedSettings, [&]{
 			auto close = [&]{
 				ImGui::CloseCurrentPopup();
-				popupForKey = unsigned(-1);
+				addPopupForKey = unsigned(-1);
 				deinitListener();
 			};
-			if (popupForKey >= numButtons) {
+			if (addPopupForKey >= numButtons) {
 				close();
 				return;
 			}
 
-			ImGui::Text("Enter event for joystick button '%s'", buttonNames[popupForKey].c_str());
+			ImGui::Text("Enter event for joystick button '%s'", buttonNames[addPopupForKey].c_str());
 			ImGui::Text("Or press ESC to cancel.  Timeout in %d seconds.", int(popupTimeout));
 
 			popupTimeout -= ImGui::GetIO().DeltaTime;
@@ -1332,19 +1332,19 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 
 		// Popup for 'Remove'
 		if (removeAction) {
-			popupForKey = *removeAction;
+			removePopupForKey = *removeAction;
 			ImGui::OpenPopup("remove");
 		}
 		im::Popup("remove", [&]{
 			auto close = [&]{
 				ImGui::CloseCurrentPopup();
-				popupForKey = unsigned(-1);
+				removePopupForKey = unsigned(-1);
 			};
-			if (popupForKey >= numButtons) {
+			if (removePopupForKey >= numButtons) {
 				close();
 				return;
 			}
-			TclObject key(keyNames[popupForKey]);
+			TclObject key(keyNames[removePopupForKey]);
 			TclObject bindingList = bindings.getDictValue(interp, key);
 			bool wheel = key == "WHEEL";
 
@@ -1633,7 +1633,7 @@ bool ImGuiSettings::signalEvent(const Event& event)
 	auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
 	              : joystick < 4 ? SP{joymega    ::keyNames}
 	                             : SP{joyhandle  ::keyNames};
-	if (const auto numButtons = keyNames.size(); popupForKey >= numButtons) {
+	if (const auto numButtons = keyNames.size(); addPopupForKey >= numButtons) {
 		deinitListener();
 		return false; // don't block
 	}
@@ -1643,7 +1643,7 @@ bool ImGuiSettings::signalEvent(const Event& event)
 		escape = keyDown->getKeyCode() == SDLK_ESCAPE;
 	}
 	if (!escape) {
-		TclObject key(keyNames[popupForKey]);
+		TclObject key(keyNames[addPopupForKey]);
 		bool wheel = key == "WHEEL";
 
 		std::string bs;
@@ -1675,7 +1675,7 @@ bool ImGuiSettings::signalEvent(const Event& event)
 		}
 	}
 
-	popupForKey = unsigned(-1); // close popup
+	addPopupForKey = unsigned(-1); // close popup
 	return true; // block event
 }
 
