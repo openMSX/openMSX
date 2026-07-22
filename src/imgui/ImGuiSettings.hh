@@ -17,6 +17,8 @@
 
 namespace openmsx {
 
+class JoystickManager;
+
 class ImGuiSettings final : public ImGuiPart, private EventListener
 {
 public:
@@ -37,7 +39,8 @@ private:
 	void deinitListener();
 
 	void setStyle() const;
-	void paintJoystick(MSXMotherBoard& motherBoard);
+	void paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& joystickManager);
+	void paintCalibrate(JoystickManager& joystickManager);
 	void paintFont();
 	void paintShortcut();
 	void paintEditShortcut();
@@ -60,6 +63,8 @@ private:
 	unsigned removePopupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;
+
+	bool showCalibrateJoystick = false;
 
 	struct AnalogStatus {
 		AnalogInput binding;
