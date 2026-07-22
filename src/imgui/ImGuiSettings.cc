@@ -6,7 +6,10 @@
 #include "ImGuiOsdIcons.hh"
 #include "ImGuiSoundChip.hh"
 #include "ImGuiUtils.hh"
+#include "VectorPath.hh"
+#include "VectorPathDsl.hh"
 
+#include "AnalogInput.hh"
 #include "BooleanInput.hh"
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"
@@ -21,6 +24,7 @@
 #include "InputEventGenerator.hh"
 #include "IntegerSetting.hh"
 #include "JoyMega.hh"
+#include "JoyHandle.hh"
 #include "KeyCodeSetting.hh"
 #include "KeyboardSettings.hh"
 #include "MSXCPU.hh"
@@ -47,11 +51,13 @@
 #include "zstring_view.hh"
 
 #include <imgui.h>
+#include <imgui_impl_opengl3.h>
 #include <imgui_stdlib.h>
 
 #include <SDL.h>
 
 #include <algorithm>
+#include <functional>
 #include <optional>
 #include <utility>
 
@@ -463,16 +469,30 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 [[nodiscard]] static std::string settingName(unsigned joystick)
 {
 	return (joystick < 2) ? strCat("msxjoystick", joystick + 1, "_config")
-	                      : strCat("joymega", joystick - 1, "_config");
+	     : (joystick < 4) ? strCat("joymega",     joystick - 1, "_config")
+						  : strCat("joyhandle",   joystick - 3, "_config");
 }
 
 // joystick is 0..3
 [[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
 {
-	return (joystick < 2) ? strCat("MSX joystick ", joystick + 1)
-	                      : strCat("JoyMega controller ", joystick - 1);
+	return (joystick < 2) ? strCat("MSX joystick ",       joystick + 1)
+		 : (joystick < 4) ? strCat("JoyMega controller ", joystick - 1)
+	                      : strCat("Panasonic FS-JH1 ",   joystick - 3);
 }
 
+[[nodiscard]] static std::string toGuiString(const AnalogInput& input, const JoystickManager& joystickManager)
+{
+	return std::visit(overloaded{
+		[](const AnalogMouseAxis& m) {
+			return toString(m);
+		},
+		[&](const AnalogJoystickAxis& a) {
+			return strCat(joystickManager.getDisplayName(a.getJoystick()),
+			              " stick axis ", a.getAxis());
+		}
+	}, input);
+}
 [[nodiscard]] static std::string toGuiString(const BooleanInput& input, const JoystickManager& joystickManager)
 {
 	return std::visit(overloaded{
@@ -494,6 +514,11 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			              (a.getDirection() == BooleanJoystickAxis::Direction::POS ? "positive"sv : "negative"sv), " direction");
 		}
 	}, input);
+}
+[[nodiscard]] static std::string toGuiString(bool wheel, zstring_view str, const JoystickManager& joystickManager)
+{
+	return wheel ? toGuiString(*parseAnalogInput (str), joystickManager)
+	             : toGuiString(*parseBooleanInput(str), joystickManager);
 }
 
 [[nodiscard]] static bool insideCircle(gl::vec2 mouse, gl::vec2 center, float radius)
@@ -841,20 +866,273 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 
 } // namespace joymega
 
-void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
+namespace joyhandle {
+
+enum : uint8_t {
+	UP, DOWN, LEFT, RIGHT,
+	TRIG_A, TRIG_B, WHEEL,
+	NUM_BUTTONS
+};
+static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show in the GUI
+	"Up", "Down", "Left", "Right",
+	"A", "B", "Wheel (analog)",
+};
+static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = { // keys in Tcl dict
+	"UP", "DOWN", "LEFT", "RIGHT",
+	"A", "B", "WHEEL",
+};
+
+[[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
+{
+	std::vector<uint8_t> result(NUM_BUTTONS); // false
+	auto mouse1 = mouse - gl::vec2{39, 149};
+	if (insideCircle(mouse1, {}, 24)) {
+		auto ax = std::abs(mouse1.x);
+		auto ay = std::abs(mouse1.y);
+		if (mouse1.y < 0 && ax < ay) result[UP   ] = true;
+		if (mouse1.y > 0 && ax < ay) result[DOWN ] = true;
+		if (mouse1.x < 0 && ay < ax) result[LEFT ] = true;
+		if (mouse1.x > 0 && ay < ax) result[RIGHT] = true;
+
+	}
+	result[TRIG_A] = insideCircle(mouse, {77, 186}, 5)
+	              || insideCircle(mouse, {319, 36}, 15);
+	result[TRIG_B] = insideCircle(mouse, {63, 186}, 5)
+	              || insideCircle(mouse, {134, 36}, 15);
+	if (insideRectangle(mouse, {{110,80}, {343,190}})) result[WHEEL] = true;
+	return result;
+}
+
+using namespace VectorPath::dsl;
+static constexpr auto boundingBox = gl::vec2{385.0f, 242.0f};
+static constexpr auto body = strokeCollection<int16_t>(
+	openPath(from(698,220), line(712,220), curve(719,220, 722,223, 722,230), line(727,408),
+	         line(731,454), line(731,463), curve(731,466, 728,468, 726,468), line(14,468),
+	         curve(11,468, 9,465, 9,463), line(9,454), line(13,408), line(18,230),
+	         curve(18,223, 25,220, 28,220), line(212,220)),
+	openPath(from(9,454), line(731,454)),
+	openPath(from(13,408), line(201,408)),
+	openPath(from(270,408), line(640,408)),
+	openPath(from(709,408), line(727,408)),
+
+	openPath(from(20,224), line(69,168), curve(73,164, 76,164, 80,164), line(660,164),
+	         curve(664,164, 667,164, 671,168), line(720,223)),
+
+	openPath(from(84,468), line(84,477), curve(84,479, 83,480, 81,480), line(21,480),
+	         curve(19,480, 18,479, 18,477), line(18,468)),
+	openPath(from(488,468), line(488,477), curve(488,479, 487,480, 485,480), line(425,480),
+	         curve(423,480, 422,479, 422,477), line(422,468)),
+	openPath(from(722,468), line(722,477), curve(722,479, 721,480, 719,480), line(659,480),
+	         curve(657,480, 656,479, 656,477), line(656,468)),
+
+	closedPath(from(183,233), curve(186,233, 188,235, 188,238), line(188,387),
+	           curve(188,390, 186,392, 183,392), line(31,392), curve(28,392, 26,390, 26,387),
+	           line(26,238), curve(26,235, 28,233, 31,233)),
+
+	closedPath(from(133,285), line(151,285), line(151,323), line(133,323)),
+	openPath(from(138,299), line(146,299)),
+	openPath(from(138,305), line(146,305)),
+
+	closedPath(from(162,285), line(180,285), line(180,323), line(162,323)),
+	openPath(from(167,299), line(175,299)),
+	openPath(from(167,305), line(175,305)),
+
+	closedPath(from(217,212), curve(214,212, 212,214, 212,217), line(201,392), line(201,444),
+	           line(263,444), line(263,217), curve(263,214, 261,212, 258,212)),
+	openPath(from(201,392), line(250,392), curve(253,392, 255,390, 255,387), line(255,212)),
+	openPath(from(263,444), line(270,408), line(270,210), curve(270,207, 268,205, 265,205)),
+
+	closedPath(from(693,212), curve(696,212, 698,214, 698,217), line(709,392), line(709,444),
+	           line(647,444), line(647,217), curve(647,214, 649,212, 652,212)),
+	openPath(from(709,392), line(660,392), curve(657,392, 655,390, 655,387), line(655,212)),
+	openPath(from(647,444), line(640,408), line(640,210), curve(640,207, 642,205, 645,205)),
+
+	openPath(from(212,217), line(213,210), curve(213,208, 215,205, 218,205), line(692,205),
+	         curve(695,205, 697,208, 697,210), line(698,217)));
+static constexpr auto wheelOutline = path<int16_t>(
+	from(78,56),
+	curve(75,64, 67,68, 57,68), line(-57,68), curve(-67,68, -75,64, -78,56), line(-156,72),
+	curve(-186,78, -231,58, -231,19), line(-231,-21), curve(-236,-24, -240,-26, -240,-29),
+	line(-214,-245), curve(-214,-257, -155,-255, -155,-243), line(-163,-27),
+	curve(-163,-23, -168,-21, -175,-19), curve(-175,5, -167,17, -147,7), line(-72,-32),
+	line(-71,-47), curve(-69,-60, -62,-65, -50,-65), line(50,-65),
+	curve(62,-65, 69,-60, 71,-47), line(72,-32), line(147,7),
+	curve(167,17, 175,5, 175,-19), curve(168,-21, 163,-23, 163,-27), line(155,-243),
+	curve(155,-255, 214,-257, 214,-245), line(240,-29), curve(240,-26, 237,-24, 231,-21),
+	line(231,22), curve(231,61, 186,78, 156,72));
+static constexpr auto wheelInside = strokeCollection<int16_t>(
+	openPath(from(-163,-27), curve(-163,-13, -240,-15, -240,-29)),
+	openPath(from(163,-27), curve(163,-13, 240,-15, 240,-29)),
+	closedPath(from(47,-51), curve(53,-51, 56,-49, 57,-43), line(63,40),
+		curve(63,47, 61,51, 52,51), line(-52,51), curve(-61,51, -63,47, -63,40),
+		line(-57,-43), curve(-56,-49, -53,-51, -47,-51)),
+	openPath(from(-215,-18), line(-215,19), curve(-215,49, -185,60, -161,55), line(-79,40)),
+	openPath(from(-74,-15), line(-148,23), curve(-175,33, -190,13, -190,-17)),
+	openPath(from(-57,68), curve(-71,68, -80,61, -79,46), line(-72,-32)),
+	openPath(from(215,-18), line(215,19), curve(215,49, 185,60, 161,55), line(79,40)),
+	openPath(from(74,-15), line(148,23), curve(175,33, 190,13, 190,-17)),
+	openPath(from(57,68), curve(71,68, 80,61, 79,46), line(72,-32)));
+static constexpr auto wheelButtonA = path<int16_t>(
+	from(155,-243),
+	curve(155,-255, 214,-257, 214,-245),
+	curve(214,-233, 155,-231, 155,-243));
+static constexpr auto wheelButtonB = path<int16_t>(
+	from(-155,-243),
+	curve(-155,-231, -214,-233, -214,-245),
+	curve(-214,-257, -155,-255, -155,-243));
+static constexpr auto wheelButtonInside = strokeCollection<int16_t>(
+	openPath(from(-164,-243), curve(-164,-236, -207,-238, -207,-245)),
+	openPath(from(164,-243), curve(164,-236, 207,-238, 207,-245)));
+
+static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow, int analogValue)
+{
+	static constexpr ImU32 eraseColor = IM_COL32(0, 0, 0, 1); // alpha=0 is optimized away by ImGui, instead use alpha=1
+	auto color = getColor(imColor::TEXT);
+	auto hoverColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+
+	bool up      = hovered[UP    ] || hoveredRow == UP;
+	bool down    = hovered[DOWN  ] || hoveredRow == DOWN;
+	bool left    = hovered[LEFT  ] || hoveredRow == LEFT;
+	bool right   = hovered[RIGHT ] || hoveredRow == RIGHT;
+	bool buttonA = hovered[TRIG_A] || hoveredRow == TRIG_A;
+	bool buttonB = hovered[TRIG_B] || hoveredRow == TRIG_B;
+	bool wheel   = hovered[WHEEL ] || hoveredRow == WHEEL;
+
+	gl::vec2 stickOffset{0};
+	gl::vec2 stickRadius{1};
+	if (up   ) { stickOffset.y = -17; stickRadius.y = 0.85f; }
+	if (down ) { stickOffset.y =  17; stickRadius.y = 0.85f; }
+	if (left ) { stickOffset.x = -17; stickRadius.x = 0.85f; }
+	if (right) { stickOffset.x =  17; stickRadius.x = 0.85f; }
+	auto stickColor = (up || down || left || right) ? hoverColor : eraseColor;
+
+	auto wheelColor = wheel ? hoverColor : eraseColor;
+
+	using namespace VectorPath;
+	static constexpr float scale = 0.5f;
+	static constexpr float thickness = 1.0f;
+
+	// Create private draw list (not the window's)
+	ImDrawList dl(ImGui::GetDrawListSharedData());
+	dl._ResetForNewFrame();
+	dl.PushTexture(ImGui::GetIO().Fonts->TexRef);
+	gl::vec2 logicalSize = boundingBox;
+	dl.PushClipRect({0, 0}, logicalSize);
+
+	// populate draw list with steering wheel shapes
+	ScaleTransform transform{scale};
+
+	float angle = float(analogValue) * (30.0f / 180.0f * float(Math::pi) / 32768);
+	auto wheelTransform = makeAffineTransform(angle, scale, gl::vec2{453, 317} * scale);
+
+	drawPathStrokes<int16_t>(&dl, body, transform, color, thickness);
+	static constexpr gl::vec2 stickCenter1{78, 298};
+	dl.AddCircle(transform(stickCenter1), 44 * scale, color);
+
+	// buttons in side panel
+	if (buttonA) {
+		dl.AddCircleFilled(transform(155, 372), 10 * scale, hoverColor);
+	}
+	if (buttonB) {
+		dl.AddCircleFilled(transform(127, 372), 10 * scale, hoverColor);
+	}
+	dl.AddCircle(transform(155, 372), 10 * scale, color, 0, thickness);
+	dl.AddCircle(transform(127, 372), 10 * scale, color, 0, thickness);
+
+	auto stickCenter = transform(stickCenter1 + stickOffset);
+
+	// draw outline of moving elements erasing the underlying stuff
+	{
+		dl.AddCallback([](const ImDrawList*, const ImDrawCmd*) {
+				//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				glBlendFunc(GL_ONE, GL_ZERO);
+			}, nullptr);
+		dl.AddEllipseFilled(stickCenter, 35 * scale * stickRadius, stickColor);
+		drawPathFilled<int16_t>(&dl, wheelOutline, wheelTransform, wheelColor);
+		dl.AddCallback([](const ImDrawList*, const ImDrawCmd*) {
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}, nullptr);
+	}
+
+	dl.AddEllipse      (stickCenter, 35 * scale * stickRadius, color);
+	dl.AddEllipseFilled(stickCenter,  5 * scale * stickRadius, color);
+
+	drawPathStroke<int16_t>(&dl, wheelOutline, wheelTransform, color, thickness, ImDrawFlags_Closed);
+	drawPathStrokes<int16_t>(&dl, wheelInside, wheelTransform, color, thickness);
+
+	if (buttonA) {
+		drawPathFilled<int16_t>(&dl, wheelButtonA, wheelTransform, hoverColor);
+	}
+	drawPathStroke<int16_t>(&dl, wheelButtonA, wheelTransform, color, thickness);
+	if (buttonB) {
+		drawPathFilled<int16_t>(&dl, wheelButtonB, wheelTransform, hoverColor);
+	}
+	drawPathStroke<int16_t>(&dl, wheelButtonB, wheelTransform, color, thickness);
+	drawPathStrokes<int16_t>(&dl, wheelButtonInside, wheelTransform, color, thickness);
+
+	dl.PopClipRect();
+
+	// render draw list to texture
+	auto fbScale = ImGui::GetIO().DisplayFramebufferScale;
+	auto fbSize = logicalSize * fbScale;
+
+	struct ShapeLayerRT {
+		gl::ColorTexture tex{0, 0}; // start empty, resized on demand
+		gl::FrameBufferObject fbo;
+
+		void ensure(gl::ivec2 newSize) {
+			if (tex.size() == newSize) return;
+
+			tex.resize(newSize.x, newSize.y);
+			tex.setInterpolation(true);
+			fbo = gl::FrameBufferObject(tex);
+		}
+	};
+	static ShapeLayerRT rt;
+	rt.ensure(gl::ivec2(fbSize));
+
+	ImDrawData dd;
+	dd.Valid = true;
+	dd.DisplayPos = {0, 0};
+	dd.DisplaySize = logicalSize;
+	dd.FramebufferScale = fbScale;
+	dd.Textures = &ImGui::GetPlatformIO().Textures;
+	dd.AddDrawList(&dl);
+
+	rt.fbo.push();
+	glViewport(0, 0, int(fbSize.x), int(fbSize.y));
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	ImGui_ImplOpenGL3_RenderDrawData(&dd); // fills texture NOW
+	rt.fbo.pop();
+
+	// Queue textured quad on the window draw list (drawn later with the rest of the UI)
+	auto pos = ImGui::GetCursorPos();
+	ImGui::SetCursorScreenPos(scrnPos);
+	ImGui::GetWindowDrawList()->AddCallback([](const ImDrawList*, const ImDrawCmd*) {
+			// GL_ONE handles the color lines, GL_ONE_MINUS_SRC_ALPHA preserves transparency holes
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		}, nullptr);
+	ImGui::Image(rt.tex.getImGui(), logicalSize, {0, 1}, {1, 0});
+	ImGui::GetWindowDrawList()->AddCallback(ImGui::GetPlatformIO().DrawCallback_ResetRenderState, nullptr);
+	ImGui::SetCursorPos(pos);
+}
+
+} // namespace joyhandle
+
+void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& joystickManager)
 {
 	ImGui::SetNextWindowSize(gl::vec2{316, 323}, ImGuiCond_FirstUseEver);
 	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
-		im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
-			for (const auto& j : xrange(4)) {
+		bool justChanged = im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
+			for (const auto& j : xrange(6)) {
 				if (ImGui::Selectable(joystickToGuiString(j).c_str())) {
 					joystick = j;
 				}
 			}
 		});
 
-		const auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
 		const auto& controller = motherBoard.getMSXCommandController();
 		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
 		if (!setting) return;
@@ -865,28 +1143,33 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
 
 		// Check if buttons are hovered
-		bool msxOrMega = joystick < 2;
-		auto hovered = msxOrMega ? msxjoystick::buttonsHovered(mouse)
-		                         : joymega    ::buttonsHovered(mouse);
+		auto hovered = joystick < 2 ? msxjoystick::buttonsHovered(mouse)
+		             : joystick < 4 ? joymega    ::buttonsHovered(mouse)
+		                            : joyhandle  ::buttonsHovered(mouse);
 		const auto numButtons = hovered.size();
 		using SP = std::span<const zstring_view>;
-		auto keyNames = msxOrMega ? SP{msxjoystick::keyNames}
-		                          : SP{joymega    ::keyNames};
-		auto buttonNames = msxOrMega ? SP{msxjoystick::buttonNames}
-		                             : SP{joymega    ::buttonNames};
+		auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
+		              : joystick < 4 ? SP{joymega    ::keyNames}
+		                             : SP{joyhandle  ::keyNames};
+		auto buttonNames = joystick < 2 ? SP{msxjoystick::buttonNames}
+		                 : joystick < 4 ? SP{joymega    ::buttonNames}
+		                                : SP{joyhandle  ::buttonNames};
 
 		// Any joystick button clicked?
 		std::optional<int> addAction;
 		std::optional<int> removeAction;
-		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !justChanged) {
 			for (auto i : xrange(numButtons)) {
 				if (hovered[i]) addAction = narrow<int>(i);
 			}
 		}
 
-		ImGui::Dummy(msxOrMega ? msxjoystick::boundingBox : joymega::boundingBox); // reserve space for joystick drawing
+		ImGui::Dummy(joystick < 2 ? msxjoystick::boundingBox // reserve space for joystick drawing
+		           : joystick < 4 ? joymega    ::boundingBox
+					  : joyhandle  ::boundingBox);
 
 		// Draw table
+		bool anyWheel = false;
 		int hoveredRow = -1;
 		const auto& style = ImGui::GetStyle();
 		auto textHeight = ImGui::GetTextLineHeight();
@@ -895,7 +1178,17 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, {0.0f, -bottomHeight}, [&]{
 			im::ID_for_range(numButtons, [&](int i) {
 				TclObject key(keyNames[i]);
+				bool wheel = key == "WHEEL";
+				anyWheel |= wheel;
 				TclObject bindingList = bindings.getDictValue(interp, key);
+				if (wheel && analogBindings.empty()) {
+					for (auto str : bindingList) {
+						if (auto a = parseAnalogInput(str)) {
+							analogBindings.emplace_back(*a, 0);
+						}
+					}
+				}
+
 				if (ImGui::TableNextColumn()) {
 					auto pos = ImGui::GetCursorPos();
 					ImGui::Selectable("##row", hovered[i], ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
@@ -929,9 +1222,9 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 					} else {
 						size_t lastBindingIndex = numBindings - 1;
 						size_t bindingIndex = 0;
-						for (auto binding: bindingList) {
+						for (auto binding : bindingList) {
 							ImGui::TextUnformatted(binding);
-							simpleToolTip(toGuiString(*parseBooleanInput(binding), joystickManager));
+							simpleToolTip(toGuiString(wheel, binding, joystickManager));
 							if (bindingIndex < lastBindingIndex) {
 								ImGui::SameLine();
 								ImGui::TextUnformatted("|"sv);
@@ -943,8 +1236,23 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				}
 			});
 		});
-		msxOrMega ? msxjoystick::draw(scrnPos, hovered, hoveredRow)
-		          : joymega    ::draw(scrnPos, hovered, hoveredRow);
+		int analogValue = 0;
+		if (anyWheel) {
+			for (auto& [b, v] : analogBindings) {
+				if (std::abs(v) > std::abs(analogValue)) {
+					analogValue = v;
+				}
+			}
+		} else {
+			analogBindings.clear();
+		}
+		if (!analogBindings.empty()) {
+			initListener();
+		}
+
+		  joystick < 2 ? msxjoystick::draw(scrnPos, hovered, hoveredRow)
+		: joystick < 4 ? joymega    ::draw(scrnPos, hovered, hoveredRow)
+		               : joyhandle  ::draw(scrnPos, hovered, hoveredRow, analogValue);
 
 		if (ImGui::Button("Default bindings...")) {
 			ImGui::OpenPopup("bindings");
@@ -986,9 +1294,9 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			for (auto joyId : joystickManager.getConnectedJoysticks()) {
 				im::Menu(joystickManager.getDisplayName(joyId).c_str(), [&]{
 					addOrSet([&]{
-						return msxOrMega
-							? MSXJoystick::getDefaultConfig(joyId, joystickManager)
-							: JoyMega::getDefaultConfig(joyId, joystickManager);
+						return joystick < 2 ? MSXJoystick::getDefaultConfig(joyId, joystickManager)
+						     : joystick < 4 ? JoyMega    ::getDefaultConfig(joyId, joystickManager)
+						                    : JoyHandle  ::getDefaultConfig(joyId, joystickManager);
 					});
 				});
 			}
@@ -997,7 +1305,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		// Popup for 'Add'
 		static constexpr auto addTitle = "Waiting for input";
 		if (addAction) {
-			popupForKey = *addAction;
+			addPopupForKey = *addAction;
 			popupTimeout = 5.0f;
 			initListener();
 			ImGui::OpenPopup(addTitle);
@@ -1005,15 +1313,15 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		im::PopupModal(addTitle, nullptr, ImGuiWindowFlags_NoSavedSettings, [&]{
 			auto close = [&]{
 				ImGui::CloseCurrentPopup();
-				popupForKey = unsigned(-1);
+				addPopupForKey = unsigned(-1);
 				deinitListener();
 			};
-			if (popupForKey >= numButtons) {
+			if (addPopupForKey >= numButtons) {
 				close();
 				return;
 			}
 
-			ImGui::Text("Enter event for joystick button '%s'", buttonNames[popupForKey].c_str());
+			ImGui::Text("Enter event for joystick button '%s'", buttonNames[addPopupForKey].c_str());
 			ImGui::Text("Or press ESC to cancel.  Timeout in %d seconds.", int(popupTimeout));
 
 			popupTimeout -= ImGui::GetIO().DeltaTime;
@@ -1024,20 +1332,21 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 
 		// Popup for 'Remove'
 		if (removeAction) {
-			popupForKey = *removeAction;
+			removePopupForKey = *removeAction;
 			ImGui::OpenPopup("remove");
 		}
 		im::Popup("remove", [&]{
 			auto close = [&]{
 				ImGui::CloseCurrentPopup();
-				popupForKey = unsigned(-1);
+				removePopupForKey = unsigned(-1);
 			};
-			if (popupForKey >= numButtons) {
+			if (removePopupForKey >= numButtons) {
 				close();
 				return;
 			}
-			TclObject key(keyNames[popupForKey]);
+			TclObject key(keyNames[removePopupForKey]);
 			TclObject bindingList = bindings.getDictValue(interp, key);
+			bool wheel = key == "WHEEL";
 
 			auto remove = size_t(-1);
 			size_t counter = 0;
@@ -1045,7 +1354,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				if (ImGui::Selectable(b.c_str())) {
 					remove = counter;
 				}
-				simpleToolTip(toGuiString(*parseBooleanInput(b), joystickManager));
+				simpleToolTip(toGuiString(wheel, b, joystickManager));
 				++counter;
 			}
 			if (remove != size_t(-1)) {
@@ -1053,14 +1362,242 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				bindings.setDictValue(interp, key, bindingList);
 				setting->setValue(bindings);
 				close();
+				if (wheel) analogBindings.clear();
 			}
 
 			if (ImGui::Selectable("all bindings")) {
 				bindings.setDictValue(interp, key, TclObject{});
 				setting->setValue(bindings);
 				close();
+				analogBindings.clear();
 			}
 		});
+		if (ImGui::Button("Mockup calibrate joystick axis")) showCalibrateJoystick = true;
+	});
+}
+
+static void verticalText(ImDrawList* drawList, gl::vec2 pos, ImU32 color, std::string_view text)
+{
+	auto vtxIdxStart = drawList->_VtxCurrentIdx;
+	drawList->AddText(pos, color, text.data(), text.data() + text.size());
+	auto vtxIdxEnd = drawList->_VtxCurrentIdx;
+
+	auto* verts = drawList->VtxBuffer.Data;
+	for (auto i = vtxIdxStart; i < vtxIdxEnd; ++i) {
+		auto offset = gl::vec2(verts[i].pos) - pos;
+		verts[i].pos = pos + gl::vec2{offset.y, -offset.x};
+	}
+}
+
+static float drawControlEdge(const char* id, gl::vec2 pos, float height, float dotY, float min, float max)
+{
+	ImGui::SetCursorScreenPos(pos - gl::vec2{2, 0});
+	ImGui::InvisibleButton(id, gl::vec2(5, height));
+	bool hovered = ImGui::IsItemHovered();
+	bool active = ImGui::IsItemActive();
+	auto current = pos.x;
+	if (active && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+		current = std::clamp(current + ImGui::GetIO().MouseDelta.x, min, max);
+	}
+	if (hovered) ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+	auto colSep    = ImGui::GetColorU32(ImGuiCol_Separator);
+	auto colActive = ImGui::GetColorU32(ImGuiCol_SeparatorActive);
+	auto colHover  = ImGui::GetColorU32(ImGuiCol_SeparatorHovered);
+	auto* drawList = ImGui::GetWindowDrawList();
+	auto color = active ? colActive : (hovered ? colHover : colSep);
+	drawList->AddLine(pos, pos + gl::vec2{0, height}, color, hovered ? 3.0f : 1.0f);
+	drawList->AddCircleFilled(pos + gl::vec2{0, dotY}, 10, color);
+	return current;
+}
+
+static void generateCurvePoints(
+	std::function<float(float)> func,
+	std::function<gl::vec2(gl::vec2)> transform,
+	float xStart, float xEnd,
+	std::vector<ImVec2>& points)
+{
+	auto evalScreen = [&](float x) { return transform(gl::vec2{x, func(x)}); };
+
+	std::function<void(float, gl::vec2, float, gl::vec2)> subDivide =
+		[&](float x0, gl::vec2 p0, float x1, gl::vec2 p1) {
+			float xm = (x0 + x1) * 0.5f;
+			auto pMidCurve = evalScreen(xm);
+			auto pMidLineY = (p0.y + p1.y) * 0.5f;
+			float dy = pMidCurve.y - pMidLineY;
+
+			if (std::abs(dy) > 2.0f) {
+				// too large error, subdivide further
+				subDivide(x0, p0, xm, pMidCurve); // left
+				subDivide(xm, pMidCurve, x1, p1); // right
+			} else {
+				// flat enough, stop recursion
+				points.emplace_back(pMidCurve);
+				points.emplace_back(p1);
+			}
+		};
+	auto pStart = evalScreen(xStart);
+	auto pEnd   = evalScreen(xEnd);
+	points.emplace_back(pStart);
+	subDivide(xStart, pStart, xEnd, pEnd);
+}
+
+void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
+{
+	static unsigned selectedJoystick = 0;
+	static unsigned selectedAxis = 0;
+	static float innerSetting  =  5000;
+	static float middleSetting = 25000;
+	static float outerSetting  = 30000;
+
+	auto inner  = innerSetting  * (1.0f / 32767);
+	auto middle = middleSetting * (1.0f / 32767);
+	auto outer  = outerSetting  * (1.0f / 32767);
+	auto f = std::log(0.5f) / std::log((middle - inner) / (outer - inner));
+
+	auto s = ImGui::GetFontSize();
+	ImGui::SetNextWindowSize(gl::vec2{32, 25} * s, ImGuiCond_FirstUseEver);
+	im::Window("[Mockup] Calibrate joysticks", &showCalibrateJoystick, [&]{
+		auto joysticks = joystickManager.getConnectedJoysticks();
+		bool disabled = joysticks.empty();
+		if (selectedJoystick >= joysticks.size()) selectedJoystick = 0;
+		auto numAxes = disabled ? 0 : joystickManager.getNumAxes(joysticks[selectedJoystick]).value_or(0);
+		if (selectedAxis > numAxes) selectedAxis = 0;
+		auto axisValue = disabled ? 0 : joystickManager.getAxis(joysticks[selectedJoystick], int(selectedAxis)).value_or(0);
+
+		im::Disabled(disabled, [&]{
+			im::Table("##table", 2, [&]{
+				ImGui::TableSetupColumn("joystick", ImGuiTableColumnFlags_WidthFixed, 18.0f * s);
+				ImGui::TableSetupColumn("values");
+				if (ImGui::TableNextColumn()) {
+					auto selectedName = disabled
+					                  ? "none available"
+					                  : joystickManager.getDisplayName(joysticks[selectedJoystick]);
+					im::Combo("Joystick", selectedName.c_str(), [&]{
+						for (auto i : xrange(joysticks.size())) {
+							auto name = joystickManager.getDisplayName(joysticks[selectedJoystick]);
+							if (ImGui::Selectable(name.c_str()), selectedJoystick == i) {
+								selectedJoystick = unsigned(i);
+							}
+						}
+					});
+					im::Indent([&]{
+						auto axisName = [](unsigned i) {
+							return i == unsigned(-1) ? "ALL" : strCat(i);
+						};
+						im::Combo("Axis", axisName(selectedAxis).c_str(), [&]{
+							if (ImGui::Selectable("ALL", selectedAxis == unsigned(-1))) {
+								selectedAxis = unsigned(-1);
+							}
+							for (auto i : xrange(numAxes)) {
+								if (ImGui::Selectable(tmpStrCat(i).c_str(), selectedAxis == i)) {
+									selectedAxis = i;
+								}
+							}
+						});
+					});
+				}
+				if (ImGui::TableNextColumn()) {
+					ImGui::SetNextItemWidth(4.0f * s);
+					if (ImGui::InputFloat("inner dead zone", &innerSetting, {}, {}, "%.0f")) {
+						innerSetting = std::clamp(innerSetting, 0.0f, middleSetting - 1.0f);
+					}
+					ImGui::SetNextItemWidth(4.0f * s);
+					if (ImGui::InputFloat("halfway value", &middleSetting, {}, {}, "%.0f")) {
+						middleSetting = std::clamp(middleSetting, innerSetting + 1.0f, outerSetting - 1.0f);
+					}
+					ImGui::SetNextItemWidth(4.0f * s);
+					if (ImGui::InputFloat("outer dead zone", &outerSetting, {}, {}, "%.0f")) {
+						outerSetting = std::clamp(outerSetting, middleSetting + 1.0f, 32767.0f);
+					}
+				}
+			});
+		});
+
+		//auto mouse = ImGui::GetIO().MousePos;
+		gl::vec2 pos = ImGui::GetCursorScreenPos();
+		gl::vec2 size = ImGui::GetContentRegionAvail();
+		auto* drawList = ImGui::GetWindowDrawList();
+		auto white = getColor(imColor::TEXT);
+		auto gray  = getColor(imColor::TEXT_DISABLED);
+		auto red   = getColor(imColor::ERROR);
+
+		std::string_view xLabel = "raw input";
+		std::string_view yLabel = "output";
+		auto xTextSize = ImGui::CalcTextSize(xLabel);
+		auto yTextSize = ImGui::CalcTextSize(yLabel);
+		auto unit = xTextSize.y * 0.5f;
+		auto origin = pos + gl::vec2{3 * unit, size.y - 3 * unit};
+		drawList->AddText(pos + gl::vec2{(size.x - xTextSize.x) * 0.5f, size.y - xTextSize.y}, white, xLabel.data(), xLabel.data() + xLabel.size());
+		verticalText(drawList, pos + gl::vec2{0, (size.y + yTextSize.x) * 0.5f}, white, yLabel);
+
+		auto arrowRight = gl::vec2{pos.x + size.x, origin.y};
+		auto arrowTop = gl::vec2{origin.x, pos.y};
+
+		auto graphMin = origin.x + 4 * unit;
+		auto graphMax = arrowRight.x - 4 * unit;
+		auto fullWidth = graphMax - graphMin;
+
+		auto graphLeft  = graphMin + inner  * fullWidth;
+		auto graphMidX  = graphMin + middle * fullWidth;
+		auto graphRight = graphMin + outer  * fullWidth;
+
+		auto graphTop = arrowTop.y + 2 * unit;
+		auto graphBottom = origin.y;
+		auto graphMidY = (graphTop + graphBottom) * 0.5f;
+		auto graphWidth = graphRight - graphLeft;
+		auto graphHeight = graphBottom - graphTop;
+
+		drawList->AddLine({origin.x, graphTop}, {arrowRight.x, graphTop}, gray);
+		drawList->AddLine({origin.x, graphMidY}, {arrowRight.x, graphMidY}, gray);
+		drawList->AddLine({graphMin, origin.y}, {graphMin, origin.y + unit}, gray);
+		drawList->AddLine({graphMax, origin.y}, {graphMax, origin.y + unit}, gray);
+
+		auto newLeft  = drawControlEdge("##inner",  {graphLeft,  graphTop}, graphHeight, graphHeight,        graphMin, graphMidX - 1);
+		auto newMid   = drawControlEdge("##middle", {graphMidX,  graphTop}, graphHeight, graphHeight * 0.5f, graphLeft + 1, graphRight - 1);
+		auto newRight = drawControlEdge("##outer",  {graphRight, graphTop}, graphHeight, 0,                  graphMidX + 1, graphMax);
+		if (newLeft != graphLeft) {
+			auto old = innerSetting;
+			innerSetting  = std::clamp(((newLeft - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
+			middleSetting = outerSetting - ((outerSetting - middleSetting) * (outerSetting - innerSetting) / (outerSetting - old));
+		}
+		if (newMid != graphMidX) {
+			middleSetting = std::clamp(((newMid  - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
+		}
+		if (newRight != graphRight) {
+			auto old = outerSetting;
+			outerSetting  = std::clamp(((newRight - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
+			middleSetting = innerSetting + ((middleSetting - innerSetting) * (outerSetting - innerSetting) / (old - innerSetting));
+		}
+
+		drawList->AddLine(arrowRight, origin - unit * gl::vec2{2, 0}, white, 2.0f);
+		drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1, -1}, white, 2.0f);
+		drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1,  1}, white, 2.0f);
+
+		drawList->AddLine(arrowTop, origin + unit * gl::vec2{0, 2}, white, 2.0f);
+		drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{-1, 1}, white, 2.0f);
+		drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{ 1, 1}, white, 2.0f);
+
+		//static constexpr int subDiv = 40;
+		std::vector<ImVec2> points;
+		points.reserve(40);
+		points.emplace_back(origin);
+		generateCurvePoints(
+			[&](float x) { return std::pow(x, f); },
+			[&](gl::vec2 p) { return p * gl::vec2{graphWidth, -graphHeight} + gl::vec2{graphLeft, origin.y}; },
+			0.0f, 1.0f, points);
+		points.emplace_back(arrowRight.x, graphTop);
+		drawList->AddPolyline(points.data(), points.size(), white, 4.0f);
+
+		auto input = float(std::abs(axisValue)) / 32768.0f; //std::clamp((mouse.x - graphMin) / fullWidth, 0.0f, 1.0f);
+		auto output = pow(std::clamp((input - inner) / (outer - inner), 0.0f, 1.0f), f);
+		auto cross = gl::vec2{graphMin + input * fullWidth, origin.y - output * graphHeight};
+		drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1, -1}, red, 2.0f);
+		drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1,  1}, red, 2.0f);
+		drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{-1, -1}, red, 2.0f);
+		drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{ 1, -1}, red, 2.0f);
+		drawList->AddLine(cross + unit * gl::vec2{-1, -1}, cross + unit * gl::vec2{1,  1}, red, 2.0f);
+		drawList->AddLine(cross + unit * gl::vec2{-1,  1}, cross + unit * gl::vec2{1, -1}, red, 2.0f);
 	});
 }
 
@@ -1260,7 +1797,9 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 		selectedStyle = 0; // dark (also the default (recommended) Dear ImGui style)
 		setStyle();
 	}
-	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
+	auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
+	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard, joystickManager);
+	if (showCalibrateJoystick) paintCalibrate(joystickManager);
 	if (showFont) paintFont();
 	if (showShortcut) paintShortcut();
 }
@@ -1306,11 +1845,23 @@ std::span<const ImGuiSettings::FontInfo> ImGuiSettings::getAvailableFonts()
 
 bool ImGuiSettings::signalEvent(const Event& event)
 {
-	bool msxOrMega = joystick < 2;
+	auto getJoyDeadZone = [&](JoystickId joyId) {
+		const auto& joyMan = manager.getReactor().getInputEventGenerator().getJoystickManager();
+		const auto* setting = joyMan.getJoyDeadZoneSetting(joyId);
+		return setting ? setting->getInt() : 0;
+	};
+
+	for (auto& [binding, value] : analogBindings) {
+		if (auto v = match(binding, event, getJoyDeadZone)) {
+			value = *v;
+		}
+	}
+
 	using SP = std::span<const zstring_view>;
-	auto keyNames = msxOrMega ? SP{msxjoystick::keyNames}
-	                          : SP{joymega    ::keyNames};
-	if (const auto numButtons = keyNames.size(); popupForKey >= numButtons) {
+	auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
+	              : joystick < 4 ? SP{joymega    ::keyNames}
+	                             : SP{joyhandle  ::keyNames};
+	if (const auto numButtons = keyNames.size(); addPopupForKey >= numButtons) {
 		deinitListener();
 		return false; // don't block
 	}
@@ -1320,14 +1871,19 @@ bool ImGuiSettings::signalEvent(const Event& event)
 		escape = keyDown->getKeyCode() == SDLK_ESCAPE;
 	}
 	if (!escape) {
-		auto getJoyDeadZone = [&](JoystickId joyId) {
-			const auto& joyMan = manager.getReactor().getInputEventGenerator().getJoystickManager();
-			const auto* setting = joyMan.getJoyDeadZoneSetting(joyId);
-			return setting ? setting->getInt() : 0;
-		};
-		auto b = captureBooleanInput(event, getJoyDeadZone);
-		if (!b) return true; // keep popup active
-		auto bs = toString(*b);
+		TclObject key(keyNames[addPopupForKey]);
+		bool wheel = key == "WHEEL";
+
+		std::string bs;
+		if (wheel) {
+			auto b = captureAnalogInput(event, getJoyDeadZone);
+			if (!b) return true; // keep popup active
+			bs = toString(*b);
+		} else {
+			auto b = captureBooleanInput(event, getJoyDeadZone);
+			if (!b) return true; // keep popup active
+			bs = toString(*b);
+		}
 
 		auto* motherBoard = manager.getReactor().getMotherBoard();
 		if (!motherBoard) return true;
@@ -1337,17 +1893,17 @@ bool ImGuiSettings::signalEvent(const Event& event)
 		auto& interp = setting->getInterpreter();
 
 		TclObject bindings = setting->getValue();
-		TclObject key(keyNames[popupForKey]);
 		TclObject bindingList = bindings.getDictValue(interp, key);
 
 		if (!contains(bindingList, bs)) {
 			bindingList.addListElement(bs);
 			bindings.setDictValue(interp, key, bindingList);
 			setting->setValue(bindings);
+			if (wheel) analogBindings.clear();
 		}
 	}
 
-	popupForKey = unsigned(-1); // close popup
+	addPopupForKey = unsigned(-1); // close popup
 	return true; // block event
 }
 
