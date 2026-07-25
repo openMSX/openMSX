@@ -880,20 +880,27 @@ uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 	     & unicodeKeymap.getRelevantMods(keyInfo);
 }
 
+bool Keyboard::isKeyMatrixPressed(KeyMatrixPosition pos) const
+{
+	if (!pos.isValid()) return false;
+	auto row = pos.getRow();
+	auto mask = pos.getMask();
+	return ((hostKeyMatrix[row] & mask) == 0) &&
+	       ((userKeyMatrix[row] & mask) == 0);
+}
+
 void Keyboard::pressKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos)
 {
 	if (!pos.isValid()) {
 		// No such key.
 		return;
 	}
-	auto row = pos.getRow();
-	auto press = pos.getMask();
-	if (((hostKeyMatrix[row] & press) == 0) &&
-	    ((userKeyMatrix[row] & press) == 0)) {
+	if (isKeyMatrixPressed(pos)) {
 		// Won't have any effect, ignore.
 		return;
 	}
-	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~press);
+	auto row = pos.getRow();
+	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~pos.getMask());
 }
 
 void Keyboard::releaseKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos)
@@ -1332,10 +1339,19 @@ bool Keyboard::pressUnicodeByUser(
 	bool insertCodeKanaRelease = false;
 	if (down) {
 		if ((needsLockToggle(keyInfo) & KeyInfo::CODE_MASK) &&
-				keyboardSettings.getAutoToggleCodeKanaLock()) {
+				keyboardSettings.getAutoToggleCodeKanaLock() &&
+				!isKeyMatrixPressed(modifierPos[KeyInfo::Modifier::CODE])) {
 			// Code Kana locks, is in wrong state and must be auto-toggled:
 			// Toggle it by pressing the lock key and scheduling a
-			// release event
+			// release event.
+			// Only do this when the CODE/KANA key is currently released,
+			// because only then does the MSX see a new key-press edge and
+			// actually toggle its lock. While the user is holding the host
+			// CODE/KANA key (typically AltGr, which on many host layouts is
+			// needed to type '@', '#', ...) the key is already down, so the
+			// MSX would toggle nothing while we did flip 'locksOn' here,
+			// leaving us permanently out of sync with the MSX. In that case
+			// simply type the character with CODE/KANA held, like a real MSX.
 			locksOn ^= KeyInfo::CODE_MASK;
 			pressKeyMatrixEvent(time, modifierPos[KeyInfo::Modifier::CODE]);
 			insertCodeKanaRelease = true;

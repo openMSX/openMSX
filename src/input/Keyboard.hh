@@ -91,6 +91,11 @@ private:
 	void executeUntil(EmuTime time) override;
 
 	void syncHostKeyMatrix(EmuTime time);
+	/** Returns true iff the given key is currently held down in the MSX
+	  * keyboard matrix. Pressing such a key again does not produce a new
+	  * key-press edge, so the MSX will not see it as a new key press.
+	  */
+	[[nodiscard]] bool isKeyMatrixPressed(KeyMatrixPosition pos) const;
 	void pressKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos);
 	void releaseKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos);
 	void changeKeyMatrixEvent (EmuTime time, uint8_t row, uint8_t newValue);
