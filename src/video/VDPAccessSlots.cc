@@ -157,7 +157,7 @@ struct CycleTable : AccessTable
 	{
 		// !!! Keep this in sync with the 'Delta' enum !!!
 		constexpr std::array<int, NUM_DELTAS> delta = {
-			0, 1, 16, 24, 28, 32, 40, 48, 64, 72, 88, 104, 120, 128, 136
+			0, 1, 16, 24, 28, 32, 36, 40, 48, 64, 72, 88, 104, 120, 128, 136
 		};
 
 		size_t out = 0;

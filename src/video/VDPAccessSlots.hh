@@ -21,17 +21,18 @@ enum class Delta : int {
 	D24   =  3 * TICKS,
 	D28   =  4 * TICKS,
 	D32   =  5 * TICKS,
-	D40   =  6 * TICKS,
-	D48   =  7 * TICKS,
-	D64   =  8 * TICKS,
-	D72   =  9 * TICKS,
-	D88   = 10 * TICKS,
-	D104  = 11 * TICKS,
-	D120  = 12 * TICKS,
-	D128  = 13 * TICKS,
-	D136  = 14 * TICKS,
+	D36   =  6 * TICKS,
+	D40   =  7 * TICKS,
+	D48   =  8 * TICKS,
+	D64   =  9 * TICKS,
+	D72   = 10 * TICKS,
+	D88   = 11 * TICKS,
+	D104  = 12 * TICKS,
+	D120  = 13 * TICKS,
+	D128  = 14 * TICKS,
+	D136  = 15 * TICKS,
 };
-static constexpr int NUM_DELTAS = 15;
+static constexpr int NUM_DELTAS = 16;
 
 /** VDP-VRAM access slot calculator, meant to be used in the inner loops of the
   * VDPCmdEngine commands. Code optimized for the case that:
