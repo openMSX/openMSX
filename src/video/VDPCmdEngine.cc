@@ -1122,6 +1122,23 @@ void VDPCmdEngine::executeLmmm(EmuTime limit)
 	unsigned dstAddr = Mode::addressOf(ADX, DY, dstExt);
 	auto calculator = getSlotCalculator(limit);
 
+	// It appears that:
+	//   with sprite rendering enabled the destination-read cannot use the
+	//   access slot exactly 32 cycles after the source-read.
+	// The mechanism for this is unclear yet. We do know:
+	// * This 'hack?' fixes Bengalack's "vdpcmdx" test program:
+	//     https://github.com/openMSX/openMSX/issues/2057
+	// * The same fix cannot be achieved by tuning the timing parameters in
+	//   the current model. We needed 'something' extra, and the current hack
+	//   is conditional timing based on sprites-enabled/disabled. Most likely
+	//   the real hardware has a different (yet unknown) mechanism.
+	// See here for a more detailed discussion:
+	//   https://github.com/sndpl/openMSX/pull/5
+	Delta dstReadDelta =
+		(!vdp.isMSX1VDP() && vdp.getDisplayMode().isBitmapMode() &&
+		 vdp.isDisplayEnabled() && vdp.spritesEnabledRegister())
+		? Delta::D48 : Delta::D32;
+
 	switch (phase) {
 	case 0:
 loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
@@ -1130,7 +1147,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 		} else {
 		       tmpSrc = 0xFF;
 		}
-		calculator.next(Delta::D32);
+		calculator.next(dstReadDelta);
 		[[fallthrough]];
 	case 1:
 		if (calculator.limitReached()) [[unlikely]] { phase = 1; break; }
