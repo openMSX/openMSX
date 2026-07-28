@@ -346,6 +346,7 @@ std::unique_ptr<MSXDevice> create(DeviceConfig& config)
 	case HAMARAJANIGHT:
 	case MEGAFLASHROMSCC:
 	case RBSC_FLASH_KONAMI_SCC:
+	case ASCII8FLASH:
 		return std::make_unique<RomManbow2>(config, std::move(rom), type);
 	case MATRAINK:
 		return std::make_unique<RomMatraInk>(config, std::move(rom));
