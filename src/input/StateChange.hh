@@ -266,6 +266,30 @@ private:
 };
 
 
+class JoyHandleState final : public StateChangeBase
+{
+public:
+	JoyHandleState() = default; // for serialize
+	JoyHandleState(EmuTime time_, uint8_t id_,
+	               uint8_t press_, uint8_t release_)
+		: StateChangeBase(time_), id(id_)
+		, press(press_), release(release_) {}
+
+	[[nodiscard]] auto getId()      const { return id; }
+	[[nodiscard]] auto getPress()   const { return press; }
+	[[nodiscard]] auto getRelease() const { return release; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/) {
+		ar.template serializeBase<StateChangeBase>(*this);
+		ar.serialize("id",      id,
+		             "press",   press,
+		             "release", release);
+	}
+private:
+	uint8_t id, press, release;
+};
+
+
 class PaddleState final : public StateChangeBase
 {
 public:
@@ -374,7 +398,8 @@ using StateChange = std::variant<
 	PaddleState,
 	TouchpadState,
 	MouseState,
-	JoyMegaState
+	JoyMegaState,
+	JoyHandleState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -397,7 +422,8 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"PaddleState",         index<PaddleState>        },
 		{"TouchpadState",       index<TouchpadState>      },
 		{"MouseState",          index<MouseState>         },
-		{"JoyMegaState",        index<JoyMegaState>       }
+		{"JoyMegaState",        index<JoyMegaState>       },
+		{"JoyHandleState",      index<JoyHandleState>     }
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;
