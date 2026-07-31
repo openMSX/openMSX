@@ -24,13 +24,22 @@
 //   * verbatim variable payload ................................. appended
 //     separately (NOT a struct member).
 //
+// Protocol v2 framing (see unapinet/protocol-v2.md): every reply begins with
+// a status byte, 0x00 = success, anything else a single-byte error reply.
+// Each result struct therefore carries 'uint8_t status = 0;' as its first
+// member - the correct value is baked into the type, so 'T{}' already is a
+// valid success frame, and the golden-byte tests verify it like any other
+// field. Error replies never go through these structs (they are one status
+// byte, no payload - rule 2).
+//
 // All UA_* members have alignof==1, so each struct is naturally packed (no
 // interior padding); the static_assert on each size guards that.
 //
 // USAGE:
 //   result:  setResult(TcpStateResult{.state = ..., .remoteIp = ip, ...});
 //            (plain integers convert to the UA_* fields; '{}' value-initialises
-//             every field to zero, so partially-filled records are still defined)
+//             every field not covered by a default to zero, so partially-filled
+//             records are still defined)
 //   param:   auto p = fromBytes<TcpOpenParams>(paramBuf); uint32_t ip = p.remoteIp;
 
 namespace openmsx {
@@ -77,31 +86,41 @@ template<wire_layout T>
 	return d;
 }
 
-// ---- CMD_QUERY_CAP (0x10) : 2 fixed bytes --------------------------------
-struct QueryCapResult {
-	uint8_t cap0;
-	uint8_t cap1;
+// ---- CMD_DETECT (0x00) result : 5 fixed bytes ----------------------------
+// The driver accepts the device iff bytes 0-2 are exactly 00 55 02; the
+// capability byte and the reserved byte are data, not part of that rule.
+struct DetectResult {
+	uint8_t status  = 0;
+	uint8_t magic   = 0x55;
+	uint8_t version = 2;
+	uint8_t caps    = 0;   // bit0 DNS, bit1 TCP active, bit2 TCP passive,
+	                       // bit3 UDP, bit4 ICMP, rest reserved 0
+	uint8_t reserved = 0;
 };
-static_assert(sizeof(QueryCapResult) == 2);
+static_assert(sizeof(DetectResult) == 5);
 
-// ---- CMD_DNS_QUERY (0x01) result, direct-IP-literal path : status + IP ---
+// ---- CMD_DNS_QUERY (0x01) result, dotted-quad fast path : 6 bytes --------
+// (the asynchronous path answers {0, 0}, assembled without a struct)
 struct DnsQueryResult {
-	uint8_t        status;   // = 1 (resolved immediately); value 2 never emitted here
-	Endian::UA_B32 ip;       // big-endian a.b.c.d
+	uint8_t        status   = 0;
+	uint8_t        resolved = 1; // resolved immediately
+	Endian::UA_B32 ip;           // big-endian a.b.c.d
 };
-static_assert(sizeof(DnsQueryResult) == 5);
+static_assert(sizeof(DnsQueryResult) == 6);
 
-// ---- CMD_DNS_STATUS (0x02) result ----------------------------------------
-struct DnsStatusResult {     // path A: complete
-	uint8_t        status;   // = 2
-	Endian::UA_B32 ip;       // big-endian
+// ---- CMD_DNS_STATUS (0x02) results ----------------------------------------
+struct DnsStatusResult {       // lookup complete
+	uint8_t        status = 0;
+	uint8_t        state  = 2; // complete
+	Endian::UA_B32 ip;         // big-endian
 };
-static_assert(sizeof(DnsStatusResult) == 5);
-struct DnsStatusError {      // path B: error
-	uint8_t status;          // = 0xFF
-	uint8_t errorCode;
+static_assert(sizeof(DnsStatusResult) == 6);
+struct DnsStatusFailed {       // lookup failed - a success reply carrying
+	uint8_t status = 0;        // bad news: the *command* worked (rule 2 keeps
+	uint8_t marker = 0xFF;     // command errors single-byte), the lookup did not
+	uint8_t sub;               // UNAPI DNS_S sub-error
 };
-static_assert(sizeof(DnsStatusError) == 2);
+static_assert(sizeof(DnsStatusFailed) == 3);
 
 // ---- CMD_TCP_OPEN (0x03) param : 11 bytes copied verbatim by the TSR -----
 struct TcpOpenParams {
@@ -112,6 +131,13 @@ struct TcpOpenParams {
 	uint8_t        flags;       //   'flags' stays at offset 10 (bit0=passive,bit1=resident)
 };
 static_assert(sizeof(TcpOpenParams) == 11);
+
+// ---- CMD_TCP_OPEN / CMD_UDP_OPEN result : status + 1-based handle --------
+struct OpenResult {
+	uint8_t status = 0;
+	uint8_t handle;
+};
+static_assert(sizeof(OpenResult) == 2);
 
 // ---- CMD_TCP_SEND (0x04) param header (+ 'len' payload bytes) -------------
 struct TcpSendParamHeader {
@@ -127,12 +153,14 @@ struct TcpRecvParams {
 };
 static_assert(sizeof(TcpRecvParams) == 3);
 struct TcpRecvResultHeader {
+	uint8_t        status = 0;
 	Endian::UA_L16 actualLen;   // little-endian; then 'actualLen' payload bytes
 };
-static_assert(sizeof(TcpRecvResultHeader) == 2);
+static_assert(sizeof(TcpRecvResultHeader) == 3);
 
-// ---- CMD_TCP_STATE (0x07) result : always 12 bytes, MIXED endian ---------
+// ---- CMD_TCP_STATE (0x07) result : always 13 bytes, MIXED endian ---------
 struct TcpStateResult {
+	uint8_t        status = 0;
 	uint8_t        state;
 	Endian::UA_L16 avail;       // little-endian
 	uint8_t        closeReason;
@@ -140,13 +168,14 @@ struct TcpStateResult {
 	Endian::UA_L16 remotePort;  // little-endian
 	Endian::UA_L16 localPort;   // little-endian
 };
-static_assert(sizeof(TcpStateResult) == 12);
+static_assert(sizeof(TcpStateResult) == 13);
 
-// ---- CMD_GET_LOCALIP (0x0D) result : 4-byte big-endian IP ----------------
+// ---- CMD_GET_LOCALIP (0x0D) result : status + 4-byte big-endian IP -------
 struct GetLocalIpResult {
+	uint8_t        status = 0;
 	Endian::UA_B32 ip;          // big-endian a.b.c.d
 };
-static_assert(sizeof(GetLocalIpResult) == 4);
+static_assert(sizeof(GetLocalIpResult) == 5);
 
 // ---- CMD_UDP_OPEN (0x09) param -------------------------------------------
 struct UdpOpenParams {
@@ -156,9 +185,10 @@ static_assert(sizeof(UdpOpenParams) == 2);
 
 // ---- CMD_UDP_STATE (0x0B) result -----------------------------------------
 struct UdpStateResult {
+	uint8_t        status = 0;
 	Endian::UA_L16 firstDgramSize; // little-endian; 0 = none
 };
-static_assert(sizeof(UdpStateResult) == 2);
+static_assert(sizeof(UdpStateResult) == 3);
 
 // ---- CMD_UDP_SEND (0x0C) param header (+ 'len' payload bytes) ------------
 struct UdpSendParamHeader {
@@ -169,18 +199,19 @@ struct UdpSendParamHeader {
 };
 static_assert(sizeof(UdpSendParamHeader) == 9);
 
-// ---- CMD_UDP_RECV (0x0F) : 8-byte header, MIXED endian (+ payload) --------
+// ---- CMD_UDP_RECV (0x0F) : 9-byte header, MIXED endian (+ payload) --------
 struct UdpRecvParams {
 	uint8_t        handle;
 	Endian::UA_L16 maxlen;      // little-endian
 };
 static_assert(sizeof(UdpRecvParams) == 3);
 struct UdpRecvResultHeader {
+	uint8_t        status = 0;
 	Endian::UA_B32 srcIp;       // big-endian
 	Endian::UA_L16 srcPort;     // little-endian
 	Endian::UA_L16 actualLen;   // little-endian; then 'actualLen' payload bytes
 };
-static_assert(sizeof(UdpRecvResultHeader) == 8);
+static_assert(sizeof(UdpRecvResultHeader) == 9);
 
 // ---- CMD_ICMP_SEND (0x11) param : 11 bytes copied verbatim ---------------
 struct IcmpSendParams {
@@ -192,9 +223,12 @@ struct IcmpSendParams {
 };
 static_assert(sizeof(IcmpSendParams) == 11);
 
-// ---- CMD_ICMP_RECV (0x12) result : data-present path, 12 bytes -----------
+// ---- CMD_ICMP_RECV (0x12) result : 12 bytes -------------------------------
+// The status byte sits where v1 kept its 'hasData' marker, so the record
+// stays 12 bytes - the one struct the v2 status byte replaces rather than
+// grows ('no data' is the single-byte error reply {ERR_NO_DATA}).
 struct IcmpRecvResult {
-	uint8_t        hasData;     // = 1
+	uint8_t        status = 0;
 	Endian::UA_B32 srcIp;       // big-endian
 	uint8_t        ttl;
 	Endian::UA_L16 identifier;  // little-endian

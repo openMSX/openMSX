@@ -18,11 +18,12 @@
 #include <thread>
 #include <vector>
 
-// UnapiNet - openMSX Extension (Phase 2)
+// UnapiNet - MSX-UNAPI TCP/IP bridge device
 //
 // I/O ports 0x28 (cmd/status) and 0x29 (data). Same range as the
 // DenYoNet - both are UNAPI Ethernet bridges and don't coexist.
-// Bridge between the MSX and BSD sockets on the host.
+// Bridge between the MSX and BSD sockets on the host, speaking protocol v2
+// (see unapinet/protocol-v2.md): every reply starts with a status byte.
 
 namespace openmsx {
 
@@ -46,13 +47,18 @@ private:
 	[[no_unique_address]] SocketActivator socketActivator;
 
 	// --- I/O protocol state ---
-	// The status register alone describes the state: STATUS_DATA means a
-	// result is waiting to be read from the data port, anything else means
-	// idle. (STATUS_* live in the .cc.)
-	uint8_t  statusReg = 0x00; // STATUS_OK
+	// Reading the command port returns the status byte of the last COMPLETED
+	// command (the v2 mirror; 0xFF after reset, before any command has run).
+	// Only command completion updates it: parameter writes, result reads and
+	// the discard of a pending result leave it untouched. Whether a reply is
+	// pending is a separate fact: resultPos < resultBuf.size().
+	uint8_t  statusReg = 0xFF;
 
-	// Parameter buffer (written to 0x29 before the command)
+	// Parameter buffer (written to 0x29 before the command). paramOverflow
+	// records that the cap forced writeIO to drop bytes: the block is "too
+	// long" (rule 3) even where no exact-size check exists (DNS_QUERY).
 	std::vector<uint8_t> paramBuf;
+	bool paramOverflow = false;
 
 	// Result buffer (read from 0x29 after the command)
 	std::vector<uint8_t> resultBuf;
@@ -61,8 +67,8 @@ private:
 	// --- TCP connections ---
 	static constexpr int MAX_TCP = 4;
 	// Internal handles are 0-based array indices; only the wire protocol is
-	// 1-based (a 0 handle byte means failure there). Conversion happens in
-	// tcpForHandle()/udpForHandle() and in the OPEN replies, nowhere else.
+	// 1-based. Conversion happens in tcpForHandle()/udpForHandle() and in the
+	// OPEN replies, nowhere else.
 	static constexpr int INVALID_HANDLE = -1;
 
 	// TCP states (UNAPI spec wire values)
@@ -136,13 +142,20 @@ private:
 	struct UdpConnection { // same threading contract as TcpConnection above
 		std::atomic<SOCKET> sock{OPENMSX_INVALID_SOCKET};
 		uint16_t localPort = 0;   // guarded by 'mutex'
-		bool     resident = false; // emulation thread only
+		bool     resident = false; // emulation thread only; nothing sets it
+		                           // today (v2: every UDP socket is transient)
 		std::deque<UdpDatagram> recvQueue; // guarded by 'mutex'
 		std::mutex mutex;
 	};
 	std::array<UdpConnection, MAX_UDP> udp;
 
-	// --- ICMP echo reply queue ---
+	// --- ICMP echo ---
+	// The capability is latched ONCE at device start (platform support
+	// compiled in AND the channel opening successfully); DETECT advertises
+	// it, the ICMP commands are gated on it, and reset() does not re-probe.
+	bool icmpAvailable = false;
+	void* icmpChannel = nullptr; // Windows HANDLE from IcmpCreateFile()
+
 	struct IcmpReply {
 		uint32_t srcIp = 0;
 		uint8_t  ttl = 0;
@@ -151,7 +164,10 @@ private:
 		uint16_t dataLen = 0;
 	};
 	std::deque<IcmpReply> icmpReplies; // guarded by icmpMutex
-	std::mutex icmpMutex; // protects icmpReplies only
+	// reset() bumps the generation so an echo still in flight inside the
+	// worker cannot repopulate the queue reset just cleared.
+	uint32_t icmpGeneration = 0;       // guarded by icmpMutex
+	std::mutex icmpMutex; // protects icmpReplies and icmpGeneration
 	std::thread icmpWorker;
 	std::atomic<bool> icmpPending{false};
 	// ICMP request for worker to handle
@@ -165,9 +181,14 @@ private:
 
 	// --- Async DNS ---
 	enum class DnsStatus : uint8_t { Idle = 0, InProgress = 1, Complete = 2, Error = 3 };
+	// A lookup thread only publishes its outcome while its generation still
+	// matches: reset() and every new query bump it, so a stale lookup that
+	// finishes late cannot overwrite the state they established.
 	struct {
-		std::atomic<DnsStatus> status{DnsStatus::Idle};
-		std::atomic<uint32_t> resolvedIp{0};
+		DnsStatus status = DnsStatus::Idle; // guarded by 'mutex'
+		uint32_t resolvedIp = 0;            // guarded by 'mutex'
+		uint32_t generation = 0;            // guarded by 'mutex'
+		std::mutex mutex;
 	} dns;
 	std::thread dnsThread;
 
@@ -178,8 +199,7 @@ private:
 
 	// --- Command processing ---
 	void processCmd(uint8_t cmd);
-	void cmdPing();
-	void cmdQueryCap();
+	void cmdDetect();
 	void cmdDnsQuery();
 	void cmdDnsStatus();
 	void cmdTcpOpen();
@@ -200,8 +220,9 @@ private:
 	void icmpWorkerLoop();
 
 	// --- Helpers ---
-	// The three setResult() overloads queue a command result for the MSX to
-	// read from the data port, and mark the status register accordingly.
+	// The setResult() overloads queue a command reply for the MSX to read
+	// from the data port and update the status mirror from its first byte
+	// (in v2 every reply, success or error, begins with the status).
 	void setResult(std::span<const uint8_t> data);
 	// Wire-layout struct (see UnapiNetWire.hh): the compiler lays out the
 	// exact on-wire bytes. The requires-clause keeps span-like types (which
@@ -223,8 +244,19 @@ private:
 		setResult(asBytes(hdr));
 		resultBuf.insert(resultBuf.end(), payload.begin(), payload.end());
 	}
-	void setResultByte(uint8_t b);
-	void setError();
+	// Single-byte reply: {ERR_OK} for the commands whose success carries no
+	// data, {error code} for every failure (v2 rule 2).
+	void replyStatus(uint8_t status);
+
+	// Rule 3 helper: accept the parameter block only at exactly sizeof(T).
+	// Commands with a variable payload (TCP_SEND / UDP_SEND) check their
+	// combined size by hand instead.
+	template<wire_layout T>
+	[[nodiscard]] std::optional<T> exactParams() const
+	{
+		if (paramBuf.size() != sizeof(T)) return std::nullopt;
+		return fromBytes<T>(paramBuf);
+	}
 
 	// Returns a free 0-based index, or INVALID_HANDLE.
 	[[nodiscard]] int allocTcpHandle();
@@ -232,21 +264,18 @@ private:
 	[[nodiscard]] TcpConnection* tcpForHandle(int wireHandle);
 	// Direct close. Only legal with the receiver thread stopped (destructor).
 	void closeTcp(TcpConnection& c);
-	// Mark a connection closed for the MSX right away and let the receiver
-	// thread do the actual sock_close(). Safe from either thread.
-	// clearMetadata also wipes the endpoint info and the buffers (what
-	// TCP_CLOSE / TCP_ABORT / reset want); the receiver's error paths leave
-	// them, so the MSX can still drain data that already arrived.
 	// Drop a connection now: the socket is invalidated (so the handle is free
 	// again immediately) and the raw fd is queued for the receiver to close.
-	// Safe from either thread. clearMetadata also wipes the endpoint info and
-	// the buffers; the receiver's error paths leave them, so the MSX can still
-	// drain data that already arrived.
+	// Safe from either thread. The buffers and endpoint info are LEFT in
+	// place - a closed slot keeps its final state, close reason and undrained
+	// receive data until TCP_OPEN reuses it (the v2 sticky-slot rule; ABORT
+	// included). clearMetadata wipes them too, which only reset() wants.
 	void requestClose(TcpConnection& c, CloseReason reason,
 	                  bool clearMetadata = false);
 	void requestClose(UdpConnection& u);
 	// TCP_CLOSE: half-close (FIN) and let the peer finish, rather than dropping
-	// data the MSX has already been told we accepted.
+	// data the MSX has already been told we accepted. Idempotent while the
+	// close is in progress.
 	void gracefulClose(TcpConnection& c);
 	// Hand a raw fd to the receiver thread to close.
 	void deferSockClose(SOCKET sd);

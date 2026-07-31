@@ -24,26 +24,42 @@
 #include <cassert>
 #include <chrono>
 #include <cstring>
+#include <expected>
 
 // Socket handles are openMSX SOCKET values (see Socket.hh); no casts needed.
 
-// UnapiNet - openMSX Extension (Phase 2)
+// UnapiNet - MSX-UNAPI TCP/IP bridge device
 //
-// Bridge between the MSX I/O ports and BSD sockets on the host.
-// Supports: async DNS, TCP (up to 4 simultaneous connections),
-// circular receive buffer with a background thread.
+// Bridge between the MSX I/O ports and BSD sockets on the host, speaking
+// protocol v2 (see unapinet/protocol-v2.md): every reply begins with a
+// status byte carrying an MSX-UNAPI error code verbatim, so the Z80 driver
+// hands it to its caller without translating. Async DNS, TCP and UDP (4
+// connections each), ICMP echo where the host supports it.
 
 namespace openmsx {
 
-// --- Capabilities for QUERY_CAP (Phase 2) ---
-// Byte 0: bit0=PING bit1=DNS_HOSTS(local) bit2=DNS bit3=TCP_ACTIVE... (see spec)
-// Bits 0,2,3,10 = PING + DNS + TCP active + UDP
-// Byte 1: bridge version
-static constexpr uint8_t CAP_BYTE0 = 0x0F; // PING + DNS + TCP + UDP caps summary
-static constexpr uint8_t CAP_BYTE1 = 0x04; // bridge version 4
+// MSX-UNAPI TCP/IP error codes: v2 speaks them natively on the wire (the
+// status byte fronting every reply), so these values are shared with the
+// Z80 driver's error table.
+static constexpr uint8_t ERR_OK           = 0;
+static constexpr uint8_t ERR_NOT_IMP      = 1;
+static constexpr uint8_t ERR_NO_NETWORK   = 2;
+static constexpr uint8_t ERR_NO_DATA      = 3;
+static constexpr uint8_t ERR_INV_PARAM    = 4;
+static constexpr uint8_t ERR_QUERY_EXISTS = 5;
+static constexpr uint8_t ERR_NO_FREE_CONN = 9;
+static constexpr uint8_t ERR_NO_CONN      = 11;
+static constexpr uint8_t ERR_CONN_STATE   = 12;
+static constexpr uint8_t ERR_BUFFER       = 13;
 
-// Maximum result payload per TCP_RECV command. TCP_SEND is not clamped to
-// this; the driver keeps to the same bound by convention.
+// DETECT capability byte: bits 0-3 are informational and always set on this
+// device; bit4 (ICMP) is honest - latched once at device start and enforced
+// by the ICMP commands.
+static constexpr uint8_t CAPS_BASE = 0x0F; // DNS + TCP active/passive + UDP
+static constexpr uint8_t CAP_ICMP  = 0x10;
+
+// Maximum result payload per TCP_RECV command, and the exact-size ceiling
+// on a TCP_SEND length (rule 3 makes exceeding it ERR_INV_PARAM).
 static constexpr size_t MAX_TRANSFER = 4096;
 
 // Maximum receive buffer size per connection
@@ -56,11 +72,18 @@ static constexpr size_t MAX_RECV_BUF = 65536;
 static constexpr size_t MAX_PARAM_BUF = 64 * 1024 + 16;
 
 // Bound on data queued for sending but not yet accepted by the kernel.
-// TCP_SEND reports 'buffer full' rather than blocking the emulation thread.
+// TCP_SEND reports ERR_BUFFER rather than blocking the emulation thread.
 static constexpr size_t MAX_SEND_BUF = 64 * 1024;
 
-// Bridge command opcodes (wire protocol, shared with the Z80 driver)
-static constexpr uint8_t CMD_PING        = 0x00;
+// Bounds on the receive-side queues (v1 values, unchanged in v2).
+static constexpr size_t MAX_UDP_QUEUE  = 16;   // pending datagrams per socket
+static constexpr size_t MAX_ICMP_QUEUE = 16;   // pending echo replies
+static constexpr size_t MAX_UDP_DGRAM  = 2048; // larger datagrams are truncated at receive
+
+// Bridge command opcodes (wire protocol, shared with the Z80 driver).
+// 0x10 (v1's QUERY_CAP) is retired: DETECT carries the capabilities, and
+// the opcode answers ERR_NOT_IMP like any other unknown one.
+static constexpr uint8_t CMD_DETECT      = 0x00;
 static constexpr uint8_t CMD_DNS_QUERY   = 0x01;
 static constexpr uint8_t CMD_DNS_STATUS  = 0x02;
 static constexpr uint8_t CMD_TCP_OPEN    = 0x03;
@@ -76,12 +99,8 @@ static constexpr uint8_t CMD_UDP_SEND    = 0x0C;
 static constexpr uint8_t CMD_GET_LOCALIP = 0x0D;
 static constexpr uint8_t CMD_NET_STATE   = 0x0E;
 static constexpr uint8_t CMD_UDP_RECV    = 0x0F;
-static constexpr uint8_t CMD_QUERY_CAP   = 0x10;
 static constexpr uint8_t CMD_ICMP_SEND   = 0x11;
 static constexpr uint8_t CMD_ICMP_RECV   = 0x12;
-
-// PING reply magic
-static constexpr uint8_t MAGIC = 0xAB;
 
 // How long a half-closed connection may wait for the peer to close too,
 // before we drop it and free the handle.
@@ -89,13 +108,10 @@ static constexpr auto CLOSE_TIMEOUT = std::chrono::seconds(30);
 
 // openMSX's sock_recv()/sock_send() fold 'peer closed' and 'error' into -1,
 // and decide would-block from SO_ERROR - which a synchronous WSAEWOULDBLOCK
-// does not set on Windows. We need the three outcomes apart, so we call
+// does not set on Windows. We need the outcomes apart, so we call
 // recv()/send() here and ask the platform ourselves.
-enum class IoStatus { Ok, WouldBlock, Closed, Error };
-struct IoResult {
-	size_t bytes = 0;
-	IoStatus status = IoStatus::Error;
-};
+enum class IoError { WouldBlock, Closed, Failed };
+using IoResult = std::expected<size_t, IoError>; // success: bytes transferred
 
 // 'try again later' rather than a broken connection.
 [[nodiscard]] static bool ioWouldBlock()
@@ -111,9 +127,9 @@ struct IoResult {
 [[nodiscard]] static IoResult netRecv(SOCKET sd, char* buf, size_t count)
 {
 	auto n = recv(sd, buf, static_cast<int>(count), 0);
-	if (n > 0) return {static_cast<size_t>(n), IoStatus::Ok};
-	if (n == 0) return {0, IoStatus::Closed}; // orderly shutdown by the peer
-	return {0, ioWouldBlock() ? IoStatus::WouldBlock : IoStatus::Error};
+	if (n > 0) return static_cast<size_t>(n);
+	if (n == 0) return std::unexpected(IoError::Closed); // orderly shutdown by the peer
+	return std::unexpected(ioWouldBlock() ? IoError::WouldBlock : IoError::Failed);
 }
 
 [[nodiscard]] static IoResult netSend(SOCKET sd, const uint8_t* buf, size_t count)
@@ -128,8 +144,8 @@ struct IoResult {
 #endif
 	auto n = send(sd, reinterpret_cast<const char*>(buf),
 	              static_cast<int>(count), SEND_FLAGS);
-	if (n >= 0) return {static_cast<size_t>(n), IoStatus::Ok};
-	return {0, ioWouldBlock() ? IoStatus::WouldBlock : IoStatus::Error};
+	if (n >= 0) return static_cast<size_t>(n);
+	return std::unexpected(ioWouldBlock() ? IoError::WouldBlock : IoError::Failed);
 }
 
 // Half-close: tell the peer we are done sending (FIN).
@@ -142,13 +158,8 @@ static void shutdownSend(SOCKET sd)
 #endif
 }
 
-// UNAPI DNS error code reported on a failed lookup (host name does not exist)
+// UNAPI DNS_S sub-error reported on a failed lookup (host name does not exist)
 static constexpr uint8_t DNS_ERR_NO_SUCH_HOST = 3;
-
-// Status register values (wire protocol)
-static constexpr uint8_t STATUS_OK    = 0x00;
-static constexpr uint8_t STATUS_ERROR = 0x01;
-static constexpr uint8_t STATUS_DATA  = 0x02;
 
 // Constructor / Destructor
 
@@ -160,10 +171,22 @@ UnapiNet::UnapiNet(const DeviceConfig& config)
 
 	reset(EmuTime::dummy()); // keep constructor and reset() in sync
 
+#ifdef _WIN32
+	// Latch the ICMP capability, once: DETECT advertises bit4 only when
+	// pinging can actually work, and the ICMP commands are gated on it.
+	// (IcmpSendEcho needs no privileges, unlike raw sockets.)
+	if (HANDLE h = IcmpCreateFile(); h != INVALID_HANDLE_VALUE) {
+		icmpChannel = h;
+		icmpAvailable = true;
+	}
+#endif
+
 	// Start background threads
 	running = true;
 	recvThread = std::thread([this]() { receiverLoop(); });
-	icmpWorker = std::thread([this]() { icmpWorkerLoop(); });
+	if (icmpAvailable) {
+		icmpWorker = std::thread([this]() { icmpWorkerLoop(); });
+	}
 }
 
 UnapiNet::~UnapiNet()
@@ -182,14 +205,22 @@ UnapiNet::~UnapiNet()
 		for (SOCKET sd : socksToClose) sock_close(sd);
 		socksToClose.clear();
 	}
+#ifdef _WIN32
+	if (icmpChannel) IcmpCloseHandle(icmpChannel);
+#endif
 }
 
 // Reset
 
 void UnapiNet::reset(EmuTime /*time*/)
 {
-	statusReg = STATUS_OK;
+	// Ground state: every connection closed and freed, every buffer and
+	// queue discarded, pending reply and accumulated parameters dropped,
+	// DNS idle, and the status mirror reads 0xFF until the first command
+	// completes. The ICMP capability stays as latched at device start.
+	statusReg = 0xFF;
 	paramBuf.clear();
+	paramOverflow = false;
 	resultBuf.clear();
 	resultPos = 0;
 
@@ -199,8 +230,19 @@ void UnapiNet::reset(EmuTime /*time*/)
 	for (auto& c : tcp) requestClose(c, CloseReason::NeverUsed, true);
 	for (auto& u : udp) requestClose(u);
 
-	dns.status = DnsStatus::Idle;
-	dns.resolvedIp = 0;
+	{
+		std::scoped_lock lock(dns.mutex);
+		dns.status = DnsStatus::Idle;
+		dns.resolvedIp = 0;
+		++dns.generation; // a lookup still in flight must not publish anymore
+	}
+	{
+		std::scoped_lock lock(icmpMutex);
+		icmpReplies.clear();
+		++icmpGeneration; // an echo still in flight must not repopulate
+		                  // the queue we just cleared
+	}
+	icmpPending = false;
 }
 
 // Port reads
@@ -208,13 +250,17 @@ void UnapiNet::reset(EmuTime /*time*/)
 byte UnapiNet::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	if (port & 1) {
-		// data register (typically 0x29)
-		if (statusReg == STATUS_DATA && resultPos < resultBuf.size()) {
+		// data register (typically 0x29): the next unread reply byte.
+		// Past the end of a reply, or with no reply pending, reads 0xFF -
+		// the open-bus value an absent device yields, and never a valid
+		// status (rule 4): a desynchronized driver can always tell.
+		if (resultPos < resultBuf.size()) {
 			return resultBuf[resultPos];
 		}
-		return 0x00;
+		return 0xFF;
 	} else {
-		// status register (typically 0x28)
+		// command register (typically 0x28) reads back the status byte of
+		// the last completed command - the v2 mirror.
 		return statusReg;
 	}
 }
@@ -223,11 +269,10 @@ byte UnapiNet::readIO(uint16_t port, EmuTime time)
 {
 	byte b = peekIO(port, time);
 	if (port & 1) {
-		// reading the data register consumes one result byte
-		if (statusReg == STATUS_DATA && resultPos < resultBuf.size()) {
-			if (++resultPos >= resultBuf.size()) {
-				statusReg = STATUS_OK; // result fully consumed
-			}
+		// reading the data register consumes one result byte; the status
+		// mirror is not consumption bookkeeping and stays untouched
+		if (resultPos < resultBuf.size()) {
+			++resultPos;
 		}
 	}
 	return b;
@@ -238,21 +283,23 @@ byte UnapiNet::readIO(uint16_t port, EmuTime time)
 void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
 	if (port & 1) {
-		// parameter (accumulate), typically 0x29
-		// If there is a pending unread result, discard it
-		// so that the new parameters are accepted
-		if (statusReg == STATUS_DATA) {
-			statusReg = STATUS_OK;
-			resultBuf.clear();
-			resultPos = 0;
-		}
+		// parameter byte (typically 0x29). Writing one while a reply is
+		// pending abandons the reply (the recovery rule) - the driver never
+		// has to drain a result it lost interest in. The mirror keeps the
+		// last completed status; only command completion updates it.
+		resultBuf.clear();
+		resultPos = 0;
 		if (paramBuf.size() < MAX_PARAM_BUF) {
 			paramBuf.push_back(value);
+		} else {
+			// Drop the byte but remember it: the block is "too long"
+			// (rule 3) even for DNS_QUERY, whose block has no expected
+			// size an exact-size check could catch. Host memory stays
+			// bounded either way.
+			paramOverflow = true;
 		}
-		// else: drop the byte; the command's size checks will report an
-		// error to the MSX, and host memory stays bounded
 	} else {
-		// command (typically 0x28)
+		// command (typically 0x28); replaces a pending reply, if any
 		processCmd(value);
 	}
 }
@@ -261,27 +308,24 @@ void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 
 void UnapiNet::setResult(std::span<const uint8_t> data)
 {
+	assert(!data.empty()); // v2: every reply begins with its status byte
 	resultBuf.assign(data.begin(), data.end());
 	resultPos = 0;
-	statusReg = STATUS_DATA;
+	statusReg = data[0]; // command completion updates the mirror
 }
 
-void UnapiNet::setResultByte(uint8_t b)
+void UnapiNet::replyStatus(uint8_t status)
 {
-	setResult(std::span<const uint8_t>(&b, 1));
-}
-
-void UnapiNet::setError()
-{
-	resultBuf.clear();
-	resultPos = 0;
-	statusReg = STATUS_ERROR;
+	setResult(std::span<const uint8_t>(&status, 1));
 }
 
 // TCP handle management
 
 int UnapiNet::allocTcpHandle()
 {
+	// A closed slot holding the sticky tail of a dead connection IS free:
+	// it does not count toward ERR_NO_FREE_CONN, and reuse destroys the tail
+	// (cmdTcpOpen clears the buffers when it publishes).
 	for (int i = 0; i < MAX_TCP; i++) {
 		if (tcp[i].sock == OPENMSX_INVALID_SOCKET &&
 			tcp[i].tcpState == TcpState::Closed) {
@@ -291,8 +335,8 @@ int UnapiNet::allocTcpHandle()
 	return INVALID_HANDLE;
 }
 
-// The wire handle is a byte from the MSX: 1-based, 0 = error. These two are
-// the only places that map wire handles to the 0-based internal arrays.
+// The wire handle is a byte from the MSX: 1-based, 1..4 in range. These two
+// are the only places that map wire handles to the 0-based internal arrays.
 UnapiNet::TcpConnection* UnapiNet::tcpForHandle(int wireHandle)
 {
 	return (wireHandle >= 1 && wireHandle <= MAX_TCP) ? &tcp[wireHandle - 1] : nullptr;
@@ -356,9 +400,9 @@ void UnapiNet::requestClose(TcpConnection& c, CloseReason reason,
 		c.tcpState = TcpState::Closed;
 		c.finSent = false;
 		c.sendBuf.clear();
-		if (clearMetadata) {
-			c.remoteIp   = 0;
-			c.remotePort = 0;
+		if (clearMetadata) { // reset() only: the sticky-slot rule keeps
+			c.remoteIp   = 0;  // the endpoint info and the undrained tail
+			c.remotePort = 0;  // readable everywhere else
 			c.localPort  = 0;
 			c.resident   = false;
 			c.recvBuf.clear();
@@ -369,6 +413,8 @@ void UnapiNet::requestClose(TcpConnection& c, CloseReason reason,
 
 void UnapiNet::requestClose(UdpConnection& u)
 {
+	// Unlike TCP there is no sticky tail: closing a UDP socket discards
+	// its queued datagrams.
 	SOCKET sd;
 	{
 		std::scoped_lock lock(u.mutex);
@@ -385,7 +431,8 @@ void UnapiNet::requestClose(UdpConnection& u)
 // half-close, so it is simply dropped. An established one moves to
 // FinWait1: the FIN goes out as soon as whatever the MSX queued has been
 // sent, and the connection is dropped when the peer closes too (or when
-// CLOSE_TIMEOUT passes and it never does).
+// CLOSE_TIMEOUT passes and it never does). A second CLOSE while that is
+// in progress changes nothing (idempotent).
 void UnapiNet::gracefulClose(TcpConnection& c)
 {
 	{
@@ -394,21 +441,25 @@ void UnapiNet::gracefulClose(TcpConnection& c)
 		// stamped on a slot that has no socket - unusable and unrecoverable.
 		std::scoped_lock lock(c.mutex);
 		SOCKET sd = c.sock;
-		if (sd != OPENMSX_INVALID_SOCKET &&
-		    c.tcpState == one_of(TcpState::Established, TcpState::CloseWait)) {
-			c.closeReason = CloseReason::ClosedByUser;
-			c.tcpState = TcpState::FinWait1;
-			c.closeDeadline = std::chrono::steady_clock::now() + CLOSE_TIMEOUT;
-			c.finSent = false;
-			if (c.sendBuf.empty()) {
-				shutdownSend(sd);
-				c.finSent = true;
+		if (sd != OPENMSX_INVALID_SOCKET) {
+			if (c.tcpState == TcpState::FinWait1) {
+				return; // close already in progress: idempotent
 			}
-			return;
+			if (c.tcpState == one_of(TcpState::Established, TcpState::CloseWait)) {
+				c.closeReason = CloseReason::ClosedByUser;
+				c.tcpState = TcpState::FinWait1;
+				c.closeDeadline = std::chrono::steady_clock::now() + CLOSE_TIMEOUT;
+				c.finSent = false;
+				if (c.sendBuf.empty()) {
+					shutdownSend(sd);
+					c.finSent = true;
+				}
+				return;
+			}
 		}
 	} // drop the lock: requestClose() takes it
 	// Nothing to half-close (listening, still connecting, or already gone).
-	requestClose(c, CloseReason::ClosedByUser, true);
+	requestClose(c, CloseReason::ClosedByUser);
 }
 
 void UnapiNet::receiverLoop()
@@ -467,7 +518,7 @@ void UnapiNet::receiverLoop()
 					giveUp = std::chrono::steady_clock::now() > c.closeDeadline;
 				}
 				if (giveUp) { // the peer never closed its side
-					requestClose(c, CloseReason::ClosedByUser, true);
+					requestClose(c, CloseReason::ClosedByUser);
 					continue;
 				}
 			}
@@ -568,7 +619,9 @@ void UnapiNet::receiverLoop()
 				{
 					std::scoped_lock lock(c.mutex);
 					// The MSX may have closed the listener while we were accepting,
-					// and the remote-IP filter has to be read coherently.
+					// and the remote-IP filter has to be read coherently. A
+					// non-matching peer is dropped and the listener keeps
+					// listening; on a match the handle BECOMES the connection.
 					if (c.sock == sd && c.tcpState == TcpState::Listen &&
 					    (c.remoteIp == 0 || peerIp == c.remoteIp)) {
 						// Swap the listening socket for the accepted one, publishing
@@ -602,10 +655,13 @@ void UnapiNet::receiverLoop()
 					std::scoped_lock lock(c.mutex);
 					while (c.sock == sd && !c.sendBuf.empty()) {
 						auto r = netSend(sd, c.sendBuf.data(), c.sendBuf.size());
-						if (r.status == IoStatus::Error) { sendFailed = true; break; }
-						if (r.bytes == 0) break; // would block
+						if (!r) {
+							sendFailed = (r.error() == IoError::Failed);
+							break;
+						}
+						if (*r == 0) break;
 						c.sendBuf.erase(c.sendBuf.begin(),
-						                c.sendBuf.begin() + r.bytes);
+						                c.sendBuf.begin() + *r);
 					}
 				}
 				if (sendFailed) {
@@ -629,30 +685,24 @@ void UnapiNet::receiverLoop()
 			if (room == 0) continue; // full: we shouldn't even have armed it
 			std::array<char, 512> buf;
 			auto r = netRecv(sd, buf.data(), std::min(buf.size(), room));
-			switch (r.status) {
-			case IoStatus::Ok: {
+			if (r) {
 				std::scoped_lock lock(c.mutex);
-				if (c.sock != sd) break;
+				if (c.sock != sd) continue;
 				const auto* d = reinterpret_cast<const uint8_t*>(buf.data());
-				c.recvBuf.insert(c.recvBuf.end(), d, d + r.bytes);
-				break;
-			}
-			case IoStatus::Closed:
+				c.recvBuf.insert(c.recvBuf.end(), d, d + *r);
+			} else if (r.error() == IoError::Closed) {
 				// The peer closed its side. If we had closed ours too, the
 				// connection is finished; otherwise the MSX may still send.
 				if (c.tcpState == TcpState::FinWait1) {
-					requestClose(c, CloseReason::ClosedByUser, true);
+					requestClose(c, CloseReason::ClosedByUser);
 				} else {
 					std::scoped_lock lock(c.mutex);
 					if (c.sock == sd) c.tcpState = TcpState::CloseWait;
 				}
-				break;
-			case IoStatus::WouldBlock:
-				break; // spurious readable: nothing to do
-			case IoStatus::Error:
+			} else if (r.error() == IoError::Failed) {
 				requestClose(c, CloseReason::ConnectionReset);
-				break;
 			}
+			// WouldBlock: spurious readable, nothing to do
 		}
 
 		for (int i = 0; i < MAX_UDP; ++i) {
@@ -660,11 +710,22 @@ void UnapiNet::receiverLoop()
 			SOCKET sd = watchedUdp[i];
 			if (sd == OPENMSX_INVALID_SOCKET || u.sock != sd) continue;
 			if (!FD_ISSET(sd, &rfds)) continue;
-			std::array<char, 2048> buf;
+			std::array<char, MAX_UDP_DGRAM> buf;
 			struct sockaddr_in src;
 			::socklen_t slen = sizeof(src);
 			int n = recvfrom(sd, buf.data(), buf.size(), 0,
 			                 reinterpret_cast<struct sockaddr*>(&src), &slen);
+#ifdef _WIN32
+			// Winsock reports a datagram larger than the buffer as an
+			// ERROR (WSAEMSGSIZE) after filling the buffer and consuming
+			// the datagram - that IS the truncate-at-receive the protocol
+			// wants, not a failure. Treating it as one would silently lose
+			// the whole datagram. (POSIX recvfrom just returns a full
+			// buffer, no special case needed.)
+			if (n < 0 && WSAGetLastError() == WSAEMSGSIZE) {
+				n = static_cast<int>(buf.size());
+			}
+#endif
 			if (n <= 0) continue;
 			UdpDatagram dg;
 			dg.srcIp = ntohl(src.sin_addr.s_addr);
@@ -672,7 +733,7 @@ void UnapiNet::receiverLoop()
 			dg.data.assign(buf.data(), buf.data() + n);
 			std::scoped_lock lock(u.mutex);
 			if (u.sock != sd) continue;
-			if (u.recvQueue.size() < 16) { // cap pending datagrams
+			if (u.recvQueue.size() < MAX_UDP_QUEUE) { // cap pending datagrams
 				u.recvQueue.push_back(std::move(dg));
 			}
 		}
@@ -680,12 +741,19 @@ void UnapiNet::receiverLoop()
 }
 
 // Command processing
+//
+// Validation order is fixed by the spec: form first (rule 3 plus the
+// semantic ERR_INV_PARAMs), then capability, then handle, then connection
+// state, then the data check; the host operation runs last, so its errors
+// imply every earlier check passed.
 
 void UnapiNet::processCmd(uint8_t cmd)
 {
+	// Opcode dispatch precedes rule 3: an unknown opcode answers ERR_NOT_IMP
+	// whether or not stray parameter bytes accompany it (there is no
+	// expected size to validate against).
 	switch (cmd) {
-	case CMD_PING:       cmdPing();      break;
-	case CMD_QUERY_CAP:  cmdQueryCap();  break;
+	case CMD_DETECT:     cmdDetect();    break;
 	case CMD_DNS_QUERY:  cmdDnsQuery();  break;
 	case CMD_DNS_STATUS: cmdDnsStatus(); break;
 	case CMD_TCP_OPEN:   cmdTcpOpen();   break;
@@ -704,79 +772,106 @@ void UnapiNet::processCmd(uint8_t cmd)
 	case CMD_ICMP_SEND:  cmdIcmpSend();  break;
 	case CMD_ICMP_RECV:  cmdIcmpRecv();  break;
 	default:
-		setError();
+		replyStatus(ERR_NOT_IMP);
 		break;
 	}
 	paramBuf.clear(); // always clear params after a command
+	paramOverflow = false;
 }
 
-// PING (0x00) - Phase 1
+// DETECT (0x00)
+// Params: none (strictly - rule 3)
+// Reply: {0, 0x55, 2, caps, 0}
 
-void UnapiNet::cmdPing()
+void UnapiNet::cmdDetect()
 {
-	setResultByte(MAGIC);
-}
-
-// QUERY_CAP (0x10) - Phase 1+2
-
-void UnapiNet::cmdQueryCap()
-{
-	setResult(QueryCapResult{.cap0 = CAP_BYTE0, .cap1 = CAP_BYTE1});
+	// Strict like every other command: the driver issues DETECT twice
+	// unconditionally, so a stray parameter block from a crashed
+	// predecessor fails the first attempt, is cleared by it, and cannot
+	// fail the second.
+	if (!paramBuf.empty()) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	setResult(DetectResult{.caps =
+		static_cast<uint8_t>(CAPS_BASE | (icmpAvailable ? CAP_ICMP : 0))});
 }
 
 // DNS_QUERY (0x01)
-// Params: hostname terminated with \0
-// Result: 1 byte status
-//   0 = resolution in progress (async)
-//   1 = resolved immediately (IP in bytes 1-4)
-//   2 = resolved locally
-// Error if the hostname is empty or a query is already in progress
+// Params: the hostname itself - the block length delimits it, no terminator
+// Reply: {0, 0} lookup started, {0, 1, ip4} resolved immediately
 
 void UnapiNet::cmdDnsQuery()
 {
-	if (dns.status == DnsStatus::InProgress) {
-		// A lookup is already running and owns dns.status/dns.resolvedIp.
-		setError();
+	// Form errors first, before the busy check; neither touches the DNS
+	// state or a running lookup. An empty block is an empty hostname, and
+	// a block the parameter cap forced writeIO to drop bytes from is "too
+	// long" (rule 3) - resolving a silently truncated hostname would look
+	// like success on the wrong name.
+	if (paramBuf.empty() || paramOverflow) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
+	{
+		std::scoped_lock lock(dns.mutex);
+		if (dns.status == DnsStatus::InProgress) {
+			// The running lookup owns the DNS state.
+			replyStatus(ERR_QUERY_EXISTS);
+			return;
+		}
+	}
 
-	// The driver sends the hostname 0-terminated; the terminator and anything
-	// after it are ignored. An empty parameter block yields an empty hostname,
-	// which the check below rejects.
 	std::string hostname(paramBuf.begin(), paramBuf.end());
-	if (auto pos = hostname.find('\0'); pos != std::string::npos) {
-		hostname.resize(pos);
-	}
 
-	if (hostname.empty()) {
-		setError();
+	// A hostname with an embedded NUL cannot exist in the resolver's
+	// namespace, and the C resolver API cannot even carry it past the NUL:
+	// arm the failed-lookup state directly instead of resolving a silently
+	// truncated prefix. (Not a syntax rule - the outcome the resolver
+	// would report if it could see the full name.)
+	if (hostname.find('\0') != std::string::npos) {
+		{
+			std::scoped_lock lock(dns.mutex);
+			dns.status = DnsStatus::Error;
+			dns.resolvedIp = 0;
+			++dns.generation; // disown any stale in-flight lookup
+		}
+		const std::array<uint8_t, 2> started{ERR_OK, 0};
+		setResult(started);
 		return;
 	}
 
-	// Is it already an IP address? Try to parse it
+	// Dotted-quad fast path: a strict a.b.c.d (four decimal octets) resolves
+	// immediately and arms the sticky Complete state exactly as an
+	// asynchronous success does. inet_pton is exactly that strict form.
 	struct in_addr addr;
 	if (inet_pton(AF_INET, hostname.c_str(), &addr) == 1) {
-		// It's a direct IP
 		uint32_t ip = ntohl(addr.s_addr);
-		dns.resolvedIp = ip;
-		dns.status = DnsStatus::Complete;
-
-		setResult(DnsQueryResult{
-			.status = 1, // resolved immediately
-			.ip     = ip});
+		{
+			std::scoped_lock lock(dns.mutex);
+			dns.resolvedIp = ip;
+			dns.status = DnsStatus::Complete;
+		}
+		setResult(DnsQueryResult{.ip = ip});
 		return;
 	}
 
-	// Async resolution (the 'already busy' case returned at the top)
-	dns.status = DnsStatus::InProgress;
-	dns.resolvedIp = 0;
+	// Asynchronous resolution. Anything that is not a dotted quad goes to
+	// the host resolver as-is: the device applies no syntax rules.
+	uint32_t gen;
+	{
+		std::scoped_lock lock(dns.mutex);
+		dns.status = DnsStatus::InProgress;
+		dns.resolvedIp = 0;
+		gen = ++dns.generation;
+	}
 
-	// Wait for the previous DNS thread if it is still around
+	// The previous lookup thread is finished (or stale and disowned by the
+	// generation bump); reclaim it before starting the next one.
 	if (dnsThread.joinable()) {
 		dnsThread.join();
 	}
 
-	dnsThread = std::thread([this, hostname]() {
+	dnsThread = std::thread([this, hostname = std::move(hostname), gen]() {
 		struct addrinfo hints;
 		memset(&hints, 0, sizeof(hints));
 		hints.ai_family = AF_INET;
@@ -784,80 +879,94 @@ void UnapiNet::cmdDnsQuery()
 
 		struct addrinfo* res = nullptr;
 		int err = getaddrinfo(hostname.c_str(), nullptr, &hints, &res);
-		if (err == 0 && res != nullptr) {
-			auto* addr4 = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
-			// Store IP in big-endian (network order) as-is
-			// so bytes extract as octets: (ip>>24)=first, (ip>>0)=last
-			dns.resolvedIp = ntohl(addr4->sin_addr.s_addr);
-			dns.status = DnsStatus::Complete;
-			freeaddrinfo(res);
-		} else {
-			if (res) freeaddrinfo(res);
-			dns.status = DnsStatus::Error;
+		{
+			std::scoped_lock lock(dns.mutex);
+			if (dns.generation == gen) { // else: superseded, do not publish
+				if (err == 0 && res != nullptr) {
+					auto* addr4 = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
+					// Host byte order here; the UA_B32 wire field re-emits
+					// it as big-endian octets.
+					dns.resolvedIp = ntohl(addr4->sin_addr.s_addr);
+					dns.status = DnsStatus::Complete;
+				} else {
+					dns.status = DnsStatus::Error;
+				}
+			}
 		}
+		if (res) freeaddrinfo(res);
 	});
 
-	setResultByte(0); // query in progress
+	const std::array<uint8_t, 2> started{ERR_OK, 0};
+	setResult(started);
 }
 
 // DNS_STATUS (0x02)
-// Params: -
-// Result: 1 byte status + if complete: 4 bytes IP
-//   0 = idle (no query)
-//   1 = in_progress
-//   2 = complete -> +4 bytes IP
-//   0xFF = error
+// Params: none
+// Reply: {0, 0} idle / {0, 1} in progress / {0, 2, ip4} complete /
+//        {0, 0xFF, sub} failed - data, not a command error: the state is
+//        sticky until the next DNS_QUERY or a reset
 
 void UnapiNet::cmdDnsStatus()
 {
-	DnsStatus s = dns.status; // implicit atomic load ('auto' would try to copy it)
-
-	if (s == DnsStatus::Complete) {
-		// Complete
-		setResult(DnsStatusResult{
-			.status = 2,
-			.ip     = uint32_t(dns.resolvedIp)});
-	} else if (s == DnsStatus::Error) {
-		// Error
-		// The only failure the resolver reports is 'host name does not exist'.
-		setResult(DnsStatusError{.status = 0xFF, .errorCode = DNS_ERR_NO_SUCH_HOST});
-	} else {
-		// idle (0) or in_progress (1)
-		setResultByte(static_cast<uint8_t>(s));
+	if (!paramBuf.empty()) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	std::scoped_lock lock(dns.mutex);
+	switch (dns.status) {
+	case DnsStatus::Complete:
+		setResult(DnsStatusResult{.ip = dns.resolvedIp});
+		break;
+	case DnsStatus::Error:
+		// A success reply carrying bad news: the lookup failed, the command
+		// did not. Today the only sub-error the resolver reports is 'no
+		// such host'.
+		setResult(DnsStatusFailed{.sub = DNS_ERR_NO_SUCH_HOST});
+		break;
+	default: { // Idle (0) / InProgress (1)
+		const std::array<uint8_t, 2> r{ERR_OK, static_cast<uint8_t>(dns.status)};
+		setResult(r);
+		break;
+	}
 	}
 }
 
 // TCP_OPEN (0x03)
 // Params: IP[4] + remote_port[2 LE] + local_port[2 LE] + timeout[2] + flags[1]
-// Flags bit 0: passive mode (listen). bit 1: resident.
-// Result: 1 byte handle (1-4, or 0 on error)
+// Flags bit 0: passive mode (listen). bit 1: resident. bits 2-7: must be 0.
+// Reply: {0, handle}
 
 void UnapiNet::cmdTcpOpen()
 {
-	if (paramBuf.size() < sizeof(TcpOpenParams)) {
-		setResultByte(0);
+	auto p = exactParams<TcpOpenParams>();
+	if (!p) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
+	if (p->flags & ~0x03) { // undefined flag bits must be 0
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	bool passive  = (p->flags & 0x01) != 0;
+	bool resident = (p->flags & 0x02) != 0;
+	uint32_t ip           = p->remoteIp;
+	uint16_t remotePort   = p->remotePort;
+	uint16_t localPortReq = p->localPort;
+	// p->timeout is accepted with any value and ignored (reserved)
 
-	auto p = fromBytes<TcpOpenParams>(paramBuf);
-	uint32_t ip           = p.remoteIp;
-	uint16_t remotePort   = p.remotePort;
-	uint16_t localPortReq = p.localPort;
-	uint8_t  flags        = p.flags;
-	bool passive  = (flags & 0x01) != 0;
-	bool resident = (flags & 0x02) != 0;
-
+	// The free-slot check precedes the host socket work; a slot consumed by
+	// a failure below is never published, i.e. released - ConnectFailed is
+	// for the asynchronous connect path only.
 	int h = allocTcpHandle();
 	if (h == INVALID_HANDLE) {
-		setResultByte(0);
+		replyStatus(ERR_NO_FREE_CONN);
 		return;
 	}
-
 	auto& c = tcp[h];
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s == OPENMSX_INVALID_SOCKET) {
-		setResultByte(0);
+		replyStatus(ERR_NO_NETWORK);
 		return;
 	}
 
@@ -869,21 +978,18 @@ void UnapiNet::cmdTcpOpen()
 
 	if (passive) {
 		// Passive: bind to local port, then listen
-		if (localPortReq == 0xFFFF) {
-			// Shouldn't normally happen in passive mode, but handle it
-			localPortReq = 0;
-		}
+		if (localPortReq == 0xFFFF) localPortReq = 0; // ephemeral, as in UDP_OPEN
 		// Allow address reuse (common for servers)
 		sock_setIntOption(s, SOL_SOCKET, SO_REUSEADDR);
 		sockaddr_in addr = sock_makeIPv4(INADDR_ANY, localPortReq);
 		if (bind(s, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
 			sock_close(s);
-			setResultByte(0);
+			replyStatus(ERR_NO_NETWORK);
 			return;
 		}
 		if (listen(s, 1) < 0) {
 			sock_close(s);
-			setResultByte(0);
+			replyStatus(ERR_NO_NETWORK);
 			return;
 		}
 		newState = TcpState::Listen;
@@ -896,7 +1002,8 @@ void UnapiNet::cmdTcpOpen()
 			localPort = localPortReq;
 		}
 	} else {
-		// Active connect
+		// Active connect. Remote IP/port are not semantically validated: a
+		// connect to 0.0.0.0 or port 0 is handed to the host and fails there.
 		sockaddr_in dest = sock_makeIPv4(ip, remotePort);
 		int ret = connect(s, reinterpret_cast<struct sockaddr*>(&dest), sizeof(dest));
 		if (ret == 0) {
@@ -911,7 +1018,7 @@ void UnapiNet::cmdTcpOpen()
 				newState = TcpState::SynSent;
 			} else {
 				sock_close(s);
-				setResultByte(0);
+				replyStatus(ERR_NO_NETWORK);
 				return;
 			}
 		}
@@ -926,7 +1033,8 @@ void UnapiNet::cmdTcpOpen()
 	{
 		// Publish the connection in one go, with c.sock LAST: the receiver
 		// thread only looks at a connection once its socket is valid, so it
-		// can never see a state without the matching address.
+		// can never see a state without the matching address. Clearing the
+		// buffers here is what destroys a reused slot's sticky tail.
 		std::scoped_lock lock(c.mutex);
 		c.closeReason = CloseReason::None;
 		c.remoteIp    = ip;   // 0 = any; otherwise the receiver filters on it
@@ -940,116 +1048,119 @@ void UnapiNet::cmdTcpOpen()
 		c.sock        = s;
 	}
 
-	setResultByte(static_cast<uint8_t>(h + 1)); // wire handles are 1-based
+	setResult(OpenResult{.handle = static_cast<uint8_t>(h + 1)}); // wire handles are 1-based
 }
 
 // TCP_SEND (0x04)
-// Params: handle[1] + len[2 LE] + data[len]
-// Result: 1 byte status (0=OK, 1=error)
+// Params: handle[1] + len[2 LE] + data[len] - len states a fact about the
+// payload and must be exact; beyond MAX_TRANSFER it is ERR_INV_PARAM
+// Reply: {0}; ERR_BUFFER is all-or-nothing (retry the same command later)
 
 void UnapiNet::cmdTcpSend()
 {
 	if (paramBuf.size() < sizeof(TcpSendParamHeader)) {
-		setResultByte(1);
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	auto ph = fromBytes<TcpSendParamHeader>(paramBuf);
+	size_t len = ph.len;
+	if (paramBuf.size() != sizeof(TcpSendParamHeader) + len ||
+	    len > MAX_TRANSFER) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
 
-	auto ph = fromBytes<TcpSendParamHeader>(paramBuf);
-	int h = ph.handle;
-	uint16_t len = ph.len;
-
-	auto* cp = tcpForHandle(h);
+	auto* cp = tcpForHandle(ph.handle);
 	if (!cp) {
-		setResultByte(1);
+		replyStatus(ERR_NO_CONN);
 		return;
 	}
 	auto& c = *cp;
-
-	if (paramBuf.size() < sizeof(TcpSendParamHeader) + len) {
-		setResultByte(1);
-		return;
-	}
 
 	// Check and act under the connection lock: without it the receiver could
 	// close the socket between the check and the send.
 	const auto* data = paramBuf.data() + sizeof(TcpSendParamHeader);
 	bool failed = false;
-	uint8_t result = 0;
+	uint8_t status = ERR_OK;
 	{
 		std::scoped_lock lock(c.mutex);
 		SOCKET sd = c.sock;
+		if (sd == OPENMSX_INVALID_SOCKET) {
+			replyStatus(ERR_NO_CONN); // no connection at all
+			return;
+		}
 		// FinWait1 means the MSX already closed its side: no more sending.
-		if (sd == OPENMSX_INVALID_SOCKET ||
-		    c.tcpState != one_of(TcpState::Established, TcpState::CloseWait)) {
-			setResultByte(1);
+		if (c.tcpState != one_of(TcpState::Established, TcpState::CloseWait)) {
+			replyStatus(ERR_CONN_STATE); // a connection, in a state that forbids it
 			return;
 		}
 
-		size_t sent = 0;
-		if (c.sendBuf.empty()) {
-			// Nothing queued ahead of us: hand it straight to the kernel. The
-			// socket is non-blocking, so this cannot stall the emulation thread
-			// and the data does not have to wait for the receiver's next pass.
-			auto r = netSend(sd, data, len);
-			if (r.status == IoStatus::Error) {
-				failed = true;
+		if (!c.sendBuf.empty()) {
+			// Data is already queued ahead of us: everything goes behind it,
+			// all or nothing - a rejected command was not partially queued
+			// and may be retried verbatim.
+			if (c.sendBuf.size() + len > MAX_SEND_BUF) {
+				status = ERR_BUFFER;
 			} else {
-				sent = r.bytes;
+				c.sendBuf.insert(c.sendBuf.end(), data, data + len);
 			}
-		}
-		if (!failed && sent < len) {
-			// Whatever the kernel would not take goes to the receiver thread,
-			// which drains it as the peer makes room.
-			size_t rest = size_t(len) - sent;
-			if (c.sendBuf.size() + rest > MAX_SEND_BUF) {
-				result = 2; // buffer full; the MSX should retry later
-			} else {
+		} else {
+			// Nothing queued ahead of us: hand it straight to the kernel. The
+			// socket is non-blocking, so this cannot stall the emulation
+			// thread. Whatever the kernel would not take goes to the receiver
+			// thread, which drains it as the peer makes room - and it always
+			// fits, because len <= MAX_TRANSFER <= MAX_SEND_BUF.
+			auto r = netSend(sd, data, len);
+			if (r || r.error() == IoError::WouldBlock) {
+				size_t sent = r.value_or(0);
 				c.sendBuf.insert(c.sendBuf.end(), data + sent, data + len);
+			} else {
+				failed = true;
 			}
 		}
 	}
 	if (failed) {
+		// A socket write failure resets the connection; the reply reports
+		// the state change, not a private send error code.
 		requestClose(c, CloseReason::ConnectionReset);
-		setResultByte(1);
+		replyStatus(ERR_CONN_STATE);
 		return;
 	}
-	setResultByte(result); // 0 = accepted, 2 = buffer full
+	replyStatus(status);
 }
 
 // TCP_RECV (0x05)
-// Params: handle[1] + maxlen[2 LE]
-// Result: actual_len[2 LE] + data[actual_len]
+// Params: handle[1] + maxlen[2 LE] - maxlen is a ceiling request: beyond
+// MAX_TRANSFER it is clamped, not rejected; 0 reads nothing and consumes
+// nothing
+// Reply: {0, actual_len[2 LE], data[actual_len]}
 
 void UnapiNet::cmdTcpRecv()
 {
-	if (paramBuf.size() < sizeof(TcpRecvParams)) {
-		setResult(TcpRecvResultHeader{}); // no data
+	auto p = exactParams<TcpRecvParams>();
+	if (!p) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
-
-	auto p = fromBytes<TcpRecvParams>(paramBuf);
-	int h = p.handle;
-	uint16_t maxlen = p.maxlen;
-
-	auto* cp = tcpForHandle(h);
+	auto* cp = tcpForHandle(p->handle);
 	if (!cp) {
-		setResult(TcpRecvResultHeader{});
+		replyStatus(ERR_NO_CONN);
 		return;
 	}
 	auto& c = *cp;
+	// Answers for any in-range handle, open or closed: the undrained tail
+	// of a dead connection stays readable until TCP_OPEN reuses the slot.
 
-	// Clamp to the maximum transfer size
-	if (maxlen > MAX_TRANSFER) maxlen = static_cast<uint16_t>(MAX_TRANSFER);
+	size_t maxlen = std::min(static_cast<size_t>(p->maxlen), MAX_TRANSFER);
 
 	// Build the whole result under the connection lock: the length in the
 	// header and the bytes copied behind it must agree, and requestClose()
-	// clears recvBuf from another thread. setResult() does the resultPos /
-	// statusReg bookkeeping; appending the payload afterwards doesn't
-	// disturb it. Nothing allocates while the lock is held: resultBuf was
-	// reserved in the constructor and avail <= MAX_TRANSFER.
+	// runs on another thread. setResult() does the resultPos / statusReg
+	// bookkeeping; appending the payload afterwards doesn't disturb it.
+	// Nothing allocates while the lock is held: resultBuf was reserved in
+	// the constructor and avail <= MAX_TRANSFER.
 	std::scoped_lock lock(c.mutex);
-	auto avail = static_cast<uint16_t>(
-		std::min(static_cast<size_t>(maxlen), c.recvBuf.size()));
+	auto avail = static_cast<uint16_t>(std::min(maxlen, c.recvBuf.size()));
 	setResult(TcpRecvResultHeader{.actualLen = avail});
 	resultBuf.insert(resultBuf.end(), c.recvBuf.begin(),
 	                 c.recvBuf.begin() + avail);
@@ -1057,16 +1168,15 @@ void UnapiNet::cmdTcpRecv()
 }
 
 // TCP_CLOSE (0x06)
-// Params: handle[1]
-// Result: 1 byte status (0=OK)
+// Params: handle[1]; 0 = close all transient (succeeds even with none open)
+// Reply: {0}
 
 void UnapiNet::cmdTcpClose()
 {
-	if (paramBuf.empty()) {
-		setResultByte(1);
+	if (paramBuf.size() != 1) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
-
 	int h = paramBuf[0];
 
 	if (h == 0) {
@@ -1077,89 +1187,112 @@ void UnapiNet::cmdTcpClose()
 				gracefulClose(c);
 			}
 		}
-		setResultByte(0);
+		replyStatus(ERR_OK);
 		return;
 	}
 
 	auto* cp = tcpForHandle(h);
 	if (!cp || cp->sock == OPENMSX_INVALID_SOCKET) {
-		setResultByte(1);
+		replyStatus(ERR_NO_CONN);
 		return;
 	}
 	gracefulClose(*cp);
-	setResultByte(0);
+	replyStatus(ERR_OK);
 }
 
 // TCP_STATE (0x07)
 // Params: handle[1]
-// Result: state[1] + avail[2 LE] + close_reason[1] +
-//         remote_IP[4] + remote_port[2 LE] + local_port[2 LE]
-// (12 bytes total - the TSR only reads the first 4 unless HL != 0)
+// Reply: {0, state[1], avail[2 LE], close_reason[1], remote_IP[4],
+//         remote_port[2 LE], local_port[2 LE]} - answers for any in-range
+// handle: a closed slot keeps its final state and close reason, a
+// never-used one shows closeReason 1 (NeverUsed) and zeros
 
 void UnapiNet::cmdTcpState()
 {
-	TcpStateResult r{};
-	r.closeReason = static_cast<uint8_t>(CloseReason::NeverUsed); // default: no/invalid handle
+	if (paramBuf.size() != 1) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	auto* cp = tcpForHandle(paramBuf[0]);
+	if (!cp) {
+		replyStatus(ERR_NO_CONN);
+		return;
+	}
+	auto& c = *cp;
 
-	if (!paramBuf.empty()) {
-		int h = paramBuf[0];
-		if (auto* cp = tcpForHandle(h)) {
-			auto& c = *cp;
-			// One coherent snapshot: the receiver thread publishes the state
-			// and the endpoint metadata together under this same lock.
-			std::scoped_lock lock(c.mutex);
-			TcpState state = c.tcpState;
-			r.state       = static_cast<uint8_t>(state);
-			r.avail       = static_cast<uint16_t>(
-				std::min(c.recvBuf.size(), static_cast<size_t>(0xFFFF)));
-			r.closeReason = static_cast<uint8_t>(c.closeReason);
-			r.remoteIp    = c.remoteIp;
-			r.remotePort  = c.remotePort;
-			r.localPort   = c.localPort;
-		}
+	TcpStateResult r{};
+	{
+		// One coherent snapshot: the receiver thread publishes the state
+		// and the endpoint metadata together under this same lock.
+		std::scoped_lock lock(c.mutex);
+		r.state       = static_cast<uint8_t>(c.tcpState.load());
+		r.avail       = static_cast<uint16_t>(
+			std::min(c.recvBuf.size(), static_cast<size_t>(0xFFFF)));
+		r.closeReason = static_cast<uint8_t>(c.closeReason);
+		r.remoteIp    = c.remoteIp;
+		r.remotePort  = c.remotePort;
+		r.localPort   = c.localPort;
 	}
 	setResult(r);
 }
 
 // TCP_ABORT (0x08)
-// Params: handle[1]
-// Result: 1 byte status (0=OK)
+// Params: handle[1]; 0 = abort all transient (UNAPI's TCPIP_TCP_ABORT B=0)
+// Reply: {0} - the aborted slot's tail stays readable (sticky-slot rule)
 
 void UnapiNet::cmdTcpAbort()
 {
-	if (paramBuf.empty()) {
-		setResultByte(1);
+	if (paramBuf.size() != 1) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	int h = paramBuf[0];
+
+	if (h == 0) {
+		// Abort every transient connection; succeeds even with none open.
+		for (auto& c : tcp) {
+			if (!c.resident && c.sock != OPENMSX_INVALID_SOCKET) {
+				requestClose(c, CloseReason::Aborted);
+			}
+		}
+		replyStatus(ERR_OK);
 		return;
 	}
 
-	int h = paramBuf[0];
 	auto* cp = tcpForHandle(h);
 	if (!cp || cp->sock == OPENMSX_INVALID_SOCKET) {
-		setResultByte(1);
+		replyStatus(ERR_NO_CONN);
 		return;
 	}
-
-	requestClose(*cp, CloseReason::Aborted, true);
-	setResultByte(0);
+	requestClose(*cp, CloseReason::Aborted);
+	replyStatus(ERR_OK);
 }
 
 // GET_LOCALIP (0x0D)
-// Params: -
-// Result: 4 bytes IP (big-endian: a.b.c.d)
+// Params: none
+// Reply: {0, ip4} - 0.0.0.0 when the host lookup fails, still a success
 
 void UnapiNet::cmdGetLocalIP()
 {
+	if (!paramBuf.empty()) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
 	setResult(GetLocalIpResult{.ip = sock_localIPv4()});
 }
 
 // NET_STATE (0x0E)
-// Params: -
-// Result: 1 byte (0=closed, 1=opening, 2=open, 3=closing)
-// Always "open" because we use the host's network directly.
+// Params: none
+// Reply: {0, 2} - always 'open': the host's network is ours
 
 void UnapiNet::cmdNetState()
 {
-	setResultByte(2); // open
+	if (!paramBuf.empty()) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	const std::array<uint8_t, 2> r{ERR_OK, 2};
+	setResult(r);
 }
 
 // UDP: handle management
@@ -1188,58 +1321,55 @@ void UnapiNet::closeUdp(UdpConnection& u)
 }
 
 // UDP_OPEN (0x09)
-// Params: local_port[2 LE] (0xFFFF = random)
-// Result: 1 byte handle (0 = error)
+// Params: local_port[2 LE] - 0xFFFF requests an ephemeral port; 0 reaches
+// the host bind() where it also yields one, by a different route
+// Reply: {0, handle}
 
 void UnapiNet::cmdUdpOpen()
 {
-	if (paramBuf.size() < sizeof(UdpOpenParams)) {
-		setResultByte(0);
+	auto p = exactParams<UdpOpenParams>();
+	if (!p) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
-	uint16_t localPort = fromBytes<UdpOpenParams>(paramBuf).localPort;
+	uint16_t localPort = p->localPort;
 
+	// Free-slot check before the host socket work, as in TCP_OPEN.
 	int h = allocUdpHandle();
 	if (h == INVALID_HANDLE) {
-		setResultByte(0);
+		replyStatus(ERR_NO_FREE_CONN);
 		return;
 	}
 	auto& u = udp[h];
 
 	SOCKET s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (s == OPENMSX_INVALID_SOCKET) {
-		setResultByte(0);
+		replyStatus(ERR_NO_NETWORK);
 		return;
 	}
 
 	sock_setNonBlocking(s);
 
-	// Enable broadcast — required by UNAPI clients that do LAN service
+	// Enable broadcast - required by UNAPI clients that do LAN service
 	// discovery via sendto(255.255.255.255). Real-hardware UNAPI stacks
 	// (GR8NET, Obsonet) allow it implicitly; the BSD socket layer needs
 	// the explicit opt-in.
 	sock_setIntOption(s, SOL_SOCKET, SO_BROADCAST);
 
 	sockaddr_in addr = sock_makeIPv4(INADDR_ANY, localPort == 0xFFFF ? 0 : localPort);
-
 	if (bind(s, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
-		// Fallback: if bind to a privileged port (<1024) fails on Windows
-		// without admin, fall back to a random port. MSX UDP clients
-		// typically don't depend on a specific local port.
-		addr.sin_port = 0;
-		if (bind(s, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
-			sock_close(s);
-			setResultByte(0);
-			return;
-		}
+		sock_close(s);
+		replyStatus(ERR_NO_NETWORK);
+		return;
 	}
 
 	// Read back the actual local port
-	::socklen_t alen = sizeof(addr);
-	uint16_t boundPort =
-		(getsockname(s, reinterpret_cast<struct sockaddr*>(&addr), &alen) == 0)
+	const auto boundPort = [&]() -> uint16_t {
+		::socklen_t alen = sizeof(addr);
+		return (getsockname(s, reinterpret_cast<struct sockaddr*>(&addr), &alen) == 0)
 			? ntohs(addr.sin_port)
 			: localPort;
+	}();
 
 	{
 		// Publish with u.sock last (see the threading contract in the header).
@@ -1250,17 +1380,17 @@ void UnapiNet::cmdUdpOpen()
 		u.sock      = s;
 	}
 
-	setResultByte(static_cast<uint8_t>(h + 1)); // wire handles are 1-based
+	setResult(OpenResult{.handle = static_cast<uint8_t>(h + 1)}); // wire handles are 1-based
 }
 
 // UDP_CLOSE (0x0A)
-// Params: handle[1] (0 = close all transient)
-// Result: 1 byte status
+// Params: handle[1]; 0 = close every open UDP socket (all are transient)
+// Reply: {0} - queued datagrams are discarded with the socket
 
 void UnapiNet::cmdUdpClose()
 {
-	if (paramBuf.empty()) {
-		setResultByte(1);
+	if (paramBuf.size() != 1) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
 	int h = paramBuf[0];
@@ -1271,104 +1401,110 @@ void UnapiNet::cmdUdpClose()
 				requestClose(u);
 			}
 		}
-		setResultByte(0);
+		replyStatus(ERR_OK);
 		return;
 	}
 
 	auto* up = udpForHandle(h);
 	if (!up || up->sock == OPENMSX_INVALID_SOCKET) {
-		setResultByte(1);
+		replyStatus(ERR_NO_CONN);
 		return;
 	}
 	requestClose(*up);
-	setResultByte(0);
+	replyStatus(ERR_OK);
 }
 
 // UDP_STATE (0x0B)
 // Params: handle[1]
-// Result: 2 bytes: first datagram size (LE), 0 if none
+// Reply: {0, first_dgram_size[2 LE]} - 0 if the queue is empty
 
 void UnapiNet::cmdUdpState()
 {
-	uint16_t size = 0;
-	if (!paramBuf.empty()) {
-		int h = paramBuf[0];
-		if (auto* up = udpForHandle(h); up && up->sock != OPENMSX_INVALID_SOCKET) {
-			auto& u = *up;
-			std::scoped_lock lock(u.mutex);
-			if (!u.recvQueue.empty()) {
-				size = static_cast<uint16_t>(
-					std::min(u.recvQueue.front().data.size(),
-							 static_cast<size_t>(0xFFFF)));
-			}
-		}
-	}
-	setResult(UdpStateResult{.firstDgramSize = size});
-}
-
-// UDP_SEND (0x0C)
-// Params: handle[1] + dest_IP[4] + dest_port[2 LE] + len[2 LE] + data
-// Result: 1 byte status
-
-void UnapiNet::cmdUdpSend()
-{
-	if (paramBuf.size() < sizeof(UdpSendParamHeader)) {
-		setResultByte(1);
+	if (paramBuf.size() != 1) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
-	auto ph = fromBytes<UdpSendParamHeader>(paramBuf);
-	int h = ph.handle;
-	auto* up = udpForHandle(h);
+	auto* up = udpForHandle(paramBuf[0]);
 	if (!up || up->sock == OPENMSX_INVALID_SOCKET) {
-		setResultByte(1);
+		replyStatus(ERR_NO_CONN);
 		return;
 	}
 	auto& u = *up;
 
-	uint32_t ip   = ph.destIp;
-	uint16_t port = ph.destPort;
-	uint16_t len  = ph.len;
+	const auto size = [&]() -> uint16_t {
+		std::scoped_lock lock(u.mutex);
+		if (u.recvQueue.empty()) return 0;
+		return static_cast<uint16_t>(
+			std::min(u.recvQueue.front().data.size(),
+			         static_cast<size_t>(0xFFFF)));
+	}();
+	setResult(UdpStateResult{.firstDgramSize = size});
+}
 
-	if (paramBuf.size() < sizeof(UdpSendParamHeader) + len) {
-		setResultByte(1);
+// UDP_SEND (0x0C)
+// Params: handle[1] + dest_IP[4] + dest_port[2 LE] + len[2 LE] + data[len]
+// Reply: {0} - length 0 sends an empty datagram; an oversized one is not a
+// form error: the host refuses it ({2}) and the socket stays usable
+
+void UnapiNet::cmdUdpSend()
+{
+	if (paramBuf.size() < sizeof(UdpSendParamHeader)) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	auto ph = fromBytes<UdpSendParamHeader>(paramBuf);
+	size_t len = ph.len;
+	if (paramBuf.size() != sizeof(UdpSendParamHeader) + len) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
 
-	sockaddr_in dest = sock_makeIPv4(ip, port);
+	auto* up = udpForHandle(ph.handle);
+	if (!up || up->sock == OPENMSX_INVALID_SOCKET) {
+		replyStatus(ERR_NO_CONN);
+		return;
+	}
+	auto& u = *up;
 
-	const char* data = reinterpret_cast<const char*>(paramBuf.data() + sizeof(UdpSendParamHeader));
+	sockaddr_in dest = sock_makeIPv4(ph.destIp, ph.destPort);
+	const char* data = reinterpret_cast<const char*>(
+		paramBuf.data() + sizeof(UdpSendParamHeader));
 	int n;
 	{
 		// Snapshot the socket under the lock: the receiver may be closing it.
 		std::scoped_lock lock(u.mutex);
 		SOCKET sd = u.sock;
 		if (sd == OPENMSX_INVALID_SOCKET) {
-			setResultByte(1);
+			replyStatus(ERR_NO_CONN);
 			return;
 		}
-		n = sendto(sd, data, len, 0,
+		n = sendto(sd, data, static_cast<int>(len), 0,
 		           reinterpret_cast<struct sockaddr*>(&dest), sizeof(dest));
 	}
-	setResultByte(n == len ? 0 : 1);
+	// A refused or short kernel write leaves the socket open and usable.
+	replyStatus(n == static_cast<int>(len) ? ERR_OK : ERR_NO_NETWORK);
 }
 
 // UDP_RECV (0x0F)
-// Params: handle[1] + maxlen[2 LE]
-// Result: src_IP[4] + src_port[2 LE] + actual_len[2 LE] + data
+// Params: handle[1] + maxlen[2 LE] - maxlen 0 is refused rather than
+// silently destroying a datagram unread (UDP_STATE sizes the head)
+// Reply: {0, src_IP[4], src_port[2 LE], actual_len[2 LE], data[actual_len]}
 
 void UnapiNet::cmdUdpRecv()
 {
-	if (paramBuf.size() < sizeof(UdpRecvParams)) {
-		setResult(UdpRecvResultHeader{});
+	auto p = exactParams<UdpRecvParams>();
+	if (!p) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
-	auto p = fromBytes<UdpRecvParams>(paramBuf);
-	int h = p.handle;
-	uint16_t maxlen = p.maxlen;
-
-	auto* up = udpForHandle(h);
+	uint16_t maxlen = p->maxlen;
+	if (maxlen == 0) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	auto* up = udpForHandle(p->handle);
 	if (!up || up->sock == OPENMSX_INVALID_SOCKET) {
-		setResult(UdpRecvResultHeader{});
+		replyStatus(ERR_NO_CONN);
 		return;
 	}
 	auto& u = *up;
@@ -1381,33 +1517,33 @@ void UnapiNet::cmdUdpRecv()
 			u.recvQueue.pop_front();
 		}
 	}
-
 	if (!dg) {
-		setResult(UdpRecvResultHeader{});
+		replyStatus(ERR_NO_DATA);
 		return;
 	}
 
-	uint16_t actual = static_cast<uint16_t>(
+	// The head datagram is consumed whole; whatever exceeds maxlen is
+	// discarded with it.
+	auto actual = static_cast<uint16_t>(
 		std::min(static_cast<size_t>(maxlen), dg->data.size()));
-
-	UdpRecvResultHeader hdr{
-		.srcIp     = dg->srcIp,
-		.srcPort   = dg->srcPort,
-		.actualLen = actual};
-	setResult(hdr, std::span<const uint8_t>(dg->data.data(), actual));
+	setResult(UdpRecvResultHeader{
+			.srcIp     = dg->srcIp,
+			.srcPort   = dg->srcPort,
+			.actualLen = actual},
+		std::span<const uint8_t>(dg->data.data(), actual));
 }
 
 // ICMP Echo (ping)
 //
-// Uses the Windows IcmpSendEcho API (doesn't require admin).
-// A worker thread handles the (blocking) call and pushes replies
-// to a queue that the MSX polls via RCV_ECHO.
+// Uses the Windows IcmpSendEcho API (doesn't require admin). A worker
+// thread handles the (blocking) call and pushes replies to a queue that
+// the MSX polls via ICMP_RECV. The worker only runs when the capability
+// latched at device start; elsewhere the ICMP commands answer ERR_NOT_IMP.
 
 void UnapiNet::icmpWorkerLoop()
 {
 #ifdef _WIN32
-	HANDLE hIcmp = IcmpCreateFile();
-	if (hIcmp == INVALID_HANDLE_VALUE) return;
+	HANDLE hIcmp = icmpChannel; // opened (and the capability latched) at device start
 
 	while (running) {
 		if (!icmpPending.exchange(false)) {
@@ -1416,6 +1552,11 @@ void UnapiNet::icmpWorkerLoop()
 		}
 
 		IcmpRequest req = icmpRequest;
+		uint32_t gen;
+		{
+			std::scoped_lock lock(icmpMutex);
+			gen = icmpGeneration;
+		}
 
 		std::vector<uint8_t> payload(req.dataLen);
 		for (size_t i = 0; i < payload.size(); i++)
@@ -1446,41 +1587,63 @@ void UnapiNet::icmpWorkerLoop()
 				r.sequence = req.sequence;
 				r.dataLen = reply->DataSize;
 				std::scoped_lock lock(icmpMutex);
-				if (icmpReplies.size() < 16) icmpReplies.push_back(r);
+				if (icmpGeneration == gen) { // else: a reset intervened
+					                         // while the echo was in flight
+					if (icmpReplies.size() >= MAX_ICMP_QUEUE) {
+						// Drop the OLDEST: a reply nobody polled for is worth
+						// less than the one the current program is waiting for.
+						icmpReplies.pop_front();
+					}
+					icmpReplies.push_back(r);
+				}
 			}
 		}
 	}
-
-	IcmpCloseHandle(hIcmp);
 #endif
 }
 
-// SEND_ECHO (0x11)
-// Params: IP[4] + TTL[1] + ID[2] + SEQ[2] + len[2]
-// Result: 1 byte status
+// ICMP_SEND (0x11)
+// Params: IP[4] + TTL[1] + ID[2 LE] + SEQ[2 LE] + len[2 LE]
+// Reply: {0} - acknowledges queueing to the worker, not delivery: an
+// unreachable destination simply never yields a reply
+
 void UnapiNet::cmdIcmpSend()
 {
-	if (paramBuf.size() < sizeof(IcmpSendParams)) {
-		setResultByte(1);
+	auto p = exactParams<IcmpSendParams>();
+	if (!p) {
+		replyStatus(ERR_INV_PARAM);
 		return;
 	}
-	auto p = fromBytes<IcmpSendParams>(paramBuf);
-	icmpRequest.dstIp      = p.dstIp;
-	icmpRequest.ttl        = p.ttl;
-	icmpRequest.identifier = p.identifier;
-	icmpRequest.sequence   = p.sequence;
-	icmpRequest.dataLen    = p.len;
-	if (icmpRequest.dataLen > 512) icmpRequest.dataLen = 512;
-
+	if (!icmpAvailable) {
+		// The capability bit is enforced, not decorative.
+		replyStatus(ERR_NOT_IMP);
+		return;
+	}
+	icmpRequest.dstIp      = p->dstIp;
+	icmpRequest.ttl        = p->ttl;
+	icmpRequest.identifier = p->identifier;
+	icmpRequest.sequence   = p->sequence;
+	icmpRequest.dataLen    = std::min<uint16_t>(p->len, 512); // echo-size clamp
 	icmpPending = true;
-	setResultByte(0); // OK: request queued
+	replyStatus(ERR_OK);
 }
 
-// RCV_ECHO (0x12)
-// Params: -
-// Result: 1 byte has_data + [if 1: IP(4)+TTL(1)+ID(2)+SEQ(2)+len(2) = 11 bytes]
+// ICMP_RECV (0x12)
+// Params: none
+// Reply: {0, src_IP[4], TTL[1], ID[2 LE], SEQ[2 LE], len[2 LE]} - consumes
+// exactly one queued reply; matching id/seq to requests is the driver's job
+
 void UnapiNet::cmdIcmpRecv()
 {
+	if (!paramBuf.empty()) {
+		replyStatus(ERR_INV_PARAM);
+		return;
+	}
+	if (!icmpAvailable) {
+		replyStatus(ERR_NOT_IMP);
+		return;
+	}
+
 	std::optional<IcmpReply> r;
 	{
 		std::scoped_lock lock(icmpMutex);
@@ -1489,14 +1652,12 @@ void UnapiNet::cmdIcmpRecv()
 			icmpReplies.pop_front();
 		}
 	}
-
 	if (!r) {
-		setResultByte(0); // status 0 = no data
+		replyStatus(ERR_NO_DATA);
 		return;
 	}
 
 	setResult(IcmpRecvResult{
-		.hasData    = 1,
 		.srcIp      = r->srcIp,
 		.ttl        = r->ttl,
 		.identifier = r->identifier,

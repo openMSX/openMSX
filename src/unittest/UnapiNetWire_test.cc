@@ -11,6 +11,7 @@ using namespace openmsx;
 
 // Compile-time guards: the concept accepts our wire structs and rejects unsafe
 // types (padding, containers, floats).
+static_assert(wire_layout<DetectResult>);
 static_assert(wire_layout<TcpStateResult>);
 static_assert(wire_layout<TcpOpenParams>);
 static_assert(wire_layout<UdpRecvResultHeader>);
@@ -27,6 +28,28 @@ static_assert(!wire_layout<std::vector<uint8_t>>);
 	return {s.begin(), s.end()};
 }
 
+TEST_CASE("UnapiNetWire: default-constructed structs are valid success frames")
+{
+	// v2 rule 1 baked into the types: '{}' yields status 0x00 - and for
+	// DETECT the full acceptance triplet 00 55 02.
+	CHECK(vec(toBytes(DetectResult{})) ==
+	      std::vector<uint8_t>{0x00, 0x55, 0x02, 0x00, 0x00});
+	CHECK(toBytes(TcpStateResult{})[0]      == 0x00);
+	CHECK(toBytes(TcpRecvResultHeader{})[0] == 0x00);
+	CHECK(toBytes(UdpRecvResultHeader{})[0] == 0x00);
+	CHECK(toBytes(IcmpRecvResult{})[0]      == 0x00);
+	CHECK(toBytes(OpenResult{})[0]          == 0x00);
+	CHECK(toBytes(GetLocalIpResult{})[0]    == 0x00);
+	CHECK(toBytes(UdpStateResult{})[0]      == 0x00);
+}
+
+TEST_CASE("UnapiNetWire: DETECT result is byte-identical")
+{
+	DetectResult r{};
+	r.caps = 0x1F; // DNS + TCP active/passive + UDP + ICMP
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0x55, 0x02, 0x1F, 0x00});
+}
+
 TEST_CASE("UnapiNetWire: TCP_STATE result is byte-identical (mixed endian)")
 {
 	TcpStateResult r{};
@@ -38,52 +61,78 @@ TEST_CASE("UnapiNetWire: TCP_STATE result is byte-identical (mixed endian)")
 	r.localPort   = 0x0050;      // 80
 
 	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{
-		0x04, 0x02, 0x01, 0x01, 0xC0, 0xA8, 0x01, 0x01, 0x90, 0x1F, 0x50, 0x00});
+		0x00, 0x04, 0x02, 0x01, 0x01, 0xC0, 0xA8, 0x01, 0x01, 0x90, 0x1F, 0x50, 0x00});
 }
 
-TEST_CASE("UnapiNetWire: GET_LOCALIP result is 4-byte big-endian")
+TEST_CASE("UnapiNetWire: OPEN result is status + 1-based handle")
+{
+	OpenResult r{};
+	r.handle = 0x03;
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0x03});
+}
+
+TEST_CASE("UnapiNetWire: TCP_RECV header is status + little-endian length")
+{
+	TcpRecvResultHeader r{};
+	r.actualLen = 0x0102;
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0x02, 0x01});
+}
+
+TEST_CASE("UnapiNetWire: GET_LOCALIP result is status + 4-byte big-endian")
 {
 	GetLocalIpResult r{};
 	r.ip = 0xC0A80101;
-	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0xC0, 0xA8, 0x01, 0x01});
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0xC0, 0xA8, 0x01, 0x01});
 }
 
-TEST_CASE("UnapiNetWire: UDP_STATE result is little-endian size")
+TEST_CASE("UnapiNetWire: UDP_STATE result is status + little-endian size")
 {
 	UdpStateResult r{};
 	r.firstDgramSize = 0x0004;
-	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x04, 0x00});
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0x04, 0x00});
 }
 
-TEST_CASE("UnapiNetWire: DNS_STATUS complete = status + big-endian IP")
+TEST_CASE("UnapiNetWire: DNS_QUERY fast path = status + marker + big-endian IP")
+{
+	DnsQueryResult r{};
+	r.ip = 0xC0A80101;
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0x01, 0xC0, 0xA8, 0x01, 0x01});
+}
+
+TEST_CASE("UnapiNetWire: DNS_STATUS complete = status + state + big-endian IP")
 {
 	DnsStatusResult r{};
-	r.status = 0x02;
-	r.ip     = 0x08080808;       // 8.8.8.8
-	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x02, 0x08, 0x08, 0x08, 0x08});
+	r.ip = 0x08080808;           // 8.8.8.8
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0x02, 0x08, 0x08, 0x08, 0x08});
 }
 
-TEST_CASE("UnapiNetWire: UDP_RECV header (IP big, port/len little)")
+TEST_CASE("UnapiNetWire: DNS_STATUS failed lookup = success carrying bad news")
+{
+	DnsStatusFailed r{};
+	r.sub = 0x03;                // "no such host"
+	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{0x00, 0xFF, 0x03});
+}
+
+TEST_CASE("UnapiNetWire: UDP_RECV header (status, IP big, port/len little)")
 {
 	UdpRecvResultHeader r{};
 	r.srcIp     = 0xC0A80101;
 	r.srcPort   = 0x0035;        // 53
 	r.actualLen = 0x0004;
 	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{
-		0xC0, 0xA8, 0x01, 0x01, 0x35, 0x00, 0x04, 0x00});
+		0x00, 0xC0, 0xA8, 0x01, 0x01, 0x35, 0x00, 0x04, 0x00});
 }
 
-TEST_CASE("UnapiNetWire: ICMP_RECV record (12 bytes, mixed endian)")
+TEST_CASE("UnapiNetWire: ICMP_RECV record (12 bytes, status replaces hasData)")
 {
 	IcmpRecvResult r{};
-	r.hasData    = 0x01;
 	r.srcIp      = 0x08080808;
 	r.ttl        = 0x40;
 	r.identifier = 0x1234;
 	r.sequence   = 0x0001;
 	r.dataLen    = 0x0020;
 	CHECK(vec(toBytes(r)) == std::vector<uint8_t>{
-		0x01, 0x08, 0x08, 0x08, 0x08, 0x40, 0x34, 0x12, 0x01, 0x00, 0x20, 0x00});
+		0x00, 0x08, 0x08, 0x08, 0x08, 0x40, 0x34, 0x12, 0x01, 0x00, 0x20, 0x00});
 }
 
 TEST_CASE("UnapiNetWire: TCP_OPEN params round-trip (IP big, ports little)")
