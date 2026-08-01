@@ -273,6 +273,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\AfterCommand.cc">
       <Filter>events</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\events\AnalogInput.cc">
+      <Filter>events</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\BooleanInput.cc">
       <Filter>events</Filter>
     </ClCompile>
@@ -1505,6 +1508,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\RawTrack.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DMKDiskImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\JoyHandle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.cc" />
@@ -1783,6 +1787,9 @@
       <Filter>debugger</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\AfterCommand.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\events\AnalogInput.hh">
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\BooleanInput.hh">
