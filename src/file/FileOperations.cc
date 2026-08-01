@@ -22,6 +22,9 @@
 #include <stdexcept>
 
 #ifdef	_WIN32
+#ifndef _WIN32_IE
+#define _WIN32_IE 0x0500	// For SHGetSpecialFolderPathW with MinGW
+#endif
 #include "utf8_checked.hh"
 #include <windows.h>
 #include <shlobj.h>
@@ -32,12 +35,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
-#else
+#else // ifdef _WIN32_ ...
 #include <climits>
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
-#endif
+#endif // ifdef _WIN32_ ... else ...
 
 #ifdef PATH_MAX
 #define MAXPATHLEN PATH_MAX
@@ -360,20 +363,15 @@ bool isAbsolutePath(std::string_view path)
 std::string getUserHomeDir(std::string_view username)
 {
 #ifdef _WIN32
-	(void)username; // ignore parameter, avoid warning
+	(void)(&username); // ignore parameter, avoid warning
 
-	// Retrieve the user profile folder: C:\Users\<Username>
-	PWSTR wPath = nullptr;
-	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Profile, 0, nullptr, &wPath);
-	if (FAILED(hr)) {
-		throw FatalError("SHGetKnownFolderPath failed");
+	std::array<wchar_t, MAXPATHLEN + 1> bufW;
+	if (!SHGetSpecialFolderPathW(nullptr, bufW.data(), CSIDL_PERSONAL, TRUE)) {
+		throw FatalError(
+			"SHGetSpecialFolderPathW failed: ", GetLastError());
 	}
 
-	struct CoTaskMemDeleter {
-		void operator()(void* p) const { CoTaskMemFree(p); }
-	};
-	std::unique_ptr<WCHAR, CoTaskMemDeleter> pathGuard(wPath);
-	return getConventionalPath(utf16to8(wPath));
+	return getConventionalPath(utf16to8(bufW.data()));
 #else
 	const char* dir = nullptr;
 	struct passwd* pw = nullptr;
