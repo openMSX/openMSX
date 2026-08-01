@@ -192,6 +192,7 @@ UnapiNet::UnapiNet(const DeviceConfig& config)
 	// Start background threads
 	running = true;
 	recvThread = std::thread([this]() { receiverLoop(); });
+	dnsThread  = std::thread([this]() { dnsWorkerLoop(); });
 	if (icmpAvailable) {
 		icmpWorker = std::thread([this]() { icmpWorkerLoop(); });
 	}
@@ -202,8 +203,13 @@ UnapiNet::~UnapiNet()
 	running = false;
 	if (recvThread.joinable()) recvThread.join();
 	if (icmpWorker.joinable()) icmpWorker.join();
-	// The DNS lookup is blocking: joining it is deliberate, so getaddrinfo()
-	// cannot write into a destroyed object.
+	// Wake the DNS worker so it observes the shutdown. If it is inside
+	// getaddrinfo() the join waits that call out - deliberate, so the
+	// resolver cannot write into a destroyed object.
+	{
+		std::scoped_lock lock(dns.mutex);
+	}
+	dns.cv.notify_all();
 	if (dnsThread.joinable())  dnsThread.join();
 	closeAllConnections();
 	// The receiver stopped without draining its queue: close what is left,
@@ -241,7 +247,8 @@ void UnapiNet::reset(EmuTime /*time*/)
 		std::scoped_lock lock(dns.mutex);
 		dns.status = DnsStatus::Idle;
 		dns.resolvedIp = 0;
-		++dns.generation; // a lookup still in flight must not publish anymore
+		++dns.generation;    // a lookup still in flight must not publish anymore
+		dns.request.reset(); // and a queued one must never start
 	}
 	{
 		std::scoped_lock lock(icmpMutex);
@@ -859,22 +866,37 @@ void UnapiNet::cmdDnsQuery()
 	}
 
 	// Asynchronous resolution. Anything that is not a dotted quad goes to
-	// the host resolver as-is: the device applies no syntax rules.
-	uint32_t gen;
+	// the host resolver as-is: the device applies no syntax rules. The
+	// lookup is handed to the persistent worker; the emulation thread
+	// never waits on the resolver.
 	{
 		std::scoped_lock lock(dns.mutex);
 		dns.status = DnsStatus::InProgress;
 		dns.resolvedIp = 0;
-		gen = ++dns.generation;
+		++dns.generation;
+		dns.request = std::move(hostname);
 	}
+	dns.cv.notify_one();
 
-	// The previous lookup thread is finished (or stale and disowned by the
-	// generation bump); reclaim it before starting the next one.
-	if (dnsThread.joinable()) {
-		dnsThread.join();
-	}
+	const std::array<uint8_t, 2> started{ERR_OK, 0};
+	setResult(started);
+}
 
-	dnsThread = std::thread([this, hostname = std::move(hostname), gen]() {
+// The persistent DNS worker. It sleeps on the condition variable until
+// DNS_QUERY queues a hostname (or the device shuts down), resolves it with
+// the mutex released, and publishes the outcome only if no reset or newer
+// query disowned the lookup meanwhile (the generation check).
+void UnapiNet::dnsWorkerLoop()
+{
+	std::unique_lock lock(dns.mutex);
+	while (true) {
+		dns.cv.wait(lock, [&] { return !running || dns.request.has_value(); });
+		if (!running) return;
+		std::string hostname = std::move(*dns.request);
+		dns.request.reset();
+		uint32_t gen = dns.generation;
+		lock.unlock();
+
 		struct addrinfo hints;
 		memset(&hints, 0, sizeof(hints));
 		hints.ai_family = AF_INET;
@@ -882,25 +904,25 @@ void UnapiNet::cmdDnsQuery()
 
 		struct addrinfo* res = nullptr;
 		int err = getaddrinfo(hostname.c_str(), nullptr, &hints, &res);
-		{
-			std::scoped_lock lock(dns.mutex);
-			if (dns.generation == gen) { // else: superseded, do not publish
-				if (err == 0 && res != nullptr) {
-					auto* addr4 = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
-					// Host byte order here; the UA_B32 wire field re-emits
-					// it as big-endian octets.
-					dns.resolvedIp = ntohl(addr4->sin_addr.s_addr);
-					dns.status = DnsStatus::Complete;
-				} else {
-					dns.status = DnsStatus::Error;
-				}
-			}
+		std::optional<uint32_t> ip;
+		if (err == 0 && res != nullptr) {
+			auto* addr4 = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
+			// Host byte order here; the UA_B32 wire field re-emits it as
+			// big-endian octets.
+			ip = ntohl(addr4->sin_addr.s_addr);
 		}
 		if (res) freeaddrinfo(res);
-	});
 
-	const std::array<uint8_t, 2> started{ERR_OK, 0};
-	setResult(started);
+		lock.lock();
+		if (dns.generation == gen) { // else: superseded, do not publish
+			if (ip) {
+				dns.resolvedIp = *ip;
+				dns.status = DnsStatus::Complete;
+			} else {
+				dns.status = DnsStatus::Error;
+			}
+		}
+	}
 }
 
 // DNS_STATUS (0x02)

@@ -9,6 +9,7 @@
 #include <atomic>
 #include <chrono>
 #include <concepts>
+#include <condition_variable>
 #include <cstdint>
 #include <deque>
 #include <mutex>
@@ -180,16 +181,24 @@ private:
 
 	// --- Async DNS ---
 	enum class DnsStatus : uint8_t { Idle = 0, InProgress = 1, Complete = 2, Error = 3 };
-	// A lookup thread only publishes its outcome while its generation still
-	// matches: reset() and every new query bump it, so a stale lookup that
-	// finishes late cannot overwrite the state they established.
+	// One persistent worker thread (dnsWorkerLoop) serves DNS_QUERY: the
+	// emulation thread queues the hostname in 'request' and never blocks on
+	// the resolver. getaddrinfo() has no reliable cancellation, so a lookup
+	// in flight is disowned rather than stopped: it only publishes its
+	// outcome while its generation still matches, and reset() and every new
+	// query bump the generation (reset also discards a queued request), so
+	// a lookup that finishes after a reset cannot overwrite the state the
+	// reset established.
 	struct {
 		DnsStatus status = DnsStatus::Idle; // guarded by 'mutex'
 		uint32_t resolvedIp = 0;            // guarded by 'mutex'
 		uint32_t generation = 0;            // guarded by 'mutex'
+		std::optional<std::string> request; // guarded by 'mutex'
 		std::mutex mutex;
+		std::condition_variable cv; // a request was queued, or shutdown
 	} dns;
-	std::thread dnsThread;
+	std::thread dnsThread; // the persistent worker
+	void dnsWorkerLoop();
 
 	// --- Network receiver thread ---
 	std::thread recvThread;
