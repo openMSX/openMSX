@@ -43,6 +43,9 @@ public:
 	[[nodiscard]] bool getAutoToggleCodeKanaLock() const {
 		return autoToggleCodeKanaLock.getBoolean();
 	}
+	[[nodiscard]] bool getIgnoreGraveKey() const {
+		return ignoreGraveKey.getBoolean();
+	}
 
 private:
 	std::array<EnumSetting<SDL_Keycode>, 3> deadKeyHostKey;
@@ -52,6 +55,7 @@ private:
 	BooleanSetting alwaysEnableKeypad;
 	BooleanSetting traceKeyPresses;
 	BooleanSetting autoToggleCodeKanaLock;
+	BooleanSetting ignoreGraveKey; // Countermeasure for missing Release events on Japanese keyboards
 };
 
 } // namespace openmsx
