@@ -54,11 +54,10 @@ private:
 	// pending is a separate fact: resultPos < resultBuf.size().
 	uint8_t  statusReg = 0xFF;
 
-	// Parameter buffer (written to 0x29 before the command). paramOverflow
-	// records that the cap forced writeIO to drop bytes: the block is "too
-	// long" (rule 3) even where no exact-size check exists (DNS_QUERY).
+	// Parameter buffer (written to 0x29 before the command). Capped at one
+	// byte past the largest legal block, so a truncated block always fails
+	// the receiving command's size check (rule 3).
 	std::vector<uint8_t> paramBuf;
-	bool paramOverflow = false;
 
 	// Result buffer (read from 0x29 after the command)
 	std::vector<uint8_t> resultBuf;

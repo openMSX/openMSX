@@ -55,7 +55,7 @@ the device side is what v2 added):
 | 1    | ERR_NOT_IMP     | unknown opcode; the ICMP commands on a host without working ICMP (caps bit4 clear) |
 | 2    | ERR_NO_NETWORK  | the host socket layer refused: socket()/bind()/listen() failure, a synchronous connect() failure, a failed or short sendto() (UDP) |
 | 3    | ERR_NO_DATA     | UDP_RECV / ICMP_RECV with an empty queue         |
-| 4    | ERR_INV_PARAM   | malformed parameter block (rule 3), empty hostname, a TCP_SEND length beyond `MAX_TRANSFER`, an undefined flag bit set, UDP_RECV with maxlen 0 |
+| 4    | ERR_INV_PARAM   | malformed parameter block (rule 3), empty hostname or one longer than 253 bytes, a TCP_SEND length beyond `MAX_TRANSFER`, an undefined flag bit set, UDP_RECV with maxlen 0 |
 | 5    | ERR_QUERY_EXISTS| DNS_QUERY while a lookup is already running      |
 | 9    | ERR_NO_FREE_CONN| TCP_OPEN / UDP_OPEN with all handles in use      |
 | 11   | ERR_NO_CONN     | handle out of range (0 included, save the close-all forms of TCP_CLOSE / UDP_CLOSE / TCP_ABORT); or no open connection on it — except TCP_STATE / TCP_RECV, which answer for any in-range handle (see notes) |
@@ -332,14 +332,15 @@ rule 3.
 block is the name; there is no terminator (the block length already
 delimits it — v1's NUL was redundant, as Wouter noted). The
 device applies no syntax or charset rules to the hostname — beyond the
-dotted-quad fast path below, the bytes go to the host resolver as-is;
-the only upper length bound is the parameter-buffer cap. A block that
+dotted-quad fast path below, the bytes go to the host resolver as-is.
+The one bound is length: a block longer than **253 bytes** (the DNS
+presentation-form name limit) is "too long" under rule 3 → `{4}`. A block that
 parses as a strict dotted-quad (`a.b.c.d`, four decimal octets 0-255)
 resolves immediately → `{0, 1, ip4}`, and arms the sticky Complete state
 exactly as an asynchronous success does. Anything else starts the
-resolver thread → `{0, 0}`. An empty hostname (an empty block) answers `{4}`;
-a lookup already running answers `{5}`; both leave the DNS state and any
-running lookup untouched.
+resolver thread → `{0, 0}`. An empty hostname (an empty block) or one
+beyond the length cap answers `{4}`; a lookup already running answers
+`{5}`; all of these leave the DNS state and any running lookup untouched.
 
 `DNS_STATUS` (no parameters) reports the lookup, and its reply is data,
 not a command error — a well-formed DNS_STATUS always succeeds:

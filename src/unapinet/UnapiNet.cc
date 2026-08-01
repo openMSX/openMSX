@@ -66,10 +66,18 @@ static constexpr size_t MAX_TRANSFER = 4096;
 // BBS ANSI screens can be 16-32KB, needs big buffer
 static constexpr size_t MAX_RECV_BUF = 65536;
 
-// Upper bound on accumulated command parameters. Large enough for any legal
-// command (16-bit payload length + header); a runaway MSX program hammering
-// the data port must not be able to exhaust host memory.
-static constexpr size_t MAX_PARAM_BUF = 64 * 1024 + 16;
+// Upper bound on accumulated command parameters: one byte MORE than the
+// largest legal parameter block (UDP_SEND: 9-byte header + a full 16-bit
+// payload). A block the cap truncated therefore always ends on an illegal
+// size, so every command's size check rejects it - no separate overflow
+// flag needed - while a runaway MSX program hammering the data port still
+// cannot exhaust host memory.
+static constexpr size_t MAX_PARAM_BUF = sizeof(UdpSendParamHeader) + 0xFFFF + 1;
+
+// DNS_QUERY's own size cap (rule 3 "too long"): the DNS presentation-form
+// name limit (RFC 1035). Keeps the one variable-length command that has no
+// declared payload length from depending on MAX_PARAM_BUF for rejection.
+static constexpr size_t MAX_HOSTNAME = 253;
 
 // Bound on data queued for sending but not yet accepted by the kernel.
 // TCP_SEND reports ERR_BUFFER rather than blocking the emulation thread.
@@ -220,7 +228,6 @@ void UnapiNet::reset(EmuTime /*time*/)
 	// completes. The ICMP capability stays as latched at device start.
 	statusReg = 0xFF;
 	paramBuf.clear();
-	paramOverflow = false;
 	resultBuf.clear();
 	resultPos = 0;
 
@@ -291,13 +298,10 @@ void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 		resultPos = 0;
 		if (paramBuf.size() < MAX_PARAM_BUF) {
 			paramBuf.push_back(value);
-		} else {
-			// Drop the byte but remember it: the block is "too long"
-			// (rule 3) even for DNS_QUERY, whose block has no expected
-			// size an exact-size check could catch. Host memory stays
-			// bounded either way.
-			paramOverflow = true;
 		}
+		// else: drop the byte. The cap is one past the largest legal
+		// block, so a truncated block is already "too long" (rule 3) at
+		// every command's size check - dropping loses nothing.
 	} else {
 		// command (typically 0x28); replaces a pending reply, if any
 		processCmd(value);
@@ -776,7 +780,6 @@ void UnapiNet::processCmd(uint8_t cmd)
 		break;
 	}
 	paramBuf.clear(); // always clear params after a command
-	paramOverflow = false;
 }
 
 // DETECT (0x00)
@@ -805,10 +808,10 @@ void UnapiNet::cmdDnsQuery()
 {
 	// Form errors first, before the busy check; neither touches the DNS
 	// state or a running lookup. An empty block is an empty hostname, and
-	// a block the parameter cap forced writeIO to drop bytes from is "too
-	// long" (rule 3) - resolving a silently truncated hostname would look
-	// like success on the wrong name.
-	if (paramBuf.empty() || paramOverflow) {
+	// a block beyond the DNS name limit is "too long" (rule 3) - no real
+	// name is that long, and resolving a truncated one would look like
+	// success on the wrong name.
+	if (paramBuf.empty() || paramBuf.size() > MAX_HOSTNAME) {
 		replyStatus(ERR_INV_PARAM);
 		return;
 	}
