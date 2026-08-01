@@ -21,7 +21,7 @@
 
 // UnapiNet - MSX-UNAPI TCP/IP bridge device
 //
-// I/O ports 0x28 (cmd/status) and 0x29 (data). Same range as the
+// I/O ports 0x28 (command, write-only) and 0x29 (data). Same range as the
 // DenYoNet - both are UNAPI Ethernet bridges and don't coexist.
 // Bridge between the MSX and BSD sockets on the host, speaking protocol v2
 // (see unapinet/protocol-v2.md): every reply starts with a status byte.
@@ -48,12 +48,9 @@ private:
 	[[no_unique_address]] SocketActivator socketActivator;
 
 	// --- I/O protocol state ---
-	// Reading the command port returns the status byte of the last COMPLETED
-	// command (the v2 mirror; 0xFF after reset, before any command has run).
-	// Only command completion updates it: parameter writes, result reads and
-	// the discard of a pending result leave it untouched. Whether a reply is
-	// pending is a separate fact: resultPos < resultBuf.size().
-	uint8_t  statusReg = 0xFF;
+	// The command port is write-only in v2: every reply, its status byte
+	// included, is read from the data port. Whether a reply is pending is
+	// resultPos < resultBuf.size().
 
 	// Parameter buffer (written to 0x29 before the command). Capped at one
 	// byte past the largest legal block, so a truncated block always fails
@@ -230,8 +227,8 @@ private:
 
 	// --- Helpers ---
 	// The setResult() overloads queue a command reply for the MSX to read
-	// from the data port and update the status mirror from its first byte
-	// (in v2 every reply, success or error, begins with the status).
+	// from the data port (in v2 every reply, success or error, begins with
+	// the status byte).
 	void setResult(std::span<const uint8_t> data);
 	// Wire-layout struct (see UnapiNetWire.hh): the compiler lays out the
 	// exact on-wire bytes. The requires-clause keeps span-like types (which

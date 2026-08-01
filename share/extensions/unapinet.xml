@@ -11,7 +11,10 @@
   </info>
   <devices>
     <UnapiNet id="UnapiNet">
-      <io base="0x28" num="2"/>
+      <!-- 0x28 is write-only (command); replies, status byte included,
+           are read from 0x29. Reading 0x28 hits the open bus. -->
+      <io base="0x28" num="2" type="O"/>
+      <io base="0x29" num="1" type="I"/>
     </UnapiNet>
   </devices>
 </msxconfig>

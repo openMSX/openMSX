@@ -230,9 +230,7 @@ void UnapiNet::reset(EmuTime /*time*/)
 {
 	// Ground state: every connection closed and freed, every buffer and
 	// queue discarded, pending reply and accumulated parameters dropped,
-	// DNS idle, and the status mirror reads 0xFF until the first command
-	// completes. The ICMP capability stays as latched at device start.
-	statusReg = 0xFF;
+	// and DNS idle. The ICMP capability stays as latched at device start.
 	paramBuf.clear();
 	resultBuf.clear();
 	resultPos = 0;
@@ -261,33 +259,26 @@ void UnapiNet::reset(EmuTime /*time*/)
 
 // Port reads
 
-byte UnapiNet::peekIO(uint16_t port, EmuTime /*time*/) const
+byte UnapiNet::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
-	if (port & 1) {
-		// data register (typically 0x29): the next unread reply byte.
-		// Past the end of a reply, or with no reply pending, reads 0xFF -
-		// the open-bus value an absent device yields, and never a valid
-		// status (rule 4): a desynchronized driver can always tell.
-		if (resultPos < resultBuf.size()) {
-			return resultBuf[resultPos];
-		}
-		return 0xFF;
-	} else {
-		// command register (typically 0x28) reads back the status byte of
-		// the last completed command - the v2 mirror.
-		return statusReg;
+	// Only the data register (typically 0x29) is registered for reads; the
+	// command port is write-only in v2, so a read there decodes to the
+	// open bus without reaching us. This returns the next unread reply
+	// byte. Past the end of a reply, or with no reply pending, reads 0xFF -
+	// the open-bus value an absent device yields, and never a valid
+	// status (rule 4): a desynchronized driver can always tell.
+	if (resultPos < resultBuf.size()) {
+		return resultBuf[resultPos];
 	}
+	return 0xFF;
 }
 
 byte UnapiNet::readIO(uint16_t port, EmuTime time)
 {
 	byte b = peekIO(port, time);
-	if (port & 1) {
-		// reading the data register consumes one result byte; the status
-		// mirror is not consumption bookkeeping and stays untouched
-		if (resultPos < resultBuf.size()) {
-			++resultPos;
-		}
+	// reading the data register consumes one result byte
+	if (resultPos < resultBuf.size()) {
+		++resultPos;
 	}
 	return b;
 }
@@ -299,8 +290,7 @@ void UnapiNet::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 	if (port & 1) {
 		// parameter byte (typically 0x29). Writing one while a reply is
 		// pending abandons the reply (the recovery rule) - the driver never
-		// has to drain a result it lost interest in. The mirror keeps the
-		// last completed status; only command completion updates it.
+		// has to drain a result it lost interest in.
 		resultBuf.clear();
 		resultPos = 0;
 		if (paramBuf.size() < MAX_PARAM_BUF) {
@@ -322,7 +312,6 @@ void UnapiNet::setResult(std::span<const uint8_t> data)
 	assert(!data.empty()); // v2: every reply begins with its status byte
 	resultBuf.assign(data.begin(), data.end());
 	resultPos = 0;
-	statusReg = data[0]; // command completion updates the mirror
 }
 
 void UnapiNet::replyStatus(uint8_t status)
@@ -1180,8 +1169,8 @@ void UnapiNet::cmdTcpRecv()
 
 	// Build the whole result under the connection lock: the length in the
 	// header and the bytes copied behind it must agree, and requestClose()
-	// runs on another thread. setResult() does the resultPos / statusReg
-	// bookkeeping; appending the payload afterwards doesn't disturb it.
+	// runs on another thread. setResult() does the resultPos bookkeeping;
+	// appending the payload afterwards doesn't disturb it.
 	// Nothing allocates while the lock is held: resultBuf was reserved in
 	// the constructor and avail <= MAX_TRANSFER.
 	std::scoped_lock lock(c.mutex);
