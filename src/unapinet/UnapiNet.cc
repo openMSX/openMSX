@@ -1358,9 +1358,19 @@ void UnapiNet::cmdUdpOpen()
 
 	sockaddr_in addr = sock_makeIPv4(INADDR_ANY, localPort == 0xFFFF ? 0 : localPort);
 	if (bind(s, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
-		sock_close(s);
-		replyStatus(ERR_NO_NETWORK);
-		return;
+		// The requested port may be taken by the HOST itself - Windows'
+		// time service owns UDP 123, which is exactly what an SNTP client
+		// asks for - a collision that cannot exist on the real-hardware
+		// UNAPI stacks this bridge stands in for, which own their whole
+		// IP. A client's local port carries no meaning for the peer, so
+		// fall back to an ephemeral one rather than refuse a socket the
+		// program needs.
+		addr.sin_port = 0;
+		if (bind(s, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
+			sock_close(s);
+			replyStatus(ERR_NO_NETWORK);
+			return;
+		}
 	}
 
 	// Read back the actual local port
