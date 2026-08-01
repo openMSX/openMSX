@@ -1586,10 +1586,11 @@ void UnapiNet::icmpWorkerLoop()
 			continue;
 		}
 
-		IcmpRequest req = icmpRequest;
+		IcmpRequest req;
 		uint32_t gen;
 		{
 			std::scoped_lock lock(icmpMutex);
+			req = icmpRequest;
 			gen = icmpGeneration;
 		}
 
@@ -1654,11 +1655,16 @@ void UnapiNet::cmdIcmpSend()
 		replyStatus(ERR_NOT_IMP);
 		return;
 	}
-	icmpRequest.dstIp      = p->dstIp;
-	icmpRequest.ttl        = p->ttl;
-	icmpRequest.identifier = p->identifier;
-	icmpRequest.sequence   = p->sequence;
-	icmpRequest.dataLen    = std::min<uint16_t>(p->len, 512); // echo-size clamp
+	{
+		// Under the lock: the worker may be copying the previous request
+		// out right now.
+		std::scoped_lock lock(icmpMutex);
+		icmpRequest.dstIp      = p->dstIp;
+		icmpRequest.ttl        = p->ttl;
+		icmpRequest.identifier = p->identifier;
+		icmpRequest.sequence   = p->sequence;
+		icmpRequest.dataLen    = std::min<uint16_t>(p->len, 512); // echo-size clamp
+	}
 	icmpPending = true;
 	replyStatus(ERR_OK);
 }
