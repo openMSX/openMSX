@@ -576,9 +576,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.cc">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.cc">
-      <Filter>imgui</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -1224,10 +1221,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\Icon.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\Layer.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\OutputSurface.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\video\OutputDimensions.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc">
@@ -2109,9 +2103,6 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.hh">
       <Filter>imgui</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.hh">
-      <Filter>imgui</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.hh">
       <Filter>imgui</Filter>
     </None>
@@ -2895,10 +2886,7 @@
     <None Include="$(OpenMSXSrcDir)\video\Icon.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\Layer.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh">
+    <None Include="$(OpenMSXSrcDir)\video\OutputDimensions.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh">

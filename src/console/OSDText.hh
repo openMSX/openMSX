@@ -38,9 +38,9 @@ public:
 
 private:
 	void invalidateLocal() override;
-	[[nodiscard]] gl::vec2 getSize(const OutputSurface& output) const override;
+	[[nodiscard]] gl::vec2 getSize(gl::ivec2 viewSize) const override;
 	[[nodiscard]] uint8_t getFadedAlpha() const override;
-	[[nodiscard]] std::unique_ptr<GLImage> create(OutputSurface& output) override;
+	[[nodiscard]] std::unique_ptr<GLImage> create(gl::ivec2 viewSize) override;
 
 	template<typename FindSplitPointFunc, typename CantSplitFunc>
 	[[nodiscard]] size_t split(const std::string& line, unsigned maxWidth,

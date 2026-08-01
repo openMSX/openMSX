@@ -17,7 +17,6 @@ class Display;
 class V9990;
 class V9990VRAM;
 class RawFrame;
-class OutputSurface;
 class RenderSettings;
 class Setting;
 class PostProcessor;
@@ -31,7 +30,7 @@ public:
 	using Pixel = uint32_t;
 
 	V9990SDLRasterizer(
-		V9990& vdp, Display& display, OutputSurface& screen,
+		V9990& vdp, Display& display,
 		std::unique_ptr<PostProcessor> postProcessor);
 	V9990SDLRasterizer(const V9990SDLRasterizer&) = delete;
 	V9990SDLRasterizer(V9990SDLRasterizer&&) = delete;
@@ -89,10 +88,6 @@ private:
 	/** The VRAM whose contents are rendered.
 	  */
 	V9990VRAM& vram;
-
-	/** The surface which is visible to the user.
-	  */
-	OutputSurface& screen;
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */

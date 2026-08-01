@@ -2,25 +2,24 @@
 #define OFFSCREENSURFACE_HH
 
 #include "GLUtil.hh"
-#include "OutputSurface.hh"
 
 namespace openmsx {
+
+class OutputDimensions;
 
 /** This class installs a FrameBufferObject (FBO). So as long as this object
   * is live, all openGL draw commands will be redirected to this FBO.
   */
-class OffScreenSurface final : public OutputSurface
+class OffScreenSurface
 {
 public:
-	explicit OffScreenSurface(const OutputSurface& output);
-
-private:
-	// OutputSurface
-	void saveScreenshot(const std::string& filename) override;
+	explicit OffScreenSurface(const OutputDimensions& output);
+	~OffScreenSurface();
 
 private:
 	gl::Texture fboTex;
 	gl::FrameBufferObject fbo;
+	GLuint prevFbo = 0;
 };
 
 } // namespace openmsx

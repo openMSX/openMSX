@@ -1,11 +1,11 @@
 #include "VisibleSurface.hh"
 
 #include "Display.hh"
-#include "GlobalSettings.hh"
 #include "GLContext.hh"
 #include "GLSnow.hh"
 #include "GLUtil.hh"
 #include "OffScreenSurface.hh"
+#include "PixelOperations.hh"
 #include "RenderSettings.hh"
 #include "VideoSystem.hh"
 
@@ -16,7 +16,6 @@
 #include "FileContext.hh"
 #include "FloatSetting.hh"
 #include "Icon.hh"
-#include "ImGuiLayer.hh"
 #include "InitException.hh"
 #include "InputEventGenerator.hh"
 #include "MemBuffer.hh"
@@ -94,9 +93,8 @@ VisibleSurface::VisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #endif
 
-	int flags = SDL_WINDOW_OPENGL;
-	//flags |= SDL_RESIZABLE;
-	auto size = display.getWindowSize();
+	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+	auto size = display.getScaleFactorSize();
 	createSurface(size, flags);
 	WindowEvent::setMainWindowId(SDL_GetWindowID(window.get()));
 
@@ -140,9 +138,6 @@ VisibleSurface::VisibleSurface(
 			"Need at least OpenGL version " VERSION_STRING);
 	}
 	gl::context.emplace();
-
-	bool fullScreen = renderSettings.getFullScreen();
-	setViewPort(size, fullScreen); // set initial values
 
 	renderSettings.getVSyncSetting().attach(vSyncObserver);
 	// set initial value
@@ -227,6 +222,7 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 		std::string err = SDL_GetError();
 		throw InitException("Could not create window: ", err);
 	}
+	SDL_SetWindowMinimumSize(window.get(), 320, 240);
 
 	updateWindowTitle();
 
@@ -325,17 +321,23 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 			fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0) {
 		return false; // error, try re-creating the window
 	}
-	fullScreenUpdated(fullscreen);
 	return true; // success
 }
 
 void VisibleSurface::resize()
 {
-	auto size = display.getWindowSize();
-	SDL_SetWindowSize(window.get(), size.x, size.y);
+	resize(display.getScaleFactorSize());
+}
 
-	bool fullScreen = display.getRenderSettings().getFullScreen();
-	setViewPort(size, fullScreen);
+void VisibleSurface::resize(gl::ivec2 size)
+{
+	auto flags = SDL_GetWindowFlags(window.get());
+	bool isMaximized = (flags & SDL_WINDOW_MAXIMIZED);
+	bool isFullscreen = (flags & SDL_WINDOW_FULLSCREEN) ||
+	                    (flags & SDL_WINDOW_FULLSCREEN_DESKTOP);
+	if (isMaximized || isFullscreen) return;
+
+	SDL_SetWindowSize(window.get(), size.x, size.y);
 }
 
 void VisibleSurface::updateWindowTitle()
@@ -354,13 +356,8 @@ std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
 }
 
 
-void VisibleSurface::saveScreenshot(const std::string& filename)
-{
-	saveScreenshotGL(*this, filename);
-}
-
 void VisibleSurface::saveScreenshotGL(
-	const OutputSurface& output, const std::string& filename)
+	const OutputDimensions& output, const std::string& filename)
 {
 	auto [x, y] = output.getViewOffset();
 	auto [w, h] = output.getViewSize();
@@ -380,24 +377,14 @@ void VisibleSurface::finish()
 	SDL_GL_SwapWindow(window.get());
 }
 
-std::unique_ptr<Layer> VisibleSurface::createSnowLayer()
+std::unique_ptr<GLSnow> VisibleSurface::createSnowLayer()
 {
-	return std::make_unique<GLSnow>(getDisplay());
+	return std::make_unique<GLSnow>();
 }
 
-std::unique_ptr<Layer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
+std::unique_ptr<OSDGUILayer> VisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
 	return std::make_unique<OSDGUILayer>(gui);
-}
-
-std::unique_ptr<Layer> VisibleSurface::createImGUILayer(ImGuiManager& manager)
-{
-	return std::make_unique<ImGuiLayer>(manager);
-}
-
-std::unique_ptr<OutputSurface> VisibleSurface::createOffScreenSurface()
-{
-	return std::make_unique<OffScreenSurface>(*this);
 }
 
 void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
@@ -416,41 +403,6 @@ void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 		// that case.
 		SDL_GL_SetSwapInterval(1);
 	}
-}
-
-void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
-{
-	gl::ivec2 physicalSize = [&] {
-#ifndef __APPLE__
-		// On macos we set 'SDL_WINDOW_ALLOW_HIGHDPI', and in that case
-		// it's required to use SDL_GL_GetDrawableSize(), but then this
-		// 'full screen'-workaround/hack is counter-productive.
-		if (!fullScreen) {
-			// ??? When switching  back from full screen to windowed mode,
-			// SDL_GL_GetDrawableSize() still returns the dimensions of the
-			// full screen window ??? Is this a bug ???
-			// But we know that in windowed mode, physical and logical size
-			// must be the same, so enforce that.
-			return logicalSize;
-		}
-#endif
-		(void)fullScreen;
-		int w, h;
-		SDL_GL_GetDrawableSize(window.get(), &w, &h);
-		return gl::ivec2(w, h);
-	}();
-
-	// The created surface may be larger than requested.
-	// If that happens, center the area that we actually use.
-	calculateViewPort(logicalSize, physicalSize);
-	// actually setting the viewport is done in PostProcessor::paint()
-
-	gl::context->setupMvpMatrix(gl::vec2(logicalSize));
-}
-
-void VisibleSurface::fullScreenUpdated(bool fullScreen)
-{
-	setViewPort(getLogicalSize(), fullScreen);
 }
 
 } // namespace openmsx

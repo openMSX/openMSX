@@ -7,19 +7,16 @@
 #include "DeinterlacedFrame.hh"
 #include "Display.hh"
 #include "DoubledFrame.hh"
-#include "Event.hh"
-#include "EventDistributor.hh"
 #include "FloatSetting.hh"
 #include "GLContext.hh"
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
-#include "MSXMotherBoard.hh"
-#include "OutputSurface.hh"
+#include "OutputDimensions.hh"
 #include "PNG.hh"
 #include "RawFrame.hh"
-#include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "SuperImposedFrame.hh"
+#include "VisibleSurface.hh"
 #include "gl_transform.hh"
 
 #include "MemBuffer.hh"
@@ -43,18 +40,15 @@ namespace openmsx {
 
 PostProcessor::PostProcessor(
 	MSXMotherBoard& motherBoard_, Display& display_,
-	OutputSurface& screen_, const std::string& videoSource,
+	VisibleSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
 	: VideoLayer(motherBoard_, videoSource)
-	, Schedulable(motherBoard_.getScheduler())
 	, display(display_)
 	, renderSettings(display_.getRenderSettings())
-	, eventDistributor(motherBoard_.getReactor().getEventDistributor())
 	, screen(screen_)
 	, maxWidth(maxWidth_)
 	, height(height_)
 	, canDoInterlace(canDoInterlace_)
-	, lastRotate(motherBoard_.getCurrentTime())
 {
 	if (canDoInterlace) {
 		deinterlacedFrame = std::make_unique<DeinterlacedFrame>();
@@ -71,6 +65,7 @@ PostProcessor::PostProcessor(
 
 	preCalcNoise(renderSettings.getNoise());
 	initBuffers();
+	initAreaScaler();
 
 	VertexShader   vertexShader  ("monitor3D.vert");
 	FragmentShader fragmentShader("monitor3D.frag");
@@ -119,19 +114,6 @@ CliComm& PostProcessor::getCliComm()
 	return display.getCliComm();
 }
 
-unsigned PostProcessor::getLineWidth(
-	FrameSource* frame, unsigned y, unsigned step)
-{
-	return max_value(xrange(step), [&](auto i) { return frame->getLineWidth(y + i); });
-}
-
-void PostProcessor::executeUntil(EmuTime /*time*/)
-{
-	// insert fake end of frame event
-	eventDistributor.distributeEvent(FinishFrameEvent(
-		getVideoSource(), getVideoSourceSetting(), false));
-}
-
 using WorkBuffer = std::vector<MemBuffer<FrameSource::Pixel, SSE_ALIGNMENT>>;
 static void getScaledFrame(const FrameSource& paintFrame,
                            std::span<const FrameSource::Pixel*> lines,
@@ -166,7 +148,9 @@ void PostProcessor::takeRawScreenShot(std::optional<unsigned> desiredHeight, con
 	}
 
 	const unsigned targetHeight = desiredHeight ? *desiredHeight : [this] {
-		auto maxLineWidth = getLineWidth(paintFrame, 0, paintFrame->getHeight());
+		auto maxLineWidth = max_value(xrange(paintFrame->getHeight()), [&](auto i) {
+			return paintFrame->getLineWidth(i);
+		});
 		if (maxLineWidth == 320) return 240;
 		// in all other cases (there could be other than 640), we go for 640x480
 		return 480;
@@ -184,68 +168,32 @@ void PostProcessor::createRegions()
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getLogicalHeight();
-	regionsDstHeight = dstHeight;
-
-	unsigned g = std::gcd(srcHeight, dstHeight);
-	unsigned srcStep = srcHeight / g;
-	unsigned dstStep = dstHeight / g;
 
 	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
 	//       on the PC screen, as a preparation for resizable output window.
 	unsigned srcStartY = 0;
-	unsigned dstStartY = 0;
-	while (dstStartY < dstHeight) {
-		// Currently this is true because the source frame height
-		// is always >= dstHeight/(dstStep/srcStep).
-		assert(srcStartY < srcHeight);
-
+	while (srcStartY < srcHeight) {
 		// get region with equal lineWidth
-		unsigned lineWidth = getLineWidth(paintFrame, srcStartY, srcStep);
-		unsigned srcEndY = srcStartY + srcStep;
-		unsigned dstEndY = dstStartY + dstStep;
-		while ((srcEndY < srcHeight) && (dstEndY < dstHeight) &&
-		       (getLineWidth(paintFrame, srcEndY, srcStep) == lineWidth)) {
-			srcEndY += srcStep;
-			dstEndY += dstStep;
+		unsigned lineWidth = paintFrame->getLineWidth(srcStartY);
+		unsigned srcEndY = srcStartY + 1;
+		while ((srcEndY < srcHeight) &&
+		       (paintFrame->getLineWidth(srcEndY) == lineWidth)) {
+			++srcEndY;
 		}
 
-		regions.emplace_back(srcStartY, srcEndY,
-		                     dstStartY, dstEndY,
-		                     lineWidth);
+		regions.emplace_back(srcStartY, srcEndY, lineWidth);
 
 		// next region
 		srcStartY = srcEndY;
-		dstStartY = dstEndY;
 	}
 }
 
-void PostProcessor::paint(OutputSurface& /*output*/)
+void PostProcessor::paint(const OutputDimensions& output)
 {
-	if (renderSettings.getInterleaveBlackFrame()) {
-		interleaveCount ^= 1;
-		if (interleaveCount) {
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			return;
-		}
-	}
+	if (!paintFrame) return;
 
-	auto deform = renderSettings.getDisplayDeform();
-	float horStretch = renderSettings.getHorizontalStretch();
-	int glow = renderSettings.getGlow();
-
-	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
-	    (deform == RenderSettings::DisplayDeform::_3D) || !paintFrame) {
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		if (!paintFrame) {
-			return;
-		}
-	}
-
-	auto size = screen.getLogicalSize();
-	bool needReUpload = size.y != int(regionsDstHeight);
+	auto dstSize = output.getViewSize();
+	bool needReUpload = false;
 
 	// New scaler algorithm selected?
 	if (auto algo = renderSettings.getScaleAlgorithm();
@@ -268,12 +216,12 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
-	glViewport(0, 0, size.x, size.y);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	auto& renderedFrame = renderedFrames[frameCounter & 1];
-	if (renderedFrame.size != size) {
-		renderedFrame.tex.bind();
-		renderedFrame.tex.setInterpolation(true);
+	auto createFBO = [](StoredFrame& frame, gl::ivec2 size) {
+		if (frame.size == size) return;
+		frame.size = size;
+
+		frame.tex.bind();
+		frame.tex.setInterpolation(true);
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB,            // internal format
@@ -283,39 +231,62 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
 			     nullptr);          // data
-		renderedFrame.fbo = FrameBufferObject(renderedFrame.tex);
-	}
-	renderedFrame.fbo.push();
+		frame.fbo = FrameBufferObject(frame.tex);
+	};
 
+	auto& renderedFrame = renderedFrames[frameCounter & 1];
+	createFBO(renderedFrame, dstSize);
+
+	auto prevFbo = FrameBufferObject::getCurrent();
+	auto scaleDstSize = currScaler->getOutputScaleSize(dstSize);
+	if (scaleDstSize != dstSize) {
+		createFBO(area.frame, scaleDstSize);
+		area.frame.fbo.activate();
+	} else {
+		// we can directly scale to the desired size
+		renderedFrame.fbo.activate();
+	}
+
+	glDisable(GL_SCISSOR_TEST);
+	glViewport(0, 0, scaleDstSize.x, scaleDstSize.y);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	auto* superImpose = superImposeVideoFrame
+	                  ? &superImposeTex : nullptr;
+	auto srcHeight = int(paintFrame->getHeight());
 	for (const auto& r : regions) {
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
-		auto* superImpose = superImposeVideoFrame
-		                  ? &superImposeTex : nullptr;
+		ivec2 srcSize{int(r.lineWidth), srcHeight};
 		currScaler->scaleImage(
 			it->tex, superImpose,
-			r.srcStartY, r.srcEndY, r.lineWidth, // src
-			r.dstStartY, r.dstEndY, size.x,   // dst
-			paintFrame->getHeight()); // dst
+			r.srcStartY, r.srcEndY, srcSize, scaleDstSize);
+	}
+
+	if (scaleDstSize != dstSize) {
+		renderedFrame.fbo.activate();
+		glViewport(0, 0, dstSize.x, dstSize.y);
+		rescaleArea(scaleDstSize, dstSize);
 	}
 
 	drawNoise();
-	drawGlow(glow);
+	drawGlow(renderSettings.getGlow());
 
-	renderedFrame.fbo.pop();
+	FrameBufferObject::activate(prevFbo);
 	renderedFrame.tex.bind();
 
 	if (renderSettings.getFullStretch()) {
-		auto [w, h] = screen.getPhysicalSize();
+		auto [w, h] = output.getPhysicalSize();
 		glViewport(0, 0, w, h);
 	} else {
-		auto [x, y] = screen.getViewOffset();
-		auto [w, h] = screen.getViewSize();
+		auto [x, y] = output.getViewOffset();
+		auto [w, h] = output.getViewSize();
 		glViewport(x, y, w, h);
 	}
 
-	if (deform == RenderSettings::DisplayDeform::_3D) {
+	if (renderSettings.getDisplayDeform() == RenderSettings::DisplayDeform::_3D) {
 		drawMonitor3D();
 	} else {
+		float horStretch = renderSettings.getHorizontalStretch();
 		float x1 = (320.0f - horStretch) * (1.0f / (2.0f * 320.0f));
 		float x2 = 1.0f - x1;
 		std::array tex = {
@@ -351,14 +322,6 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, EmuTime time)
 {
-	if (renderSettings.getInterleaveBlackFrame()) {
-		auto delta = time - lastRotate; // time between last two calls
-		auto middle = time + delta / 2; // estimate for middle between now
-		                                // and next call
-		setSyncPoint(middle);
-	}
-	lastRotate = time;
-
 	// Figure out how many past frames we want to use.
 	int numRequired = 1;
 	bool doDeinterlace = false;
@@ -470,7 +433,6 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 
 void PostProcessor::update(const Setting& setting) noexcept
 {
-	VideoLayer::update(setting);
 	const auto& noiseSetting = renderSettings.getNoiseSetting();
 	const auto& horizontalStretch = renderSettings.getHorizontalStretchSetting();
 	if (&setting == &noiseSetting) {
@@ -570,6 +532,76 @@ void PostProcessor::uploadBlock(
 	if (currScaler) {
 		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);
 	}
+}
+
+void PostProcessor::initAreaScaler()
+{
+	auto& program = area.program;
+	VertexShader   vertexShader  ("rescale.vert");
+	FragmentShader fragmentShader("rescale.frag");
+	program.attach(vertexShader);
+	program.attach(fragmentShader);
+	program.bindAttribLocation(0, "a_position");
+	program.bindAttribLocation(1, "a_texCoord");
+	program.link();
+	program.activate();
+	glUniform1i(program.getUniformLocation("tex"), 0);
+	area.unifMvpMatrix     = program.getUniformLocation("u_mvpMatrix");
+	area.unifTexelCount    = program.getUniformLocation("texelCount");
+	area.unifPixelCount    = program.getUniformLocation("pixelCount");
+	area.unifTexelSize     = program.getUniformLocation("texelSize");
+	area.unifPixelSize     = program.getUniformLocation("pixelSize");
+	area.unifHalfTexelSize = program.getUniformLocation("halfTexelSize");
+	area.unifHalfPixelSize = program.getUniformLocation("halfPixelSize");
+}
+
+void PostProcessor::rescaleArea(gl::ivec2 srcSize, gl::ivec2 dstSize)
+{
+	area.program.activate();
+
+	area.frame.tex.bind();
+	area.frame.tex.setInterpolation(false);
+
+	auto M = ortho(dstSize.x, dstSize.y);
+	glUniformMatrix4fv(area.unifMvpMatrix, 1, GL_FALSE, M.data());
+	gl::vec2 texelCount(srcSize);
+	glUniform2f(area.unifTexelCount, texelCount.x, texelCount.y);
+	gl::vec2 pixelCount(dstSize);
+	glUniform2f(area.unifPixelCount, pixelCount.x, pixelCount.y);
+	gl::vec2 texelSize = 1.0f / texelCount;
+	glUniform2f(area.unifTexelSize, texelSize.x, texelSize.y);
+	gl::vec2 pixelSize = 1.0f / pixelCount;
+	glUniform2f(area.unifPixelSize, pixelSize.x, pixelSize.y);
+	gl::vec2 halfTexelSize = 0.5f * texelSize;
+	glUniform2f(area.unifHalfTexelSize, halfTexelSize.x, halfTexelSize.y);
+	gl::vec2 halfPixelSize = 0.5f * pixelSize;
+	glUniform2f(area.unifHalfPixelSize, halfPixelSize.x, halfPixelSize.y);
+
+	std::array pos = {
+		vec2(        0.0f, pixelCount.y),
+		vec2(pixelCount.x, pixelCount.y),
+		vec2(pixelCount.x, 0.0f),
+		vec2(        0.0f, 0.0f),
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, area.posBuffer.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos.data(), GL_STREAM_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	std::array tex = { // TODO in the future integrate horizontal stretch
+		vec2(0, 0), vec2(1, 0), vec2(1, 1), vec2(0, 1),
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, area.texBuffer.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void PostProcessor::drawGlow(int glow)

@@ -2,6 +2,8 @@
 #define GLSCALER_HH
 
 #include "GLUtil.hh"
+#include "gl_mat.hh"
+
 #include <array>
 #include <string>
 
@@ -21,7 +23,7 @@ public:
 	  * Must be called once per frame before calling scaleImage() (possibly
 	  * multiple times).
 	  */
-	void setup(bool superImpose);
+	void setup(bool superImpose, gl::ivec2 dstSize);
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.
@@ -30,24 +32,22 @@ public:
 	  * @param superImpose Texture containing the to-be-superimposed image (can be nullptr).
 	  * @param srcStartY Y-coordinate of the top source line (inclusive).
 	  * @param srcEndY Y-coordinate of the bottom source line (exclusive).
-	  * @param srcWidth The number of pixels per line for the given area.
-	  * @param dstStartY Y-coordinate of the top destination line (inclusive).
-	  * @param dstEndY Y-coordinate of the bottom destination line (exclusive).
-	  * @param dstWidth The number of pixels per line on the output screen.
-	  * @param logSrcHeight The logical height of the complete src texture
-	  *        (actual texture height can be double as high in case of
-	  *        non-interlace). This is needed to translate src-Y-coordinates
-	  *        to superImpose-Y-coordinates.
+	  * @param srcSize The number of pixels per line for the given area. Heigh of the full input.
+	  * @param dstSize The size of the full output.
 	  */
 	virtual void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-		unsigned logSrcHeight) = 0;
+		unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize) = 0;
 
 	virtual void uploadBlock(
 		unsigned srcStartY, unsigned srcEndY,
 		unsigned lineWidth, FrameSource& paintFrame);
+
+	// Input: the final screen output size.
+	// Output: the best this scaler can approximate the given size.
+	// Some scalers can exactly produce any desired size. Some can only
+	// produce one or a few fixed sizes.
+	[[nodiscard]] virtual gl::ivec2 getOutputScaleSize(gl::ivec2 dstScreenSize) const = 0;
 
 protected:
 	explicit GLScaler(const std::string& progName);
@@ -63,22 +63,11 @@ protected:
 	  * @param superImpose
 	  * @param srcStartY
 	  * @param srcEndY
-	  * @param srcWidth
-	  * @param dstStartY
-	  * @param dstEndY
-	  * @param dstWidth
-	  * @param logSrcHeight
-	  * @param textureFromZero If true, the texture coordinates of subpixels
-	  *   will start from zero: for example in 4x zoom the source coordinates
-	  *   will be 0.0, 0.25, 0.5, 0.75. If false, the texture coordinates of
-	  *   subpixels will be centered: for example in 4x zoom the source
-	  *   coordinates will be 0.125, 0.375, 0.625, 0.875.
+	  * @param srcSize
+	  * @param dstSize
 	  */
 	void execute(const gl::ColorTexture& src, const gl::ColorTexture* superImpose,
-	             unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	             unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	             unsigned logSrcHeight,
-	             bool textureFromZero = false);
+	             unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize);
 
 protected:
 	std::array<gl::BufferObject, 2> vbo;

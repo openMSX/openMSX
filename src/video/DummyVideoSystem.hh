@@ -19,14 +19,13 @@ public:
 #endif
 	void flush() override;
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() override;
-	[[nodiscard]] OutputSurface* getOutputSurface() override;
+	[[nodiscard]] VisibleSurface* getSurface() override;
 	void showCursor(bool show) override;
 	[[nodiscard]] bool getCursorEnabled() override;
 	[[nodiscard]] std::string getClipboardText() override;
 	void setClipboardText(zstring_view text) override;
 	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() override;
 	void setWindowPosition(gl::ivec2 pos) override;
-	void repaint() override;
 };
 
 } // namespace openmsx
