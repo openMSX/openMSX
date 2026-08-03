@@ -58,6 +58,7 @@ static constexpr auto romTypeInfoArray = [] {
 	r[MANBOW2]         = {0x2000, "Manbow2",         "Manbow2"};
 	r[MANBOW2_2]       = {0x2000, "Manbow2_2",       "Manbow2 - Second Release"};
 	r[RBSC_FLASH_KONAMI_SCC]={0x2000,"RBSC_Flash_KonamiSCC","RBSC 2MB flash, Konami SCC mapper"};
+	r[ASCII8FLASH]     = {0x2000, "ASCII8Flash",     "ASCII 8kB mapper with 512kB AMD flash (AM29F040B)"};
 	r[HAMARAJANIGHT]   = {0x2000, "HamarajaNight",   "Best of Hamaraja Night"};
 	r[MEGAFLASHROMSCC] = {0x2000, "MegaFlashRomScc", "Mega Flash ROM SCC"};
 	r[MATRAINK]        = {0     , "MatraInk",        "Matra Ink"};
