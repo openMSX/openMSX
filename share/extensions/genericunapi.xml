@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Generic UNAPI</name>
+    <manufacturer>DucaSP</manufacturer>
+    <code/>
+    <release_year>2026</release_year>
+    <description>Generic TCP/IP UNAPI device using host networking</description>
+    <type>network adapter</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <GenericUNAPI id="Generic UNAPI">
+          <io base="0x06" num="2"/>
+        </GenericUNAPI>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

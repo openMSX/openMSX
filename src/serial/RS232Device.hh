@@ -27,6 +27,9 @@ public:
 	[[nodiscard]] virtual std::optional<bool> getRI(EmuTime time) const;
 	virtual void setDTR(bool status, EmuTime time);
 	virtual void setRTS(bool status, EmuTime time);
+
+	// baud rate
+	virtual void setBaudRate(unsigned baud);
 };
 
 } // namespace openmsx
