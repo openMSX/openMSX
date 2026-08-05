@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>SM-X WiFi</name>
+    <manufacturer>DucaSP</manufacturer>
+    <code/>
+    <release_year>2020</release_year>
+    <description>ESP WiFi module for MSX, UNAPI compatible.</description>
+    <type>network adapter</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <SMXWiFi id="SMX WiFi">
+          <io base="0x06" num="2"/>
+        </SMXWiFi>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

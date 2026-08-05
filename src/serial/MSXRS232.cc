@@ -61,6 +61,20 @@ MSXRS232::MSXRS232(DeviceConfig& config)
 
 MSXRS232::~MSXRS232() = default;
 
+void MSXRS232::notifyBaudRate()
+{
+	auto& dev = getPluggedRS232Dev();
+	ClockPin& clk = i8251.getClockPin();
+	if (clk.isPeriodic()) {
+		auto period = clk.getTotalDuration().toUint64();
+		if (period > 0) {
+			unsigned factor = i8251.getBaudRateFactor();
+			unsigned baud = static_cast<unsigned>(MAIN_FREQ / (period * factor));
+			dev.setBaudRate(baud);
+		}
+	}
+}
+
 void MSXRS232::powerUp(EmuTime time)
 {
 	if (ram) ram->clear();
@@ -361,6 +375,7 @@ void MSXRS232::Counter0::signal(ClockPin& pin, EmuTime time)
 	} else {
 		clk.setState(pin.getState(time), time);
 	}
+	rs232.notifyBaudRate();
 }
 
 void MSXRS232::Counter0::signalPosEdge(ClockPin& /*pin*/, EmuTime /*time*/)
@@ -381,6 +396,7 @@ void MSXRS232::Counter1::signal(ClockPin& pin, EmuTime time)
 	} else {
 		clk.setState(pin.getState(time), time);
 	}
+	rs232.notifyBaudRate();
 }
 
 void MSXRS232::Counter1::signalPosEdge(ClockPin& /*pin*/, EmuTime /*time*/)
@@ -393,7 +409,7 @@ void MSXRS232::Counter1::signalPosEdge(ClockPin& /*pin*/, EmuTime /*time*/)
 
 bool MSXRS232::ready()
 {
-	return i8251.isRecvReady();
+	return i8251.isRecvReady() && !i8251.isRecvFull();
 }
 
 bool MSXRS232::acceptsData()

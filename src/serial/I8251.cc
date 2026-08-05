@@ -287,6 +287,22 @@ bool I8251::isRecvEnabled() const
 	return (command & CMD_RXE) != 0;
 }
 
+bool I8251::isRecvFull() const
+{
+	return (status & STAT_RXRDY) != 0;
+}
+
+unsigned I8251::getBaudRateFactor() const
+{
+	switch (mode & MODE_BAUDRATE) {
+	case MODE_SYNCHRONOUS: return 1;
+	case MODE_RATE1:       return 1;
+	case MODE_RATE16:      return 16;
+	case MODE_RATE64:      return 64;
+	default: UNREACHABLE;
+	}
+}
+
 void I8251::send(uint8_t value, EmuTime time)
 {
 	status &= ~STAT_TXEMPTY;
