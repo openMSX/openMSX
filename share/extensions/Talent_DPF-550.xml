@@ -19,6 +19,8 @@
             <sha1>d9c82e091b5fa1b5ee9b7f012f0084611762eb93</sha1> <!-- Confirmed by saccopharynx -->
             <filename>dpf-550_disk.rom</filename>
           </rom>
+          <singlesided/>
+          <tracks>40</tracks> <!-- single-sided 40-track 180kB drive; disk ROM only accepts media 0xFC -->
           <drives>1</drives>
         </WD1770>
       </secondary>
