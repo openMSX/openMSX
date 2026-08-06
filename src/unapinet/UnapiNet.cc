@@ -802,12 +802,16 @@ void UnapiNet::cmdDetect()
 
 void UnapiNet::cmdDnsQuery()
 {
-	// Form errors first, before the busy check; neither touches the DNS
-	// state or a running lookup. An empty block is an empty hostname, and
-	// a block beyond the DNS name limit is "too long" (rule 3) - no real
-	// name is that long, and resolving a truncated one would look like
-	// success on the wrong name.
-	if (paramBuf.empty() || paramBuf.size() > MAX_HOSTNAME) {
+	// Form errors first, before the busy check; none of them touches the
+	// DNS state or a running lookup. An empty block is an empty hostname,
+	// and a block beyond the DNS name limit is "too long" (rule 3) - no
+	// real name is that long, and resolving a truncated one would look
+	// like success on the wrong name. An embedded NUL is malformed for a
+	// kindred reason: the host resolver API speaks C strings and cannot
+	// even carry the name past the NUL, so no lookup could ever see it -
+	// rejecting it beats resolving a silently truncated prefix.
+	if (paramBuf.empty() || paramBuf.size() > MAX_HOSTNAME ||
+	    std::ranges::find(paramBuf, uint8_t(0)) != paramBuf.end()) {
 		replyStatus(ERR_INV_PARAM);
 		return;
 	}
@@ -821,23 +825,6 @@ void UnapiNet::cmdDnsQuery()
 	}
 
 	std::string hostname(paramBuf.begin(), paramBuf.end());
-
-	// A hostname with an embedded NUL cannot exist in the resolver's
-	// namespace, and the C resolver API cannot even carry it past the NUL:
-	// arm the failed-lookup state directly instead of resolving a silently
-	// truncated prefix. (Not a syntax rule - the outcome the resolver
-	// would report if it could see the full name.)
-	if (hostname.find('\0') != std::string::npos) {
-		{
-			std::scoped_lock lock(dns.mutex);
-			dns.status = DnsStatus::Error;
-			dns.resolvedIp = 0;
-			++dns.generation; // disown any stale in-flight lookup
-		}
-		const std::array<uint8_t, 2> started{ERR_OK, 0};
-		setResult(started);
-		return;
-	}
 
 	// Dotted-quad fast path: a strict a.b.c.d (four decimal octets) resolves
 	// immediately and arms the sticky Complete state exactly as an
