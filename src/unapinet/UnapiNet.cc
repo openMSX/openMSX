@@ -803,7 +803,10 @@ void UnapiNet::socketLoop()
 				n = static_cast<int>(buf.size());
 			}
 #endif
-			if (n <= 0) continue;
+			// recvfrom() == 0 is not EOF here: an empty UDP datagram is a
+			// real datagram (visible to the receiver, unlike a 0-byte TCP
+			// send) and queues like any other.
+			if (n < 0) continue;
 			UdpDatagram dg;
 			dg.srcIp = ntohl(src.sin_addr.s_addr);
 			dg.srcPort = ntohs(src.sin_port);
@@ -1516,7 +1519,9 @@ void UnapiNet::cmdUdpClose()
 
 // UDP_STATE (0x0B)
 // Params: handle[1]
-// Reply: {0, first_dgram_size[2 LE]} - 0 if the queue is empty
+// Reply: {0, first_dgram_size[2 LE]} - 0 if the queue is empty, or if
+// an empty datagram heads it; UDP_RECV until ERR_NO_DATA is the UNAPI
+// idiom that tells the two apart (TCPIP_UDP_STATE's own advice)
 
 void UnapiNet::cmdUdpState()
 {
@@ -1586,9 +1591,11 @@ void UnapiNet::cmdUdpSend()
 }
 
 // UDP_RECV (0x0F)
-// Params: handle[1] + maxlen[2 LE] - maxlen 0 is refused rather than
-// silently destroying a datagram unread (UDP_STATE sizes the head)
-// Reply: {0, src_IP[4], src_port[2 LE], actual_len[2 LE], data[actual_len]}
+// Params: handle[1] + maxlen[2 LE] - maxlen 0 is TCPIP_UDP_RCV's DE=0,
+// a deliberate discard: consume the head, copy nothing
+// Reply: {0, src_IP[4], src_port[2 LE], actual_len[2 LE],
+//         data[min(actual_len, maxlen)]} - actual_len is the datagram's
+// size as received (UNAPI's BC may exceed the bytes retrieved)
 
 void UnapiNet::cmdUdpRecv()
 {
@@ -1598,10 +1605,6 @@ void UnapiNet::cmdUdpRecv()
 		return;
 	}
 	uint16_t maxlen = p->maxlen;
-	if (maxlen == 0) {
-		replyStatus(ERR_INV_PARAM);
-		return;
-	}
 	auto* up = udpForHandle(p->handle);
 	if (!up || up->sock == OPENMSX_INVALID_SOCKET) {
 		replyStatus(ERR_NO_CONN);
@@ -1622,15 +1625,18 @@ void UnapiNet::cmdUdpRecv()
 		return;
 	}
 
-	// The head datagram is consumed whole; whatever exceeds maxlen is
-	// discarded with it.
-	auto actual = static_cast<uint16_t>(
-		std::min(static_cast<size_t>(maxlen), dg->data.size()));
+	// The head datagram is consumed whole; the reply reports its size as
+	// received and carries the first min(size, maxlen) bytes - whatever
+	// exceeds maxlen is discarded with it. This is what lets the driver
+	// report TCPIP_UDP_RCV's BC ("size as it was received, which may be
+	// larger than the number of bytes actually retrieved") without a
+	// second command.
+	auto copied = std::min(static_cast<size_t>(maxlen), dg->data.size());
 	setResult(UdpRecvResultHeader{
 			.srcIp     = dg->srcIp,
 			.srcPort   = dg->srcPort,
-			.actualLen = actual},
-		std::span<const uint8_t>(dg->data.data(), actual));
+			.actualLen = static_cast<uint16_t>(dg->data.size())},
+		std::span<const uint8_t>(dg->data.data(), copied));
 }
 
 // ICMP Echo (ping)

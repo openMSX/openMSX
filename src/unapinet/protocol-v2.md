@@ -55,7 +55,7 @@ the device side is what v2 added):
 | 1    | ERR_NOT_IMP     | unknown opcode; the ICMP commands on a host without working ICMP (caps bit4 clear) |
 | 2    | ERR_NO_NETWORK  | the host socket layer refused: socket()/bind()/listen() failure, a synchronous connect() failure, a failed or short sendto() (UDP) |
 | 3    | ERR_NO_DATA     | UDP_RECV / ICMP_RECV with an empty queue         |
-| 4    | ERR_INV_PARAM   | malformed parameter block (rule 3), empty hostname, one longer than 253 bytes or one with an embedded NUL, a TCP_SEND length beyond `MAX_TRANSFER`, an undefined flag bit set, UDP_RECV with maxlen 0 |
+| 4    | ERR_INV_PARAM   | malformed parameter block (rule 3), empty hostname, one longer than 253 bytes or one with an embedded NUL, a TCP_SEND length beyond `MAX_TRANSFER`, an undefined flag bit set |
 | 5    | ERR_QUERY_EXISTS| DNS_QUERY while a lookup is already running      |
 | 9    | ERR_NO_FREE_CONN| TCP_OPEN / UDP_OPEN with all handles in use      |
 | 11   | ERR_NO_CONN     | handle out of range (0 included, save the close-all forms of TCP_CLOSE / UDP_CLOSE / TCP_ABORT); or no open connection on it — except TCP_STATE / TCP_RECV, which answer for any in-range handle (see notes) |
@@ -119,9 +119,11 @@ them over from the v1 document:
 * v1's DNS_QUERY takes a NUL-terminated name (terminator effectively
   optional, trailing bytes ignored). v2 drops the terminator entirely:
   the parameter block *is* the hostname. This is the only change at the
-  block-form level; no other layout moved. (Two *value* checks are also new — TCP_OPEN's undefined flag
-  bits and UDP_RECV's maxlen 0, both `{4}`: v1 ignored the former and
-  destroyed a datagram on the latter.)
+  block-form level; no other layout moved. (One *value* check is also
+  new — TCP_OPEN's undefined flag bits answer `{4}` where v1 ignored
+  them. And one value gains meaning: v1 destroyed a datagram unread on
+  UDP_RECV maxlen 0; v2 makes that TCPIP_UDP_RCV's deliberate DE=0
+  discard, reporting the source and size while copying nothing.)
 
 The recovery rule is kept and completed: writing a **parameter byte**
 while a result is pending discards the unread result (as in v1), and
@@ -201,7 +203,7 @@ rule 3.
 | 0x0C | UDP_SEND    | {0} (1)                                  | 2, 11        |
 | 0x0D | GET_LOCALIP | {0, ip4} (5)                             | —            |
 | 0x0E | NET_STATE   | {0, 2} (2)                               | —            |
-| 0x0F | UDP_RECV    | {0, srcip4, port.2, len.2, payload} (9+len) | 3, 4, 11  |
+| 0x0F | UDP_RECV    | {0, srcip4, port.2, len.2, payload} (9 + min(len, maxlen)) | 3, 11 |
 | 0x11 | ICMP_SEND   | {0} (1)                                  | 1            |
 | 0x12 | ICMP_RECV   | {0, srcip4, ttl, id.2, seq.2, len.2} (12)| 1, 3         |
 
@@ -277,12 +279,24 @@ rule 3.
   refuses it and the reply is `{2}` (as is a short kernel write). A
   failed send leaves the socket open and usable. Length 0 sends an empty
   datagram (`{0}`).
-* **UDP_RECV**: if the head datagram exceeds `maxlen`, the excess of
-  *that datagram* is discarded — it is consumed whole either way.
-  `maxlen` 0 is refused (`{4}`) rather than silently destroying a
-  datagram unread; use UDP_STATE to size the head of the queue.
-  Datagrams were already truncated to 2 KiB at receive time and queue at
-  most 16 deep (v1 behavior, unchanged).
+* **UDP_RECV**: the head datagram is consumed whole. `len` in the reply
+  is the datagram's size **as received**, and the payload that follows
+  is the first `min(len, maxlen)` bytes — the excess, if any, is
+  discarded with the datagram. This is exactly TCPIP_UDP_RCV's contract:
+  its BC output is "the datagram data size as it was received, which may
+  be larger than the number of bytes actually retrieved", and its DE=0
+  ("no data will be copied at all") is a *deliberate* discard — so
+  `maxlen` 0 is valid: header only, datagram gone. Contrast TCP_RECV,
+  where `maxlen` 0 consumes nothing — a stream has no unit to destroy,
+  a datagram is all-or-nothing. An empty datagram (0 data bytes) is a
+  normal datagram: UDP makes it visible to the receiver, so it queues
+  and is delivered with `len` 0. Datagrams were already truncated to
+  2 KiB at receive time and queue at most 16 deep (v1 behavior,
+  unchanged).
+* **UDP_STATE** answers the head datagram's size, which is 0 both for
+  an empty queue and for an empty datagram at its head — "UDP_RECV until
+  `{3}`" is the idiom that tells them apart, and it is TCPIP_UDP_STATE's
+  own advice (its datagram count must not be relied upon).
 * **UDP_OPEN**: local port 0xFFFF requests an ephemeral port; local port
   0 reaches the host `bind()` where it also yields an ephemeral port —
   the two coincide by different routes. A requested port the host

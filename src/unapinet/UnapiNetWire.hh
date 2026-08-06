@@ -186,7 +186,8 @@ static_assert(sizeof(UdpOpenParams) == 2);
 // ---- CMD_UDP_STATE (0x0B) result -----------------------------------------
 struct UdpStateResult {
 	uint8_t        status = 0;
-	Endian::UA_L16 firstDgramSize; // little-endian; 0 = none
+	Endian::UA_L16 firstDgramSize; // little-endian; 0 = empty queue or an
+	                               // empty datagram at its head
 };
 static_assert(sizeof(UdpStateResult) == 3);
 
@@ -209,7 +210,9 @@ struct UdpRecvResultHeader {
 	uint8_t        status = 0;
 	Endian::UA_B32 srcIp;       // big-endian
 	Endian::UA_L16 srcPort;     // little-endian
-	Endian::UA_L16 actualLen;   // little-endian; then 'actualLen' payload bytes
+	Endian::UA_L16 actualLen;   // little-endian; the head datagram's size
+	                            // as received - then min(actualLen, maxlen)
+	                            // payload bytes (the excess is discarded)
 };
 static_assert(sizeof(UdpRecvResultHeader) == 9);
 
