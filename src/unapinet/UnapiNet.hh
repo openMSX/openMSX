@@ -90,19 +90,19 @@ private:
 	};
 
 	// Threading contract between the emulation thread (readIO/writeIO and
-	// everything they call) and the receiver thread (receiverLoop):
+	// everything they call) and the socket thread (socketLoop):
 	//
-	// * Only the receiver thread ever calls sock_close(). requestClose() (any
+	// * Only the socket thread ever calls sock_close(). requestClose() (any
 	//   thread) invalidates the connection's socket immediately - so the MSX
 	//   can reuse the handle at once - and hands the raw fd to socksToClose;
-	//   the receiver closes it at the top of its next pass. The fd therefore
+	//   the socket thread closes it at the top of its next pass. The fd therefore
 	//   stays open until then, so its number cannot be recycled while another
 	//   thread is still sitting on it inside select()/recv().
 	//   closeTcp()/closeUdp() close directly and are only for the destructor,
-	//   which has already joined the receiver.
+	//   which has already joined the socket thread.
 	// * 'mutex' guards the buffers AND the endpoint metadata, so that TCP_STATE
 	//   reads a coherent snapshot and the accept path publishes the state and
-	//   the address together. The receiver re-checks that the socket is still
+	//   the address together. The socket thread re-checks that the socket is still
 	//   the one it was watching before publishing anything, so it can never
 	//   act on a connection the MSX has closed and reopened underneath it.
 	// * Hold at most one connection mutex at a time, and never across
@@ -200,10 +200,25 @@ private:
 	std::thread dnsThread; // the persistent worker
 	void dnsWorkerLoop();
 
-	// --- Network receiver thread ---
-	std::thread recvThread;
+	// --- Network socket thread ---
+	// (One loop serves all sockets: it receives, flushes queued sends,
+	// completes non-blocking connects and performs every close.)
+	std::thread sockThread;
 	std::atomic<bool> running{false};
-	void receiverLoop();
+	void socketLoop();
+
+	// Loopback wake pair. The socket thread parks in select() for up to
+	// 100 ms at a time; wakeRecv sits in every read set and poke() sends
+	// it one byte, so new work from the emulation thread - a queued send,
+	// a fresh socket to watch, a handed-over close, shutdown - is noticed
+	// immediately instead of at the next timeout. (A UDP pair bound to
+	// 127.0.0.1, because Windows select() only takes sockets - the POSIX
+	// self-pipe trick spelled with what both platforms have.) If creating
+	// the pair fails, both stay invalid, poke() is a no-op, and the loop
+	// degrades to timeout latency - it never breaks.
+	SOCKET wakeRecv = OPENMSX_INVALID_SOCKET;
+	SOCKET wakeSend = OPENMSX_INVALID_SOCKET;
+	void poke();
 
 	// --- Command processing ---
 	void processCmd(uint8_t cmd);
@@ -270,10 +285,10 @@ private:
 	[[nodiscard]] int allocTcpHandle();
 	// Validate a 1-based wire handle and return the connection, or nullptr.
 	[[nodiscard]] TcpConnection* tcpForHandle(int wireHandle);
-	// Direct close. Only legal with the receiver thread stopped (destructor).
+	// Direct close. Only legal with the socket thread stopped (destructor).
 	void closeTcp(TcpConnection& c);
 	// Drop a connection now: the socket is invalidated (so the handle is free
-	// again immediately) and the raw fd is queued for the receiver to close.
+	// again immediately) and the raw fd is queued for the socket thread to close.
 	// Safe from either thread. The buffers and endpoint info are LEFT in
 	// place - a closed slot keeps its final state, close reason and undrained
 	// receive data until TCP_OPEN reuses it (the v2 sticky-slot rule; ABORT
@@ -285,7 +300,7 @@ private:
 	// data the MSX has already been told we accepted. Idempotent while the
 	// close is in progress.
 	void gracefulClose(TcpConnection& c);
-	// Hand a raw fd to the receiver thread to close.
+	// Hand a raw fd to the socket thread to close.
 	void deferSockClose(SOCKET sd);
 	std::vector<SOCKET> socksToClose; // guarded by closeMutex
 	std::mutex closeMutex; // lock order: a connection mutex may be held when
