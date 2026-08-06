@@ -245,8 +245,9 @@ void UnapiNet::reset(EmuTime /*time*/)
 		std::scoped_lock lock(dns.mutex);
 		dns.status = DnsStatus::Idle;
 		dns.resolvedIp = 0;
-		++dns.generation;    // a lookup still in flight must not publish anymore
-		dns.request.reset(); // and a queued one must never start
+		dns.request.reset(); // disowns a lookup still in flight (it only
+		                     // publishes while 'request' holds its name)
+		                     // and discards a queued one in the same move
 	}
 	{
 		std::scoped_lock lock(icmpMutex);
@@ -849,7 +850,6 @@ void UnapiNet::cmdDnsQuery()
 		std::scoped_lock lock(dns.mutex);
 		dns.status = DnsStatus::InProgress;
 		dns.resolvedIp = 0;
-		++dns.generation;
 		dns.request = std::move(hostname);
 	}
 	dns.cv.notify_one();
@@ -860,17 +860,21 @@ void UnapiNet::cmdDnsQuery()
 
 // The persistent DNS worker. It sleeps on the condition variable until
 // DNS_QUERY queues a hostname (or the device shuts down), resolves it with
-// the mutex released, and publishes the outcome only if no reset or newer
-// query disowned the lookup meanwhile (the generation check).
+// the mutex released, and publishes the outcome only if dns.request still
+// holds the name it resolved - the queued request doubles as the lookup's
+// ownership token (Wouter's round-8 simplification). reset() clears the
+// token, so a disowned lookup finishes into silence. The one soft spot is
+// deliberate: re-querying the *same* name across a reset can be answered
+// by the pre-reset lookup - it resolved the same string, so the answer is
+// the answer.
 void UnapiNet::dnsWorkerLoop()
 {
 	std::unique_lock lock(dns.mutex);
 	while (true) {
 		dns.cv.wait(lock, [&] { return !running || dns.request.has_value(); });
 		if (!running) return;
-		std::string hostname = std::move(*dns.request);
-		dns.request.reset();
-		uint32_t gen = dns.generation;
+		std::string hostname = *dns.request; // copy: 'request' stays engaged
+		                                     // as the ownership token
 		lock.unlock();
 
 		struct addrinfo hints;
@@ -890,7 +894,9 @@ void UnapiNet::dnsWorkerLoop()
 		if (res) freeaddrinfo(res);
 
 		lock.lock();
-		if (dns.generation == gen) { // else: superseded, do not publish
+		if (dns.request == hostname) { // else: disowned by a reset (and
+			                           // possibly superseded), stay silent
+			dns.request.reset();
 			if (ip) {
 				dns.resolvedIp = *ip;
 				dns.status = DnsStatus::Complete;

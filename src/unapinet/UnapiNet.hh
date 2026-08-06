@@ -182,15 +182,15 @@ private:
 	// One persistent worker thread (dnsWorkerLoop) serves DNS_QUERY: the
 	// emulation thread queues the hostname in 'request' and never blocks on
 	// the resolver. getaddrinfo() has no reliable cancellation, so a lookup
-	// in flight is disowned rather than stopped: it only publishes its
-	// outcome while its generation still matches, and reset() and every new
-	// query bump the generation (reset also discards a queued request), so
-	// a lookup that finishes after a reset cannot overwrite the state the
-	// reset established.
+	// in flight is disowned rather than stopped: 'request' stays engaged
+	// while its lookup runs and doubles as the ownership token - the worker
+	// publishes its outcome (and clears 'request') only if 'request' still
+	// holds the name it resolved. reset() clears 'request', so a lookup
+	// that finishes after a reset cannot overwrite the state the reset
+	// established. Invariant: request.has_value() iff status == InProgress.
 	struct {
 		DnsStatus status = DnsStatus::Idle; // guarded by 'mutex'
 		uint32_t resolvedIp = 0;            // guarded by 'mutex'
-		uint32_t generation = 0;            // guarded by 'mutex'
 		std::optional<std::string> request; // guarded by 'mutex'
 		std::mutex mutex;
 		std::condition_variable cv; // a request was queued, or shutdown
