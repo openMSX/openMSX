@@ -164,9 +164,11 @@ private:
 	// reset() bumps the generation so an echo still in flight inside the
 	// worker cannot repopulate the queue reset just cleared.
 	uint32_t icmpGeneration = 0;       // guarded by icmpMutex
-	std::mutex icmpMutex; // protects icmpReplies, icmpGeneration, icmpRequest
+	std::mutex icmpMutex; // protects icmpReplies, icmpGeneration,
+	                      // icmpRequest, icmpPending
+	std::condition_variable icmpCv; // a request was queued, or shutdown
 	std::thread icmpWorker;
-	std::atomic<bool> icmpPending{false};
+	bool icmpPending = false; // guarded by icmpMutex
 	// ICMP request for worker to handle (guarded by icmpMutex: the worker
 	// copies it out under the lock, so a new ICMP_SEND cannot tear it)
 	struct IcmpRequest {

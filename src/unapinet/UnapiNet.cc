@@ -202,6 +202,13 @@ UnapiNet::~UnapiNet()
 {
 	running = false;
 	if (recvThread.joinable()) recvThread.join();
+	// Wake the ICMP worker the same way as the DNS worker below (the
+	// empty critical section is explained there). If it is inside
+	// IcmpSendEcho() the join waits the call out (capped at 2 s).
+	{
+		std::scoped_lock lock(icmpMutex);
+	}
+	icmpCv.notify_all();
 	if (icmpWorker.joinable()) icmpWorker.join();
 	// Wake the DNS worker so it observes the shutdown. If it is inside
 	// getaddrinfo() the join waits that call out - deliberate, so the
@@ -263,8 +270,8 @@ void UnapiNet::reset(EmuTime /*time*/)
 		icmpReplies.clear();
 		++icmpGeneration; // an echo still in flight must not repopulate
 		                  // the queue we just cleared
+		icmpPending = false; // and a queued-but-unstarted one never starts
 	}
-	icmpPending = false;
 }
 
 // Port reads
@@ -1571,19 +1578,15 @@ void UnapiNet::icmpWorkerLoop()
 #ifdef _WIN32
 	HANDLE hIcmp = icmpChannel; // opened (and the capability latched) at device start
 
-	while (running) {
-		if (!icmpPending.exchange(false)) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));
-			continue;
-		}
-
-		IcmpRequest req;
-		uint32_t gen;
-		{
-			std::scoped_lock lock(icmpMutex);
-			req = icmpRequest;
-			gen = icmpGeneration;
-		}
+	std::unique_lock lock(icmpMutex);
+	while (true) {
+		icmpCv.wait(lock, [&] { return !running || icmpPending; });
+		if (!running) return;
+		icmpPending = false;
+		IcmpRequest req = icmpRequest; // copy out under the lock: a new
+		                               // ICMP_SEND cannot tear it
+		uint32_t gen = icmpGeneration;
+		lock.unlock();
 
 		std::vector<uint8_t> payload(req.dataLen);
 		for (size_t i = 0; i < payload.size(); i++)
@@ -1604,26 +1607,28 @@ void UnapiNet::icmpWorkerLoop()
 										 replySize,
 										 2000);
 
+		std::optional<IcmpReply> r;
 		if (ret > 0) {
 			auto* reply = reinterpret_cast<ICMP_ECHO_REPLY*>(replyBuf.data());
 			if (reply->Status == IP_SUCCESS) {
-				IcmpReply r;
-				r.srcIp = ntohl(reply->Address);
-				r.ttl = reply->Options.Ttl;
-				r.identifier = req.identifier;
-				r.sequence = req.sequence;
-				r.dataLen = reply->DataSize;
-				std::scoped_lock lock(icmpMutex);
-				if (icmpGeneration == gen) { // else: a reset intervened
-					                         // while the echo was in flight
-					if (icmpReplies.size() >= MAX_ICMP_QUEUE) {
-						// Drop the OLDEST: a reply nobody polled for is worth
-						// less than the one the current program is waiting for.
-						icmpReplies.pop_front();
-					}
-					icmpReplies.push_back(r);
-				}
+				r = IcmpReply{
+					.srcIp      = ntohl(reply->Address),
+					.ttl        = reply->Options.Ttl,
+					.identifier = req.identifier,
+					.sequence   = req.sequence,
+					.dataLen    = reply->DataSize};
 			}
+		}
+
+		lock.lock(); // held again for the publish and the next wait
+		if (r && icmpGeneration == gen) { // else: a reset intervened
+			                              // while the echo was in flight
+			if (icmpReplies.size() >= MAX_ICMP_QUEUE) {
+				// Drop the OLDEST: a reply nobody polled for is worth
+				// less than the one the current program is waiting for.
+				icmpReplies.pop_front();
+			}
+			icmpReplies.push_back(*r);
 		}
 	}
 #endif
@@ -1655,8 +1660,9 @@ void UnapiNet::cmdIcmpSend()
 		icmpRequest.identifier = p->identifier;
 		icmpRequest.sequence   = p->sequence;
 		icmpRequest.dataLen    = std::min<uint16_t>(p->len, 512); // echo-size clamp
+		icmpPending = true;
 	}
-	icmpPending = true;
+	icmpCv.notify_one();
 	replyStatus(ERR_OK);
 }
 
