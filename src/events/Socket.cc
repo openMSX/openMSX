@@ -101,4 +101,65 @@ ptrdiff_t sock_send(SOCKET sd, const char* buf, size_t count)
 #endif
 }
 
+void sock_setNonBlocking(SOCKET sd)
+{
+#ifdef _WIN32
+	u_long mode = 1;
+	ioctlsocket(sd, FIONBIO, &mode);
+#else
+	int flags = fcntl(sd, F_GETFL, 0);
+	fcntl(sd, F_SETFL, flags | O_NONBLOCK);
+#endif
+}
+
+void sock_setIntOption(SOCKET sd, int level, int optName, int value)
+{
+	setsockopt(sd, level, optName, std::bit_cast<const char*>(&value), sizeof(value));
+}
+
+int sock_getIntOption(SOCKET sd, int level, int optName)
+{
+	int value = 0;
+	::socklen_t len = sizeof(value);
+	if (getsockopt(sd, level, optName, std::bit_cast<char*>(&value), &len) != 0) {
+		return 0;
+	}
+	return value;
+}
+
+bool sock_readable(SOCKET sd)
+{
+	fd_set rfds;
+	FD_ZERO(&rfds);
+	FD_SET(sd, &rfds);
+	timeval tv = {0, 0};
+	return select(static_cast<int>(sd) + 1, &rfds, nullptr, nullptr, &tv) > 0;
+}
+
+sockaddr_in sock_makeIPv4(uint32_t hostIp, uint16_t port)
+{
+	sockaddr_in addr = {};
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(hostIp);
+	addr.sin_port = htons(port);
+	return addr;
+}
+
+uint32_t sock_localIPv4()
+{
+	SOCKET sd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (sd == OPENMSX_INVALID_SOCKET) return 0;
+	sockaddr_in remote = sock_makeIPv4(0x08080808, 53);
+	uint32_t ip = 0;
+	if (connect(sd, std::bit_cast<sockaddr*>(&remote), sizeof(remote)) == 0) {
+		sockaddr_in local = {};
+		::socklen_t len = sizeof(local);
+		if (getsockname(sd, std::bit_cast<sockaddr*>(&local), &len) == 0) {
+			ip = ntohl(local.sin_addr.s_addr);
+		}
+	}
+	sock_close(sd);
+	return ip;
+}
+
 } // namespace openmsx
