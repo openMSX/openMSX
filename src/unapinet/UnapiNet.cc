@@ -206,6 +206,15 @@ UnapiNet::~UnapiNet()
 	// Wake the DNS worker so it observes the shutdown. If it is inside
 	// getaddrinfo() the join waits that call out - deliberate, so the
 	// resolver cannot write into a destroyed object.
+	//
+	// The empty critical section is load-bearing, not a refactoring
+	// leftover: it closes the lost-wakeup window. The worker evaluates its
+	// wait predicate under this mutex and cv.wait() releases-and-parks
+	// atomically, so taking the mutex once *after* flipping 'running'
+	// guarantees the worker is either before the predicate (it will see
+	// running == false) or already parked (it will get the notify below).
+	// Without it, the notify could fire in the gap between the worker
+	// checking 'running' and parking - and the join would wait forever.
 	{
 		std::scoped_lock lock(dns.mutex);
 	}
