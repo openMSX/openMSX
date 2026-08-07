@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>WaveGame</name>
+    <manufacturer>Mauk / Jeroen</manufacturer>
+    <code/>
+    <release_year>2025</release_year>
+    <description>MSX-Pico Wave Game compatible audio cartridge. Streams WAV music files controlled via I/O port 0x92. Note: port 0x92 is unofficial, avoid combining with any device that also writes 0x92.</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <WaveGame id="Wave Game">
+      <io base="0x92" num="1" type="O"/>
+      <firmware>1</firmware>
+      <sound>
+        <volume>17000</volume>
+      </sound>
+    </WaveGame>
+  </devices>
+</msxconfig>
