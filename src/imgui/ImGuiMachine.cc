@@ -152,6 +152,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		const auto& hotKey = reactor.getHotKey();
 
 		ImGui::MenuItem("Select MSX machine...", nullptr, &showSelectMachine);
+		showRecentMachinesMenu();
 
 		auto showSetupDepthLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) {
 			static constexpr array_with_enum_index<SetupDepth, zstring_view> helpText = {
@@ -404,6 +405,34 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			previewSetup.motherBoard.reset();
 		});
 	}
+}
+
+void ImGuiMachine::showRecentMachinesMenu()
+{
+	// grayed-out as long as no machine has been selected via the GUI
+	im::Menu("Recent machines", !recentMachines.empty(), [&]{
+		// don't switch machine (and thus modify 'recentMachines') while iterating over it
+		std::string selectedMachine;
+		for (auto [i, item] : enumerate(recentMachines)) {
+			auto* info = findMachineInfo(item);
+			if (!info) continue;
+			bool ok = getTestResult(*info).empty();
+			im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+				if (ImGui::MenuItem(tmpStrCat(info->displayName, "##", i).c_str()) && ok) {
+					selectedMachine = info->configName;
+				}
+			});
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+				im::ItemTooltip([&]{
+					printConfigInfo(*info);
+				});
+			}
+		}
+		if (!selectedMachine.empty()) {
+			manager.executeDelayed(makeTclList("machine", selectedMachine));
+			addRecentItem(recentMachines, selectedMachine);
+		}
+	});
 }
 
 void ImGuiMachine::signalQuit()
