@@ -1074,7 +1074,7 @@ void ImGuiMachine::paintTestHardware()
 		im::Disabled(!allMachinesTested || !allExtensionsTested, [&]{
 			if (ImGui::Button("Rerun test")) {
 				manager.media->resetExtensionInfo();
-				machineInfo.clear();
+				resetMachineInfo();
 			}
 		});
 		ImGui::Separator();
@@ -1097,6 +1097,12 @@ std::vector<ImGuiMachine::MachineInfo>& ImGuiMachine::getAllMachines()
 		machineInfo = parseAllConfigFiles<MachineInfo>(manager, "machines", {"Manufacturer"sv, "Product code"sv});
 	}
 	return machineInfo;
+}
+
+void ImGuiMachine::resetMachineInfo()
+{
+	machineInfo.clear();
+	unknownMachines.clear();
 }
 
 static void amendConfigInfo(MSXMotherBoard& mb, ImGuiMachine::MachineInfo& info)
@@ -1195,15 +1201,22 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 
 ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config)
 {
-	auto& allMachines = getAllMachines();
-	auto it = std::ranges::find(allMachines, config, &MachineInfo::configName);
-	if (it == allMachines.end()) {
-		// perhaps something changed, let's refresh the cache and try again
-		machineInfo.clear();
-		allMachines = getAllMachines();
-		it = std::ranges::find(allMachines, config, &MachineInfo::configName);
-	}
-	return (it != allMachines.end()) ? std::to_address(it) : nullptr;
+	auto search = [&]() -> MachineInfo* {
+		auto& allMachines = getAllMachines();
+		auto it = std::ranges::find(allMachines, config, &MachineInfo::configName);
+		return (it != allMachines.end()) ? std::to_address(it) : nullptr;
+	};
+	if (auto* info = search()) return info;
+
+	// Not found. Perhaps something changed on disk, e.g. the user added or
+	// renamed a machine config while openMSX was running. Refresh the cache
+	// and try again. But refreshing parses all (>200) machine config files,
+	// and we're called from painting code, so don't do that over and over for
+	// a config name that really doesn't exist (compare getTestResult()).
+	if (contains(unknownMachines, config)) return nullptr;
+	unknownMachines.emplace_back(config);
+	machineInfo.clear();
+	return search();
 }
 
 } // namespace openmsx
