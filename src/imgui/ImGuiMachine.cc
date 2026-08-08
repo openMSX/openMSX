@@ -409,8 +409,12 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 void ImGuiMachine::showRecentMachinesMenu()
 {
-	// grayed-out as long as no machine has been selected via the GUI
-	im::Menu("Recent machines", !recentMachines.empty(), [&]{
+	// grayed-out as long as no machine has been selected via the GUI, and also
+	// when none of the remembered machines exists (anymore)
+	bool anyMachine = std::ranges::any_of(recentMachines, [&](const auto& item) {
+		return findMachineInfo(item) != nullptr;
+	});
+	im::Menu("Recent machines", anyMachine, [&]{
 		// don't switch machine (and thus modify 'recentMachines') while iterating over it
 		std::string selectedMachine;
 		for (auto [i, item] : enumerate(recentMachines)) {
