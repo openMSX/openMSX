@@ -1,5 +1,6 @@
 #include "UnapiNet.hh"
 
+#include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 
@@ -179,6 +180,37 @@ UnapiNet::UnapiNet(const DeviceConfig& config)
 
 	reset(EmuTime::dummy()); // keep constructor and reset() in sync
 
+	// The loopback wake pair (see the header). Two UDP sockets on
+	// 127.0.0.1: if any step fails, the host's network stack is broken
+	// and every socket this device would later hand out is doomed the
+	// same way - so refuse to construct instead of running degraded.
+	// Requiring the pair makes poke() a guaranteed wake-up and leaves
+	// the socket loop a single code path, the one that gets tested.
+	// (Created before the ICMP handle: if this throws, the destructor
+	// never runs, so nothing needing cleanup may precede it.)
+	SOCKET r = socket(AF_INET, SOCK_DGRAM, 0);
+	if (r == OPENMSX_INVALID_SOCKET) {
+		throw MSXException("UnapiNet: cannot create the wake socket pair");
+	}
+	sockaddr_in addr = sock_makeIPv4(INADDR_LOOPBACK, 0); // any free port
+	::socklen_t alen = sizeof(addr);
+	if (bind(r, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0 ||
+	    getsockname(r, reinterpret_cast<sockaddr*>(&addr), &alen) != 0) {
+		sock_close(r);
+		throw MSXException("UnapiNet: cannot bind the wake socket pair");
+	}
+	SOCKET s = socket(AF_INET, SOCK_DGRAM, 0);
+	if (s == OPENMSX_INVALID_SOCKET ||
+	    connect(s, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0) {
+		if (s != OPENMSX_INVALID_SOCKET) sock_close(s);
+		sock_close(r);
+		throw MSXException("UnapiNet: cannot connect the wake socket pair");
+	}
+	sock_setNonBlocking(r);
+	sock_setNonBlocking(s);
+	wakeRecv = r;
+	wakeSend = s;
+
 #ifdef _WIN32
 	// Latch the ICMP capability, once: DETECT advertises bit4 only when
 	// pinging can actually work, and the ICMP commands are gated on it.
@@ -188,29 +220,6 @@ UnapiNet::UnapiNet(const DeviceConfig& config)
 		icmpAvailable = true;
 	}
 #endif
-
-	// The loopback wake pair (see the header). Best-effort: on any
-	// failure both sockets stay invalid and the loop just runs at
-	// timeout latency.
-	if (SOCKET r = socket(AF_INET, SOCK_DGRAM, 0); r != OPENMSX_INVALID_SOCKET) {
-		sockaddr_in addr = sock_makeIPv4(INADDR_LOOPBACK, 0); // any free port
-		::socklen_t alen = sizeof(addr);
-		SOCKET s = OPENMSX_INVALID_SOCKET;
-		if (bind(r, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == 0 &&
-		    getsockname(r, reinterpret_cast<sockaddr*>(&addr), &alen) == 0) {
-			s = socket(AF_INET, SOCK_DGRAM, 0);
-		}
-		if (s != OPENMSX_INVALID_SOCKET &&
-		    connect(s, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == 0) {
-			sock_setNonBlocking(r);
-			sock_setNonBlocking(s);
-			wakeRecv = r;
-			wakeSend = s;
-		} else {
-			if (s != OPENMSX_INVALID_SOCKET) sock_close(s);
-			sock_close(r);
-		}
-	}
 
 	// Start background threads
 	running = true;
@@ -259,8 +268,8 @@ UnapiNet::~UnapiNet()
 		for (SOCKET sd : socksToClose) sock_close(sd);
 		socksToClose.clear();
 	}
-	if (wakeSend != OPENMSX_INVALID_SOCKET) sock_close(wakeSend);
-	if (wakeRecv != OPENMSX_INVALID_SOCKET) sock_close(wakeRecv);
+	sock_close(wakeSend);
+	sock_close(wakeRecv);
 
 #ifdef _WIN32
 	if (icmpChannel) IcmpCloseHandle(icmpChannel);
@@ -429,15 +438,16 @@ void UnapiNet::closeAllConnections()
 // select() until traffic arrives or the emulation thread pokes the wake
 // socket at it.
 
-// Wake the socket thread out of select() (or its idle sleeps): one byte
-// to the loopback socket it always watches. A dropped or failed send is
-// fine - the loop drains the socket every pass and re-derives all its
-// work from shared state, so the poke is a hint, never a message.
+// Wake the socket thread out of select(): one byte to the loopback
+// socket it always watches (the constructor guarantees the pair
+// exists). The result is deliberately dropped: a refused send can only
+// mean the wake socket already holds unread pokes, so select() has a
+// byte to wake on either way - the poke is a hint, never a message,
+// and the loop re-derives all its work from shared state.
 void UnapiNet::poke()
 {
-	if (wakeSend == OPENMSX_INVALID_SOCKET) return;
-	char b = 0;
-	send(wakeSend, &b, 1, 0);
+	uint8_t b = 0;
+	[[maybe_unused]] auto result = netSend(wakeSend, &b, 1);
 }
 
 void UnapiNet::deferSockClose(SOCKET sd)
@@ -542,20 +552,18 @@ void UnapiNet::socketLoop()
 		// instead of busy-polling each socket in turn. The wake socket is
 		// always in the read set, so new work from the emulation thread
 		// interrupts the wait immediately; the timeout is a backstop - it
-		// paces the FinWait1 deadline check, and carries the loop if the
-		// wake pair could not be created.
+		// paces the FinWait1 deadline check.
 		fd_set rfds;
 		fd_set wfds;
 		fd_set efds;
 		FD_ZERO(&rfds);
 		FD_ZERO(&wfds);
 		FD_ZERO(&efds);
-		// Empty optional = no socket open. An empty optional compares less
-		// than any engaged one, so std::max() works unchanged - and unlike a
-		// sentinel it cannot collide with a real descriptor (fd 0 is valid on
-		// POSIX, and on Windows INVALID_SOCKET is the LARGEST value).
-		std::optional<SOCKET> maxSock;
-		bool armed = false; // at least one fd went into one of the sets
+		// The wake socket goes into every read set (the constructor
+		// guarantees the pair exists), so select() always has at least
+		// one fd to watch - there is no "empty set" case to special-case.
+		FD_SET(wakeRecv, &rfds);
+		SOCKET maxSock = wakeRecv;
 		// Remember exactly which fd we armed for each slot: after select() the
 		// emulation thread may have closed and reopened one, and a stale bit in
 		// the fd sets must not be applied to the new socket.
@@ -593,7 +601,6 @@ void UnapiNet::socketLoop()
 				// the exception set (Windows).
 				FD_SET(sd, &wfds);
 				FD_SET(sd, &efds);
-				armed = true;
 			} else {
 				// Only ask for incoming data while recvBuf has room for it.
 				// Leaving a full socket unread lets the kernel receive buffer
@@ -611,10 +618,10 @@ void UnapiNet::socketLoop()
 					pendingSend = !c.sendBuf.empty();
 					hasRoom = c.recvBuf.size() < MAX_RECV_BUF;
 				}
-				if (hasRoom)     { FD_SET(sd, &rfds); armed = true; }
-				if (pendingSend) { FD_SET(sd, &wfds); armed = true; }
+				if (hasRoom)     FD_SET(sd, &rfds);
+				if (pendingSend) FD_SET(sd, &wfds);
 			}
-			maxSock = std::max(maxSock, std::optional(sd));
+			maxSock = std::max(maxSock, sd);
 		}
 		for (int i = 0; i < MAX_UDP; ++i) {
 			auto& u = udp[i];
@@ -622,39 +629,17 @@ void UnapiNet::socketLoop()
 			if (sd == OPENMSX_INVALID_SOCKET) continue;
 			watchedUdp[i] = sd;
 			FD_SET(sd, &rfds);
-			maxSock = std::max(maxSock, std::optional(sd));
-			armed = true;
-		}
-		if (wakeRecv != OPENMSX_INVALID_SOCKET) {
-			FD_SET(wakeRecv, &rfds);
-			maxSock = std::max(maxSock, std::optional(wakeRecv));
-			armed = true;
-		}
-		if (!maxSock) {
-			// Degraded mode only (no wake pair) and nothing open: avoid a
-			// tight loop (select() needs at least one fd).
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
-			continue;
-		}
-		if (!armed) {
-			// Degraded mode only: sockets are open, but every one of them is
-			// waiting for the MSX to drain its recvBuf. Calling select() with
-			// three empty sets is an error on Windows (WSAEINVAL), which would
-			// spin this loop, so wait a moment instead. This costs no
-			// throughput: the MSX still has a full buffer to work through
-			// before it needs more data.
-			std::this_thread::sleep_for(std::chrono::milliseconds(5));
-			continue;
+			maxSock = std::max(maxSock, sd);
 		}
 		struct timeval tv = {0, 100000}; // 100 ms
-		if (select(static_cast<int>(*maxSock) + 1, &rfds, &wfds, &efds, &tv) <= 0) {
+		if (select(static_cast<int>(maxSock) + 1, &rfds, &wfds, &efds, &tv) <= 0) {
 			continue; // timeout or error: re-check running and rebuild the set
 		}
-		if (wakeRecv != OPENMSX_INVALID_SOCKET && FD_ISSET(wakeRecv, &rfds)) {
+		if (FD_ISSET(wakeRecv, &rfds)) {
 			// Drain every queued poke. Each one is only a hint to rescan;
 			// all the actual work is re-derived from shared state below.
 			std::array<char, 64> pokes;
-			while (recv(wakeRecv, pokes.data(), pokes.size(), 0) > 0) {}
+			while (netRecv(wakeRecv, pokes.data(), pokes.size())) {}
 		}
 
 		for (int i = 0; i < MAX_TCP; ++i) {

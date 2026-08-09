@@ -213,9 +213,10 @@ private:
 	// a fresh socket to watch, a handed-over close, shutdown - is noticed
 	// immediately instead of at the next timeout. (A UDP pair bound to
 	// 127.0.0.1, because Windows select() only takes sockets - the POSIX
-	// self-pipe trick spelled with what both platforms have.) If creating
-	// the pair fails, both stay invalid, poke() is a no-op, and the loop
-	// degrades to timeout latency - it never breaks.
+	// self-pipe trick spelled with what both platforms have.) The
+	// constructor either creates the pair or throws MSXException, so both
+	// sockets are always valid here: poke() is a guaranteed wake-up, and
+	// the socket loop always has at least this fd in its select() set.
 	SOCKET wakeRecv = OPENMSX_INVALID_SOCKET;
 	SOCKET wakeSend = OPENMSX_INVALID_SOCKET;
 	void poke();
