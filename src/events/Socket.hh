@@ -16,6 +16,11 @@
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#ifdef interface
+// windows.h (via winsock2.h) defines an 'interface' macro; undo it so it
+// cannot clobber other openMSX code that uses the word as an identifier.
+#undef interface
+#endif
 #endif
 
 namespace openmsx {
@@ -24,38 +29,31 @@ namespace openmsx {
 inline constexpr int OPENMSX_INVALID_SOCKET = -1;
 inline constexpr int SOCKET_ERROR = -1;
 using SOCKET = int;
+using socklen_t = int;
 #else
 // INVALID_SOCKET is #defined as  (SOCKET)(~0)
 // but that gives a old-style-cast warning
 static const SOCKET OPENMSX_INVALID_SOCKET = static_cast<SOCKET>(~0);
 using in_addr_t =  UINT32;
-// Winsock APIs take socket-address lengths as int; on POSIX the system
-// socklen_t must be used (redefining it here would break recvfrom() and
-// friends, which take a socklen_t*).
-using socklen_t = int;
 #endif
 
 [[nodiscard]] std::string sock_error();
 void sock_close(SOCKET sd);
 [[nodiscard]] ptrdiff_t sock_recv(SOCKET sd, char* buf, size_t count);
 [[nodiscard]] ptrdiff_t sock_send(SOCKET sd, const char* buf, size_t count);
-[[nodiscard]] ptrdiff_t sock_sendto(SOCKET sd, const char* buf, size_t count, const struct sockaddr* to, socklen_t tolen);
-[[nodiscard]] ptrdiff_t sock_recvfrom(SOCKET sd, char* buf, size_t count, struct sockaddr* from, socklen_t* fromlen);
 
-// Host network configuration (IPv4 addresses in network byte order, 0 = unknown)
-struct SockNetInfo
-{
-	uint32_t ip = 0;
-	uint32_t netmask = 0;
-	uint32_t gateway = 0;
-	uint32_t dns1 = 0;
-	uint32_t dns2 = 0;
-};
-
-/** Detects the host's primary IPv4 network configuration.
-  * Returns false if no usable IPv4 address was found.
-  */
-[[nodiscard]] bool sock_get_net_info(SockNetInfo& info);
+// Make socket 'sd' non-blocking.
+void sock_setNonBlocking(SOCKET sd);
+// Set an integer/boolean socket option (wraps the Windows 'const char*' cast).
+void sock_setIntOption(SOCKET sd, int level, int optName, int value = 1);
+// Get an integer socket option (e.g. SO_ERROR), 0 on failure.
+[[nodiscard]] int sock_getIntOption(SOCKET sd, int level, int optName);
+// Non-blocking readiness poll (zero timeout): data ready or pending connection.
+[[nodiscard]] bool sock_readable(SOCKET sd);
+// Build an IPv4 sockaddr_in (network order); hostIp==0 -> INADDR_ANY.
+[[nodiscard]] sockaddr_in sock_makeIPv4(uint32_t hostIp, uint16_t port);
+// Best-effort local IPv4 (host order, 0 if unknown). Sends no packets.
+[[nodiscard]] uint32_t sock_localIPv4();
 
 ////
 
