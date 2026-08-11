@@ -72,10 +72,6 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		"kbd_auto_toggle_code_kana_lock",
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
 		true)
-	, ignoreGraveKey(commandController,
-		"kbd_ignore_grave_key",
-		"Ignore the Grave (Hankaku/Zenkaku) key to handle missing Release events on Japanese keyboards.",
-		false)
 {
 }
 

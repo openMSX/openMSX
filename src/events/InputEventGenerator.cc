@@ -323,6 +323,10 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		handleKeyDown(evt.key, 0);
 		break;
 
+	case SDL_KEYMAPCHANGED:
+		event = KeyMapChangedEvent();
+		break;
+
 	case SDL_MOUSEBUTTONUP:
 		event = MouseButtonUpEvent(evt);
 		break;

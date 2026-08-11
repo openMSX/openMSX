@@ -42,7 +42,7 @@ struct ScanCodeMsxMapping {
 };
 
 class Keyboard final : private MSXEventListener, private StateChangeListener
-                     , private Schedulable
+                     , private Schedulable, private EventListener
 {
 public:
 	static constexpr int MAX_KEYSYM = 0x150;
@@ -90,6 +90,9 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime time) override;
 
+	// EventListener
+	bool signalEvent(const Event& event) override;
+
 	void syncHostKeyMatrix(EmuTime time);
 	/** Returns true iff the given key is currently held down in the MSX
 	  * keyboard matrix. Pressing such a key again does not produce a new
@@ -127,6 +130,7 @@ private:
 	CommandController& commandController;
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
+	EventDistributor& eventDistributor;
 
 	std::span<const KeyCodeMsxMapping> keyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
@@ -288,6 +292,10 @@ private:
 	  * the emulated machine.
 	  */
 	uint8_t locksOn = 0;
+
+	/*  Countermeasure for missing Release events on Japanese keyboard s*/
+	enum class HostKeyMap : uint8_t { UNKNOWN, EN, JP };
+	HostKeyMap hostKeyMap = HostKeyMap::UNKNOWN;
 
 	bool focus = true;
 };
