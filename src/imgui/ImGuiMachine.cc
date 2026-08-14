@@ -417,7 +417,7 @@ void ImGuiMachine::showRecentMachinesMenu()
 	im::Menu("Recent machines", anyMachine, [&]{
 		// don't switch machine (and thus modify 'recentMachines') while iterating over it
 		std::string selectedMachine;
-		for (auto [i, item] : enumerate(recentMachines)) {
+		for (const auto& [i, item] : enumerate(recentMachines)) {
 			auto* info = findMachineInfo(item);
 			if (!info) continue;
 			bool ok = getTestResult(*info).empty();
