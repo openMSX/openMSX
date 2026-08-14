@@ -40,7 +40,6 @@ private:
 	void paintSelectMachine(const MSXMotherBoard* motherBoard);
 	void paintTestHardware();
 	[[nodiscard]] std::vector<MachineInfo>& getAllMachines();
-	void resetMachineInfo();
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
@@ -65,7 +64,6 @@ public:
 
 private:
 	std::vector<MachineInfo> machineInfo; // sorted on displayName
-	std::vector<std::string> unknownMachines;
 	std::string newMachineConfig;
 	std::string filterType;
 	std::string filterRegion;

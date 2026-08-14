@@ -1078,7 +1078,7 @@ void ImGuiMachine::paintTestHardware()
 		im::Disabled(!allMachinesTested || !allExtensionsTested, [&]{
 			if (ImGui::Button("Rerun test")) {
 				manager.media->resetExtensionInfo();
-				resetMachineInfo();
+				machineInfo.clear();
 			}
 		});
 		ImGui::Separator();
@@ -1101,12 +1101,6 @@ std::vector<ImGuiMachine::MachineInfo>& ImGuiMachine::getAllMachines()
 		machineInfo = parseAllConfigFiles<MachineInfo>(manager, "machines", {"Manufacturer"sv, "Product code"sv});
 	}
 	return machineInfo;
-}
-
-void ImGuiMachine::resetMachineInfo()
-{
-	machineInfo.clear();
-	unknownMachines.clear();
 }
 
 static void amendConfigInfo(MSXMotherBoard& mb, ImGuiMachine::MachineInfo& info)
@@ -1205,20 +1199,9 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 
 ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config)
 {
-	auto search = [&]() -> MachineInfo* {
-		auto& allMachines = getAllMachines();
-		auto it = std::ranges::find(allMachines, config, &MachineInfo::configName);
-		return (it != allMachines.end()) ? std::to_address(it) : nullptr;
-	};
-	if (auto* info = search()) return info;
-
-	// Not found, maybe a config was added or renamed on disk. Refresh and retry,
-	// but only once per name: refreshing parses all (>200) config files and we're
-	// called while painting (compare getTestResult()).
-	if (contains(unknownMachines, config)) return nullptr;
-	unknownMachines.emplace_back(config);
-	machineInfo.clear();
-	return search();
+	auto& allMachines = getAllMachines();
+	auto it = std::ranges::find(allMachines, config, &MachineInfo::configName);
+	return (it != allMachines.end()) ? std::to_address(it) : nullptr;
 }
 
 } // namespace openmsx
