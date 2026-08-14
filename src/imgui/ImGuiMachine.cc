@@ -1212,11 +1212,9 @@ ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config
 	};
 	if (auto* info = search()) return info;
 
-	// Not found. Perhaps something changed on disk, e.g. the user added or
-	// renamed a machine config while openMSX was running. Refresh the cache
-	// and try again. But refreshing parses all (>200) machine config files,
-	// and we're called from painting code, so don't do that over and over for
-	// a config name that really doesn't exist (compare getTestResult()).
+	// Not found, maybe a config was added or renamed on disk. Refresh and retry,
+	// but only once per name: refreshing parses all (>200) config files and we're
+	// called while painting (compare getTestResult()).
 	if (contains(unknownMachines, config)) return nullptr;
 	unknownMachines.emplace_back(config);
 	machineInfo.clear();

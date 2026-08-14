@@ -41,9 +41,6 @@ private:
 	void paintTestHardware();
 	[[nodiscard]] std::vector<MachineInfo>& getAllMachines();
 	void resetMachineInfo();
-	/** Search the MachineInfo for the given machine config name, or nullptr if
-	  * there is no such machine. The result is only valid until the next call
-	  * to getAllMachines() or resetMachineInfo(). */
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
@@ -68,8 +65,6 @@ public:
 
 private:
 	std::vector<MachineInfo> machineInfo; // sorted on displayName
-	// Config names for which we already refreshed 'machineInfo' once because
-	// they were not found. That refresh is expensive, don't repeat it.
 	std::vector<std::string> unknownMachines;
 	std::string newMachineConfig;
 	std::string filterType;
