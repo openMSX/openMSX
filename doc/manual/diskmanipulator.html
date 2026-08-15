@@ -29,10 +29,21 @@
   of this document you will find some <a class="internal" href="#examples">examples of typical use</a>.</p>
 
   <div class="note">
-    Note: For now, this command does not work with SCSI/SD disks and drives!
-    So, you cannot create valid formatted SCSI hard disk images, SD card images
-    or manipulate files on hard disks formatted for use with a SCSI interface
-    or SD cards for an SD interface.
+    Note: hard disk like media (IDE and SCSI hard disks, SD cards) are only
+    understood when they have a Sunrise IDE, Beer IDE 1.9RC1 or Nextor
+    partition table, or no partition table at all (in which case the whole
+    image is treated as a single volume). Only FAT12 and FAT16 partitions can
+    be manipulated; FAT32 partitions are not supported. Images formatted by a
+    SCSI BIOS that uses yet another partition table layout will report
+    <code>No (or invalid) partition table.</code>
+  </div>
+
+  <div class="note">
+    Note: manipulating a hard disk, SD card or CompactFlash image while the
+    emulated MSX has it mounted can corrupt the image, because the MSX side
+    does not notice the change and keeps using its cached FAT information. Use
+    <code>set power off</code> first, or do the manipulation in a separate
+    openMSX instance.
   </div>
 
   <h2>General Syntax</h2>
@@ -44,7 +55,7 @@
 
   <p><code>&lt;command&gt;</code> specifies the action to be performed. The next section lists the commands available and explains them.</p>
 
-  <p><code>&lt;disk name&gt;</code> specifies the disk to operate on. Typical values are: <code><a class="external" href="commands.html#disk">diska</a></code>, <code>diskb</code>, <code><a class="external" href="commands.html#hd">hda</a></code> or the special <code><a class="external" href="commands.html#disk">virtual_drive</a></code> device. <code>disk&lt;x&gt;</code> and <code>hd&lt;x&gt;</code> are the drives available to the running emulated MSX machine. This allows interaction with the currently used disk images.<br />
+  <p><code>&lt;disk name&gt;</code> specifies the disk to operate on. Typical values are: <code><a class="external" href="commands.html#disk">diska</a></code>, <code>diskb</code>, <code><a class="external" href="commands.html#hd">hda</a></code> or the special <code><a class="external" href="commands.html#disk">virtual_drive</a></code> device. <code>disk&lt;x&gt;</code> and <code>hd&lt;x&gt;</code> are the drives available to the running emulated MSX machine; <code>hd&lt;x&gt;</code> covers all hard disk like media, so IDE and SCSI hard disks as well as the SD cards of e.g. the MegaFlashROM SCC+ SD. This allows interaction with the currently used disk images.<br />
   In case the disk contains a Sunrise IDE, Beer IDE 1.9RC1 or Nextor compatible partition table you can add a partition number (starting at 1) to the disk name to specify on which partition the command will act. For example <code>hda2</code> is the second partition on the master IDE disk, <code>hdb3</code> is the third partition on the slave IDE disk.</p>
 
   <p><code>&lt;command arguments&gt;</code> depend upon the command involved, see the detailed descriptions of the commands below.</p>

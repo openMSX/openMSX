@@ -1,15 +1,12 @@
 #include "IDEHD.hh"
 
 #include "DeviceConfig.hh"
-#include "DiskManipulator.hh"
 #include "MSXException.hh"
 #include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 #include "serialize.hh"
 
 #include "endian.hh"
 #include "narrow.hh"
-#include "strCat.hh"
 #include "xrange.hh"
 
 #include <cassert>
@@ -19,16 +16,9 @@ namespace openmsx {
 IDEHD::IDEHD(const DeviceConfig& config)
 	: HD(config)
 	, AbstractIDEDevice(config.getMotherBoard())
-	, diskManipulator(config.getReactor().getDiskManipulator())
 	, devName(config.getChildData("name", "openMSX hard disk"))
 {
-	diskManipulator.registerDrive(
-		*this, tmpStrCat(config.getMotherBoard().getMachineID(), "::"));
-}
-
-IDEHD::~IDEHD()
-{
-	diskManipulator.unregisterDrive(*this);
+	// registration with the DiskManipulator is done in the HD base class
 }
 
 bool IDEHD::isPacketDevice()

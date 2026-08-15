@@ -7,7 +7,6 @@
 namespace openmsx {
 
 class DeviceConfig;
-class DiskManipulator;
 
 class IDEHD final : public HD, public AbstractIDEDevice
 {
@@ -17,7 +16,7 @@ public:
 	IDEHD(IDEHD&&) = delete;
 	IDEHD& operator=(const IDEHD&) = delete;
 	IDEHD& operator=(IDEHD&&) = delete;
-	~IDEHD() override;
+	~IDEHD() override = default;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -32,7 +31,6 @@ private:
 	void executeCommand(uint8_t cmd) override;
 
 private:
-	DiskManipulator& diskManipulator;
 	unsigned transferSectorNumber = 0; // avoid UMR in serialize()
 	const std::string devName;
 };

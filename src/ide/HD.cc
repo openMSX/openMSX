@@ -1,6 +1,7 @@
 #include "HD.hh"
 
 #include "DeviceConfig.hh"
+#include "DiskManipulator.hh"
 #include "Display.hh"
 #include "FileContext.hh"
 #include "FilePool.hh"
@@ -14,6 +15,7 @@
 
 #include "narrow.hh"
 #include "serialize.hh"
+#include "strCat.hh"
 #include "tiger.hh"
 
 #include <array>
@@ -75,11 +77,14 @@ HD::HD(const DeviceConfig& config)
 		motherBoard.getReactor().getGlobalSettings().getPowerSetting());
 
 	motherBoard.registerMediaProvider(name, *this);
+	motherBoard.getReactor().getDiskManipulator().registerDrive(
+		*this, tmpStrCat(motherBoard.getMachineID(), "::"));
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "add");
 }
 
 HD::~HD()
 {
+	motherBoard.getReactor().getDiskManipulator().unregisterDrive(*this);
 	motherBoard.unregisterMediaProvider(*this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "remove");
 
