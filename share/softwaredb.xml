@@ -13871,6 +13871,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="6ea5bb55d3f5c242d3cd1e8af74d2078b568f5b9" type="ASCII8" status="Author" remark="Portuguese" />
   </software>
   <software title="XeGrader" system="MSX2" company="Tokihiro Naito" year="2025" country="JP">
+    <rom sha1="5b95556923d4f564cbc51ceb7a544915f0b1331f" type="ASCII8-R" status="Verified" remark="Retail cartridge v2.0.3" />
     <rom sha1="29d2509404b009497a9043319fdd8616e63a3fd1" type="ASCII8" status="Author" remark="Trail Version 2025-03-19" />
     <rom sha1="049323a69dca3af9019b4afeafbd4bf6c699065e" type="ASCII8" status="Author" remark="Trial Version - Initial Release" />
     <rom sha1="7507e08958a80f2fa58ccc46eb63d17f1618823a" type="ASCII8" status="Author" remark="Trail Version 2025-02-12" />
