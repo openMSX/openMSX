@@ -13,13 +13,11 @@ variable hack_is_already_enabled false
 
 proc set_hack {} {
 	variable hack_is_already_enabled
-	# example: turboR..
-	# for now, ignore the commands... it's quite complex to
-	# get this 100% water tight with adding/removing machines
-	# at run time
-	if {[catch "machine_info connector cassetteport"]} return
 	
 	if {$::fast_cas_load_hack_enabled && !$hack_is_already_enabled} {
+		# if no cassetteport (e.g. turboR), you can't install the hack
+		# (but we do allow uninstalling it)
+		if {[catch "machine_info connector cassetteport"]} return
 		interp hide {} cassetteplayer
 		interp alias {} cassetteplayer {} cashandler::tapedeck
 		set hack_is_already_enabled true
@@ -43,12 +41,13 @@ proc setting_changed {name1 name2 op} {
 
 trace add variable ::fast_cas_load_hack_enabled write [namespace code setting_changed]
 
-proc initial_set {} {
+proc set_hack_on_new_machine {} {
 	if {$::fast_cas_load_hack_enabled} {
 		set_hack
 	}
+	after machine_switch [namespace code set_hack_on_new_machine]
 }
 
-after realtime 0 [namespace code initial_set]
+after machine_switch [namespace code set_hack_on_new_machine]
 
 } ;# namespace cashandler
