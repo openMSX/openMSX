@@ -10,6 +10,7 @@ enum class RomType : uint8_t {
 	ARC,
 	ALALAMIAH30IN1,
 	ASCII8,
+	ASCII8R,
 	ASCII8_2,
 	ASCII8_32,
 	ASCII8_8,

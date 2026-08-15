@@ -257,6 +257,8 @@ std::unique_ptr<MSXDevice> create(DeviceConfig& config)
 		return std::make_unique<RomKonamiKeyboardMaster>(config, std::move(rom));
 	case ASCII8:
 		return std::make_unique<RomAscii8kB>(config, std::move(rom));
+	case ASCII8R:
+		return std::make_unique<RomAscii8kB>(config, std::move(rom), true);
 	case ASCII16:
 		return std::make_unique<RomAscii16kB>(config, std::move(rom));
 	case ASCII16X:
