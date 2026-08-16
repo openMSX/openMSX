@@ -28,7 +28,7 @@ public:
 
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration motorTimeout,
-	          bool signalsNeedMotorOn, bool doubleSided, unsigned nbTracks,
+	          bool signalsNeedMotorOn, bool doubleSided, unsigned nominalTracks,
 	          DiskDrive::TrackMode trackMode);
 	~RealDrive() override;
 

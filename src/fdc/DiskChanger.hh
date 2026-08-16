@@ -46,7 +46,7 @@ public:
 	            std::string driveName,
 	            bool createCmd = true,
 	            bool doubleSidedDrive = true,
-	            unsigned nbTracks = 80,
+	            unsigned nominalTracks = 80,
 	            std::function<void()> preChangeCallback = {});
 	DiskChanger(Reactor& reactor,
 	            std::string driveName); // for virtual_drive
@@ -73,7 +73,7 @@ public:
 	// for DirAsDSK
 	[[nodiscard]] Scheduler* getScheduler() const { return scheduler; }
 	[[nodiscard]] bool isDoubleSidedDrive() const { return doubleSidedDrive; }
-	[[nodiscard]] unsigned getNbTracks() const { return nbTracks; }
+	[[nodiscard]] unsigned getNominalTracks() const { return nominalTracks; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -102,7 +102,7 @@ private:
 	friend class DiskCommand;
 	std::optional<DiskCommand> diskCommand; // must come after driveName
 	const bool doubleSidedDrive; // for DirAsDSK
-	const unsigned nbTracks; // for DirAsDSK (40 or 80)
+	const unsigned nominalTracks; // for DirAsDSK (40 or 80)
 
 	bool diskChangedFlag;
 

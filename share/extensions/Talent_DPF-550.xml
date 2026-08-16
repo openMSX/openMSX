@@ -20,7 +20,7 @@
             <filename>dpf-550_disk.rom</filename>
           </rom>
           <singlesided/>
-          <tracks>40</tracks> <!-- single-sided 40-track 180kB drive; disk ROM only accepts media 0xFC -->
+          <nominal_tracks>40</nominal_tracks> <!-- single-sided 40-track 180kB drive; disk ROM only accepts media 0xFC -->
           <drives>1</drives>
         </WD1770>
       </secondary>
