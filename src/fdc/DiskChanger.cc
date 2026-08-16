@@ -38,6 +38,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
                          std::string driveName_,
                          bool createCmd,
                          bool doubleSidedDrive_,
+                         unsigned nominalTracks_,
                          std::function<void()> preChangeCallback_)
 	: reactor(board.getReactor())
 	, controller(board.getCommandController())
@@ -46,6 +47,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
 	, preChangeCallback(std::move(preChangeCallback_))
 	, driveName(std::move(driveName_))
 	, doubleSidedDrive(doubleSidedDrive_)
+	, nominalTracks(nominalTracks_)
 {
 	init(tmpStrCat(board.getMachineID(), "::"), createCmd);
 }
@@ -57,6 +59,7 @@ DiskChanger::DiskChanger(Reactor& reactor_, std::string driveName_)
 	, scheduler(nullptr)
 	, driveName(std::move(driveName_))
 	, doubleSidedDrive(true) // irrelevant, but needs a value
+	, nominalTracks(80) // irrelevant, but needs a value
 {
 	init({}, true);
 }
