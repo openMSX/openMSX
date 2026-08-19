@@ -16,7 +16,6 @@ COMPILE_FLAGS+= \
 
 # Linker flags.
 LINK_FLAGS:= \
-
 	-L/mingw/lib -L/mingw/lib/w32api -lws2_32 -lwsock32 -lwinmm -ldsound -lsecur32 -liphlpapi -lcrypt32 \
 	 -Wl,-subsystem,windows -static-libgcc -static-libstdc++ \
 	$(LINK_FLAGS)

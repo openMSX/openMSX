@@ -14,11 +14,13 @@
 #include "zstring_view.hh"
 
 #include <atomic>
+#include <cstdint>
 #include <mutex>
 #include <optional>
 #include <span>
+#include <string>
 #include <thread>
-#include <cstdint>
+#include <vector>
 
 namespace openmsx {
 
@@ -43,7 +45,7 @@ public:
 	[[nodiscard]] zstring_view getDescription() const override;
 
 	// ImGuiPluggable
-	void renderGuiExtra() override;
+	void handleImGuiExtraMenuItems() override;
 
 	// input
 	void signal(EmuTime time) override;
@@ -85,26 +87,31 @@ private:
 
 	StringSetting rs232RawPortSetting;
 
-	serial_handle_t handle;
+	std::optional<serial::Handle> handle;
 	std::thread thread;
 	std::mutex mutex;
 	std::optional<Poller> poller;
 	cb_queue<char> queue;
 
-	std::atomic<bool> DCD;
-	std::atomic<bool> RI;
-	std::atomic<bool> CTS;
-	std::atomic<bool> DSR;
+	std::atomic<bool> DCD = false;
+	std::atomic<bool> RI  = false;
+	std::atomic<bool> CTS = false;
+	std::atomic<bool> DSR = false;
 
-	bool DTR;
-	bool RTS;
+	bool DTR = false;
+	bool RTS = false;
 	RS232Connector* directConn = nullptr;
 
-	std::atomic<unsigned> currentBaud;
-	std::atomic<DataBits> currentDataBits;
-	std::atomic<StopBits> currentStopBits;
-	std::atomic<Parity> currentParity;
-	std::atomic<bool> currentParityEnabled;
+	std::atomic<unsigned> currentBaud = 115200;
+	std::atomic<DataBits> currentDataBits = DataBits::D8;
+	std::atomic<StopBits> currentStopBits = StopBits::S1;
+	std::atomic<Parity> currentParity = Parity::EVEN;
+	std::atomic<bool> currentParityEnabled = false;
+
+	// ImGui pluggable row: cached host serial port list and the last-seen
+	// rs232-raw-port value (refresh the list only when the setting changed).
+	std::vector<std::string> ports;
+	std::string currentPort;
 };
 
 } // namespace openmsx

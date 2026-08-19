@@ -1,11 +1,17 @@
+// Keep these before "RS232Raw.hh": that header pulls in <windows.h> (via
+// SerialPort.hh), whose macros (TRANSPARENT, BLACK, WHITE, YELLOW, ...) would
+// otherwise clash with the imColor enum in ImGuiUtils.hh.
+#include "ImGuiCpp.hh"
+#include "ImGuiUtils.hh"
+
 #include "RS232Raw.hh"
 
 #include "RS232Connector.hh"
 
 #include "CliComm.hh"
 #include "CommandController.hh"
-#include "PlugException.hh"
 #include "EventDistributor.hh"
+#include "PlugException.hh"
 #include "Scheduler.hh"
 #include "serialize.hh"
 
@@ -33,14 +39,6 @@ RS232Raw::RS232Raw(EventDistributor& eventDistributor_,
 	        "/dev/ttyS0"
 #endif
         )
-	, handle(OPENMSX_INVALID_SERIAL_HANDLE)
-	, DCD(false), RI(false), CTS(false), DSR(false)
-	, DTR(false), RTS(false)
-	, currentBaud(115200)
-	, currentDataBits(DataBits::D8)
-	, currentStopBits(StopBits::S1)
-	, currentParity(Parity::EVEN)
-	, currentParityEnabled(false)
 {
 	eventDistributor.registerEventListener(EventType::RS232_RAW, *this);
 	rs232RawPortSetting.attach(*this);
@@ -52,29 +50,27 @@ RS232Raw::~RS232Raw()
 	eventDistributor.unregisterEventListener(EventType::RS232_RAW, *this);
 }
 
-namespace {
-	SerialParams buildParamsImpl(unsigned baud, SerialDataInterface::DataBits dataBits, SerialDataInterface::StopBits stopBits, bool parityEnabled, SerialDataInterface::Parity parity)
-	{
-		SerialParams p;
-		p.baudRate = baud;
-		p.dataBits = static_cast<int>(dataBits);
-		switch (stopBits) {
-		case SerialDataInterface::StopBits::S1:   p.stopBits = 1; break;
-		case SerialDataInterface::StopBits::S1_5: p.stopBits = 1; break;
-		case SerialDataInterface::StopBits::S2:   p.stopBits = 2; break;
-		default:             p.stopBits = 1; break;
-		}
-		p.parity = parityEnabled ? (parity == SerialDataInterface::Parity::ODD ? 1 : 2) : 0;
-		return p;
+static serial::SerialParams buildParamsImpl(unsigned baud, SerialDataInterface::DataBits dataBits, SerialDataInterface::StopBits stopBits, bool parityEnabled, SerialDataInterface::Parity parity)
+{
+	serial::SerialParams p;
+	p.baudRate = baud;
+	p.dataBits = static_cast<int>(dataBits);
+	switch (stopBits) {
+	case SerialDataInterface::StopBits::S1:   p.stopBits = 1; break;
+	case SerialDataInterface::StopBits::S1_5: p.stopBits = 1; break;
+	case SerialDataInterface::StopBits::S2:   p.stopBits = 2; break;
+	default:             p.stopBits = 1; break;
 	}
+	p.parity = parityEnabled ? (parity == SerialDataInterface::Parity::ODD ? 1 : 2) : 0;
+	return p;
 }
 
 void RS232Raw::applyParams()
 {
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return;
+	if (!handle) return;
 
 #ifdef _WIN32
-	serial_close(handle);
+	handle.reset();
 	if (thread.joinable()) {
 		thread.join();
 	}
@@ -87,16 +83,17 @@ void RS232Raw::applyParams()
 
 	auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 	                         currentParityEnabled, currentParity);
-	int tries = 0;
-	do {
-		if (serial_open(handle, portName, p)) break;
-		Sleep(50);
-	} while (++tries < 4);
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return;
+	if (auto h = serial::open(portName, p)) {
+		handle = std::move(*h);
+	} else {
+		cliComm.printWarning("Failed to open serial port ", portName, ": ",
+		                     serial::to_string(h.error()));
+		return;
+	}
 
-	serial_set_params(handle, p);
-	serial_set_dtr(handle, DTR);
-	serial_set_rts(handle, RTS);
+	(void)handle->set_params(p);
+	(void)handle->set_dtr(DTR);
+	(void)handle->set_rts(RTS);
 
 	poller.reset();
 	poller.emplace();
@@ -104,9 +101,9 @@ void RS232Raw::applyParams()
 #else
 	auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 	                         currentParityEnabled, currentParity);
-	serial_set_params(handle, p);
-	serial_set_dtr(handle, DTR);
-	serial_set_rts(handle, RTS);
+	(void)handle->set_params(p);
+	(void)handle->set_dtr(DTR);
+	(void)handle->set_rts(RTS);
 #endif
 }
 
@@ -124,9 +121,10 @@ void RS232Raw::plugHelper(Connector& connector_, EmuTime /*time*/)
 	auto params = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 	                              currentParityEnabled, currentParity);
 
-	if (serial_open(handle, portName, params)) {
-		serial_set_dtr(handle, DTR);
-		serial_set_rts(handle, RTS);
+	if (auto h = serial::open(portName, params)) {
+		handle = std::move(*h);
+		(void)handle->set_dtr(DTR);
+		(void)handle->set_rts(RTS);
 		poller.emplace();
 		thread = std::thread([this]() { run(); });
 	}
@@ -150,7 +148,7 @@ void RS232Raw::unplugHelper(EmuTime /*time*/)
 	if (thread.joinable()) {
 		poller->abort();
 	}
-	serial_close(handle);
+	handle.reset();
 	if (thread.joinable()) {
 		thread.join();
 	}
@@ -169,18 +167,16 @@ zstring_view RS232Raw::getDescription() const
 	       "a host serial port, selected with the 'rs232-raw-port' setting.";
 }
 
-void RS232Raw::renderGuiExtra()
+void RS232Raw::handleImGuiExtraMenuItems()
 {
-	static std::vector<std::string> ports;
-	static std::string currentPort;
 	std::string cur(rs232RawPortSetting.getString().c_str());
 	if (cur != currentPort) {
-		ports = serial_list_ports();
+		ports = serial::list_ports();
 		currentPort = cur;
 	}
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
-	if (ImGui::BeginCombo("##rs232-raw-port", cur.c_str())) {
+	im::Combo("##rs232-raw-port", cur.c_str(), [&]{
 		for (const auto& p : ports) {
 			bool selected = (p == cur);
 			if (ImGui::Selectable(p.c_str(), selected)) {
@@ -191,14 +187,11 @@ void RS232Raw::renderGuiExtra()
 				ImGui::SetItemDefaultFocus();
 			}
 		}
-		ImGui::EndCombo();
-	}
+	});
+	simpleToolTip("Select the host serial port for RS232 raw");
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Refresh")) {
-		ports = serial_list_ports();
-	}
-	if (ImGui::IsItemHovered(ImGuiHoveredFlags_None)) {
-		ImGui::SetTooltip("Select the host serial port for RS232 raw");
+		ports = serial::list_ports();
 	}
 }
 
@@ -208,21 +201,20 @@ void RS232Raw::run()
 	bool direct = conn && conn->directByteDelivery();
 
 	while (true) {
-		if (handle == OPENMSX_INVALID_SERIAL_HANDLE) break;
+		if (!handle) break;
 		if (poller->aborted()) break;
 #ifndef _WIN32
-		if (poller->poll(handle)) {
+		if (poller->poll(handle->native_handle())) {
 			break;
 		}
 #endif
 
 		char b;
-		auto n = serial_read(handle, &b, sizeof(b));
-		if (n < 0) {
-			cliComm.printWarning("RS232Raw serial read error: ", serial_error());
-			serial_close(handle);
+		auto r = handle->read(std::span<char>(&b, 1));
+		if (!r) {
+			handle.reset();
 			break;
-		} else if (n == 0) {
+		} else if (*r == 0) {
 #ifdef _WIN32
 			Sleep(1);
 #endif
@@ -245,7 +237,7 @@ void RS232Raw::run()
 // input
 void RS232Raw::signal(EmuTime time)
 {
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return;
+	if (!handle) return;
 
 	auto* conn = checked_cast<RS232Connector*>(getConnector());
 
@@ -276,12 +268,11 @@ bool RS232Raw::signalEvent(const Event& /*event*/)
 // output
 void RS232Raw::recvByte(uint8_t value, EmuTime /*time*/)
 {
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return;
+	if (!handle) return;
 
 	char buf = static_cast<char>(value);
-	if (serial_write(handle, &buf, 1) < 0) {
-		cliComm.printWarning("RS232Raw serial write failed: ", serial_error());
-		serial_close(handle);
+	if (!handle->write(std::span<const char>(&buf, 1))) {
+		handle.reset();
 	}
 }
 
@@ -289,25 +280,25 @@ void RS232Raw::recvByte(uint8_t value, EmuTime /*time*/)
 
 std::optional<bool> RS232Raw::getDSR(EmuTime /*time*/) const
 {
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return {};
+	if (!handle) return {};
 	return DSR.load();
 }
 
 std::optional<bool> RS232Raw::getCTS(EmuTime /*time*/) const
 {
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return {};
+	if (!handle) return {};
 	return CTS.load();
 }
 
 std::optional<bool> RS232Raw::getDCD(EmuTime /*time*/) const
 {
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return {};
+	if (!handle) return {};
 	return DCD.load();
 }
 
 std::optional<bool> RS232Raw::getRI(EmuTime /*time*/) const
 {
-	if (handle == OPENMSX_INVALID_SERIAL_HANDLE) return {};
+	if (!handle) return {};
 	return RI.load();
 }
 
@@ -315,8 +306,8 @@ void RS232Raw::setDTR(bool status, EmuTime /*time*/)
 {
 	if (DTR == status) return;
 	DTR = status;
-	if (handle != OPENMSX_INVALID_SERIAL_HANDLE) {
-		serial_set_dtr(handle, status);
+	if (handle) {
+		(void)handle->set_dtr(status);
 	}
 }
 
@@ -324,8 +315,8 @@ void RS232Raw::setRTS(bool status, EmuTime /*time*/)
 {
 	if (RTS == status) return;
 	RTS = status;
-	if (handle != OPENMSX_INVALID_SERIAL_HANDLE) {
-		serial_set_rts(handle, status);
+	if (handle) {
+		(void)handle->set_rts(status);
 		if (RTS) {
 			std::scoped_lock lock(mutex);
 			if (!queue.empty()) {
@@ -371,9 +362,7 @@ void RS232Raw::update(const Setting& /*setting*/) noexcept
 	if (thread.joinable()) {
 		poller->abort();
 	}
-	if (handle != OPENMSX_INVALID_SERIAL_HANDLE) {
-		serial_close(handle);
-	}
+	handle.reset();
 	if (thread.joinable()) {
 		thread.join();
 	}
@@ -387,14 +376,16 @@ void RS232Raw::update(const Setting& /*setting*/) noexcept
 	if (!portName.empty() && isPluggedIn()) {
 		auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 		                         currentParityEnabled, currentParity);
-		if (serial_open(handle, portName, p)) {
-			serial_set_params(handle, p);
-			serial_set_dtr(handle, DTR);
-			serial_set_rts(handle, RTS);
+		if (auto h = serial::open(portName, p)) {
+			handle = std::move(*h);
+			(void)handle->set_params(p);
+			(void)handle->set_dtr(DTR);
+			(void)handle->set_rts(RTS);
 			poller.emplace();
 			thread = std::thread([this]() { run(); });
 		} else {
-			cliComm.printWarning("Failed to open serial port ", portName, ": ", serial_error());
+			cliComm.printWarning("Failed to open serial port ", portName, ": ",
+			                     serial::to_string(h.error()));
 		}
 	}
 }
@@ -415,9 +406,10 @@ void RS232Raw::serialize(Archive& /*ar*/, unsigned /*version*/)
 		auto params = buildParamsImpl(currentBaud.load(), currentDataBits.load(),
 		                              currentStopBits.load(), currentParityEnabled.load(),
 		                              currentParity.load());
-		if (serial_open(handle, portName, params)) {
-			serial_set_dtr(handle, DTR);
-			serial_set_rts(handle, RTS);
+		if (auto h = serial::open(portName, params)) {
+			handle = std::move(*h);
+			(void)handle->set_dtr(DTR);
+			(void)handle->set_rts(RTS);
 			poller.emplace();
 			thread = std::thread([this]() { run(); });
 		}

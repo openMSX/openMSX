@@ -1,30 +1,39 @@
 #include "GenericUNAPI.hh"
 
+#include "endian.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "OpenSSL.hh"
 #include "Poller.hh"
 #include "serialize.hh"
+#include "stl.hh"
+#include "StringOp.hh"
+#include "zstring_view.hh"
 
 #include <algorithm>
-#include <bit>
-#include <cstdio>
-#include <cstdlib>
+#include <array>
+#include <chrono>
 #include <cstring>
+#include <fstream>
+#include <memory>
+#include <optional>
+#include <random>
 #include <span>
+#include <sstream>
 #include <string_view>
 
 #ifndef _WIN32
 #include <arpa/inet.h>
-#include <fcntl.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#endif
-#ifdef _WIN32
-#include <io.h>
+#else
+#include <iphlpapi.h>
 #endif
 
 namespace openmsx {
@@ -79,24 +88,176 @@ static constexpr unsigned MAX_CMD_DATA_LEN = 2148;
 static constexpr std::string_view bootGreeting =
 	"TCP-IP UNAPI openMSX Generic v1.0\r\n";
 
-// ---- baud-rate table (kept for compatibility with SMXWiFi I/O) ----
-static constexpr unsigned baudRates[] = {
-	859372, 346520, 231014, 115200, 57600, 38400, 31250, 19200, 9600, 4800
+// ---- helper: host network configuration ----
+// Detects the host's primary IPv4 network configuration. Used as a
+// fallback for GET_IPINFO when the corresponding setting is 0.0.0.0
+// ("use host value"), like the ESP32 reporting its WiFi IP.
+struct HostNetInfo
+{
+	uint32_t ip = 0;
+	uint32_t netmask = 0;
+	uint32_t gateway = 0;
+	uint32_t dns1 = 0;
+	uint32_t dns2 = 0;
 };
 
-// ---- connection structure ----
-// ---- helper: set a socket non-blocking (accepted sockets don't inherit
-// the mode on POSIX) ----
-static void setNonBlocking(SOCKET s)
+// Parse a dotted-quad IPv4 string into a value in network byte order
+// (0 on failure)
+static bool parseIPv4String(std::string_view str, uint32_t& ipOut)
 {
-#ifdef _WIN32
-	u_long mode = 1;
-	ioctlsocket(s, FIONBIO, &mode);
-#else
-	int flags = fcntl(s, F_GETFL, 0);
-	fcntl(s, F_SETFL, flags | O_NONBLOCK);
-#endif
+	std::array<unsigned, 4> octets;
+	int n = 0;
+	std::string_view rest = str;
+	while (n < 4) {
+		auto dot = rest.find('.');
+		auto v = StringOp::stringToBase<10, unsigned>(rest.substr(0, dot));
+		if (!v || *v > 255) return false;
+		octets[n++] = *v;
+		if (dot == std::string_view::npos) break;
+		rest.remove_prefix(dot + 1);
+	}
+	if (n != 4) return false;
+	ipOut = (octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3];
+	return true;
 }
+
+#ifndef _WIN32
+// Read the first two DNS servers from /etc/resolv.conf
+static void readResolvConfDns(uint32_t& dns1, uint32_t& dns2)
+{
+	std::ifstream f("/etc/resolv.conf");
+	std::string line;
+	int n = 0;
+	while (n < 2 && std::getline(f, line)) {
+		auto pos = line.find_first_not_of(" \t");
+		if (pos == std::string::npos) continue;
+		std::string_view entry(line);
+		entry.remove_prefix(pos);
+		if (!entry.starts_with("nameserver ")) continue;
+		entry.remove_prefix(11);
+		entry = entry.substr(0, entry.find('#'));
+		entry = entry.substr(0, entry.find_last_not_of(" \t") + 1);
+		uint32_t ip = 0;
+		if (parseIPv4String(entry, ip)) {
+			if (n == 0) {
+				dns1 = ip;
+			} else {
+				dns2 = ip;
+			}
+			++n;
+		}
+	}
+}
+#endif
+
+#ifdef _WIN32
+static std::optional<HostNetInfo> getHostNetInfo()
+{
+	HostNetInfo info;
+	ULONG size = 0;
+	if (GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST,
+	                         nullptr, nullptr, &size) != ERROR_BUFFER_OVERFLOW) {
+		return std::nullopt;
+	}
+	if (size == 0) return std::nullopt;
+	auto buffer = std::make_unique_for_overwrite<uint8_t[]>(size);
+	auto* adapters = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buffer.get());
+	if (GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST,
+	                         nullptr, adapters, &size) != NO_ERROR) {
+		return std::nullopt;
+	}
+	for (auto* a = adapters; a; a = a->Next) {
+		if (a->OperStatus != IfOperStatusUp) continue;
+		for (auto* u = a->FirstUnicastAddress; u; u = u->Next) {
+			auto* sa = reinterpret_cast<sockaddr_in*>(u->Address.lpSockaddr);
+			if (sa->sin_family != AF_INET) continue;
+			uint32_t ip = ntohl(sa->sin_addr.s_addr);
+			if (ip == 0 || (ip & 0xFF000000) == 0x7F000000) continue; // skip loopback
+			info.ip = ip;
+			uint8_t prefix = u->OnLinkPrefixLength;
+			info.netmask = (prefix == 0) ? 0 : (0xFFFFFFFFu << (32 - prefix));
+			if (a->FirstGatewayAddress) {
+				auto* g = reinterpret_cast<sockaddr_in*>(a->FirstGatewayAddress->Address.lpSockaddr);
+				info.gateway = ntohl(g->sin_addr.s_addr);
+			}
+			int n = 0;
+			for (auto* d = a->FirstDnsServerAddress; d && n < 2; d = d->Next) {
+				auto* dsa = reinterpret_cast<sockaddr_in*>(d->Address.lpSockaddr);
+				uint32_t dns = ntohl(dsa->sin_addr.s_addr);
+				if (n == 0) {
+					info.dns1 = dns;
+				} else {
+					info.dns2 = dns;
+				}
+				++n;
+			}
+			return info;
+		}
+	}
+	return std::nullopt;
+}
+#else
+static std::optional<HostNetInfo> getHostNetInfo()
+{
+	HostNetInfo info;
+	struct ifaddrs* ifa = nullptr;
+	if (getifaddrs(&ifa) != 0) return std::nullopt;
+	bool found = false;
+	for (auto* it = ifa; it; it = it->ifa_next) {
+		if (!it->ifa_addr || it->ifa_addr->sa_family != AF_INET) continue;
+		if (it->ifa_flags & IFF_LOOPBACK) continue;
+		if (!(it->ifa_flags & IFF_UP)) continue;
+		auto* sa = reinterpret_cast<const sockaddr_in*>(it->ifa_addr);
+		uint32_t ip = ntohl(sa->sin_addr.s_addr);
+		if (ip == 0) continue;
+		info.ip = ip;
+		if (it->ifa_netmask) {
+			auto* sm = reinterpret_cast<const sockaddr_in*>(it->ifa_netmask);
+			info.netmask = ntohl(sm->sin_addr.s_addr);
+		}
+		found = true;
+		break;
+	}
+	freeifaddrs(ifa);
+	if (!found) return std::nullopt;
+
+#ifndef __APPLE__
+	// Default gateway (Linux): /proc/net/route, first default (00000000)
+	// route. The address is printed as a little-endian hex value.
+	std::ifstream route("/proc/net/route");
+	std::string line;
+	while (std::getline(route, line)) {
+		if (line.starts_with("Iface")) continue; // header
+		std::istringstream iss(line);
+		std::string iface, dest, gw, flags;
+		iss >> iface >> dest >> gw >> flags;
+		if (dest != "00000000") continue; // not the default route
+		auto f = StringOp::stringToBase<16, unsigned long>(flags);
+		if (!f || !(*f & 1)) continue;
+		auto g = StringOp::stringToBase<16, unsigned long>(gw);
+		if (!g) continue;
+		info.gateway = ntohl(*g);
+		break;
+	}
+#endif
+
+	readResolvConfDns(info.dns1, info.dns2);
+	return info;
+}
+#endif
+
+// Ephemeral port selection (spec 4.4.1): random port in 16384-32767.
+// Device-local generator: openMSX's random_int() helpers share a global
+// generator that is not thread-safe against the emulation thread, and
+// this code runs on the ESP thread.
+static uint16_t randomEphemeralPort()
+{
+	static std::mt19937 rng(std::random_device{}());
+	static std::uniform_int_distribution<int> dist(16384, 32767);
+	return static_cast<uint16_t>(dist(rng));
+}
+
+// ---- connection structure ----
 
 // Passive TCP listener registry entry: multiple passive connections may
 // share a listener for the same local port; the socket is owned by the
@@ -130,7 +291,7 @@ struct GenericUNAPI::Connection {
 	// session. The handshake runs in the reader thread; the connection is
 	// only considered ESTABLISHED once it has completed (spec: TCP_STATE
 	// must not report ESTABLISHED before the handshake is finished).
-	void* ssl = nullptr;        // OpenSSL session (null when not using TLS)
+	std::optional<OpenSSL::SessionHandle> ssl;  // null when not using TLS
 	bool tlsVerify = false;     // validate the server certificate
 	std::atomic<uint8_t> handshakePhase{0}; // 0=no TLS, 1=handshaking, 2=done
 
@@ -151,30 +312,16 @@ GenericUNAPI::GenericUNAPI(DeviceConfig& config)
 	, enabledSetting(
 		getCommandController(), "genericunapi-enabled",
 		"Enable GenericUNAPI network device", true)
-	, localIpSetting(
-		getCommandController(), "genericunapi-local-ip",
-		"Local IP address reported to MSX", "0.0.0.0")
-	, gatewaySetting(
-		getCommandController(), "genericunapi-gateway",
-		"Default gateway reported to MSX", "0.0.0.0")
-	, subnetSetting(
-		getCommandController(), "genericunapi-subnet",
-		"Subnet mask reported to MSX", "0.0.0.0")
-	, dnsPrimarySetting(
-		getCommandController(), "genericunapi-dns-primary",
-		"Primary DNS server reported to MSX", "8.8.8.8")
-	, dnsSecondarySetting(
-		getCommandController(), "genericunapi-dns-secondary",
-		"Secondary DNS server reported to MSX", "0.0.0.0")
+	, rom(MSXDevice::getName() + " ROM", "rom", config)
 {
 	// Probe for a host-installed OpenSSL runtime; TLS support is
 	// advertised and enabled only when one is found (the TLS capability
 	// bits are not advertised otherwise, and TLS TCP_OPEN requests get
 	// ERR_NOT_IMP).
-	if (OpenSSL::load()) {
+	if (auto* lib = OpenSSL::load()) {
 		getCliComm().printInfo(
 			"GenericUNAPI: TLS support enabled (",
-			OpenSSL::version(), ")");
+			lib->version(), ')');
 	} else {
 		getCliComm().printInfo(
 			"GenericUNAPI: OpenSSL not found, TLS support disabled "
@@ -193,13 +340,28 @@ GenericUNAPI::~GenericUNAPI()
 }
 
 // ====================================================================
-//  Power / reset
+//  Memory-mapped ROM
 // ====================================================================
 
-void GenericUNAPI::powerUp(EmuTime time)
+uint8_t GenericUNAPI::readMem(uint16_t address, EmuTime /*time*/)
 {
-	reset(time);
+	if (0x4000 <= address && address < 0x8000) {
+		return rom[address & 0x3FFF];
+	}
+	return 0xFF;
 }
+
+const uint8_t* GenericUNAPI::getReadCacheLine(uint16_t start) const
+{
+	if (0x4000 <= start && start < 0x8000) {
+		return &rom[start & 0x3FFF];
+	}
+	return unmappedRead.data();
+}
+
+// ====================================================================
+//  Power / reset
+// ====================================================================
 
 void GenericUNAPI::powerDown(EmuTime /*time*/)
 {
@@ -220,10 +382,9 @@ void GenericUNAPI::reset(EmuTime /*time*/)
 			}
 			cp->readerThread.reset();
 			cp->poller.reset();
-			if (cp->ssl) {
-				OpenSSL::close(cp->ssl);
-				cp->ssl = nullptr;
-			}
+	if (cp->ssl) {
+		cp->ssl.reset();
+	}
 			if (cp->sock != OPENMSX_INVALID_SOCKET) {
 				sock_close(cp->sock);
 			}
@@ -254,14 +415,10 @@ uint8_t GenericUNAPI::readIO(uint16_t port, EmuTime /*time*/)
 uint8_t GenericUNAPI::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	switch (port & 0x01) {
-	case 1: {
-		std::scoped_lock lock(espToMsxMutex);
-		uint8_t status = 0;
-		if (!espToMsxFifo.empty()) status |= 0x01;
-		status |= 0x08;
-		if (underrun) status |= 0x10;
-		return status;
-	}
+	case 0:
+		return peekEspToMsxFifo();
+	case 1:
+		return peekStatus();
 	default:
 		return 0xFF;
 	}
@@ -288,34 +445,50 @@ void GenericUNAPI::writeIO(uint16_t port, uint8_t value, EmuTime /*time*/)
 
 uint8_t GenericUNAPI::readEspToMsxFifo()
 {
-	std::unique_lock lock(espToMsxMutex);
+	std::scoped_lock lock(espToMsxMutex);
 	if (!espToMsxFifo.empty()) {
 		uint8_t v = espToMsxFifo.front();
 		espToMsxFifo.pop_front();
 		return v;
 	}
-	// Block for a short time waiting for the ESP thread to provide data
-	espToMsxCond.wait_for(lock, std::chrono::milliseconds(30));
-	if (!espToMsxFifo.empty()) {
-		uint8_t v = espToMsxFifo.front();
-		espToMsxFifo.pop_front();
-		return v;
-	}
+	// The emulated ESP pushes each response into the FIFO in a single
+	// burst, so an empty FIFO means the response is simply not ready yet:
+	// return immediately like the real UART (which also yields 0xFF on an
+	// empty FIFO) instead of stalling the CPU. A driver that reads the
+	// data port without first checking the status bit triggers this
+	// underrun.
 	underrun = true;
+	getCliComm().printInfo("GenericUNAPI: FIFO underrun: no data available");
 	return 0xFF;
+}
+
+uint8_t GenericUNAPI::peekEspToMsxFifo() const
+{
+	std::scoped_lock lock(espToMsxMutex);
+	return espToMsxFifo.empty() ? 0xFF : espToMsxFifo.front();
 }
 
 uint8_t GenericUNAPI::readStatus()
 {
 	std::scoped_lock lock(espToMsxMutex);
+	uint8_t status = peekStatusLocked();
+	underrun = false;
+	return status;
+}
+
+uint8_t GenericUNAPI::peekStatusLocked() const
+{
 	uint8_t status = 0;
 	if (!espToMsxFifo.empty()) status |= 0x01;
 	status |= 0x08; // Quick receive supported
-	if (underrun) {
-		status |= 0x10;
-		underrun = false;
-	}
+	if (underrun) status |= 0x10;
 	return status;
+}
+
+uint8_t GenericUNAPI::peekStatus() const
+{
+	std::scoped_lock lock(espToMsxMutex);
+	return peekStatusLocked();
 }
 
 void GenericUNAPI::writeCommand(uint8_t value)
@@ -372,10 +545,9 @@ void GenericUNAPI::stopEspThread()
 			}
 			cp->readerThread.reset();
 			cp->poller.reset();
-			if (cp->ssl) {
-				OpenSSL::close(cp->ssl);
-				cp->ssl = nullptr;
-			}
+	if (cp->ssl) {
+		cp->ssl.reset();
+	}
 			if (cp->sock != OPENMSX_INVALID_SOCKET) {
 				sock_close(cp->sock);
 				cp->sock = OPENMSX_INVALID_SOCKET;
@@ -416,10 +588,9 @@ void GenericUNAPI::espThreadFunc()
 
 	auto pushBootText = [this](std::string_view text) {
 		std::scoped_lock lock(espToMsxMutex);
-		for (char c : text) {
-			espToMsxFifo.push_back(static_cast<uint8_t>(c));
-		}
-		espToMsxCond.notify_one();
+		espToMsxFifo.push_back(
+			reinterpret_cast<const uint8_t*>(text.data()),
+			reinterpret_cast<const uint8_t*>(text.data() + text.size()));
 	};
 
 	auto resetParser = [&] {
@@ -590,9 +761,9 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 	// ERR_NO_CONN with the reason, as the spec recommends.
 	bool tlsFailed = false;
 	auto tlsFail = [&](uint8_t reason) {
-		// Stored relaxed and sequenced before the seq_cst state store,
-		// so TCP_STATE sees the reason whenever it observes state==4.
-		closeReason[connIdx].store(reason, std::memory_order_relaxed);
+		// Sequenced before the state store, so TCP_STATE sees the reason
+		// whenever it observes state==4.
+		closeReason[connIdx].store(reason);
 		conn->state = 4; // failed (TLS) -> TCP_STATE reports ERR_NO_CONN
 		tlsFailed = true;
 	};
@@ -603,7 +774,7 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 		FD_ZERO(&wfds);
 		SOCKET s = (conn->listenSock != OPENMSX_INVALID_SOCKET)
 		         ? conn->listenSock : conn->sock;
-		bool inHandshake = (conn->handshakePhase.load(std::memory_order_relaxed) == 1);
+		bool inHandshake = (conn->handshakePhase.load() == 1);
 		FD_SET(s, &rfds);
 		if (inHandshake) {
 			// The TLS handshake also needs to send (ClientHello, ...)
@@ -639,11 +810,17 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 				if (ns != OPENMSX_INVALID_SOCKET) {
 					if (conn->clientSock == OPENMSX_INVALID_SOCKET) {
 						// No client attached yet: attach this one
-						setNonBlocking(ns);
+						sock_setNonBlocking(ns);
+						// macOS/BSD only: suppress SIGPIPE when sending to a
+						// peer that reset the connection (Linux uses
+						// MSG_NOSIGNAL instead). Not inherited by accept().
+#ifdef SO_NOSIGPIPE
+						sock_setIntOption(ns, SOL_SOCKET, SO_NOSIGPIPE);
+#endif
 						conn->clientSock = ns;
 						conn->clientEof = false;
 						struct sockaddr_in peer;
-						socklen_t peerLen = sizeof(peer);
+						::socklen_t peerLen = sizeof(peer);
 						if (getpeername(ns,
 						    reinterpret_cast<struct sockaddr*>(&peer),
 						    &peerLen) == 0) {
@@ -659,17 +836,17 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 				}
 			} else if (inHandshake) {
 				// Active TLS: drive the handshake
-				int r = OpenSSL::handshake(conn->ssl);
+				int r = conn->ssl->handshake();
 				if (r == 1) {
 					// Handshake finished: validate the certificate
 					// before the connection becomes ESTABLISHED
 					uint8_t reason = conn->tlsVerify
-						? static_cast<uint8_t>(OpenSSL::verifyResult(conn->ssl))
+						? static_cast<uint8_t>(conn->ssl->verifyResult())
 						: 0;
 					if (reason != 0) {
 						tlsFail(reason);
 					} else {
-						conn->handshakePhase.store(2, std::memory_order_relaxed);
+						conn->handshakePhase.store(2);
 						conn->state = 2; // open -> ESTABLISHED
 					}
 				} else if (r < 0) {
@@ -681,23 +858,29 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 				if (tlsFailed) break;
 			} else {
 				// Active: read inbound data
-				char buf[1024];
-				ptrdiff_t n;
+				std::array<uint8_t, 1024> buf;
+				ptrdiff_t n = 0;
 				if (conn->ssl) {
-					// TLS: decrypt; a zero return is a clean TLS close
-					// (close_notify), a -1 with want==0 a TLS error
-					int want = 0;
-					n = OpenSSL::read(conn->ssl, buf, sizeof(buf), want);
-					if (n == 0) {
-						conn->state = 3; // remote closed -> CLOSE_WAIT
-						break;
-					}
-					if (n < 0 && want == 0) {
-						tlsFail(19); // TLS: other error
-						break;
+					// TLS: decrypt; a clean TLS close is a close_notify,
+					// a real error fails the connection, WouldBlock is
+					// just "try again later".
+					auto r = conn->ssl->read(
+						std::span<char>(reinterpret_cast<char*>(buf.data()), buf.size()));
+					if (!r) {
+						if (r.error() == OpenSSL::IoError::Closed) {
+							conn->state = 3; // remote closed -> CLOSE_WAIT
+							break;
+						}
+						if (r.error() == OpenSSL::IoError::Failed) {
+							tlsFail(19); // TLS: other error
+							break;
+						}
+						// WouldBlock: nothing to do, loop again
+					} else {
+						n = *r;
 					}
 				} else {
-					n = sock_recv(conn->sock, buf, sizeof(buf));
+					n = sock_recv(conn->sock, reinterpret_cast<char*>(buf.data()), buf.size());
 					if (n < 0) {
 						// Socket closed by the remote side (EOF) or error
 						conn->state = 3; // remote closed -> CLOSE_WAIT
@@ -706,37 +889,35 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 				}
 				if (n > 0) {
 					std::scoped_lock rlock(conn->recvMutex);
-					for (ptrdiff_t i = 0; i < n; ++i) {
-						conn->recvBuffer.push_back(static_cast<uint8_t>(buf[i]));
-					}
+					conn->recvBuffer.push_back(buf.data(), buf.data() + n);
 				}
-				if (conn->ssl && n >= 0) {
+				if (conn->ssl && n > 0) {
 					// The SSL layer may have more plaintext buffered than
 					// one SSL_read returns; drain it now (the socket
 					// itself would otherwise not be selectable again).
 					for (;;) {
-						int want = 0;
-						n = OpenSSL::read(conn->ssl, buf, sizeof(buf), want);
-						if (n == 0) {
-							conn->state = 3; // remote closed -> CLOSE_WAIT
-							break;
-						}
-						if (n < 0) {
-							if (want == 0) tlsFail(19);
+						auto r = conn->ssl->read(
+							std::span<char>(reinterpret_cast<char*>(buf.data()), buf.size()));
+						if (!r) {
+							if (r.error() == OpenSSL::IoError::Closed) {
+								conn->state = 3; // remote closed -> CLOSE_WAIT
+							}
+							if (r.error() == OpenSSL::IoError::Failed) {
+								tlsFail(19);
+							}
+							// WouldBlock: nothing more to drain
 							break;
 						}
 						std::scoped_lock rlock(conn->recvMutex);
-						for (ptrdiff_t i = 0; i < n; ++i) {
-							conn->recvBuffer.push_back(static_cast<uint8_t>(buf[i]));
-						}
+						conn->recvBuffer.push_back(buf.data(), buf.data() + *r);
 					}
 					if (tlsFailed) break;
 				}
 			}
 		}
 		if (haveClient && FD_ISSET(conn->clientSock, &rfds)) {
-			char buf[1024];
-			auto n = sock_recv(conn->clientSock, buf, sizeof(buf));
+			std::array<uint8_t, 1024> buf;
+			auto n = sock_recv(conn->clientSock, reinterpret_cast<char*>(buf.data()), buf.size());
 			if (n < 0) {
 				// Accepted client closed the connection: keep it attached
 				// (like the firmware's ClientList) and report CLOSE_WAIT;
@@ -745,9 +926,7 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 				conn->state = 3; // remote closed -> CLOSE_WAIT
 			} else {
 				std::scoped_lock rlock(conn->recvMutex);
-				for (ptrdiff_t i = 0; i < n; ++i) {
-					conn->recvBuffer.push_back(static_cast<uint8_t>(buf[i]));
-				}
+				conn->recvBuffer.push_back(buf.data(), buf.data() + n);
 			}
 		}
 	}
@@ -776,13 +955,13 @@ GenericUNAPI::Connection* GenericUNAPI::allocateConnection()
 				connections[i]->localPort = 0;
 				connections[i]->flags = 0;
 				connections[i]->state = 0;
-				connections[i]->ssl = nullptr;
+				connections[i]->ssl.reset();
 				connections[i]->tlsVerify = false;
-				connections[i]->handshakePhase.store(0, std::memory_order_relaxed);
+				connections[i]->handshakePhase.store(0);
 				connections[i]->readerActive = false;
 				if (connections[i]->poller) connections[i]->poller->reset();
 			}
-			closeReason[i].store(0, std::memory_order_relaxed);
+			closeReason[i].store(0);
 			return connections[i].get();
 		}
 	}
@@ -813,8 +992,7 @@ void GenericUNAPI::freeConnection(int idx)
 	// Tear down the TLS session first (best-effort close_notify, then
 	// free); afterwards the socket can be closed.
 	if (cp->ssl) {
-		OpenSSL::close(cp->ssl);
-		cp->ssl = nullptr;
+		cp->ssl.reset();
 	}
 	if (cp->clientSock != OPENMSX_INVALID_SOCKET) {
 		sock_close(cp->clientSock);
@@ -832,7 +1010,7 @@ void GenericUNAPI::freeConnection(int idx)
 		sock_close(cp->sock);
 		cp->sock = OPENMSX_INVALID_SOCKET;
 	}
-	cp->handshakePhase.store(0, std::memory_order_relaxed);
+		cp->handshakePhase.store(0);
 	cp->tlsVerify = false;
 	cp->type = 0;
 	cp->state = 0;
@@ -865,36 +1043,29 @@ void GenericUNAPI::saveLastResponse(std::span<const uint8_t> data)
 
 void GenericUNAPI::sendQuickResponse(uint8_t cmdByte, uint8_t errorCode)
 {
-	uint8_t resp[2] = {cmdByte, errorCode};
-	saveLastResponse({resp, 2});
+	std::array<uint8_t, 2> resp = {cmdByte, errorCode};
+	saveLastResponse(resp);
 	{
 		std::scoped_lock lock(espToMsxMutex);
 		espToMsxFifo.push_back(cmdByte);
 		espToMsxFifo.push_back(errorCode);
 	}
-	espToMsxCond.notify_one();
 }
 
 void GenericUNAPI::sendResponse(uint8_t cmdByte, uint8_t errorCode,
                                 std::span<const uint8_t> data)
 {
-	uint16_t respSize = static_cast<uint16_t>(data.size());
-	std::vector<uint8_t> resp;
-	resp.reserve(4 + respSize);
-	resp.push_back(cmdByte);
-	resp.push_back(errorCode);
-	resp.push_back((respSize >> 8) & 0xFF);
-	resp.push_back(respSize & 0xFF);
-	resp.insert(resp.end(), data.begin(), data.end());
+	auto respSize = narrow<uint16_t>(data.size());
+	auto resp = concat(std::to_array<uint8_t>({cmdByte, errorCode,
+	                                           uint8_t(respSize >> 8),
+	                                           uint8_t(respSize)}),
+	                   data);
 
 	saveLastResponse(resp);
 	{
 		std::scoped_lock lock(espToMsxMutex);
-		for (auto b : resp) {
-			espToMsxFifo.push_back(b);
-		}
+		espToMsxFifo.push_back(resp.begin(), resp.end());
 	}
-	espToMsxCond.notify_one();
 }
 
 void GenericUNAPI::sendRawResponse(std::span<const uint8_t> data)
@@ -902,11 +1073,8 @@ void GenericUNAPI::sendRawResponse(std::span<const uint8_t> data)
 	saveLastResponse(data);
 	{
 		std::scoped_lock lock(espToMsxMutex);
-		for (auto b : data) {
-			espToMsxFifo.push_back(b);
-		}
+		espToMsxFifo.push_back(data.begin(), data.end());
 	}
-	espToMsxCond.notify_one();
 }
 
 // ====================================================================
@@ -982,15 +1150,11 @@ void GenericUNAPI::handleUnapiCommand(uint8_t cmd, std::span<const uint8_t> data
 //  Helper: parse IP address string → 4 bytes
 // ====================================================================
 
-bool GenericUNAPI::parseIP(const std::string& str, uint8_t* ipOut) const
+bool GenericUNAPI::parseIP(const std::string& str, std::span<uint8_t, 4> ipOut) const
 {
-	unsigned a, b, c, d;
-	if (sscanf(str.c_str(), "%u.%u.%u.%u", &a, &b, &c, &d) != 4) return false;
-	if (a > 255 || b > 255 || c > 255 || d > 255) return false;
-	ipOut[0] = static_cast<uint8_t>(a);
-	ipOut[1] = static_cast<uint8_t>(b);
-	ipOut[2] = static_cast<uint8_t>(c);
-	ipOut[3] = static_cast<uint8_t>(d);
+	uint32_t ip;
+	if (!parseIPv4String(str, ip)) return false;
+	Endian::write_UA_B32(ipOut.data(), ip);
 	return true;
 }
 
@@ -1024,14 +1188,14 @@ void GenericUNAPI::cmdWarmReset(std::span<const uint8_t> /*data*/)
 	}
 	lastResponse.clear();
 	// Raw text response, exactly like the firmware's Serial.println("Ready")
-	static constexpr uint8_t msg[] = {'R', 'e', 'a', 'd', 'y', '\r', '\n'};
+	static constexpr auto msg = std::to_array<uint8_t>({'R', 'e', 'a', 'd', 'y', '\r', '\n'});
 	sendRawResponse(msg);
 }
 
 void GenericUNAPI::cmdQuery(std::span<const uint8_t> /*data*/)
 {
 	// Raw text response (no framing — the MSX expects "OK")
-	static constexpr uint8_t ok[] = {'O', 'K'};
+	static constexpr auto ok = std::to_array<uint8_t>({'O', 'K'});
 	sendRawResponse(ok);
 }
 
@@ -1039,7 +1203,7 @@ void GenericUNAPI::cmdGetVersion(std::span<const uint8_t> /*data*/)
 {
 	// Raw bytes, no framing: 'V' + major + minor as HEX values (not
 	// ASCII) — the firmware writes chVer[0]-'0' and chVer[2]-'0'
-	static constexpr uint8_t resp[] = {'V', 0x01, 0x00};
+	static constexpr auto resp = std::to_array<uint8_t>({'V', 0x01, 0x00});
 	sendRawResponse(resp);
 }
 
@@ -1051,11 +1215,8 @@ void GenericUNAPI::cmdRetry(std::span<const uint8_t> /*data*/)
 	}
 	{
 		std::scoped_lock lock(espToMsxMutex);
-		for (auto b : lastResponse) {
-			espToMsxFifo.push_back(b);
-		}
+		espToMsxFifo.push_back(lastResponse.begin(), lastResponse.end());
 	}
-	espToMsxCond.notify_one();
 }
 
 void GenericUNAPI::cmdScanAP(std::span<const uint8_t> /*data*/)
@@ -1078,14 +1239,14 @@ void GenericUNAPI::cmdConnectAP(std::span<const uint8_t> /*data*/)
 void GenericUNAPI::cmdGetAPStatus(std::span<const uint8_t> /*data*/)
 {
 	static constexpr uint8_t statusConnected = 5; // Connected and got IP
-	static constexpr const char* apName = "GenericUNAPI";
-	uint8_t apNameLen = static_cast<uint8_t>(strlen(apName));
+	static constexpr zstring_view apName = "GenericUNAPI";
+	auto apNameLen = narrow<uint8_t>(apName.size());
 	uint16_t respSize = 1 + apNameLen + 1; // status + name + null
 
 	std::vector<uint8_t> resp;
 	resp.reserve(respSize);
 	resp.push_back(statusConnected);
-	resp.insert(resp.end(), apName, apName + apNameLen);
+	resp.insert(resp.end(), apName.begin(), apName.end());
 	resp.push_back(0); // null terminator
 
 	sendResponse('g', 0, resp);
@@ -1120,16 +1281,16 @@ void GenericUNAPI::cmdGetSettings(std::span<const uint8_t> /*data*/)
 {
 	// Framed response, like the firmware's
 	// SendResponse(CUSTOM_F_QUERY_SETTINGS, OK, len, "OFF:30")
-	static constexpr uint8_t settings[] = {
+	static constexpr auto settings = std::to_array<uint8_t>({
 		'O', 'F', 'F', ':', '3', '0'
-	};
+	});
 	sendResponse('Q', 0, settings);
 }
 
 void GenericUNAPI::cmdGetAutoClock(std::span<const uint8_t> /*data*/)
 {
-	uint8_t resp[3] = {0, 0, 0}; // AutoClock=0 (off), GMT=0
-	sendResponse('c', 0, {resp, 3});
+	std::array<uint8_t, 3> resp = {0, 0, 0}; // AutoClock=0 (off), GMT=0
+	sendResponse('c', 0, resp);
 }
 
 void GenericUNAPI::cmdSetAutoClock(std::span<const uint8_t> data)
@@ -1188,14 +1349,14 @@ void GenericUNAPI::cmdGetCapab(std::span<const uint8_t> data)
 	switch (block) {
 	case 1: {
 		// Capability flags (2), feature flags (2), link level (1)
-		uint8_t resp[5] = {0x2C, 0x44, 0x96, 0x1C, 0x04};
-		sendResponse(1, 0, {resp, 5});
+		std::array<uint8_t, 5> resp = {0x2C, 0x44, 0x96, 0x1C, 0x04};
+		sendResponse(1, 0, resp);
 		break;
 	}
 	case 2: {
 		// Max TCP (1), max UDP (1), free TCP (1), free UDP (1),
 		// max raw TCP (1), max raw UDP (1)
-		uint8_t resp[6] = {4, 4, 0, 0, 0, 0};
+		std::array<uint8_t, 6> resp = {4, 4, 0, 0, 0, 0};
 		{
 			std::scoped_lock lock(connectionsMutex);
 			int used = 0;
@@ -1205,16 +1366,19 @@ void GenericUNAPI::cmdGetCapab(std::span<const uint8_t> data)
 			resp[2] = 4 - used; // free TCP
 			resp[3] = 4 - used; // free UDP
 		}
-		sendResponse(1, 0, {resp, 6});
+		sendResponse(1, 0, resp);
 		break;
 	}
 	case 3: {
-		// Max incoming datagram size (2 LSB MSB), max outgoing (2 LSB MSB)
-		uint8_t resp[4] = {
+		// Max incoming datagram size (2 LSB MSB), max outgoing (2 LSB MSB).
+		// Compile-time constants left as explicit byte literals: the
+		// endianness is visible in the initializer itself (no runtime
+		// serialization to factor into Endian::write_UA_L16()).
+		std::array<uint8_t, 4> resp = {
 			1500 & 0xFF, (1500 >> 8) & 0xFF,
 			2048 & 0xFF, (2048 >> 8) & 0xFF
 		};
-		sendResponse(1, 0, {resp, 4});
+		sendResponse(1, 0, resp);
 		break;
 	}
 	case 4: {
@@ -1222,11 +1386,11 @@ void GenericUNAPI::cmdGetCapab(std::span<const uint8_t> data)
 		// Bit 8 (use TLS in TCP active connections) is advertised only
 		// when a host OpenSSL runtime is available; bit 9 (TLS in passive
 		// connections) is never advertised.
-		uint8_t resp[5] = {0xF7, 0x00, 0, 0, 0};
-		if (OpenSSL::available()) {
+		std::array<uint8_t, 5> resp = {0xF7, 0x00, 0, 0, 0};
+		if (OpenSSL::load()) {
 			resp[1] |= 0x01; // bit 8: TLS in TCP active connections
 		}
-		sendResponse(1, 0, {resp, 5});
+		sendResponse(1, 0, resp);
 		break;
 	}
 	}
@@ -1239,57 +1403,28 @@ void GenericUNAPI::cmdGetIPInfo(std::span<const uint8_t> data)
 		return;
 	}
 	uint8_t idx = data[0];
-	uint8_t ipBytes[4] = {};
-	switch (idx) {
-	case 1: // Local IP
-	case 3: // Subnet mask
-	case 4: // Default gateway
-	case 5: // Primary DNS
-	case 6: // Secondary DNS
-	{
-		// A manually configured setting overrides the host value;
-		// otherwise fall back to the host's own network configuration
-		// (like the ESP32 reporting its WiFi IP).
-		const StringSetting* setting = nullptr;
-		switch (idx) {
-		case 1: setting = &localIpSetting; break;
-		case 3: setting = &subnetSetting; break;
-		case 4: setting = &gatewaySetting; break;
-		case 5: setting = &dnsPrimarySetting; break;
-		case 6: setting = &dnsSecondarySetting; break;
-		}
-		std::string ipStr = std::string(setting->getString());
-		bool useSetting = parseIP(ipStr, ipBytes);
-		if (useSetting && ipBytes[0] == 0 && ipBytes[1] == 0 &&
-		    ipBytes[2] == 0 && ipBytes[3] == 0) {
-			useSetting = false; // "0.0.0.0" means "use host value"
-		}
-		if (!useSetting) {
-			SockNetInfo net;
-			if (sock_get_net_info(net)) {
-				uint32_t ip = 0;
-				switch (idx) {
-				case 1: ip = net.ip; break;
-				case 3: ip = net.netmask; break;
-				case 4: ip = net.gateway; break;
-				case 5: ip = net.dns1; break;
-				case 6: ip = net.dns2; break;
-				}
-				ipBytes[0] = (ip >> 24) & 0xFF;
-				ipBytes[1] = (ip >> 16) & 0xFF;
-				ipBytes[2] = (ip >> 8) & 0xFF;
-				ipBytes[3] = ip & 0xFF;
+	std::array<uint8_t, 4> ipBytes{};
+	if (idx != 2) { // idx 2 = Peer IP, not applicable
+		// Report the host's real network configuration (like the ESP32
+		// reporting its WiFi IP); it is recomputed per query, so it tracks
+		// host interface changes.
+		uint32_t ip = 0;
+		if (auto net = getHostNetInfo()) {
+			switch (idx) {
+			case 1: ip = net->ip; break;
+			case 3: ip = net->netmask; break;
+			case 4: ip = net->gateway; break;
+			case 5: ip = net->dns1; break;
+			case 6: ip = net->dns2; break;
 			}
 		}
-		break;
+		// No usable host value: 0.0.0.0 for IP/netmask/gateway/DNS2.
+		// Primary DNS gets a mock (8.8.8.8): DNS lookups are performed on
+		// the host anyway, so the value is purely informational.
+		if (idx == 5 && ip == 0) ip = 0x08080808;
+		Endian::write_UA_B32(ipBytes.data(), ip);
 	}
-	case 2: // Peer IP — not applicable
-		break;
-	default:
-		sendResponse(2, 4); // ERR_INV_PARAM
-		return;
-	}
-	sendResponse(2, 0, {ipBytes, 4});
+	sendResponse(2, 0, ipBytes);
 }
 
 void GenericUNAPI::cmdNetState(std::span<const uint8_t> data)
@@ -1333,15 +1468,11 @@ void GenericUNAPI::cmdDnsQ(std::span<const uint8_t> data)
 
 	auto* addr = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
 	uint32_t ip = ntohl(addr->sin_addr.s_addr);
-	uint8_t ipBytes[4] = {
-		static_cast<uint8_t>((ip >> 24) & 0xFF),
-		static_cast<uint8_t>((ip >> 16) & 0xFF),
-		static_cast<uint8_t>((ip >> 8) & 0xFF),
-		static_cast<uint8_t>(ip & 0xFF)
-	};
+	std::array<uint8_t, 4> ipBytes;
+	Endian::write_UA_B32(ipBytes.data(), ip);
 	freeaddrinfo(res);
 
-	sendResponse(6, 0, {ipBytes, 4});
+	sendResponse(6, 0, ipBytes);
 }
 
 void GenericUNAPI::cmdDnsQNew(std::span<const uint8_t> data)
@@ -1361,9 +1492,9 @@ void GenericUNAPI::cmdDnsQNew(std::span<const uint8_t> data)
 	}
 
 	// If the string is a valid IP address, use it directly
-	uint8_t ipBytes[4];
+	std::array<uint8_t, 4> ipBytes;
 	if (parseIP(hostname, ipBytes)) {
-		sendResponse(206, 0, {ipBytes, 4});
+		sendResponse(206, 0, ipBytes);
 		return;
 	}
 	if (flags & 2) {
@@ -1386,15 +1517,11 @@ void GenericUNAPI::cmdDnsQNew(std::span<const uint8_t> data)
 
 	auto* addr = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
 	uint32_t ipN = ntohl(addr->sin_addr.s_addr);
-	uint8_t ipB[4] = {
-		static_cast<uint8_t>((ipN >> 24) & 0xFF),
-		static_cast<uint8_t>((ipN >> 16) & 0xFF),
-		static_cast<uint8_t>((ipN >> 8) & 0xFF),
-		static_cast<uint8_t>(ipN & 0xFF)
-	};
+	std::array<uint8_t, 4> ipB;
+	Endian::write_UA_B32(ipB.data(), ipN);
 	freeaddrinfo(res);
 
-	sendResponse(206, 0, {ipB, 4});
+	sendResponse(206, 0, ipB);
 }
 
 void GenericUNAPI::cmdUdpOpen(std::span<const uint8_t> data)
@@ -1428,7 +1555,7 @@ void GenericUNAPI::cmdUdpOpen(std::span<const uint8_t> data)
 			return false;
 		};
 		do {
-			localPort = static_cast<uint16_t>(16384 + (std::rand() % 16384));
+			localPort = randomEphemeralPort();
 		} while (udpPortInUse(localPort));
 	}
 
@@ -1440,11 +1567,7 @@ void GenericUNAPI::cmdUdpOpen(std::span<const uint8_t> data)
 
 	// Bind to local port
 	{
-		struct sockaddr_in bindAddr;
-		memset(&bindAddr, 0, sizeof(bindAddr));
-		bindAddr.sin_family = AF_INET;
-		bindAddr.sin_port = htons(localPort);
-		bindAddr.sin_addr.s_addr = INADDR_ANY;
+		sockaddr_in bindAddr = sock_makeIPv4(0, localPort);
 		if (bind(s, reinterpret_cast<struct sockaddr*>(&bindAddr),
 		         sizeof(bindAddr)) < 0) {
 			sock_close(s);
@@ -1454,7 +1577,7 @@ void GenericUNAPI::cmdUdpOpen(std::span<const uint8_t> data)
 	}
 
 	// Make socket non-blocking
-	setNonBlocking(s);
+	sock_setNonBlocking(s);
 
 	std::scoped_lock lock(connectionsMutex);
 	auto* conn = allocateConnection();
@@ -1533,14 +1656,17 @@ void GenericUNAPI::cmdUdpState(std::span<const uint8_t> data)
 	// Count pending datagrams is tricky with raw sockets — just return 0
 	uint8_t pendingDgrams = 0;
 	uint16_t oldestSize = 0;
-	uint8_t resp[5] = {
+	// Built as a byte literal rather than Endian::write_UA_L16() calls:
+	// three fields of mixed width in one initializer, where the explicit
+	// byte order is self-documenting.
+	std::array<uint8_t, 5> resp = {
 		static_cast<uint8_t>(port & 0xFF),
 		static_cast<uint8_t>((port >> 8) & 0xFF),
 		pendingDgrams,
 		static_cast<uint8_t>(oldestSize & 0xFF),
 		static_cast<uint8_t>((oldestSize >> 8) & 0xFF)
 	};
-	sendResponse(10, 0, {resp, 5});
+	sendResponse(10, 0, resp);
 }
 
 void GenericUNAPI::cmdUdpSend(std::span<const uint8_t> data)
@@ -1572,19 +1698,14 @@ void GenericUNAPI::cmdUdpSend(std::span<const uint8_t> data)
 		return;
 	}
 
-	struct sockaddr_in to;
-	memset(&to, 0, sizeof(to));
-	to.sin_family = AF_INET;
-	to.sin_port = htons(destPort);
-	to.sin_addr.s_addr = htonl(destIP);
+	sockaddr_in dest = sock_makeIPv4(destIP, destPort);
 
 	auto payload = data.subspan(7);
-	auto n = sock_sendto(conn->sock,
-	                     reinterpret_cast<const char*>(payload.data()),
-	                     payload.size(),
-	                     reinterpret_cast<struct sockaddr*>(&to),
-	                     sizeof(to));
-	if (n < 0 || static_cast<size_t>(n) != payload.size()) {
+	int n = sendto(conn->sock,
+	               reinterpret_cast<const char*>(payload.data()),
+	               static_cast<int>(payload.size()), 0,
+	               reinterpret_cast<struct sockaddr*>(&dest), sizeof(dest));
+	if (n != static_cast<int>(payload.size())) {
 		sendResponse(11, 2); // ERR_NO_NETWORK
 		return;
 	}
@@ -1615,12 +1736,20 @@ void GenericUNAPI::cmdUdpRcv(std::span<const uint8_t> data)
 	// Non-blocking receive
 	std::vector<char> buf(maxSize > 0 ? maxSize : 2048);
 	struct sockaddr_in from;
-	socklen_t fromLen = sizeof(from);
-	auto n = sock_recvfrom(conn->sock, buf.data(), buf.size(),
-	                       reinterpret_cast<struct sockaddr*>(&from),
-	                       &fromLen);
-	if (n <= 0) {
-		sendResponse(12, 3); // ERR_NO_DATA
+	::socklen_t fromLen = sizeof(from);
+	int n = recvfrom(conn->sock, buf.data(), static_cast<int>(buf.size()), 0,
+	                 reinterpret_cast<struct sockaddr*>(&from), &fromLen);
+#ifdef _WIN32
+	// Winsock reports a datagram larger than the buffer as an error
+	// (WSAEMSGSIZE) after filling the buffer and consuming the datagram:
+	// that is a truncate-at-receive, not a failure. (POSIX recvfrom just
+	// fills the buffer.)
+	if (n < 0 && WSAGetLastError() == WSAEMSGSIZE) {
+		n = static_cast<int>(buf.size());
+	}
+#endif
+	if (n < 0) {
+		sendResponse(12, 3); // ERR_NO_DATA (includes 'would block')
 		return;
 	}
 
@@ -1628,14 +1757,12 @@ void GenericUNAPI::cmdUdpRcv(std::span<const uint8_t> data)
 	uint16_t srcPort = ntohs(from.sin_port);
 
 	// Response: remote IP (4) + remote port (2 LSB MSB) + data
+	std::array<uint8_t, 6> hdr;
+	Endian::write_UA_B32(hdr.data(), srcIP);
+	Endian::write_UA_L16(hdr.data() + 4, srcPort);
 	std::vector<uint8_t> resp;
 	resp.reserve(6 + n);
-	resp.push_back((srcIP >> 24) & 0xFF);
-	resp.push_back((srcIP >> 16) & 0xFF);
-	resp.push_back((srcIP >> 8) & 0xFF);
-	resp.push_back(srcIP & 0xFF);
-	resp.push_back(srcPort & 0xFF);
-	resp.push_back((srcPort >> 8) & 0xFF);
+	resp.insert(resp.end(), hdr.begin(), hdr.end());
 	resp.insert(resp.end(), buf.begin(), buf.begin() + n);
 
 	sendResponse(12, 0, resp);
@@ -1707,7 +1834,7 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 			sendResponse(13, 4); // ERR_INV_PARAM
 			return;
 		}
-		if (useTls && !OpenSSL::available()) {
+		if (useTls && !OpenSSL::load()) {
 			sendResponse(13, 1); // ERR_NOT_IMP
 			return;
 		}
@@ -1729,7 +1856,7 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 			return false;
 		};
 		do {
-			localPort = static_cast<uint16_t>(16384 + (std::rand() % 16384));
+			localPort = randomEphemeralPort();
 		} while (tcpPortInUse(localPort));
 	}
 
@@ -1752,14 +1879,8 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 				sendResponse(13, 2); // ERR_NO_NETWORK
 				return;
 			}
-			int one = 1;
-			setsockopt(ls, SOL_SOCKET, SO_REUSEADDR,
-			           std::bit_cast<char*>(&one), sizeof(one));
-			struct sockaddr_in bindAddr;
-			memset(&bindAddr, 0, sizeof(bindAddr));
-			bindAddr.sin_family = AF_INET;
-			bindAddr.sin_port = htons(localPort);
-			bindAddr.sin_addr.s_addr = INADDR_ANY;
+			sock_setIntOption(ls, SOL_SOCKET, SO_REUSEADDR);
+			sockaddr_in bindAddr = sock_makeIPv4(0, localPort);
 			if (bind(ls, reinterpret_cast<struct sockaddr*>(&bindAddr),
 			         sizeof(bindAddr)) < 0) {
 				sock_close(ls);
@@ -1771,7 +1892,7 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 				sendResponse(13, 10); // ERR_CONN_EXISTS
 				return;
 			}
-			setNonBlocking(ls);
+			sock_setNonBlocking(ls);
 			auto up = std::make_unique<ListenSocket>();
 			up->sock = ls;
 			up->port = localPort;
@@ -1848,19 +1969,17 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	}
 
 	// TCP_NODELAY
-	int one = 1;
-	setsockopt(s, IPPROTO_TCP, TCP_NODELAY,
-	           std::bit_cast<char*>(&one), sizeof(one));
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
-	           std::bit_cast<char*>(&one), sizeof(one));
+	sock_setIntOption(s, IPPROTO_TCP, TCP_NODELAY);
+	// macOS/BSD only: suppress SIGPIPE when sending to a peer that reset
+	// the connection (Linux uses MSG_NOSIGNAL instead).
+#ifdef SO_NOSIGPIPE
+	sock_setIntOption(s, SOL_SOCKET, SO_NOSIGPIPE);
+#endif
+	sock_setIntOption(s, SOL_SOCKET, SO_REUSEADDR);
 
 	// Bind local port (may fail if e.g. an OS-level socket owns it)
 	{
-		struct sockaddr_in bindAddr;
-		memset(&bindAddr, 0, sizeof(bindAddr));
-		bindAddr.sin_family = AF_INET;
-		bindAddr.sin_port = htons(localPort);
-		bindAddr.sin_addr.s_addr = INADDR_ANY;
+		sockaddr_in bindAddr = sock_makeIPv4(0, localPort);
 		if (bind(s, reinterpret_cast<struct sockaddr*>(&bindAddr),
 		         sizeof(bindAddr)) < 0) {
 			sock_close(s);
@@ -1870,11 +1989,7 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	}
 
 	// Connect
-	struct sockaddr_in dest;
-	memset(&dest, 0, sizeof(dest));
-	dest.sin_family = AF_INET;
-	dest.sin_port = htons(remotePort);
-	dest.sin_addr.s_addr = htonl(remoteIP);
+	sockaddr_in dest = sock_makeIPv4(remoteIP, remotePort);
 
 	if (connect(s, reinterpret_cast<struct sockaddr*>(&dest),
 	            sizeof(dest)) < 0) {
@@ -1886,17 +2001,16 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	}
 
 	// Make socket non-blocking (reader thread polls for data)
-	setNonBlocking(s);
+	sock_setNonBlocking(s);
 
 	// TLS: create the OpenSSL session on the connected socket; the
 	// handshake itself runs in the reader thread (the connection reports
 	// SYN-SENT until it is finished, spec 4.5.5). The host name is used
 	// for SNI and, when verifying, for the certificate host name check.
-	void* ssl = nullptr;
+	std::optional<OpenSSL::SessionHandle> ssl;
 	if (useTls) {
-		ssl = OpenSSL::createClientSession(
-			verifyCert, hostname.empty() ? nullptr : hostname.c_str(),
-			static_cast<int>(s));
+		ssl = OpenSSL::load()->createClientSession(
+			verifyCert, hostname, static_cast<int>(s));
 		if (!ssl) {
 			sock_close(s);
 			uint8_t reasonByte = 19; // TLS: other error
@@ -1910,7 +2024,6 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	// A free slot was checked before connecting; since all commands run
 	// on the same ESP thread, the slot is still free.
 	if (!conn) {
-		if (ssl) OpenSSL::close(ssl);
 		sock_close(s);
 		sendResponse(13, 9); // ERR_NO_FREE_CONN
 		return;
@@ -1928,14 +2041,14 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	conn->remotePort = remotePort;
 	conn->localPort = localPort;
 	conn->flags = flags;
-	conn->ssl = ssl;
+	conn->ssl = std::move(ssl);
 	conn->tlsVerify = verifyCert;
-	conn->handshakePhase = ssl ? 1 : 0; // 1 = TLS handshake in progress
+	conn->handshakePhase = conn->ssl ? 1 : 0; // 1 = TLS handshake in progress
 	// Without TLS the TCP connect() already finished, so the connection is
 	// ESTABLISHED right away. With TLS it reports SYN-SENT (state=1) until
 	// the handshake and certificate validation have completed (spec 4.5.5:
 	// TCP_STATE must not report ESTABLISHED before the handshake is done).
-	conn->state = ssl ? 1 : 2;
+	conn->state = conn->ssl ? 1 : 2;
 
 	// Start reader thread
 	conn->readerActive = true;
@@ -2035,7 +2148,7 @@ void GenericUNAPI::cmdTcpState(std::span<const uint8_t> data)
 	// Connection failed (e.g. TLS handshake or certificate error): report
 	// ERR_NO_CONN with the close reason stored when it failed (spec 4.5.4)
 	if (conn->state == 4) {
-		uint8_t reason = closeReason[num - 1].load(std::memory_order_relaxed);
+		uint8_t reason = closeReason[num - 1].load();
 		sendResponse(16, 11, {&reason, 1}); // ERR_NO_CONN
 		return;
 	}
@@ -2044,17 +2157,20 @@ void GenericUNAPI::cmdTcpState(std::span<const uint8_t> data)
 	// the local port is meaningful (like the firmware's TcpState)
 	if (conn->listenSock != OPENMSX_INVALID_SOCKET &&
 	    conn->clientSock == OPENMSX_INVALID_SOCKET) {
-		uint8_t resp[16] = {};
+		std::array<uint8_t, 16> resp{};
 		resp[1] = 1; // LISTEN
-		resp[14] = conn->localPort & 0xFF;
-		resp[15] = (conn->localPort >> 8) & 0xFF;
-		sendResponse(16, 0, {resp, 16});
+		Endian::write_UA_L16(resp.data() + 14, conn->localPort);
+		sendResponse(16, 0, resp);
 		return;
 	}
-
 	uint16_t avail = 0;
 	{
 		std::scoped_lock rlock(conn->recvMutex);
+		// Deliberately not narrow<>(): recvBuffer is unbounded (the reader
+		// thread keeps appending until the MSX drains it), so with a slow
+		// or stopped MSX it can exceed 16-bit range; the field is 16-bit on
+		// the wire, so it wraps like the firmware's bounded-buffer avail
+		// would. Capping recvBuffer would make narrow<>() safe here.
 		avail = static_cast<uint16_t>(conn->recvBuffer.size());
 	}
 
@@ -2062,7 +2178,7 @@ void GenericUNAPI::cmdTcpState(std::span<const uint8_t> data)
 	// TLS flag (1) + lwIP state (1) + available (2 LSB MSB)
 	// + urgent (2) + send space (2 LSB MSB, capped at 2048)
 	// + remote IP (4) + remote port (2 LSB MSB) + local port (2 LSB MSB)
-	uint8_t resp[16] = {};
+	std::array<uint8_t, 16> resp{};
 	resp[0] = conn->ssl ? 1 : 0;  // TLS flag (spec 4.5.5, bit 0)
 	// Report the live connection state as the firmware does (raw lwIP
 	// TCP state): the reader thread sets state=3 when the remote side
@@ -2076,23 +2192,16 @@ void GenericUNAPI::cmdTcpState(std::span<const uint8_t> data)
 		tcpState = (avail > 0) ? 4 : 7; // CLOSE_WAIT (7), ESTABLISHED (4) if data pending
 	}
 	resp[1] = tcpState;
-	resp[2] = avail & 0xFF;
-	resp[3] = (avail >> 8) & 0xFF;
+	Endian::write_UA_L16(resp.data() + 2, avail);
 	resp[4] = 0;                       // no urgent data
 	resp[5] = 0;
 	uint16_t sendSpace = 2048;         // arbitrary, capped like the firmware
-	resp[6] = sendSpace & 0xFF;
-	resp[7] = (sendSpace >> 8) & 0xFF;
-	resp[8]  = (conn->remoteIP >> 24) & 0xFF;
-	resp[9]  = (conn->remoteIP >> 16) & 0xFF;
-	resp[10] = (conn->remoteIP >> 8) & 0xFF;
-	resp[11] = conn->remoteIP & 0xFF;
-	resp[12] = conn->remotePort & 0xFF;
-	resp[13] = (conn->remotePort >> 8) & 0xFF;
-	resp[14] = conn->localPort & 0xFF;
-	resp[15] = (conn->localPort >> 8) & 0xFF;
+	Endian::write_UA_L16(resp.data() + 6, sendSpace);
+	Endian::write_UA_B32(resp.data() + 8, conn->remoteIP);
+	Endian::write_UA_L16(resp.data() + 12, conn->remotePort);
+	Endian::write_UA_L16(resp.data() + 14, conn->localPort);
 
-	sendResponse(16, 0, {resp, 16});
+	sendResponse(16, 0, resp);
 }
 
 void GenericUNAPI::cmdTcpSend(std::span<const uint8_t> data)
@@ -2138,20 +2247,30 @@ void GenericUNAPI::cmdTcpSend(std::span<const uint8_t> data)
 		// TLS: sending is only possible once the handshake has finished;
 		// before that the connection is still in SYN-SENT (spec 4.5.2:
 		// data can only be sent on ESTABLISHED/CLOSE_WAIT connections)
-		if (conn->handshakePhase.load(std::memory_order_relaxed) != 2) {
+		if (conn->handshakePhase.load() != 2) {
 			sendResponse(17, 12); // ERR_CONN_STATE
 			return;
 		}
-		int want = 0;
-		n = OpenSSL::write(conn->ssl,
-		                   reinterpret_cast<const char*>(payload.data()),
-		                   payload.size(), want);
-		if (n == 0) {
-			// Peer sent close_notify: the connection is closed
-			conn->state = 3; // remote closed -> CLOSE_WAIT
-			sendResponse(17, 12); // ERR_CONN_STATE
+		auto r = conn->ssl->write(
+			std::span<const char>(reinterpret_cast<const char*>(payload.data()),
+			                      payload.size()));
+		if (!r) {
+			if (r.error() == OpenSSL::IoError::Closed) {
+				// Peer sent close_notify: the connection is closed
+				conn->state = 3; // remote closed -> CLOSE_WAIT
+				sendResponse(17, 12); // ERR_CONN_STATE
+				return;
+			}
+			// WouldBlock (send buffer full): report the retryable
+			// ERR_BUFFER, like the plain-socket path does. A real TLS
+			// error (Failed) keeps ERR_CONN_STATE. Note: SSL_write may
+			// have partially written a record before blocking, so a
+			// driver retrying the same payload can in rare cases
+			// deliver it twice.
+			sendResponse(17, (r.error() == OpenSSL::IoError::WouldBlock) ? 13 : 12);
 			return;
 		}
+		n = *r;
 	} else {
 		n = sock_send(sendSock,
 		              reinterpret_cast<const char*>(payload.data()),

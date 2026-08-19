@@ -1,36 +1,34 @@
 #include "SerialPort.hh"
 
+#include "ReadDir.hh"
 #include "utf8_checked.hh"
 
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
+#include <array>
 #ifndef _WIN32
-#include <dirent.h>
+#include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <termios.h>
+#include <unistd.h>
 #ifdef __APPLE__
 #include <IOKit/serial/ioss.h>
 #endif
 #endif
 
-namespace openmsx {
+namespace openmsx::serial {
 
-std::string serial_error()
+// Captures the platform error state at the moment of failure.
+static ErrorCode currentError()
 {
 #ifdef _WIN32
-	wchar_t* s = nullptr;
-	FormatMessageW(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS,
-		nullptr, GetLastError(), 0, reinterpret_cast<LPWSTR>(&s),
-		0, nullptr);
-	std::string result = utf8::utf16to8(s);
-	LocalFree(s);
-	return result;
+	return ErrorCode{GetLastError()};
 #else
-	return strerror(errno);
+	return ErrorCode{errno};
 #endif
 }
 
@@ -71,30 +69,32 @@ static DCB serialParamsToDCB(const SerialParams& params)
 	return dcb;
 }
 
-bool serial_open(serial_handle_t& handle, std::string_view portName, const SerialParams& params)
+std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialParams& params)
 {
 	std::string fullName = "\\\\.\\";
 	fullName += portName;
-	handle = CreateFileA(
+	HANDLE h = CreateFileA(
 		fullName.c_str(),
 		GENERIC_READ | GENERIC_WRITE,
 		0, nullptr,
 		OPEN_EXISTING,
 		FILE_FLAG_OVERLAPPED,
 		nullptr);
-	if (handle == INVALID_HANDLE_VALUE) {
-		return false;
+	if (h == INVALID_HANDLE_VALUE) {
+		return std::unexpected(currentError());
 	}
 
-	if (!SetupComm(handle, 4096, 4096)) {
-		serial_close(handle);
-		return false;
+	if (!SetupComm(h, 4096, 4096)) {
+		auto ec = currentError();
+		CloseHandle(h);
+		return std::unexpected(ec);
 	}
 
 	DCB dcb = serialParamsToDCB(params);
-	if (!SetCommState(handle, &dcb)) {
-		serial_close(handle);
-		return false;
+	if (!SetCommState(h, &dcb)) {
+		auto ec = currentError();
+		CloseHandle(h);
+		return std::unexpected(ec);
 	}
 
 	COMMTIMEOUTS timeouts = {};
@@ -103,15 +103,40 @@ bool serial_open(serial_handle_t& handle, std::string_view portName, const Seria
 	timeouts.ReadTotalTimeoutConstant = 0;
 	timeouts.WriteTotalTimeoutMultiplier = 0;
 	timeouts.WriteTotalTimeoutConstant = 0;
-	if (!SetCommTimeouts(handle, &timeouts)) {
-		serial_close(handle);
-		return false;
+	if (!SetCommTimeouts(h, &timeouts)) {
+		auto ec = currentError();
+		CloseHandle(h);
+		return std::unexpected(ec);
 	}
 
-	return true;
+	return Handle(h);
 }
 
-void serial_close(serial_handle_t& handle)
+Handle::Handle(serial_handle_t handle_)
+	: handle(handle_)
+{
+}
+
+Handle::Handle(Handle&& other) noexcept
+	: handle(std::exchange(other.handle, INVALID_HANDLE_VALUE))
+{
+}
+
+Handle& Handle::operator=(Handle&& other) noexcept
+{
+	if (this != &other) {
+		release();
+		handle = std::exchange(other.handle, INVALID_HANDLE_VALUE);
+	}
+	return *this;
+}
+
+Handle::~Handle()
+{
+	release();
+}
+
+void Handle::release() noexcept
 {
 	if (handle != INVALID_HANDLE_VALUE) {
 		CloseHandle(handle);
@@ -119,55 +144,72 @@ void serial_close(serial_handle_t& handle)
 	}
 }
 
-ptrdiff_t serial_read(serial_handle_t handle, char* buf, size_t count)
+IoResult Handle::read(std::span<char> buf) const
 {
 	DWORD bytesRead = 0;
 	OVERLAPPED ov = {};
 	ov.hEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-	if (!ov.hEvent) return -1;
+	if (!ov.hEvent) return std::unexpected(currentError());
 
-	if (!ReadFile(handle, buf, static_cast<DWORD>(count), &bytesRead, &ov)) {
+	if (!ReadFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &bytesRead, &ov)) {
 		if (GetLastError() == ERROR_IO_PENDING) {
 			if (WaitForSingleObject(ov.hEvent, INFINITE) == WAIT_OBJECT_0) {
 				if (!GetOverlappedResult(handle, &ov, &bytesRead, FALSE)) {
-					bytesRead = 0;
+					auto ec = currentError();
+					CloseHandle(ov.hEvent);
+					return std::unexpected(ec);
 				}
+			} else {
+				auto ec = currentError();
+				CloseHandle(ov.hEvent);
+				return std::unexpected(ec);
 			}
 		} else {
-			bytesRead = 0;
+			auto ec = currentError();
+			CloseHandle(ov.hEvent);
+			return std::unexpected(ec);
 		}
 	}
 	CloseHandle(ov.hEvent);
-	return bytesRead > 0 ? static_cast<ptrdiff_t>(bytesRead) : (bytesRead == 0 ? 0 : -1);
+	return IoResult(bytesRead);
 }
 
-ptrdiff_t serial_write(serial_handle_t handle, const char* buf, size_t count)
+IoResult Handle::write(std::span<const char> buf) const
 {
 	DWORD bytesWritten = 0;
 	OVERLAPPED ov = {};
 	ov.hEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-	if (!ov.hEvent) return -1;
+	if (!ov.hEvent) return std::unexpected(currentError());
 
-	if (!WriteFile(handle, buf, static_cast<DWORD>(count), &bytesWritten, &ov)) {
+	if (!WriteFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &bytesWritten, &ov)) {
 		if (GetLastError() == ERROR_IO_PENDING) {
 			if (WaitForSingleObject(ov.hEvent, INFINITE) == WAIT_OBJECT_0) {
 				if (!GetOverlappedResult(handle, &ov, &bytesWritten, FALSE)) {
-					bytesWritten = 0;
+					auto ec = currentError();
+					CloseHandle(ov.hEvent);
+					return std::unexpected(ec);
 				}
+			} else {
+				auto ec = currentError();
+				CloseHandle(ov.hEvent);
+				return std::unexpected(ec);
 			}
 		} else {
-			bytesWritten = 0;
+			auto ec = currentError();
+			CloseHandle(ov.hEvent);
+			return std::unexpected(ec);
 		}
 	}
 	CloseHandle(ov.hEvent);
-	return bytesWritten > 0 ? static_cast<ptrdiff_t>(bytesWritten) : -1;
+	if (bytesWritten > 0) return IoResult(bytesWritten);
+	return std::unexpected(ErrorCode{});
 }
 
-bool serial_set_params(serial_handle_t handle, const SerialParams& params)
+std::expected<void, ErrorCode> Handle::set_params(const SerialParams& params) const
 {
 	DCB dcb = {};
 	dcb.DCBlength = sizeof(dcb);
-	if (!GetCommState(handle, &dcb)) return false;
+	if (!GetCommState(handle, &dcb)) return std::unexpected(currentError());
 
 	dcb.BaudRate = params.baudRate;
 	dcb.fParity = params.parity != 0 ? TRUE : FALSE;
@@ -185,31 +227,41 @@ bool serial_set_params(serial_handle_t handle, const SerialParams& params)
 	case 4:  dcb.Parity = SPACEPARITY; break;
 	}
 
-	return SetCommState(handle, &dcb) != 0;
+	if (!SetCommState(handle, &dcb)) return std::unexpected(currentError());
+	return {};
 }
 
-bool serial_set_dtr(serial_handle_t handle, bool on)
+std::expected<void, ErrorCode> Handle::set_dtr(bool on) const
 {
-	return EscapeCommFunction(handle, on ? SETDTR : CLRDTR) != 0;
+	if (!EscapeCommFunction(handle, on ? SETDTR : CLRDTR)) {
+		return std::unexpected(currentError());
+	}
+	return {};
 }
 
-bool serial_set_rts(serial_handle_t handle, bool on)
+std::expected<void, ErrorCode> Handle::set_rts(bool on) const
 {
-	return EscapeCommFunction(handle, on ? SETRTS : CLRRTS) != 0;
+	if (!EscapeCommFunction(handle, on ? SETRTS : CLRRTS)) {
+		return std::unexpected(currentError());
+	}
+	return {};
 }
 
-bool serial_get_modem_status(serial_handle_t handle, bool& cts, bool& dsr, bool& dcd, bool& ri)
+std::expected<Handle::ModemStatus, ErrorCode> Handle::get_modem_status() const
 {
 	DWORD status;
-	if (!GetCommModemStatus(handle, &status)) return false;
-	cts = (status & MS_CTS_ON) != 0;
-	dsr = (status & MS_DSR_ON) != 0;
-	dcd = (status & MS_RLSD_ON) != 0;
-	ri  = (status & MS_RING_ON) != 0;
-	return true;
+	if (!GetCommModemStatus(handle, &status)) {
+		return std::unexpected(currentError());
+	}
+	return ModemStatus{
+		.cts = (status & MS_CTS_ON) != 0,
+		.dsr = (status & MS_DSR_ON) != 0,
+		.dcd = (status & MS_RLSD_ON) != 0,
+		.ri  = (status & MS_RING_ON) != 0,
+	};
 }
 
-std::vector<std::string> serial_list_ports()
+std::vector<std::string> list_ports()
 {
 	std::vector<std::string> ports;
 	for (int i = 1; i <= 256; ++i) {
@@ -267,18 +319,19 @@ static constexpr int BAUDRATE_MAP[][2] = {
 
 static speed_t baudToSpeedExact(unsigned baud)
 {
-	for (auto [rate, speed] : BAUDRATE_MAP) {
+	for (auto& [rate, speed] : BAUDRATE_MAP) {
 		if (rate == static_cast<int>(baud)) return static_cast<speed_t>(speed);
 	}
 	return B0;
 }
 
+#ifndef __linux__
 static unsigned baudToNearest(unsigned baud)
 {
 	unsigned bestRate = 0;
 	unsigned bestDiff = 0;
 	bool first = true;
-	for (auto [rate, speed] : BAUDRATE_MAP) {
+	for (auto& [rate, speed] : BAUDRATE_MAP) {
 		unsigned diff = abs(rate - static_cast<int>(baud));
 		if (first || diff < bestDiff) {
 			bestRate = static_cast<unsigned>(rate);
@@ -289,6 +342,7 @@ static unsigned baudToNearest(unsigned baud)
 	}
 	return first ? 115200 : bestRate;
 }
+#endif
 
 static void set_termios_baud(struct termios& tio, unsigned baud)
 {
@@ -316,7 +370,7 @@ static void set_termios_baud(struct termios& tio, unsigned baud)
 	}
 }
 
-static bool apply_custom_baud_post(int fd, unsigned baud)
+static bool apply_custom_baud_post([[maybe_unused]] int fd, unsigned baud)
 {
 	if (baudToSpeedExact(baud) != B0) return true;
 #ifdef __APPLE__
@@ -327,16 +381,17 @@ static bool apply_custom_baud_post(int fd, unsigned baud)
 #endif
 }
 
-bool serial_open(serial_handle_t& handle, std::string_view portName, const SerialParams& params)
+std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialParams& params)
 {
 	auto name = std::string(portName);
-	handle = open(name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (handle < 0) return false;
+	int fd = ::open(name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (fd < 0) return std::unexpected(currentError());
 
 	struct termios tio = {};
-	if (tcgetattr(handle, &tio) < 0) {
-		serial_close(handle);
-		return false;
+	if (tcgetattr(fd, &tio) < 0) {
+		auto ec = currentError();
+		::close(fd);
+		return std::unexpected(ec);
 	}
 
 	// Input modes
@@ -370,27 +425,53 @@ bool serial_open(serial_handle_t& handle, std::string_view portName, const Seria
 	tio.c_cc[VTIME] = 1; // 100ms timeout
 
 	set_termios_baud(tio, params.baudRate);
-	if (tcsetattr(handle, TCSANOW, &tio) < 0) {
-		serial_close(handle);
-		return false;
+	if (tcsetattr(fd, TCSANOW, &tio) < 0) {
+		auto ec = currentError();
+		::close(fd);
+		return std::unexpected(ec);
 	}
-	if (!apply_custom_baud_post(handle, params.baudRate)) {
-		serial_close(handle);
-		return false;
+	if (!apply_custom_baud_post(fd, params.baudRate)) {
+		auto ec = currentError();
+		::close(fd);
+		return std::unexpected(ec);
 	}
 
 	// Clear non-blocking for regular I/O
-	int flags = fcntl(handle, F_GETFL, 0);
+	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags >= 0) {
-		fcntl(handle, F_SETFL, flags & ~O_NONBLOCK);
+		fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
 	}
 
-	tcflush(handle, TCIOFLUSH);
+	tcflush(fd, TCIOFLUSH);
 
-	return true;
+	return Handle(fd);
 }
 
-void serial_close(serial_handle_t& handle)
+Handle::Handle(serial_handle_t handle_)
+	: handle(handle_)
+{
+}
+
+Handle::Handle(Handle&& other) noexcept
+	: handle(std::exchange(other.handle, -1))
+{
+}
+
+Handle& Handle::operator=(Handle&& other) noexcept
+{
+	if (this != &other) {
+		release();
+		handle = std::exchange(other.handle, -1);
+	}
+	return *this;
+}
+
+Handle::~Handle()
+{
+	release();
+}
+
+void Handle::release() noexcept
 {
 	if (handle >= 0) {
 		::close(handle);
@@ -398,25 +479,25 @@ void serial_close(serial_handle_t& handle)
 	}
 }
 
-ptrdiff_t serial_read(serial_handle_t handle, char* buf, size_t count)
+IoResult Handle::read(std::span<char> buf) const
 {
-	auto n = ::read(handle, buf, count);
-	if (n > 0) return n;
-	if (n == 0) return 0;
-	return -1;
+	auto n = ::read(handle, buf.data(), buf.size());
+	if (n > 0) return IoResult(n);
+	if (n == 0) return IoResult(0);
+	return std::unexpected(currentError());
 }
 
-ptrdiff_t serial_write(serial_handle_t handle, const char* buf, size_t count)
+IoResult Handle::write(std::span<const char> buf) const
 {
-	auto n = ::write(handle, buf, count);
-	if (n > 0) return n;
-	return -1;
+	auto n = ::write(handle, buf.data(), buf.size());
+	if (n > 0) return IoResult(n);
+	return std::unexpected(currentError());
 }
 
-bool serial_set_params(serial_handle_t handle, const SerialParams& params)
+std::expected<void, ErrorCode> Handle::set_params(const SerialParams& params) const
 {
 	struct termios tio = {};
-	if (tcgetattr(handle, &tio) < 0) return false;
+	if (tcgetattr(handle, &tio) < 0) return std::unexpected(currentError());
 
 	tio.c_cflag &= ~CSIZE;
 	switch (params.dataBits) {
@@ -438,64 +519,86 @@ bool serial_set_params(serial_handle_t handle, const SerialParams& params)
 	}
 
 	set_termios_baud(tio, params.baudRate);
-	if (tcsetattr(handle, TCSANOW, &tio) < 0) return false;
-	return apply_custom_baud_post(handle, params.baudRate);
+	if (tcsetattr(handle, TCSANOW, &tio) < 0) return std::unexpected(currentError());
+	if (!apply_custom_baud_post(handle, params.baudRate)) {
+		return std::unexpected(currentError());
+	}
+	return {};
 }
 
-bool serial_set_dtr(serial_handle_t handle, bool on)
+std::expected<void, ErrorCode> Handle::set_dtr(bool on) const
 {
 	int status = TIOCM_DTR;
-	if (on) {
-		return ioctl(handle, TIOCMBIS, &status) >= 0;
-	} else {
-		return ioctl(handle, TIOCMBIC, &status) >= 0;
+	if (ioctl(handle, on ? TIOCMBIS : TIOCMBIC, &status) < 0) {
+		return std::unexpected(currentError());
 	}
+	return {};
 }
 
-bool serial_set_rts(serial_handle_t handle, bool on)
+std::expected<void, ErrorCode> Handle::set_rts(bool on) const
 {
 	int status = TIOCM_RTS;
-	if (on) {
-		return ioctl(handle, TIOCMBIS, &status) >= 0;
-	} else {
-		return ioctl(handle, TIOCMBIC, &status) >= 0;
+	if (ioctl(handle, on ? TIOCMBIS : TIOCMBIC, &status) < 0) {
+		return std::unexpected(currentError());
 	}
+	return {};
 }
 
-bool serial_get_modem_status(serial_handle_t handle, bool& cts, bool& dsr, bool& dcd, bool& ri)
+std::expected<Handle::ModemStatus, ErrorCode> Handle::get_modem_status() const
 {
 	int status;
-	if (ioctl(handle, TIOCMGET, &status) < 0) return false;
-	cts = (status & TIOCM_CTS) != 0;
-	dsr = (status & TIOCM_DSR) != 0;
-	dcd = (status & TIOCM_CD) != 0;
-	ri  = (status & TIOCM_RI) != 0;
-	return true;
+	if (ioctl(handle, TIOCMGET, &status) < 0) {
+		return std::unexpected(currentError());
+	}
+	return ModemStatus{
+		.cts = (status & TIOCM_CTS) != 0,
+		.dsr = (status & TIOCM_DSR) != 0,
+		.dcd = (status & TIOCM_CD) != 0,
+		.ri  = (status & TIOCM_RI) != 0,
+	};
 }
 
-std::vector<std::string> serial_list_ports()
+// Serial device name prefixes in /dev (OMAP, CH340/341/343, ...)
+static constexpr auto portPrefixes = std::to_array<std::string_view>({
+	"ttyS", "ttyUSB", "ttyACM", "ttyAMA",
+	"tty.usb", "tty.USA", "cu.usb", "cu.USA",
+	"ttyXRUSB", "ttyO", "ttyCH"
+});
+
+std::vector<std::string> list_ports()
 {
 	std::vector<std::string> ports;
-	DIR* dir = opendir("/dev");
-	if (!dir) return ports;
-
-	struct dirent* entry;
-	while ((entry = readdir(dir)) != nullptr) {
-		const char* prefixes[] = {"ttyS", "ttyUSB", "ttyACM", "ttyAMA", 
-		                          "tty.usb", "tty.USA", "cu.usb", "cu.USA",
-		                          "ttyXRUSB", "ttyO", "ttyCH"}; // OMAP, CH340/341/343
-		for (const auto& pfx : prefixes) {
-			if (strncmp(entry->d_name, pfx, strlen(pfx)) == 0) {
+	ReadDir dir("/dev");
+	while (auto* entry = dir.getEntry()) {
+		for (auto pfx : portPrefixes) {
+			if (std::string_view(entry->d_name).starts_with(pfx)) {
 				ports.push_back("/dev/" + std::string(entry->d_name));
 				break;
 			}
 		}
 	}
-	closedir(dir);
 	std::ranges::sort(ports);
 	return ports;
 }
 
 #endif
 
-} // namespace openmsx
+std::string to_string(ErrorCode ec)
+{
+#ifdef _WIN32
+	wchar_t* s = nullptr;
+	FormatMessageW(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr, ec.value, 0, reinterpret_cast<LPWSTR>(&s),
+		0, nullptr);
+	std::string result = utf8::utf16to8(s);
+	LocalFree(s);
+	return result;
+#else
+	return strerror(ec.value);
+#endif
+}
+
+} // namespace openmsx::serial

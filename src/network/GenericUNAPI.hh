@@ -3,7 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "BooleanSetting.hh"
-#include "StringSetting.hh"
+#include "Rom.hh"
 #include "Socket.hh"
 #include "circular_buffer.hh"
 
@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+#include <span>
 #include <thread>
 
 namespace openmsx {
@@ -24,12 +25,13 @@ public:
 	~GenericUNAPI() override;
 
 	// MSXDevice
-	void powerUp(EmuTime time) override;
 	void powerDown(EmuTime time) override;
 	void reset(EmuTime time) override;
 	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time) override;
 	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
+	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] const uint8_t* getReadCacheLine(uint16_t start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -37,7 +39,10 @@ public:
 private:
 	// FIFO management
 	[[nodiscard]] uint8_t readEspToMsxFifo();
+	[[nodiscard]] uint8_t peekEspToMsxFifo() const;
 	[[nodiscard]] uint8_t readStatus();
+	[[nodiscard]] uint8_t peekStatus() const;
+	[[nodiscard]] uint8_t peekStatusLocked() const;
 	void writeCommand(uint8_t value);
 	void resetFifo();
 
@@ -113,15 +118,10 @@ private:
 	void cmdCfgIP(std::span<const uint8_t> data);
 
 	// Convert IP address string to 4 bytes
-	[[nodiscard]] bool parseIP(const std::string& str, uint8_t* ipOut) const;
+	[[nodiscard]] bool parseIP(const std::string& str, std::span<uint8_t, 4> ipOut) const;
 
 	// Settings
 	BooleanSetting enabledSetting;
-	StringSetting localIpSetting;
-	StringSetting gatewaySetting;
-	StringSetting subnetSetting;
-	StringSetting dnsPrimarySetting;
-	StringSetting dnsSecondarySetting;
 
 	// MSX->ESP FIFO
 	cb_queue<uint8_t> msxToEspFifo;
@@ -131,7 +131,6 @@ private:
 	// ESP->MSX FIFO
 	cb_queue<uint8_t> espToMsxFifo;
 	mutable std::mutex espToMsxMutex;
-	std::condition_variable espToMsxCond;
 
 	bool underrun = false;
 
@@ -162,6 +161,9 @@ private:
 
 	// Socket subsystem init
 	[[no_unique_address]] SocketActivator socketActivator;
+
+	// ROM at 0x4000-0x7FFF (ESPUNAPI_IO.rom)
+	Rom rom;
 };
 
 } // namespace openmsx

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <mutex>
 #include <string>
+#include <utility>
 #include <vector>
 
 #ifdef _WIN32
@@ -14,6 +15,7 @@
 #endif
 
 namespace openmsx {
+namespace OpenSSL {
 namespace {
 
 // ---------------------------------------------------------------------
@@ -21,12 +23,12 @@ namespace {
 // ---------------------------------------------------------------------
 
 #ifdef _WIN32
-using LibHandle = HMODULE;
-static LibHandle openSslLib(const char* name)
+using DllHandle = HMODULE;
+static DllHandle openSslLib(const char* name)
 {
 	return LoadLibraryA(name);
 }
-static void* resolveSymbol(LibHandle lib, const char* name)
+static void* resolveSymbol(DllHandle lib, const char* name)
 {
 	return reinterpret_cast<void*>(GetProcAddress(lib, name));
 }
@@ -37,12 +39,12 @@ static const char* libraryCandidates[] = {
 	"libssl.dll", "ssleay32.dll"
 };
 #else
-using LibHandle = void*;
-static LibHandle openSslLib(const char* name)
+using DllHandle = void*;
+static DllHandle openSslLib(const char* name)
 {
 	return dlopen(name, RTLD_NOW | RTLD_LOCAL);
 }
-static void* resolveSymbol(LibHandle lib, const char* name)
+static void* resolveSymbol(DllHandle lib, const char* name)
 {
 	return dlsym(lib, name);
 }
@@ -72,7 +74,6 @@ struct OpenSSLApi {
 	const void* (*tlsClientMethod)() = nullptr;
 	const void* (*ssl23ClientMethod)() = nullptr;
 	void* (*ctxNew)(const void* method) = nullptr;
-	int (*ctxSetVerify)(void* ctx, int mode, void* callback) = nullptr;
 	int (*ctxSetDefaultVerifyPaths)(void* ctx) = nullptr;
 	int (*ctxLoadVerifyLocations)(void* ctx, const char* caFile,
 	                              const char* caPath) = nullptr;
@@ -102,37 +103,37 @@ struct OpenSSLApi {
 };
 
 OpenSSLApi api;
-LibHandle libHandle = nullptr;
-LibHandle cryptoHandle = nullptr;
+DllHandle libHandle = nullptr;
+DllHandle cryptoHandle = nullptr;
 bool loadAttempted = false;
 bool loaded = false;
 
-constexpr unsigned long OPENSSL_INIT_LOAD_SSL_STRINGS = 0x00200000UL;
-constexpr unsigned long OPENSSL_INIT_LOAD_CRYPTO_STRINGS = 0x00000001UL;
+static constexpr unsigned long OPENSSL_INIT_LOAD_SSL_STRINGS = 0x00200000UL;
+static constexpr unsigned long OPENSSL_INIT_LOAD_CRYPTO_STRINGS = 0x00000001UL;
 
-constexpr int SSL_VERIFY_NONE = 0x00;
-constexpr int SSL_VERIFY_PEER = 0x01;
-constexpr int SSL_ERROR_WANT_READ = 2;
-constexpr int SSL_ERROR_WANT_WRITE = 3;
-constexpr int SSL_ERROR_ZERO_RETURN = 6;
-constexpr int SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
-constexpr long TLSEXT_NAMETYPE_HOST_NAME = 0;
-constexpr int OPENSSL_VERSION = 0;
+static constexpr int SSL_VERIFY_NONE = 0x00;
+static constexpr int SSL_VERIFY_PEER = 0x01;
+static constexpr int SSL_ERROR_WANT_READ = 2;
+static constexpr int SSL_ERROR_WANT_WRITE = 3;
+static constexpr int SSL_ERROR_ZERO_RETURN = 6;
+static constexpr int SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
+static constexpr long TLSEXT_NAMETYPE_HOST_NAME = 0;
+static constexpr int OPENSSL_VERSION = 0;
 
 // X509 verify error codes (used to map to TCP-IP UNAPI close reasons)
-constexpr long X509_V_OK = 0;
-constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT = 2;
-constexpr long X509_V_ERR_CERT_NOT_YET_VALID = 9;
-constexpr long X509_V_ERR_CERT_HAS_EXPIRED = 10;
-constexpr long X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT = 18;
-constexpr long X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN = 19;
-constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY = 20;
-constexpr long X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE = 21;
-constexpr long X509_V_ERR_CERT_REVOKED = 23;
-constexpr long X509_V_ERR_INVALID_CA = 24;
-constexpr long X509_V_ERR_CERT_UNTRUSTED = 27;
-constexpr long X509_V_ERR_CERT_REJECTED = 28;
-constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
+static constexpr long X509_V_OK = 0;
+static constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT = 2;
+static constexpr long X509_V_ERR_CERT_NOT_YET_VALID = 9;
+static constexpr long X509_V_ERR_CERT_HAS_EXPIRED = 10;
+static constexpr long X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT = 18;
+static constexpr long X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN = 19;
+static constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY = 20;
+static constexpr long X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE = 21;
+static constexpr long X509_V_ERR_CERT_REVOKED = 23;
+static constexpr long X509_V_ERR_INVALID_CA = 24;
+static constexpr long X509_V_ERR_CERT_UNTRUSTED = 27;
+static constexpr long X509_V_ERR_CERT_REJECTED = 28;
+static constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
 
 // ---------------------------------------------------------------------
 //  Trust store setup
@@ -231,7 +232,7 @@ void* getSharedContext()
 // ---------------------------------------------------------------------
 
 template<typename T>
-static T resolve(LibHandle lib, const char* name)
+static T resolve(DllHandle lib, const char* name)
 {
 	return reinterpret_cast<T>(resolveSymbol(lib, name));
 }
@@ -273,7 +274,6 @@ static bool resolveSymbols()
 	api.tlsClientMethod = resolve<decltype(api.tlsClientMethod)>(libHandle, "TLS_client_method");
 	api.ssl23ClientMethod = resolve<decltype(api.ssl23ClientMethod)>(libHandle, "SSLv23_client_method");
 	api.ctxNew = resolve<decltype(api.ctxNew)>(libHandle, "SSL_CTX_new");
-	api.ctxSetVerify = resolve<decltype(api.ctxSetVerify)>(libHandle, "SSL_CTX_set_verify");
 	api.ctxSetDefaultVerifyPaths = resolve<decltype(api.ctxSetDefaultVerifyPaths)>(libHandle, "SSL_CTX_set_default_verify_paths");
 	api.ctxLoadVerifyLocations = resolve<decltype(api.ctxLoadVerifyLocations)>(libHandle, "SSL_CTX_load_verify_locations");
 	api.newSession = resolve<decltype(api.newSession)>(libHandle, "SSL_new");
@@ -307,8 +307,8 @@ static bool resolveSymbols()
 	if (!api.init && !api.libraryInit) return false;
 	if (!api.tlsClientMethod && !api.ssl23ClientMethod) return false;
 	if (!api.ctxNew || !api.newSession || !api.freeSession ||
-	    !api.setFd || !api.connect || !api.read || !api.write ||
-	    !api.shutdown || !api.getError) {
+	    !api.setFd || !api.setVerify || !api.connect || !api.read ||
+	    !api.write || !api.shutdown || !api.getError) {
 		return false;
 	}
 
@@ -324,22 +324,7 @@ static bool resolveSymbols()
 	return true;
 }
 
-} // namespace
-
-// ---------------------------------------------------------------------
-//  OpenSSL public interface
-// ---------------------------------------------------------------------
-
-bool OpenSSL::load()
-{
-	if (loadAttempted) return loaded;
-	loadAttempted = true;
-	if (!openLibrary()) return false;
-	loaded = resolveSymbols();
-	return loaded;
-}
-
-bool OpenSSL::openLibrary()
+static bool openLibrary()
 {
 	for (const char* name : libraryCandidates) {
 		if (auto h = openSslLib(name)) {
@@ -357,48 +342,56 @@ bool OpenSSL::openLibrary()
 	return false;
 }
 
-bool OpenSSL::available()
+} // namespace
+
+// ---------------------------------------------------------------------
+//  OpenSSL public interface
+// ---------------------------------------------------------------------
+
+LibHandle* load()
 {
-	return loaded;
+	static LibHandle singleton; // only valid (and non-null) after a successful load
+	if (loadAttempted) return loaded ? &singleton : nullptr;
+	loadAttempted = true;
+	if (!openLibrary()) return nullptr;
+	loaded = resolveSymbols();
+	return loaded ? &singleton : nullptr;
 }
 
-const char* OpenSSL::version()
+SessionHandle::SessionHandle(void* ssl_)
+	: ssl(ssl_)
 {
-	return (api.version && available())
-	     ? api.version(OPENSSL_VERSION) : "";
 }
 
-void* OpenSSL::createClientSession(bool verify, const char* hostname, int fd)
+SessionHandle::SessionHandle(SessionHandle&& other) noexcept
+	: ssl(std::exchange(other.ssl, nullptr))
 {
-	if (!available()) return nullptr;
-	void* ctx = getSharedContext();
-	if (!ctx || !api.setVerify || !api.setFd) return nullptr;
+}
 
-	void* ssl = api.newSession(ctx);
-	if (!ssl) return nullptr;
-	if (api.setFd(ssl, fd) != 1) {
-		api.freeSession(ssl);
-		return nullptr;
+SessionHandle& SessionHandle::operator=(SessionHandle&& other) noexcept
+{
+	if (this != &other) {
+		release();
+		ssl = std::exchange(other.ssl, nullptr);
 	}
-	api.setVerify(ssl, verify ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, nullptr);
-
-	// Server name: sent as SNI and, when verifying, used to check the
-	// host name in the server certificate
-	if (hostname && hostname[0]) {
-		if (api.ctrl) {
-			api.ctrl(ssl, SSL_CTRL_SET_TLSEXT_HOSTNAME,
-			         TLSEXT_NAMETYPE_HOST_NAME,
-			         const_cast<char*>(hostname));
-		}
-		if (verify && api.get0Param && api.verifyParamSet1Host) {
-			api.verifyParamSet1Host(api.get0Param(ssl), hostname,
-			                        std::strlen(hostname));
-		}
-	}
-	return ssl;
+	return *this;
 }
 
-int OpenSSL::handshake(void* ssl)
+SessionHandle::~SessionHandle()
+{
+	release();
+}
+
+void SessionHandle::release() noexcept
+{
+	if (!ssl || !api.shutdown || !api.freeSession) return;
+	// Best-effort shutdown: the peer may already be gone
+	api.shutdown(ssl);
+	api.freeSession(ssl);
+	ssl = nullptr;
+}
+
+int SessionHandle::handshake() const
 {
 	int r = api.connect(ssl);
 	if (r == 1) return 1;
@@ -408,7 +401,7 @@ int OpenSSL::handshake(void* ssl)
 	return -1;
 }
 
-int OpenSSL::verifyResult(void* ssl)
+int SessionHandle::verifyResult() const
 {
 	if (!api.getVerifyResult) return 0;
 	long vr = api.getVerifyResult(ssl);
@@ -449,56 +442,76 @@ int OpenSSL::verifyResult(void* ssl)
 	}
 }
 
-ptrdiff_t OpenSSL::read(void* ssl, char* buf, size_t len, int& want)
+IoResult SessionHandle::read(std::span<char> buf) const
 {
-	int r = api.read(ssl, buf, static_cast<int>(len));
-	if (r > 0) return r;
+	int r = api.read(ssl, buf.data(), static_cast<int>(buf.size()));
+	if (r > 0) return IoResult(r);
 	int e = api.getError(ssl, r);
-	if (e == SSL_ERROR_WANT_READ) {
-		want = 1;
-		return -1;
+	if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE) {
+		return std::unexpected(IoError::WouldBlock);
 	}
-	if (e == SSL_ERROR_WANT_WRITE) {
-		want = 2;
-		return -1;
+	if (e == SSL_ERROR_ZERO_RETURN) {
+		return std::unexpected(IoError::Closed); // clean TLS close
 	}
-	if (e == SSL_ERROR_ZERO_RETURN) return 0; // clean TLS close
-	want = 0;
-	return -1;
+	return std::unexpected(IoError::Failed);
 }
 
-ptrdiff_t OpenSSL::write(void* ssl, const char* buf, size_t len, int& want)
+IoResult SessionHandle::write(std::span<const char> buf) const
 {
-	int r = api.write(ssl, buf, static_cast<int>(len));
-	if (r > 0) return r;
+	int r = api.write(ssl, buf.data(), static_cast<int>(buf.size()));
+	if (r > 0) return IoResult(r);
 	int e = api.getError(ssl, r);
-	if (e == SSL_ERROR_WANT_READ) {
-		want = 1;
-		return -1;
+	if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE) {
+		return std::unexpected(IoError::WouldBlock);
 	}
-	if (e == SSL_ERROR_WANT_WRITE) {
-		want = 2;
-		return -1;
+	if (e == SSL_ERROR_ZERO_RETURN) {
+		return std::unexpected(IoError::Closed); // peer sent close_notify
 	}
-	if (e == SSL_ERROR_ZERO_RETURN) return 0; // peer sent close_notify
-	want = 0;
-	return -1;
+	return std::unexpected(IoError::Failed);
 }
 
-int OpenSSL::pending(void* ssl)
+int SessionHandle::pending() const
 {
 	return api.pending ? api.pending(ssl) : 0;
 }
 
-void OpenSSL::close(void* ssl)
+std::optional<SessionHandle> LibHandle::createClientSession(
+	bool verify, zstring_view hostname, int fd) const
 {
-	if (!ssl || !api.shutdown || !api.freeSession) return;
-	// Best-effort shutdown: the peer may already be gone
-	api.shutdown(ssl);
-	api.freeSession(ssl);
+	if (!loaded) return std::nullopt;
+	void* ctx = getSharedContext();
+	if (!ctx) return std::nullopt;
+
+	void* ssl = api.newSession(ctx);
+	if (!ssl) return std::nullopt;
+	if (api.setFd(ssl, fd) != 1) {
+		api.freeSession(ssl);
+		return std::nullopt;
+	}
+	api.setVerify(ssl, verify ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, nullptr);
+
+	// Server name: sent as SNI and, when verifying, used to check the
+	// host name in the server certificate
+	if (!hostname.empty()) {
+		if (api.ctrl) {
+			api.ctrl(ssl, SSL_CTRL_SET_TLSEXT_HOSTNAME,
+			         TLSEXT_NAMETYPE_HOST_NAME,
+			         const_cast<char*>(hostname.data()));
+		}
+		if (verify && api.get0Param && api.verifyParamSet1Host) {
+			api.verifyParamSet1Host(api.get0Param(ssl), hostname.data(),
+			                        hostname.size());
+		}
+	}
+	return SessionHandle(ssl);
 }
 
-const char* OpenSSL::lastError()
+zstring_view LibHandle::version() const
+{
+	return api.version ? api.version(OPENSSL_VERSION) : "";
+}
+
+zstring_view LibHandle::last_error() const
 {
 	if (api.errGetError && api.errErrorStringN) {
 		thread_local char buf[256];
@@ -508,4 +521,5 @@ const char* OpenSSL::lastError()
 	return "OpenSSL error";
 }
 
+} // namespace OpenSSL
 } // namespace openmsx

@@ -14,6 +14,11 @@
       <secondary slot="any">
         <GenericUNAPI id="Generic UNAPI">
           <io base="0x06" num="2"/>
+          <mem base="0x4000" size="0x4000"/>
+          <rom>
+            <filename>ESPUNAPI_IO.rom</filename>
+            <sha1>ce1933318a3451d2e564f90af4df2e108057339b</sha1>
+          </rom>
         </GenericUNAPI>
       </secondary>
     </primary>

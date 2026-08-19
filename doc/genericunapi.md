@@ -128,10 +128,13 @@ The device binds sockets on the **host** operating system to emulate the
 network interface of the ESP32. Consequently, a port that is already in use on
 the host cannot be used by the device:
 
-* The device reports the host's own IP address to the MSX (the
-  `genericunapi-local-ip` setting, default `0.0.0.0` = use the host IP), so
-  other machines on the same network reach the MSX at that address, without
-  any configuration on those machines.
+* The device reports the host's own network configuration to the MSX (its
+  primary IPv4 address, netmask, gateway and DNS servers, read fresh on each
+  `TCPIP_GET_IPINFO` call), so other machines on the same network reach the
+  MSX at that address, without any configuration on those machines. When the
+  host has no usable IPv4 configuration the fields report `0.0.0.0`, except
+  the primary DNS which falls back to the well-known `8.8.8.8` (DNS lookups
+  are performed on the host anyway, so the reported value is informational).
 * Opening a connection (TCP or UDP) on a local port that is occupied by a host
   application returns `ERR_CONN_EXISTS` (or fails).
 * In particular, well-known ports used by operating-system services are not

@@ -352,6 +352,17 @@ public:
 		for (auto& e : list) push_back(e);
 	}
 
+	// Insert a whole range at once: a single capacity decision for all
+	// elements instead of growing (and checking) on each push_back.
+	template<std::input_iterator IT>
+	void push_back(IT first, IT last) {
+		auto n = static_cast<size_t>(std::distance(first, last));
+		if (buf.reserve() < n) {
+			buf.set_capacity(std::max(2 * buf.capacity(), buf.size() + n));
+		}
+		while (first != last) buf.push_back(*first++);
+	}
+
 	T pop_front() {
 		T t = std::move(buf.front());
 		buf.pop_front();

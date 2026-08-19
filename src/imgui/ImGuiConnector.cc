@@ -67,6 +67,13 @@ void ImGuiConnector::paintPluggableSelectables(PluggingController& controller, c
 	}
 }
 
+void ImGuiConnector::paintImGuiExtra(Pluggable& pluggable)
+{
+	if (auto* extra = dynamic_cast<ImGuiPluggable*>(&pluggable)) {
+		extra->handleImGuiExtraMenuItems();
+	}
+}
+
 void ImGuiConnector::showPluggables(PluggingController& controller, Mode mode)
 {
 	im::Table("##shared-table", 2, [&]{
@@ -82,30 +89,26 @@ void ImGuiConnector::showPluggables(PluggingController& controller, Mode mode)
 				const auto& connectorName = connector->getName();
 				using enum ImGuiConnector::Mode;
 				switch (mode) {
-					case VIEW:
-						ImGui::TextUnformatted(plugName.empty() ? "(empty)"sv : pluggableToGuiString(plugName));
-						break;
+				case VIEW:
+					ImGui::TextUnformatted(plugName.empty() ? "(empty)"sv : pluggableToGuiString(plugName));
+					simpleToolTip(currentPluggable.getDescription());
+					break;
 				case COMBO:
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
 					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(plugName).c_str(), [&]{
 						paintPluggableSelectables(controller, *connector);
 					});
-					if (auto* extra = dynamic_cast<ImGuiPluggable*>(&currentPluggable)) {
-						extra->renderGuiExtra();
-					}
+					simpleToolTip(currentPluggable.getDescription());
+					paintImGuiExtra(currentPluggable);
 					break;
 				case SUBMENU:
 					im::Menu(tmpStrCat(strCat_if(plugName.empty(), "(empty)##", connectorName).else_(STRCAT_LAZY(pluggableToGuiString(plugName)))).c_str(), [&] {
 						paintPluggableSelectables(controller, *connector);
 					});
-					if (auto* extra = dynamic_cast<ImGuiPluggable*>(&currentPluggable)) {
-						extra->renderGuiExtra();
-					}
+					paintImGuiExtra(currentPluggable);
 					break;
-					default: UNREACHABLE;
-				}
-				if (mode != SUBMENU) {
-					simpleToolTip(currentPluggable.getDescription());
+				default:
+					UNREACHABLE;
 				}
 			}
 		}
