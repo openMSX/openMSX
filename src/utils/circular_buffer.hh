@@ -356,8 +356,8 @@ public:
 	// elements instead of growing (and checking) on each push_back.
 	template<std::input_iterator IT>
 	void push_back(IT first, IT last) {
-		auto n = static_cast<size_t>(std::distance(first, last));
-		if (buf.reserve() < n) {
+		if (auto n = static_cast<size_t>(std::distance(first, last));
+		    buf.reserve() < n) {
 			buf.set_capacity(std::max(2 * buf.capacity(), buf.size() + n));
 		}
 		while (first != last) buf.push_back(*first++);

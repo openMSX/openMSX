@@ -229,7 +229,10 @@ static std::optional<HostNetInfo> getHostNetInfo()
 	while (std::getline(route, line)) {
 		if (line.starts_with("Iface")) continue; // header
 		std::istringstream iss(line);
-		std::string iface, dest, gw, flags;
+		std::string iface;
+		std::string dest;
+		std::string gw;
+		std::string flags;
 		iss >> iface >> dest >> gw >> flags;
 		if (dest != "00000000") continue; // not the default route
 		auto f = StringOp::stringToBase<16, unsigned long>(flags);
@@ -253,7 +256,7 @@ static std::optional<HostNetInfo> getHostNetInfo()
 static uint16_t randomEphemeralPort()
 {
 	static std::mt19937 rng(std::random_device{}());
-	static std::uniform_int_distribution<int> dist(16384, 32767);
+	static std::uniform_int_distribution dist(16384, 32767);
 	return static_cast<uint16_t>(dist(rng));
 }
 
@@ -436,6 +439,8 @@ void GenericUNAPI::writeIO(uint16_t port, uint8_t value, EmuTime /*time*/)
 		msxToEspCond.notify_one();
 		break;
 	}
+	default:
+		break;
 	}
 }
 
@@ -536,7 +541,7 @@ void GenericUNAPI::stopEspThread()
 	// Stop any reader threads still running
 	{
 		std::scoped_lock lock(connectionsMutex);
-		for (auto& cp : connections) {
+		for (const auto& cp : connections) {
 			if (!cp) continue;
 			cp->readerActive = false;
 			if (cp->poller) cp->poller->abort();
@@ -560,170 +565,174 @@ void GenericUNAPI::stopEspThread()
 //  ESP emulator thread  (reads MSX→ESP FIFO, processes commands)
 // ====================================================================
 
+// Boot sequence text to the MSX side (greeting, "Ready").
+void GenericUNAPI::pushBootText(std::string_view text)
+{
+	std::scoped_lock lock(espToMsxMutex);
+	espToMsxFifo.push_back(
+		reinterpret_cast<const uint8_t*>(text.data()),
+		reinterpret_cast<const uint8_t*>(text.data() + text.size()));
+}
+
+void GenericUNAPI::resetParser()
+{
+	parserState = ParserState::IDLE;
+	parserSizeStep = 0;
+	parserExpectedSize = 0;
+	parserDataBuf.clear();
+}
+
+// Dispatch a complete command. Must be called without msxToEspMutex held.
+void GenericUNAPI::processCommand()
+{
+	if (parserCmdByte < 63 || parserCmdByte >= 0x80) {
+		handleUnapiCommand(parserCmdByte, parserDataBuf);
+	} else {
+		handleCustomCommand(parserCmdByte, parserDataBuf);
+	}
+	resetParser();
+}
+
+// Wait for work (FIFO data or shutdown) while the MSX->ESP FIFO is empty.
+// Returns true when the thread should stop; on return 'unlocked' may hold
+// work that must run without the mutex held.
+bool GenericUNAPI::espWaitForWork(std::unique_lock<std::mutex>& lock,
+                                  std::function<void()>& unlocked)
+{
+	if (parserState == ParserState::IDLE) {
+		if (bootStage == BootStage::NONE) {
+			msxToEspCond.wait(lock, [this] {
+				return !msxToEspFifo.empty() || !espRunning.load();
+			});
+			return !espRunning.load();
+		}
+		// "Ready" loop in progress: wake up on data or at the next
+		// "Ready" event.
+		bool timedOut = !msxToEspCond.wait_until(
+			lock, bootEventTime, [this] {
+			return !msxToEspFifo.empty() || !espRunning.load();
+		});
+		if (!espRunning.load()) return true;
+		if (timedOut) {
+			unlocked = [this] { pushBootText("Ready\r\n"); };
+			if (--bootReadyRetries == 0) {
+				bootStage = BootStage::NONE;
+			}
+			bootEventTime = std::chrono::steady_clock::now() +
+			                std::chrono::seconds(5);
+		}
+		return false;
+	}
+
+	// Waiting for the rest of a framed command: apply the firmware's
+	// 250 ms inter-byte timeout.
+	bool timedOut = !msxToEspCond.wait_until(
+		lock, parserDeadline, [this] {
+		return !msxToEspFifo.empty() || !espRunning.load();
+	});
+	if (!espRunning.load()) return true;
+	if (timedOut) {
+		resetParser();
+	}
+	return false;
+}
+
+// Parser state machine for one received byte, mirroring
+// received_data_parser() in the ESP32 UNAPI firmware:
+//  - unknown command bytes are discarded and the parser stays IDLE
+//  - known quick commands execute immediately (no size header)
+//  - known data commands expect CMD + 2-byte size (MSB first) + data
+//  - a partial command not completed within 250 ms (no new byte
+//    arriving) is discarded and the parser reverts to IDLE
+// On return 'unlocked' may hold work that must run without the mutex held.
+void GenericUNAPI::espParseByte(uint8_t b, std::function<void()>& unlocked)
+{
+	switch (parserState) {
+	case ParserState::IDLE:
+		// Any byte received during the boot sequence stops it
+		bootStage = BootStage::NONE;
+		if (isQuickCustomCommand(b)) {
+			// Quick custom command, no size header
+			unlocked = [this, b] { handleCustomCommand(b, {}); };
+			return;
+		}
+		if (isDataCommand(b)) {
+			parserCmdByte = b;
+			parserState = ParserState::WAIT_DATA_SIZE;
+		}
+		// Unknown command byte: discard, stay IDLE
+		return;
+
+	case ParserState::WAIT_DATA_SIZE:
+		// 2-byte size, MSB first
+		if (parserSizeStep == 0) {
+			parserExpectedSize = static_cast<uint16_t>(b) << 8;
+			parserSizeStep = 1;
+		} else {
+			parserExpectedSize |= b;
+			if (parserExpectedSize > MAX_CMD_DATA_LEN) {
+				resetParser(); // invalid size, discard
+			} else if (parserExpectedSize == 0) {
+				// Size 0: process immediately, no data block
+				unlocked = [this] { processCommand(); };
+			} else {
+				parserDataBuf.clear();
+				parserState = ParserState::GET_DATA;
+			}
+			parserSizeStep = 0;
+		}
+		return;
+
+	case ParserState::GET_DATA:
+		parserDataBuf.push_back(b);
+		if (parserDataBuf.size() >= parserExpectedSize) {
+			unlocked = [this] { processCommand(); };
+		}
+		return;
+	}
+}
+
 void GenericUNAPI::espThreadFunc()
 {
-	// Parser state machine, mirroring received_data_parser() in the
-	// ESP32 UNAPI firmware:
-	//  - unknown command bytes are discarded and the parser stays IDLE
-	//  - known quick commands execute immediately (no size header)
-	//  - known data commands expect CMD + 2-byte size (MSB first) + data
-	//  - if a partial command is not completed within 250 ms (no new
-	//    byte arriving), the parser discards it and reverts to IDLE
-	enum class ParserState : uint8_t { IDLE, WAIT_DATA_SIZE, GET_DATA };
-	auto state = ParserState::IDLE;
-	uint8_t cmdByte = 0;
-	uint8_t sizeStep = 0;
-	uint16_t expectedSize = 0;
-	std::vector<uint8_t> dataBuf;
-	auto deadline = std::chrono::steady_clock::now();
-
-	// Boot sequence, mirroring the real device's bootup after 'R':
-	// immediate "R0" response, then the greeting string, then
-	// "Ready\r\n" every 5 s (up to 3 times). The loop stops as soon as
-	// the MSX sends any byte.
-	enum class BootStage : uint8_t { NONE, READY_LOOP };
-	auto bootStage = BootStage::NONE;
-	uint8_t readyRetries = 0;
-	auto bootEventTime = std::chrono::steady_clock::now();
-
-	auto pushBootText = [this](std::string_view text) {
-		std::scoped_lock lock(espToMsxMutex);
-		espToMsxFifo.push_back(
-			reinterpret_cast<const uint8_t*>(text.data()),
-			reinterpret_cast<const uint8_t*>(text.data() + text.size()));
-	};
-
-	auto resetParser = [&] {
-		state = ParserState::IDLE;
-		sizeStep = 0;
-		expectedSize = 0;
-		dataBuf.clear();
-	};
-
-	// Dispatch a complete command. Must be called without msxToEspMutex held.
-	auto processCommand = [&] {
-		if (cmdByte < 63 || cmdByte >= 0x80) {
-			handleUnapiCommand(cmdByte, dataBuf);
-		} else {
-			handleCustomCommand(cmdByte, dataBuf);
-		}
-		resetParser();
-	};
+	// The parser and boot-sequence state used to be function-local; reset
+	// it so a (re-)started thread begins from a clean state.
+	resetParser();
+	bootStage = BootStage::NONE;
+	bootReadyRetries = 0;
 
 	while (espRunning.load()) {
 		std::unique_lock lock(msxToEspMutex);
 
-		// A reset was requested (cmdReset just ran): discard any pending
-		// input — the real device loses its serial buffer on reboot — and
-		// start the boot sequence (greeting immediately after "R0").
+		// Work that must run without the mutex (command dispatch and
+		// boot text pushes): decided under the lock, executed below.
+		std::function<void()> unlocked;
+
 		if (bootStartPending) {
+			// A reset was requested (cmdReset just ran): discard any
+			// pending input — the real device loses its serial buffer on
+			// reboot — and start the boot sequence (greeting immediately
+			// after "R0").
 			bootStartPending = false;
 			resetParser();
 			msxToEspFifo.clear();
-			lock.unlock();
-			pushBootText(bootGreeting);
-			lock.lock();
+			unlocked = [this] { pushBootText(bootGreeting); };
 			bootStage = BootStage::READY_LOOP;
-			readyRetries = 3;
+			bootReadyRetries = 3;
 			bootEventTime = std::chrono::steady_clock::now() +
 			                std::chrono::seconds(5);
-			continue;
+		} else if (msxToEspFifo.empty()) {
+			if (espWaitForWork(lock, unlocked)) break;
+		} else {
+			uint8_t b = msxToEspFifo.front();
+			msxToEspFifo.pop_front();
+			parserDeadline = std::chrono::steady_clock::now() +
+			                 std::chrono::milliseconds(250);
+			espParseByte(b, unlocked);
 		}
 
-		if (msxToEspFifo.empty()) {
-			if (state == ParserState::IDLE) {
-				if (bootStage == BootStage::NONE) {
-					msxToEspCond.wait(lock, [this] {
-						return !msxToEspFifo.empty() || !espRunning.load();
-					});
-					if (!espRunning.load()) break;
-				} else {
-					// "Ready" loop in progress: wake up on data or at the
-					// next "Ready" event.
-					bool timedOut = !msxToEspCond.wait_until(
-						lock, bootEventTime, [this] {
-						return !msxToEspFifo.empty() || !espRunning.load();
-					});
-					if (!espRunning.load()) break;
-					if (timedOut) {
-						lock.unlock();
-						pushBootText("Ready\r\n");
-						lock.lock();
-						if (--readyRetries == 0) {
-							bootStage = BootStage::NONE;
-						}
-						bootEventTime = std::chrono::steady_clock::now() +
-						                std::chrono::seconds(5);
-						continue;
-					}
-				}
-			} else {
-				// Waiting for the rest of a framed command: apply the
-				// firmware's 250 ms inter-byte timeout.
-				bool timedOut = !msxToEspCond.wait_until(
-					lock, deadline, [this] {
-					return !msxToEspFifo.empty() || !espRunning.load();
-				});
-				if (!espRunning.load()) break;
-				if (timedOut) {
-					resetParser();
-					continue;
-				}
-			}
-			continue;
-		}
-
-		uint8_t b = msxToEspFifo.front();
-		msxToEspFifo.pop_front();
-		deadline = std::chrono::steady_clock::now() +
-		           std::chrono::milliseconds(250);
-
-		switch (state) {
-		case ParserState::IDLE:
-			// Any byte received during the boot sequence stops it
-			bootStage = BootStage::NONE;
-			if (isQuickCustomCommand(b)) {
-				// Quick custom command, no size header
-				lock.unlock();
-				handleCustomCommand(b, {});
-				continue;
-			}
-			if (isDataCommand(b)) {
-				cmdByte = b;
-				state = ParserState::WAIT_DATA_SIZE;
-				continue;
-			}
-			// Unknown command byte: discard, stay IDLE
-			continue;
-
-		case ParserState::WAIT_DATA_SIZE:
-			// 2-byte size, MSB first
-			if (sizeStep == 0) {
-				expectedSize = static_cast<uint16_t>(b) << 8;
-				sizeStep = 1;
-			} else {
-				expectedSize |= b;
-				if (expectedSize > MAX_CMD_DATA_LEN) {
-					resetParser(); // invalid size, discard
-				} else if (expectedSize == 0) {
-					// Size 0: process immediately, no data block
-					lock.unlock();
-					processCommand();
-				} else {
-					dataBuf.clear();
-					state = ParserState::GET_DATA;
-				}
-				sizeStep = 0;
-			}
-			continue;
-
-		case ParserState::GET_DATA:
-			dataBuf.push_back(b);
-			if (dataBuf.size() >= expectedSize) {
-				lock.unlock();
-				processCommand();
-			}
-			continue;
+		if (unlocked) {
+			lock.unlock();
+			unlocked();
 		}
 	}
 }
@@ -734,11 +743,14 @@ void GenericUNAPI::espThreadFunc()
 
 void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 {
-	std::unique_lock lock(connectionsMutex);
 	if (connIdx < 0 || connIdx >= MAX_CONNECTIONS) return;
-	auto* conn = connections[connIdx].get();
-	if (!conn) return;
-	lock.unlock();
+
+	Connection* conn = nullptr;
+	{
+		std::scoped_lock lock(connectionsMutex);
+		conn = connections[connIdx].get();
+		if (!conn) return;
+	}
 
 	// The sockets are non-blocking. recv()/accept() are gated behind
 	// select() so that a "would block" condition can never be mistaken for
@@ -760,7 +772,7 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 	// and reports the connection as failed (state=4), so TCP_STATE returns
 	// ERR_NO_CONN with the reason, as the spec recommends.
 	bool tlsFailed = false;
-	auto tlsFail = [&](uint8_t reason) {
+	auto tlsFail = [this, &conn, &tlsFailed, connIdx](uint8_t reason) {
 		// Sequenced before the state store, so TCP_STATE sees the reason
 		// whenever it observes state==4.
 		closeReason[connIdx].store(reason);
@@ -819,7 +831,7 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 #endif
 						conn->clientSock = ns;
 						conn->clientEof = false;
-						struct sockaddr_in peer;
+						struct sockaddr_in peer{};
 						::socklen_t peerLen = sizeof(peer);
 						if (getpeername(ns,
 						    reinterpret_cast<struct sockaddr*>(&peer),
@@ -866,7 +878,7 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 					// just "try again later".
 					auto r = conn->ssl->read(
 						std::span<char>(reinterpret_cast<char*>(buf.data()), buf.size()));
-					if (!r) {
+					if (!r.has_value()) {
 						if (r.error() == OpenSSL::IoError::Closed) {
 							conn->state = 3; // remote closed -> CLOSE_WAIT
 							break;
@@ -898,7 +910,7 @@ void GenericUNAPI::tcpReaderThreadFunc(int connIdx)
 					for (;;) {
 						auto r = conn->ssl->read(
 							std::span<char>(reinterpret_cast<char*>(buf.data()), buf.size()));
-						if (!r) {
+						if (!r.has_value()) {
 							if (r.error() == OpenSSL::IoError::Closed) {
 								conn->state = 3; // remote closed -> CLOSE_WAIT
 							}
@@ -980,7 +992,7 @@ void GenericUNAPI::releaseListenEntry(int idx)
 void GenericUNAPI::freeConnection(int idx)
 {
 	if (idx < 0 || idx >= MAX_CONNECTIONS) return;
-	auto& cp = connections[idx];
+	const auto& cp = connections[idx];
 	if (!cp) return;
 	cp->readerActive = false;
 	if (cp->poller) cp->poller->abort();
@@ -1226,13 +1238,13 @@ void GenericUNAPI::cmdScanAP(std::span<const uint8_t> /*data*/)
 
 void GenericUNAPI::cmdScanResults(std::span<const uint8_t> /*data*/)
 {
-	enum { SCAN_NO_NETWORKS = 2 };
+	constexpr uint8_t SCAN_NO_NETWORKS = 2;
 	sendQuickResponse('s', SCAN_NO_NETWORKS);
 }
 
 void GenericUNAPI::cmdConnectAP(std::span<const uint8_t> /*data*/)
 {
-	enum { ERR_OK = 0 };
+	constexpr uint8_t ERR_OK = 0;
 	sendQuickResponse('A', ERR_OK);
 }
 
@@ -1316,7 +1328,7 @@ void GenericUNAPI::cmdSetWiFiTimer(std::span<const uint8_t> data)
 void GenericUNAPI::cmdGetDateTime(std::span<const uint8_t> /*data*/)
 {
 	// Return "no network" error since SNTP is not implemented
-	enum { ERR_NO_NETWORK = 2 };
+	constexpr uint8_t ERR_NO_NETWORK = 2;
 	sendQuickResponse('G', ERR_NO_NETWORK);
 }
 
@@ -1360,7 +1372,7 @@ void GenericUNAPI::cmdGetCapab(std::span<const uint8_t> data)
 		{
 			std::scoped_lock lock(connectionsMutex);
 			int used = 0;
-			for (auto& cp : connections) {
+			for (const auto& cp : connections) {
 				if (cp && cp->type != 0) ++used;
 			}
 			resp[2] = 4 - used; // free TCP
@@ -1492,8 +1504,7 @@ void GenericUNAPI::cmdDnsQNew(std::span<const uint8_t> data)
 	}
 
 	// If the string is a valid IP address, use it directly
-	std::array<uint8_t, 4> ipBytes;
-	if (parseIP(hostname, ipBytes)) {
+	if (std::array<uint8_t, 4> ipBytes; parseIP(hostname, ipBytes)) {
 		sendResponse(206, 0, ipBytes);
 		return;
 	}
@@ -1546,8 +1557,8 @@ void GenericUNAPI::cmdUdpOpen(std::span<const uint8_t> data)
 	// another open UDP connection (spec 4.4.1)
 	if (localPort == 0xFFFF) {
 		std::scoped_lock lock(connectionsMutex);
-		auto udpPortInUse = [&](uint16_t port) {
-			for (auto& cp : connections) {
+		auto udpPortInUse = [this](uint16_t port) {
+			for (const auto& cp : connections) {
 				if (cp && cp->type == 2 && cp->localPort == port) {
 					return true;
 				}
@@ -1599,7 +1610,7 @@ void GenericUNAPI::cmdUdpOpen(std::span<const uint8_t> data)
 		}
 	}
 	// Connection numbers are 1-based, as in the real firmware
-	uint8_t connNum = static_cast<uint8_t>(connIdx + 1);
+	auto connNum = static_cast<uint8_t>(connIdx + 1);
 	sendResponse(8, 0, {&connNum, 1});
 }
 
@@ -1727,7 +1738,7 @@ void GenericUNAPI::cmdUdpRcv(std::span<const uint8_t> data)
 	if (maxSize > 2048) maxSize = 2048;
 
 	std::scoped_lock lock(connectionsMutex);
-	auto* conn = getConnection(num - 1);
+	const Connection* conn = getConnection(num - 1);
 	if (!conn || conn->type != 2) {
 		sendResponse(12, 11); // ERR_NO_CONN
 		return;
@@ -1735,7 +1746,7 @@ void GenericUNAPI::cmdUdpRcv(std::span<const uint8_t> data)
 
 	// Non-blocking receive
 	std::vector<char> buf(maxSize > 0 ? maxSize : 2048);
-	struct sockaddr_in from;
+	struct sockaddr_in from{};
 	::socklen_t fromLen = sizeof(from);
 	int n = recvfrom(conn->sock, buf.data(), static_cast<int>(buf.size()), 0,
 	                 reinterpret_cast<struct sockaddr*>(&from), &fromLen);
@@ -1842,13 +1853,14 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	// Flag bit 3 (verify certificate) is only meaningful with TLS on an
 	// active connection; otherwise it is ignored (spec 4.5.1)
 
-	std::unique_lock lock(connectionsMutex);
+	{
+		std::scoped_lock lock(connectionsMutex);
 
 	// FFFFh local port: random port in 16384-32767, never a port number
 	// used by another open TCP connection (spec 4.5.1)
 	if (localPort == 0xFFFF) {
-		auto tcpPortInUse = [&](uint16_t port) {
-			for (auto& cp : connections) {
+		auto tcpPortInUse = [this](uint16_t port) {
+			for (const auto& cp : connections) {
 				if (cp && cp->type == 1 && cp->localPort == port) {
 					return true;
 				}
@@ -1934,7 +1946,7 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 		conn->readerThread = std::make_unique<std::thread>(
 		        [this, connIdx] { tcpReaderThreadFunc(connIdx); });
 
-		uint8_t connNum = static_cast<uint8_t>(connIdx + 1);
+		auto connNum = static_cast<uint8_t>(connIdx + 1);
 		sendResponse(13, 0, {&connNum, 1});
 		return;
 	}
@@ -1942,7 +1954,7 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	// Active connection: check that no TCP connection is already open with
 	// the same combination of local port, remote IP and remote port
 	// (spec: ERR_CONN_EXISTS), and that no passive listener owns the port
-	for (auto& cp : connections) {
+	for (const auto& cp : connections) {
 		if (cp && cp->type == 1 && cp->listenIdx < 0 &&
 		    cp->localPort == localPort && cp->remoteIP == remoteIP &&
 		    cp->remotePort == remotePort) {
@@ -1960,7 +1972,7 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 		sendResponse(13, 9); // ERR_NO_FREE_CONN
 		return;
 	}
-	lock.unlock();
+	}
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s == OPENMSX_INVALID_SOCKET) {
@@ -2019,7 +2031,8 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 		}
 	}
 
-	lock.lock();
+	{
+		std::scoped_lock lock(connectionsMutex);
 	auto* conn = allocateConnection();
 	// A free slot was checked before connecting; since all commands run
 	// on the same ESP thread, the slot is still free.
@@ -2055,8 +2068,9 @@ void GenericUNAPI::cmdTcpOpen(std::span<const uint8_t> data)
 	conn->readerThread = std::make_unique<std::thread>(
 	        [this, connIdx] { tcpReaderThreadFunc(connIdx); });
 
-	uint8_t connNum = static_cast<uint8_t>(connIdx + 1);
+	auto connNum = static_cast<uint8_t>(connIdx + 1);
 	sendResponse(13, 0, {&connNum, 1});
+	}
 }
 
 void GenericUNAPI::cmdTcpClose(std::span<const uint8_t> data)
@@ -2254,7 +2268,7 @@ void GenericUNAPI::cmdTcpSend(std::span<const uint8_t> data)
 		auto r = conn->ssl->write(
 			std::span<const char>(reinterpret_cast<const char*>(payload.data()),
 			                      payload.size()));
-		if (!r) {
+		if (!r.has_value()) {
 			if (r.error() == OpenSSL::IoError::Closed) {
 				// Peer sent close_notify: the connection is closed
 				conn->state = 3; // remote closed -> CLOSE_WAIT

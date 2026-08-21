@@ -1,5 +1,6 @@
 #include "OpenSSL.hh"
 
+#include <array>
 #include <cstdio>
 #include <cstring>
 #include <mutex>
@@ -14,8 +15,7 @@
 #include <dlfcn.h>
 #endif
 
-namespace openmsx {
-namespace OpenSSL {
+namespace openmsx::OpenSSL {
 namespace {
 
 // ---------------------------------------------------------------------
@@ -24,15 +24,11 @@ namespace {
 
 #ifdef _WIN32
 using DllHandle = HMODULE;
-static DllHandle openSslLib(const char* name)
+DllHandle openSslLib(const char* name)
 {
 	return LoadLibraryA(name);
 }
-static void* resolveSymbol(DllHandle lib, const char* name)
-{
-	return reinterpret_cast<void*>(GetProcAddress(lib, name));
-}
-static const char* libraryCandidates[] = {
+const char* libraryCandidates[] = {
 	"libssl-4-x64.dll", "libssl-4.dll",
 	"libssl-3-x64.dll", "libssl-3.dll",
 	"libssl-1_1-x64.dll", "libssl-1_1.dll",
@@ -40,15 +36,11 @@ static const char* libraryCandidates[] = {
 };
 #else
 using DllHandle = void*;
-static DllHandle openSslLib(const char* name)
+DllHandle openSslLib(const char* name)
 {
 	return dlopen(name, RTLD_NOW | RTLD_LOCAL);
 }
-static void* resolveSymbol(DllHandle lib, const char* name)
-{
-	return dlsym(lib, name);
-}
-static const char* libraryCandidates[] = {
+const char* libraryCandidates[] = {
 	// Homebrew (Apple Silicon / Intel) and system-wide installs
 	"/opt/homebrew/opt/openssl@3/lib/libssl.3.dylib",
 	"/opt/homebrew/opt/openssl@1.1/lib/libssl.1.1.dylib",
@@ -62,78 +54,101 @@ static const char* libraryCandidates[] = {
 };
 #endif
 
+// Resolves one exported symbol, reinterpreted to the type the caller
+// expects. Returns nullptr when it is not present. All pointer types have
+// the same width, so this is ABI-safe.
+template<typename T>
+T resolveSymbol(DllHandle lib, const char* name)
+{
+#ifdef _WIN32
+	return reinterpret_cast<T>(GetProcAddress(lib, name));
+#else
+	return reinterpret_cast<T>(dlsym(lib, name));
+#endif
+}
+
 // ---------------------------------------------------------------------
 //  Resolved OpenSSL entry points (all optional except the core set)
 // ---------------------------------------------------------------------
 
 struct OpenSSLApi {
 	// init
-	int (*init)(unsigned long long opts, const void* settings) = nullptr;
+	int (*init)(unsigned long long opts, const SslInitSettings* settings) = nullptr;
 	int (*libraryInit)() = nullptr;
 	// methods / contexts
-	const void* (*tlsClientMethod)() = nullptr;
-	const void* (*ssl23ClientMethod)() = nullptr;
-	void* (*ctxNew)(const void* method) = nullptr;
-	int (*ctxSetDefaultVerifyPaths)(void* ctx) = nullptr;
-	int (*ctxLoadVerifyLocations)(void* ctx, const char* caFile,
+	const SslMethod* (*tlsClientMethod)() = nullptr;
+	const SslMethod* (*ssl23ClientMethod)() = nullptr;
+	SslCtx* (*ctxNew)(const SslMethod* method) = nullptr;
+	int (*ctxSetDefaultVerifyPaths)(SslCtx* ctx) = nullptr;
+	int (*ctxLoadVerifyLocations)(SslCtx* ctx, const char* caFile,
 	                              const char* caPath) = nullptr;
 	// sessions
-	void* (*newSession)(void* ctx) = nullptr;
-	void (*freeSession)(void* ssl) = nullptr;
-	int (*setFd)(void* ssl, int fd) = nullptr;
-	void (*setVerify)(void* ssl, int mode, void* callback) = nullptr;
-	int (*connect)(void* ssl) = nullptr;
-	long (*ctrl)(void* ssl, int cmd, long larg, void* parg) = nullptr;
-	void* (*get0Param)(const void* ssl) = nullptr;
-	int (*verifyParamSet1Host)(void* param, const char* name,
+	Ssl* (*newSession)(SslCtx* ctx) = nullptr;
+	void (*freeSession)(Ssl* ssl) = nullptr;
+	int (*setFd)(Ssl* ssl, int fd) = nullptr;
+	void (*setVerify)(Ssl* ssl, int mode, void (*)(int, X509StoreCtx*)) = nullptr;
+	int (*connect)(Ssl* ssl) = nullptr;
+	long (*ctrl)(Ssl* ssl, int cmd, long larg, char* parg) = nullptr;
+	X509VerifyParam* (*get0Param)(const Ssl* ssl) = nullptr;
+	int (*verifyParamSet1Host)(X509VerifyParam* param, const char* name,
 	                           size_t namelen) = nullptr;
 	// data
-	int (*read)(void* ssl, void* buf, int num) = nullptr;
-	int (*write)(void* ssl, const void* buf, int num) = nullptr;
-	int (*pending)(const void* ssl) = nullptr;
-	int (*shutdown)(void* ssl) = nullptr;
+	int (*read)(Ssl* ssl, char* buf, int num) = nullptr;
+	int (*write)(Ssl* ssl, const char* buf, int num) = nullptr;
+	int (*pending)(const Ssl* ssl) = nullptr;
+	int (*shutdown)(Ssl* ssl) = nullptr;
 	// errors / verification
-	int (*getError)(const void* ssl, int ret) = nullptr;
-	long (*getVerifyResult)(const void* ssl) = nullptr;
-	void* (*get1PeerCertificate)(const void* ssl) = nullptr;
-	void (*freeX509)(void* x) = nullptr;
+	int (*getError)(const Ssl* ssl, int ret) = nullptr;
+	long (*getVerifyResult)(const Ssl* ssl) = nullptr;
+	X509* (*get1PeerCertificate)(const Ssl* ssl) = nullptr;
+	void (*freeX509)(X509* x) = nullptr;
 	unsigned long (*errGetError)() = nullptr;
 	void (*errErrorStringN)(unsigned long e, char* buf, size_t len) = nullptr;
 	const char* (*version)(int type) = nullptr;
 };
 
-OpenSSLApi api;
-DllHandle libHandle = nullptr;
-DllHandle cryptoHandle = nullptr;
-bool loadAttempted = false;
-bool loaded = false;
+// All mutable runtime state, held in a function-local singleton so there are
+// no non-const namespace-scope variables (SonarCloud cpp:S1132).
+struct Runtime {
+	OpenSSLApi api;
+	DllHandle libHandle = nullptr;
+	DllHandle cryptoHandle = nullptr;
+	bool loadAttempted = false;
+	bool loaded = false;
+};
 
-static constexpr unsigned long OPENSSL_INIT_LOAD_SSL_STRINGS = 0x00200000UL;
-static constexpr unsigned long OPENSSL_INIT_LOAD_CRYPTO_STRINGS = 0x00000001UL;
+Runtime& runtime()
+{
+	static Runtime r;
+	return r;
+}
 
-static constexpr int SSL_VERIFY_NONE = 0x00;
-static constexpr int SSL_VERIFY_PEER = 0x01;
-static constexpr int SSL_ERROR_WANT_READ = 2;
-static constexpr int SSL_ERROR_WANT_WRITE = 3;
-static constexpr int SSL_ERROR_ZERO_RETURN = 6;
-static constexpr int SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
-static constexpr long TLSEXT_NAMETYPE_HOST_NAME = 0;
-static constexpr int OPENSSL_VERSION = 0;
+constexpr unsigned long OPENSSL_INIT_LOAD_SSL_STRINGS = 0x00200000UL;
+constexpr unsigned long OPENSSL_INIT_LOAD_CRYPTO_STRINGS = 0x00000001UL;
+
+constexpr int SSL_VERIFY_NONE = 0x00;
+constexpr int SSL_VERIFY_PEER = 0x01;
+constexpr int SSL_ERROR_WANT_READ = 2;
+constexpr int SSL_ERROR_WANT_WRITE = 3;
+constexpr int SSL_ERROR_ZERO_RETURN = 6;
+constexpr int SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
+constexpr long TLSEXT_NAMETYPE_HOST_NAME = 0;
+constexpr int OPENSSL_VERSION = 0;
 
 // X509 verify error codes (used to map to TCP-IP UNAPI close reasons)
-static constexpr long X509_V_OK = 0;
-static constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT = 2;
-static constexpr long X509_V_ERR_CERT_NOT_YET_VALID = 9;
-static constexpr long X509_V_ERR_CERT_HAS_EXPIRED = 10;
-static constexpr long X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT = 18;
-static constexpr long X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN = 19;
-static constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY = 20;
-static constexpr long X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE = 21;
-static constexpr long X509_V_ERR_CERT_REVOKED = 23;
-static constexpr long X509_V_ERR_INVALID_CA = 24;
-static constexpr long X509_V_ERR_CERT_UNTRUSTED = 27;
-static constexpr long X509_V_ERR_CERT_REJECTED = 28;
-static constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
+constexpr long X509_V_OK = 0;
+constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT = 2;
+constexpr long X509_V_ERR_CERT_NOT_YET_VALID = 9;
+constexpr long X509_V_ERR_CERT_HAS_EXPIRED = 10;
+constexpr long X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT = 18;
+constexpr long X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN = 19;
+constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY = 20;
+constexpr long X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE = 21;
+constexpr long X509_V_ERR_CERT_REVOKED = 23;
+constexpr long X509_V_ERR_INVALID_CA = 24;
+constexpr long X509_V_ERR_CERT_UNTRUSTED = 27;
+constexpr long X509_V_ERR_CERT_REJECTED = 28;
+constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
 
 // ---------------------------------------------------------------------
 //  Trust store setup
@@ -143,8 +158,9 @@ static constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
 // Exports the Windows system root certificates as a PEM file and loads it
 // into the given context, so that the device trusts the same CAs as the
 // host operating system.
-static bool loadWindowsTrustStore(void* ctx)
+bool loadWindowsTrustStore(SslCtx* ctx)
 {
+	OpenSSLApi& api = runtime().api;
 	// The Windows system store provides the full root CA list
 	HCERTSTORE hStore = CertOpenStore(CERT_STORE_PROV_SYSTEM_A, 0, 0,
 	                                  CERT_SYSTEM_STORE_CURRENT_USER,
@@ -192,8 +208,9 @@ static bool loadWindowsTrustStore(void* ctx)
 }
 #endif
 
-static void setupTrustStore(void* ctx)
+void setupTrustStore(SslCtx* ctx)
 {
+	OpenSSLApi& api = runtime().api;
 #ifdef _WIN32
 	// The Windows system store provides the full root CA list
 	loadWindowsTrustStore(ctx);
@@ -211,15 +228,16 @@ static void setupTrustStore(void* ctx)
 }
 
 // Shared client context, created once on first use
-void* getSharedContext()
+SslCtx* getSharedContext()
 {
 	static std::once_flag flag;
-	static void* ctx = nullptr;
+	static SslCtx* ctx = nullptr;
 	std::call_once(flag, [] {
-		const void* method = api.tlsClientMethod ? api.tlsClientMethod()
-		                     : api.ssl23ClientMethod();
-		if (!method || !api.ctxNew) return;
-		ctx = api.ctxNew(method);
+		const SslMethod* method = runtime().api.tlsClientMethod
+		                          ? runtime().api.tlsClientMethod()
+		                          : runtime().api.ssl23ClientMethod();
+		if (!method || !runtime().api.ctxNew) return;
+		ctx = runtime().api.ctxNew(method);
 		if (ctx) {
 			setupTrustStore(ctx);
 		}
@@ -232,30 +250,30 @@ void* getSharedContext()
 // ---------------------------------------------------------------------
 
 template<typename T>
-static T resolve(DllHandle lib, const char* name)
+T resolve(DllHandle lib, const char* name)
 {
-	return reinterpret_cast<T>(resolveSymbol(lib, name));
+	return resolveSymbol<T>(lib, name);
 }
 
 // Tries the SSL library first, then the crypto library: the X509/ERR
 // entry points live in libcrypto (GetProcAddress does not search DLL
 // dependencies, so on Windows the crypto library must be loaded too)
 template<typename T>
-static T resolveAny(const char* name)
+T resolveAny(const char* name)
 {
-	if (auto p = resolveSymbol(libHandle, name)) {
-		return reinterpret_cast<T>(p);
+	if (auto p = resolveSymbol<T>(runtime().libHandle, name)) {
+		return p;
 	}
-	if (cryptoHandle) {
-		if (auto p = resolveSymbol(cryptoHandle, name)) {
-			return reinterpret_cast<T>(p);
+	if (runtime().cryptoHandle) {
+		if (auto p = resolveSymbol<T>(runtime().cryptoHandle, name)) {
+			return p;
 		}
 	}
 	return nullptr;
 }
 
 // Name of the libcrypto DLL that belongs to a libssl DLL
-static std::string cryptoNameFor(const char* sslName)
+std::string cryptoNameFor(const char* sslName)
 {
 	std::string n = sslName;
 	auto pos = n.find("libssl");
@@ -267,8 +285,10 @@ static std::string cryptoNameFor(const char* sslName)
 	return n;
 }
 
-static bool resolveSymbols()
+bool resolveSymbols()
 {
+	OpenSSLApi& api = runtime().api;
+	DllHandle& libHandle = runtime().libHandle;
 	api.init = resolve<decltype(api.init)>(libHandle, "OPENSSL_init_ssl");
 	api.libraryInit = resolve<decltype(api.libraryInit)>(libHandle, "SSL_library_init");
 	api.tlsClientMethod = resolve<decltype(api.tlsClientMethod)>(libHandle, "TLS_client_method");
@@ -324,17 +344,17 @@ static bool resolveSymbols()
 	return true;
 }
 
-static bool openLibrary()
+bool openLibrary()
 {
 	for (const char* name : libraryCandidates) {
 		if (auto h = openSslLib(name)) {
-			libHandle = h;
+			runtime().libHandle = h;
 			// Load the matching libcrypto as well: the X509/ERR entry
 			// points are exported by libcrypto, and GetProcAddress does
 			// not search DLL dependencies (best effort; the TLS session
 			// functions themselves all live in libssl).
 			if (auto ch = openSslLib(cryptoNameFor(name).c_str())) {
-				cryptoHandle = ch;
+				runtime().cryptoHandle = ch;
 			}
 			return true;
 		}
@@ -351,14 +371,14 @@ static bool openLibrary()
 LibHandle* load()
 {
 	static LibHandle singleton; // only valid (and non-null) after a successful load
-	if (loadAttempted) return loaded ? &singleton : nullptr;
-	loadAttempted = true;
+	if (runtime().loadAttempted) return runtime().loaded ? &singleton : nullptr;
+	runtime().loadAttempted = true;
 	if (!openLibrary()) return nullptr;
-	loaded = resolveSymbols();
-	return loaded ? &singleton : nullptr;
+	runtime().loaded = resolveSymbols();
+	return runtime().loaded ? &singleton : nullptr;
 }
 
-SessionHandle::SessionHandle(void* ssl_)
+SessionHandle::SessionHandle(Ssl* ssl_)
 	: ssl(ssl_)
 {
 }
@@ -384,6 +404,7 @@ SessionHandle::~SessionHandle()
 
 void SessionHandle::release() noexcept
 {
+	OpenSSLApi& api = runtime().api;
 	if (!ssl || !api.shutdown || !api.freeSession) return;
 	// Best-effort shutdown: the peer may already be gone
 	api.shutdown(ssl);
@@ -393,6 +414,7 @@ void SessionHandle::release() noexcept
 
 int SessionHandle::handshake() const
 {
+	OpenSSLApi& api = runtime().api;
 	int r = api.connect(ssl);
 	if (r == 1) return 1;
 	int e = api.getError(ssl, r);
@@ -403,13 +425,14 @@ int SessionHandle::handshake() const
 
 int SessionHandle::verifyResult() const
 {
+	OpenSSLApi& api = runtime().api;
 	if (!api.getVerifyResult) return 0;
 	long vr = api.getVerifyResult(ssl);
 	if (vr == X509_V_OK) return 0;
 
 	// The server did not provide a certificate at all
 	if (api.get1PeerCertificate && api.freeX509) {
-		void* peer = api.get1PeerCertificate(ssl);
+		X509* peer = api.get1PeerCertificate(ssl);
 		if (peer) {
 			api.freeX509(peer);
 		} else {
@@ -444,6 +467,7 @@ int SessionHandle::verifyResult() const
 
 IoResult SessionHandle::read(std::span<char> buf) const
 {
+	OpenSSLApi& api = runtime().api;
 	int r = api.read(ssl, buf.data(), static_cast<int>(buf.size()));
 	if (r > 0) return IoResult(r);
 	int e = api.getError(ssl, r);
@@ -458,6 +482,7 @@ IoResult SessionHandle::read(std::span<char> buf) const
 
 IoResult SessionHandle::write(std::span<const char> buf) const
 {
+	OpenSSLApi& api = runtime().api;
 	int r = api.write(ssl, buf.data(), static_cast<int>(buf.size()));
 	if (r > 0) return IoResult(r);
 	int e = api.getError(ssl, r);
@@ -472,17 +497,19 @@ IoResult SessionHandle::write(std::span<const char> buf) const
 
 int SessionHandle::pending() const
 {
+	OpenSSLApi& api = runtime().api;
 	return api.pending ? api.pending(ssl) : 0;
 }
 
 std::optional<SessionHandle> LibHandle::createClientSession(
 	bool verify, zstring_view hostname, int fd) const
 {
-	if (!loaded) return std::nullopt;
-	void* ctx = getSharedContext();
+	OpenSSLApi& api = runtime().api;
+	if (!runtime().loaded) return std::nullopt;
+	SslCtx* ctx = getSharedContext();
 	if (!ctx) return std::nullopt;
 
-	void* ssl = api.newSession(ctx);
+	Ssl* ssl = api.newSession(ctx);
 	if (!ssl) return std::nullopt;
 	if (api.setFd(ssl, fd) != 1) {
 		api.freeSession(ssl);
@@ -508,18 +535,19 @@ std::optional<SessionHandle> LibHandle::createClientSession(
 
 zstring_view LibHandle::version() const
 {
+	OpenSSLApi& api = runtime().api;
 	return api.version ? api.version(OPENSSL_VERSION) : "";
 }
 
 zstring_view LibHandle::last_error() const
 {
+	OpenSSLApi& api = runtime().api;
 	if (api.errGetError && api.errErrorStringN) {
-		thread_local char buf[256];
-		api.errErrorStringN(api.errGetError(), buf, sizeof(buf));
-		return buf;
+		thread_local std::array<char, 256> buf;
+		api.errErrorStringN(api.errGetError(), buf.data(), buf.size());
+		return buf.data();
 	}
 	return "OpenSSL error";
 }
 
-} // namespace OpenSSL
-} // namespace openmsx
+} // namespace openmsx::OpenSSL

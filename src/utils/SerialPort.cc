@@ -71,7 +71,7 @@ static DCB serialParamsToDCB(const SerialParams& params)
 
 std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialParams& params)
 {
-	std::string fullName = "\\\\.\\";
+	std::string fullName = R"(\\.\)";
 	fullName += portName;
 	HANDLE h = CreateFileA(
 		fullName.c_str(),
@@ -266,7 +266,7 @@ std::vector<std::string> list_ports()
 	std::vector<std::string> ports;
 	for (int i = 1; i <= 256; ++i) {
 		std::string name = "COM" + std::to_string(i);
-		std::string fullName = "\\\\.\\" + name;
+		std::string fullName = R"(\\.\)" + name;
 		HANDLE h = CreateFileA(
 			fullName.c_str(),
 			GENERIC_READ | GENERIC_WRITE,

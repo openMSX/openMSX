@@ -64,7 +64,7 @@ MSXRS232::~MSXRS232() = default;
 void MSXRS232::notifyBaudRate()
 {
 	auto& dev = getPluggedRS232Dev();
-	ClockPin& clk = i8251.getClockPin();
+	const ClockPin& clk = i8251.getClockPin();
 	if (clk.isPeriodic()) {
 		auto period = clk.getTotalDuration().toUint64();
 		if (period > 0) {

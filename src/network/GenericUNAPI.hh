@@ -9,12 +9,16 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <span>
+#include <string_view>
 #include <thread>
+#include <vector>
 
 namespace openmsx {
 
@@ -48,6 +52,19 @@ private:
 
 	// ESP emulator thread
 	void espThreadFunc();
+	void pushBootText(std::string_view text);
+	void resetParser();
+	// Dispatch a complete command. Must be called without msxToEspMutex
+	// held.
+	void processCommand();
+	// Wait logic for an empty MSX->ESP FIFO. Returns true when the thread
+	// should stop; on return 'unlocked' may hold work that must run
+	// without the mutex held.
+	[[nodiscard]] bool espWaitForWork(std::unique_lock<std::mutex>& lock,
+	                                  std::function<void()>& unlocked);
+	// Parser state machine for one received byte. On return 'unlocked'
+	// may hold work that must run without the mutex held.
+	void espParseByte(uint8_t b, std::function<void()>& unlocked);
 	void startEspThread();
 	void stopEspThread();
 	void tcpReaderThreadFunc(int connIdx);
@@ -141,6 +158,22 @@ private:
 	// Set by cmdReset (running in the ESP thread); the ESP thread then
 	// wipes pending input and emulates the device reboot sequence.
 	bool bootStartPending = false;
+
+	// ESP firmware emulation state, driven by espThreadFunc only:
+	//  - the UART parser (CMD + 2-byte size + data framing)
+	//  - the boot sequence ("Ready\r\n" retries after a reset)
+	enum class ParserState : uint8_t { IDLE, WAIT_DATA_SIZE, GET_DATA };
+	ParserState parserState = ParserState::IDLE;
+	uint8_t parserCmdByte = 0;
+	uint8_t parserSizeStep = 0;
+	uint16_t parserExpectedSize = 0;
+	std::vector<uint8_t> parserDataBuf;
+	std::chrono::steady_clock::time_point parserDeadline;
+
+	enum class BootStage : uint8_t { NONE, READY_LOOP };
+	BootStage bootStage = BootStage::NONE;
+	uint8_t bootReadyRetries = 0;
+	std::chrono::steady_clock::time_point bootEventTime;
 
 	// Connections
 	mutable std::mutex connectionsMutex;

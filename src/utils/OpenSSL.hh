@@ -8,8 +8,7 @@
 #include <optional>
 #include <span>
 
-namespace openmsx {
-namespace OpenSSL {
+namespace openmsx::OpenSSL {
 
 // Minimal TLS wrapper around the OpenSSL runtime library installed on the
 // host, loaded dynamically at runtime (LoadLibrary / dlopen). Building
@@ -23,6 +22,16 @@ namespace OpenSSL {
 //
 // Supported: OpenSSL 1.1.x and 3.x on Windows, Linux and macOS (LibreSSL
 // is mostly API-compatible and will also be picked up as a fallback).
+
+// Opaque handles for OpenSSL runtime types, kept forward-declared so that
+// openMSX itself never needs the OpenSSL development headers.
+struct SslCtx;
+struct Ssl;
+struct X509;
+struct X509VerifyParam;
+struct SslMethod;
+struct X509StoreCtx;
+struct SslInitSettings;
 
 // Result of a (non-blocking) read() or write(): success carries the
 // number of bytes transferred; on failure IoError says why.
@@ -67,9 +76,9 @@ struct SessionHandle {
 
 private:
 	friend struct LibHandle;
-	explicit SessionHandle(void* ssl_);
+	explicit SessionHandle(Ssl* ssl_);
 	void release() noexcept;
-	void* ssl;
+	Ssl* ssl;
 };
 
 // Handle to the loaded OpenSSL runtime. Obtained from load(); its members
@@ -102,7 +111,6 @@ private:
 // pointer is the same on every successful call).
 LibHandle* load();
 
-} // namespace OpenSSL
-} // namespace openmsx
+} // namespace openmsx::OpenSSL
 
 #endif

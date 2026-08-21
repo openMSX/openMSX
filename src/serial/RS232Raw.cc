@@ -97,7 +97,7 @@ void RS232Raw::applyParams()
 
 	poller.reset();
 	poller.emplace();
-	thread = std::thread([this]() { run(); });
+	thread = std::jthread([this]() { run(); });
 #else
 	auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 	                         currentParityEnabled, currentParity);
@@ -126,7 +126,7 @@ void RS232Raw::plugHelper(Connector& connector_, EmuTime /*time*/)
 		(void)handle->set_dtr(DTR);
 		(void)handle->set_rts(RTS);
 		poller.emplace();
-		thread = std::thread([this]() { run(); });
+		thread = std::jthread([this]() { run(); });
 	}
 
 	DCD = false;
@@ -176,7 +176,7 @@ void RS232Raw::handleImGuiExtraMenuItems()
 	}
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
-	im::Combo("##rs232-raw-port", cur.c_str(), [&]{
+	im::Combo("##rs232-raw-port", cur.c_str(), [this, &cur]{
 		for (const auto& p : ports) {
 			bool selected = (p == cur);
 			if (ImGui::Selectable(p.c_str(), selected)) {
@@ -200,9 +200,7 @@ void RS232Raw::run()
 	auto* conn = directConn;
 	bool direct = conn && conn->directByteDelivery();
 
-	while (true) {
-		if (!handle) break;
-		if (poller->aborted()) break;
+	while (handle && !poller->aborted()) {
 #ifndef _WIN32
 		if (poller->poll(handle->native_handle())) {
 			break;
@@ -211,17 +209,13 @@ void RS232Raw::run()
 
 		char b;
 		auto r = handle->read(std::span<char>(&b, 1));
-		if (!r) {
+		if (!r.has_value()) {
 			handle.reset();
-			break;
 		} else if (*r == 0) {
 #ifdef _WIN32
 			Sleep(1);
 #endif
-			continue;
-		}
-
-		if (direct) {
+		} else if (direct) {
 			conn->recvByte(static_cast<uint8_t>(b), EmuTime::zero());
 		} else {
 			assert(isPluggedIn());
@@ -382,7 +376,7 @@ void RS232Raw::update(const Setting& /*setting*/) noexcept
 			(void)handle->set_dtr(DTR);
 			(void)handle->set_rts(RTS);
 			poller.emplace();
-			thread = std::thread([this]() { run(); });
+			thread = std::jthread([this]() { run(); });
 		} else {
 			cliComm.printWarning("Failed to open serial port ", portName, ": ",
 			                     serial::to_string(h.error()));
@@ -411,7 +405,7 @@ void RS232Raw::serialize(Archive& /*ar*/, unsigned /*version*/)
 			(void)handle->set_dtr(DTR);
 			(void)handle->set_rts(RTS);
 			poller.emplace();
-			thread = std::thread([this]() { run(); });
+			thread = std::jthread([this]() { run(); });
 		}
 	}
 }
