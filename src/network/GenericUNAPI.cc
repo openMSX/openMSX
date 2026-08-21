@@ -701,39 +701,38 @@ void GenericUNAPI::espThreadFunc()
 	bootReadyRetries = 0;
 
 	while (espRunning.load()) {
-		std::unique_lock lock(msxToEspMutex);
-
 		// Work that must run without the mutex (command dispatch and
 		// boot text pushes): decided under the lock, executed below.
 		std::function<void()> unlocked;
+		bool stop = false;
+		{
+			std::unique_lock lock(msxToEspMutex);
 
-		if (bootStartPending) {
-			// A reset was requested (cmdReset just ran): discard any
-			// pending input — the real device loses its serial buffer on
-			// reboot — and start the boot sequence (greeting immediately
-			// after "R0").
-			bootStartPending = false;
-			resetParser();
-			msxToEspFifo.clear();
-			unlocked = [this] { pushBootText(bootGreeting); };
-			bootStage = BootStage::READY_LOOP;
-			bootReadyRetries = 3;
-			bootEventTime = std::chrono::steady_clock::now() +
-			                std::chrono::seconds(5);
-		} else if (msxToEspFifo.empty()) {
-			if (espWaitForWork(lock, unlocked)) break;
-		} else {
-			uint8_t b = msxToEspFifo.front();
-			msxToEspFifo.pop_front();
-			parserDeadline = std::chrono::steady_clock::now() +
-			                 std::chrono::milliseconds(250);
-			espParseByte(b, unlocked);
+			if (bootStartPending) {
+				// A reset was requested (cmdReset just ran): discard any
+				// pending input — the real device loses its serial buffer
+				// on reboot — and start the boot sequence (greeting
+				// immediately after "R0").
+				bootStartPending = false;
+				resetParser();
+				msxToEspFifo.clear();
+				unlocked = [this] { pushBootText(bootGreeting); };
+				bootStage = BootStage::READY_LOOP;
+				bootReadyRetries = 3;
+				bootEventTime = std::chrono::steady_clock::now() +
+				                std::chrono::seconds(5);
+			} else if (msxToEspFifo.empty()) {
+				stop = espWaitForWork(lock, unlocked);
+			} else {
+				uint8_t b = msxToEspFifo.front();
+				msxToEspFifo.pop_front();
+				parserDeadline = std::chrono::steady_clock::now() +
+				                 std::chrono::milliseconds(250);
+				espParseByte(b, unlocked);
+			}
 		}
-
-		if (unlocked) {
-			lock.unlock();
-			unlocked();
-		}
+		if (stop) break;
+		if (unlocked) unlocked();
 	}
 }
 
