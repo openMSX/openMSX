@@ -43,22 +43,6 @@ void ImGuiSlotMap::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-// The external cartridge slot at (ps, ss), if any.
-// 'ss' must already be normalized: 0 for a non-expanded primary slot.
-[[nodiscard]] static std::optional<unsigned> findCartridgeSlot(
-	const CartridgeSlotManager& slotManager, int ps, int ss)
-{
-	for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
-		if (!slotManager.slotExists(slot)) continue;
-		auto [slotPs, slotSs] = slotManager.getPsSs(slot);
-		if (slotSs == -1) slotSs = 0; // not expanded
-		if ((slotPs == ps) && (slotSs == ss)) {
-			return slot;
-		}
-	}
-	return {};
-}
-
 // A continuous address range in one slot, covered by a single device.
 // 'device' is nullptr for the parts where nothing is mapped.
 struct Block {
@@ -205,7 +189,7 @@ static constexpr float MIN_BLOCK_HEIGHT = 4.0f;
 static void drawSlot(DrawContext& ctx, int ps, int ss, bool expanded,
                      float x0, float x1, float headerTop, float top, float bottom)
 {
-	auto cartridge = findCartridgeSlot(ctx.slotManager, ps, ss);
+	auto cartridge = ctx.slotManager.findSlot(ps, ss, true);
 	auto labelHeight = 0.5f * (top - headerTop);
 	drawText(ctx.drawList, expanded ? strCat(ps, '-', ss) : strCat(ps),
 	         gl::vec2(x0, headerTop), gl::vec2(x1, headerTop + labelHeight), ctx.textColor);
