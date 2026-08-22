@@ -2,6 +2,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiMedia.hh"
 #include "ImGuiUtils.hh"
 
 #include "CartridgeSlotManager.hh"
@@ -42,9 +43,9 @@ void ImGuiSlotMap::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-// The letter of the external cartridge slot at (ps, ss), if any.
+// The external cartridge slot at (ps, ss), if any.
 // 'ss' must already be normalized: 0 for a non-expanded primary slot.
-[[nodiscard]] static std::optional<char> getCartridgeLetter(
+[[nodiscard]] static std::optional<unsigned> findCartridgeSlot(
 	const CartridgeSlotManager& slotManager, int ps, int ss)
 {
 	for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
@@ -52,7 +53,7 @@ void ImGuiSlotMap::loadLine(std::string_view name, zstring_view value)
 		auto [slotPs, slotSs] = slotManager.getPsSs(slot);
 		if (slotSs == -1) slotSs = 0; // not expanded
 		if ((slotPs == ps) && (slotSs == ss)) {
-			return char('A' + slot);
+			return slot;
 		}
 	}
 	return {};
@@ -109,22 +110,6 @@ static void getBlocks(std::vector<Block>& result, std::vector<Block>& scratch,
 	if (pos < ADDRESS_SPACE) result.emplace_back(pos, ADDRESS_SPACE, nullptr);
 }
 
-// Mirror of ImGuiUtils' leftClip(): keep the start of the string and replace
-// the part that doesn't fit with an ellipsis.
-[[nodiscard]] static std::string rightClip(std::string_view s, float maxWidth)
-{
-	maxWidth -= ImGui::CalcTextSize("..."sv).x;
-	if (maxWidth <= 0.0f) return "...";
-
-	// The first length that is too wide, minus one, is the longest prefix that
-	// still fits. Length 0 always fits, so that first length is never 0.
-	auto lengths = std::views::iota(0uz, s.size() + 1);
-	auto it = std::ranges::upper_bound(lengths, maxWidth, {},
-		[&](size_t n) { return ImGui::CalcTextSize(s.substr(0, n)).x; });
-	auto num = (it == lengths.end()) ? s.size() : (*it - 1);
-	return strCat(s.substr(0, num), "...");
-}
-
 // Draw 'text' centered in the rectangle, wrapped over as many lines as fit.
 // Falls back to a single clipped line, and to nothing at all when even that
 // doesn't fit - the tooltip is what makes those cells readable.
@@ -168,7 +153,7 @@ static void drawText(ImDrawList* drawList, std::string_view text,
 			y += lineHeight;
 		}
 	} else {
-		draw(rightClip(text, width), min.y + 0.5f * ((max.y - min.y) - lineHeight));
+		draw(ImGui::rightClip(text, width), min.y + 0.5f * ((max.y - min.y) - lineHeight));
 	}
 }
 
@@ -177,6 +162,7 @@ namespace {
 // overlap after being enlarged to a hoverable size.
 struct HoveredBlock {
 	Block block{0, 0, nullptr};
+	std::optional<unsigned> cartridgeSlot; // when it's in an external slot
 	float height = 0.0f;
 	bool valid = false;
 };
@@ -219,12 +205,12 @@ static constexpr float MIN_BLOCK_HEIGHT = 4.0f;
 static void drawSlot(DrawContext& ctx, int ps, int ss, bool expanded,
                      float x0, float x1, float headerTop, float top, float bottom)
 {
-	auto cartridge = getCartridgeLetter(ctx.slotManager, ps, ss);
+	auto cartridge = findCartridgeSlot(ctx.slotManager, ps, ss);
 	auto labelHeight = 0.5f * (top - headerTop);
 	drawText(ctx.drawList, expanded ? strCat(ps, '-', ss) : strCat(ps),
 	         gl::vec2(x0, headerTop), gl::vec2(x1, headerTop + labelHeight), ctx.textColor);
 	if (cartridge) {
-		drawText(ctx.drawList, tmpStrCat("Slot ", *cartridge),
+		drawText(ctx.drawList, tmpStrCat("Slot ", char('A' + *cartridge)),
 		         gl::vec2(x0, headerTop + labelHeight), gl::vec2(x1, top), ctx.dimTextColor);
 	}
 
@@ -273,20 +259,35 @@ static void drawSlot(DrawContext& ctx, int ps, int ss, bool expanded,
 		if ((x0 <= ctx.mouse.x) && (ctx.mouse.x < x1) &&
 		    (blockTop <= ctx.mouse.y) && (ctx.mouse.y < blockBottom) &&
 		    (!ctx.hovered.valid || (blockHeight < ctx.hovered.height))) {
-			ctx.hovered = HoveredBlock{block, blockHeight, true};
+			ctx.hovered = HoveredBlock{block, cartridge, blockHeight, true};
 		}
 	}
 }
 
 static void drawDeviceToolTip(DrawContext& ctx)
 {
-	const auto& [block, height_, valid_] = ctx.hovered;
+	const auto& block = ctx.hovered.block;
 	im::Tooltip([&]{
 		im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+			bool header = false;
+			// For an external slot, what is plugged into it. That's not the
+			// same thing as the device below, which is a part of it, though
+			// for a simple extension the two names are the same.
+			if (auto slot = ctx.hovered.cartridgeSlot) {
+				auto content = ctx.manager.media->displayNameForSlotContent(
+					ctx.slotManager, *slot);
+				if (block.device && (content == block.device->getName())) {
+					ImGui::StrCat("Slot ", char('A' + *slot));
+				} else {
+					ImGui::StrCat("Slot ", char('A' + *slot), ": ", content);
+				}
+				header = true;
+			}
 			if (block.device) {
 				ImGui::TextUnformatted(block.device->getName());
-				ImGui::Separator();
+				header = true;
 			}
+			if (header) ImGui::Separator();
 			auto size = block.end - block.begin;
 			ImGui::StrCat("address: 0x", hex_string<4, HexCase::upper>(block.begin),
 			              " - 0x", hex_string<4, HexCase::upper>(block.end - 1));
