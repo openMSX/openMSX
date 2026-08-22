@@ -185,10 +185,12 @@ class Vorbis(DownloadablePackage):
 		return 'VORBIS'
 
 class ZLib(DownloadablePackage):
-	downloadURL = 'https://zlib.net/fossils/'
 	niceName = 'zlib'
 	sourceName = 'zlib'
 	version = '1.3.1'
+	# Note: zlib.net serves an HTML page instead of the tarball to some hosts,
+	#       among them the GitHub Actions runners, so take it from GitHub.
+	downloadURL = f'https://github.com/madler/zlib/releases/download/v{version}'
 	fileLength = 1512791
 	checksums = {
 		'sha256':
