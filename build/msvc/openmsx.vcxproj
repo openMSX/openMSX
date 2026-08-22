@@ -727,6 +727,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\lz4.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\SerialPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc" />
@@ -817,6 +818,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Connector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Device.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Net.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Raw.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Tester.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\YM2148.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\security\SocketStreamWrapper.cc" />
@@ -1382,6 +1384,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\unistdp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\unreachable.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_checked.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\SerialPort.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_core.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_unchecked.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\win32-arggen.hh" />
@@ -1498,6 +1501,7 @@
     <None Include="$(OpenMSXSrcDir)\serial\RS232Connector.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Device.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Net.hh" />
+    <None Include="$(OpenMSXSrcDir)\serial\RS232Raw.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Tester.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\SerialDataInterface.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\YM2148.hh" />
