@@ -6,6 +6,8 @@
 #include "ImGuiUtils.hh"
 
 #include "CartridgeSlotManager.hh"
+#include "Debuggable.hh"
+#include "Debugger.hh"
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXDevice.hh"
@@ -14,17 +16,16 @@
 #include "TclObject.hh"
 
 #include "gl_vec.hh"
+#include "static_vector.hh"
 #include "strCat.hh"
 #include "xrange.hh"
 
 #include <imgui.h>
 
 #include <algorithm>
-#include <array>
 #include <optional>
 #include <ranges>
-#include <span>
-#include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -51,49 +52,6 @@ struct Block {
 	const MSXDevice* device;
 };
 
-// Split the address space of one slot into blocks. MSXCPUInterface stores a
-// device per 16kB page, and wraps devices that cover less than a page in an
-// MSXMultiMemDevice, which knows the exact address ranges. Recombining both
-// gives the real extent of every device, so that nothing here has to care
-// about page boundaries.
-static void getBlocks(std::vector<Block>& result, std::vector<Block>& scratch,
-                      MSXCPUInterface& cpuInterface, const MSXDevice* dummyDevice,
-                      int ps, int ss)
-{
-	scratch.clear();
-	for (auto page : xrange(4)) {
-		auto pageBegin = PAGE_SIZE * unsigned(page);
-		const auto* device = cpuInterface.getMSXDevice(ps, ss, page);
-		if (!device || (device == dummyDevice)) continue;
-		if (const auto* multi = dynamic_cast<const MSXMultiMemDevice*>(device)) {
-			for (const auto& range : multi->getRanges()) {
-				auto begin = std::max(range.base, pageBegin);
-				auto end = std::min(range.base + range.size, pageBegin + PAGE_SIZE);
-				if (begin < end) scratch.emplace_back(begin, end, range.device);
-			}
-		} else {
-			scratch.emplace_back(pageBegin, pageBegin + PAGE_SIZE, device);
-		}
-	}
-	std::ranges::sort(scratch, {}, &Block::begin);
-
-	// Glue the pieces of a device that spans page boundaries back together,
-	// and fill what's left with 'empty' blocks.
-	result.clear();
-	unsigned pos = 0;
-	for (const auto& block : scratch) {
-		if (!result.empty() && (result.back().device == block.device) &&
-		    (result.back().end == block.begin)) {
-			result.back().end = block.end;
-		} else {
-			if (pos < block.begin) result.emplace_back(pos, block.begin, nullptr);
-			result.emplace_back(block.begin, block.end, block.device);
-		}
-		pos = block.end;
-	}
-	if (pos < ADDRESS_SPACE) result.emplace_back(pos, ADDRESS_SPACE, nullptr);
-}
-
 // Draw 'text' centered in the rectangle, wrapped over as many lines as fit.
 // Falls back to a single clipped line, and to nothing at all when even that
 // doesn't fit - the tooltip is what makes those cells readable.
@@ -117,22 +75,21 @@ static void drawText(ImDrawList* drawList, std::string_view text,
 	// fit' and fall back to clipping.
 	auto* font = ImGui::GetFont();
 	auto fontSize = ImGui::GetFontSize();
-	std::array<std::string_view, 16> lines;
-	size_t numLines = 0;
+	static_vector<std::string_view, 16> lines;
 	bool wrapped = true;
 	const char* pos = text.data();
 	const char* end = pos + text.size();
 	while (pos < end) {
-		if (numLines == lines.size()) { wrapped = false; break; }
+		if (lines.size() == lines.max_size()) { wrapped = false; break; }
 		const char* stop = font->CalcWordWrapPosition(fontSize, pos, end, width);
 		if ((stop == pos) || ((stop != end) && (*stop != ' '))) { wrapped = false; break; }
-		lines[numLines++] = std::string_view(pos, size_t(stop - pos));
+		lines.push_back(std::string_view(pos, size_t(stop - pos)));
 		pos = stop;
 		while ((pos < end) && (*pos == ' ')) ++pos; // eat the wrap point
 	}
-	if (wrapped && (numLines != 0) && (float(numLines) * lineHeight <= height)) {
-		auto y = min.y + 0.5f * ((max.y - min.y) - float(numLines) * lineHeight);
-		for (auto line : std::span(lines).first(numLines)) {
+	if (wrapped && !lines.empty() && (float(lines.size()) * lineHeight <= height)) {
+		auto y = min.y + 0.5f * ((max.y - min.y) - float(lines.size()) * lineHeight);
+		for (auto line : lines) {
 			draw(line, y);
 			y += lineHeight;
 		}
@@ -163,6 +120,7 @@ struct DrawContext {
 	ImGuiManager& manager;
 	MSXCPUInterface& cpuInterface;
 	const CartridgeSlotManager& slotManager;
+	Debugger& debugger;
 	const MSXDevice* dummyDevice;
 	ImDrawList* drawList;
 	ImU32 emptyColor;
@@ -173,11 +131,60 @@ struct DrawContext {
 	ImU32 dimTextColor;
 	gl::vec2 mouse;
 	HoveredBlock hovered;
-	std::vector<std::pair<gl::vec2, gl::vec2>> outlines;
+	std::vector<std::pair<gl::vec2, gl::vec2>> outlines;   // one per primary slot
+	std::vector<std::pair<gl::vec2, gl::vec2>> separators; // between the blocks
 	std::vector<TinyBlock> tinyBlocks;
 	std::vector<Block> blocks;
 	std::vector<Block> scratch;
 };
+}
+
+// Split the address space of one slot into blocks, in 'ctx.blocks'.
+// MSXCPUInterface stores a device per 16kB page, and wraps devices that cover
+// less than a page in an MSXMultiMemDevice, which knows the exact address
+// ranges. Recombining both gives the real extent of every device, so that
+// nothing here has to care about page boundaries.
+// Note: 'ctx.blocks' and 'ctx.scratch' are members rather than local variables
+//       so that this (called up to 16 times per frame) doesn't allocate.
+static void getBlocks(DrawContext& ctx, int ps, int ss)
+{
+	auto& scratch = ctx.scratch;
+	scratch.clear();
+	for (auto page : xrange(4)) {
+		auto pageBegin = PAGE_SIZE * unsigned(page);
+		const auto* device = ctx.cpuInterface.getMSXDevice(ps, ss, page);
+		if (!device || (device == ctx.dummyDevice)) continue;
+		if (const auto* multi = dynamic_cast<const MSXMultiMemDevice*>(device)) {
+			// Only these sub-ranges can be out of order: the pages themselves
+			// are visited in increasing order, so sorting per page is enough.
+			auto first = scratch.size();
+			for (const auto& range : multi->getRanges()) {
+				auto begin = std::max(range.base, pageBegin);
+				auto end = std::min(range.base + range.size, pageBegin + PAGE_SIZE);
+				if (begin < end) scratch.emplace_back(begin, end, range.device);
+			}
+			std::ranges::sort(scratch.begin() + first, scratch.end(), {}, &Block::begin);
+		} else {
+			scratch.emplace_back(pageBegin, pageBegin + PAGE_SIZE, device);
+		}
+	}
+
+	// Glue the pieces of a device that spans page boundaries back together,
+	// and fill what's left with 'empty' blocks.
+	auto& result = ctx.blocks;
+	result.clear();
+	unsigned pos = 0;
+	for (const auto& block : scratch) {
+		if (!result.empty() && (result.back().device == block.device) &&
+		    (result.back().end == block.begin)) {
+			result.back().end = block.end;
+		} else {
+			if (pos < block.begin) result.emplace_back(pos, block.begin, nullptr);
+			result.emplace_back(block.begin, block.end, block.device);
+		}
+		pos = block.end;
+	}
+	if (pos < ADDRESS_SPACE) result.emplace_back(pos, ADDRESS_SPACE, nullptr);
 }
 
 // Below this a block can't be seen, let alone hovered. A single byte is a
@@ -203,7 +210,7 @@ static void drawSlot(DrawContext& ctx, int ps, int ss, bool expanded,
 		return bottom - height * (float(address) * (1.0f / float(ADDRESS_SPACE)));
 	};
 
-	getBlocks(ctx.blocks, ctx.scratch, ctx.cpuInterface, ctx.dummyDevice, ps, ss);
+	getBlocks(ctx, ps, ss);
 	// Blocks come in increasing address order, so downwards on screen. Keeps
 	// enlarged blocks from covering each other.
 	auto lowestEnlarged = bottom;
@@ -232,7 +239,12 @@ static void drawSlot(DrawContext& ctx, int ps, int ss, bool expanded,
 			gl::vec2 min{x0, blockTop};
 			gl::vec2 max{x1, blockBottom};
 			ctx.drawList->AddRectFilled(min, max, color);
-			ctx.outlines.emplace_back(min, max);
+			// Only the line towards the next block: the outer edges belong to
+			// the outline of the slot as a whole. Drawing a rectangle per block
+			// would draw every shared edge twice.
+			if (block.end != ADDRESS_SPACE) {
+				ctx.separators.emplace_back(min, gl::vec2(x1, blockTop));
+			}
 			drawText(ctx.drawList, block.device ? std::string_view(block.device->getName())
 			                                    : "empty"sv,
 			         min, max, ctx.textColor);
@@ -279,22 +291,23 @@ static void drawDeviceToolTip(DrawContext& ctx)
 			                                      : strCat(size / 1024, "kB"));
 			if (!block.device) return;
 
-			const auto& name = block.device->getName();
 			// Whatever the device wants to tell about itself, e.g. the mapper
-			// type of a ROM or the file it was loaded from.
-			if (auto info = ctx.manager.execute(makeTclList("machine_info", "device", name))) {
-				for (size_t i = 0; (i + 1) < info->size(); i += 2) {
-					auto key = info->getListIndexUnchecked(i).getString();
-					auto value = info->getListIndexUnchecked(i + 1).getString();
-					if (value.empty()) continue;
-					ImGui::StrCat(key, ": ", value);
-				}
+			// type of a ROM or the file it was loaded from. Ask the device
+			// directly instead of going through the 'machine_info device'
+			// command: we already have the MSXDevice here.
+			TclObject info;
+			block.device->getDeviceInfo(info);
+			for (size_t i = 0; (i + 1) < info.size(); i += 2) {
+				auto key = info.getListIndexUnchecked(i).getString();
+				auto value = info.getListIndexUnchecked(i + 1).getString();
+				if (value.empty()) continue;
+				ImGui::StrCat(key, ": ", value);
 			}
 			// Devices with a debuggable of the same name (memory mappers, RAM)
 			// can also tell how much memory they actually have.
-			if (auto total = ctx.manager.execute(makeTclList("debug", "size", name))) {
-				if (auto bytes = total->getOptionalInt(); bytes && (*bytes > 0)) {
-					ImGui::StrCat("total memory: ", *bytes / 1024, "kB");
+			if (const auto* debuggable = ctx.debugger.findDebuggable(block.device->getName())) {
+				if (auto bytes = debuggable->getSize(); bytes != 0) {
+					ImGui::StrCat("total memory: ", bytes / 1024, "kB");
 				}
 			}
 		});
@@ -375,10 +388,17 @@ static void drawSlotMap(DrawContext& ctx)
 				for (auto ss : xrange(4)) {
 					auto x0 = x + float(ss) * width;
 					drawSlot(ctx, ps, ss, true, x0, x0 + width, headerTop, top, bottom);
+					// Between the sub-slots only, the outer edges are part
+					// of the outline of the primary slot.
+					if (ss != 0) {
+						ctx.separators.emplace_back(gl::vec2(x0, top),
+						                            gl::vec2(x0, bottom));
+					}
 				}
 			} else {
 				drawSlot(ctx, ps, 0, false, x, x + slotWidth, headerTop, top, bottom);
 			}
+			ctx.outlines.emplace_back(gl::vec2(x, top), gl::vec2(x + slotWidth, bottom));
 			x += slotWidth + gapX;
 		}
 	}
@@ -386,6 +406,12 @@ static void drawSlotMap(DrawContext& ctx)
 	// Outlines in one go, after all the fills, so that the fill of one block
 	// can't paint over the outline of the block next to it. This is also what
 	// keeps a device that is too small to see as a rectangle visible as a line.
+	// Each edge is drawn exactly once, otherwise the shared ones would come out
+	// twice as thick as the rest.
+	for (const auto& [p1, p2] : ctx.separators) {
+		ctx.drawList->AddLine(p1, p2, ctx.outlineColor);
+	}
+	ctx.separators.clear();
 	for (const auto& [min, max] : ctx.outlines) {
 		ctx.drawList->AddRect(min, max, ctx.outlineColor);
 	}
@@ -410,6 +436,7 @@ void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 		.manager = manager,
 		.cpuInterface = cpuInterface,
 		.slotManager = motherBoard->getSlotManager(),
+		.debugger = motherBoard->getDebugger(),
 		.dummyDevice = &cpuInterface.getDummyDevice(),
 		.drawList = nullptr, // only valid inside the window
 		.emptyColor = ImGui::GetColorU32(getColor(imColor::GRAY), 0.4f),
@@ -420,7 +447,8 @@ void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 		.dimTextColor = ImGui::GetColorU32(ImGuiCol_TextDisabled),
 		.mouse = gl::vec2(ImGui::GetIO().MousePos),
 	};
-	ctx.outlines.reserve(32);
+	ctx.outlines.reserve(4);
+	ctx.separators.reserve(64);
 
 	auto fontSize = ImGui::GetFontSize();
 	ImGui::SetNextWindowSize(ImVec2(64.0f * fontSize, 26.0f * fontSize), ImGuiCond_FirstUseEver);
