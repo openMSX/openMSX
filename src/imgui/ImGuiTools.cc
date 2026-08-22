@@ -4,6 +4,7 @@
 #include "ImGuiConsole.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiDiskManipulator.hh"
+#include "ImGuiIoPorts.hh"
 #include "ImGuiKeyboard.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiMessages.hh"
@@ -150,6 +151,8 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Slot map", nullptr, &manager.slotMap->show);
 		simpleToolTip("Show which devices are visible in which slot/page. "
 		              "Same information as the 'slotmap' console command.");
+		ImGui::MenuItem("I/O ports", nullptr, &manager.ioPorts->show);
+		simpleToolTip("Shows which device is connected to which I/O port");
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{

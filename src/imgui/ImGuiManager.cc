@@ -8,6 +8,7 @@
 #include "ImGuiDebugger.hh"
 #include "ImGuiDiskManipulator.hh"
 #include "ImGuiHelp.hh"
+#include "ImGuiIoPorts.hh"
 #include "ImGuiKeyboard.hh"
 #include "ImGuiMachine.hh"
 #include "ImGuiMedia.hh"
@@ -174,6 +175,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	symbols = std::make_unique<ImGuiSymbols>(*this);
 	watchExpr = std::make_unique<ImGuiWatchExpr>(*this);
 	traceViewer = std::make_unique<ImGuiTraceViewer>(*this);
+	ioPorts = std::make_unique<ImGuiIoPorts>(*this);
 	vdpRegs = std::make_unique<ImGuiVdpRegs>(*this);
 	palette = std::make_unique<ImGuiPalette>(*this);
 	plotterViewer = std::make_unique<ImGuiPlotterViewer>(*this);
