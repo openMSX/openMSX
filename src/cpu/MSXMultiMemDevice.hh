@@ -30,7 +30,7 @@ public:
 	[[nodiscard]] std::vector<MSXDevice*> getDevices() const;
 
 	/** The address ranges actually in use, in no particular order.
-	  * The sentinel at the back is not included. */
+	  * The sentinel is not included. */
 	[[nodiscard]] std::span<const Range> getRanges() const {
 		return {ranges.data(), ranges.size() - 1};
 	}
@@ -48,7 +48,10 @@ private:
 	[[nodiscard]] const Range& searchRange(unsigned address) const;
 	[[nodiscard]] MSXDevice* searchDevice(unsigned address) const;
 
-	std::vector<Range> ranges; // ordered (sentinel at the back)
+	// In no particular order, except that the sentinel is at the back: it
+	// covers the whole address space, so searching front-to-back finds the
+	// real ranges first and always finds something.
+	std::vector<Range> ranges;
 };
 
 } // namespace openmsx

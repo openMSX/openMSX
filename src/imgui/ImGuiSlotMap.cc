@@ -48,7 +48,7 @@ void ImGuiSlotMap::loadLine(std::string_view name, zstring_view value)
 // 'device' is nullptr for the parts where nothing is mapped.
 struct Block {
 	unsigned begin;
-	unsigned end;
+	unsigned end; // exclusive
 	const MSXDevice* device;
 };
 
@@ -153,7 +153,7 @@ static void getBlocks(DrawContext& ctx, int ps, int ss)
 	for (auto page : xrange(4)) {
 		auto pageBegin = PAGE_SIZE * unsigned(page);
 		const auto* device = ctx.cpuInterface.getMSXDevice(ps, ss, page);
-		if (!device || (device == ctx.dummyDevice)) continue;
+		if (device == ctx.dummyDevice) continue;
 		if (const auto* multi = dynamic_cast<const MSXMultiMemDevice*>(device)) {
 			// Only these sub-ranges can be out of order: the pages themselves
 			// are visited in increasing order, so sorting per page is enough.
@@ -180,7 +180,7 @@ static void getBlocks(DrawContext& ctx, int ps, int ss)
 			result.back().end = block.end;
 		} else {
 			if (pos < block.begin) result.emplace_back(pos, block.begin, nullptr);
-			result.emplace_back(block.begin, block.end, block.device);
+			result.push_back(block);
 		}
 		pos = block.end;
 	}
@@ -284,11 +284,14 @@ static void drawDeviceToolTip(DrawContext& ctx)
 				header = true;
 			}
 			if (header) ImGui::Separator();
-			auto size = block.end - block.begin;
+			// Below 1kB the size in kB would round down to 0.
+			auto printSize = [](std::string_view label, unsigned bytes) {
+				ImGui::StrCat(label, ": ", (bytes < 1024) ? strCat(bytes, " bytes")
+				                                          : strCat(bytes / 1024, "kB"));
+			};
 			ImGui::StrCat("address: 0x", hex_string<4, HexCase::upper>(block.begin),
 			              " - 0x", hex_string<4, HexCase::upper>(block.end - 1));
-			ImGui::StrCat("size: ", (size < 1024) ? strCat(size, " bytes")
-			                                      : strCat(size / 1024, "kB"));
+			printSize("size", block.end - block.begin);
 			if (!block.device) return;
 
 			// Whatever the device wants to tell about itself, e.g. the mapper
@@ -307,7 +310,7 @@ static void drawDeviceToolTip(DrawContext& ctx)
 			// can also tell how much memory they actually have.
 			if (const auto* debuggable = ctx.debugger.findDebuggable(block.device->getName())) {
 				if (auto bytes = debuggable->getSize(); bytes != 0) {
-					ImGui::StrCat("total memory: ", bytes / 1024, "kB");
+					printSize("total memory", bytes);
 				}
 			}
 		});

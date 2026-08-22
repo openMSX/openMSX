@@ -324,6 +324,8 @@ public:
 	void setFastForward(bool fastForward_) { fastForward = fastForward_; }
 	[[nodiscard]] bool isFastForward() const { return fastForward; }
 
+	/** The device in this slot and page. Never returns nullptr: a slot
+	  * without a device has the DummyDevice. */
 	[[nodiscard]] MSXDevice* getMSXDevice(int ps, int ss, int page);
 	[[nodiscard]] MSXDevice* getVisibleMSXDevice(int page) { return visibleDevices[page]; }
 

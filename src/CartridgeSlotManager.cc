@@ -194,7 +194,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 unsigned CartridgeSlotManager::getSlot(int ps, int ss) const
 {
 	auto slot = findSlot(ps, ss, false);
-	if (!slot) UNREACHABLE; // was not an external slot
+	assert(slot); // was an external slot
 	return *slot;
 }
 
