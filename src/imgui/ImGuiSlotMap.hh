@@ -19,10 +19,6 @@ public:
 	bool show = false;
 
 private:
-	bool vertical = true; // pages as rows, like the memory maps in most manuals
-	bool fitToContent = false; // resize the window after switching layout
-
-	// 'vertical' is saved separately, as a "layout=vertical|horizontal" line.
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiSlotMap::show}
 	};
