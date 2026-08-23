@@ -53,8 +53,10 @@ struct Block {
 };
 
 // Draw 'text' centered in the rectangle, wrapped over as many lines as fit.
-// Falls back to a single clipped line, and to nothing at all when even that
-// doesn't fit - the tooltip is what makes those cells readable.
+// The last line ends in an ellipsis if the text needs more lines than that.
+// Falls back to a single clipped line when a word doesn't fit on a line of its
+// own, and to nothing at all when even that doesn't fit - the tooltip is what
+// makes those cells readable.
 static void drawText(ImDrawList* drawList, std::string_view text,
                      gl::vec2 min, gl::vec2 max, ImU32 color)
 {
@@ -76,26 +78,35 @@ static void drawText(ImDrawList* drawList, std::string_view text,
 	auto* font = ImGui::GetFont();
 	auto fontSize = ImGui::GetFontSize();
 	static_vector<std::string_view, 16> lines;
+	auto maxLines = std::min(size_t(height / lineHeight), lines.max_size());
+	std::string_view rest; // what didn't fit, goes on the last line
 	bool wrapped = true;
 	const char* pos = text.data();
 	const char* end = pos + text.size();
 	while (pos < end) {
-		if (lines.size() == lines.max_size()) { wrapped = false; break; }
+		if ((lines.size() + 1) == maxLines) {
+			// Nowhere left to wrap to, so the last line takes the remainder.
+			rest = std::string_view(pos, size_t(end - pos));
+			break;
+		}
 		const char* stop = font->CalcWordWrapPosition(fontSize, pos, end, width);
 		if ((stop == pos) || ((stop != end) && (*stop != ' '))) { wrapped = false; break; }
 		lines.push_back(std::string_view(pos, size_t(stop - pos)));
 		pos = stop;
 		while ((pos < end) && (*pos == ' ')) ++pos; // eat the wrap point
 	}
-	if (wrapped && !lines.empty() && (float(lines.size()) * lineHeight <= height)) {
-		auto y = min.y + 0.5f * ((max.y - min.y) - float(lines.size()) * lineHeight);
-		for (auto line : lines) {
-			draw(line, y);
-			y += lineHeight;
-		}
-	} else {
+	if (!wrapped) {
 		draw(ImGui::rightClip(text, width), min.y + 0.5f * ((max.y - min.y) - lineHeight));
+		return;
 	}
+	auto numLines = lines.size() + (rest.empty() ? 0 : 1);
+	auto y = min.y + 0.5f * ((max.y - min.y) - float(numLines) * lineHeight);
+	for (auto line : lines) {
+		draw(line, y);
+		y += lineHeight;
+	}
+	// rightClip() adds the ellipsis, and returns 'rest' unchanged when it fits.
+	if (!rest.empty()) draw(ImGui::rightClip(rest, width), y);
 }
 
 namespace {
@@ -187,6 +198,44 @@ static void getBlocks(DrawContext& ctx, int ps, int ss)
 	if (pos < ADDRESS_SPACE) result.emplace_back(pos, ADDRESS_SPACE, nullptr);
 }
 
+namespace {
+// Everything that only depends on the font and the style, shared by the layout
+// and by the default size of the window.
+struct Metrics {
+	float rowHeight;
+	float headerHeight;
+	float labelWidth;
+	float minSlotWidth;
+	float minMapHeight;
+	gl::vec2 gap;
+	float overhang;
+};
+}
+
+static Metrics getMetrics()
+{
+	const auto& style = ImGui::GetStyle();
+	auto lineHeight = ImGui::GetTextLineHeight();
+	auto rowHeight = lineHeight + 2.0f * style.CellPadding.y;
+	return {
+		.rowHeight = rowHeight,
+		.headerHeight = 2.0f * rowHeight, // external slot name, slot number
+		// Wide enough for every label on the address axis. Letters and digits
+		// don't have the same width, so check both kinds.
+		.labelWidth = 2.0f * style.CellPadding.x +
+		              std::max({ImGui::CalcTextSize("0000"sv).x,
+		                        ImGui::CalcTextSize("C000"sv).x,
+		                        ImGui::CalcTextSize("FFFF"sv).x}),
+		// A primary slot always gets the same width, expanded or not, so
+		// machines with a different slot layout still look alike.
+		.minSlotWidth = 4.0f * 3.0f * lineHeight,
+		.minMapHeight = 10.0f * rowHeight,
+		.gap = 2.0f * gl::vec2(style.ItemSpacing),
+		// The labels of the lowest and highest address stick out half a line.
+		.overhang = 0.5f * rowHeight,
+	};
+}
+
 // Below this a block can't be seen, let alone hovered. A single byte is a
 // hundredth of a pixel on a 64kB axis, so those are drawn out of scale.
 static constexpr float MIN_BLOCK_HEIGHT = 4.0f;
@@ -196,14 +245,17 @@ static constexpr float MIN_BLOCK_HEIGHT = 4.0f;
 static void drawSlot(DrawContext& ctx, int ps, int ss, bool expanded,
                      float x0, float x1, float headerTop, float top, float bottom)
 {
+	// The slot number goes directly above the map, there are four times as many
+	// of those as external slot names.
 	auto cartridge = ctx.slotManager.findSlot(ps, ss, true);
 	auto labelHeight = 0.5f * (top - headerTop);
-	drawText(ctx.drawList, expanded ? strCat(ps, '-', ss) : strCat(ps),
-	         gl::vec2(x0, headerTop), gl::vec2(x1, headerTop + labelHeight), ctx.textColor);
 	if (cartridge) {
 		drawText(ctx.drawList, tmpStrCat("Slot ", char('A' + *cartridge)),
-		         gl::vec2(x0, headerTop + labelHeight), gl::vec2(x1, top), ctx.dimTextColor);
+		         gl::vec2(x0, headerTop), gl::vec2(x1, headerTop + labelHeight),
+		         ctx.dimTextColor);
 	}
+	drawText(ctx.drawList, expanded ? strCat(ps, '-', ss) : strCat(ps),
+	         gl::vec2(x0, headerTop + labelHeight), gl::vec2(x1, top), ctx.textColor);
 
 	auto height = bottom - top;
 	auto addressToY = [&](unsigned address) {
@@ -319,30 +371,13 @@ static void drawDeviceToolTip(DrawContext& ctx)
 
 static void drawSlotMap(DrawContext& ctx)
 {
-	const auto& style = ImGui::GetStyle();
-	auto lineHeight = ImGui::GetTextLineHeight();
-	auto rowHeight = lineHeight + 2.0f * style.CellPadding.y;
-	auto headerHeight = 2.0f * rowHeight; // slot number, external slot name
-	auto gapX = 2.0f * style.ItemSpacing.x;
-	auto gapY = style.ItemSpacing.y;
-	// Wide enough for every label on the address axis. Letters and digits don't
-	// have the same width, so check both kinds.
-	auto labelWidth = 2.0f * style.CellPadding.x +
-		std::max({ImGui::CalcTextSize("0000"sv).x,
-		          ImGui::CalcTextSize("C000"sv).x,
-		          ImGui::CalcTextSize("FFFF"sv).x});
-	// A primary slot always gets the same width, expanded or not, so machines
-	// with a different slot layout still look alike.
-	auto minSlotWidth = 4.0f * 3.0f * lineHeight;
-	auto minMapHeight = 10.0f * rowHeight;
-
+	auto [rowHeight, headerHeight, labelWidth, minSlotWidth, minMapHeight, gap, overhang] =
+		getMetrics();
 	auto avail = gl::vec2(ImGui::GetContentRegionAvail());
-	// The labels of the lowest and highest address stick out half a line.
-	auto overhang = 0.5f * rowHeight;
 
 	// Reflow: put 4, 2 or 1 primary slots next to each other, whichever fits.
 	auto widthFor = [&](int perRow) {
-		return labelWidth + float(perRow) * minSlotWidth + float(perRow - 1) * gapX;
+		return labelWidth + float(perRow) * minSlotWidth + float(perRow - 1) * gap.x;
 	};
 	int perRow = 4;
 	if (widthFor(perRow) > avail.x) perRow = 2;
@@ -350,19 +385,19 @@ static void drawSlotMap(DrawContext& ctx)
 	int numRows = 4 / perRow;
 
 	auto slotWidth = std::max(minSlotWidth,
-		(avail.x - labelWidth - float(perRow - 1) * gapX) / float(perRow));
+		(avail.x - labelWidth - float(perRow - 1) * gap.x) / float(perRow));
 	auto mapHeight = std::max(minMapHeight,
-		(avail.y - overhang - float(numRows) * headerHeight - float(numRows - 1) * gapY) /
+		(avail.y - overhang - float(numRows) * headerHeight - float(numRows - 1) * gap.y) /
 		float(numRows));
 
 	auto origin = gl::vec2(ImGui::GetCursorScreenPos());
-	gl::vec2 size{labelWidth + float(perRow) * slotWidth + float(perRow - 1) * gapX,
-	              float(numRows) * (headerHeight + mapHeight) + float(numRows - 1) * gapY +
+	gl::vec2 size{labelWidth + float(perRow) * slotWidth + float(perRow - 1) * gap.x,
+	              float(numRows) * (headerHeight + mapHeight) + float(numRows - 1) * gap.y +
 	              overhang};
 	ImGui::Dummy(size); // reserve the space, the map itself is positioned absolutely
 
 	for (auto row : xrange(numRows)) {
-		auto headerTop = origin.y + float(row) * (headerHeight + mapHeight + gapY);
+		auto headerTop = origin.y + float(row) * (headerHeight + mapHeight + gap.y);
 		auto top = headerTop + headerHeight;
 		auto bottom = top + mapHeight;
 		auto addressToY = [&](unsigned address) {
@@ -402,7 +437,7 @@ static void drawSlotMap(DrawContext& ctx)
 				drawSlot(ctx, ps, 0, false, x, x + slotWidth, headerTop, top, bottom);
 			}
 			ctx.outlines.emplace_back(gl::vec2(x, top), gl::vec2(x + slotWidth, bottom));
-			x += slotWidth + gapX;
+			x += slotWidth + gap.x;
 		}
 	}
 
@@ -429,6 +464,18 @@ static void drawSlotMap(DrawContext& ctx)
 	ctx.tinyBlocks.clear();
 }
 
+// Big enough for a 2x2 layout: room for three primary slots next to each other,
+// while the reflow needs room for four before it puts them in a single row.
+static gl::vec2 defaultWindowSize()
+{
+	const auto& style = ImGui::GetStyle();
+	auto m = getMetrics();
+	gl::vec2 content{m.labelWidth + 3.0f * (m.minSlotWidth + m.gap.x),
+	                 2.0f * (m.headerHeight + m.minMapHeight) + m.gap.y + m.overhang};
+	return content + 2.0f * gl::vec2(style.WindowPadding) +
+	       gl::vec2(0.0f, ImGui::GetFrameHeight()); // title bar
+}
+
 void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
@@ -453,8 +500,7 @@ void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 	ctx.outlines.reserve(4);
 	ctx.separators.reserve(64);
 
-	auto fontSize = ImGui::GetFontSize();
-	ImGui::SetNextWindowSize(ImVec2(64.0f * fontSize, 26.0f * fontSize), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(defaultWindowSize(), ImGuiCond_FirstUseEver);
 	im::Window("Slot map", &show, [&]{
 		ctx.drawList = ImGui::GetWindowDrawList();
 		drawSlotMap(ctx);
