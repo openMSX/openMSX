@@ -30,7 +30,7 @@ proc get_allowed_items {} {
 	variable allowed_items_cache
 	if {![info exists allowed_items_cache]} {
 		reg A ; # ensure _cpuregs.tcl is loaded
-		set allowed_items_cache [lsort [concat [dict keys $cpuregs::regB] [dict keys $cpuregs::regW] "INSTR"]]
+		set allowed_items_cache [lsort [concat [dict keys $::cpuregs::regB] [dict keys $::cpuregs::regW] "INSTR"]]
 	}
 	return $allowed_items_cache
 }
