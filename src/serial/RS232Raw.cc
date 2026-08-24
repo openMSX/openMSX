@@ -20,6 +20,7 @@
 #include <imgui.h>
 
 #include <cassert>
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -56,20 +57,28 @@ static serial::SerialParams buildParamsImpl(unsigned baud, SerialDataInterface::
 	p.baudRate = baud;
 	p.dataBits = static_cast<int>(dataBits);
 	switch (stopBits) {
-	case SerialDataInterface::StopBits::S1:   p.stopBits = 1; break;
-	case SerialDataInterface::StopBits::S1_5: p.stopBits = 1; break;
-	case SerialDataInterface::StopBits::S2:   p.stopBits = 2; break;
-	default:             p.stopBits = 1; break;
+	using enum SerialDataInterface::StopBits;
+	case S1:   p.stopBits = 1; break;
+	case S1_5: p.stopBits = 1; break;
+	case S2:   p.stopBits = 2; break;
+	default:   p.stopBits = 1; break;
 	}
-	p.parity = parityEnabled ? (parity == SerialDataInterface::Parity::ODD ? 1 : 2) : 0;
+	if (parityEnabled) {
+		p.parity = (parity == SerialDataInterface::Parity::ODD) ? 1 : 2;
+	} else {
+		p.parity = 0;
+	}
 	return p;
 }
 
 void RS232Raw::applyParams()
 {
-	if (!handle) return;
+	if (!handle && !thread.joinable()) return;
 
 #ifdef _WIN32
+	if (thread.joinable()) {
+		poller->abort();
+	}
 	handle.reset();
 	if (thread.joinable()) {
 		thread.join();
@@ -83,21 +92,9 @@ void RS232Raw::applyParams()
 
 	auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 	                         currentParityEnabled, currentParity);
-	if (auto h = serial::open(portName, p)) {
-		handle = std::move(*h);
-	} else {
-		cliComm.printWarning("Failed to open serial port ", portName, ": ",
-		                     serial::to_string(h.error()));
-		return;
-	}
-
-	(void)handle->set_params(p);
-	(void)handle->set_dtr(DTR);
-	(void)handle->set_rts(RTS);
-
 	poller.reset();
 	poller.emplace();
-	thread = std::jthread([this]() { run(); });
+	thread = std::jthread([this, portName, p]() { openAndRun(portName, p); });
 #else
 	auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 	                         currentParityEnabled, currentParity);
@@ -118,23 +115,21 @@ void RS232Raw::plugHelper(Connector& connector_, EmuTime /*time*/)
 	auto& rs232Connector = checked_cast<RS232Connector&>(connector_);
 	directConn = &rs232Connector;
 
-	auto params = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
-	                              currentParityEnabled, currentParity);
-
-	if (auto h = serial::open(portName, params)) {
-		handle = std::move(*h);
-		(void)handle->set_dtr(DTR);
-		(void)handle->set_rts(RTS);
-		poller.emplace();
-		thread = std::jthread([this]() { run(); });
-	}
-
+	// Initialize the modem-line state BEFORE the worker opens the port, so
+	// the lines are applied in their final state (DTR/RTS asserted) and never
+	// toggle afterwards: a transition resets ESP32-style auto-reset circuits.
 	DCD = false;
 	RI  = false;
 	CTS = false;
 	DSR = true;
 	DTR = true;
 	RTS = true;
+
+	auto params = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
+	                              currentParityEnabled, currentParity);
+
+	poller.emplace();
+	thread = std::jthread([this, portName, params]() { openAndRun(portName, params); });
 
 	rs232Connector.setDataBits(currentDataBits);
 	rs232Connector.setStopBits(currentStopBits);
@@ -193,6 +188,33 @@ void RS232Raw::handleImGuiExtraMenuItems()
 	if (ImGui::SmallButton("Refresh")) {
 		ports = serial::list_ports();
 	}
+}
+
+// Opens the port (retrying briefly) and then runs the read loop. Runs on
+// the worker thread: the retry delays sleep this host thread, never the
+// emulation thread (a just-closed Windows COM port can stay owned by the
+// OS for a few ms, so an immediate reopen can transiently fail).
+void RS232Raw::openAndRun(std::string portName, serial::SerialParams params)
+{
+	auto h = serial::open(portName, params);
+	for (int attempt = 1; !h.has_value() && attempt < 5 && !poller->aborted();
+	     ++attempt) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		h = serial::open(portName, params);
+	}
+	if (poller->aborted()) {
+		return; // unplugged while opening: drop the port (h closes it)
+	}
+	if (!h.has_value()) {
+		cliComm.printWarning("Failed to open serial port ", portName, ": ",
+		                     serial::to_string(h.error()));
+		return;
+	}
+	(void)h->set_params(params);
+	(void)h->set_dtr(DTR);
+	(void)h->set_rts(RTS);
+	handle = std::move(*h);
+	run();
 }
 
 void RS232Raw::run()
@@ -264,8 +286,8 @@ void RS232Raw::recvByte(uint8_t value, EmuTime /*time*/)
 {
 	if (!handle) return;
 
-	char buf = static_cast<char>(value);
-	if (!handle->write(std::span<const char>(&buf, 1))) {
+	auto buf = static_cast<char>(value);
+	if (!handle->write(std::span<const char>(&buf, 1)).has_value()) {
 		handle.reset();
 	}
 }
@@ -370,17 +392,8 @@ void RS232Raw::update(const Setting& /*setting*/) noexcept
 	if (!portName.empty() && isPluggedIn()) {
 		auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
 		                         currentParityEnabled, currentParity);
-		if (auto h = serial::open(portName, p)) {
-			handle = std::move(*h);
-			(void)handle->set_params(p);
-			(void)handle->set_dtr(DTR);
-			(void)handle->set_rts(RTS);
-			poller.emplace();
-			thread = std::jthread([this]() { run(); });
-		} else {
-			cliComm.printWarning("Failed to open serial port ", portName, ": ",
-			                     serial::to_string(h.error()));
-		}
+		poller.emplace();
+		thread = std::jthread([this, portName, p]() { openAndRun(portName, p); });
 	}
 }
 
@@ -400,13 +413,8 @@ void RS232Raw::serialize(Archive& /*ar*/, unsigned /*version*/)
 		auto params = buildParamsImpl(currentBaud.load(), currentDataBits.load(),
 		                              currentStopBits.load(), currentParityEnabled.load(),
 		                              currentParity.load());
-		if (auto h = serial::open(portName, params)) {
-			handle = std::move(*h);
-			(void)handle->set_dtr(DTR);
-			(void)handle->set_rts(RTS);
-			poller.emplace();
-			thread = std::jthread([this]() { run(); });
-		}
+		poller.emplace();
+		thread = std::jthread([this, portName, params]() { openAndRun(portName, params); });
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(RS232Raw);

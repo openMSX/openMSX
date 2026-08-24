@@ -1,15 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="3rdparty\ImGuiFileDialog">
-      <UniqueIdentifier>{04a6bee4-b7ea-42af-ac09-cbdafe897ae5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="3rdparty\imgui">
-      <UniqueIdentifier>{3b13637c-13a0-4e77-a5aa-d68d68fdf5a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="3rdparty\imgui_memory_editor">
-      <UniqueIdentifier>{305ed602-57dc-4f3c-9fdd-e372d1403920}</UniqueIdentifier>
-    </Filter>
     <Filter Include="cassette">
       <UniqueIdentifier>{27eaf1e2-f5da-477a-99a5-7be15006d6a0}</UniqueIdentifier>
     </Filter>
@@ -87,36 +78,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialog.cc">
-      <Filter>3rdparty\ImGuiFileDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_demo.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_draw.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_tables.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_widgets.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\misc\freetype\imgui_freetype.cc">
-      <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\CasImage.cc">
       <Filter>cassette</Filter>
     </ClCompile>
@@ -1555,53 +1516,31 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SC3000PPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SG1000Pause.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialog.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_demo.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_draw.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_tables.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_widgets.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\misc\freetype\imgui_freetype.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPlotterViewer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Paper.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Plotter.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\PlotterFont.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\PlotterPaper.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXCharacterSets.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXPiDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Raw.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\SerialPort.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\CustomFont.h">
-      <Filter>3rdparty\ImGuiFileDialog</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialog.h">
-      <Filter>3rdparty\ImGuiFileDialog</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialogConfig.h">
-      <Filter>3rdparty\ImGuiFileDialog</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imconfig.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3_loader.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_internal.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imstb_rectpack.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imstb_textedit.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imstb_truetype.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\misc\freetype\imgui_freetype.h">
-      <Filter>3rdparty\imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor\imgui_memory_editor.h">
-      <Filter>3rdparty\imgui_memory_editor</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
       <Filter>cassette</Filter>
     </None>
@@ -1627,9 +1566,6 @@
       <Filter>cassette</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cassette\TsxImage.hh">
-      <Filter>cassette</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\cassette\TsxParser.hh">
       <Filter>cassette</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cassette\WavImage.hh">
@@ -3273,6 +3209,28 @@
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\SC3000PPI.hh" />
     <None Include="$(OpenMSXSrcDir)\SG1000Pause.hh" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog/CustomFont.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog/ImGuiFileDialog.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog/ImGuiFileDialogConfig.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imconfig.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_impl_opengl3.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_impl_opengl3_loader.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_impl_sdl2.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_internal.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imgui_stdlib.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imstb_rectpack.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imstb_textedit.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/imstb_truetype.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui/misc\freetype\imgui_freetype.h" />
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor/memory_editor.h" />
+    <None Include="$(OpenMSXSrcDir)\cassette\TsxParser.h" />
+    <None Include="$(OpenMSXSrcDir)\serial\RS232Raw.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\utils\SerialPort.hh">
+      <Filter>utils</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(OpenMSXSrcDir)\resource\openmsx.rc">
@@ -3282,6 +3240,10 @@
   <ItemGroup>
     <ClInclude Include="$(OpenMSXSrcDir)\sound\fake_windows.h">
       <Filter>sound</Filter>
+    </ClInclude>
+    <ClInclude Include="$(OpenMSXSrcDir)\MSXPiDevice.hh" />
+    <ClInclude Include="..\..\src\imgui\ImGuiPluggable.hh">
+      <Filter>imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

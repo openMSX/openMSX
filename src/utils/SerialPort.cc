@@ -90,8 +90,7 @@ std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialPar
 		return std::unexpected(ec);
 	}
 
-	DCB dcb = serialParamsToDCB(params);
-	if (!SetCommState(h, &dcb)) {
+	if (DCB dcb = serialParamsToDCB(params);!SetCommState(h, &dcb)) {
 		auto ec = currentError();
 		CloseHandle(h);
 		return std::unexpected(ec);
@@ -152,14 +151,8 @@ IoResult Handle::read(std::span<char> buf) const
 	if (!ov.hEvent) return std::unexpected(currentError());
 
 	if (!ReadFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &bytesRead, &ov)) {
-		if (GetLastError() == ERROR_IO_PENDING) {
-			if (WaitForSingleObject(ov.hEvent, INFINITE) == WAIT_OBJECT_0) {
-				if (!GetOverlappedResult(handle, &ov, &bytesRead, FALSE)) {
-					auto ec = currentError();
-					CloseHandle(ov.hEvent);
-					return std::unexpected(ec);
-				}
-			} else {
+		if ((GetLastError() == ERROR_IO_PENDING) && (WaitForSingleObject(ov.hEvent, INFINITE) == WAIT_OBJECT_0)) {
+			if (!GetOverlappedResult(handle, &ov, &bytesRead, FALSE)) {
 				auto ec = currentError();
 				CloseHandle(ov.hEvent);
 				return std::unexpected(ec);
@@ -182,14 +175,8 @@ IoResult Handle::write(std::span<const char> buf) const
 	if (!ov.hEvent) return std::unexpected(currentError());
 
 	if (!WriteFile(handle, buf.data(), static_cast<DWORD>(buf.size()), &bytesWritten, &ov)) {
-		if (GetLastError() == ERROR_IO_PENDING) {
-			if (WaitForSingleObject(ov.hEvent, INFINITE) == WAIT_OBJECT_0) {
-				if (!GetOverlappedResult(handle, &ov, &bytesWritten, FALSE)) {
-					auto ec = currentError();
-					CloseHandle(ov.hEvent);
-					return std::unexpected(ec);
-				}
-			} else {
+		if ((GetLastError() == ERROR_IO_PENDING) && (WaitForSingleObject(ov.hEvent, INFINITE) == WAIT_OBJECT_0)) {
+			if (!GetOverlappedResult(handle, &ov, &bytesWritten, FALSE)) {
 				auto ec = currentError();
 				CloseHandle(ov.hEvent);
 				return std::unexpected(ec);
@@ -225,6 +212,7 @@ std::expected<void, ErrorCode> Handle::set_params(const SerialParams& params) co
 	case 2:  dcb.Parity = EVENPARITY; break;
 	case 3:  dcb.Parity = MARKPARITY; break;
 	case 4:  dcb.Parity = SPACEPARITY; break;
+	default: dcb.Parity = NOPARITY; break;
 	}
 
 	if (!SetCommState(handle, &dcb)) return std::unexpected(currentError());
@@ -586,16 +574,28 @@ std::vector<std::string> list_ports()
 std::string to_string(ErrorCode ec)
 {
 #ifdef _WIN32
-	wchar_t* s = nullptr;
-	FormatMessageW(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS,
-		nullptr, ec.value, 0, reinterpret_cast<LPWSTR>(&s),
-		0, nullptr);
-	std::string result = utf8::utf16to8(s);
-	LocalFree(s);
-	return result;
+	std::array<wchar_t, 512> buffer{};
+
+	DWORD char_count = FormatMessageW(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr,
+		static_cast<DWORD>(ec.value),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		buffer.data(),
+		static_cast<DWORD>(buffer.size()),
+		nullptr
+	);
+
+	if (char_count == 0) {
+		return "Unknown error (" + std::to_string(ec.value) + ")";
+	}
+	std::wstring_view sv(buffer.data(), char_count);
+
+	while (!sv.empty() && (sv.back() == L'\n' || sv.back() == L'\r')) {
+		sv.remove_suffix(1);
+	}
+
+	return utf8::utf16to8(sv);
 #else
 	return strerror(ec.value);
 #endif

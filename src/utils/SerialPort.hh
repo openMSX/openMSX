@@ -70,7 +70,10 @@ struct Handle {
 	[[nodiscard]] std::expected<void, ErrorCode> set_rts(bool on) const;
 
 	struct ModemStatus {
-		bool cts, dsr, dcd, ri;
+		bool cts;
+		bool dsr;
+		bool dcd;
+		bool ri;
 	};
 	// Currently unused by openMSX (RS232Raw keeps fixed modem-status
 	// values instead of polling the hardware); kept for future use.

@@ -71,6 +71,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void openAndRun(std::string portName, serial::SerialParams params);
 	void run();
 	void applyParams();
 

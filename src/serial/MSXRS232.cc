@@ -69,7 +69,7 @@ void MSXRS232::notifyBaudRate()
 		auto period = clk.getTotalDuration().toUint64();
 		if (period > 0) {
 			unsigned factor = i8251.getBaudRateFactor();
-			unsigned baud = static_cast<unsigned>(MAIN_FREQ / (period * factor));
+			auto baud = static_cast<unsigned>(MAIN_FREQ / (period * factor));
 			dev.setBaudRate(baud);
 		}
 	}
