@@ -89,7 +89,7 @@ private:
 	StringSetting rs232RawPortSetting;
 
 	std::optional<serial::Handle> handle;
-	std::jthread thread;
+	std::thread thread;
 	std::mutex mutex;
 	std::optional<Poller> poller;
 	cb_queue<char> queue;
