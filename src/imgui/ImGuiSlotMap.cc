@@ -53,16 +53,14 @@ struct Block {
 };
 
 // Draw 'text' centered in the rectangle, wrapped over as many lines as fit.
-// The last line ends in an ellipsis if the text needs more lines than that.
-// Falls back to a single clipped line when a word doesn't fit on a line of its
-// own, and to nothing at all when even that doesn't fit - the tooltip is what
-// makes those cells readable.
+// The last line ends in an ellipsis if the whole text doesn't fit, and nothing
+// is drawn at all when not even an ellipsis fits - the tooltip is what makes
+// those cells readable.
 static void drawText(ImDrawList* drawList, std::string_view text,
                      gl::vec2 min, gl::vec2 max, ImU32 color)
 {
 	const auto& style = ImGui::GetStyle();
-	auto width = (max.x - min.x) - 2.0f * style.CellPadding.x;
-	auto height = (max.y - min.y) - 2.0f * style.CellPadding.y;
+	auto [width, height] = (max - min) - 2.0f * gl::vec2(style.CellPadding);
 	auto lineHeight = ImGui::GetTextLineHeight();
 	if ((height < lineHeight) || (width < ImGui::CalcTextSize("..."sv).x)) return;
 
@@ -72,33 +70,33 @@ static void drawText(ImDrawList* drawList, std::string_view text,
 		                  color, line.data(), line.data() + line.size());
 	};
 
-	// Wrap at word boundaries. ImGui breaks mid-word when a word is wider than
-	// the cell, which reads as garbage in a diagram, so treat that as 'doesn't
-	// fit' and fall back to clipping.
+	// Wrap at word boundaries for as long as that works, then put what is left
+	// on the last line, clipped. Wrapping stops for one of two reasons: there
+	// is no room for another line, or the next word doesn't fit on a line of
+	// its own. In the latter case CalcWordWrapPosition() would break inside the
+	// word, which reads as garbage in a diagram. Both cases end the same way,
+	// so a name is either fully wrapped or ends in an ellipsis.
 	auto* font = ImGui::GetFont();
 	auto fontSize = ImGui::GetFontSize();
 	static_vector<std::string_view, 16> lines;
 	auto maxLines = std::min(size_t(height / lineHeight), lines.max_size());
-	std::string_view rest; // what didn't fit, goes on the last line
-	bool wrapped = true;
+	std::string_view rest;
 	const char* pos = text.data();
 	const char* end = pos + text.size();
 	while (pos < end) {
-		if ((lines.size() + 1) == maxLines) {
-			// Nowhere left to wrap to, so the last line takes the remainder.
-			rest = std::string_view(pos, size_t(end - pos));
+		auto remainder = std::string_view(pos, size_t(end - pos));
+		if ((lines.size() + 1) == maxLines) { rest = remainder; break; }
+		const char* stop = font->CalcWordWrapPosition(fontSize, pos, end, width);
+		if ((stop == pos) ||                     // not even one word fits
+		    ((stop != end) && (*stop != ' '))) { // would break inside a word
+			rest = remainder;
 			break;
 		}
-		const char* stop = font->CalcWordWrapPosition(fontSize, pos, end, width);
-		if ((stop == pos) || ((stop != end) && (*stop != ' '))) { wrapped = false; break; }
 		lines.push_back(std::string_view(pos, size_t(stop - pos)));
 		pos = stop;
 		while ((pos < end) && (*pos == ' ')) ++pos; // eat the wrap point
 	}
-	if (!wrapped) {
-		draw(ImGui::rightClip(text, width), min.y + 0.5f * ((max.y - min.y) - lineHeight));
-		return;
-	}
+
 	auto numLines = lines.size() + (rest.empty() ? 0 : 1);
 	auto y = min.y + 0.5f * ((max.y - min.y) - float(numLines) * lineHeight);
 	for (auto line : lines) {
@@ -127,12 +125,25 @@ struct TinyBlock {
 	ImU32 color;
 };
 
+// Everything that only depends on the font and the style, so the same for the
+// whole frame.
+struct Metrics {
+	float rowHeight;
+	float headerHeight;
+	float labelWidth;
+	float minSlotWidth;
+	float minMapHeight;
+	gl::vec2 gap;
+	float overhang;
+};
+
 struct DrawContext {
 	ImGuiManager& manager;
 	MSXCPUInterface& cpuInterface;
 	const CartridgeSlotManager& slotManager;
 	Debugger& debugger;
 	const MSXDevice* dummyDevice;
+	Metrics metrics;
 	ImDrawList* drawList;
 	ImU32 emptyColor;
 	ImU32 occupiedColor;
@@ -155,8 +166,9 @@ struct DrawContext {
 // less than a page in an MSXMultiMemDevice, which knows the exact address
 // ranges. Recombining both gives the real extent of every device, so that
 // nothing here has to care about page boundaries.
-// Note: 'ctx.blocks' and 'ctx.scratch' are members rather than local variables
-//       so that this (called up to 16 times per frame) doesn't allocate.
+// Note: 'ctx.blocks' and 'ctx.scratch' live in the DrawContext instead of being
+//       local variables, so that the (up to) 16 calls in one frame share a
+//       single buffer.
 static void getBlocks(DrawContext& ctx, int ps, int ss)
 {
 	auto& scratch = ctx.scratch;
@@ -196,20 +208,6 @@ static void getBlocks(DrawContext& ctx, int ps, int ss)
 		pos = block.end;
 	}
 	if (pos < ADDRESS_SPACE) result.emplace_back(pos, ADDRESS_SPACE, nullptr);
-}
-
-namespace {
-// Everything that only depends on the font and the style, shared by the layout
-// and by the default size of the window.
-struct Metrics {
-	float rowHeight;
-	float headerHeight;
-	float labelWidth;
-	float minSlotWidth;
-	float minMapHeight;
-	gl::vec2 gap;
-	float overhang;
-};
 }
 
 static Metrics getMetrics()
@@ -293,9 +291,10 @@ static void drawSlot(DrawContext& ctx, int ps, int ss, bool expanded,
 			ctx.drawList->AddRectFilled(min, max, color);
 			// Only the line towards the next block: the outer edges belong to
 			// the outline of the slot as a whole. Drawing a rectangle per block
-			// would draw every shared edge twice.
+			// would draw every shared edge twice. See the note on 'separators'
+			// for why this stops one pixel short of x1.
 			if (block.end != ADDRESS_SPACE) {
-				ctx.separators.emplace_back(min, gl::vec2(x1, blockTop));
+				ctx.separators.emplace_back(min, gl::vec2(x1 - 1.0f, blockTop));
 			}
 			drawText(ctx.drawList, block.device ? std::string_view(block.device->getName())
 			                                    : "empty"sv,
@@ -338,7 +337,8 @@ static void drawDeviceToolTip(DrawContext& ctx)
 			if (header) ImGui::Separator();
 			// Below 1kB the size in kB would round down to 0.
 			auto printSize = [](std::string_view label, unsigned bytes) {
-				ImGui::StrCat(label, ": ", (bytes < 1024) ? strCat(bytes, " bytes")
+				auto unit = (bytes == 1) ? " byte"sv : " bytes"sv;
+				ImGui::StrCat(label, ": ", (bytes < 1024) ? strCat(bytes, unit)
 				                                          : strCat(bytes / 1024, "kB"));
 			};
 			ImGui::StrCat("address: 0x", hex_string<4, HexCase::upper>(block.begin),
@@ -372,7 +372,7 @@ static void drawDeviceToolTip(DrawContext& ctx)
 static void drawSlotMap(DrawContext& ctx)
 {
 	auto [rowHeight, headerHeight, labelWidth, minSlotWidth, minMapHeight, gap, overhang] =
-		getMetrics();
+		ctx.metrics;
 	auto avail = gl::vec2(ImGui::GetContentRegionAvail());
 
 	// Reflow: put 4, 2 or 1 primary slots next to each other, whichever fits.
@@ -430,7 +430,7 @@ static void drawSlotMap(DrawContext& ctx)
 					// of the outline of the primary slot.
 					if (ss != 0) {
 						ctx.separators.emplace_back(gl::vec2(x0, top),
-						                            gl::vec2(x0, bottom));
+						                            gl::vec2(x0, bottom - 1.0f));
 					}
 				}
 			} else {
@@ -446,6 +446,10 @@ static void drawSlotMap(DrawContext& ctx)
 	// keeps a device that is too small to see as a rectangle visible as a line.
 	// Each edge is drawn exactly once, otherwise the shared ones would come out
 	// twice as thick as the rest.
+	// Note: AddRect() treats 'max' as exclusive (it strokes half a pixel inside
+	//       it, like AddRectFilled() fills up to just before it), while both end
+	//       points of AddLine() are inclusive. So a separator has to stop one
+	//       pixel short to end where the outline around it is, see drawSlot().
 	for (const auto& [p1, p2] : ctx.separators) {
 		ctx.drawList->AddLine(p1, p2, ctx.outlineColor);
 	}
@@ -466,10 +470,9 @@ static void drawSlotMap(DrawContext& ctx)
 
 // Big enough for a 2x2 layout: room for three primary slots next to each other,
 // while the reflow needs room for four before it puts them in a single row.
-static gl::vec2 defaultWindowSize()
+static gl::vec2 defaultWindowSize(const Metrics& m)
 {
 	const auto& style = ImGui::GetStyle();
-	auto m = getMetrics();
 	gl::vec2 content{m.labelWidth + 3.0f * (m.minSlotWidth + m.gap.x),
 	                 2.0f * (m.headerHeight + m.minMapHeight) + m.gap.y + m.overhang};
 	return content + 2.0f * gl::vec2(style.WindowPadding) +
@@ -488,6 +491,7 @@ void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 		.slotManager = motherBoard->getSlotManager(),
 		.debugger = motherBoard->getDebugger(),
 		.dummyDevice = &cpuInterface.getDummyDevice(),
+		.metrics = getMetrics(),
 		.drawList = nullptr, // only valid inside the window
 		.emptyColor = ImGui::GetColorU32(getColor(imColor::GRAY), 0.4f),
 		.occupiedColor = ImGui::GetColorU32(ImGuiCol_Header),
@@ -496,11 +500,19 @@ void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 		.textColor = ImGui::GetColorU32(ImGuiCol_Text),
 		.dimTextColor = ImGui::GetColorU32(ImGuiCol_TextDisabled),
 		.mouse = gl::vec2(ImGui::GetIO().MousePos),
+		// Default initialization is what we want for the rest, but spell it out
+		// to keep gcc's -Wmissing-field-initializers quiet.
+		.hovered = {},
+		.outlines = {},
+		.separators = {},
+		.tinyBlocks = {},
+		.blocks = {},
+		.scratch = {},
 	};
 	ctx.outlines.reserve(4);
 	ctx.separators.reserve(64);
 
-	ImGui::SetNextWindowSize(defaultWindowSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(defaultWindowSize(ctx.metrics), ImGuiCond_FirstUseEver);
 	im::Window("Slot map", &show, [&]{
 		ctx.drawList = ImGui::GetWindowDrawList();
 		drawSlotMap(ctx);
