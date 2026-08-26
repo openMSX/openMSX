@@ -96,6 +96,32 @@ std::string_view ImGuiIoPorts::dirText(const Row& row)
 	return row.in ? (row.out ? "I/O"sv : "I"sv) : "O"sv;
 }
 
+void ImGuiIoPorts::sortRows(std::vector<Row>& rows)
+{
+	// Note: unlike the other views in openMSX, 'rows' is rebuilt from scratch
+	// every frame. So (re)apply the sort unconditionally instead of only when
+	// 'SpecsDirty' is set.
+	const auto* sortSpecs = ImGui::TableGetSortSpecs();
+	if (!sortSpecs || (sortSpecs->SpecsCount == 0)) return;
+	assert(sortSpecs->Specs);
+
+	// 'rows' is generated in ascending port order, and all sorts below are
+	// stable. So e.g. sorting on device keeps each device's ports ordered.
+	switch (sortSpecs->Specs->ColumnIndex) {
+	case 0: // ports
+		sortUpDown_T(rows, sortSpecs, &Row::begin);
+		break;
+	case 1: // direction
+		sortUpDown_String(rows, sortSpecs, [](const Row& row) { return dirText(row); });
+		break;
+	case 2: // device
+		sortUpDown_String(rows, sortSpecs, &Row::device);
+		break;
+	default:
+		UNREACHABLE;
+	}
+}
+
 std::vector<ImGuiIoPorts::Row> ImGuiIoPorts::getRows(MSXCPUInterface& cpuInterface)
 {
 	auto names = collectNames(cpuInterface);
@@ -212,18 +238,40 @@ void ImGuiIoPorts::drawValue(MSXCPUInterface& cpuInterface, const Row& row, EmuT
 
 void ImGuiIoPorts::drawFlat(MSXCPUInterface& cpuInterface, bool warnOverlap, EmuTime time)
 {
-	im::Table("flat", 4, TABLE_FLAGS, [&]{
+	// A sorted column also draws a sort arrow next to its name. Reserve room
+	// for that in the default width, otherwise the header of the (narrow)
+	// 'Ports' and 'Dir' columns gets clipped to "..." once you sort on them.
+	const auto& style = ImGui::GetStyle();
+	auto arrowWidth = ImGui::GetFontSize() + style.ItemInnerSpacing.x;
+	auto monoWidth = [&](std::string_view s) {
+		im::ScopedFont sf(manager.fontMono);
+		return ImGui::CalcTextSize(s).x;
+	};
+	auto sortableWidth = [&](std::string_view header, float contentWidth) {
+		return std::max(ImGui::CalcTextSize(header).x + arrowWidth, contentWidth) +
+		       2.0f * style.CellPadding.x;
+	};
+
+	im::Table("flat", 4, TABLE_FLAGS | ImGuiTableFlags_Sortable, [&]{
 		// 'Value' is hidden by default: the hex editor on the 'ioports'
 		// debuggable already shows these values. Un-hide it via the
 		// right-click context menu on the table header.
-		ImGui::TableSetupColumn("Ports", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupColumn("Dir", ImGuiTableColumnFlags_WidthFixed);
+		// It's also not sortable: the values change while the emulation
+		// runs, so sorting on them would reshuffle the rows every frame.
+		ImGui::TableSetupColumn("Ports", ImGuiTableColumnFlags_WidthFixed |
+		                                 ImGuiTableColumnFlags_DefaultSort,
+		                        sortableWidth("Ports", monoWidth("FF-FF")));
+		ImGui::TableSetupColumn("Dir", ImGuiTableColumnFlags_WidthFixed,
+		                        sortableWidth("Dir", ImGui::CalcTextSize("I/O"sv).x));
 		ImGui::TableSetupColumn("Device", ImGuiTableColumnFlags_WidthStretch);
 		ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthFixed |
-		                                 ImGuiTableColumnFlags_DefaultHide);
+		                                 ImGuiTableColumnFlags_DefaultHide |
+		                                 ImGuiTableColumnFlags_NoSort);
 		ImGui::TableHeadersRow();
 
-		for (const auto& row : getRows(cpuInterface)) {
+		auto rows = getRows(cpuInterface);
+		sortRows(rows);
+		for (const auto& row : rows) {
 			if (ImGui::TableNextColumn()) { // ports
 				im::ScopedFont sf(manager.fontMono);
 				ImGui::TextUnformatted(portsText(row));

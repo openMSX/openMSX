@@ -51,6 +51,7 @@ private:
 	[[nodiscard]] static std::vector<Group> getGroups(MSXCPUInterface& cpuInterface);
 	[[nodiscard]] static std::string portsText(const Row& row);
 	[[nodiscard]] static std::string_view dirText(const Row& row);
+	static void sortRows(std::vector<Row>& rows);
 
 	void drawFlat(MSXCPUInterface& cpuInterface, bool warnOverlap, EmuTime time);
 	void drawGrouped(MSXCPUInterface& cpuInterface, bool warnOverlap, EmuTime time);
