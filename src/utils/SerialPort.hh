@@ -1,7 +1,10 @@
 #ifndef SERIALPORT_HH
 #define SERIALPORT_HH
 
+#include "zstring_view.hh"
+
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <span>
 #include <string>
@@ -58,8 +61,8 @@ struct Handle {
 	~Handle();
 
 	// Blocking reads/writes.
-	[[nodiscard]] IoResult read(std::span<char> buf) const;
-	[[nodiscard]] IoResult write(std::span<const char> buf) const;
+	[[nodiscard]] IoResult read(std::span<uint8_t> buf) const;
+	[[nodiscard]] IoResult write(std::span<const uint8_t> buf) const;
 
 	// The underlying OS handle/fd, e.g. for integration with openMSX's
 	// Poller on POSIX.
@@ -80,7 +83,7 @@ struct Handle {
 	[[nodiscard]] std::expected<ModemStatus, ErrorCode> get_modem_status() const;
 
 private:
-	friend std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialParams& params);
+	friend std::expected<Handle, ErrorCode> open(zstring_view portName, const SerialParams& params);
 	explicit Handle(serial_handle_t handle_);
 	void release() noexcept;
 	serial_handle_t handle;
@@ -88,7 +91,7 @@ private:
 
 // Opens the port with the given parameters. On failure the returned
 // ErrorCode is valid and no Handle is produced.
-[[nodiscard]] std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialParams& params);
+[[nodiscard]] std::expected<Handle, ErrorCode> open(zstring_view portName, const SerialParams& params);
 
 [[nodiscard]] std::vector<std::string> list_ports();
 

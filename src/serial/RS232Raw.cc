@@ -47,14 +47,7 @@ RS232Raw::RS232Raw(EventDistributor& eventDistributor_,
 
 RS232Raw::~RS232Raw()
 {
-	if (thread.joinable()) {
-		poller->abort();
-	}
-	handle.reset(); // closes the port: unblocks the worker's pending read
-	if (thread.joinable()) {
-		thread.join();
-	}
-	poller.reset();
+	tearDown();
 	rs232RawPortSetting.detach(*this);
 	eventDistributor.unregisterEventListener(EventType::RS232_RAW, *this);
 }
@@ -81,31 +74,24 @@ static serial::SerialParams buildParamsImpl(unsigned baud, SerialDataInterface::
 
 void RS232Raw::applyParams()
 {
-	if (!handle && !thread.joinable()) return;
-
 #ifdef _WIN32
-	if (thread.joinable()) {
-		poller->abort();
-	}
-	handle.reset();
-	if (thread.joinable()) {
-		thread.join();
-	}
+	if (!handle && !thread.joinable()) return;
+	tearDown();
 	{
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
-	auto portName = std::string(rs232RawPortSetting.getString().c_str());
+	auto portName = rs232RawPortSetting.getString();
 	if (portName.empty()) return;
-
-	auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
-	                         currentParityEnabled, currentParity);
-	poller.reset();
-	poller.emplace();
-	thread = std::thread([this, portName, p]() { openAndRun(portName, p); });
+	setup(std::string(portName), buildParams());
 #else
-	auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
-	                         currentParityEnabled, currentParity);
+	// POSIX: nothing to reconfigure while the worker is still opening the
+	// port (the open uses the parameters it was spawned with). Also
+	// deliberately no tear down + reopen here: that would re-assert the
+	// modem lines and might cause misbehavior on the connected device due
+	// to the unexpected state change.
+	if (!handle) return;
+	auto p = buildParams();
 	(void)handle->set_params(p);
 	(void)handle->set_dtr(DTR);
 	(void)handle->set_rts(RTS);
@@ -115,7 +101,7 @@ void RS232Raw::applyParams()
 // Pluggable
 void RS232Raw::plugHelper(Connector& connector_, EmuTime /*time*/)
 {
-	auto portName = std::string(rs232RawPortSetting.getString().c_str());
+	auto portName = rs232RawPortSetting.getString();
 	if (portName.empty()) {
 		throw PlugException("No serial port specified");
 	}
@@ -133,11 +119,7 @@ void RS232Raw::plugHelper(Connector& connector_, EmuTime /*time*/)
 	DTR = true;
 	RTS = true;
 
-	auto params = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
-	                              currentParityEnabled, currentParity);
-
-	poller.emplace();
-	thread = std::thread([this, portName, params]() { openAndRun(portName, params); });
+	setup(std::string(portName), buildParams());
 
 	rs232Connector.setDataBits(currentDataBits);
 	rs232Connector.setStopBits(currentStopBits);
@@ -148,14 +130,7 @@ void RS232Raw::plugHelper(Connector& connector_, EmuTime /*time*/)
 
 void RS232Raw::unplugHelper(EmuTime /*time*/)
 {
-	if (thread.joinable()) {
-		poller->abort();
-	}
-	handle.reset();
-	if (thread.joinable()) {
-		thread.join();
-	}
-	poller.reset();
+	tearDown();
 	directConn = nullptr;
 }
 
@@ -177,25 +152,56 @@ void RS232Raw::handleImGuiExtraMenuItems()
 		ports = serial::list_ports();
 		currentPort = cur;
 	}
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
-	im::Combo("##rs232-raw-port", cur.c_str(), [this, &cur]{
-		for (const auto& p : ports) {
-			bool selected = (p == cur);
-			if (ImGui::Selectable(p.c_str(), selected)) {
-				rs232RawPortSetting.setString(p);
-				currentPort = p;
+	im::Indent([&]{
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
+		im::Combo("##rs232-raw-port", cur.c_str(), [this, &cur]{
+			for (const auto& p : ports) {
+				bool selected = (p == cur);
+				if (ImGui::Selectable(p.c_str(), selected)) {
+					rs232RawPortSetting.setString(p);
+					currentPort = p;
+				}
+				if (selected) {
+					ImGui::SetItemDefaultFocus();
+				}
 			}
-			if (selected) {
-				ImGui::SetItemDefaultFocus();
-			}
+		});
+		simpleToolTip("Select the host serial port for RS232 raw");
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Refresh")) {
+			ports = serial::list_ports();
 		}
 	});
-	simpleToolTip("Select the host serial port for RS232 raw");
-	ImGui::SameLine();
-	if (ImGui::SmallButton("Refresh")) {
-		ports = serial::list_ports();
+}
+
+// Stops the worker thread and closes the port. Safe to call in any state.
+void RS232Raw::tearDown()
+{
+	if (thread.joinable()) {
+		poller->abort();
 	}
+	handle.reset(); // closes the port: unblocks the worker's pending read
+	if (thread.joinable()) {
+		thread.join();
+	}
+	poller.reset();
+}
+
+// Spawns the worker thread: it opens the port (retrying briefly) and then
+// runs the read loop. The retry delays sleep the worker thread, never the
+// emulation thread.
+void RS232Raw::setup(std::string portName, serial::SerialParams params)
+{
+	poller.emplace();
+	thread = std::thread([this, pn = std::move(portName), pm = std::move(params)]() mutable {
+		openAndRun(std::move(pn), std::move(pm));
+	});
+}
+
+serial::SerialParams RS232Raw::buildParams() const
+{
+	return buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
+	                       currentParityEnabled, currentParity);
 }
 
 // Opens the port (retrying briefly) and then runs the read loop. Runs on
@@ -205,7 +211,7 @@ void RS232Raw::handleImGuiExtraMenuItems()
 void RS232Raw::openAndRun(std::string portName, serial::SerialParams params)
 {
 	auto h = serial::open(portName, params);
-	for (int attempt = 1; !h.has_value() && attempt < 5 && !poller->aborted();
+	for (int attempt = 0; !h.has_value() && attempt < 4 && !poller->aborted();
 	     ++attempt) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		h = serial::open(portName, params);
@@ -237,8 +243,8 @@ void RS232Raw::run()
 		}
 #endif
 
-		char b;
-		auto r = handle->read(std::span<char>(&b, 1));
+		uint8_t b;
+		auto r = handle->read(std::span<uint8_t>(&b, 1));
 		if (!r.has_value()) {
 			handle.reset();
 		} else if (*r == 0) {
@@ -246,7 +252,7 @@ void RS232Raw::run()
 			Sleep(1);
 #endif
 		} else if (direct) {
-			conn->recvByte(static_cast<uint8_t>(b), EmuTime::zero());
+			conn->recvByte(b, EmuTime::zero());
 		} else {
 			assert(isPluggedIn());
 			{
@@ -273,8 +279,8 @@ void RS232Raw::signal(EmuTime time)
 
 	std::scoped_lock lock(mutex);
 	if (queue.empty()) return;
-	char b = queue.pop_front();
-	conn->recvByte(static_cast<uint8_t>(b), time);
+	auto b = queue.pop_front();
+	conn->recvByte(b, time);
 }
 
 // EventListener
@@ -294,8 +300,7 @@ void RS232Raw::recvByte(uint8_t value, EmuTime /*time*/)
 {
 	if (!handle) return;
 
-	auto buf = static_cast<char>(value);
-	if (!handle->write(std::span<const char>(&buf, 1)).has_value()) {
+	if (!handle->write(std::span<const uint8_t>(&value, 1)).has_value()) {
 		handle.reset();
 	}
 }
@@ -383,25 +388,15 @@ void RS232Raw::setBaudRate(unsigned baud)
 
 void RS232Raw::update(const Setting& /*setting*/) noexcept
 {
-	if (thread.joinable()) {
-		poller->abort();
-	}
-	handle.reset();
-	if (thread.joinable()) {
-		thread.join();
-	}
-	poller.reset();
+	tearDown();
 	{
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
 
-	auto portName = std::string(rs232RawPortSetting.getString().c_str());
+	auto portName = rs232RawPortSetting.getString();
 	if (!portName.empty() && isPluggedIn()) {
-		auto p = buildParamsImpl(currentBaud, currentDataBits, currentStopBits,
-		                         currentParityEnabled, currentParity);
-		poller.emplace();
-		thread = std::thread([this, portName, p]() { openAndRun(portName, p); });
+		setup(std::string(portName), buildParams());
 	}
 }
 
@@ -415,14 +410,10 @@ void RS232Raw::serialize(Archive& /*ar*/, unsigned /*version*/)
 		if (!conn) return;
 		directConn = conn;
 
-		auto portName = std::string(rs232RawPortSetting.getString().c_str());
+		auto portName = rs232RawPortSetting.getString();
 		if (portName.empty()) return;
 
-		auto params = buildParamsImpl(currentBaud.load(), currentDataBits.load(),
-		                              currentStopBits.load(), currentParityEnabled.load(),
-		                              currentParity.load());
-		poller.emplace();
-		thread = std::thread([this, portName, params]() { openAndRun(portName, params); });
+		setup(std::string(portName), buildParams());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(RS232Raw);

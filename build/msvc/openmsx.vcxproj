@@ -1704,7 +1704,7 @@ popd</Command>
   <ItemGroup>
     <ClInclude Include="$(OpenMSXSrcDir)\sound\fake_windows.h" />
     <ClInclude Include="$(OpenMSXSrcDir)\MSXPiDevice.hh" />
-    <ClInclude Include="..\..\src\imgui\ImGuiPluggable.hh" />
+    <ClInclude Include="$(OpenMSXSrcDir)\imgui\ImGuiPluggable.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

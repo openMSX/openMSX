@@ -1,6 +1,9 @@
 #include "SerialPort.hh"
 
 #include "ReadDir.hh"
+#include "StringOp.hh"
+#include "one_of.hh"
+#include "strCat.hh"
 #include "utf8_checked.hh"
 
 #include <cerrno>
@@ -21,6 +24,12 @@
 #endif
 
 namespace openmsx::serial {
+
+// Windows already defines INVALID_HANDLE_VALUE as the HANDLE sentinel; on
+// POSIX serial handles are plain ints with -1 as the invalid value.
+#ifndef INVALID_HANDLE_VALUE
+#define INVALID_HANDLE_VALUE -1
+#endif
 
 // Captures the platform error state at the moment of failure.
 static ErrorCode currentError()
@@ -69,7 +78,7 @@ static DCB serialParamsToDCB(const SerialParams& params)
 	return dcb;
 }
 
-std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialParams& params)
+std::expected<Handle, ErrorCode> open(zstring_view portName, const SerialParams& params)
 {
 	std::string fullName = R"(\\.\)";
 	fullName += portName;
@@ -111,39 +120,7 @@ std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialPar
 	return Handle(h);
 }
 
-Handle::Handle(serial_handle_t handle_)
-	: handle(handle_)
-{
-}
-
-Handle::Handle(Handle&& other) noexcept
-	: handle(std::exchange(other.handle, INVALID_HANDLE_VALUE))
-{
-}
-
-Handle& Handle::operator=(Handle&& other) noexcept
-{
-	if (this != &other) {
-		release();
-		handle = std::exchange(other.handle, INVALID_HANDLE_VALUE);
-	}
-	return *this;
-}
-
-Handle::~Handle()
-{
-	release();
-}
-
-void Handle::release() noexcept
-{
-	if (handle != INVALID_HANDLE_VALUE) {
-		CloseHandle(handle);
-		handle = INVALID_HANDLE_VALUE;
-	}
-}
-
-IoResult Handle::read(std::span<char> buf) const
+IoResult Handle::read(std::span<uint8_t> buf) const
 {
 	DWORD bytesRead = 0;
 	OVERLAPPED ov = {};
@@ -167,7 +144,7 @@ IoResult Handle::read(std::span<char> buf) const
 	return IoResult(bytesRead);
 }
 
-IoResult Handle::write(std::span<const char> buf) const
+IoResult Handle::write(std::span<const uint8_t> buf) const
 {
 	DWORD bytesWritten = 0;
 	OVERLAPPED ov = {};
@@ -253,7 +230,7 @@ std::vector<std::string> list_ports()
 {
 	std::vector<std::string> ports;
 	for (int i = 1; i <= 256; ++i) {
-		std::string name = "COM" + std::to_string(i);
+		auto name = strCat("COM", i);
 		std::string fullName = R"(\\.\)" + name;
 		HANDLE h = CreateFileA(
 			fullName.c_str(),
@@ -272,7 +249,12 @@ std::vector<std::string> list_ports()
 
 #else // POSIX (Linux / macOS / BSD)
 
-static constexpr int BAUDRATE_MAP[][2] = {
+struct BaudMapItem {
+	unsigned baud;
+	speed_t speed;
+};
+
+static constexpr auto BAUDRATE_MAP = std::to_array<BaudMapItem>({
 	{ 50, B50 },
 	{ 75, B75 },
 	{ 110, B110 },
@@ -297,7 +279,7 @@ static constexpr int BAUDRATE_MAP[][2] = {
 #ifdef B921600
 	{ 921600, B921600 },
 #endif
-};
+});
 
 #ifdef __linux__
 #ifndef BOTHER
@@ -307,35 +289,33 @@ static constexpr int BAUDRATE_MAP[][2] = {
 
 static speed_t baudToSpeedExact(unsigned baud)
 {
-	for (auto& [rate, speed] : BAUDRATE_MAP) {
-		if (rate == static_cast<int>(baud)) return static_cast<speed_t>(speed);
+	for (auto& item : BAUDRATE_MAP) {
+		if (item.baud == baud) return item.speed;
 	}
 	return B0;
 }
 
 #ifndef __linux__
-static unsigned baudToNearest(unsigned baud)
+static speed_t baudToSpeedNearest(unsigned baud)
 {
-	unsigned bestRate = 0;
-	unsigned bestDiff = 0;
-	bool first = true;
-	for (auto& [rate, speed] : BAUDRATE_MAP) {
-		unsigned diff = abs(rate - static_cast<int>(baud));
-		if (first || diff < bestDiff) {
-			bestRate = static_cast<unsigned>(rate);
+	speed_t bestSpeed = B115200;
+	unsigned bestDiff = UINT_MAX;
+	for (auto& item : BAUDRATE_MAP) {
+		unsigned diff = (item.baud > baud) ? item.baud - baud
+		                                  : baud - item.baud;
+		if (diff < bestDiff) {
+			bestSpeed = item.speed;
 			bestDiff = diff;
-			first = false;
 			if (diff == 0) break;
 		}
 	}
-	return first ? 115200 : bestRate;
+	return bestSpeed;
 }
 #endif
 
 static void set_termios_baud(struct termios& tio, unsigned baud)
 {
-	speed_t speed = baudToSpeedExact(baud);
-	if (speed != B0) {
+	if (speed_t speed = baudToSpeedExact(baud); speed != B0) {
 		cfsetispeed(&tio, speed);
 		cfsetospeed(&tio, speed);
 	} else {
@@ -344,14 +324,8 @@ static void set_termios_baud(struct termios& tio, unsigned baud)
 		cfsetospeed(&tio, BOTHER);
 		tio.c_ispeed = static_cast<speed_t>(baud);
 		tio.c_ospeed = static_cast<speed_t>(baud);
-#elif defined(__APPLE__)
-		unsigned nearest = baudToNearest(baud);
-		speed = baudToSpeedExact(nearest);
-		cfsetispeed(&tio, speed);
-		cfsetospeed(&tio, speed);
 #else
-		unsigned nearest = baudToNearest(baud);
-		speed = baudToSpeedExact(nearest);
+		speed = baudToSpeedNearest(baud);
 		cfsetispeed(&tio, speed);
 		cfsetospeed(&tio, speed);
 #endif
@@ -369,10 +343,9 @@ static bool apply_custom_baud_post([[maybe_unused]] int fd, unsigned baud)
 #endif
 }
 
-std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialParams& params)
+std::expected<Handle, ErrorCode> open(zstring_view portName, const SerialParams& params)
 {
-	auto name = std::string(portName);
-	int fd = ::open(name.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+	int fd = ::open(portName.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (fd < 0) return std::unexpected(currentError());
 
 	struct termios tio = {};
@@ -435,39 +408,7 @@ std::expected<Handle, ErrorCode> open(std::string_view portName, const SerialPar
 	return Handle(fd);
 }
 
-Handle::Handle(serial_handle_t handle_)
-	: handle(handle_)
-{
-}
-
-Handle::Handle(Handle&& other) noexcept
-	: handle(std::exchange(other.handle, -1))
-{
-}
-
-Handle& Handle::operator=(Handle&& other) noexcept
-{
-	if (this != &other) {
-		release();
-		handle = std::exchange(other.handle, -1);
-	}
-	return *this;
-}
-
-Handle::~Handle()
-{
-	release();
-}
-
-void Handle::release() noexcept
-{
-	if (handle >= 0) {
-		::close(handle);
-		handle = -1;
-	}
-}
-
-IoResult Handle::read(std::span<char> buf) const
+IoResult Handle::read(std::span<uint8_t> buf) const
 {
 	auto n = ::read(handle, buf.data(), buf.size());
 	if (n > 0) return IoResult(n);
@@ -475,7 +416,7 @@ IoResult Handle::read(std::span<char> buf) const
 	return std::unexpected(currentError());
 }
 
-IoResult Handle::write(std::span<const char> buf) const
+IoResult Handle::write(std::span<const uint8_t> buf) const
 {
 	auto n = ::write(handle, buf.data(), buf.size());
 	if (n > 0) return IoResult(n);
@@ -560,7 +501,7 @@ std::vector<std::string> list_ports()
 	while (auto* entry = dir.getEntry()) {
 		for (auto pfx : portPrefixes) {
 			if (std::string_view(entry->d_name).starts_with(pfx)) {
-				ports.push_back("/dev/" + std::string(entry->d_name));
+				ports.push_back(strCat("/dev/", entry->d_name));
 				break;
 			}
 		}
@@ -570,6 +511,45 @@ std::vector<std::string> list_ports()
 }
 
 #endif
+
+// Handle move/destructor code, shared between the Windows and POSIX
+// implementations (only the "close" call and the invalid-handle sentinel
+// are platform-specific).
+Handle::Handle(serial_handle_t handle_)
+	: handle(handle_)
+{
+}
+
+Handle::Handle(Handle&& other) noexcept
+	: handle(std::exchange(other.handle, INVALID_HANDLE_VALUE))
+{
+}
+
+Handle& Handle::operator=(Handle&& other) noexcept
+{
+	if (this != &other) {
+		release();
+		handle = std::exchange(other.handle, INVALID_HANDLE_VALUE);
+	}
+	return *this;
+}
+
+Handle::~Handle()
+{
+	release();
+}
+
+void Handle::release() noexcept
+{
+	if (handle != INVALID_HANDLE_VALUE) {
+#ifdef _WIN32
+		CloseHandle(handle);
+#else
+		::close(handle);
+#endif
+		handle = INVALID_HANDLE_VALUE;
+	}
+}
 
 std::string to_string(ErrorCode ec)
 {
@@ -591,7 +571,7 @@ std::string to_string(ErrorCode ec)
 	}
 	std::wstring_view sv(buffer.data(), char_count);
 
-	while (!sv.empty() && (sv.back() == L'\n' || sv.back() == L'\r')) {
+	while (!sv.empty() && sv.back() == one_of(L'\n', L'\r')) {
 		sv.remove_suffix(1);
 	}
 

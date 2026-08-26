@@ -74,6 +74,9 @@ private:
 	void openAndRun(std::string portName, serial::SerialParams params);
 	void run();
 	void applyParams();
+	void setup(std::string portName, serial::SerialParams params);
+	void tearDown();
+	[[nodiscard]] serial::SerialParams buildParams() const;
 
 	// EventListener
 	bool signalEvent(const Event& event) override;
@@ -92,7 +95,7 @@ private:
 	std::thread thread;
 	std::mutex mutex;
 	std::optional<Poller> poller;
-	cb_queue<char> queue;
+	cb_queue<uint8_t> queue;
 
 	std::atomic<bool> DCD = false;
 	std::atomic<bool> RI  = false;

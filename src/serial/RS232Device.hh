@@ -15,7 +15,7 @@ public:
 	// input
 	virtual void signal(EmuTime time) = 0;
 
-	// **COMMENT** SerialDataInterface (part) (output)
+	// Part of SerialDataInterface: the output methods.
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
