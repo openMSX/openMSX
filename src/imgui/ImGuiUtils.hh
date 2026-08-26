@@ -66,6 +66,25 @@ inline std::string leftClip(std::string_view s, float maxWidth)
 	return strCat("...", s.substr(len - num));
 }
 
+// Mirror of leftClip(): keep the start of the string and replace the part that
+// doesn't fit with an ellipsis.
+inline std::string rightClip(std::string_view s, float maxWidth)
+{
+	auto fullWidth = ImGui::CalcTextSize(s).x;
+	if (fullWidth <= maxWidth) return std::string(s);
+
+	maxWidth -= ImGui::CalcTextSize("..."sv).x;
+	if (maxWidth <= 0.0f) return "...";
+
+	// The first length that is too wide, minus one, is the longest prefix that
+	// still fits. Length 0 always fits, so that first length is never 0.
+	auto lengths = std::views::iota(0uz, s.size() + 1);
+	auto it = std::ranges::upper_bound(lengths, maxWidth, {},
+		[&](size_t n) { return ImGui::CalcTextSize(s.substr(0, n)).x; });
+	auto num = (it == lengths.end()) ? s.size() : (*it - 1);
+	return strCat(s.substr(0, num), "...");
+}
+
 template<typename... Ts>
 void StrCat(Ts&& ...ts)
 {
