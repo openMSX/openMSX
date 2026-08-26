@@ -168,6 +168,25 @@ namespace export file_completion
 namespace export filename_clean
 namespace export get_next_numbered_filename
 
+#
+# debug_log / debug_log_read
+#
+# Accumulates debug messages in a buffer that can be read via
+# debug_log_read. This is useful for sending diagnostic output
+# through the MCP server, which cannot see puts/stderr output.
+#
+variable _debug_log {}
+proc debug_log {msg} {
+	variable _debug_log
+	lappend _debug_log $msg
+}
+proc debug_log_read {} {
+	variable _debug_log
+	set result [join $_debug_log "\n"]
+	set _debug_log {}
+	return $result
+}
+
 } ;# namespace utils
 
 # Don't import in global namespace, these are only useful in other scripts.
