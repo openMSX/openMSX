@@ -355,7 +355,7 @@ std::unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(HardwareConfi
 
 std::unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(HardwareConfig& hwConf)
 {
-	static XMLElement& xml(createConfig("MapperIO", "MapperIO"));
+	static XMLElement& xml(createConfig("MapperIO", "MSX Memory Mapper I/O"));
 	return std::make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
 }
 
