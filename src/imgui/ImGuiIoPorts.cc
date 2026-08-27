@@ -29,18 +29,6 @@ namespace openmsx {
 
 using namespace std::literals;
 
-static constexpr auto OVERLAP_TOOLTIP =
-	"These ports are shared with another device. Reading such a port returns "
-	"the bitwise AND of all values, writing goes to every device."sv;
-
-static constexpr int TABLE_FLAGS =
-	ImGuiTableFlags_RowBg |
-	ImGuiTableFlags_BordersInnerV |
-	ImGuiTableFlags_Resizable |
-	ImGuiTableFlags_Reorderable |
-	ImGuiTableFlags_Hideable |
-	ImGuiTableFlags_ContextMenuInBody;
-
 /** A maximal range of ports with the same device(s) in the same direction(s).
   */
 struct Row {
@@ -200,7 +188,15 @@ static void drawTable(ImFont* fontMono, MSXCPUInterface& cpuInterface,
 	};
 	auto arrowWidth = ImGui::GetFontSize() + style.ItemInnerSpacing.x;
 
-	im::Table("ports", 4, TABLE_FLAGS | ImGuiTableFlags_Sortable, [&]{
+	static constexpr int TABLE_FLAGS =
+		ImGuiTableFlags_RowBg |
+		ImGuiTableFlags_BordersInnerV |
+		ImGuiTableFlags_Resizable |
+		ImGuiTableFlags_Reorderable |
+		ImGuiTableFlags_Hideable |
+		ImGuiTableFlags_ContextMenuInBody |
+		ImGuiTableFlags_Sortable;
+	im::Table("ports", 4, TABLE_FLAGS, [&]{
 		// 'Value' is hidden by default: the hex editor on the 'ioports'
 		// debuggable already shows these values. Un-hide it via the
 		// right-click context menu on the table header.
@@ -240,7 +236,12 @@ static void drawTable(ImFont* fontMono, MSXCPUInterface& cpuInterface,
 				im::StyleColor(conflict, ImGuiCol_Text, getColor(imColor::YELLOW), [&]{
 					ImGui::TextUnformatted(row.device);
 				});
-				if (conflict) simpleToolTip(OVERLAP_TOOLTIP);
+				if (conflict) {
+					simpleToolTip(
+						"These ports are shared with another device. Reading "
+						"such a port returns the bitwise AND of all values, "
+						"writing goes to every device."sv);
+				}
 			}
 			if (ImGui::TableNextColumn()) { // value(s)
 				drawValue(fontMono, cpuInterface, row, time);
