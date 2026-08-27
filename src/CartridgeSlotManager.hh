@@ -76,6 +76,16 @@ public:
 		}
 		return {};
 	}
+	/** The external slot at (ps, ss), if there is one. With 'convert' a
+	  * primary slot that isn't expanded (ss == -1) also matches ss == 0. */
+	[[nodiscard]] std::optional<unsigned> findSlot(int ps, int ss, bool convert) const {
+		for (auto slot : xrange(MAX_SLOTS)) {
+			if (!slots[slot].exists()) continue;
+			int slotSs = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
+			if ((slots[slot].ps == ps) && (slotSs == ss)) return slot;
+		}
+		return {};
+	}
 
 private:
 	[[nodiscard]] const HardwareConfig* getExtensionConfig(std::string_view cartName) const;

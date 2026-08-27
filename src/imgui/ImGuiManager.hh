@@ -50,6 +50,7 @@ class ImGuiRasterViewer;
 class ImGuiReverseBar;
 class ImGuiSCCViewer;
 class ImGuiSettings;
+class ImGuiSlotMap;
 class ImGuiSoundChip;
 class ImGuiSymbols;
 class ImGuiTools;
@@ -175,6 +176,7 @@ public:
 	std::unique_ptr<ImGuiMsxMusicViewer> msxMusicViewer;
 	std::unique_ptr<ImGuiWaveViewer> waveViewer;
 	std::unique_ptr<ImGuiCheatFinder> cheatFinder;
+	std::unique_ptr<ImGuiSlotMap> slotMap;
 	std::unique_ptr<ImGuiDiskManipulator> diskManipulator;
 	std::unique_ptr<ImGuiSettings> settings;
 	std::unique_ptr<ImGuiSoundChip> soundChip;

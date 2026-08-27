@@ -1156,6 +1156,14 @@ void ImGuiMedia::printDatabase(const RomInfo& romInfo, const char* buf)
 	}();
 	printRow("Status", status);
 	printRow("Remark", romInfo.getRemark(buf));
+	if (romInfo.getGenMSXid() > 0) {
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted("More info");
+		}
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextLinkOpenURL("Generation MSX", strCat("https://www.generation-msx.nl/software/", romInfo.getGenMSXid()).c_str());
+		}
+	}
 }
 
 void ImGuiMedia::printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType)

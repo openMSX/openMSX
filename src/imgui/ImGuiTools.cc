@@ -10,6 +10,7 @@
 #include "ImGuiMsxMusicViewer.hh"
 #include "ImGuiPlotterViewer.hh"
 #include "ImGuiSCCViewer.hh"
+#include "ImGuiSlotMap.hh"
 #include "ImGuiTrainer.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiWaveViewer.hh"
@@ -146,6 +147,9 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show);
 		ImGui::MenuItem("Plotter viewer", nullptr, &manager.plotterViewer->show);
 		simpleToolTip("The plotter should be plugged into the printer port");
+		ImGui::MenuItem("Slot map", nullptr, &manager.slotMap->show);
+		simpleToolTip("Show which devices are visible in which slot/page. "
+		              "Same information as the 'slotmap' console command.");
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{
