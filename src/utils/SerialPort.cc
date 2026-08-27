@@ -22,6 +22,9 @@
 #include <IOKit/serial/ioss.h>
 #endif
 #endif
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace openmsx::serial {
 
@@ -165,8 +168,7 @@ IoResult Handle::write(std::span<const uint8_t> buf) const
 		}
 	}
 	CloseHandle(ov.hEvent);
-	if (bytesWritten > 0) return IoResult(bytesWritten);
-	return std::unexpected(ErrorCode{});
+	return IoResult(bytesWritten);
 }
 
 std::expected<void, ErrorCode> Handle::set_params(const SerialParams& params) const
@@ -411,15 +413,14 @@ std::expected<Handle, ErrorCode> open(zstring_view portName, const SerialParams&
 IoResult Handle::read(std::span<uint8_t> buf) const
 {
 	auto n = ::read(handle, buf.data(), buf.size());
-	if (n > 0) return IoResult(n);
-	if (n == 0) return IoResult(0);
+	if (n >= 0) return IoResult(n);
 	return std::unexpected(currentError());
 }
 
 IoResult Handle::write(std::span<const uint8_t> buf) const
 {
 	auto n = ::write(handle, buf.data(), buf.size());
-	if (n > 0) return IoResult(n);
+	if (n >= 0) return IoResult(n);
 	return std::unexpected(currentError());
 }
 

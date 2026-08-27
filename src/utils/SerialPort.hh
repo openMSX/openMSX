@@ -11,14 +11,10 @@
 #include <string_view>
 #include <vector>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 namespace openmsx::serial {
 
 #ifdef _WIN32
-using serial_handle_t = HANDLE;
+using serial_handle_t = void*;
 #else
 using serial_handle_t = int;
 #endif

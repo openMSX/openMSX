@@ -1,9 +1,3 @@
-// Keep these before "RS232Raw.hh": that header pulls in <windows.h> (via
-// SerialPort.hh), whose macros (TRANSPARENT, BLACK, WHITE, YELLOW, ...) would
-// otherwise clash with the imColor enum in ImGuiUtils.hh.
-#include "ImGuiCpp.hh"
-#include "ImGuiUtils.hh"
-
 #include "RS232Raw.hh"
 
 #include "RS232Connector.hh"
@@ -11,6 +5,8 @@
 #include "CliComm.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
+#include "ImGuiCpp.hh"
+#include "ImGuiUtils.hh"
 #include "PlugException.hh"
 #include "Scheduler.hh"
 #include "serialize.hh"
@@ -147,16 +143,15 @@ zstring_view RS232Raw::getDescription() const
 
 void RS232Raw::handleImGuiExtraMenuItems()
 {
-	std::string cur(rs232RawPortSetting.getString().c_str());
-	if (cur != currentPort) {
+	if (auto cur = rs232RawPortSetting.getString(); cur != currentPort) {
 		ports = serial::list_ports();
-		currentPort = cur;
+		currentPort = std::string(cur);
 	}
 	im::Indent([&]{
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
-		im::Combo("##rs232-raw-port", cur.c_str(), [this, &cur]{
+		im::Combo("##rs232-raw-port", currentPort.c_str(), [this]{
 			for (const auto& p : ports) {
-				bool selected = (p == cur);
+				bool selected = (p == currentPort);
 				if (ImGui::Selectable(p.c_str(), selected)) {
 					rs232RawPortSetting.setString(p);
 					currentPort = p;
@@ -249,7 +244,7 @@ void RS232Raw::run()
 			handle.reset();
 		} else if (*r == 0) {
 #ifdef _WIN32
-			Sleep(1);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 #endif
 		} else if (direct) {
 			conn->recvByte(b, EmuTime::zero());
