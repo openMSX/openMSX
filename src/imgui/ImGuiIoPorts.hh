@@ -3,15 +3,7 @@
 
 #include "ImGuiPart.hh"
 
-#include "EmuTime.hh"
-
-#include <cstdint>
-#include <string>
-#include <vector>
-
 namespace openmsx {
-
-class MSXCPUInterface;
 
 class ImGuiIoPorts final : public ImGuiPart
 {
@@ -29,25 +21,6 @@ public:
 	bool show = false;
 
 private:
-	/** A maximal range of ports with the same device(s) in the same
-	  * direction(s).
-	  */
-	struct Row {
-		uint8_t begin; // inclusive
-		uint8_t end;   // inclusive
-		bool in;
-		bool out;
-		bool overlap;       // these ports are shared with another device
-		std::string device; // comma separated name(s)
-	};
-	[[nodiscard]] static std::vector<Row> getRows(MSXCPUInterface& cpuInterface);
-	[[nodiscard]] static std::string portsText(const Row& row);
-	[[nodiscard]] static std::string_view dirText(const Row& row);
-	static void sortRows(std::vector<Row>& rows);
-
-	void drawTable(MSXCPUInterface& cpuInterface, bool warnOverlap, EmuTime time);
-	void drawValue(MSXCPUInterface& cpuInterface, const Row& row, EmuTime time);
-
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiIoPorts::show}
 	};
