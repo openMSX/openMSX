@@ -19,6 +19,7 @@
 #include "PrinterPortLogger.hh"
 #include "PrinterPortSimpl.hh"
 #include "RS232Net.hh"
+#include "RS232Raw.hh"
 #include "RS232Tester.hh"
 #include "Reactor.hh"
 #include "SETetrisDongle.hh"
@@ -101,6 +102,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<RS232Tester>(
 		eventDistributor, scheduler, commandController));
 	controller.registerPluggable(std::make_unique<RS232Net>(
+		eventDistributor, scheduler, commandController));
+	controller.registerPluggable(std::make_unique<RS232Raw>(
 		eventDistributor, scheduler, commandController));
 
 	// Sampled audio:

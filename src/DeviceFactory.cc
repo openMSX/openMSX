@@ -47,6 +47,8 @@
 #include "MSXPrinterPort.hh"
 #include "MSXRS232.hh"
 #include "MSXRTC.hh"
+#include "SMXWiFi.hh"
+#include "GenericUNAPI.hh"
 #include "MSXRam.hh"
 #include "MSXResetStatusRegister.hh"
 #include "MSXS1985.hh"
@@ -279,6 +281,10 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<MSXModem>(conf);
 	} else if (type == "MSX-RS232") {
 		result = std::make_unique<MSXRS232>(conf);
+	} else if (type == "SMXWiFi") {
+		result = std::make_unique<SMXWiFi>(conf);
+	} else if (type == "GenericUNAPI") {
+		result = std::make_unique<GenericUNAPI>(conf);
 	} else if (type == "MegaRam") {
 		result = std::make_unique<MSXMegaRam>(conf);
 	} else if (type == "PAC") {

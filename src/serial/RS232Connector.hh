@@ -25,6 +25,7 @@ public:
 	void recvByte(uint8_t value, EmuTime time) override = 0;
 	[[nodiscard]] virtual bool ready() = 0;
 	[[nodiscard]] virtual bool acceptsData() = 0;
+	[[nodiscard]] virtual bool directByteDelivery() const { return false; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -25,6 +25,7 @@ public:
 
 private:
 	void paintPluggableSelectables(PluggingController& controller, const Connector& connector);
+	void paintImGuiExtra(Pluggable& pluggable);
 };
 
 } // namespace openmsx

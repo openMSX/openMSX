@@ -9,6 +9,8 @@
 #include "Pluggable.hh"
 #include "PluggingController.hh"
 
+#include "ImGuiPluggable.hh"
+
 #include <imgui.h>
 
 using namespace std::literals;
@@ -65,6 +67,13 @@ void ImGuiConnector::paintPluggableSelectables(PluggingController& controller, c
 	}
 }
 
+void ImGuiConnector::paintImGuiExtra(Pluggable& pluggable)
+{
+	if (auto* extra = dynamic_cast<ImGuiPluggable*>(&pluggable)) {
+		extra->handleImGuiExtraMenuItems();
+	}
+}
+
 void ImGuiConnector::showPluggables(PluggingController& controller, Mode mode)
 {
 	im::Table("##shared-table", 2, [&]{
@@ -75,29 +84,31 @@ void ImGuiConnector::showPluggables(PluggingController& controller, Mode mode)
 				ImGui::TextUnformatted(connector->getDescription());
 			}
 			if (ImGui::TableNextColumn()) { // pluggable
-				const auto& currentPluggable = connector->getPlugged();
+				auto& currentPluggable = connector->getPlugged();
 				const auto& plugName = currentPluggable.getName();
 				const auto& connectorName = connector->getName();
 				using enum ImGuiConnector::Mode;
 				switch (mode) {
-					case VIEW:
-						ImGui::TextUnformatted(plugName.empty() ? "(empty)"sv : pluggableToGuiString(plugName));
-						break;
-					case COMBO:
-						ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
-						im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(plugName).c_str(), [&]{
-							paintPluggableSelectables(controller, *connector);
-						});
-						break;
-					case SUBMENU:
-						im::Menu(tmpStrCat(strCat_if(plugName.empty(), "(empty)##", connectorName).else_(STRCAT_LAZY(pluggableToGuiString(plugName)))).c_str(), [&] {
-							paintPluggableSelectables(controller, *connector);
-						});
-						break;
-					default: UNREACHABLE;
-				}
-				if (mode != SUBMENU) {
+				case VIEW:
+					ImGui::TextUnformatted(plugName.empty() ? "(empty)"sv : pluggableToGuiString(plugName));
 					simpleToolTip(currentPluggable.getDescription());
+					break;
+				case COMBO:
+					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
+					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(plugName).c_str(), [&]{
+						paintPluggableSelectables(controller, *connector);
+					});
+					simpleToolTip(currentPluggable.getDescription());
+					paintImGuiExtra(currentPluggable);
+					break;
+				case SUBMENU:
+					im::Menu(tmpStrCat(strCat_if(plugName.empty(), "(empty)##", connectorName).else_(STRCAT_LAZY(pluggableToGuiString(plugName)))).c_str(), [&] {
+						paintPluggableSelectables(controller, *connector);
+					});
+					paintImGuiExtra(currentPluggable);
+					break;
+				default:
+					UNREACHABLE;
 				}
 			}
 		}
