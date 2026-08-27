@@ -157,60 +157,6 @@ std::vector<ImGuiIoPorts::Row> ImGuiIoPorts::getRows(MSXCPUInterface& cpuInterfa
 	return result;
 }
 
-std::vector<ImGuiIoPorts::Group> ImGuiIoPorts::getGroups(MSXCPUInterface& cpuInterface)
-{
-	auto names = collectNames(cpuInterface);
-	const auto& in = names.in;
-	const auto& out = names.out;
-
-	// Per device, which ports it occupies (bit 0 = input, bit 1 = output).
-	struct Acc {
-		std::string_view device;
-		std::array<uint8_t, 256> mask = {};
-	};
-	std::vector<Acc> accs;
-	auto mark = [&](std::string_view device, unsigned port, uint8_t bit) {
-		auto it = std::ranges::find(accs, device, &Acc::device);
-		if (it == accs.end()) {
-			accs.push_back(Acc{.device = device});
-			it = accs.end() - 1;
-		}
-		it->mask[port] |= bit;
-	};
-	// Ports are visited in ascending order, so the devices end up ordered by
-	// their lowest port. That keeps the grouped view roughly address ordered.
-	for (auto port : xrange(256)) {
-		for (const auto& device : in [port]) mark(device, port, 1);
-		for (const auto& device : out[port]) mark(device, port, 2);
-	}
-
-	std::vector<Group> result;
-	for (const auto& acc : accs) {
-		Group group{.device = std::string(acc.device)};
-		unsigned port = 0;
-		while (port < 256) {
-			if (acc.mask[port] == 0) { ++port; continue; }
-			unsigned end = port + 1;
-			while ((end < 256) && (acc.mask[end] == acc.mask[port])) ++end;
-			bool isIn  = (acc.mask[port] & 1) != 0;
-			bool isOut = (acc.mask[port] & 2) != 0;
-			bool shared = std::ranges::any_of(xrange(port, end), [&](unsigned p) {
-				return (isIn  && (in [p].size() > 1)) ||
-				       (isOut && (out[p].size() > 1));
-			});
-			group.ranges.push_back(Row{
-				.begin = narrow<uint8_t>(port),
-				.end = narrow<uint8_t>(end - 1),
-				.in = isIn,
-				.out = isOut,
-				.overlap = shared});
-			port = end;
-		}
-		result.push_back(std::move(group));
-	}
-	return result;
-}
-
 void ImGuiIoPorts::drawValue(MSXCPUInterface& cpuInterface, const Row& row, EmuTime time)
 {
 	im::ScopedFont sf(manager.fontMono);
@@ -236,11 +182,11 @@ void ImGuiIoPorts::drawValue(MSXCPUInterface& cpuInterface, const Row& row, EmuT
 	}
 }
 
-void ImGuiIoPorts::drawFlat(MSXCPUInterface& cpuInterface, bool warnOverlap, EmuTime time)
+void ImGuiIoPorts::drawTable(MSXCPUInterface& cpuInterface, bool warnOverlap, EmuTime time)
 {
-	// A sorted column also draws a sort arrow next to its name. Reserve room
-	// for that in the default width, otherwise the header of the (narrow)
-	// 'Ports' and 'Dir' columns gets clipped to "..." once you sort on them.
+	// 'Ports' and 'Dir' have a fixed width, so their width must fit the header
+	// including the sort arrow that appears next to it once you sort on them.
+	// Otherwise those (narrow) headers would stay clipped to "...".
 	const auto& style = ImGui::GetStyle();
 	auto arrowWidth = ImGui::GetFontSize() + style.ItemInnerSpacing.x;
 	auto monoWidth = [&](std::string_view s) {
@@ -252,16 +198,22 @@ void ImGuiIoPorts::drawFlat(MSXCPUInterface& cpuInterface, bool warnOverlap, Emu
 		       2.0f * style.CellPadding.x;
 	};
 
-	im::Table("flat", 4, TABLE_FLAGS | ImGuiTableFlags_Sortable, [&]{
+	im::Table("ports", 4, TABLE_FLAGS | ImGuiTableFlags_Sortable, [&]{
 		// 'Value' is hidden by default: the hex editor on the 'ioports'
 		// debuggable already shows these values. Un-hide it via the
 		// right-click context menu on the table header.
 		// It's also not sortable: the values change while the emulation
 		// runs, so sorting on them would reshuffle the rows every frame.
+		//
+		// 'Ports' and 'Dir' hold at most 5 resp. 3 characters, so there is
+		// nothing to gain by resizing them: keep them at their content width
+		// and let all remaining space go to 'Device'.
 		ImGui::TableSetupColumn("Ports", ImGuiTableColumnFlags_WidthFixed |
+		                                 ImGuiTableColumnFlags_NoResize |
 		                                 ImGuiTableColumnFlags_DefaultSort,
 		                        sortableWidth("Ports", monoWidth("FF-FF")));
-		ImGui::TableSetupColumn("Dir", ImGuiTableColumnFlags_WidthFixed,
+		ImGui::TableSetupColumn("Dir", ImGuiTableColumnFlags_WidthFixed |
+		                               ImGuiTableColumnFlags_NoResize,
 		                        sortableWidth("Dir", ImGui::CalcTextSize("I/O"sv).x));
 		ImGui::TableSetupColumn("Device", ImGuiTableColumnFlags_WidthStretch);
 		ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthFixed |
@@ -293,47 +245,6 @@ void ImGuiIoPorts::drawFlat(MSXCPUInterface& cpuInterface, bool warnOverlap, Emu
 	});
 }
 
-void ImGuiIoPorts::drawGrouped(MSXCPUInterface& cpuInterface, bool warnOverlap, EmuTime time)
-{
-	// Size to content: the tree column is the first one, stretching it would
-	// push 'Dir' all the way to the right edge.
-	im::Table("grouped", 3, TABLE_FLAGS | ImGuiTableFlags_SizingFixedFit, [&]{
-		ImGui::TableSetupColumn("Device / ports", ImGuiTableColumnFlags_WidthFixed |
-		                                          ImGuiTableColumnFlags_NoHide);
-		ImGui::TableSetupColumn("Dir", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthFixed |
-		                                 ImGuiTableColumnFlags_DefaultHide);
-		ImGui::TableHeadersRow();
-
-		for (const auto& group : getGroups(cpuInterface)) {
-			ImGui::TableNextRow();
-			ImGui::TableNextColumn();
-			im::TreeNode(group.device.c_str(),
-			             ImGuiTreeNodeFlags_DefaultOpen |
-			             ImGuiTreeNodeFlags_SpanFullWidth, [&]{
-				for (const auto& range : group.ranges) {
-					ImGui::TableNextRow();
-					if (ImGui::TableNextColumn()) { // ports
-						bool conflict = range.overlap && warnOverlap;
-						im::ScopedFont sf(manager.fontMono);
-						im::StyleColor(conflict, ImGuiCol_Text,
-						               getColor(imColor::YELLOW), [&]{
-							ImGui::TextUnformatted(portsText(range));
-						});
-						if (conflict) simpleToolTip(OVERLAP_TOOLTIP);
-					}
-					if (ImGui::TableNextColumn()) { // direction
-						ImGui::TextUnformatted(dirText(range));
-					}
-					if (ImGui::TableNextColumn()) { // value(s)
-						drawValue(cpuInterface, range, time);
-					}
-				}
-			});
-		}
-	});
-}
-
 void ImGuiIoPorts::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -357,18 +268,11 @@ void ImGuiIoPorts::paint(MSXMotherBoard* motherBoard)
 	auto fontSize = ImGui::GetFontSize();
 	ImGui::SetNextWindowSize(ImVec2(46.0f * fontSize, 26.0f * fontSize), ImGuiCond_FirstUseEver);
 	im::Window("I/O ports", &show, [&]{
-		ImGui::Checkbox("Group by device", &groupByDevice);
-		simpleToolTip("A device doesn't necessarily occupy a contiguous range of "
-		              "ports. Group by device to see all ports of one device "
-		              "together instead of sorted by port number.");
-
-		auto& cpuInterface = motherBoard->getCPUInterface();
-		auto time = motherBoard->getCurrentTime();
-		if (groupByDevice) {
-			drawGrouped(cpuInterface, warnOverlap, time);
-		} else {
-			drawFlat(cpuInterface, warnOverlap, time);
-		}
+		// A device doesn't necessarily occupy a contiguous range of ports
+		// (e.g. the Philips NMS-1205). Sort on 'Device' to see all ports of
+		// one device together instead of ordered by port number.
+		drawTable(motherBoard->getCPUInterface(), warnOverlap,
+		          motherBoard->getCurrentTime());
 	});
 }
 
