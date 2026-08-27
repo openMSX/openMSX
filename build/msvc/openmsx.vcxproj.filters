@@ -1404,6 +1404,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Net.cc">
       <Filter>serial</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Raw.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Tester.cc">
       <Filter>serial</Filter>
     </ClCompile>
@@ -1503,6 +1506,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPrinterPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\SerialPort.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -2844,6 +2850,9 @@
     <None Include="$(OpenMSXSrcDir)\utils\utf8_checked.hh">
       <Filter>utils</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\utils\SerialPort.hh">
+      <Filter>utils</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\utils\utf8_core.hh">
       <Filter>utils</Filter>
     </None>
@@ -3109,6 +3118,9 @@
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\RS232Net.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\serial\RS232Raw.hh">
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\RS232Tester.hh">
