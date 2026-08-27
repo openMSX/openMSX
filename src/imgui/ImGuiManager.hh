@@ -37,6 +37,7 @@ class ImGuiConsole;
 class ImGuiDebugger;
 class ImGuiDiskManipulator;
 class ImGuiHelp;
+class ImGuiIoPorts;
 class ImGuiKeyboard;
 class ImGuiMachine;
 class ImGuiMedia;
@@ -160,6 +161,7 @@ public:
 	std::unique_ptr<ImGuiSymbols> symbols;
 	std::unique_ptr<ImGuiWatchExpr> watchExpr;
 	std::unique_ptr<ImGuiTraceViewer> traceViewer;
+	std::unique_ptr<ImGuiIoPorts> ioPorts;
 	std::unique_ptr<ImGuiVdpRegs> vdpRegs;
 	std::unique_ptr<ImGuiPalette> palette;
 	std::unique_ptr<ImGuiPlotterViewer> plotterViewer;
