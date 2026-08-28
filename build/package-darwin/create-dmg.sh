@@ -32,11 +32,20 @@ echo "Creating temporary DMG ($SIZE_MB MB)..."
 hdiutil create -megabytes $SIZE_MB -fs HFS+ -volname "$VOL_NAME" "$TMP_DMG"
 
 echo "Mounting temporary DMG..."
-DEVICE=$(hdiutil attach -readwrite -noverify -noautoopen "$TMP_DMG" | \
-         egrep '^/dev/' | sed 1q | awk '{print $1}')
+ATTACH_OUT=$(hdiutil attach -readwrite -noverify -noautoopen "$TMP_DMG")
+DEVICE=$(printf '%s\n' "$ATTACH_OUT" | egrep '^/dev/' | sed 1q | awk '{print $1}')
 
-# The mount point
-MOUNT_DIR="/Volumes/$VOL_NAME"
+# Take the mount point from hdiutil rather than assuming /Volumes/$VOL_NAME:
+# if a volume of that name is already mounted (e.g. an installed openMSX.dmg)
+# ours lands on "/Volumes/$VOL_NAME 1" and we would style the wrong volume.
+MOUNT_DIR=$(printf '%s\n' "$ATTACH_OUT" | grep '/Volumes/' | sed 1q | \
+            sed -E 's|^.*(/Volumes/)|\1|; s|[[:space:]]+$||')
+if [ -z "$MOUNT_DIR" ]; then
+    echo "Could not determine mount point of $TMP_DMG" >&2
+    exit 1
+fi
+
+MOUNT_NAME=$(basename "$MOUNT_DIR")
 
 echo "Copying contents..."
 # Use tar to copy to preserve symlinks and attributes safely
@@ -63,7 +72,7 @@ echo "Applying styling with AppleScript..."
 
 osascript <<EOF
 tell application "Finder"
-    tell disk "$VOL_NAME"
+    tell disk "$MOUNT_NAME"
         open
         set current view of container window to icon view
         set toolbar visible of container window to false
