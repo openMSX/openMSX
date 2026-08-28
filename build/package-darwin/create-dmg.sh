@@ -14,8 +14,14 @@ SRC_DIR="$1"
 DMG_NAME="$2"
 VOL_NAME="$3"
 
-# Background image path
+# Background image sources. These are combined into a single multi-resolution
+# TIFF so Finder lays the window out at the 1x size (600x403 points) but draws
+# the 2x representation on Retina displays. Handing Finder a plain 1200x806
+# image instead would make it lay out at 1200x806 points and double every icon
+# coordinate. tiffutil is part of base macOS, so it is available on CI too.
 BG_IMG="build/package-darwin/dmg_bg.png"
+BG_IMG_2X="build/package-darwin/dmg_bg@2x.png"
+BG_TIFF_NAME="dmg_bg.tiff"
 
 # Where the generated Finder styling metadata is stored for CI to inject
 DS_STORE_OUT="build/package-darwin/DS_Store"
@@ -63,7 +69,8 @@ rm -f "$MOUNT_DIR/ "
 
 echo "Setting up background image..."
 mkdir -p "$MOUNT_DIR/.background"
-cp "$BG_IMG" "$MOUNT_DIR/.background/"
+tiffutil -cathidpicheck "$BG_IMG" "$BG_IMG_2X" \
+    -out "$MOUNT_DIR/.background/$BG_TIFF_NAME" > /dev/null
 
 echo "Creating Applications symlink..."
 ln -s /Applications "$MOUNT_DIR/Applications"
@@ -93,7 +100,7 @@ tell application "Finder"
         set theViewOptions to the icon view options of container window
         set arrangement of theViewOptions to not arranged
         set icon size of theViewOptions to 96
-        set background picture of theViewOptions to file ".background:dmg_bg.png"
+        set background picture of theViewOptions to file ".background:dmg_bg.tiff"
         
         -- Push hidden files way out of view
         set hidden_files to {".background", ".fseventsd", ".VolumeIcon.icns", ".Trashes"}
