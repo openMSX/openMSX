@@ -35,7 +35,12 @@ bindist: app codesign $(DESTDIR)/$(BINDIST_LICENSE)
 	@echo "Creating disk image:"
 	@cp $(APP_SUPPORT_DIR)/DS_Store $(BINDIST_DIR)/.DS_Store || true
 	@mkdir -p $(BINDIST_DIR)/.background
-	@cp $(APP_SUPPORT_DIR)/dmg_bg.png $(BINDIST_DIR)/.background/
+# Combine the 1x and 2x backgrounds into one multi-resolution TIFF so the image
+# stays sharp on Retina. Must match what create-dmg.sh generates, since the
+# committed DS_Store references .background/dmg_bg.tiff by name.
+	@tiffutil -cathidpicheck $(APP_SUPPORT_DIR)/dmg_bg.png \
+		$(APP_SUPPORT_DIR)/dmg_bg@2x.png \
+		-out $(BINDIST_DIR)/.background/dmg_bg.tiff > /dev/null
 	@ln -sf /Applications $(BINDIST_DIR)/Applications
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
 		-fs HFS+J \
