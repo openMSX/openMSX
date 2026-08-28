@@ -151,6 +151,21 @@ namespace openmsx::FileOperations {
 	 */
 	 [[nodiscard]] std::string_view stem(std::string_view path);
 
+	/**
+	 * Replace characters that are not allowed (or not desirable) in a
+	 * filename by '_'. The result is a single path component: path
+	 * separators are replaced as well, so this is not suitable to clean
+	 * a whole path.
+	 * Mostly useful to turn free-form text (e.g. an MSX machine display
+	 * name or a guessed software title) into something that can be used
+	 * as a filename.
+	 * This is the C++ equivalent of the Tcl proc 'utils::filename_clean'
+	 * (see share/scripts/_utils.tcl), keep the two in sync.
+	 * @param filename The filename to clean
+	 * @result The cleaned filename, always the same length as the input.
+	 */
+	[[nodiscard]] std::string cleanFilename(std::string_view filename);
+
 	/** Join two paths.
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
 	 * absolute path, that path is returned ('part1' is ignored). If
