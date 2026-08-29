@@ -3,6 +3,7 @@
 
 #include "JoystickId.hh"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -34,6 +35,8 @@ public:
 	[[nodiscard]] IntegerSetting* getJoyDeadZoneSetting(JoystickId joyId) const;
 	[[nodiscard]] std::string getDisplayName(JoystickId joyId) const;
 	[[nodiscard]] std::optional<unsigned> getNumButtons(JoystickId joyId) const;
+	[[nodiscard]] std::optional<unsigned> getNumAxes(JoystickId joyId) const;
+	[[nodiscard]] std::optional<int16_t> getAxis(JoystickId joyId, int axis) const;
 
 	[[nodiscard]] std::optional<JoystickId> translateSdlInstanceId(SDL_Event& evt) const;
 
