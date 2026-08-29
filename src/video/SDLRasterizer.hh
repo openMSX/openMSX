@@ -17,7 +17,6 @@ namespace openmsx {
 class Display;
 class VDP;
 class VDPVRAM;
-class OutputSurface;
 class RawFrame;
 class RenderSettings;
 class Setting;
@@ -33,7 +32,7 @@ public:
 	using Pixel = uint32_t;
 
 	SDLRasterizer(
-		VDP& vdp, Display& display, OutputSurface& screen,
+		VDP& vdp, Display& display,
 		std::unique_ptr<PostProcessor> postProcessor);
 	SDLRasterizer(const SDLRasterizer&) = delete;
 	SDLRasterizer(SDLRasterizer&&) = delete;
@@ -102,10 +101,6 @@ private:
 	/** The VRAM whose contents are rendered.
 	  */
 	VDPVRAM& vram;
-
-	/** The surface which is visible to the user.
-	  */
-	OutputSurface& screen;
 
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.

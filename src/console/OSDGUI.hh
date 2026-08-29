@@ -17,10 +17,8 @@ class OSDGUI
 public:
 	OSDGUI(CommandController& commandController, Display& display);
 
-	[[nodiscard]] Display& getDisplay() const { return display; }
 	[[nodiscard]] const OSDTopWidget& getTopWidget() const { return topWidget; }
 	[[nodiscard]]       OSDTopWidget& getTopWidget()       { return topWidget; }
-	void refresh() const;
 
 private:
 	Display& display;

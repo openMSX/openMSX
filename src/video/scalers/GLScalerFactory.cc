@@ -23,7 +23,7 @@ std::unique_ptr<GLScaler> createScaler(
 	case SIMPLE:
 		return std::make_unique<GLSimpleScaler>(renderSettings, fallback);
 	case RGBTRIPLET:
-		return std::make_unique<GLRGBScaler>(renderSettings, fallback);
+		return std::make_unique<GLRGBScaler>(renderSettings);
 	case SCALE:
 		return std::make_unique<GLScaleNxScaler>(fallback);
 	case TV:

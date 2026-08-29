@@ -6,17 +6,21 @@
 namespace openmsx {
 
 OSDGUILayer::OSDGUILayer(OSDGUI& gui_)
-	: Layer(Coverage::PARTIAL, ZIndex::OSDGUI)
-	, gui(gui_)
+	: gui(gui_)
 {
 }
 
 OSDGUILayer::~OSDGUILayer()
 {
+	invalidateAll();
+}
+
+void OSDGUILayer::invalidateAll()
+{
 	getGUI().getTopWidget().invalidateRecursive();
 }
 
-void OSDGUILayer::paint(OutputSurface& output)
+void OSDGUILayer::paint(const OutputDimensions& output)
 {
 	auto& top = getGUI().getTopWidget();
 	top.paintRecursive(output);

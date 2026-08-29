@@ -38,7 +38,7 @@ std::optional<gl::ivec2> DummyVideoSystem::getMouseCoord()
 	return {};
 }
 
-OutputSurface* DummyVideoSystem::getOutputSurface()
+VisibleSurface* DummyVideoSystem::getSurface()
 {
 	return nullptr;
 }
@@ -67,10 +67,6 @@ std::optional<gl::ivec2> DummyVideoSystem::getWindowPosition()
 }
 
 void DummyVideoSystem::setWindowPosition(gl::ivec2 /*pos*/)
-{
-}
-
-void DummyVideoSystem::repaint()
 {
 }
 

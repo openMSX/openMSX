@@ -3,7 +3,7 @@
 #include "CommandException.hh"
 #include "Display.hh"
 #include "GLUtil.hh"
-#include "OutputSurface.hh"
+#include "OutputDimensions.hh"
 #include "TclObject.hh"
 #include "VideoSystem.hh"
 
@@ -48,7 +48,7 @@ static constexpr void normalize(T& x, T& w)
 class GLScopedClip
 {
 public:
-	GLScopedClip(const OutputSurface& output, vec2 xy, vec2 wh);
+	GLScopedClip(const OutputDimensions& output, vec2 xy, vec2 wh);
 	GLScopedClip(const GLScopedClip&) = delete;
 	GLScopedClip(GLScopedClip&&) = delete;
 	GLScopedClip& operator=(const GLScopedClip&) = delete;
@@ -59,17 +59,16 @@ private:
 };
 
 
-GLScopedClip::GLScopedClip(const OutputSurface& output, vec2 xy, vec2 wh)
+GLScopedClip::GLScopedClip(const OutputDimensions& output, vec2 xy, vec2 wh)
 {
 	auto& [x, y] = xy;
 	auto& [w, h] = wh;
 	normalize(x, w); normalize(y, h);
-	y = narrow_cast<float>(output.getLogicalHeight()) - y - h; // openGL sets (0,0) in LOWER-left corner
+	y = narrow_cast<float>(output.getViewSize().y) - y - h; // openGL sets (0,0) in LOWER-left corner
 
 	// transform view-space coordinates to clip-space coordinates
-	vec2 scale = output.getViewScale();
-	auto [ix, iy] = round(xy * scale) + output.getViewOffset();
-	auto [iw, ih] = round(wh * scale);
+	auto [ix, iy] = round(xy) + output.getViewOffset();
+	auto [iw, ih] = round(wh);
 
 	if (glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE) {
 		origClip.emplace();
@@ -266,13 +265,13 @@ bool OSDWidget::needSuppressErrors() const
 	return false;
 }
 
-void OSDWidget::paintRecursive(OutputSurface& output)
+void OSDWidget::paintRecursive(const OutputDimensions& output)
 {
 	paint(output);
 
 	std::optional<GLScopedClip> scopedClip;
 	if (clip) {
-		auto [clipPos, size] = getBoundingBox(output);
+		auto [clipPos, size] = getBoundingBox(output.getViewSize());
 		scopedClip.emplace(output, clipPos, size);
 	}
 
@@ -281,36 +280,35 @@ void OSDWidget::paintRecursive(OutputSurface& output)
 	}
 }
 
-int OSDWidget::getScaleFactor(const OutputSurface& output) const
+gl::vec2 OSDWidget::getScaleFactor(gl::ivec2 viewSize) const
 {
 	if (scaled) {
-		return output.getLogicalWidth() / 320;
+		return gl::vec2(viewSize) * gl::vec2(1.0f / 320.0f, 1.0f / 240.0f);
 	} else if (getParent()) {
-		return getParent()->getScaleFactor(output);
+		return getParent()->getScaleFactor(viewSize);
 	} else {
-		return 1;
+		return gl::vec2(1.0f);
 	}
 }
 
-vec2 OSDWidget::transformPos(const OutputSurface& output,
-                             vec2 trPos, vec2 trRelPos) const
+vec2 OSDWidget::transformPos(gl::ivec2 viewSize, vec2 trPos, vec2 trRelPos) const
 {
 	vec2 out = trPos
-	         + (float(getScaleFactor(output)) * getPos())
-		 + (trRelPos * getSize(output));
+	         + (getScaleFactor(viewSize) * getPos())
+		 + (trRelPos * getSize(viewSize));
 	if (const auto* p = getParent()) {
-		out = p->transformPos(output, out, getRelPos());
+		out = p->transformPos(viewSize, out, getRelPos());
 	}
 	return out;
 }
 
-vec2 OSDWidget::transformReverse(const OutputSurface& output, vec2 trPos) const
+vec2 OSDWidget::transformReverse(gl::ivec2 viewSize, vec2 trPos) const
 {
 	if (const auto* p = getParent()) {
-		trPos = p->transformReverse(output, trPos);
+		trPos = p->transformReverse(viewSize, trPos);
 		return trPos
-		       - (getRelPos() * p->getSize(output))
-		       - (getPos() * float(getScaleFactor(output)));
+		       - (getRelPos() * p->getSize(viewSize))
+		       - (getPos() * getScaleFactor(viewSize));
 	} else {
 		return trPos;
 	}
@@ -338,18 +336,14 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	const auto* output = getDisplay().getOutputSurface();
-	if (!output) {
-		throw CommandException(
-			"Can't get mouse coordinates: no window visible");
-	}
 	auto mouse = videoSystem.getMouseCoord();
 	if (!mouse) {
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	vec2 out = transformReverse(*output, vec2(*mouse));
-	vec2 size = getSize(*output);
+	gl::ivec2 viewSize = getDisplay().getScaleFactorSize();
+	vec2 out = transformReverse(viewSize, vec2(*mouse));
+	vec2 size = getSize(viewSize);
 	if ((size.x == 0.0f) || (size.y == 0.0f)) {
 		throw CommandException(
 			"-can't get mouse coordinates: "
@@ -358,10 +352,10 @@ vec2 OSDWidget::getMouseCoord() const
 	return out / size;
 }
 
-OSDWidget::BoundingBox OSDWidget::getBoundingBox(const OutputSurface& output) const
+OSDWidget::BoundingBox OSDWidget::getBoundingBox(gl::ivec2 viewSize) const
 {
-	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
-	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
+	vec2 topLeft     = transformPos(viewSize, vec2(), vec2(0.0f));
+	vec2 bottomRight = transformPos(viewSize, vec2(), vec2(1.0f));
 	return {.pos = topLeft, .size = bottomRight - topLeft};
 }
 

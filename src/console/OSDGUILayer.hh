@@ -1,22 +1,23 @@
 #ifndef OSDGUILAYER_HH
 #define OSDGUILAYER_HH
 
-#include "Layer.hh"
-
 namespace openmsx {
 
 class OSDGUI;
+class OutputDimensions;
 
-class OSDGUILayer final : public Layer
+class OSDGUILayer final
 {
 public:
 	explicit OSDGUILayer(OSDGUI& gui);
-	~OSDGUILayer() override;
+	~OSDGUILayer();
 
 	[[nodiscard]] OSDGUI& getGUI() { return gui; }
 
+	void invalidateAll();
+
 	// Layer
-	void paint(OutputSurface& output) override;
+	void paint(const OutputDimensions& output);
 
 private:
 	OSDGUI& gui;
