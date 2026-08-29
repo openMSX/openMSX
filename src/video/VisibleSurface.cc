@@ -353,6 +353,28 @@ std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
 	return gl::ivec2{mouseX, mouseY};
 }
 
+std::optional<gl::vec2> VisibleSurface::getMsxPixelSize() const
+{
+	auto physSize = gl::vec2(getPhysicalSize());
+	if ((physSize.x <= 0.0f) || (physSize.y <= 0.0f)) return {};
+
+	// The viewport is expressed in physical pixels, but SDL reports mouse
+	// coordinates in window coordinates ('points'). On high-DPI displays
+	// those are not the same, so convert via the window size.
+	int windowW, windowH;
+	SDL_GetWindowSize(window.get(), &windowW, &windowH);
+
+	const auto& renderSettings = display.getRenderSettings();
+	auto viewSize = gl::vec2(renderSettings.getFullStretch() ? getPhysicalSize()
+	                                                         : getViewSize());
+	auto viewInPoints = viewSize * gl::vec2(narrow<float>(windowW), narrow<float>(windowH))
+	                  / physSize;
+
+	// The viewport shows 'horizontal_stretch' of the 320 MSX pixels per
+	// line, and always all 240 lines.
+	return viewInPoints / gl::vec2(renderSettings.getHorizontalStretch(), 240.0f);
+}
+
 
 void VisibleSurface::saveScreenshot(const std::string& filename)
 {

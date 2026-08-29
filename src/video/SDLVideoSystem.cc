@@ -134,6 +134,11 @@ std::optional<gl::ivec2> SDLVideoSystem::getMouseCoord()
 	return screen->getMouseCoord();
 }
 
+std::optional<gl::vec2> SDLVideoSystem::getMsxPixelSize()
+{
+	return screen->getMsxPixelSize();
+}
+
 OutputSurface* SDLVideoSystem::getOutputSurface()
 {
 	return screen.get();

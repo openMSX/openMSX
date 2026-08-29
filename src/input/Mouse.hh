@@ -57,7 +57,7 @@ private:
 	int phase;
 	int xRel = 0, yRel = 0;               // latched X/Y values, these are returned to the MSX
 	int curXRel = 0, curYRel = 0;         // running X/Y values, already scaled down
-	int fractionalX = 0, fractionalY = 0; // running X/Y values, not yet scaled down
+	float fractionalX = 0.0f, fractionalY = 0.0f; // running X/Y values, not yet scaled down
 	uint8_t status = JOY_BUTTONA | JOY_BUTTONB;
 	bool mouseMode = true;
 };
