@@ -68,15 +68,12 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 		if (*n > 255) return std::nullopt;
 		return BooleanMouseButton(narrow<uint8_t>(*n));
 
-	} else if (auto joystick = parseValueWithPrefix(type, "joy")) {
-		if (*joystick == 0) return std::nullopt;
-		auto joyId = JoystickId(*joystick - 1);
-
+	} else if (auto joyId = JoystickId::parse(type)) {
 		auto subType = *it++;
 		if (auto button = parseValueWithPrefix(subType, "button")) {
 			if (*button > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickButton(joyId, narrow<uint8_t>(*button));
+			return BooleanJoystickButton(*joyId, narrow<uint8_t>(*button));
 
 		} else if (auto hat = parseValueWithPrefix(subType, "hat")) {
 			if (*hat > 255) return std::nullopt;
@@ -92,16 +89,16 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 			else if (valueStr == "left" ) value = LEFT;
 			else return std::nullopt;
 
-			return BooleanJoystickHat(joyId, narrow<uint8_t>(*hat), value);
+			return BooleanJoystickHat(*joyId, narrow<uint8_t>(*hat), value);
 
 		} else if (auto pAxis = parseValueWithPrefix(subType, "+axis")) {
 			if (*pAxis > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*pAxis), BooleanJoystickAxis::Direction::POS);
+			return BooleanJoystickAxis(*joyId, narrow<uint8_t>(*pAxis), BooleanJoystickAxis::Direction::POS);
 		} else if (auto nAxis = parseValueWithPrefix(subType, "-axis")) {
 			if (*nAxis > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*nAxis), BooleanJoystickAxis::Direction::NEG);
+			return BooleanJoystickAxis(*joyId, narrow<uint8_t>(*nAxis), BooleanJoystickAxis::Direction::NEG);
 		}
 	}
 	return std::nullopt;
