@@ -14,25 +14,34 @@ namespace openmsx::VDPAccessSlots {
 
 inline constexpr int TICKS = VDP::TICKS_PER_LINE;
 
+/** Minimum distance until the next VRAM access. */
 enum class Delta : int {
-	D0    =  0 * TICKS,
-	D1    =  1 * TICKS,
-	D16   =  2 * TICKS,
-	D24   =  3 * TICKS,
-	D28   =  4 * TICKS,
-	D32   =  5 * TICKS,
-	D36   =  6 * TICKS,
-	D40   =  7 * TICKS,
-	D48   =  8 * TICKS,
-	D64   =  9 * TICKS,
-	D72   = 10 * TICKS,
-	D88   = 11 * TICKS,
-	D104  = 12 * TICKS,
-	D120  = 13 * TICKS,
-	D128  = 14 * TICKS,
-	D136  = 15 * TICKS,
+	D0        =  0 * TICKS, // These 2 are internal helpers
+	D1        =  1 * TICKS,
+	CPU_16    =  2 * TICKS, // These 2 are for CPU access delays (V99x8)
+	CPU_28    =  3 * TICKS, //                                   (TMS99x8)
+	CMD_24    =  4 * TICKS, // The remaining ones are command engine steps
+	CMD_32    =  5 * TICKS, //   counted in 'memory cycles' rather than 'VDP cycles'
+	CMD_36    =  6 * TICKS, //   see the comment about 'stretch1' and 'stretch2' in
+	CMD_46    =  7 * TICKS, //   VDPAccessSlots.cc
+	CMD_60    =  8 * TICKS,
+	CMD_72    =  9 * TICKS,
+	CMD_84    = 10 * TICKS,
+	CMD_88    = 11 * TICKS,
+	CMD_36_68 = 12 * TICKS, // 36+68 = 104
+	CMD_46_58 = 12 * TICKS, // 46+58 = 104 (notice: duplicate! skip in the FIRST/LAST indices below)
+	CMD_84_36 = 13 * TICKS, // 84+36 = 120
+	CMD_60_68 = 14 * TICKS, // 60+68 = 128
+	CMD_72_58 = 15 * TICKS, // 72+58 = 130
 };
 static constexpr int NUM_DELTAS = 16;
+/** The CPU access delays in the 'Delta' enum, D16 and D28. */
+static constexpr int FIRST_CPU_DELTA = 2;
+static constexpr int LAST_CPU_DELTA = 4; // exclusive
+/** The first command engine step in the 'Delta' enum; everything from here on
+  * is subject to the memory-cycle counting. */
+static constexpr int FIRST_CMD_DELTA = 4;
+static constexpr int LAST_CMD_DELTA = NUM_DELTAS; // exclusive
 
 /** VDP-VRAM access slot calculator, meant to be used in the inner loops of the
   * VDPCmdEngine commands. Code optimized for the case that:
