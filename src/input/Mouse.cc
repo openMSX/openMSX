@@ -13,13 +13,12 @@
 
 #include "gl_vec.hh"
 
-#include "narrow.hh"
 #include "unreachable.hh"
 
 #include <SDL.h>
 
 #include <algorithm>
-#include <cmath>
+#include <cassert>
 
 namespace openmsx {
 
@@ -35,19 +34,19 @@ static constexpr int PHASE_YHIGH2 = 6;
 static constexpr int PHASE_YLOW2  = 7;
 static constexpr int STROBE = 0x04;
 
-/** Convert host mouse movement along one axis to a whole number of MSX
-  * pixels. The part that doesn't (yet) add up to a full MSX pixel is
-  * remembered in 'fraction', so that slow movements don't get lost.
+/** Convert host mouse movement to a whole number of MSX pixels. The part
+  * that doesn't (yet) add up to a full MSX pixel is remembered in
+  * 'fraction', so that slow movements don't get lost.
   * Note: rounding in a uniform direction (instead of towards zero) gives
   * smoother output.
   */
-static int scaleHostMotion(int delta, float scale, float& fraction)
+static gl::ivec2 scaleHostMotion(gl::ivec2 delta, gl::vec2 scale, gl::vec2& fraction)
 {
-	if (scale <= 0.0f) return 0;
-	float value = narrow_cast<float>(delta) + fraction;
-	float result = std::floor(value / scale);
-	fraction = value - (result * scale);
-	return narrow_cast<int>(result);
+	assert((scale.x > 0.0f) && (scale.y > 0.0f));
+	auto value = gl::vec2(delta) + fraction;
+	auto result = floor(value / scale);
+	fraction = value - (gl::vec2(result) * scale);
+	return result;
 }
 
 
@@ -259,12 +258,12 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime time) noexcept
 				// travels the same distance on screen as the host
 				// pointer. The scale differs per axis because MSX
 				// pixels are not drawn square (see 'horizontal_stretch').
-				auto scale = display.getMsxPixelSize().value_or(gl::vec2(SCALE, SCALE));
-				auto deltaX = scaleHostMotion(e.getX(), scale.x, fractionalX);
-				auto deltaY = scaleHostMotion(e.getY(), scale.y, fractionalY);
+				auto scale = display.getMsxPixelSize().value_or(gl::vec2(SCALE));
+				auto delta = scaleHostMotion(gl::ivec2(e.getX(), e.getY()),
+				                             scale, fractional);
 
 				// Note: hostXY is negated when converting to MsxXY
-				createMouseStateChange(time, -deltaX, -deltaY, 0, 0);
+				createMouseStateChange(time, -delta.x, -delta.y, 0, 0);
 			}
 		},
 		[&](const MouseButtonDownEvent& e) {
