@@ -191,7 +191,9 @@ bool ImGuiTools::screenshotNameExists() const
 void ImGuiTools::generateScreenshotName()
 {
 	if (auto result = manager.execute(makeTclList("guess_title", "openmsx"))) {
-		screenshotName = result->getString();
+		// 'guess_title' returns free-form text read from the MSX software,
+		// it can contain characters that are invalid in a filename.
+		screenshotName = FileOperations::cleanFilename(result->getString());
 	}
 	if (screenshotName.empty()) {
 		screenshotName = "openmsx";
