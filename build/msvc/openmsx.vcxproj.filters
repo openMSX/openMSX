@@ -1101,6 +1101,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavWriter.cc">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\WaveGame.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -2680,6 +2683,9 @@
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\WavWriter.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\WaveGame.hh">
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\Y8950.hh">
