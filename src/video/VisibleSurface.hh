@@ -48,7 +48,7 @@ public:
 	                             const std::string& filename);
 
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() const;
-	[[nodiscard]] std::optional<gl::vec2> getMsxPixelSize() const;
+	[[nodiscard]] gl::vec2 getMsxPixelSize() const;
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 	void resize();
