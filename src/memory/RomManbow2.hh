@@ -48,6 +48,7 @@ private:
 	byte psgLatch;
 	std::array<byte, 4> bank;
 	bool sccEnabled;
+	const bool ascii8;
 };
 SERIALIZE_CLASS_VERSION(RomManbow2, 3);
 
