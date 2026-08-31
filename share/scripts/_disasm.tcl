@@ -317,11 +317,6 @@ proc step_back {} {
 	#  access to a device that inserts extra wait cycles).
 	set max_instr_len [expr {(($cpu eq "z80") ? 35 : 100) * $cycle_period}]
 
-	# Check if the current instruction is a block repeat instruction.
-	set current_addr [reg PC]
-	set current_instr [lindex [debug disasm $current_addr] 0]
-	set is_block [is_block_repeat $current_instr]
-
 	# Get time of the start instruction.
 	set start [dict get [reverse status] "current"]
 
@@ -361,11 +356,18 @@ proc step_back {} {
 	# Note that (only here) we don't pass the '-novideo' flag
 	reverse goto $curr
 
-	# If the current instruction is a block repeat instruction, we just
-	# went back one iteration. Instead, rewind to before the first
-	# iteration of the block instruction started.
-	if {$is_block} {
+	# Check if the instruction that is about to execute at this boundary is
+	# a block repeat instruction. This covers two cases:
+	#  * the current instruction IS the block: we just went back one
+	#    iteration, so [reg PC] still points to the block;
+	#  * the current instruction immediately follows a block (e.g. a RET
+	#    right after an LDIR): this boundary is the end of the block
+	#    execution, so [reg PC] points to the block that just finished.
+	# In both cases we rewind to before the first iteration of the block
+	# instruction instead of stopping at the end of the block.
+	if {[is_block_repeat [lindex [debug disasm [reg PC]] 0]]} {
 		# Measure the time per iteration of this block instruction.
+		set current_addr [reg PC]
 		set time_after_first [dict get [reverse status] "current"]
 		set time_per_iter [expr {$start - $time_after_first}]
 
@@ -420,9 +422,18 @@ proc step_back {} {
 				# new run of block iterations starts here; keep it as
 				# a candidate only if the block counter is fresh, i.e.
 				# if this is the start of a (new) block execution.
+				#
+				# Note: record 'next' (the current boundary), not 'curr'
+				# (the boundary we advanced from). The block counter is
+				# loaded by the instruction immediately preceding the
+				# block (e.g. 'LD BC,<max>' just before an LDIR), so the
+				# first boundary where PC matches the block already has
+				# the initial counter value; that is the correct landing
+				# point. Recording 'curr' would land one instruction too
+				# early (before the counter is loaded).
 				set bc [reg BC]
 				if {$bc >= $max_bc} {
-					set cand $curr
+					set cand $next
 					set max_bc $bc
 				}
 			}
