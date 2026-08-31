@@ -14,6 +14,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace openmsx {
@@ -69,6 +70,11 @@ public:
 	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
 
 	[[nodiscard]] OutputSurface* getOutputSurface();
+
+	/** Returns the size of a single MSX pixel as it is currently drawn on
+	  * screen, expressed in the same units as the host mouse coordinates.
+	  * Returns std::nullopt when there's no window to draw on. */
+	[[nodiscard]] std::optional<gl::vec2> getMsxPixelSize();
 
 	[[nodiscard]] std::string getWindowTitle();
 

@@ -19,6 +19,7 @@ public:
 #endif
 	void flush() override;
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() override;
+	[[nodiscard]] std::optional<gl::vec2> getMsxPixelSize() override;
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
 	[[nodiscard]] bool getCursorEnabled() override;

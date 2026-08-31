@@ -99,6 +99,11 @@ OutputSurface* Display::getOutputSurface()
 	return videoSystem ? videoSystem->getOutputSurface() : nullptr;
 }
 
+std::optional<gl::vec2> Display::getMsxPixelSize()
+{
+	return videoSystem ? videoSystem->getMsxPixelSize() : std::nullopt;
+}
+
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();

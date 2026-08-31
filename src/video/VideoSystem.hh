@@ -68,6 +68,14 @@ public:
 	  */
 	[[nodiscard]] virtual std::optional<gl::ivec2> getMouseCoord() = 0;
 
+	/** Returns the size of a single MSX pixel as it is currently drawn on
+	  * screen, expressed in the same units as the mouse coordinates (SDL
+	  * window coordinates, which on high-DPI displays are not the same as
+	  * physical pixels).
+	  * Returns std::nullopt when there's no window to draw on.
+	  */
+	[[nodiscard]] virtual std::optional<gl::vec2> getMsxPixelSize() = 0;
+
 	/** TODO */
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
 	virtual void showCursor(bool show) = 0;
