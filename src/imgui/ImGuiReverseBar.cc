@@ -122,10 +122,14 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			if (!saveStateOpen) {
 				// on each re-open of this menu, create a suggestion for a name
 				if (auto result = manager.execute(makeTclList("guess_title", "savestate"))) {
-					saveStateName = result->getString();
+					// 'guess_title' returns free-form text read from the MSX
+					// software, it can contain characters that are invalid in
+					// a filename.
+					auto title = FileOperations::cleanFilename(result->getString());
+					saveStateName = title;
 					if (exists()) {
 						saveStateName = FileOperations::stem(FileOperations::getNextNumberedFileName(
-							STATE_DIR, result->getString(), STATE_EXTENSION, true));
+							STATE_DIR, title, STATE_EXTENSION, true));
 					}
 				}
 			}
@@ -166,10 +170,14 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			if (!saveReplayOpen) {
 				// on each re-open of this menu, create a suggestion for a name
 				if (auto result = manager.execute(makeTclList("guess_title", "replay"))) {
-					saveReplayName = result->getString();
+					// 'guess_title' returns free-form text read from the MSX
+					// software, it can contain characters that are invalid in
+					// a filename.
+					auto title = FileOperations::cleanFilename(result->getString());
+					saveReplayName = title;
 					if (exists()) {
 						saveReplayName = FileOperations::stem(FileOperations::getNextNumberedFileName(
-							ReverseManager::REPLAY_DIR, result->getString(), ReverseManager::REPLAY_EXTENSION, true));
+							ReverseManager::REPLAY_DIR, title, ReverseManager::REPLAY_EXTENSION, true));
 					}
 				}
 			}
