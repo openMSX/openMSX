@@ -13,7 +13,9 @@
 #include <array>
 #include <cassert>
 #include <optional>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace openmsx {
 
@@ -92,6 +94,7 @@ private:
 	[[nodiscard]] unsigned getSlot(int ps, int ss) const;
 	std::string insertCartridge(std::string_view cartName, std::string_view romName, std::span<const TclObject> options);
 	void removeCartridge(std::string_view cartName);
+	[[nodiscard]] std::vector<std::string> getCartRomState(std::string_view cartName) const;
 
 private:
 	MSXMotherBoard& motherBoard;

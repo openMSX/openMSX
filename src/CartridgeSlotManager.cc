@@ -19,6 +19,8 @@
 #include <array>
 #include <cassert>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -379,6 +381,27 @@ void CartridgeSlotManager::removeCartridge(std::string_view cartName)
 	}
 }
 
+std::vector<std::string> CartridgeSlotManager::getCartRomState(
+	std::string_view cartName) const
+{
+	std::vector<std::string> result;
+	const auto* extConf = getExtensionConfig(cartName);
+	if (!extConf || (extConf->getType() != HardwareConfig::Type::ROM)) {
+		return result;
+	}
+	// A ROM cartridge, peek into the (auto-generated) config for the
+	// applied IPS patches.
+	const auto& romConfig = extConf->getConfig()
+		.getChild("devices").getChild("primary").getChild("secondary")
+		.getChild("ROM").getChild("rom");
+	if (const auto* patchesElem = romConfig.findChild("patches")) {
+		for (const auto* p : patchesElem->getChildren("ips")) {
+			result.emplace_back(p->getData());
+		}
+	}
+	return result;
+}
+
 // CartCmd
 CartridgeSlotManager::CartCmd::CartCmd(
 		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard_,
@@ -420,6 +443,14 @@ void CartridgeSlotManager::CartCmd::execute(
 		if (!extConf) {
 			TclObject options = makeTclList("empty");
 			result.addListElement(options);
+		} else if (extConf->getType() == HardwareConfig::Type::ROM) {
+			// also report the applied IPS patches
+			auto patches = manager.getCartRomState(cartName);
+			TclObject patchesList;
+			for (const auto& p : patches) {
+				patchesList.addListElement(p);
+			}
+			result.addListElement(patchesList);
 		}
 	} else if (tokens[1] == one_of("eject", "-eject")) {
 		// remove cartridge (or extension)
