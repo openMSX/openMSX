@@ -266,10 +266,10 @@ static void readDefaultGateway(HostNetInfo& info)
 		std::string flags;
 		iss >> iface >> dest >> gw >> flags;
 		if (dest != "00000000") continue; // not the default route
-		auto f = StringOp::stringToBase<16, unsigned long>(flags);
-		if (!f || !(*f & 1)) continue;
+		if (auto f = StringOp::stringToBase<16, unsigned long>(flags);
+		    !f.has_value() || !(*f & 1)) continue;
 		auto g = StringOp::stringToBase<16, unsigned long>(gw);
-		if (!g) continue;
+		if (!g.has_value()) continue;
 		info.gateway = ntohl(*g);
 		break;
 	}
@@ -813,7 +813,7 @@ bool EmulatedEsp32::tcpPollConnection(Connection* conn, int connIdx)
 	                     inHandshake ? &wfds : nullptr, nullptr, &tv);
 	    sel <= 0) {
 #else
-	int maxFd = static_cast<int>(s);
+	auto maxFd = static_cast<int>(s);
 	if (haveClient) {
 		maxFd = std::max(maxFd, static_cast<int>(conn->clientSock));
 	}
