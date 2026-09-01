@@ -8,6 +8,10 @@
 #include <bit>
 #include <cstdlib>
 
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 namespace StringOp {
 
 bool stringToBool(std::string_view str)
