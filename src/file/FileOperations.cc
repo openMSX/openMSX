@@ -281,6 +281,28 @@ std::string_view stem(std::string_view path)
 	return path.substr(pos2 + 1, pos1 - pos2 - 1);
 }
 
+// Characters that are not allowed (or not desirable) in a filename.
+// Keep in sync with 'utils::filename_clean' in share/scripts/_utils.tcl.
+static constexpr std::string_view disallowedInFilename =
+#ifdef _WIN32
+	R"(/\?*:|"<>+[])";
+#else
+	"/";
+#endif
+
+std::string cleanFilename(std::string_view filename)
+{
+	std::string result{filename};
+	std::ranges::replace_if(result, [](char c) {
+		// UNIX does allow 0x01-0x1f and 0x7f, but we consider them
+		// undesirable. Note that bytes >= 0x80 are left alone, so
+		// UTF-8 multi-byte sequences pass through unchanged.
+		auto u = static_cast<unsigned char>(c);
+		return (u < 0x20) || (u == 0x7f) || disallowedInFilename.contains(c);
+	}, '_');
+	return result;
+}
+
 std::string join(std::string_view part1, std::string_view part2)
 {
 	if (part1.empty() || isAbsolutePath(part2)) {

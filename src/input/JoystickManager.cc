@@ -1,16 +1,20 @@
 #include "JoystickManager.hh"
 
+#include "CommandException.hh"
 #include "IntegerSetting.hh"
+#include "Reactor.hh"
 
 #include "narrow.hh"
+#include "outer.hh"
 #include "strCat.hh"
 
 #include <algorithm>
 
 namespace openmsx {
 
-JoystickManager::JoystickManager(CommandController& commandController_)
-	: commandController(commandController_)
+JoystickManager::JoystickManager(Reactor& reactor)
+	: commandController(reactor.getCommandController())
+	, joystickInfo(reactor.getOpenMSXInfoCommand())
 {
 	// Note: we don't explicitly enumerate all joysticks which are already
 	// present at startup. Instead we rely on SDL_JOYDEVICEADDED events:
@@ -84,12 +88,36 @@ std::string JoystickManager::getDisplayName(JoystickId joyId) const
 	return joystick ? SDL_JoystickName(joystick) : "[Not plugged in]";
 }
 
+std::optional<unsigned> JoystickManager::getNumAxes(JoystickId joyId) const
+{
+	unsigned id = joyId.raw();
+	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
+	if (!joystick) return {};
+	return SDL_JoystickNumAxes(joystick);
+}
+
+std::optional<unsigned> JoystickManager::getNumBalls(JoystickId joyId) const
+{
+	unsigned id = joyId.raw();
+	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
+	if (!joystick) return {};
+	return SDL_JoystickNumBalls(joystick);
+}
+
 std::optional<unsigned> JoystickManager::getNumButtons(JoystickId joyId) const
 {
 	unsigned id = joyId.raw();
 	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
 	if (!joystick) return {};
 	return SDL_JoystickNumButtons(joystick);
+}
+
+std::optional<unsigned> JoystickManager::getNumHats(JoystickId joyId) const
+{
+	unsigned id = joyId.raw();
+	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
+	if (!joystick) return {};
+	return SDL_JoystickNumHats(joystick);
 }
 
 std::optional<JoystickId> JoystickManager::translateSdlInstanceId(SDL_Event& evt) const
@@ -99,6 +127,57 @@ std::optional<JoystickId> JoystickManager::translateSdlInstanceId(SDL_Event& evt
 	if (it == infos.end()) return {}; // should not happen
 	evt.jbutton.which = narrow<int>(std::distance(infos.begin(), it));
 	return JoystickId(evt.jbutton.which);
+}
+
+
+// JoystickInfo
+
+JoystickManager::JoystickInfo::JoystickInfo(InfoCommand& openMsxInfoCommand)
+	: InfoTopic(openMsxInfoCommand, "joystick")
+{
+}
+
+void JoystickManager::JoystickInfo::execute(std::span<const TclObject> tokens, TclObject& result) const
+{
+	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?joystick-id?");
+	auto& manager = OUTER(JoystickManager, joystickInfo);
+	switch (tokens.size()) {
+	case 2:
+		for (auto i : xrange(manager.infos.size())) {
+			if (!manager.infos[i].joystick) continue;
+			result.addListElement(JoystickId(unsigned(i)).str());
+		}
+		break;
+	case 3: {
+		auto str = tokens[2].getString();
+		auto id = JoystickId::parse(str);
+		if (!id) {
+			throw CommandException("Invalid host joystick ID: ", str);
+		}
+		result.addDictKeyValue("name", manager.getDisplayName(*id));
+		if (auto n = manager.getNumAxes(*id)) {
+			result.addDictKeyValue("axes", *n);
+		}
+		if (auto n = manager.getNumBalls(*id)) {
+			result.addDictKeyValue("balls", *n);
+		}
+		if (auto n = manager.getNumButtons(*id)) {
+			result.addDictKeyValue("buttons", *n);
+		}
+		if (auto n = manager.getNumHats(*id)) {
+			result.addDictKeyValue("hats", *n);
+		}
+		break;
+	}
+	}
+}
+
+std::string JoystickManager::JoystickInfo::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "Without argument: show list of available host joystick-IDs.\n"
+	       "With a joystick-ID argument: return a dict (key-values pairs) with extra info, for example:\n"
+	       "  the 'name' key contains the name for the given host joystick\n"
+	       "  'axes' / 'buttons' contains the number of axes / buttons this joystick has\n";
 }
 
 } // namespace openmsx

@@ -10,14 +10,15 @@
 #include "serialize_meta.hh"
 
 #include "Display.hh"
-#include "OutputSurface.hh"
 
-#include "Math.hh"
+#include "gl_vec.hh"
+
 #include "unreachable.hh"
 
 #include <SDL.h>
 
 #include <algorithm>
+#include <cassert>
 
 namespace openmsx {
 
@@ -32,6 +33,21 @@ static constexpr int PHASE_XLOW2  = 5;
 static constexpr int PHASE_YHIGH2 = 6;
 static constexpr int PHASE_YLOW2  = 7;
 static constexpr int STROBE = 0x04;
+
+/** Convert host mouse movement to a whole number of MSX pixels. The part
+  * that doesn't (yet) add up to a full MSX pixel is remembered in
+  * 'fraction', so that slow movements don't get lost.
+  * Note: rounding in a uniform direction (instead of towards zero) gives
+  * smoother output.
+  */
+static gl::ivec2 scaleHostMotion(gl::ivec2 delta, gl::vec2 scale, gl::vec2& fraction)
+{
+	assert((scale.x > 0.0f) && (scale.y > 0.0f));
+	auto value = gl::vec2(delta) + fraction;
+	auto result = floor(value / scale);
+	fraction = value - (gl::vec2(result) * scale);
+	return result;
+}
 
 
 Mouse::Mouse(MSXEventDistributor& eventDistributor_,
@@ -87,7 +103,6 @@ void Mouse::unplugHelper(EmuTime /*time*/)
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
 }
-
 
 // JoystickDevice
 uint8_t Mouse::read(EmuTime /*time*/)
@@ -239,21 +254,16 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime time) noexcept
 	visit(overloaded{
 		[&](const MouseMotionEvent& e) {
 			if (e.getX() || e.getY()) {
-				// Note: regular C/C++ division rounds towards
-				// zero, so different direction for positive and
-				// negative values. But we get smoother output
-				// with a uniform rounding direction.
-				float scale = SCALE;
-				if (const auto* output = display.getOutputSurface()) {
-					scale = output->getPhysicalSize().y / 240;
-				}
-				auto qrX = Math::div_mod_floor(e.getX() + fractionalX, scale);
-				auto qrY = Math::div_mod_floor(e.getY() + fractionalY, scale);
-				fractionalX = qrX.remainder;
-				fractionalY = qrY.remainder;
+				// Scale host mouse movement such that the MSX pointer
+				// travels the same distance on screen as the host
+				// pointer. The scale differs per axis because MSX
+				// pixels are not drawn square (see 'horizontal_stretch').
+				auto scale = display.getMsxPixelSize().value_or(gl::vec2(SCALE));
+				auto delta = scaleHostMotion(gl::ivec2(e.getX(), e.getY()),
+				                             scale, fractional);
 
 				// Note: hostXY is negated when converting to MsxXY
-				createMouseStateChange(time, -qrX.quotient, -qrY.quotient, 0, 0);
+				createMouseStateChange(time, -delta.x, -delta.y, 0, 0);
 			}
 		},
 		[&](const MouseButtonDownEvent& e) {

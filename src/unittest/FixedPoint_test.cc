@@ -3,7 +3,7 @@
 
 #include "narrow.hh"
 
-using namespace openmsx;
+namespace openmsx {
 
 template<unsigned BITS>
 static void check(const FixedPoint<BITS>& fp, int expectedRaw)
@@ -79,3 +79,5 @@ TEST_CASE("FixedPoint")
 	b.addQuantum(); check(b,  15);
 	c.addQuantum(); check(c, -46);
 }
+
+} // namespace openmsx

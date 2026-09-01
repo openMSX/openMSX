@@ -65,6 +65,8 @@ public:
 	  */
 	void deliverEvents(std::optional<int> timeoutMs = std::nullopt);
 
+	[[nodiscard]] Reactor& getReactor() { return reactor; }
+
 private:
 	[[nodiscard]] bool isRegistered(EventType type, EventListener* listener) const;
 

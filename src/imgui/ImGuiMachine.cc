@@ -12,6 +12,7 @@
 #include "Debuggable.hh"
 #include "Debugger.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "GlobalSettings.hh"
 #include "HardwareConfig.hh"
 #include "MSXCommandController.hh"
@@ -208,7 +209,11 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 					// on each re-open of this menu, create a suggestion for a name
 					auto configName = motherBoard->getMachineName();
 					const auto* info = findMachineInfo(configName);
-					auto initialSaveSetupName = info ? info->displayName : configName;
+					// The display name is free-form text, it can contain
+					// characters that are invalid in a filename, e.g.
+					// "Philips VG 8235/39".
+					auto initialSaveSetupName = FileOperations::cleanFilename(
+						info ? info->displayName : configName);
 					saveSetupName = initialSaveSetupName;
 					if (exists()) {
 						saveSetupName = FileOperations::stem(FileOperations::getNextNumberedFileName(
@@ -223,13 +228,18 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 					auto action = [this, motherBoard] {
 						if (motherBoard) {
-							// pass full filename
-							auto filename = FileOperations::parseCommandFileArgument(
-								saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
-							motherBoard->storeAsSetup(filename, saveSetupDepth);
-							manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
-							if (setSetupAsDefault) {
-								manager.getReactor().getDefaultSetupSetting().setString(saveSetupName);
+							try {
+								// pass full filename
+								auto filename = FileOperations::parseCommandFileArgument(
+									saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
+								motherBoard->storeAsSetup(filename, saveSetupDepth);
+								manager.getCliComm().printInfo(strCat("Setup saved to ", filename));
+								if (setSetupAsDefault) {
+									manager.getReactor().getDefaultSetupSetting().setString(saveSetupName);
+								}
+							} catch (MSXException& e) {
+								manager.getCliComm().printError(
+									"Couldn't save setup: ", e.getMessage());
 							}
 							setSetupAsDefault = false;
 						}

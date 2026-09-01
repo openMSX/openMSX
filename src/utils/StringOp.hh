@@ -18,7 +18,12 @@
 #include <utility>
 
 #ifdef __APPLE__
-#include <CoreFoundation/CoreFoundation.h>
+// Only forward declare 'CFStringRef' (for fromCFString() below). Including
+// <CoreFoundation/CoreFoundation.h> here would drag it into the ~75% of all
+// translation units that (indirectly) include this header, and it declares a
+// lot of names in the global namespace. E.g. MacTypes.h declares a global
+// 'FixedPoint', which clashes with openmsx::FixedPoint.
+using CFStringRef = const struct __CFString*;
 #endif
 
 namespace StringOp

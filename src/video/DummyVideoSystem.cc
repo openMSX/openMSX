@@ -38,6 +38,11 @@ std::optional<gl::ivec2> DummyVideoSystem::getMouseCoord()
 	return {};
 }
 
+std::optional<gl::vec2> DummyVideoSystem::getMsxPixelSize()
+{
+	return {};
+}
+
 OutputSurface* DummyVideoSystem::getOutputSurface()
 {
 	return nullptr;

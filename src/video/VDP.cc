@@ -839,8 +839,8 @@ void VDP::scheduleCpuVramAccess(bool isRead, uint8_t write, EmuTime time)
 			// other variables that influence the exact timing (7
 			// vs 8 cycles).
 			pendingCpuAccess = true;
-			auto delta = isMSX1VDP() ? VDPAccessSlots::Delta::D28
-						 : VDPAccessSlots::Delta::D16;
+			auto delta = isMSX1VDP() ? VDPAccessSlots::Delta::CPU_28
+						 : VDPAccessSlots::Delta::CPU_16;
 			syncCpuVramAccess.setSyncPoint(getAccessSlot(time, delta));
 		}
 	}

@@ -1,6 +1,7 @@
 #ifndef JOYSTICK_MANAGER_HH
 #define JOYSTICK_MANAGER_HH
 
+#include "InfoTopic.hh"
 #include "JoystickId.hh"
 
 #include <memory>
@@ -13,6 +14,7 @@ namespace openmsx {
 
 class CommandController;
 class IntegerSetting;
+class Reactor;
 
 class JoystickManager {
 public:
@@ -21,7 +23,7 @@ public:
 	JoystickManager& operator=(const JoystickManager&) = delete;
 	JoystickManager& operator=(JoystickManager&&) = delete;
 
-	explicit JoystickManager(CommandController& commandController_);
+	explicit JoystickManager(Reactor& reactor);
 	~JoystickManager();
 
 	// Handle SDL joystick added/removed events
@@ -33,7 +35,10 @@ public:
 
 	[[nodiscard]] IntegerSetting* getJoyDeadZoneSetting(JoystickId joyId) const;
 	[[nodiscard]] std::string getDisplayName(JoystickId joyId) const;
+	[[nodiscard]] std::optional<unsigned> getNumAxes(JoystickId joyId) const;
+	[[nodiscard]] std::optional<unsigned> getNumBalls(JoystickId joyId) const;
 	[[nodiscard]] std::optional<unsigned> getNumButtons(JoystickId joyId) const;
+	[[nodiscard]] std::optional<unsigned> getNumHats(JoystickId joyId) const;
 
 	[[nodiscard]] std::optional<JoystickId> translateSdlInstanceId(SDL_Event& evt) const;
 
@@ -42,6 +47,13 @@ private:
 
 private:
 	CommandController& commandController;
+
+	struct JoystickInfo final : InfoTopic {
+		explicit JoystickInfo(InfoCommand& openMsxInfoCommand);
+		void execute(std::span<const TclObject> tokens,
+			     TclObject& result) const override;
+		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	} joystickInfo;
 
 	struct Info {
 		SDL_Joystick* joystick = nullptr;
