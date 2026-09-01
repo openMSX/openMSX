@@ -105,6 +105,7 @@
         <MemoryMapper id="Main RAM">
           <size>128</size>
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="hex">00</initialContent> <!-- confirmed by Sandy's machine with serial no. 400102 -->
         </MemoryMapper>
       </secondary>
 

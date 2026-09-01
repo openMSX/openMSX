@@ -116,6 +116,7 @@
         <MemoryMapper id="Main RAM">
           <size>128</size>
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="hex">00</initialContent> <!-- confirmed by Sandy's HB-F9P machine with serial no. 400102, also assumed for the S version, see also issue #1434 -->
         </MemoryMapper>
       </secondary>
 
