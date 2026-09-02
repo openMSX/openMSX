@@ -321,8 +321,168 @@ proc toggle_mog_editor {} {
 	return ""
 }
 
+# ----------------------------------------------------------------------
+# password handling
+#
+# Password starts at column 7, row 9:
+#
+#   XXXX XXXX XXXX XXXX
+#   XXXX XXXX XXXX XXXX
+#   XXXX XXXX XXXX X
+#
+# Pattern encoding:
+#   0      = space
+#   1..10  = 0..9
+#   11..36 = A..Z
+# ----------------------------------------------------------------------
+
+set_help_text mog_password \
+"Extracts the currently shown password from The Maze of Galious. The password
+is displayed in the same groups as on screen and saved without spaces to a
+file, so it can be typed back into the game automatically with type_from_file
+(with the -release option, otherwise the game won't accept the typing).
+With no argument, the password is saved as mog_password.txt. Give a filename
+as an argument to save it to a different file."
+
+set_help_text mog_password_show \
+"Extracts and displays the currently shown password from The Maze of Galious.
+The password is displayed in the same groups as on screen, but is not saved to
+a file."
+
+variable mog_name_table 0x3800
+variable mog_screen_width 32
+variable mog_start_col 7
+variable mog_start_row 9
+
+# Column offsets of the password characters on each row.
+variable mog_password_offsets {
+	{0 1 2 3 5 6 7 8 10 11 12 13 15 16 17 18}
+	{0 1 2 3 5 6 7 8 10 11 12 13 15 16 17 18}
+	{0 1 2 3 5 6 7 8 10 11 12 13 15}
+}
+
+
+proc _mog_password_char {p} {
+	if {$p == 0} {
+		return " "
+	} elseif {$p <= 10} {
+		return [format %c [expr {48 + $p - 1}]]
+	} elseif {$p <= 36} {
+		return [format %c [expr {65 + $p - 11}]]
+	} else {
+		return "?"
+	}
+}
+
+
+proc mog_get_password {} {
+	variable mog_name_table
+	variable mog_screen_width
+	variable mog_start_col
+	variable mog_start_row
+	variable mog_password_offsets
+
+	set password ""
+	set row 0
+
+	foreach row_offsets $mog_password_offsets {
+		foreach offset $row_offsets {
+			set col [expr {$mog_start_col + $offset}]
+			set address [expr {
+				$mog_name_table +
+				(($mog_start_row + $row) * $mog_screen_width) +
+				$col
+			}]
+
+			append password [_mog_password_char [debug read VRAM $address]]
+		}
+
+		incr row
+	}
+
+	return $password
+}
+
+
+proc _mog_format_password {password} {
+	# The raw password consists of:
+	#
+	#   16 characters
+	#   16 characters
+	#   13 characters
+	#
+	# Insert spaces between the visual groups and newlines
+	# between the rows.
+
+	set formatted ""
+	set pos 0
+
+	foreach length {4 4 4 4 4 4 4 4 4 4 4 1} {
+		append formatted [string range $password $pos [expr {$pos + $length - 1}]]
+		incr pos $length
+
+		if {$pos < [string length $password]} {
+			if {$pos == 16 || $pos == 32} {
+				append formatted "\n"
+			} else {
+				append formatted " "
+			}
+		}
+	}
+
+	return $formatted
+}
+
+# ----------------------------------------------------------------------
+# mog_password
+#
+# Extracts the current password, displays it in screen format, and
+# saves the raw password to a file.
+#
+# Usage:
+#   mog_password
+#   mog_password filename
+#
+# Default filename: mog_password.txt
+#
+# The file contains only the password characters, without the spaces
+# used to visually separate the groups on screen.
+# ----------------------------------------------------------------------
+
+proc mog_password {{filename "mog_password.txt"}} {
+	set password [mog_get_password]
+
+	set f [open $filename w]
+	puts -nonewline $f $password
+	close $f
+
+	puts "MoG password:"
+	puts [_mog_format_password $password]
+	puts "Saved to: $filename"
+
+	return $password
+}
+
+
+# ----------------------------------------------------------------------
+# mog_password_show
+#
+# Extracts and displays the formatted password without saving it.
+# ----------------------------------------------------------------------
+
+proc mog_password_show {} {
+	set password [mog_get_password]
+
+	puts "MoG password:"
+	puts [_mog_format_password $password]
+
+	return $password
+}
+
 namespace export toggle_mog_overlay
 namespace export toggle_mog_editor
+namespace export mog_password
+namespace export mog_password_show
 
 };# namespace mog_overlay
 
