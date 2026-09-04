@@ -213,6 +213,9 @@ class TargetSystem(object):
 		if self.platform == 'android':
 			binaryPath = self.outDir + '/' + makeName + '.so'
 			ldflags += ' -shared -Wl,--no-undefined'
+		elif self.platform == 'darwin-ios':
+			binaryPath = self.outDir + '/' + makeName + '.dylib'
+			ldflags += ' -dynamiclib'
 
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
