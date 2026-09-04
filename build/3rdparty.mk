@@ -68,11 +68,24 @@ TRIPLE_OS:=mingw32
 TRIPLE_VENDOR:=w64
 endif
 
+# config.sub rejects "ios" as an OS, so present iOS as plain Darwin. This only
+# selects cross-compile mode; the actual target is pinned by the -arch and
+# -isysroot flags coming from platform-darwin-ios.mk.
+ifeq ($(OPENMSX_TARGET_OS),darwin-ios)
+TRIPLE_VENDOR:=apple
+TRIPLE_OS:=darwin
+endif
+
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
 
 # Libraries using old autoconf macros don't recognise Android as an OS,
 # so we have to tell those we're building for Linux instead.
 OLD_TARGET_TRIPLE:=$(TARGET_TRIPLE)
+
+# libtheora ships a 2009 config.sub that does not know aarch64.
+ifeq ($(OPENMSX_TARGET_OS),darwin-ios)
+OLD_TARGET_TRIPLE:=arm-apple-darwin
+endif
 
 # For all other libraries, we pass an Android-specific system tuple.
 # These are triples but instead of machine-vendor-os they use machine-os-abi.
