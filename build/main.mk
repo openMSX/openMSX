@@ -260,7 +260,7 @@ endif # goal requires dependencies
 SOURCE_DIRS:=$(sort $(shell find src -type d))
 
 SOURCES_FULL:=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.cc)))
-ifeq ($(OPENMSX_TARGET_OS),darwin)
+ifneq ($(filter darwin%,$(OPENMSX_TARGET_OS)),)
 SOURCES_FULL+=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.mm)))
 endif
 SOURCES_FULL:=$(filter-out %Test.cc,$(SOURCES_FULL))
