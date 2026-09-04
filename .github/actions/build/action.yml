@@ -42,16 +42,20 @@ runs:
     - name: Add MSBuild to PATH for Windows VC build
       if: ${{ inputs.os == 'windows-vc' }}
       uses: microsoft/setup-msbuild@v3
+    - name: Cache 3rdparty downloads and sources
+      id: cache-3rdparty-src
+      uses: actions/cache@v5
+      with:
+        path: derived/3rdparty
+        key: 3rdparty-src-${{ hashFiles('build/packages.py', 'build/3rdparty/*') }}
     - name: Cache 3rdparty libs
       id: cache-3rdparty
       uses: actions/cache@v5
       with:
-        path: |
-          derived/3rdparty
-          derived/*/3rdparty
-        key: ${{ github.ref }}-${{ inputs.os }}-${{ inputs.cpu }}-${{ inputs.flavour }}-${{ hashFiles('build/packages.py', 'build/3rdparty.mk') }}
+        path: derived/*/3rdparty
+        key: ${{ github.ref }}-${{ inputs.os }}-${{ inputs.cpu }}-${{ inputs.flavour }}-${{ hashFiles('build/packages.py', 'build/3rdparty.mk', 'build/3rdparty/*') }}
     - name: Download 3rd party packages for Windows VC build
-      if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty-src.outputs.cache-hit != 'true' }}
       shell: pwsh
       run: python build/thirdparty_download.py windows
     - name: Get number of CPU cores
