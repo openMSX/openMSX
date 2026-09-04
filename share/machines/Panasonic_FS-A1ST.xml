@@ -37,6 +37,7 @@
       <io base="0xD9" num="1" type="I"/>
       <io base="0xDA" num="2" type="O"/>
       <io base="0xDB" num="1" type="I"/>
+      <level_2_via>write</level_2_via> <!-- checked by kanjitest v2.x on hardware -->
     </Kanji>
 
     <S1990 id="S1990">

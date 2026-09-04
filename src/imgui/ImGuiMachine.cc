@@ -12,6 +12,7 @@
 #include "Debuggable.hh"
 #include "Debugger.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "GlobalSettings.hh"
 #include "HardwareConfig.hh"
 #include "MSXCommandController.hh"
@@ -152,6 +153,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		const auto& hotKey = reactor.getHotKey();
 
 		ImGui::MenuItem("Select MSX machine...", nullptr, &showSelectMachine);
+		showRecentMachinesMenu();
 
 		auto showSetupDepthLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) {
 			static constexpr array_with_enum_index<SetupDepth, zstring_view> helpText = {
@@ -207,7 +209,11 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 					// on each re-open of this menu, create a suggestion for a name
 					auto configName = motherBoard->getMachineName();
 					const auto* info = findMachineInfo(configName);
-					auto initialSaveSetupName = info ? info->displayName : configName;
+					// The display name is free-form text, it can contain
+					// characters that are invalid in a filename, e.g.
+					// "Philips VG 8235/39".
+					auto initialSaveSetupName = FileOperations::cleanFilename(
+						info ? info->displayName : configName);
 					saveSetupName = initialSaveSetupName;
 					if (exists()) {
 						saveSetupName = FileOperations::stem(FileOperations::getNextNumberedFileName(
@@ -222,13 +228,18 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 					auto action = [this, motherBoard] {
 						if (motherBoard) {
-							// pass full filename
-							auto filename = FileOperations::parseCommandFileArgument(
-								saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
-							motherBoard->storeAsSetup(filename, saveSetupDepth);
-							manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
-							if (setSetupAsDefault) {
-								manager.getReactor().getDefaultSetupSetting().setString(saveSetupName);
+							try {
+								// pass full filename
+								auto filename = FileOperations::parseCommandFileArgument(
+									saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
+								motherBoard->storeAsSetup(filename, saveSetupDepth);
+								manager.getCliComm().printInfo(strCat("Setup saved to ", filename));
+								if (setSetupAsDefault) {
+									manager.getReactor().getDefaultSetupSetting().setString(saveSetupName);
+								}
+							} catch (MSXException& e) {
+								manager.getCliComm().printError(
+									"Couldn't save setup: ", e.getMessage());
 							}
 							setSetupAsDefault = false;
 						}
@@ -404,6 +415,38 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			previewSetup.motherBoard.reset();
 		});
 	}
+}
+
+void ImGuiMachine::showRecentMachinesMenu()
+{
+	// grayed-out as long as no machine has been selected via the GUI, and also
+	// when none of the remembered machines exists (anymore)
+	bool anyMachine = std::ranges::any_of(recentMachines, [&](const auto& item) {
+		return findMachineInfo(item) != nullptr;
+	});
+	im::Menu("Recent machines", anyMachine, [&]{
+		// don't switch machine (and thus modify 'recentMachines') while iterating over it
+		std::string selectedMachine;
+		for (const auto& [i, item] : enumerate(recentMachines)) {
+			auto* info = findMachineInfo(item);
+			if (!info) continue;
+			bool ok = getTestResult(*info).empty();
+			im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+				if (ImGui::MenuItem(tmpStrCat(info->displayName, "##", i).c_str()) && ok) {
+					selectedMachine = info->configName;
+				}
+			});
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+				im::ItemTooltip([&]{
+					printConfigInfo(*info);
+				});
+			}
+		}
+		if (!selectedMachine.empty()) {
+			manager.executeDelayed(makeTclList("machine", selectedMachine));
+			addRecentItem(recentMachines, selectedMachine);
+		}
+	});
 }
 
 void ImGuiMachine::signalQuit()
@@ -1168,12 +1211,6 @@ ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config
 {
 	auto& allMachines = getAllMachines();
 	auto it = std::ranges::find(allMachines, config, &MachineInfo::configName);
-	if (it == allMachines.end()) {
-		// perhaps something changed, let's refresh the cache and try again
-		machineInfo.clear();
-		allMachines = getAllMachines();
-		it = std::ranges::find(allMachines, config, &MachineInfo::configName);
-	}
 	return (it != allMachines.end()) ? std::to_address(it) : nullptr;
 }
 

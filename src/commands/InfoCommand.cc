@@ -2,6 +2,7 @@
 
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "join.hh"
 
 #include <cassert>
 #include <iostream>
@@ -69,11 +70,17 @@ std::string InfoCommand::help(std::span<const TclObject> tokens) const
 {
 	std::string result;
 	switch (tokens.size()) {
-	case 1:
+	case 1: {
 		// show help on info cmd
-		result = "Show info on a certain topic\n"
-		         " info [topic] [...]\n";
+		auto topics = to_vector(std::views::transform(infoTopics, &InfoTopic::getName));
+		std::ranges::sort(topics);
+		result = strCat(
+			"Show info on a certain topic\n"
+			"  ", getName(), " <topic> [...]\n",
+			"Possible topics are:\n  ", join(topics, "\n  "), "\n",
+			"Use \"help ", getName(), " <topic>\" for more info on that specific topic.");
 		break;
+	}
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 2);

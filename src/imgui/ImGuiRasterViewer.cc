@@ -338,11 +338,11 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 
 		auto* drawList = ImGui::GetWindowDrawList();
 		auto colorForLine = [&](int line) {
-			auto color = [&] {
+			auto color = [&] -> gl::vec4 {
 				static constexpr gl::vec4 opaque(1.0f);
 				if (!showFadeOut) return opaque;
 				float t = float(line - y) / float(numLines);
-				return ImLerp(fadeOutColor, opaque, t - std::floor(t));
+				return ImLerp(ImVec4(fadeOutColor), ImVec4(opaque), t - std::floor(t));
 			}();
 			return ImGui::ColorConvertFloat4ToU32(color);
 		};
@@ -632,7 +632,7 @@ gl::vec2 ImGuiRasterViewer::drawCrosshair(
 	auto zm3 = 3.5f * zm;
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto color = ImGui::ColorConvertFloat4ToU32(color_);
-	drawList->AddRect(center - zm, center + zm, color, 0.0f, 0, thickness);
+	drawList->AddRect(center - zm, center + zm, color, 0.0f, thickness);
 	drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
 	drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
 	drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);

@@ -253,7 +253,8 @@ static constexpr auto getMSXMapping()
 		M{P{0x74}, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
 		M{P{0x75}, K{SDLK_BACKSPACE},   S{SDL_SCANCODE_BACKSPACE}},
 		M{P{0x76}, K{SDLK_F7},          S{SDL_SCANCODE_F7}}, // SELECT
-		M{P{0x77}, K{SDLK_RETURN},      S{SDL_SCANCODE_RETURN}},
+		M{P{0x77}, K{SDLK_RETURN,         SDLK_KP_ENTER},
+				   S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
 
 		M{P{0x80}, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
 		M{P{0x81}, K{SDLK_HOME},        S{SDL_SCANCODE_HOME}},
@@ -371,7 +372,8 @@ static constexpr auto getSVIMapping()
 		M{P{0x63}, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}},
 		M{P{0x64}, K{SDLK_ESCAPE},      S{SDL_SCANCODE_ESCAPE}},
 		M{P{0x65}, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
-		M{P{0x66}, K{SDLK_RETURN},      S{SDL_SCANCODE_RETURN}},
+		M{P{0x66}, K{SDLK_RETURN,         SDLK_KP_ENTER},
+				   S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
 		M{P{0x67}, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
 
 		M{P{0x70}, K{SDLK_F1},          S{SDL_SCANCODE_F1}},
@@ -668,6 +670,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
+	, eventDistributor(eventDistributor)
 	, keyCodeTab (defaultKeyCodeMappings [matrix])
 	, scanCodeTab(defaultScanCodeMappings[matrix])
 	, modifierPos(modifierPosForMatrix[matrix])
@@ -703,6 +706,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
 
+	eventDistributor.registerEventListener(EventType::KEYMAP_CHANGED, *this);
+
 	motherBoard.registerKeyboard(*this);
 }
 
@@ -710,6 +715,8 @@ Keyboard::~Keyboard()
 {
 	auto& motherBoard = keybDebuggable.getMotherBoard();
 	motherBoard.unregisterKeyboard(*this);
+
+	eventDistributor.unregisterEventListener(EventType::KEYMAP_CHANGED, *this);
 
 	stateChangeDistributor.unregisterListener(*this);
 	msxEventDistributor.unregisterEventListener(*this);
@@ -878,20 +885,27 @@ uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 	     & unicodeKeymap.getRelevantMods(keyInfo);
 }
 
+bool Keyboard::isKeyMatrixPressed(KeyMatrixPosition pos) const
+{
+	if (!pos.isValid()) return false;
+	auto row = pos.getRow();
+	auto mask = pos.getMask();
+	return ((hostKeyMatrix[row] & mask) == 0) &&
+	       ((userKeyMatrix[row] & mask) == 0);
+}
+
 void Keyboard::pressKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos)
 {
 	if (!pos.isValid()) {
 		// No such key.
 		return;
 	}
-	auto row = pos.getRow();
-	auto press = pos.getMask();
-	if (((hostKeyMatrix[row] & press) == 0) &&
-	    ((userKeyMatrix[row] & press) == 0)) {
+	if (isKeyMatrixPressed(pos)) {
 		// Won't have any effect, ignore.
 		return;
 	}
-	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~press);
+	auto row = pos.getRow();
+	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~pos.getMask());
 }
 
 void Keyboard::releaseKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos)
@@ -939,6 +953,22 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 	const auto& keyEvent = get_event<KeyEvent>(event);
 	bool down = getType(event) == EventType::KEY_DOWN;
 	auto key = keyEvent.getKey();
+
+	// Check if the host keyboard is a Japanese keyboard. If so, ignore the GRAVE key.
+	// Reason:
+	// On Windows with a Japanese keyboard layout, the "Half-width/Full-width" key 
+	// does not send a release event. This causes the key to get stuck in a pressed state.
+	// This key is for switching input modes, but its physical location is the GRAVE key.
+	// Japanese MSX does not have a GRAVE key and does not use it, so we simply ignore it.
+	// Previously, we could easily ignore it because the scancode was UNKNOWN.
+	// Recently, it started reporting as a GRAVE key scancode, so we changed the condition here.
+	if (hostKeyMap == HostKeyMap::UNKNOWN) {
+		if (SDL_GetKeyFromScancode(SDL_SCANCODE_LEFTBRACKET) == SDLK_AT) {
+			hostKeyMap = HostKeyMap::JP;
+		} else {
+			hostKeyMap = HostKeyMap::EN;
+		}
+	}
 
 	if (down) {
 		auto codepointToUtf8 = [](uint32_t cp) {
@@ -993,13 +1023,19 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 	} else if (key.sym.sym == SDLK_LALT) {
 		processGraphChange(time, down);
 		return false;
-	} else if (key.sym.sym == SDLK_KP_ENTER) {
+	// KEYPAD_RETURN and KEYPAD_COMMA exist at the same physical position on the host side.
+	} else if ((key.sym.sym == SDLK_KP_ENTER) || (key.sym.sym == SDLK_KP_COMMA)) {
 		processKeypadEnterKey(time, down);
 		return false;
 	} else {
 		// To work around a Japanese keyboard Kanji mode bug. (Multi-character
 		// input makes a keydown event without keyrelease message.)
 		if (keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN) {
+			return false;
+		}
+		if ((keyEvent.getScanCode() == SDL_SCANCODE_GRAVE) && (hostKeyMap == HostKeyMap::JP)) {
+			// To work around a Japanese keyboard Kanji mode bug. (Multi-character
+			// input makes a keydown event without keyrelease message.)
 			return false;
 		}
 		return processKeyEvent(time, down, keyEvent);
@@ -1059,6 +1095,15 @@ void Keyboard::executeUntil(EmuTime time)
 	updateKeyMatrix(time, false, modifierPos[KeyInfo::Modifier::CAPS]);
 }
 
+bool Keyboard::signalEvent(const Event& event)
+{
+	if (getType(event) == EventType::KEYMAP_CHANGED) {
+		// check hostKeyMap at Next keyEvent
+		hostKeyMap = HostKeyMap::UNKNOWN;
+	}
+	return false;
+}
+
 void Keyboard::processKeypadEnterKey(EmuTime time, bool down)
 {
 	if (!hasKeypad && !keyboardSettings.getAlwaysEnableKeypad()) {
@@ -1067,9 +1112,9 @@ void Keyboard::processKeypadEnterKey(EmuTime time, bool down)
 		return;
 	}
 	processSdlKey(time,
-	              SDLKey::create(keyboardSettings.getKpEnterMode() == KeyboardSettings::KpEnterMode::MSX_KP_COMMA
-	                                 ? SDLK_KP_ENTER : SDLK_RETURN,
-	                             down));
+		keyboardSettings.getKpEnterMode() == KeyboardSettings::KpEnterMode::MSX_KP_COMMA ?
+		SDLKey::create(SDLK_KP_COMMA, SDL_SCANCODE_KP_COMMA, down) :
+		SDLKey::create(SDLK_KP_ENTER, SDL_SCANCODE_KP_ENTER, down));
 }
 
 /*
@@ -1329,10 +1374,19 @@ bool Keyboard::pressUnicodeByUser(
 	bool insertCodeKanaRelease = false;
 	if (down) {
 		if ((needsLockToggle(keyInfo) & KeyInfo::CODE_MASK) &&
-				keyboardSettings.getAutoToggleCodeKanaLock()) {
+				keyboardSettings.getAutoToggleCodeKanaLock() &&
+				!isKeyMatrixPressed(modifierPos[KeyInfo::Modifier::CODE])) {
 			// Code Kana locks, is in wrong state and must be auto-toggled:
 			// Toggle it by pressing the lock key and scheduling a
-			// release event
+			// release event.
+			// Only do this when the CODE/KANA key is currently released,
+			// because only then does the MSX see a new key-press edge and
+			// actually toggle its lock. While the user is holding the host
+			// CODE/KANA key (typically AltGr, which on many host layouts is
+			// needed to type '@', '#', ...) the key is already down, so the
+			// MSX would toggle nothing while we did flip 'locksOn' here,
+			// leaving us permanently out of sync with the MSX. In that case
+			// simply type the character with CODE/KANA held, like a real MSX.
 			locksOn ^= KeyInfo::CODE_MASK;
 			pressKeyMatrixEvent(time, modifierPos[KeyInfo::Modifier::CODE]);
 			insertCodeKanaRelease = true;

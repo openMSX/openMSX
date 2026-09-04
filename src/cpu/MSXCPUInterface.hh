@@ -324,8 +324,26 @@ public:
 	void setFastForward(bool fastForward_) { fastForward = fastForward_; }
 	[[nodiscard]] bool isFastForward() const { return fastForward; }
 
+	/** The device in this slot and page. Never returns nullptr: a slot
+	  * without a device has the DummyDevice. */
 	[[nodiscard]] MSXDevice* getMSXDevice(int ps, int ss, int page);
 	[[nodiscard]] MSXDevice* getVisibleMSXDevice(int page) { return visibleDevices[page]; }
+
+	/** Returns the device registered on the given IO port, looking through
+	  * the watchpoint and VDP-delay wrapper devices. Returns the
+	  * DummyDevice when no device is registered on this port.
+	  */
+	[[nodiscard]] MSXDevice* getIODevice(uint8_t port, bool isIn) {
+		return getDevicePtr(port, isIn);
+	}
+
+	/**
+	 * Read a byte from the given IO-port without side effects.
+	 * @see MSXDevice::peekIO()
+	 */
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const {
+		return IO_In[port & 0xFF]->peekIO(port, time);
+	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

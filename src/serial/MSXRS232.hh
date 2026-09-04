@@ -47,6 +47,7 @@ public:
 private:
 	[[nodiscard]] uint8_t readIOImpl(uint16_t port, EmuTime time);
 	void writeIOImpl(uint16_t port, uint8_t value, EmuTime time);
+	void notifyBaudRate();
 
 	[[nodiscard]] uint8_t readStatus(EmuTime time);
 	void setIRQMask(uint8_t value);

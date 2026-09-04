@@ -1,11 +1,14 @@
 #ifndef MOUSE_HH
 #define MOUSE_HH
 
+#include "Display.hh"
 #include "EmuTime.hh"
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 #include "serialize_meta.hh"
+
+#include "gl_vec.hh"
 
 namespace openmsx {
 
@@ -17,7 +20,8 @@ class Mouse final : public JoystickDevice, private MSXEventListener
 {
 public:
 	Mouse(MSXEventDistributor& eventDistributor,
-	      StateChangeDistributor& stateChangeDistributor);
+	      StateChangeDistributor& stateChangeDistributor,
+		  Display& display);
 	~Mouse() override;
 
 	template<typename Archive>
@@ -49,11 +53,13 @@ private:
 private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
+	Display& display;   // Display object, used to get the display resolution
+
 	EmuTime lastTime = EmuTime::zero();
 	int phase;
 	int xRel = 0, yRel = 0;               // latched X/Y values, these are returned to the MSX
 	int curXRel = 0, curYRel = 0;         // running X/Y values, already scaled down
-	int fractionalX = 0, fractionalY = 0; // running X/Y values, not yet scaled down
+	gl::vec2 fractional;                  // running X/Y values, not yet scaled down
 	uint8_t status = JOY_BUTTONA | JOY_BUTTONB;
 	bool mouseMode = true;
 };

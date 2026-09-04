@@ -404,7 +404,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				auto thickness = zm.y * 0.5f;
 				auto zm1 = 1.5f * zm;
 				auto zm3 = 3.5f * zm;
-				drawList->AddRect(center - zm, center + zm, color, 0.0f, 0, thickness);
+				drawList->AddRect(center - zm, center + zm, color, 0.0f, thickness);
 				drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
 				drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
 				drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);

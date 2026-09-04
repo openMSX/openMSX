@@ -180,7 +180,7 @@
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
         <li><a class="internal" href="#throttle">throttle</a></li>
         <li><a class="internal" href="#too_fast_vram_access">too_fast_vram_access</a></li>
-        <li><a class="internal" href="#too_fast_vram_access_callback">too_fast_vram_access_callback</a></li>
+        <li><a class="internal" href="#too_fast_vram_access_callback">VDP.too_fast_vram_access_callback</a></li>
         <li><a class="internal" href="#touchpad_transform_matrix">touchpad_transform_matrix</a></li>
         <li><a class="internal" href="#turborpause">turborpause</a></li>
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
@@ -691,33 +691,38 @@
 
     <tr>
       <td><code>debug breakpoint &lt;subcommand&gt;</code></td>
-      <td>Breakpoint related commands. Type <code>help debug breakpoint</code> for more details.</td>
+      <td><a class="internal" href="#debug-breakpoint">Breakpoint related commands</a>.</td>
     </tr>
 
     <tr>
       <td><code>debug watchpoint &lt;subcommand&gt;</code></td>
-      <td>Watchpoint related commands. Type <code>help debug watchpoint</code> for more details.</td>
+      <td><a class="internal" href="#debug-watchpoint">Watchpoint related commands</a>.</td>
     </tr>
 
     <tr>
       <td><code>debug watchexpr &lt;subcommand&gt;</code></td>
-      <td>Watch expression related commands. Type <code>help debug watchexpr</code> for more details.</td>
+      <td><a class="internal" href="#debug-watchexpr">Watch expression related commands</a>.</td>
     </tr>
 
     <tr>
       <td><code>debug condition &lt;subcommand&gt;</code></td>
-      <td>Condition related commands. Type <code>help debug condition</code> for more details.</td>
+      <td><a class="internal" href="#debug-condition">Debug condition related commands</a>.</td>
     </tr>
 
     <tr>
       <td><code>debug probe &lt;subcommand&gt;</code></td>
-      <td>Probe related commands. Type <code>help debug probe</code> for more details.</td>
+      <td><a class="internal" href="#debug-probe">Probe related commands</a>.</td>
     </tr>
 
     <tr>
       <td><code>debug symbols &lt;subcommand&gt;</code></td>
-      <td>Manage debug symbols.<br />
+      <td><a class="internal" href="#debug-symbols">Manage debug symbols</a>.<br />
       openMSX also provides a shortcut to access debug symbol addresses via Tcl dictionary <code>$::sym(&lt;symbol-name&gt;)</code>.
+    </tr>
+
+    <tr>
+      <td><code>debug trace &lt;subcommand&gt;</code></td>
+      <td><a class="internal" href="#debug-trace">Trace related commands</a>.</td>
     </tr>
 
     <tr>
@@ -729,6 +734,269 @@
 
   <p>This command is much better documented in openMSX itself. Type <code>help debug</code> or <code>help debug &lt;subcommand&gt;</code> for more detailed help.</p>
 
+  <div class="subsectiontitle">
+    <a id="debug-breakpoint">breakpoint subcommands:</a>
+  </div>
+
+  <table>
+    <tr>
+      <td><code>debug breakpoint list</code></td>
+      <td>List all active breakpoints. The result is a Tcl dict where each key is a breakpoint ID and each value is another dict containing the properties of that breakpoint (see <code>create</code> below).</td>
+    </tr>
+
+    <tr>
+      <td><code>debug breakpoint create [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Create a new breakpoint with the given properties and return its ID. Supported properties:
+        <ul>
+          <li><code>-address</code>: the address where the breakpoint should trigger. An address is just a number [0..0xFFFF], but can also be dynamically evaluated from a known symbol by specifying <code>{$sym(MySymbol)}</code>.</li>
+          <li><code>-condition</code>: a Tcl expression that must evaluate to true for the breakpoint to trigger (default = no condition).</li>
+          <li><code>-command</code>: a Tcl command that should be executed when the breakpoint triggers (default = <code>debug break</code>).</li>
+          <li><code>-enabled</code>: set to false to (temporarily) disable this breakpoint.</li>
+          <li><code>-once</code>: if true, the breakpoint is automatically removed after it triggered (default = false, meaning recurring).</li>
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td><code>debug breakpoint configure &lt;id&gt; [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Change one or more properties of an existing breakpoint. The same properties as for <code>create</code> are supported.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug breakpoint remove &lt;id&gt;</code></td>
+      <td>Remove the breakpoint with the given ID.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    <a id="debug-watchpoint">watchpoint subcommands:</a>
+  </div>
+
+  <table>
+    <tr>
+      <td><code>debug watchpoint list</code></td>
+      <td>List all active watchpoints. The result is a Tcl dict where each key is a watchpoint ID and each value is another dict containing the properties of that watchpoint (see <code>create</code> below).</td>
+    </tr>
+
+    <tr>
+      <td><code>debug watchpoint create [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Create a new watchpoint with the given properties and return its ID. Supported properties:
+        <ul>
+          <li><code>-type</code>: one of <code>read_io</code>, <code>write_io</code>, <code>read_mem</code> or <code>write_mem</code>.</li>
+          <li><code>-address</code>: the address(es) where the watchpoint should trigger, either a single address or a begin/end pair. An address is just a number [0..0xFFFF], but can also be dynamically evaluated from a known symbol by specifying <code>{$sym(MySymbol)}</code>.</li>
+          <li><code>-condition</code>: a Tcl expression that must evaluate to true for the watchpoint to trigger (default = no condition).</li>
+          <li><code>-command</code>: a Tcl command that should be executed when the watchpoint triggers (default = <code>debug break</code>).</li>
+          <li><code>-enabled</code>: set to false to (temporarily) disable this watchpoint.</li>
+          <li><code>-once</code>: if true, the watchpoint is automatically removed after it triggered (default = false, meaning recurring).</li>
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td><code>debug watchpoint configure &lt;id&gt; [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Change one or more properties of an existing watchpoint. The same properties as for <code>create</code> are supported.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug watchpoint remove &lt;id&gt;</code></td>
+      <td>Remove the watchpoint with the given ID.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    <a id="debug-condition">debug condition subcommands:</a>
+  </div>
+
+  <p>A debug condition is evaluated continuously while the emulated MSX is
+  running; unlike breakpoints and watchpoints it is not tied to a specific
+  address or I/O access.</p>
+
+  <table>
+    <tr>
+      <td><code>debug condition list</code></td>
+      <td>List all active debug conditions. The result is a Tcl dict where each key is a debug condition ID and each value is another dict containing the properties of that condition (see <code>create</code> below).</td>
+    </tr>
+
+    <tr>
+      <td><code>debug condition create [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Create a new debug condition with the given properties and return its ID. Supported properties:
+        <ul>
+          <li><code>-condition</code>: a Tcl expression that must evaluate to true for the debug condition to trigger (default = no condition).</li>
+          <li><code>-command</code>: a Tcl command that should be executed when the debug condition triggers (default = <code>debug break</code>).</li>
+          <li><code>-enabled</code>: set to false to (temporarily) disable this debug condition.</li>
+          <li><code>-once</code>: if true, the debug condition is automatically removed after it triggered (default = false, meaning recurring).</li>
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td><code>debug condition configure &lt;id&gt; [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Change one or more properties of an existing debug condition. The same properties as for <code>create</code> are supported.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug condition remove &lt;id&gt;</code></td>
+      <td>Remove the debug condition with the given ID.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    <a id="debug-probe">probe subcommands:</a>
+  </div>
+
+  <p>Probes are instrumentation points inside openMSX itself; they expose
+  emulator-internal events (such as a pending Z80 IRQ or an executing VDP
+  command) that cannot be observed from inside the emulated MSX. Use
+  <code>debug probe list</code> to see which probes exist on the currently
+  emulated machine.</p>
+
+  <table>
+    <tr>
+      <td><code>debug probe list</code></td>
+      <td>Returns a list of all probes.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug probe desc &lt;probe&gt;</code></td>
+      <td>Returns a description of this probe.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug probe read &lt;probe&gt;</code></td>
+      <td>Returns the current value of this probe.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug probe set_bp &lt;probe&gt; [-once] [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td>Set a breakpoint on the given probe and return its ID. When <code>-once</code> is given, the breakpoint is automatically removed after it triggered. <code>&lt;cond&gt;</code> is an optional Tcl expression that must evaluate to true for the breakpoint to trigger; <code>&lt;cmd&gt;</code> is an optional Tcl command that should be executed when the breakpoint triggers (default = <code>debug break</code>).</td>
+    </tr>
+
+    <tr>
+      <td><code>debug probe remove_bp &lt;id&gt;</code></td>
+      <td>Remove the probe breakpoint with the given ID.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug probe list_bp</code></td>
+      <td>Returns all breakpoints that are set on probes, as a Tcl dict where each key is a probe-breakpoint ID and each value contains the probe name, the condition and the command.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    <a id="debug-watchexpr">watch expression subcommands:</a>
+  </div>
+
+  <p>Watch expressions are mostly a GUI feature: they are evaluated while the
+  emulated MSX is running and their values are shown in the debugger view of
+  the openMSX GUI (menu bar &gt; Debugger &gt; Watch expression).</p>
+
+  <table>
+    <tr>
+      <td><code>debug watchexpr list</code></td>
+      <td>List all active watch expressions. The result is a Tcl dict where each key is a watch expression ID and each value is another dict containing the properties of that expression (see <code>create</code> below).</td>
+    </tr>
+
+    <tr>
+      <td><code>debug watchexpr create [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Create a new watch expression with the given properties and return its ID. Supported properties:
+        <ul>
+          <li><code>-description</code>: optional description for the expression.</li>
+          <li><code>-expression</code>: the actual Tcl expression.</li>
+          <li><code>-format</code>: optional format specifier.</li>
+        </ul>
+      </td>
+    </tr>
+
+    <tr>
+      <td><code>debug watchexpr configure &lt;id&gt; [&lt;property-name&gt; &lt;property-value&gt;]...</code></td>
+      <td>Change one or more properties of an existing watch expression. The same properties as for <code>create</code> are supported.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug watchexpr remove &lt;id&gt;</code></td>
+      <td>Remove the watch expression with the given ID.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    <a id="debug-symbols">symbols subcommands:</a>
+  </div>
+
+  <p>Symbols map names to memory addresses and typically come from the
+  assembler or compiler build of the MSX program being debugged. Loaded
+  symbols can be used in breakpoint conditions and other Tcl expressions;
+  an easier syntax to get the value of a symbol based on its name is the
+  Tcl dictionary <code>$::sym(&lt;symbol-name&gt;)</code>.</p>
+
+  <table>
+    <tr>
+      <td><code>debug symbols types</code></td>
+      <td>Returns a list of supported symbol file types.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug symbols load &lt;filename&gt; [&lt;type&gt;]</code></td>
+      <td>Load a symbol file; the type is auto-detected if none is given.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug symbols remove &lt;filename&gt;</code></td>
+      <td>Remove a previously loaded symbol file.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug symbols files</code></td>
+      <td>Returns a list of all loaded symbol files.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug symbols lookup [-filename &lt;filename&gt;] [-name &lt;name&gt;] [-value &lt;value&gt;]</code></td>
+      <td>Returns a list of symbols in an optionally given file and/or with an optionally given name and/or with an optionally given value.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    <a id="debug-trace">trace subcommands:</a>
+  </div>
+
+  <p>Traces collect data points while the emulated MSX is running. Each data
+  point stores a value together with the emulation time at which it was
+  added. Traces are typically filled from Tcl code (for example from the
+  command of a <a class="internal" href="#debug-condition">debug condition</a>)
+  or automatically via <code>debug trace probe</code>. The collected data can
+  be inspected with the trace viewer of the openMSX GUI.</p>
+
+  <table>
+    <tr>
+      <td><code>debug trace add &lt;name&gt; [&lt;value&gt;] [-merge] [-description &lt;text&gt;] [-type &lt;t&gt;] [-format &lt;f&gt;]</code></td>
+      <td>Add a new data point to the trace with the given name (the trace is created on first use); the timestamp of the data point is the current emulation time. The optional value can be an integer, a floating point number or a string; if no value is given, a void value is used. Flags: <code>-merge</code> ignores consecutive equal values; <code>-description &lt;text&gt;</code> gives a description for this trace; <code>-type &lt;t&gt;</code> must be one of <code>void</code>, <code>bool</code>, <code>int</code>, <code>double</code> or <code>string</code>; <code>-format &lt;f&gt;</code> must be one of <code>bin</code>, <code>dec</code> or <code>hex</code> (only relevant for type int). Typically the latter three options are only used once, while <code>-merge</code> is repeated on every invocation.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug trace list [&lt;name&gt;]</code></td>
+      <td>Without arguments, list the names of all created traces. With a name argument, list all data points of the given trace in chronological order; each data point consists of a timestamp (seconds since emulation start) and a value.</td>
+    </tr>
+
+    <tr>
+      <td><code>debug trace drop [&lt;name&gt;]</code></td>
+      <td>Without arguments, drop all traces and their data points. With a name argument, drop only the trace with the given name (this also removes traces that were being filled automatically via <code>debug trace probe</code>).</td>
+    </tr>
+
+    <tr>
+      <td><code>debug trace probe &lt;probe&gt;</code></td>
+      <td>Start collecting changes of the given <a class="internal" href="#debug-probe">probe</a>: as if on each change there's an automatic <code>debug trace add &lt;name&gt; &lt;value&gt;</code>.</td>
+    </tr>
+  </table>
+
+  <p>A convenient wrapper around these subcommands is the <code>cpu_trace</code>
+  Tcl procedure (defined in <code>scripts/_trace.tcl</code>): execute e.g.
+  <code>cpu_trace instr A HL</code> to trace the executed instructions together
+  with the A and HL register values, and execute <code>cpu_trace</code> without
+  arguments to disable tracing again. Note this can be expensive and/or can
+  quickly consume a lot of memory: the Z80 (and certainly the R800) can execute
+  almost one million instructions per second, so it is recommended to enable
+  only those items you need and to limit the trace duration.</p>
+
   <p>Many examples of usage of the debug command can be found in the scripts that come with openMSX (in the <code>share/scripts</code> directory). We also list a few here.
   </p>
 
@@ -739,18 +1007,17 @@
   <div class="examples">
     <ul>
       <li>break (only!) after 0 is written to 0x8000):<br/>
-         <code>debug watchpoint create write_mem 0x8000 {[debug read "memory" 0x8000] ==
-0x00}</code></li>
+         <code>debug watchpoint create -type write_mem -address 0x8000 -condition {[debug read "memory" 0x8000] == 0x00}</code></li>
       <li>break on address 0xF37D, but only when Z80 register C has the value 0x2F:<br/>
-         <code>debug breakpoint create 0xF37D {[reg C] == 0x2F}</code></li>
+         <code>debug breakpoint create -address 0xF37D -condition {[reg C] == 0x2F}</code></li>
       <li>break when CPU reads from any addresses between 0xFBE5 and 0xFBEF:<br/>
-         <code>debug watchpoint create read_mem {0xFBE5 0xFBEF}</code></li>
+         <code>debug watchpoint create -type read_mem -address {0xFBE5 0xFBEF}</code></li>
       <li>break after a write was done to I/O port 0x99, but only when Z80 register A has a value of 0x81:<br/>
-         <code>debug watchpoint create write_io 0x99 {[reg A] == 0x81}</code></li>
+         <code>debug watchpoint create -type write_io -address 0x99 -condition {[reg A] == 0x81}</code></li>
       <li>break as soon as there is a pending Z80 IRQ (even when in DI mode):<br/>
          <code>debug probe set_bp z80.pendingIRQ</code></li>
       <li>break when register HL has the value 1234:<br/>
-         <code>debug condition create {[reg hl] == 1234}</code></li>
+         <code>debug condition create -condition {[reg hl] == 1234}</code></li>
       <li>list the contents of all symbol files previously loaded by the Symbol Manager or by the <code>debug symbols load</code> subcommand:<br/>
          <code>debug symbols lookup</code></li>
     </ul>
@@ -1103,7 +1370,7 @@
 
   <p>Controls the Laserdisc player; a Laserdisc can be inserted or ejected. When a real Laserdisc player is connected to an MSX, no other controls are available either.</p>
 
-  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-V60 MSX machine is being emulated</p>
+  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-V60 MSX machine is being emulated, and only when openMSX was built with Laserdisc support (Laserdisc support is an optional compile-time feature)</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2922,6 +3189,8 @@ current MSX model can be:</p>
 
   <p>Switches the "auto-run laserdisc" feature on or off. When it's enabled, openMSX will try to type the proper loading
   instruction when a laserdisc is inserted.</p>
+
+  <p>Note that this setting is only available when the Pioneer PX-7 or Pioneer PX-V60 MSX machine is being emulated, and only when openMSX was built with Laserdisc support (Laserdisc support is an optional compile-time feature).</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5639,7 +5908,7 @@ current MSX model can be:</p>
   </table>
 
 
-  <h3><a id="too_fast_vram_access_callback">too_fast_vram_access_callback</a></h3>
+  <h3><a id="too_fast_vram_access_callback">VDP.too_fast_vram_access_callback</a></h3>
 
   <p>Selects the Tcl procedure to be called when a too-fast-VRAM-access (read
   or write) has been detected. This is useful for debugging MSX programs that

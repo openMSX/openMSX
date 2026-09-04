@@ -251,8 +251,12 @@ public:
 	/** Gets the current blink state.
 	  * @return True iff alternate colors / page should be displayed.
 	  */
-	[[nodiscard]] bool getBlinkState() const {
-		return blinkState;
+	[[nodiscard]] bool getBlinkState(int line) const {
+		if (isFastBlinkEnabled()) {
+			return calculateLineBlinkState(line).state;
+		} else {
+			return blinkState;
+		}
 	}
 
 	/** Get address of pattern table (only for debugger) */

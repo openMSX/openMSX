@@ -19,7 +19,7 @@ namespace openmsx {
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
-	, joystickManager(commandController)
+	, joystickManager(eventDistributor.getReactor())
 	, grabInput(
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
@@ -321,6 +321,10 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		break;
 	case SDL_KEYDOWN:
 		handleKeyDown(evt.key, 0);
+		break;
+
+	case SDL_KEYMAPCHANGED:
+		event = KeyMapChangedEvent();
 		break;
 
 	case SDL_MOUSEBUTTONUP:

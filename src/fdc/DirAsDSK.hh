@@ -126,6 +126,15 @@ private:
 	[[nodiscard]] std::pair<unsigned, unsigned> sectorToClusterOffset(unsigned sector) const;
 	[[nodiscard]] unsigned sectorToCluster(unsigned sector) const;
 
+	// One of the standard 9-sectors/track MSX disk formats, selected from the
+	// drive's track-count and number of sides (see getDiskFormat()).
+	struct DiskFormat {
+		uint8_t mediaDescriptor;
+		unsigned sectorsPerCluster;
+		unsigned sectorsPerDir; // number of sectors in the root directory
+	};
+	[[nodiscard]] static DiskFormat getDiskFormat(unsigned numTracks, bool doubleSided);
+
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
@@ -140,7 +149,10 @@ private:
 	using MapDirs = hash_map<DirIndex, MapDir, HashDirIndex>;
 	MapDirs mapDirs;
 
-	// format parameters which depend on single/double sided
+	// Disk format/geometry, derived from the drive's track-count and #sides.
+	const DiskFormat diskFormat;
+	const unsigned sectorsPerCluster;
+	const unsigned sectorsPerDir;
 	// varying root parameters
 	const unsigned nofSectors;
 	const unsigned nofSectorsPerFat;

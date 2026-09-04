@@ -30,7 +30,7 @@
           </sdcard2>
           <sramname>megaflashromsccplussd.sram</sramname>
           <hasmemorymapper>true</hasmemorymapper>
-        </MegaFlashRomSccPlusSD>
+        </MegaFlashRomSCCPlusSD>
       </secondary>
     </primary>
   </devices>

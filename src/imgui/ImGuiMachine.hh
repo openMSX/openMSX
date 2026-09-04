@@ -36,6 +36,7 @@ public:
 	void signalQuit();
 
 private:
+	void showRecentMachinesMenu();
 	void paintSelectMachine(const MSXMotherBoard* motherBoard);
 	void paintTestHardware();
 	[[nodiscard]] std::vector<MachineInfo>& getAllMachines();

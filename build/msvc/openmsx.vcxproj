@@ -116,7 +116,7 @@
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <CppLanguageStandard>c++latest</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\unapinet;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;NOGDI;UNICODE;_UNICODE;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;STATIC_BUILD;EPOXY_PUBLIC=extern;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
@@ -128,7 +128,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;ws2_32.lib;iphlpapi.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -152,7 +152,7 @@
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <CppLanguageStandard>c++latest</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\unapinet;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;NOGDI;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;STATIC_BUILD;EPOXY_PUBLIC=extern;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
@@ -164,7 +164,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;ws2_32.lib;iphlpapi.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -187,7 +187,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\unapinet;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;NOGDI;UNICODE;_UNICODE;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;STATIC_BUILD;EPOXY_PUBLIC=extern;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -204,7 +204,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;ws2_32.lib;iphlpapi.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -232,7 +232,7 @@
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\unapinet;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;WIN32_LEAN_AND_MEAN;NOGDI;UNICODE;_UNICODE;SECURITY_WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;STATIC_BUILD;EPOXY_PUBLIC=extern;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -248,7 +248,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;ws2_32.lib;iphlpapi.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -267,7 +267,7 @@
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <CppLanguageStandard>c++latest</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\unapinet;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;NOGDI;UNICODE;_UNICODE;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;STATIC_BUILD;EPOXY_PUBLIC=extern;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -280,7 +280,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;ws2_32.lib;iphlpapi.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(PlatformShortName);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -304,7 +304,7 @@
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <CppLanguageStandard>c++latest</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartyOutDir)\..\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\unapinet;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;NOGDI;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;STATIC_BUILD;EPOXY_PUBLIC=extern;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -317,7 +317,7 @@
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;ws2_32.lib;iphlpapi.lib;setupapi.lib;netapi32.lib;winmm.lib;imm32.lib;version.lib;secur32.lib;opengl32.lib;dxguid.lib;dsound.lib;SDL.lib;SDLmain.lib;SDL_ttf.lib;freetype.lib;libepoxy.a;libogg.lib;libpng.lib;libtheora.lib;libvorbis.lib;tcl.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)openmsx.exe</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\$(Platform);$(ThirdPartyOutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>shell32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -504,6 +504,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDisassembly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiIoPorts.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.cc" />
@@ -519,6 +520,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiRasterViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSlotMap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSpriteViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSymbols.cc" />
@@ -717,6 +719,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278B.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\unapinet\UnapiNet.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DeltaBlock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
@@ -726,6 +729,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\lz4.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\SerialPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc" />
@@ -816,6 +820,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Connector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Device.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Net.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Raw.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Tester.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\YM2148.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\security\SocketStreamWrapper.cc" />
@@ -1106,6 +1111,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDisassembly.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiIoPorts.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.hh" />
@@ -1121,6 +1127,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiRasterViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSlotMap.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSpriteViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSymbols.hh" />
@@ -1335,6 +1342,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\YMF278B.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
+    <None Include="$(OpenMSXSrcDir)\unapinet\UnapiNet.hh" />
+    <None Include="$(OpenMSXSrcDir)\unapinet\UnapiNetWire.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_map.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_set.hh" />
@@ -1379,6 +1388,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\unistdp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\unreachable.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_checked.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\SerialPort.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_core.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_unchecked.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\win32-arggen.hh" />
@@ -1495,6 +1505,7 @@
     <None Include="$(OpenMSXSrcDir)\serial\RS232Connector.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Device.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Net.hh" />
+    <None Include="$(OpenMSXSrcDir)\serial\RS232Raw.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Tester.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\SerialDataInterface.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\YM2148.hh" />
@@ -1697,6 +1708,7 @@ popd</Command>
   <ItemGroup>
     <ClInclude Include="$(OpenMSXSrcDir)\sound\fake_windows.h" />
     <ClInclude Include="$(OpenMSXSrcDir)\MSXPiDevice.hh" />
+    <ClInclude Include="$(OpenMSXSrcDir)\imgui\ImGuiPluggable.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

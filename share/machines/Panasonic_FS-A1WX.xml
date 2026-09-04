@@ -111,11 +111,15 @@
     </primary>
 
     <Kanji id="Kanji ROM">
-      <io base="0xD8" num="4"/>
       <rom>
         <sha1>5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</sha1>
         <filename>fs-a1wx_kanjifont.rom</filename>
       </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+      <io base="0xDA" num="2" type="O"/>
+      <io base="0xDB" num="1" type="I"/>
+      <level_2_via>interlocked_write_read</level_2_via> <!-- checked by kanjitest v2.x on yerayromano's -->
     </Kanji>
 
     <PPI id="ppi">

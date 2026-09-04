@@ -11,10 +11,25 @@ namespace openmsx {
 MSXKanji::MSXKanji(DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName(), "Kanji ROM", config)
-	, isLascom(config.getChildData("type", {}) == "lascom")
 	, highAddressMask(config.getChildData("type", {}) == "hangul" ? 0x7F : 0x3F)
-	, mirrorsIfOnlyLevel1Installed(config.getChildDataAsBool("io_ports_mirror_if_only_level1_installed", false))
 {
+	auto level2ViaStr = config.getChildData("level_2_via", "read"); // default 'read' for bw compat
+	if (level2ViaStr == "read") {
+		level2Via = Level2Via::Read;
+		portMask = 3;
+	} else if (level2ViaStr == "write") {
+		level2Via = Level2Via::Write;
+		portMask = 3;
+	} else if (level2ViaStr == "interlocked_write_read") {
+		level2Via = Level2Via::InterlockedWriteRead;
+		portMask = 3;
+	} else if (level2ViaStr == "only_level_1") {
+		level2Via = Level2Via::Read;
+		portMask = 1; // implemented by redirecting level2 ports to level1
+	} else {
+		throw MSXException("MSXKanji: invalid value for 'level_2_via'");
+	}
+
 	auto size = rom.size();
 	if (size != one_of(0x20000u, 0x40000u)) {
 		throw MSXException("MSXKanji: wrong kanji ROM, it should be either 128kB or 256kB.");
@@ -28,66 +43,59 @@ MSXKanji::MSXKanji(DeviceConfig& config)
 
 void MSXKanji::reset(EmuTime /*time*/)
 {
-	adr1 = 0x00000; // TODO check this
-	adr2 = 0x20000; // TODO check this
+	adr = 0; // TODO check inital value
+	writeLevel = 0;
 }
 
-void MSXKanji::writeIO(uint16_t port, byte value, EmuTime /*time*/)
+void MSXKanji::writeIO(uint16_t port, uint8_t value, EmuTime /*time*/)
 {
-	switch (port & (mirrorsIfOnlyLevel1Installed ? 0x01 : 0x03)) {
+	port &= portMask;
+	writeLevel = (port & 2) ? 1 : 0;
+
+	switch (port & 1) {
 	case 0:
-		adr1 = (adr1 & 0x1f800) | ((value & 0x3f) << 5);
+		adr = (adr & 0x3f800) | ((value & 0x3f) << 5); // 6 bit column
 		break;
 	case 1:
-		adr1 = (adr1 & 0x007e0) | ((value & highAddressMask) << 11);
-		break;
-	case 2:
-		adr2 = (adr2 & 0x3f800) | ((value & 0x3f) << 5);
-		break;
-	case 3:
-		adr2 = (adr2 & 0x207e0) | ((value & 0x3f) << 11);
+		adr = (adr & 0x007e0) | ((value & highAddressMask) << 11); // 6 or 7 (for 'hangul') bit row
 		break;
 	}
+	// note: write to either row/column resets the counter
 }
 
-byte MSXKanji::readIO(uint16_t port, EmuTime time)
+MSXKanji::ReadImplResult MSXKanji::readImpl(uint16_t port) const
 {
-	byte result = peekIO(port, time);
-	switch (port & (mirrorsIfOnlyLevel1Installed ? 0x01 : 0x03)) {
-	case 0:
-		if (!isLascom) {
-			break;
-		}
+	uint8_t readLevel = (port & portMask & 2) ? 1 : 0;
+
+	unsigned address = 0;
+	switch (level2Via) {
+	case Level2Via::Read:
+		address = adr | (readLevel << 17);
+		break;
+	case Level2Via::InterlockedWriteRead:
+		if (readLevel != writeLevel) return {.valid = false, .value = 0xFF};
 		[[fallthrough]];
-	case 1:
-		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
-		break;
-	case 3:
-		adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
+	case Level2Via::Write:
+		address = adr | (writeLevel << 17);
 		break;
 	}
-	return result;
+
+	auto value = (address < rom.size()) ? rom[address] : uint8_t(0xff);
+	return {.valid = true, .value = value};
 }
 
-byte MSXKanji::peekIO(uint16_t port, EmuTime /*time*/) const
+uint8_t MSXKanji::peekIO(uint16_t port, EmuTime /*time*/) const
 {
-	byte result = 0xff;
-	switch (port & (mirrorsIfOnlyLevel1Installed ? 0x01 : 0x03)) {
-	case 0:
-		if (!isLascom) {
-			break;
-		}
-		[[fallthrough]];
-	case 1:
-		result = rom[adr1 & (rom.size() - 1)]; // mask to be safe
-		break;
-	case 3:
-		if (rom.size() == 0x40000) { // temp workaround
-			result = rom[adr2];
-		}
-		break;
+	return readImpl(port).value;
+}
+
+uint8_t MSXKanji::readIO(uint16_t port, EmuTime /*time*/)
+{
+	auto [valid, value] = readImpl(port);
+	if (valid) {
+		adr = (adr & ~0x1f) | ((adr + 1) & 0x1f);
 	}
-	return result;
+	return value;
 }
 
 void MSXKanji::getExtraDeviceInfo(TclObject& result) const
@@ -95,12 +103,21 @@ void MSXKanji::getExtraDeviceInfo(TclObject& result) const
 	rom.getInfo(result);
 }
 
+// version 1 : initial version
+// version 2 : replaced adr1/adr2 with a single shared adr, added writeLevel
 template<typename Archive>
-void MSXKanji::serialize(Archive& ar, unsigned /*version*/)
+void MSXKanji::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("adr1", adr1,
-	             "adr2", adr2);
+	if (ar.versionBelow(version, 2)) {
+		assert(Archive::IS_LOADER);
+		ar.serialize("adr1", adr);
+		//ar.serialize("adr2", adr); // ignored
+		writeLevel = 0;
+	} else {
+		ar.serialize("adr",        adr,
+		             "writeLevel", writeLevel);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXKanji);
 REGISTER_MSXDEVICE(MSXKanji, "Kanji");

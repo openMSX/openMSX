@@ -81,6 +81,7 @@
 #include "SensorKid.hh"
 #include "SpectravideoFDC.hh"
 #include "SunriseIDE.hh"
+#include "UnapiNet.hh"
 #include "TalentTDC600.hh"
 #include "ToshibaFDC.hh"
 #include "TurboRFDC.hh"
@@ -252,6 +253,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<BeerIDE>(conf);
 	} else if (type == "SunriseIDE") {
 		result = std::make_unique<SunriseIDE>(conf);
+	} else if (type == "UnapiNet") {
+		result = std::make_unique<UnapiNet>(conf);
 	} else if (type == "GoudaSCSI") {
 		result = std::make_unique<GoudaSCSI>(conf);
 	} else if (type == "MegaSCSI") {
@@ -352,7 +355,7 @@ std::unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(HardwareConfi
 
 std::unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(HardwareConfig& hwConf)
 {
-	static XMLElement& xml(createConfig("MapperIO", "MapperIO"));
+	static XMLElement& xml(createConfig("MapperIO", "MSX Memory Mapper I/O"));
 	return std::make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
 }
 

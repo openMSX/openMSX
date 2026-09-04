@@ -69,4 +69,9 @@ void RS232Device::setRTS(bool /*status*/, EmuTime /*time*/)
 	// ignore
 }
 
+void RS232Device::setBaudRate(unsigned /*baud*/)
+{
+	// ignore
+}
+
 } // namespace openmsx

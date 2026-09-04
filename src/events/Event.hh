@@ -409,8 +409,11 @@ class MidiInCoreMidiVirtualEvent final : public SimpleEvent {};
 class MidiInALSAEvent            final : public SimpleEvent {};
 class Rs232TesterEvent           final : public SimpleEvent {};
 class Rs232NetEvent              final : public SimpleEvent {};
+class Rs232RawEvent              final : public SimpleEvent {};
 class ImGuiDelayedActionEvent    final : public SimpleEvent {};
 
+/** Send when changed host keyboard layout. */
+class KeyMapChangedEvent          final : public SimpleEvent {};
 
 // --- Put all (non-abstract) Event classes into a std::variant ---
 
@@ -451,8 +454,10 @@ using Event = std::variant<
 	MidiInALSAEvent,
 	Rs232TesterEvent,
 	Rs232NetEvent,
+	Rs232RawEvent,
 	ImGuiDelayedActionEvent,
-	ImGuiActiveEvent
+	ImGuiActiveEvent,
+	KeyMapChangedEvent
 >;
 
 template<typename T>
@@ -499,8 +504,10 @@ enum class EventType : uint8_t
 	MIDI_IN_ALSA             = event_index<MidiInALSAEvent>,
 	RS232_TESTER             = event_index<Rs232TesterEvent>,
 	RS232_NET                = event_index<Rs232NetEvent>,
+	RS232_RAW                = event_index<Rs232RawEvent>,
 	IMGUI_DELAYED_ACTION     = event_index<ImGuiDelayedActionEvent>,
 	IMGUI_ACTIVE             = event_index<ImGuiActiveEvent>,
+	KEYMAP_CHANGED           = event_index<KeyMapChangedEvent>,
 
 	NUM_EVENT_TYPES // must be last
 };

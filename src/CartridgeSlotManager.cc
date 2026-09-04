@@ -193,13 +193,9 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 
 unsigned CartridgeSlotManager::getSlot(int ps, int ss) const
 {
-	for (auto slot : xrange(MAX_SLOTS)) {
-		if (slots[slot].exists() &&
-		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
-			return slot;
-		}
-	}
-	UNREACHABLE; // was not an external slot
+	auto slot = findSlot(ps, ss, false);
+	assert(slot); // was an external slot
+	return *slot;
 }
 
 void CartridgeSlotManager::testRemoveExternalSlot(
@@ -351,10 +347,7 @@ void CartridgeSlotManager::freeSlot(
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
-	return std::ranges::any_of(xrange(MAX_SLOTS), [&](auto slot) {
-		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
-		return slots[slot].exists() && (slots[slot].ps == ps) && (tmp == ss);
-	});
+	return findSlot(ps, ss, convert).has_value();
 }
 
 std::string CartridgeSlotManager::insertCartridge(

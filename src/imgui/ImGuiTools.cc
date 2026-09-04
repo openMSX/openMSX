@@ -4,12 +4,14 @@
 #include "ImGuiConsole.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiDiskManipulator.hh"
+#include "ImGuiIoPorts.hh"
 #include "ImGuiKeyboard.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiMessages.hh"
 #include "ImGuiMsxMusicViewer.hh"
 #include "ImGuiPlotterViewer.hh"
 #include "ImGuiSCCViewer.hh"
+#include "ImGuiSlotMap.hh"
 #include "ImGuiTrainer.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiWaveViewer.hh"
@@ -146,6 +148,11 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show);
 		ImGui::MenuItem("Plotter viewer", nullptr, &manager.plotterViewer->show);
 		simpleToolTip("The plotter should be plugged into the printer port");
+		ImGui::MenuItem("Slot map", nullptr, &manager.slotMap->show);
+		simpleToolTip("Show which devices are visible in which slot/page. "
+		              "Same information as the 'slotmap' console command.");
+		ImGui::MenuItem("I/O ports", nullptr, &manager.ioPorts->show);
+		simpleToolTip("Shows which device is connected to which I/O port");
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{
@@ -184,7 +191,9 @@ bool ImGuiTools::screenshotNameExists() const
 void ImGuiTools::generateScreenshotName()
 {
 	if (auto result = manager.execute(makeTclList("guess_title", "openmsx"))) {
-		screenshotName = result->getString();
+		// 'guess_title' returns free-form text read from the MSX software,
+		// it can contain characters that are invalid in a filename.
+		screenshotName = FileOperations::cleanFilename(result->getString());
 	}
 	if (screenshotName.empty()) {
 		screenshotName = "openmsx";

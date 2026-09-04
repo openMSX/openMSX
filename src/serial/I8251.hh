@@ -43,6 +43,8 @@ public:
 	[[nodiscard]] ClockPin& getClockPin() { return clock; }
 	[[nodiscard]] bool isRecvReady() const { return recvReady; }
 	[[nodiscard]] bool isRecvEnabled() const;
+	[[nodiscard]] bool isRecvFull() const;
+	[[nodiscard]] unsigned getBaudRateFactor() const;
 
 	// SerialDataInterface
 	void setDataBits(DataBits bits) override { recvDataBits = bits; }

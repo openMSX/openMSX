@@ -22,6 +22,7 @@
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
+      <level_2_via>only_level_1</level_2_via> <!-- checked on hardware by Jun Nishikawa using kanjitest v3.1 -->
     </Kanji>
 
     <PPI id="ppi">

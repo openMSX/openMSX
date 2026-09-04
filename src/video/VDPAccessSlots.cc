@@ -1,12 +1,17 @@
 #include "VDPAccessSlots.hh"
 
+#include "one_of.hh"
+
+#include <algorithm>
 #include <array>
+#include <bitset>
+#include <cassert>
 #include <utility>
 
 namespace openmsx::VDPAccessSlots {
 
 // These tables must contain at least one value that is bigger or equal
-// to 1368+136. So we extend the data with some cyclic duplicates.
+// to 1368+132. So we extend the data with some cyclic duplicates.
 
 // Screen rendering disabled (or vertical border).
 // This is correct (measured on real V9938) for bitmap and character mode.
@@ -151,22 +156,91 @@ protected:
 	std::array<uint8_t, NUM_DELTAS * TICKS> values = {};
 };
 
+/** Extra timing properties of a slot table, based on the investigation
+  * documented here:
+  *     https://github.com/sndpl/openMSX/pull/5
+  *
+  * 'stretch1' / 'stretch2': 2 of the VDP's memory cycles are 10 cycles long
+  * where all the others in that part of the line are 8. The access slots in the
+  * horizontal blanking region are 10 apart there, and the /CAS of those two
+  * slots follows their /RAS by 2 cycles instead of 1. The command engine's
+  * delay counter does not see those 4 cycles, so a delay that spans them takes
+  * 4 more real cycles to be satisfied. The two values are the slots at which
+  * each stretch has completed, i.e. an interval (from, to] costs 2 cycles less
+  * per stretch it contains. 0 means 'not applicable to this table'.
+  * The underlying reason for this mechanism are the S1/S0 bits in R#9. With these
+  * the VDP switches between 1368 and 1365 cycles per line (this is not emulated).
+  * And then in 1368-mode, parts of the VDP 'stall' including the command engine
+  * part.
+  *
+  * 'extra': added to every command engine step. Sprite rendering costs one
+  * extra cycle, as if the arbitration decision for a slot were taken one cycle
+  * earlier while the sprite fetch logic is active. (In earlier versions we
+  * emulated this with 'sprOn' specific values timing values in LMMM and HMMM).
+  *
+  * Both only apply to the V99x8 bitmap tables; the character, text and MSX1
+  * tables have never been measured this way and are left alone. */
+struct Timing {
+	int stretch1 = 0;
+	int stretch2 = 0;
+	int extra = 0;
+};
+
 struct CycleTable : AccessTable
 {
-	constexpr CycleTable(bool msx1, std::span<const int16_t> slots)
+	constexpr CycleTable(bool msx1, std::span<const int16_t> slots,
+	                     Timing timing = {})
 	{
+		assert(std::ranges::is_sorted(slots));
+
 		// !!! Keep this in sync with the 'Delta' enum !!!
 		constexpr std::array<int, NUM_DELTAS> delta = {
-			0, 1, 16, 24, 28, 32, 40, 48, 64, 72, 88, 104, 120, 128, 136
+			0, 1, 16, 28, 24, 32, 36, 46, 60, 72, 84, 88, 36+68, 84+36, 60+68, 72+58
 		};
 
+		// Distance from cycle 'i' to slot 's' as the command engine counts it.
+		auto dist = [&](int i, int s) {
+			int d = s - i;
+			if ((i < timing.stretch1) && (timing.stretch1 <= s)) d -= 2;
+			if ((i < timing.stretch2) && (timing.stretch2 <= s)) d -= 2;
+			return d;
+		};
+
+		// Which slots follow another slot after only 6 cycles? Only the
+		// sprites-off table has such slots (25 of its 88 slots).
+		std::bitset<TICKS> tight;
+		static_vector<int16_t, 25> tightSlots;
+		for (auto i : xrange(slots.size())) {
+			auto s = slots[i];
+			if (s >= TICKS) break;
+			if ((i == 0) || (s < 6)) continue; // assume no tight slots wrap around 1368
+			auto p = slots[i - 1];
+			if ((p + 6) == s) {
+				tight[s] = true;
+				tightSlots.push_back(s);
+			}
+		}
+		assert(tightSlots.size() == one_of(0u, 25u));
+
 		size_t out = 0;
-		for (auto step : delta) {
+		for (auto idx : xrange(NUM_DELTAS)) {
+			bool cmd = (FIRST_CMD_DELTA <= idx) && (idx < LAST_CMD_DELTA);
+			bool cpu = (FIRST_CPU_DELTA <= idx) && (idx < LAST_CPU_DELTA);
+			int step = delta[idx] + (cmd ? timing.extra : 0);
 			int p = 0;
-			while (slots[p] < step) ++p;
 			for (auto i : xrange(TICKS)) {
-				if ((slots[p] - i) < step) ++p;
-				assert((slots[p] - i) >= step);
+				// 'dist' is not monotonic in 'i' at the stretched slots, so
+				// the search can occasionally have to step back one slot.
+				auto ok = [&](int q) {
+					// The CPU never gets one of the tight slots: the VDP
+					// spends it on a dummy read and does the CPU's access in
+					// the next slot.
+					if (cpu && tight[slots[q] % TICKS]) return false;
+					return cmd ? (dist(i, slots[q]) >= step)
+					           : ((slots[q] - i) >= step);
+				};
+				while (!ok(p)) ++p;
+				while ((p > 0) && ok(p - 1)) --p;
 				unsigned t = slots[p] - i;
 				if (msx1) {
 					if (step <= 40) assert(t < 256);
@@ -176,6 +250,18 @@ struct CycleTable : AccessTable
 				values[out++] = narrow_cast<uint8_t>(t);
 			}
 		}
+		// A memory cycle that starts only 6 cycles after the previous
+		// one finishes one cycle late as far as the command engine is
+		// concerned, so a step that starts there needs one extra cycle,
+		// which is the same as starting one cycle later. All the tight
+		// slots are in the display area, far away from the stretched
+		// memory cycles, so the shift is exact.
+		for (auto idx : xrange(FIRST_CMD_DELTA, LAST_CMD_DELTA)) {
+			for (auto ts : tightSlots) {
+				size_t b = (size_t(idx) * TICKS) + ts;
+				values[b] = narrow_cast<uint8_t>(values[b + 1] + 1);
+			}
+		}
 	}
 };
 
@@ -183,15 +269,15 @@ struct ZeroTable : AccessTable
 {
 };
 
-static constexpr CycleTable tabSpritesOn     (false, slotsSpritesOn);
-static constexpr CycleTable tabSpritesOff    (false, slotsSpritesOff);
-static constexpr CycleTable tabChar          (false, slotsChar);
-static constexpr CycleTable tabText          (false, slotsText);
-static constexpr CycleTable tabScreenOff     (false, slotsScreenOff);
-static constexpr CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
-static constexpr CycleTable tabMsx1Gfx3      (true,  slotsMsx1Gfx3);
-static constexpr CycleTable tabMsx1Text      (true,  slotsMsx1Text);
-static constexpr CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
+static constexpr CycleTable tabSpritesOn    {false, slotsSpritesOn,  Timing{.stretch1 = 1332, .stretch2 = 1342, .extra = 1}};
+static constexpr CycleTable tabSpritesOff   {false, slotsSpritesOff, Timing{.stretch1 = 1332, .stretch2 = 1342, .extra = 0}};
+static constexpr CycleTable tabChar         {false, slotsChar};
+static constexpr CycleTable tabText         {false, slotsText};
+static constexpr CycleTable tabScreenOff    {false, slotsScreenOff,  Timing{.stretch1 = 1334, .stretch2 = 1344, .extra = 0}};
+static constexpr CycleTable tabMsx1Gfx12    {true,  slotsMsx1Gfx12};
+static constexpr CycleTable tabMsx1Gfx3     {true,  slotsMsx1Gfx3};
+static constexpr CycleTable tabMsx1Text     {true,  slotsMsx1Text};
+static constexpr CycleTable tabMsx1ScreenOff{true,  slotsMsx1ScreenOff};
 static constexpr ZeroTable  tabBroken;
 
 

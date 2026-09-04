@@ -6,7 +6,7 @@
     <manufacturer>MSXPi (https://github.com/costarc/MSXPi)</manufacturer>
     <code/>
     <release_year/>
-    <description>MSXPi is an extension for openMSX that emulates the MSXPi hardware interface, enabling an MSX computer to interact with modern systems. Unlike the physical version, the emulated interface does not require a Raspberry Pi — it communicates with a Python-based server component that provides access to web resources, files, REST APIs, and other external services.</description>
+    <description>MSXPi is an extension for openMSX that emulates the MSXPi hardware interface, enabling an MSX computer to interact with modern systems. Unlike the physical version, the emulated interface does not require a Raspberry Pi — it communicates with a Python-based server component that provides access to web resources, files, REST APIs, and other external services. Newer versions of the msxpibios.rom and the corresponding MSXPi server can be downloaded from the MSXPi repository at https://github.com/costarc/MSXPi/tree/master/software.</description>
     <type>pluggable</type>
   </info>
   <devices>
@@ -20,7 +20,8 @@
         <ROM id="MSXPi BIOS">
           <mem base="0x4000" size="0x4000"/>
           <rom>
-            <sha1>c429077a5f58b006125247a67783ea4ea6fb7389</sha1>
+            <sha1>3cfffa59afef160439085a8a496953edcaeb0662</sha1> <!-- Build 1.5.20260808.020 - BASIC BIOS and MSX-DOS1-->
+            <sha1>c429077a5f58b006125247a67783ea4ea6fb7389</sha1> <!-- Build 1.2.20250923.792 - BASIC BIOS only-->
             <filename>msxpibios.rom</filename>
           </rom>
         </ROM>

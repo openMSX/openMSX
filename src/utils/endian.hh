@@ -212,6 +212,8 @@ template<bool SWAP, std::integral T> [[nodiscard]] static ALWAYS_INLINE T read_U
 
 class UA_B16 {
 public:
+	UA_B16() = default; // leave uninitialized
+	UA_B16(uint16_t a) { write_UA_B16(x.data(), a); }
 	[[nodiscard]] operator uint16_t() const { return read_UA_B16(x.data()); }
 	UA_B16& operator=(uint16_t a) { write_UA_B16(x.data(), a); return *this; }
 private:
@@ -220,6 +222,8 @@ private:
 
 class UA_L16 {
 public:
+	UA_L16() = default; // leave uninitialized
+	UA_L16(uint16_t a) { write_UA_L16(x.data(), a); }
 	[[nodiscard]] operator uint16_t() const { return read_UA_L16(x.data()); }
 	UA_L16& operator=(uint16_t a) { write_UA_L16(x.data(), a); return *this; }
 private:
@@ -228,6 +232,8 @@ private:
 
 class UA_L24 {
 public:
+	UA_L24() = default; // leave uninitialized
+	UA_L24(uint32_t a) { write_UA_L24(x.data(), a); }
 	[[nodiscard]] operator uint32_t() const { return read_UA_L24(x.data()); }
 	UA_L24& operator=(uint32_t a) { write_UA_L24(x.data(), a); return *this; }
 private:
@@ -236,6 +242,8 @@ private:
 
 class UA_B32 {
 public:
+	UA_B32() = default; // leave uninitialized
+	UA_B32(uint32_t a) { write_UA_B32(x.data(), a); }
 	[[nodiscard]] operator uint32_t() const { return read_UA_B32(x.data()); }
 	UA_B32& operator=(uint32_t a) { write_UA_B32(x.data(), a); return *this; }
 private:
@@ -244,6 +252,8 @@ private:
 
 class UA_L32 {
 public:
+	UA_L32() = default; // leave uninitialized
+	UA_L32(uint32_t a) { write_UA_L32(x.data(), a); }
 	[[nodiscard]] operator uint32_t() const { return read_UA_L32(x.data()); }
 	UA_L32& operator=(uint32_t a) { write_UA_L32(x.data(), a); return *this; }
 private:

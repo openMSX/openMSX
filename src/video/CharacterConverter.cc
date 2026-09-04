@@ -189,7 +189,7 @@ void CharacterConverter::renderText2(std::span<Pixel, 512> buf, int line) const
 	Pixel plainFg = palFg[vdp.getForegroundColor()];
 	Pixel plainBg = palFg[vdp.getBackgroundColor()];
 	Pixel blinkFg, blinkBg;
-	if (vdp.getBlinkState()) {
+	if (vdp.getBlinkState(line)) {
 		int fg = vdp.getBlinkForegroundColor();
 		blinkFg = palBg[fg ? fg : vdp.getBlinkBackgroundColor()];
 		blinkBg = palBg[vdp.getBlinkBackgroundColor()];

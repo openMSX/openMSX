@@ -365,22 +365,40 @@ proc typeload {type} {
 
 ######################################################
 proc tapedeck {args} {
-	set isCas [expr {[string toupper [file extension [lindex $args end]]] eq ".CAS"}]
-	if {$isCas} {
+	set lastArgIsCas [expr {[string toupper [file extension [lindex $args end]]] eq ".CAS"}]
+
+	if {[llength $args] > 0} {
+
+		variable fidr
 
 		switch [lindex $args 0] {
-			eject         {caseject}
-			rewind        {caspos 1}
-			motorcontrol  {}
-			play          {}
-			record        {}
-			new           {cassave [lindex $args 1]}
-			insert        {casload [lindex $args 1]}
-			getpos        {}
-			getlength     {}
-			""            {}
-			default       {
-				casload {*}$args
+			eject  {caseject}
+			rewind { if {$fidr ne ""} {caspos 1} }
+			new    {
+					if {$lastArgIsCas} {
+						if {[llength $args] != 2} {
+							error "Wrong number of arguments for subcommand 'new'."
+						}
+						cassave [lindex $args end]
+						return
+					}
+				}
+		}
+
+		if {$lastArgIsCas} {
+			set insert false
+			if {[lindex $args 0] == "insert"} {
+				if {[llength $args] != 2} {
+					error "Wrong number of arguments for subcommand 'insert'."
+				} else {
+					set insert true
+				}
+			}
+			if {[llength $args] == 1} {
+				set insert true
+			}
+			if {$insert} {
+				casload [lindex $args end]
 				# for SVI we can't use the trick below, so use typeload
 				if {[expr {[machine_info type] eq "SVI" && $::autoruncassettes}]} {
 					lassign [seekpos 1] headerpos type
@@ -388,11 +406,9 @@ proc tapedeck {args} {
 				}
 			}
 		}
-	} else {
-		caseject
 	}
 
-	if {[expr {[machine_info type] ne "SVI" || !$isCas}]} {
+	if {[machine_info type] ne "SVI" || !$lastArgIsCas} {
 		# also insert the file in the normal openMSX cassetteplayer
 		# to trigger the behaviour that happens when we do (e.g. autoload)
 		# and of course to get normal behaviour for non-CAS files
