@@ -49,7 +49,7 @@ dep_threads = dependency('threads')
 dep_zlib = dependency('zlib')
 
 dep_gl = dependency('GL', required: get_option('glrenderer'))
-dep_glew = dependency('glew', required: get_option('glrenderer'))
+dep_epoxy = dependency('epoxy', required: get_option('glrenderer'))
 
 dep_ogg = dependency('ogg', required: get_option('laserdisc'))
 dep_theora = dependency('theoradec', required: get_option('laserdisc'))
@@ -69,7 +69,7 @@ components = {
         true,
     'GL':
         not get_option('glrenderer').disabled()
-        and dep_gl.found() and dep_glew.found(),
+        and dep_gl.found() and dep_epoxy.found(),
     'LASERDISC':
         not get_option('laserdisc').disabled()
         and dep_ogg.found() and dep_theora.found() and dep_vorbis.found(),
@@ -160,7 +160,7 @@ main_exec = executable(
     implicit_include_directories: false,
     include_directories: [incdirs, '.'],
     dependencies: [
-        dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
+        dep_alsa, dep_epoxy, dep_gl, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
     ],
 )
@@ -177,7 +177,7 @@ test_exec = executable(
     implicit_include_directories: false,
     include_directories: [incdirs, '.', 'Contrib/catch2'],
     dependencies: [
-        dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
+        dep_alsa, dep_epoxy, dep_gl, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
     ],
 )
