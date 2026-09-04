@@ -94,3 +94,24 @@ diff -ur libepoxy-1.5.10.orig/src/dispatch_wgl.c libepoxy-1.5.10/src/dispatch_wg
  
      case DLL_THREAD_ATTACH:
          data = LocalAlloc(LPTR, gl_tls_size);
+diff -ur libepoxy-1.5.10.orig/src/dispatch_common.c libepoxy-1.5.10/src/dispatch_common.c
+--- libepoxy-1.5.10.orig/src/dispatch_common.c
++++ libepoxy-1.5.10/src/dispatch_common.c
+@@ -295,12 +295,12 @@ get_dlopen_handle(void **handle, const char *lib_name, bool exit_on_fail, bool l
+     if (*handle)
+         return true;
+ 
+-    if (!library_initialized) {
+-        fputs("Attempting to dlopen() while in the dynamic linker.\n", stderr);
+-        abort();
+-    }
+-
+ #ifdef _WIN32
+     *handle = LoadLibraryA(lib_name);
+ #else
++    if (!library_initialized) {
++        fputs("Attempting to dlopen() while in the dynamic linker.\n", stderr);
++        abort();
++    }
++
+     pthread_mutex_lock(&api.mutex);
