@@ -230,7 +230,7 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		CPPFLAGS="$(_CFLAGS) -I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
 # Configure FreeType.
