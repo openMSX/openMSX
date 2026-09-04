@@ -19,6 +19,9 @@
 #include <termios.h>
 #include <unistd.h>
 #ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
+#if defined(__APPLE__) && TARGET_OS_OSX
 #include <IOKit/serial/ioss.h>
 #endif
 #endif
@@ -337,7 +340,7 @@ static void set_termios_baud(struct termios& tio, unsigned baud)
 static bool apply_custom_baud_post([[maybe_unused]] int fd, unsigned baud)
 {
 	if (baudToSpeedExact(baud) != B0) return true;
-#ifdef __APPLE__
+#if defined(__APPLE__) && TARGET_OS_OSX
 	int speed = static_cast<int>(baud);
 	return ioctl(fd, IOSSIOSPEED, &speed) >= 0;
 #else
