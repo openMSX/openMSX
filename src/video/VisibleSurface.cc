@@ -58,18 +58,6 @@ VisibleSurface::VisibleSurface(
 {
 	auto& renderSettings = display.getRenderSettings();
 
-	inputEventGenerator.getGrabInput().attach(*this);
-	renderSettings.getPointerHideDelaySetting().attach(*this);
-	renderSettings.getFullScreenSetting().attach(*this);
-	pauseSetting.attach(*this);
-
-	for (auto type : {EventType::MOUSE_MOTION,
-	                  EventType::MOUSE_BUTTON_DOWN,
-	                  EventType::MOUSE_BUTTON_UP,
-	                  EventType::IMGUI_ACTIVE}) {
-		eventDistributor.registerEventListener(type, *this);
-	}
-
 	updateCursor();
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
@@ -156,6 +144,19 @@ VisibleSurface::VisibleSurface(
 	glBindVertexArray(vao);
 #endif
 	inputEventGenerator.initializeGrab();
+
+	// Keep last: if the ctor throws, ~VisibleSurface won't run to detach.
+	inputEventGenerator.getGrabInput().attach(*this);
+	renderSettings.getPointerHideDelaySetting().attach(*this);
+	renderSettings.getFullScreenSetting().attach(*this);
+	pauseSetting.attach(*this);
+
+	for (auto type : {EventType::MOUSE_MOTION,
+	                  EventType::MOUSE_BUTTON_DOWN,
+	                  EventType::MOUSE_BUTTON_UP,
+	                  EventType::IMGUI_ACTIVE}) {
+		eventDistributor.registerEventListener(type, *this);
+	}
 }
 
 VisibleSurface::~VisibleSurface()
