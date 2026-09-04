@@ -184,6 +184,30 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		CC= LD= AR= RANLIB= STRIP=
 
 # Configure SDL2.
+ifeq ($(OPENMSX_TARGET_OS),darwin-ios)
+# SDL2's autotools build selects the macOS backends on an apple-darwin host; its
+# iOS support (UIKit video, CoreAudio) exists only in the CMake build. Ask CMake
+# for "Unix Makefiles" so the generic build and install rules below still apply.
+# SDL 2.32 still declares cmake_minimum_required(VERSION 3.0.0...3.10), which
+# CMake 4 refuses, hence CMAKE_POLICY_VERSION_MINIMUM.
+$(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
+  $(call installdeps,PKG_CONFIG)
+	mkdir -p $(@D)
+	cmake -S $(PWD)/$(<D) -B $(@D) -G "Unix Makefiles" \
+		-DCMAKE_SYSTEM_NAME=iOS \
+		-DCMAKE_OSX_SYSROOT="$(IOS_SYSROOT)" \
+		-DCMAKE_OSX_ARCHITECTURES=arm64 \
+		-DCMAKE_OSX_DEPLOYMENT_TARGET="$(IOS_MIN_VERSION)" \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+		-DSDL_SHARED=OFF \
+		-DSDL_STATIC=ON \
+		-DSDL_TEST=OFF \
+		-DSDL_OPENGL=OFF \
+		-DSDL_OPENGLES=ON \
+		-DCMAKE_INSTALL_PREFIX=$(PWD)/$(INSTALL_DIR) \
+		-DCMAKE_INSTALL_LIBDIR=lib
+else
 $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
   $(call installdeps,PKG_CONFIG)
@@ -205,6 +229,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+endif
 # Some modules are enabled because of internal SDL2 dependencies:
 # - "audio" depends on "atomic" and "threads"
 # - "joystick" depends on "haptic" (at least in the Windows back-end)
