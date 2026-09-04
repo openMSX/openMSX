@@ -30,7 +30,7 @@ namespace openmsx {
 	return "default";
 #else
 	const struct passwd* pw = getpwuid(getuid());
-	return pw->pw_name ? pw->pw_name : std::string{};
+	return (pw && pw->pw_name) ? pw->pw_name : std::string{};
 #endif
 }
 
