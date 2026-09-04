@@ -196,6 +196,9 @@ UNITTEST?=false
 # =====
 
 BUILD_PATH:=derived/$(PLATFORM)-$(OPENMSX_FLAVOUR)
+ifeq ($(OPENMSX_TARGET_OS),darwin-ios)
+  BUILD_PATH:=$(BUILD_PATH)$(IOS_BUILD_SUFFIX)
+endif
 ifeq ($(3RDPARTY_FLAG),true)
   BUILD_PATH:=$(BUILD_PATH)-3rd
 endif
