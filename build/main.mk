@@ -226,7 +226,7 @@ LIBRARY_FILE:=openmsx$(LIBRARYEXT)
 LIBRARY_PATH:=$(BUILD_PATH)/lib
 LIBRARY_FULL:=$(LIBRARY_PATH)/$(LIBRARY_FILE)
 
-ifeq ($(OPENMSX_TARGET_OS),android)
+ifneq ($(filter android darwin-ios,$(OPENMSX_TARGET_OS)),)
 MAIN_EXECUTABLE:=$(LIBRARY_FULL)
 else
 MAIN_EXECUTABLE:=$(BINARY_FULL)
@@ -523,7 +523,12 @@ endif # subset
 $(LIBRARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 	$(SUM) "Linking $(notdir $@)..."
 	$(CMD)mkdir -p $(@D)
+ifeq ($(OPENMSX_TARGET_OS),darwin-ios)
+	$(CMD)rm -f $@
+	$(CMD)ar rcs $@ $(filter %.o,$^)
+else
 	$(CMD)$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+endif
 
 # Run executable.
 run: all
