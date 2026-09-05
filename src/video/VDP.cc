@@ -278,6 +278,8 @@ void VDP::resetInit()
 	blinkState = false;
 	blinkCount = 0;
 	horizontalAdjust = 7;
+	displayStart = 0;
+	prevDisplayStart = 0;
 
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
@@ -535,6 +537,15 @@ void VDP::scheduleHScan(EmuTime time)
 	// Fortunately, no known program relies on this.
 	if (int ticksPerFrame = getTicksPerFrame();
 	    horizontalScanOffset >= ticksPerFrame) {
+		// This match belongs to the display line counter that was
+		// started one frame earlier, so it must be positioned relative
+		// to the display start of that frame. Usually that's the same
+		// position, but a program can move it, e.g. by toggling the
+		// 192/212 lines bit (R#9 bit 7) mid-frame. Without this
+		// correction, such a move makes a single line interrupt occur
+		// twice: once at the end of a frame and again shortly after the
+		// start of the next one. See issue #471.
+		horizontalScanOffset += prevDisplayStart - displayStart;
 		horizontalScanOffset -= ticksPerFrame;
 
 		// Time at which the internal VDP display line counter is reset,
@@ -623,6 +634,7 @@ void VDP::frameStart(EmuTime time)
 	frameStartTime.reset(time);
 	syncVSync.setSyncPoint(frameStartTime + getTicksPerFrame());
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
+	prevDisplayStart = displayStart; // the frame that just ended
 	scheduleDisplayStart(time);
 
 	// Inform VDP subcomponents.
@@ -1920,6 +1932,7 @@ int VDP::MsxX512PosInfo::calc(EmuTime time) const
 // version 8: removed 'userData' from Schedulable
 // version 9: update sprite-enabled-status only once per line
 // version 10: added writeAccess
+// version 11: added prevDisplayStart
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -2013,6 +2026,11 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		ar.serialize("writeAccess", writeAccess);
 	} else {
 		writeAccess = !cpuVramReqIsRead; // best guess
+	}
+	if (ar.versionAtLeast(serVersion, 11)) {
+		ar.serialize("prevDisplayStart", prevDisplayStart);
+	} else {
+		prevDisplayStart = displayStart; // best guess
 	}
 
 	// externalVideo does not need serializing. It is set on load by the

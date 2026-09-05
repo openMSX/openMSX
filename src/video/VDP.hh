@@ -1243,6 +1243,15 @@ private:
 	  */
 	int displayStart;
 
+	/** Value of 'displayStart' during the previous frame.
+	  * The display line counter that triggers the line interrupt is reset
+	  * at display start and keeps counting into the next frame (until it
+	  * is reset again in the top border). So a line interrupt that occurs
+	  * early in a frame belongs to the counter of the previous frame and
+	  * must be positioned relative to that frame's display start.
+	  */
+	int prevDisplayStart;
+
 	/** VDP ticks between start of frame and the moment horizontal
 	  * scan match occurs.
 	  */
@@ -1397,7 +1406,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 10);
+SERIALIZE_CLASS_VERSION(VDP, 11);
 
 } // namespace openmsx
 
