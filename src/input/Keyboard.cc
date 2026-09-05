@@ -878,6 +878,21 @@ void Keyboard::syncHostKeyMatrix(EmuTime time)
 	lastUnicodeForScancode.clear();
 }
 
+/*
+ * Is an Option key held that we present to the MSX as a modifier key, and that
+ * the host therefore must not also have used to pick an alternate character?
+ * Combinations with Command or Control are left alone, matching what SDL3 does
+ * for SDL_HINT_MAC_OPTION_AS_ALT.
+ */
+[[nodiscard]] static constexpr bool optionIsMsxModifier([[maybe_unused]] uint16_t mod)
+{
+#ifdef __APPLE__
+	return (mod & KMOD_ALT) && !(mod & (KMOD_GUI | KMOD_CTRL));
+#else
+	return false;
+#endif
+}
+
 uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 {
 	return modifierIsLock
@@ -1235,6 +1250,18 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			// combinations (e.g. digit on main keyboard or TAB/DEL).
 			// Use unicode to handle the more common combination and use direct
 			// matrix to matrix mapping for the exceptional cases (keypad).
+			unicode = 0;
+		} else if (optionIsMsxModifier(key.sym.mod)) {
+			// On macOS both Option keys are MSX modifier keys for us: left
+			// Option is GRAPH, right Option is CODE/KANA by default. But the
+			// host also uses Option to pick an alternate character from the
+			// keyboard layout, and it does so before we see the key: option+f
+			// arrives as U+0192 rather than 'f'. Whenever such a character
+			// happens to exist in the MSX character set, looking it up presses
+			// the keys that produce *that* character on the MSX instead of the
+			// key the user actually hit. Ignore the host's interpretation and
+			// fall back to key-to-matrix mapping, which is what SDL3 does for
+			// us via SDL_HINT_MAC_OPTION_AS_ALT.
 			unicode = 0;
 		} else {
 			unicode = keyEvent.getUnicode();
