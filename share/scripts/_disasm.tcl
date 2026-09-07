@@ -277,36 +277,32 @@ proc step_over {} {
 
 
 #
+# is_block_repeat
+#
+proc is_block_repeat {instr} {
+	expr {[string match "ldir*" $instr] || [string match "lddr*" $instr] ||
+	      [string match "cpir*" $instr] || [string match "cpdr*" $instr] ||
+	      [string match "inir*" $instr] || [string match "indr*" $instr] ||
+	      [string match "otir*" $instr] || [string match "otdr*" $instr]}
+}
+
+
+#
 # step_back
 #
 set_help_text step_back \
 {Step back. Go back in time till right before the last instruction was
 executed. Note that this operation is relatively slow (compared to the other
 step functions). Also the reverse feature must be enabled for this to work
-(normally it's enabled by default).}
-proc step_back {} {
-	# In the past this proc was implemented totally different. It's worth
-	# mentioning this old algorithm and explain why it wasn't good enough.
-	# The old algorithm went like this:
-	#  - take small steps back till we're not at the start instruction
-	#    anymore (this works because 'reverse goto' only stops after
-	#    emulating a full instruction)
-	# The problem was that on R800 it could take _many_ (more than 80)
-	# steps till the destination was reached.
-	#
-	# The current algorithm goes like this:
-	#  - take a large step back
-	#  - take small steps forward till we're back at the start
-	#  - we now know where the previous instruction started, so go there
-	#    (= take a small step back again)
-	#
-	# So the old algorithm takes (potentially) many backwards steps. While
-	# the new algorithm takes exactly 2 backwards steps and (potentially)
-	# many forward steps. In the current openMSX implementation, (small)
-	# forward steps are orders of magnitude faster than backwards steps (an
-	# optimization I added specifically for this use case). So the worst
-	# execution time should now be much better.
+(normally it's enabled by default).
 
+When the current instruction is a block repeat instruction (LDIR, LDDR,
+CPIR, CPDR, INIR, INDR, OTIR, OTDR), step_back will rewind to before the
+entire block instruction started (i.e. to the point before the first
+iteration), rather than just going back one iteration. This is also the
+case when the block sequence was interrupted by an IRQ: step_back still
+rewinds to the first iteration of the block execution.}
+proc step_back {} {
 	# 'z80' or 'r800'
 	set cpu [get_active_cpu]
 
@@ -359,8 +355,108 @@ proc step_back {} {
 	# The previous step was the correct one, so go back there.
 	# Note that (only here) we don't pass the '-novideo' flag
 	reverse goto $curr
-}
 
+	# Check if the instruction that is about to execute at this boundary is
+	# a block repeat instruction. This covers two cases:
+	#  * the current instruction IS the block: we just went back one
+	#    iteration, so [reg PC] still points to the block;
+	#  * the current instruction immediately follows a block (e.g. a RET
+	#    right after an LDIR): this boundary is the end of the block
+	#    execution, so [reg PC] points to the block that just finished.
+	# In both cases we rewind to before the first iteration of the block
+	# instruction instead of stopping at the end of the block.
+	if {[is_block_repeat [lindex [debug disasm [reg PC]] 0]]} {
+		# Measure the time per iteration of this block instruction.
+		set current_addr [reg PC]
+		set time_after_first [dict get [reverse status] "current"]
+		set time_per_iter [expr {$start - $time_after_first}]
+
+		# Safety: ensure we always make at least a tiny progress.
+		if {$time_per_iter < $cycle_period} {
+			set time_per_iter $cycle_period
+		}
+
+		# Go back past all iterations of the block instruction using
+		# exponential backoff (O(log N) reverse goback calls instead
+		# of O(N)). We double the goback amount each time until PC
+		# no longer points to the block instruction address.
+		set goback [expr {$time_per_iter * 8}]
+		while {[reg PC] == $current_addr} {
+			reverse goback -novideo $goback
+			set goback [expr {$goback * 2}]
+		}
+
+		# Now we're somewhere before the block. Step forward, one
+		# instruction at a time, until the timestamp reaches the
+		# original start time. Checking only for 'PC == current_addr'
+		# is not enough to identify the first iteration of the current
+		# block execution:
+		#  * When the block instruction is inside a loop, the same PC
+		#    is also executed at many earlier times (earlier passes).
+		#  * When an IRQ interrupted the block, the boundaries inside
+		#    the interrupt handler do not match the block address, so
+		#    the current execution may consist of multiple runs of
+		#    matching boundaries.
+		# The boundary where a block execution starts is the one just
+		# before its first matching boundary, where the loop counter is
+		# still at its initial (maximum) value. The counter is the BC
+		# pair (LDIR, LDDR, CPIR, CPDR) or the B register alone, with C
+		# being a fixed I/O port (INIR, INDR, OTIR, OTDR); either way
+		# [reg BC] strictly decreases as the block runs, since B is
+		# decremented each iteration. Only such a boundary is a valid
+		# landing point. Runs that resume after an IRQ do not qualify
+		# (their counter is lower), and earlier loop passes are
+		# overwritten by the current one, so the last qualifying
+		# candidate before the start time is the first iteration of the
+		# current block execution.
+		reverse goback -novideo $max_instr_len
+		set curr [dict get [reverse status] "current"]
+		set cand -1
+		set max_bc -1
+		set inrun 0
+		while {1} {
+			reverse goto -novideo [expr {$curr + $cycle_period}]
+			set next [dict get [reverse status] "current"]
+			set match [expr {[reg PC] == $current_addr}]
+			if {$match && !$inrun} {
+				# new run of block iterations starts here; keep it as
+				# a candidate only if the block counter is fresh, i.e.
+				# if this is the start of a (new) block execution.
+				#
+				# Note: record 'next' (the current boundary), not 'curr'
+				# (the boundary we advanced from). The block counter is
+				# loaded by the instruction immediately preceding the
+				# block (e.g. 'LD BC,<max>' just before an LDIR), so the
+				# first boundary where PC matches the block already has
+				# the initial counter value; that is the correct landing
+				# point. Recording 'curr' would land one instruction too
+				# early (before the counter is loaded).
+				set bc [reg BC]
+				if {$bc >= $max_bc} {
+					set cand $next
+					set max_bc $bc
+				}
+			}
+			set inrun $match
+			if {$next >= $start} {
+				# Time check: the original start time is reached.
+				# A PC match at an earlier time is not sufficient.
+				if {!$match && $cand < 0} {
+					# start time hit in the middle of a non-block
+					# instruction (e.g. when called from a
+					# watchpoint callback); land on the last
+					# boundary before the start time.
+					set cand $curr
+				}
+				break
+			}
+			set curr $next
+		}
+		if {$cand < 0} { set cand $curr }
+		# Note that (only here) we don't pass the '-novideo' flag
+		reverse goto $cand
+	}
+}
 
 #
 # skip one instruction
