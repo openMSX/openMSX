@@ -260,22 +260,35 @@ MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # Note: zlib's Makefile uses LDFLAGS to link its examples, not the library
 #       itself. If we mess with it, the build breaks.
 
-$(BUILD_DIR)/$(PACKAGE_EPOXY)/cross-defs.txt: build/meson-cross-config.sh
-	mkdir -p $(@D)
-	$< > $@
+# Configure epoxy.
+# Note: libepoxy only ships a meson build; build/3rdparty-epoxy.mk compiles
+#       it directly instead, so that meson and ninja are not needed to build
+#       openMSX. Which dispatch APIs are needed follows from the target OS,
+#       the same way libepoxy's own build system decides it: re-check this
+#       against libepoxy's src/meson.build when updating the version.
+ifeq ($(TRIPLE_OS),mingw32)
+EPOXY_APIS:=gl wgl
+else
+ifeq ($(TRIPLE_OS),darwin)
+EPOXY_APIS:=gl
+else
+EPOXY_APIS:=gl glx egl
+endif
+endif
 
-# Configure epoxy
+# Note: libepoxy's own build compiles with -fno-strict-aliasing, so we do too.
+MAKEVAR_OVERRIDE_EPOXY:=\
+	SRC_DIR="$(PWD)/$(SOURCE_DIR)/$(PACKAGE_EPOXY)" \
+	INSTALL_DIR="$(PWD)/$(INSTALL_DIR)" \
+	PYTHON="$(PYTHON)" \
+	EPOXY_APIS="$(EPOXY_APIS)" \
+	CFLAGS="$(_CFLAGS) -fno-strict-aliasing"
+
 $(BUILD_DIR)/$(PACKAGE_EPOXY)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_EPOXY)/.extracted \
-  $(BUILD_DIR)/$(PACKAGE_EPOXY)/cross-defs.txt \
-  $(call installdeps,PKG_CONFIG) \
-  build/run-ninja.mk
-	meson setup $(BUILD_DIR)/$(PACKAGE_EPOXY) $(SOURCE_DIR)/$(PACKAGE_EPOXY) \
-		--cross-file $(@D)/cross-defs.txt \
-		--prefix $(PWD)/$(INSTALL_DIR) \
-		--libdir lib \
-		--default-library static
-	cp build/run-ninja.mk $@
+  build/3rdparty-epoxy.mk
+	mkdir -p $(@D)
+	cp build/3rdparty-epoxy.mk $@
 
 # Configure Tcl.
 # Note: Tcl 8.6 includes some bundled extensions. We don't want these and there
