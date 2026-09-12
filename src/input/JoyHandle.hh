@@ -66,7 +66,7 @@ private:
 	std::array<std::vector<BooleanInput>, 6> bindings; // calculated from 'configSetting'
 	struct AnalogStatus {
 		AnalogInput binding;
-		int value = 0;
+		float value = 0.0f;
 	};
 	std::vector<AnalogStatus> wheelBindings;
 
@@ -74,7 +74,7 @@ private:
 	const uint8_t id;
 	uint8_t status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	                 JOY_BUTTONA | JOY_BUTTONB;
-	int analogValue = 0;
+	float analogValue = 0.0f;
 };
 
 } // namespace openmsx

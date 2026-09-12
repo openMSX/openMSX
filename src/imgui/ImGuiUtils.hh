@@ -175,6 +175,7 @@ void simpleToolTip(std::invocable<> auto descFunc)
 	});
 }
 
+void HelpMarkerNewLine(std::string_view desc);
 void HelpMarker(std::string_view desc, float spacing = -1.0f);
 
 // Generate a distinct color for each given index.

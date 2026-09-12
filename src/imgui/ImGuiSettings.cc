@@ -984,7 +984,7 @@ static constexpr auto wheelButtonInside = strokeCollection<int16_t>(
 	openPath(from(-164,-243), curve(-164,-236, -207,-238, -207,-245)),
 	openPath(from(164,-243), curve(164,-236, 207,-238, 207,-245)));
 
-static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow, int analogValue)
+static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow, float analogValue)
 {
 	static constexpr ImU32 eraseColor = IM_COL32(0, 0, 0, 1); // alpha=0 is optimized away by ImGui, instead use alpha=1
 	auto color = getColor(imColor::TEXT);
@@ -1022,7 +1022,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow, i
 	// populate draw list with steering wheel shapes
 	ScaleTransform transform{scale};
 
-	float angle = float(analogValue) * (30.0f / 180.0f * float(Math::pi) / 32768);
+	float angle = analogValue * (30.0f / 180.0f * float(Math::pi));
 	auto wheelTransform = makeAffineTransform(angle, scale, gl::vec2{453, 317} * scale);
 
 	drawPathStrokes<int16_t>(&dl, body, transform, color, thickness);
@@ -1184,7 +1184,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 				if (wheel && analogBindings.empty()) {
 					for (auto str : bindingList) {
 						if (auto a = parseAnalogInput(str)) {
-							analogBindings.emplace_back(*a, 0);
+							analogBindings.emplace_back(*a, 0.0f);
 						}
 					}
 				}
@@ -1236,7 +1236,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 				}
 			});
 		});
-		int analogValue = 0;
+		float analogValue = 0.0f;
 		if (anyWheel) {
 			for (auto& [b, v] : analogBindings) {
 				if (std::abs(v) > std::abs(analogValue)) {
@@ -1257,6 +1257,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 		if (ImGui::Button("Default bindings...")) {
 			ImGui::OpenPopup("bindings");
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Calibrate joystick axes")) showCalibrateJoystick = true;
 		im::Popup("bindings", [&]{
 			auto addOrSet = [&](auto getBindings) {
 				if (ImGui::MenuItem("Add to current bindings")) {
@@ -1372,7 +1374,6 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 				analogBindings.clear();
 			}
 		});
-		if (ImGui::Button("Mockup calibrate joystick axis")) showCalibrateJoystick = true;
 	});
 }
 
@@ -1444,28 +1445,15 @@ static void generateCurvePoints(
 
 void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
 {
-	static unsigned selectedJoystick = 0;
-	static unsigned selectedAxis = 0;
-	static float innerSetting  =  5000;
-	static float middleSetting = 25000;
-	static float outerSetting  = 30000;
-
-	auto inner  = innerSetting  * (1.0f / 32767);
-	auto middle = middleSetting * (1.0f / 32767);
-	auto outer  = outerSetting  * (1.0f / 32767);
-	auto f = std::log(0.5f) / std::log((middle - inner) / (outer - inner));
-
 	auto s = ImGui::GetFontSize();
 	ImGui::SetNextWindowSize(gl::vec2{32, 25} * s, ImGuiCond_FirstUseEver);
-	im::Window("[Mockup] Calibrate joysticks", &showCalibrateJoystick, [&]{
+	im::Window("Calibrate joysticks", &showCalibrateJoystick, [&]{
 		auto joysticks = joystickManager.getConnectedJoysticks();
 		bool disabled = joysticks.empty();
 		if (selectedJoystick >= joysticks.size()) selectedJoystick = 0;
-		auto numAxes = disabled ? 0 : joystickManager.getNumAxes(joysticks[selectedJoystick]).value_or(0);
-		if (selectedAxis > numAxes) selectedAxis = 0;
-		auto axisValue = disabled ? 0 : joystickManager.getAxis(joysticks[selectedJoystick], int(selectedAxis)).value_or(0);
 
 		im::Disabled(disabled, [&]{
+			auto* settings = disabled ? nullptr : joystickManager.getSettings(joysticks[selectedJoystick]);
 			im::Table("##table", 2, [&]{
 				ImGui::TableSetupColumn("joystick", ImGuiTableColumnFlags_WidthFixed, 18.0f * s);
 				ImGui::TableSetupColumn("values");
@@ -1481,123 +1469,170 @@ void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
 							}
 						}
 					});
-					im::Indent([&]{
-						auto axisName = [](unsigned i) {
-							return i == unsigned(-1) ? "ALL" : strCat(i);
-						};
-						im::Combo("Axis", axisName(selectedAxis).c_str(), [&]{
-							if (ImGui::Selectable("ALL", selectedAxis == unsigned(-1))) {
-								selectedAxis = unsigned(-1);
-							}
-							for (auto i : xrange(numAxes)) {
-								if (ImGui::Selectable(tmpStrCat(i).c_str(), selectedAxis == i)) {
-									selectedAxis = i;
-								}
-							}
-						});
+					im::DisabledIndent(disabled, [&]{
+						if (ImGui::Button("Restore default")) {
+							auto restore = [](Setting& setting) {
+								setting.setValue(setting.getDefaultValue());
+							};
+							assert(settings);
+							restore(*settings->deadZoneSetting);
+							restore(*settings->midPointSetting);
+							restore(*settings->saturationSetting);
+						}
 					});
+					HelpMarkerNewLine(
+						"Set the translation curve from host joystick-axis raw-input to how openMSX sees it.\n"
+						"\n"
+						"Try changing the settings by dragging the 3 vertical lines.\n"
+						"\n"
+						"The most important setting is \"deadzone\". For most MSX input devices this is the "
+						"only setting that matters. Only for the FS-JH1 steering wheel the \"middle\" and "
+						"\"saturation\" settings can also be relevant.");
 				}
 				if (ImGui::TableNextColumn()) {
-					ImGui::SetNextItemWidth(4.0f * s);
-					if (ImGui::InputFloat("inner dead zone", &innerSetting, {}, {}, "%.0f")) {
-						innerSetting = std::clamp(innerSetting, 0.0f, middleSetting - 1.0f);
-					}
-					ImGui::SetNextItemWidth(4.0f * s);
-					if (ImGui::InputFloat("halfway value", &middleSetting, {}, {}, "%.0f")) {
-						middleSetting = std::clamp(middleSetting, innerSetting + 1.0f, outerSetting - 1.0f);
-					}
-					ImGui::SetNextItemWidth(4.0f * s);
-					if (ImGui::InputFloat("outer dead zone", &outerSetting, {}, {}, "%.0f")) {
-						outerSetting = std::clamp(outerSetting, middleSetting + 1.0f, 32767.0f);
-					}
+					im::Disabled(disabled, [&]{
+						float inner  = settings ? settings->deadZoneSetting  ->getFloat() : 25.0f;
+						float middle = settings ? settings->midPointSetting  ->getFloat() : 75.0f;
+						float outer  = settings ? settings->saturationSetting->getFloat() : 90.0f;
+						ImGui::SetNextItemWidth(2.0f * s);
+						if (ImGui::InputFloat("deadzone", &inner, {}, {}, "%.0f")) {
+							inner = std::clamp(inner, 0.0f, middle - 0.1f);
+							settings->deadZoneSetting->setFloat(inner);
+						}
+						ImGui::SetNextItemWidth(2.0f * s);
+						if (ImGui::InputFloat("midpoint", &middle, {}, {}, "%.0f")) {
+							middle = std::clamp(middle, inner + 0.1f, outer - 0.1f);
+							settings->midPointSetting->setFloat(middle);
+						}
+						ImGui::SetNextItemWidth(2.0f * s);
+						if (ImGui::InputFloat("saturation", &outer, {}, {}, "%.0f")) {
+							outer = std::clamp(outer, middle + 0.1f, 100.0f);
+							settings->saturationSetting->setFloat(outer);
+						}
+					});
 				}
 			});
+
+			auto inner  = settings ? (settings->deadZoneSetting  ->getFloat() * (1.0f / 100.0f)) : 0.25f;
+			auto middle = settings ? (settings->midPointSetting  ->getFloat() * (1.0f / 100.0f)) : 0.75f;
+			auto outer  = settings ? (settings->saturationSetting->getFloat() * (1.0f / 100.0f)) : 0.90f;
+
+			gl::vec2 pos = ImGui::GetCursorScreenPos();
+			gl::vec2 size = ImGui::GetContentRegionAvail();
+			auto* drawList = ImGui::GetWindowDrawList();
+			auto white = getColor(imColor::TEXT);
+			auto gray  = getColor(imColor::TEXT_DISABLED);
+
+			std::string_view xLabel = "raw input";
+			std::string_view yLabel = "output";
+			auto xTextSize = ImGui::CalcTextSize(xLabel);
+			auto yTextSize = ImGui::CalcTextSize(yLabel);
+			auto unit = xTextSize.y * 0.5f;
+			auto origin = pos + gl::vec2{3 * unit, size.y - 3 * unit};
+			drawList->AddText(pos + gl::vec2{(size.x - xTextSize.x) * 0.5f, size.y - xTextSize.y}, white, xLabel.data(), xLabel.data() + xLabel.size());
+			verticalText(drawList, pos + gl::vec2{0, (size.y + yTextSize.x) * 0.5f}, white, yLabel);
+
+			auto arrowRight = gl::vec2{pos.x + size.x, origin.y};
+			auto arrowTop = gl::vec2{origin.x, pos.y};
+
+			auto graphMin = origin.x + 4 * unit;
+			auto graphMax = arrowRight.x - 4 * unit;
+			auto fullWidth = graphMax - graphMin;
+
+			auto graphLeft  = graphMin + inner  * fullWidth;
+			auto graphMidX  = graphMin + middle * fullWidth;
+			auto graphRight = graphMin + outer  * fullWidth;
+
+			auto graphTop = arrowTop.y + 2 * unit;
+			auto graphBottom = origin.y;
+			auto graphMidY = (graphTop + graphBottom) * 0.5f;
+			auto graphWidth = graphRight - graphLeft;
+			auto graphHeight = graphBottom - graphTop;
+
+			drawList->AddLine({origin.x, graphTop}, {arrowRight.x, graphTop}, gray);
+			drawList->AddLine({origin.x, graphMidY}, {arrowRight.x, graphMidY}, gray);
+			drawList->AddLine({graphMin, origin.y}, {graphMin, origin.y + unit}, gray);
+			drawList->AddLine({graphMax, origin.y}, {graphMax, origin.y + unit}, gray);
+
+			auto newLeft  = drawControlEdge("##inner",  {graphLeft,  graphTop}, graphHeight, graphHeight,        graphMin, graphMidX - 1);
+			auto newMid   = drawControlEdge("##middle", {graphMidX,  graphTop}, graphHeight, graphHeight * 0.5f, graphLeft + 1, graphRight - 1);
+			auto newRight = drawControlEdge("##outer",  {graphRight, graphTop}, graphHeight, 0,                  graphMidX + 1, graphMax);
+			bool changed = false;
+			if (newLeft != graphLeft) {
+				changed = true;
+				auto old = inner;
+				inner  = std::clamp(((newLeft - graphMin) / fullWidth), 0.0f, 1.0f);
+				middle = outer - ((outer - middle) * (outer - inner) / (outer - old));
+			}
+			if (newMid != graphMidX) {
+				changed = true;
+				middle = std::clamp(((newMid  - graphMin) / fullWidth), 0.0f, 1.0f);
+			}
+			if (newRight != graphRight) {
+				changed = true;
+				auto old = outer;
+				outer  = std::clamp(((newRight - graphMin) / fullWidth), 0.0f, 1.0f);
+				middle = inner + ((middle - inner) * (outer - inner) / (old - inner));
+			}
+			if (changed) {
+				assert(settings);
+				auto innerInt  = inner  * 100.0f;
+				auto middleInt = middle * 100.0f;
+				auto outerInt  = outer  * 100.0f;
+				innerInt  = std::clamp(innerInt, 0.0f, middleInt - 0.1f);
+				middleInt = std::clamp(middleInt, innerInt + 0.1f, outerInt - 0.1f);
+				outerInt  = std::clamp(outerInt, middleInt + 0.1f, 100.0f);
+				settings->deadZoneSetting  ->setFloat(innerInt);
+				settings->midPointSetting  ->setFloat(middleInt);
+				settings->saturationSetting->setFloat(outerInt);
+			}
+			auto f = std::log(0.5f) / std::log((middle - inner) / (outer - inner));
+
+			drawList->AddLine(arrowRight, origin - unit * gl::vec2{2, 0}, white, 2.0f);
+			drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1, -1}, white, 2.0f);
+			drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1,  1}, white, 2.0f);
+
+			drawList->AddLine(arrowTop, origin + unit * gl::vec2{0, 2}, white, 2.0f);
+			drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{-1, 1}, white, 2.0f);
+			drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{ 1, 1}, white, 2.0f);
+
+			std::vector<ImVec2> points;
+			points.reserve(40);
+			points.emplace_back(origin);
+			generateCurvePoints(
+				[&](float x) { return std::pow(x, f); },
+				[&](gl::vec2 p) { return p * gl::vec2{graphWidth, -graphHeight} + gl::vec2{graphLeft, origin.y}; },
+				0.0f, 1.0f, points);
+			points.emplace_back(arrowRight.x, graphTop);
+			drawList->AddPolyline(points.data(), points.size(), white, 4.0f);
+
+			auto numAxes = disabled ? 0 : joystickManager.getNumAxes(joysticks[selectedJoystick]).value_or(0);
+			for (auto axis : xrange(int(numAxes))) {
+				auto [r, g, b] = generateDistinctColor(axis);
+				ImU32 color = ImColor{r, g, b};
+
+				auto axisValue = joystickManager.getAxis(joysticks[selectedJoystick], axis).value_or(0);
+				auto input = float(std::abs(axisValue)) / 32768.0f;
+				auto output = pow(std::clamp((input - inner) / (outer - inner), 0.0f, 1.0f), f);
+
+				// annotation on curve/axis
+				auto cross = gl::vec2{graphMin + input * fullWidth, origin.y - output * graphHeight};
+				if (output > 0.0f) {
+					drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1, -1}, color, 2.0f);
+					drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1,  1}, color, 2.0f);
+				}
+				drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{-1, -1}, color, 2.0f);
+				drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{ 1, -1}, color, 2.0f);
+				drawList->AddLine(cross + unit * gl::vec2{-1, -1}, cross + unit * gl::vec2{1,  1}, color, 2.0f);
+				drawList->AddLine(cross + unit * gl::vec2{-1,  1}, cross + unit * gl::vec2{1, -1}, color, 2.0f);
+
+				// legend
+				auto lPos = gl::vec2{graphMin, graphTop + float(axis) * unit * 2.5f + unit};
+				drawList->AddRectFilled(lPos, lPos + gl::vec2{2.0f * unit}, color);
+				auto text = tmpStrCat("axis ", axis);
+				drawList->AddText(lPos + gl::vec2{3 * unit, 0.0f}, white, text.data(), text.data() + text.size());
+			}
 		});
-
-		//auto mouse = ImGui::GetIO().MousePos;
-		gl::vec2 pos = ImGui::GetCursorScreenPos();
-		gl::vec2 size = ImGui::GetContentRegionAvail();
-		auto* drawList = ImGui::GetWindowDrawList();
-		auto white = getColor(imColor::TEXT);
-		auto gray  = getColor(imColor::TEXT_DISABLED);
-		auto red   = getColor(imColor::ERROR);
-
-		std::string_view xLabel = "raw input";
-		std::string_view yLabel = "output";
-		auto xTextSize = ImGui::CalcTextSize(xLabel);
-		auto yTextSize = ImGui::CalcTextSize(yLabel);
-		auto unit = xTextSize.y * 0.5f;
-		auto origin = pos + gl::vec2{3 * unit, size.y - 3 * unit};
-		drawList->AddText(pos + gl::vec2{(size.x - xTextSize.x) * 0.5f, size.y - xTextSize.y}, white, xLabel.data(), xLabel.data() + xLabel.size());
-		verticalText(drawList, pos + gl::vec2{0, (size.y + yTextSize.x) * 0.5f}, white, yLabel);
-
-		auto arrowRight = gl::vec2{pos.x + size.x, origin.y};
-		auto arrowTop = gl::vec2{origin.x, pos.y};
-
-		auto graphMin = origin.x + 4 * unit;
-		auto graphMax = arrowRight.x - 4 * unit;
-		auto fullWidth = graphMax - graphMin;
-
-		auto graphLeft  = graphMin + inner  * fullWidth;
-		auto graphMidX  = graphMin + middle * fullWidth;
-		auto graphRight = graphMin + outer  * fullWidth;
-
-		auto graphTop = arrowTop.y + 2 * unit;
-		auto graphBottom = origin.y;
-		auto graphMidY = (graphTop + graphBottom) * 0.5f;
-		auto graphWidth = graphRight - graphLeft;
-		auto graphHeight = graphBottom - graphTop;
-
-		drawList->AddLine({origin.x, graphTop}, {arrowRight.x, graphTop}, gray);
-		drawList->AddLine({origin.x, graphMidY}, {arrowRight.x, graphMidY}, gray);
-		drawList->AddLine({graphMin, origin.y}, {graphMin, origin.y + unit}, gray);
-		drawList->AddLine({graphMax, origin.y}, {graphMax, origin.y + unit}, gray);
-
-		auto newLeft  = drawControlEdge("##inner",  {graphLeft,  graphTop}, graphHeight, graphHeight,        graphMin, graphMidX - 1);
-		auto newMid   = drawControlEdge("##middle", {graphMidX,  graphTop}, graphHeight, graphHeight * 0.5f, graphLeft + 1, graphRight - 1);
-		auto newRight = drawControlEdge("##outer",  {graphRight, graphTop}, graphHeight, 0,                  graphMidX + 1, graphMax);
-		if (newLeft != graphLeft) {
-			auto old = innerSetting;
-			innerSetting  = std::clamp(((newLeft - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
-			middleSetting = outerSetting - ((outerSetting - middleSetting) * (outerSetting - innerSetting) / (outerSetting - old));
-		}
-		if (newMid != graphMidX) {
-			middleSetting = std::clamp(((newMid  - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
-		}
-		if (newRight != graphRight) {
-			auto old = outerSetting;
-			outerSetting  = std::clamp(((newRight - graphMin) / fullWidth) * 32767.0f, 0.0f, 32767.0f);
-			middleSetting = innerSetting + ((middleSetting - innerSetting) * (outerSetting - innerSetting) / (old - innerSetting));
-		}
-
-		drawList->AddLine(arrowRight, origin - unit * gl::vec2{2, 0}, white, 2.0f);
-		drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1, -1}, white, 2.0f);
-		drawList->AddLine(arrowRight, arrowRight + unit * gl::vec2{-1,  1}, white, 2.0f);
-
-		drawList->AddLine(arrowTop, origin + unit * gl::vec2{0, 2}, white, 2.0f);
-		drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{-1, 1}, white, 2.0f);
-		drawList->AddLine(arrowTop, arrowTop + unit * gl::vec2{ 1, 1}, white, 2.0f);
-
-		//static constexpr int subDiv = 40;
-		std::vector<ImVec2> points;
-		points.reserve(40);
-		points.emplace_back(origin);
-		generateCurvePoints(
-			[&](float x) { return std::pow(x, f); },
-			[&](gl::vec2 p) { return p * gl::vec2{graphWidth, -graphHeight} + gl::vec2{graphLeft, origin.y}; },
-			0.0f, 1.0f, points);
-		points.emplace_back(arrowRight.x, graphTop);
-		drawList->AddPolyline(points.data(), points.size(), white, 4.0f);
-
-		auto input = float(std::abs(axisValue)) / 32768.0f; //std::clamp((mouse.x - graphMin) / fullWidth, 0.0f, 1.0f);
-		auto output = pow(std::clamp((input - inner) / (outer - inner), 0.0f, 1.0f), f);
-		auto cross = gl::vec2{graphMin + input * fullWidth, origin.y - output * graphHeight};
-		drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1, -1}, red, 2.0f);
-		drawList->AddLine({origin.x, cross.y}, gl::vec2{origin.x, cross.y} + unit * gl::vec2{1,  1}, red, 2.0f);
-		drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{-1, -1}, red, 2.0f);
-		drawList->AddLine({cross.x, origin.y}, gl::vec2{cross.x, origin.y} + unit * gl::vec2{ 1, -1}, red, 2.0f);
-		drawList->AddLine(cross + unit * gl::vec2{-1, -1}, cross + unit * gl::vec2{1,  1}, red, 2.0f);
-		drawList->AddLine(cross + unit * gl::vec2{-1,  1}, cross + unit * gl::vec2{1, -1}, red, 2.0f);
 	});
 }
 
@@ -1845,14 +1880,17 @@ std::span<const ImGuiSettings::FontInfo> ImGuiSettings::getAvailableFonts()
 
 bool ImGuiSettings::signalEvent(const Event& event)
 {
-	auto getJoyDeadZone = [&](JoystickId joyId) {
+	auto getJoyDeadThreshold = [&](JoystickId joyId) {
 		const auto& joyMan = manager.getReactor().getInputEventGenerator().getJoystickManager();
-		const auto* setting = joyMan.getJoyDeadZoneSetting(joyId);
-		return setting ? setting->getInt() : 0;
+		return joyMan.getJoyDeadThreshold(joyId);
+	};
+	auto getJoyValue = [&](JoystickId joyId, const JoystickAxisMotionEvent& e) {
+		const auto& joyMan = manager.getReactor().getInputEventGenerator().getJoystickManager();
+		return joyMan.getJoyValue(joyId, e);
 	};
 
 	for (auto& [binding, value] : analogBindings) {
-		if (auto v = match(binding, event, getJoyDeadZone)) {
+		if (auto v = match(binding, event, getJoyValue)) {
 			value = *v;
 		}
 	}
@@ -1876,11 +1914,11 @@ bool ImGuiSettings::signalEvent(const Event& event)
 
 		std::string bs;
 		if (wheel) {
-			auto b = captureAnalogInput(event, getJoyDeadZone);
+			auto b = captureAnalogInput(event, getJoyDeadThreshold);
 			if (!b) return true; // keep popup active
 			bs = toString(*b);
 		} else {
-			auto b = captureBooleanInput(event, getJoyDeadZone);
+			auto b = captureBooleanInput(event, getJoyDeadThreshold);
 			if (!b) return true; // keep popup active
 			bs = toString(*b);
 		}

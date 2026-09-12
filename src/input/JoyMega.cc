@@ -207,13 +207,12 @@ void JoyMega::signalMSXEvent(const Event& event, EmuTime time) noexcept
 	unsigned press = 0;
 	unsigned release = 0;
 
-	auto getJoyDeadZone = [&](JoystickId joyId) {
-		const auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
-		return setting ? setting->getInt() : 0;
+	auto getJoyDeadThreshold = [&](JoystickId joyId) {
+		return joystickManager.getJoyDeadThreshold(joyId);
 	};
 	for (int i : xrange(12)) {
 		for (const auto& binding : bindings[i]) {
-			if (auto onOff = match(binding, event, getJoyDeadZone)) {
+			if (auto onOff = match(binding, event, getJoyDeadThreshold)) {
 				(*onOff ? press : release) |= 1 << i;
 			}
 		}

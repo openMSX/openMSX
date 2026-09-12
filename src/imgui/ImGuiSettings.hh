@@ -68,11 +68,12 @@ private:
 
 	struct AnalogStatus {
 		AnalogInput binding;
-		int value = 0;
+		float value = 0.0f;
 	};
 	std::vector<AnalogStatus> analogBindings;
 
 	int selectedStyle = -1; // no style loaded yet
+	unsigned selectedJoystick = 0; // calibrate joystick
 	std::string saveLayoutName;
 
 	FileListWidget saveLayout;

@@ -57,12 +57,13 @@ using AnalogInput = std::variant<
 
 [[nodiscard]] std::string toString(const AnalogInput& input);
 [[nodiscard]] std::optional<AnalogInput> parseAnalogInput(std::string_view text);
-[[nodiscard]] std::optional<AnalogInput> captureAnalogInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadZone);
+[[nodiscard]] std::optional<AnalogInput> captureAnalogInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadThreshold);
 
 [[nodiscard]] bool operator==(const AnalogInput& x, const AnalogInput& y);
 
-[[nodiscard]] std::optional<int> match(const AnalogInput& binding, const Event& event,
-                                       function_ref<int(JoystickId)> getJoyDeadZone);
+[[nodiscard]] std::optional<float> match(
+	const AnalogInput& binding, const Event& event,
+	function_ref<float(JoystickId, const JoystickAxisMotionEvent&)> getJoyValue);
 
 } // namespace openmsx
 

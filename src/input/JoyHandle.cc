@@ -102,7 +102,7 @@ void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 				if (!bind) {
 					throw CommandException("Invalid binding: ", val);
 				}
-				newWheelBindings.emplace_back(*bind, 0);
+				newWheelBindings.emplace_back(*bind, 0.0f);
 			} else {
 				auto bind = parseBooleanInput(val);
 				if (!bind) {
@@ -138,7 +138,7 @@ void JoyHandle::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 
-	analogValue = 0;
+	analogValue = 0.0f;
 }
 
 void JoyHandle::unplugHelper(EmuTime /*time*/)
@@ -154,10 +154,9 @@ uint8_t JoyHandle::read(EmuTime time)
 	Clock<2> clock(EmuTime::zero()); // ticks at 2Hz
 	uint8_t cycle = clock.getTicksTill(time) & 1;
 
-	static constexpr int HALF = 20000; // TODO tune?
 	const uint8_t wheelStatus =
-	    ((analogValue < 0) && ((analogValue < -HALF) || (cycle == 1))) ? JOY_LEFT
-	  : ((analogValue > 0) && ((analogValue >  HALF) || (cycle == 1))) ? JOY_RIGHT
+	    ((analogValue < 0.0f) && ((analogValue < -0.5f) || (cycle == 1))) ? JOY_LEFT
+	  : ((analogValue > 0.0f) && ((analogValue >  0.5f) || (cycle == 1))) ? JOY_RIGHT
 	  : 0;
 	return status & ~wheelStatus;
 }
@@ -171,24 +170,26 @@ void JoyHandle::write(uint8_t /*value*/, EmuTime /*time*/)
 void JoyHandle::signalMSXEvent(const Event& event,
                                EmuTime time) noexcept
 {
-	auto getJoyDeadZone = [&](JoystickId joyId) {
-		const auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
-		return setting ? setting->getInt() : 0;
+	auto getJoyDeadThreshold = [&](JoystickId joyId) {
+		return joystickManager.getJoyDeadThreshold(joyId);
+	};
+	auto getJoyValue = [&](JoystickId joyId, const JoystickAxisMotionEvent& e) {
+		return joystickManager.getJoyValue(joyId, e);
 	};
 
 	uint8_t press = 0;
 	uint8_t release = 0;
 	for (int i : xrange(6)) {
 		for (const auto& binding : bindings[i]) {
-			if (auto onOff = match(binding, event, getJoyDeadZone)) {
+			if (auto onOff = match(binding, event, getJoyDeadThreshold)) {
 				(*onOff ? press : release) |= 1 << i;
 			}
 		}
 	}
 
-	int newAnalog = 0;
+	float newAnalog = 0;
 	for (auto& [binding, value] : wheelBindings) {
-		if (auto v = match(binding, event, getJoyDeadZone)) {
+		if (auto v = match(binding, event, getJoyValue)) {
 			value = *v;
 		}
 		if (std::abs(value) > std::abs(newAnalog)) {

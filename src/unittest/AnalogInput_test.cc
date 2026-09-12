@@ -47,9 +47,9 @@ TEST_CASE("AnalogInput: toString, parse")
 
 TEST_CASE("AnalogInput: capture")
 {
-	auto getJoyDeadZone = [](JoystickId /*joystick*/) { return 25; };
+	auto getJoyDeadThreshold = [](JoystickId /*joystick*/) { return 8192; };
 	auto check = [&](const Event& event, std::string_view expected) {
-		auto input = captureAnalogInput(event, getJoyDeadZone);
+		auto input = captureAnalogInput(event, getJoyDeadThreshold);
 		if (expected.empty()) {
 			CHECK(!input);
 		} else {
@@ -133,10 +133,12 @@ TEST_CASE("AnalogInput: match")
 	auto joyRight = JoystickAxisMotionEvent(sdl);
 
 	// check against various BooleanInputs
-	auto getJoyDeadZone = [](JoystickId /*joystick*/) { return 25; };
-	auto check = [&](const std::optional<AnalogInput>& binding, const Event& event, std::optional<int> expected) {
+	auto getJoyValue = [](JoystickId /*joystick*/, const JoystickAxisMotionEvent& e) {
+		return (std::abs(e.getValue()) > 25) ? float(e.getValue()) : 0.0f;
+	};
+	auto check = [&](const std::optional<AnalogInput>& binding, const Event& event, std::optional<float> expected) {
 		REQUIRE(binding);
-		CHECK(match(*binding, event, getJoyDeadZone) == expected);
+		CHECK(match(*binding, event, getJoyValue) == expected);
 	};
 
 	auto bMouseXaxis = parseAnalogInput("mouse X-axis");

@@ -56,7 +56,7 @@ std::optional<AnalogInput> parseAnalogInput(std::string_view text)
 }
 
 static constexpr int mouseThreshold = 5;
-std::optional<AnalogInput> captureAnalogInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadZone)
+std::optional<AnalogInput> captureAnalogInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadThreshold)
 {
 	return std::visit(overloaded{
 		[](const MouseMotionEvent& e) -> std::optional<AnalogInput> {
@@ -68,8 +68,7 @@ std::optional<AnalogInput> captureAnalogInput(const Event& event, function_ref<i
 		},
 		[&](const JoystickAxisMotionEvent& e) -> std::optional<AnalogInput> {
 			auto joyId = e.getJoystick();
-			int deadZone = getJoyDeadZone(joyId); // percentage 0..100
-			int threshold = (deadZone * 32768) / 100;
+			int threshold = getJoyDeadThreshold(joyId);
 			auto value = std::abs(e.getValue());
 			if (value <= threshold) return std::nullopt;
 			return AnalogJoystickAxis(joyId, e.getAxis());
@@ -97,25 +96,22 @@ bool operator==(const AnalogInput& x, const AnalogInput& y)
 }
 
 
-std::optional<int> match(const AnalogInput& binding, const Event& event,
-                          function_ref<int(JoystickId)> getJoyDeadZone)
+std::optional<float> match(const AnalogInput& binding, const Event& event,
+                          function_ref<float(JoystickId, const JoystickAxisMotionEvent&)> getJoyValue)
 {
 	return std::visit(overloaded{
-		[](const AnalogMouseAxis& bind, const MouseMotionEvent& mouse) -> std::optional<int> {
+		[](const AnalogMouseAxis& bind, const MouseMotionEvent& mouse) -> std::optional<float> {
 			auto a = bind.getAxis();
 			if (a != one_of(0, 1)) return std::nullopt;
 			auto d = a ? mouse.getY() : mouse.getX();
-			return (std::abs(d) < mouseThreshold) ? 0 : d;
+			return (std::abs(d) < mouseThreshold) ? 0.0f : float(d);
 		},
-		[&](const AnalogJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<int> {
+		[&](const AnalogJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<float> {
 			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
 			if (bind.getAxis() != e.getAxis()) return std::nullopt;
-			int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
-			int threshold = (deadZone * 32768) / 100;
-			int v = e.getValue();
-			return (std::abs(v) < threshold) ? 0 : v;
+			return getJoyValue(bind.getJoystick(), e);
 		},
-		[](const auto& /*bind*/, const auto& /*event*/) -> std::optional<int> {
+		[](const auto& /*bind*/, const auto& /*event*/) -> std::optional<float> {
 			return std::nullopt;
 		}
 	}, binding, event);

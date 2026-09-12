@@ -271,7 +271,7 @@ class JoyHandleState final : public StateChangeBase
 public:
 	JoyHandleState() = default; // for serialize
 	JoyHandleState(EmuTime time_, uint8_t id_,
-	               uint8_t press_, uint8_t release_, int analog_)
+	               uint8_t press_, uint8_t release_, float analog_)
 		: StateChangeBase(time_), id(id_)
 		, press(press_), release(release_), analog(analog_) {}
 
@@ -289,7 +289,7 @@ public:
 	}
 private:
 	uint8_t id, press, release;
-	int analog;
+	float analog;
 };
 
 
