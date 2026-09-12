@@ -661,7 +661,7 @@ static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const ScanCod
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler_,
                    CommandController& commandController_,
-                   EventDistributor& eventDistributor,
+                   EventDistributor& eventDistributor_,
                    MSXEventDistributor& msxEventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
                    Matrix matrix,
@@ -670,7 +670,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, eventDistributor(eventDistributor)
+	, eventDistributor(eventDistributor_)
 	, keyCodeTab (defaultKeyCodeMappings [matrix])
 	, scanCodeTab(defaultScanCodeMappings[matrix])
 	, modifierPos(modifierPosForMatrix[matrix])
@@ -956,7 +956,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 
 	// Check if the host keyboard is a Japanese keyboard. If so, ignore the GRAVE key.
 	// Reason:
-	// On Windows with a Japanese keyboard layout, the "Half-width/Full-width" key 
+	// On Windows with a Japanese keyboard layout, the "Half-width/Full-width" key
 	// does not send a release event. This causes the key to get stuck in a pressed state.
 	// This key is for switching input modes, but its physical location is the GRAVE key.
 	// Japanese MSX does not have a GRAVE key and does not use it, so we simply ignore it.
