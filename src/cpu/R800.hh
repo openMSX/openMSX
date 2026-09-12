@@ -137,7 +137,7 @@ protected:
 		// But 26/210 matches measurements much better
 		//   (loosely based on old measurements by Jon on his analogue scope)
 		EmuTime time = getTimeFast();
-		if (lastRefreshTime.getTicksTill_fast(time) >= 210) [[unlikely]] {
+		if (lastRefreshTime.getTicksTill(time) >= 210) [[unlikely]] {
 			R800RefreshSlow(time, R); // slow-path not inline
 		}
 	}
@@ -145,7 +145,7 @@ protected:
 	{
 		do {
 			lastRefreshTime += 210;
-		} while (lastRefreshTime.getTicksTill_fast(time) >= 210); [[unlikely]]
+		} while (lastRefreshTime.getTicksTill(time) >= 210); [[unlikely]]
 		waitForEvenCycle(0);
 		add(25);
 		R800ForcePageBreak(); // TODO check this

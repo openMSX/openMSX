@@ -119,7 +119,7 @@ public:
 		// The following is only required when switching from sprite
 		// mode0 to some other mode (in other case it has no effect).
 		// Because in mode 0, currentLine is not updated.
-		currentLine = narrow<int>(frameStartTime.getTicksTill_fast(time)
+		currentLine = narrow<int>(frameStartTime.getTicksTill(time)
 		                 / VDP::TICKS_PER_LINE);
 		// Every line in mode0 has 0 sprites, but none of the lines
 		// are ever requested by the renderer, except for the last
@@ -191,7 +191,7 @@ public:
 		// the display line. In reality, sprite checking is probably done
 		// during most of the line. Run tests on real MSX to make a more
 		// accurate model of sprite checking.
-		int limit = narrow<int>(frameStartTime.getTicksTill_fast(time)
+		int limit = narrow<int>(frameStartTime.getTicksTill(time)
 		               / VDP::TICKS_PER_LINE);
 		if (currentLine < limit) {
 			// Call the right update method for the current display mode.

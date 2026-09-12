@@ -5,8 +5,6 @@
 #include "EmuTime.hh"
 #include "serialize.hh"
 
-#include "DivModByConst.hh"
-
 #include <cassert>
 
 namespace openmsx {
@@ -57,22 +55,9 @@ public:
 	/** Calculate the number of ticks for this clock until the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	[[nodiscard]] constexpr unsigned getTicksTill(EmuTime e) const {
+	[[nodiscard]] constexpr uint64_t getTicksTill(EmuTime e) const {
 		assert(e.time >= lastTick.time);
-		uint64_t result = (e.time - lastTick.time) / MASTER_TICKS;
-#ifdef DEBUG
-		// we don't even want this overhead in devel builds
-		assert(result == unsigned(result));
-#endif
-		return unsigned(result);
-	}
-	/** Same as above, only faster, Though the time interval may not
-	  * be too large.
-	  */
-	[[nodiscard]] constexpr unsigned getTicksTill_fast(EmuTime e) const {
-		assert(e.time >= lastTick.time);
-		DivModByConst<MASTER_TICKS32> dm;
-		return dm.div(e.time - lastTick.time);
+		return (e.time - lastTick.time) / MASTER_TICKS;
 	}
 	/** Calculate the number of ticks this clock has to tick to reach
 	  * or go past the given time.
@@ -112,14 +97,6 @@ public:
 	constexpr void advance(EmuTime e) {
 		assert(lastTick.time <= e.time);
 		lastTick.time = e.time - ((e.time - lastTick.time) % MASTER_TICKS);
-	}
-	/** Same as above, only faster, Though the time interval may not
-	  * be too large.
-	  */
-	constexpr void advance_fast(EmuTime e) {
-		assert(lastTick.time <= e.time);
-		DivModByConst<MASTER_TICKS32> dm;
-		lastTick.time = e.time - dm.mod(e.time - lastTick.time);
 	}
 
 	/** Advance this clock by the given number of ticks.

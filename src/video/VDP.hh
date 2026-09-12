@@ -535,7 +535,7 @@ public:
 	  * a given time and the start of this frame.
 	  */
 	[[nodiscard]] int getTicksThisFrame(EmuTime time) const {
-		return narrow<int>(frameStartTime.getTicksTill_fast(time));
+		return narrow<int>(frameStartTime.getTicksTill(time));
 	}
 	[[nodiscard]] EmuTime getTimeInFrame(int ticks) const {
 		return frameStartTime + ticks;

@@ -357,7 +357,7 @@ EmuTime getAccessSlot(
 	const VDP& vdp)
 {
 	VDP::VDPClock frame(frame_);
-	unsigned ticks = frame.getTicksTill_fast(time) % TICKS;
+	unsigned ticks = frame.getTicksTill(time) % TICKS;
 	const auto& tab = getTable(vdp);
 	return time + VDP::VDPClock::duration(tab.values[std::to_underlying(delta) + ticks]);
 }

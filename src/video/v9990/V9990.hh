@@ -122,7 +122,7 @@ public:
 	  * @return      Number of UC ticks.
 	  */
 	[[nodiscard]] int getUCTicksThisFrame(EmuTime time) const {
-		return narrow<int>(frameStartTime.getTicksTill_fast(time));
+		return narrow<int>(frameStartTime.getTicksTill(time));
 	}
 
 	/** Is PAL timing active?

@@ -78,8 +78,8 @@ public:
 		assert(frame <= limit_);
 		// not required that time <= limit
 
-		ticks = narrow<int>(ref.getTicksTill_fast(time));
-		limit = narrow<int>(ref.getTicksTill_fast(limit_));
+		ticks = narrow<int>(ref.getTicksTill(time));
+		limit = narrow<int>(ref.getTicksTill(limit_));
 		int lines = ticks / TICKS;
 		ticks -= lines * TICKS;
 		limit -= lines * TICKS; // might be negative

@@ -871,7 +871,7 @@ void V9990::scheduleHscan(EmuTime time)
 		return;
 	}
 
-	int ticks = narrow<int>(frameStartTime.getTicksTill_fast(time));
+	int ticks = narrow<int>(frameStartTime.getTicksTill(time));
 	bool perLine = regs[INTERRUPT_2] & 0x80;
 	int offset = [&] {
 		if (perLine) {

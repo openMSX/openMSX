@@ -908,7 +908,7 @@ void VDP::scheduleV99x8VramAccess(bool isRead, EmuTime time)
 	// rather than an exact one.
 	EmuTime dummy = getAccessSlot(request, VDPAccessSlots::Delta::CPU_16_ANY);
 	if (dummy != slot) [[unlikely]] {
-		auto margin = VDPClock(request).getTicksTill_fast(dummy);
+		auto margin = VDPClock(request).getTicksTill(dummy);
 		if ((DUMMY_WINDOW_LO <= margin) && (margin < DUMMY_WINDOW_HI)) {
 			syncCpuVramDummy.setSyncPoint(dummy);
 		}
@@ -955,7 +955,7 @@ bool VDP::cpuRequestIsTooEarly(EmuTime request) const
 
 	if (request >= previousCpuSlot) {
 		// 0 to 4 cycles after it
-		int n = narrow<int>(VDPClock(previousCpuSlot).getTicksTill_fast(request));
+		int n = narrow<int>(VDPClock(previousCpuSlot).getTicksTill(request));
 		int distance = n ? (n - VDPAccessSlots::paddingCycles(
 		                            (tick - n + TICKS_PER_LINE) % TICKS_PER_LINE,
 		                            n, *this))
@@ -965,7 +965,7 @@ bool VDP::cpuRequestIsTooEarly(EmuTime request) const
 		// Before it, which only a late slot can accept, and only by one
 		// memory cycle. More than 5 cycles early is more than 2 memory
 		// cycles early whatever the padding does.
-		int n = narrow<int>(VDPClock(request).getTicksTill_fast(previousCpuSlot));
+		int n = narrow<int>(VDPClock(request).getTicksTill(previousCpuSlot));
 		if (n > VDPAccessSlots::MAX_PADDING_SPAN) return true;
 		int distance = -(n - VDPAccessSlots::paddingCycles(tick, n, *this));
 		return distance < threshold;
