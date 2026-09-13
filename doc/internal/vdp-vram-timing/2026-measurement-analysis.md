@@ -872,3 +872,141 @@ Not emulated, and why:
 * **the two clocks are asynchronous on real hardware** (5.96113 VDP cycles per T-state on
   the NMS 8280, section 8). openMSX runs them at exactly 6, so a request always lands on
   the same phase. Nothing to do about that here.
+
+## 17. The command start for the other six commands
+
+The `*i.vcd` captures add POINT, PSET, SRCH, LMCM, LMMC and HMMC, display off, fifteen
+captures each. Same method as section 11 -- the last `/CSW` of the register burst is the
+write to R#46, and the slot the first VRAM access lands in, against the slot before it that
+the command did not take, brackets the delay -- but with one improvement that matters here.
+
+Rounding each launch's `/CSW` edge to a whole cycle on its own makes a launch whose edge
+sits close to a cycle boundary round the wrong way, which is what left the earlier six with
+one or two dissenting launches each. Instead, all 328 launches of all twelve commands were
+fitted with **one shared real pin delay**: the arbiter sees the write at
+`floor(t_csw + phi)`, with the same `phi` for every launch, which is the constant the CPU's
+own requests pay. That has a clear optimum -- 4 of 328 launches unsatisfied at the best
+offset against 15 at the worst -- and at it every command pins to a single integer:
+
+| command | `S0` from `/CSW` | from the port-write timestamp | first access | launches |
+|---|---|---|---|---|
+| POINT | **45** | 63 | R source | 26/26 |
+| LMMM | **46** | 64 | R source | 21/21 |
+| LMCM | **58** | 76 | R source | 28/28 |
+| LMMV | **70** | 88 | R dest | 25/28 |
+| LMMC | **70** | 88 | R dest | 29/29 |
+| PSET | **70** | 88 | R dest | 28/28 |
+| SRCH | **70** | 88 | R source | 27/28 |
+| HMMM | **82** | 100 | R source | 27/27 |
+| YMMM | **82** | 100 | R source | 29/29 |
+| HMMV | **94** | 112 | W dest | 28/28 |
+| LINE | **94** | 112 | R dest | 28/28 |
+| HMMC | **94** | 112 | W dest | 28/28 |
+
+Eleven of the twelve are `46 + 12k`, so section 11's `S0 = 10 + 12N` survives with
+N = 3, 4, 5, 6, 7. **POINT is the exception**: 45, one cycle below LMMM, whose first access
+is the same source read. It is not a rounding artefact -- at the fitted `phi` the admissible
+band for POINT is the single value 45 over all 26 launches, and 46 is outside it.
+
+The groupings are suggestive and still unexplained. The value does not follow the operand
+(SRCH reads its source and sits with the three destination-read commands), nor the number of
+accesses per unit, nor the byte/pixel distinction, nor whether the command writes at all
+(POINT and SRCH both only ever read, and they are 25 cycles apart).
+
+For LMCM, LMMC and HMMC this is the startup only. Their transfer timing is a separate
+matter: openMSX performs the transfer access at the moment the byte arrives rather than at
+the next slot, which is a TODO that predates this work.
+
+## 18. Character and text modes
+
+The `*i.vcd` set also adds character and text captures: `noCpu` with R#9 S1/S0 = 0 and = 16,
+and `wrCpu` at 72 cycles, for screens 1, 2, 3 and 4 and for both text widths, each with the
+display off, sprites off and sprites on.
+
+Text mode has no refresh *chain*: `vdp-timing-2.html` measured that the text modes refresh
+differently, seven reads per line instead of eight and clustered at cycles 74 to 122 rather
+than spread over the line, so the row-incrementing 128-cycle chain the other modes give is
+not there. Two anchors are available instead, and they agree:
+
+* fold each capture on its own line marks, which leaves one unknown -- the offset of that
+  mark from cycle 0 -- and fit it. That is a one-parameter search and it is sharp;
+* or take the documented cluster directly: seven single accesses eight cycles apart, the
+  first at cycle 74.
+
+The captures confirm the cluster exactly -- 74, 82, 90, 98, 106, 114, 122, then the two
+dummy reads at 230 and 238 and the rendering groups from 246 in steps of 48, each
+`g, g+18, g+24, g+30, g+36, g+42` -- which is `vdp-timing-2.html` reproduced twelve years
+later on a different machine. Anchoring on the cluster instead of on the fitted mark puts
+90 to 95 % of the CPU writes on a `slotsText` slot and uses 46 of the 47, against the fit's
+100 % and 45: the same answer, the difference being that a run of CPU writes in the
+eight-apart slots can impersonate the cluster.
+
+**The slot tables are confirmed, including the text phase.** Folding every CPU write onto
+the line and sweeping the offset:
+
+| capture set | writes | on `slotsChar` | on `slotsText` | on the display-off table | slots used |
+|---|---|---|---|---|---|
+| screen 2, display off | 636 | **100 %** | 6 % | 94 % | 30/31 |
+| screen 2, sprites off | 626 | **100 %** | 6 % | 94 % | 30/31 |
+| screen 2, sprites on | 635 | **100 %** | 5 % | 95 % | 30/31 |
+| text 40, display off | 533 | 7 % | **100 %** | 0 % | 45/47 |
+| text 40, sprites off | 179 | 6 % | **99 %** | 0 % | 42/47 |
+| text 40, sprites on | 272 | 7 % | **100 %** | 0 % | 45/47 |
+| text 80, display off | 549 | 7 % | **100 %** | 0 % | 45/47 |
+| text 80, sprites off | 208 | 8 % | **100 %** | 0 % | 45/47 |
+| text 80, sprites on | 267 | 7 % | **100 %** | 0 % | 44/47 |
+
+The best offset is **166 in every one of the nine sets** -- the line mark sits at cycle 166,
+which is the first slot after the widest gap in both tables, so the fit is self-consistent
+as well as sharp. Pooled, 1896 of 1897 character-mode writes land on a `slotsChar` slot and
+all 31 slots are used; 2008 of 2010 text writes land on a `slotsText` slot and 45 of the 47
+are used (174 and 182 are never reached by a 72-cycle request train).
+
+That settles several things at once:
+
+* **`slotsText` is right as it stands, phase included.** The circuit model of the
+  measurement repository confirms the 47-slot cyclic structure but keeps a global
+  one-`phiL` phase ambiguity; this fixes the phase, and it is the one openMSX already has.
+* **TEXT1 and TEXT2 share the table**, as openMSX assumes.
+* **The character table does not change when sprites are disabled.** `vdp-timing-2.html`
+  lists this as unmeasured and guesses that the sprite bandwidth becomes available to the
+  CPU as it does in bitmap modes. It does not: sprites off scores exactly the same 100 % on
+  the unchanged table.
+* **Nor when the display is disabled**, in either character or text mode. For text that
+  answers the other open question in `vdp-timing-2.html`: screen-off in text mode is *not*
+  the common screen-off schema, it is the text schema (0 % of text writes land on the
+  display-off table). Both confirm what openMSX does after
+  [issue 1754](https://github.com/openMSX/openMSX/issues/1754).
+
+**Screen 4 has the same lattice as screens 1, 2 and 3.** Their line-end combs are identical
+except that screen 4 adds accesses at 1255 and 1319 -- the sprite-mode-2 attribute fetches
+-- and both fall in gaps that are not CPU slots in any of them. That is the third
+`vdp-timing-2.html` guess confirmed.
+
+**R#9 S1/S0 shortens the line in these modes too.** The raw `/RAS` line period needs no
+absolute scale to compare, and the ratio is the same everywhere:
+
+| mode | screen 1 | screen 2 | screen 3 | screen 4 | text 40 | text 80 |
+|---|---|---|---|---|---|---|
+| line at S1/S0 = 16 | 1365.04 | 1365.01 | 1364.94 | 1365.05 | 1364.96 | 1365.02 |
+
+In the character modes the positions are measurable, and they are not where the bitmap ones
+are. Comparing the two settings:
+
+```
+S1/S0 = 0    ... 1300 -6- 1306 -35- 1341 -11- 1352 -6- 1358 -10- 1368
+S1/S0 = 16   ... 1300 -6- 1306 -33- 1339 -10- 1349 -6- 1355 -10- 1365
+```
+
+so **+2 completing at 1341 and +1 at 1352**, identical in screens 1, 2, 3 and 4. As in the
+bitmap modes the two settings differ by 3 while the total is probably 4, and the fourth
+cycle cannot be located without an unpadded reference. Not implemented: `tabChar` has no
+padding today, and the CPU's lookahead is the only thing in those modes that would notice.
+
+For text the positions are narrowed but not pinned. Anchored on the refresh cluster, every
+access from 74 through the last rendering read at 1200 sits at an **identical** position in
+both settings, so all three cycles are removed between cycle 1200 and the next line's
+cluster at 74 -- the right blanking region, which is where the bitmap and character ones
+are too. Pinning them further needs an access inside that region: the CPU slots at 1206 to
+1362 are there, so a text `wrCpu` capture with S1/S0 = 16 would do it, where the `noCpu`
+captures that exist cannot.
