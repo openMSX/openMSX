@@ -759,7 +759,7 @@ void VDPCmdEngine::startPoint(EmuTime time)
 {
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
-	nextAccessSlot(time);
+	nextAccessSlot(time, VDPAccessSlots::Delta::CMD_START_63);
 	setStatusChangeTime(EmuTime::zero()); // will finish soon
 }
 
@@ -783,7 +783,7 @@ void VDPCmdEngine::startPset(EmuTime time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
-	nextAccessSlot(time);
+	nextAccessSlot(time, VDPAccessSlots::Delta::CMD_START_88);
 	setStatusChangeTime(EmuTime::zero()); // will finish soon
 	phase = 0;
 }
@@ -823,7 +823,7 @@ void VDPCmdEngine::startSrch(EmuTime time)
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
 	ASX = SX;
-	nextAccessSlot(time);
+	nextAccessSlot(time, VDPAccessSlots::Delta::CMD_START_88);
 	setStatusChangeTime(EmuTime::zero()); // we can find it any moment
 }
 
@@ -1250,7 +1250,7 @@ void VDPCmdEngine::startLmcm(EmuTime time)
 	ANX = tmpNX;
 	transfer = true;
 	status |= TR;
-	nextAccessSlot(time);
+	nextAccessSlot(time, VDPAccessSlots::Delta::CMD_START_76);
 	setStatusChangeTime(EmuTime::zero());
 }
 
@@ -1303,7 +1303,7 @@ void VDPCmdEngine::startLmmc(EmuTime time)
 	// do not set 'transfer = true', this fixes bug#1014
 	// Baltak Rampage: characters in greetings part are one pixel offset
 	status |= TR;
-	nextAccessSlot(time);
+	nextAccessSlot(time, VDPAccessSlots::Delta::CMD_START_88);
 }
 
 template<typename Mode, typename LogOp>
@@ -1739,7 +1739,7 @@ void VDPCmdEngine::startHmmc(EmuTime time)
 	setStatusChangeTime(EmuTime::zero());
 	// do not set 'transfer = true', see startLmmc()
 	status |= TR;
-	nextAccessSlot(time);
+	nextAccessSlot(time, VDPAccessSlots::Delta::CMD_START_112);
 }
 
 template<typename Mode>
