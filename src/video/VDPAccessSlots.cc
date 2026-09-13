@@ -325,7 +325,9 @@ static constexpr AccessTable tabBroken{};
 [[nodiscard]] static inline const AccessTable& getTable(const VDP& vdp)
 {
 	if (vdp.getBrokenCmdTiming()) return tabBroken;
-	bool enabled = vdp.isDisplayEnabled();
+	// Note: the access grid switches over one line before the display area,
+	// hence isSlotTableDisplayEnabled() rather than isDisplayEnabled().
+	bool enabled = vdp.isSlotTableDisplayEnabled();
 	bool sprites = vdp.spritesEnabledRegister();
 	auto mode    = vdp.getDisplayMode();
 	bool bitmap  = mode.isBitmapMode();
