@@ -2,20 +2,47 @@
 #define MSXPIDEVICE_HH
 
 #include "MSXDevice.hh"
+#include "EmuTime.hh"
 #include "Poller.hh"
 #include "Socket.hh"
 
-#include "circular_buffer.hh"
-
 #include <atomic>
 #include <condition_variable>
+#include <cstdint>
+#include <deque>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace openmsx {
 
 class DeviceConfig;
 
+/** MSXPi interface, modelled on the CPLD v1.6 firmware (MSXPi.vhd) at the
+  * I/O-port level.
+  *
+  * The Raspberry Pi is replaced by msxpi-server.py over TCP. On real hardware
+  * the Pi drives every transfer: it raises RPI_READY with the byte it wants to
+  * send, waits for the CPLD to lower SPI_CS, and clocks one full-duplex byte.
+  * The TCP link carries exactly that ("virtual SPI"), in two-byte frames:
+  *
+  *   server -> device   01 d   offer: READY up, Pi sends d, READY drops after
+  *                      02 d   offer: as 01, but READY stays up for the next
+  *                      03 00  cancel: withdraw offers not clocked yet
+  *                      7E v   hello, protocol version v (sent on accept)
+  *   device -> server   01 m   an offer was clocked; the CPLD sent m
+  *                      03 00  cancel acknowledged
+  *                      7E v   hello reply
+  *
+  * A run of 02 offers only becomes visible once its closing 01 offer has
+  * arrived, so READY is never up without a byte to go with it and no port
+  * access ever waits for the socket. Offers are taken into account at the port
+  * accesses themselves, which is enough because the CPLD's state can only be
+  * observed through its ports. The /WAIT stall is charged in emulated time.
+  *
+  * A server that sends no hello is too old to speak this protocol. It is
+  * treated like an absent Pi: READY stays low.
+  */
 class MSXPiDevice final : public MSXDevice
 {
 public:
@@ -23,61 +50,73 @@ public:
 	~MSXPiDevice() override;
 
 	void reset(EmuTime time) override;
-	byte readIO(uint16_t port, EmuTime time) override;
-	byte peekIO(uint16_t port, EmuTime time) const override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 private:
-	void close();
-	void readLoop();
+	enum class Link : uint8_t { DOWN, PROBING, FRAMED, INCOMPATIBLE };
+	struct Offer {
+		byte miso;
+		bool hold; // READY stays up after this transfer
+	};
 
-	// Thread & connection
+	// CPLD model (emulation thread)
+	void update(EmuTime time);
+	void startTransfer(EmuTime time);
+	void tryBind(EmuTime time);
+	void complete();
+	[[nodiscard]] bool ready(EmuTime time) const;
+	[[nodiscard]] bool inReleaseTail(EmuTime time) const;
+	[[nodiscard]] bool inReleaseGap(EmuTime time) const;
+	[[nodiscard]] byte shiftRegister(EmuTime time) const;
+	[[nodiscard]] EmuTime stall(EmuTime time);
+	void cpldReset();
+	void waitForPeer(EmuTime time);
+
+	// transport
+	void readLoop();
+	[[nodiscard]] bool connectSocket();
+	void handleFrame(byte op, byte arg);
+	void sendFrame(byte op, byte arg); // mtx must be held
+	void closeSocket();
+
+	// --- CPLD state (emulation thread only) ---
+	byte latch = 0xFF;          // D_buff_msx, the transparent write latch
+	bool busy = false;          // SPI_en_s
+	bool waitMode = false;      // wait_mode
+	byte srValue = 0;           // pi_sr(7 downto 0) when no transfer runs
+	EmuTime startTime = EmuTime::zero();  // E1 of the bound transfer
+	std::optional<Offer> bound; // the offer clocking the current transfer
+	EmuTime doneTime = EmuTime::zero();   // E10 of the bound transfer
+	bool haveLast = false;      // READY tail after the last E10
+	bool lastHold = false;
+	EmuTime lastDone = EmuTime::zero();
+	unsigned boundEpoch = 0;
+
+	// timing of the emulated Pi, in emulated time
+	EmuDuration transferTime;   // E1 -> E10
+	EmuDuration readyTail;      // E10 -> READY low, for a releasing offer
+	EmuDuration readyGap;       // READY low before the Pi offers again
+
+	// --- shared with the reader thread, under mtx ---
+	mutable std::mutex mtx;
+	std::deque<Offer> offers;   // visible offers
+	std::condition_variable offerCv; // signalled when offers become visible
+	std::atomic<size_t> offerCount = 0;
+	std::atomic<Link> link = Link::DOWN;
+	std::atomic<unsigned> epoch = 0;
+
+	// --- reader thread only ---
+	std::deque<Offer> pendingHold; // a run whose closing offer is still due
+	std::optional<byte> partial;   // first byte of a frame
+
+	// thread & connection
 	SocketActivator socketActivator; // ensure windows sockets are initialized
 	std::thread thread;
 	Poller poller; // to abort read-thread in a portable way
 	std::atomic<SOCKET> sock = OPENMSX_INVALID_SOCKET;
 	std::atomic<bool> shouldStop = false;
-
-	// Queues & synchronization
-	mutable std::mutex mtx;
-	std::condition_variable rxCv; // wakes a wait-mode read when a byte lands
-	cb_queue<byte> rxQueue;
-
-	// MSXPi logic
-	bool readRequested = false;
-
-	// Hardware /WAIT flow control, matching CPLD v1.6.  Off at power-up, set
-	// by OUT ($57),$01 and cleared by OUT ($57),$00 or the $56 reset.  While
-	// it is on, an IN ($5A) both requests a byte and stalls the Z80 until it
-	// arrives, which is what lets a driver use INIR/OTIR.
-	bool waitMode = false;
-
-	// Emulated cycles charged to the Z80 for each byte moved while wait mode
-	// is on, via MSXCPU::waitCyclesZ80 - the same mechanism VDP.cc uses for
-	// its fixed T9769 I/O delay.  Blocking this thread until the byte arrives
-	// (see readIO) makes the DATA correct, but on its own the guest sees no
-	// delay at all; this is what makes the emulated machine actually
-	// experience the /WAIT stall.
-	//
-	// Default 0: the real per-byte stall has not been measured on hardware
-	// yet, and inventing a number would make timing results look meaningful
-	// when they are not.  Set <wait_cycles> in the extension XML once it has.
-	unsigned waitCycles = 0;
-
-	// Fault injection: make every Nth wait-mode read behave as it does on
-	// real hardware when RPI_READY happens to be low - return whatever is on
-	// the bus instead of stalling.  0 disables it.
-	//
-	// This exists because the emulation cannot otherwise produce that case at
-	// all: a wait-mode read here always blocks until a byte arrives, so there
-	// is no window for a stale read.  On real hardware the Pi drops RDY
-	// between bytes while it runs its Python dispatch, and a read landing in
-	// that gap silently returns garbage - which is how /WAIT passed in
-	// emulation while being broken on hardware, and later how a transaction
-	// failing once in ~1500 calls went unnoticed until it killed the link.
-	unsigned rdyFailEvery = 0;
-	unsigned rdyCounter = 0;
-
 };
 
 } // namespace openmsx

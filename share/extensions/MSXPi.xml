@@ -16,6 +16,16 @@
           <io base="0x56" num="1"/>
           <io base="0x57" num="1"/>
           <io base="0x5A" num="1"/>
+          <!-- Timing of the emulated Raspberry Pi, in microseconds of emulated
+               time. transfer_time: how long the Pi takes to clock one byte, which
+               is also how long a /WAIT stall lasts. ready_tail: how long the Pi
+               keeps READY up after the last clock of a byte; above 0 it opens the
+               window in which a burst write can start before the Pi is ready.
+               ready_gap: how long READY stays low between two separately
+               offered bytes, before the Pi raises it for the next one. -->
+          <transfer_time>20</transfer_time>
+          <ready_tail>0</ready_tail>
+          <ready_gap>0</ready_gap>
         </MSXPiDevice>
         <ROM id="MSXPi BIOS">
           <mem base="0x4000" size="0x4000"/>

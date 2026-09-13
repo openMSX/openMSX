@@ -7,6 +7,10 @@
 #include <cerrno>
 #include <cstring>
 
+#ifndef _WIN32
+#include <netinet/tcp.h> // TCP_NODELAY (winsock2.h provides it on Windows)
+#endif
+
 namespace openmsx {
 
 std::string sock_error()
@@ -125,6 +129,11 @@ int sock_getIntOption(SOCKET sd, int level, int optName)
 		return 0;
 	}
 	return value;
+}
+
+void sock_setNoDelay(SOCKET sd)
+{
+	sock_setIntOption(sd, IPPROTO_TCP, TCP_NODELAY);
 }
 
 bool sock_readable(SOCKET sd)
