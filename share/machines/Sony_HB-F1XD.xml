@@ -50,6 +50,7 @@
         <volume>21000</volume>
       </sound>
       <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
+      <mirrored_registers>false</mirrored_registers> <!-- confirmed by 'madscient' -->
       <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
