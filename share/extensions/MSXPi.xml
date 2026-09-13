@@ -20,6 +20,7 @@
         <ROM id="MSXPi BIOS">
           <mem base="0x4000" size="0x4000"/>
           <rom>
+            <sha1>0a62a0b3ee8eba92f15ec46f9c3055be06d32a9f</sha1> <!-- Build 1.6.20260913.051 - BASIC BIOS, MSX-DOS1, UNAPI and Performance improvements-->
             <sha1>3cfffa59afef160439085a8a496953edcaeb0662</sha1> <!-- Build 1.5.20260808.020 - BASIC BIOS and MSX-DOS1-->
             <sha1>c429077a5f58b006125247a67783ea4ea6fb7389</sha1> <!-- Build 1.2.20250923.792 - BASIC BIOS only-->
             <filename>msxpibios.rom</filename>
