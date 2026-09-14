@@ -48,9 +48,10 @@ void sock_setNonBlocking(SOCKET sd);
 void sock_setIntOption(SOCKET sd, int level, int optName, int value = 1);
 // Get an integer socket option (e.g. SO_ERROR), 0 on failure.
 [[nodiscard]] int sock_getIntOption(SOCKET sd, int level, int optName);
+// Disable Nagle's algorithm (TCP_NODELAY): send small writes immediately.
+void sock_setNoDelay(SOCKET sd);
 // Non-blocking readiness poll (zero timeout): data ready or pending connection.
-[[nodiscard]] bool sock_readable(SOCKET sd);
-// Build an IPv4 sockaddr_in (network order); hostIp==0 -> INADDR_ANY.
+[[nodiscard]] bool sock_readable(SOCKET sd);// Build an IPv4 sockaddr_in (network order); hostIp==0 -> INADDR_ANY.
 [[nodiscard]] sockaddr_in sock_makeIPv4(uint32_t hostIp, uint16_t port);
 // Best-effort local IPv4 (host order, 0 if unknown). Sends no packets.
 [[nodiscard]] uint32_t sock_localIPv4();
