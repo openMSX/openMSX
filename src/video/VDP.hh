@@ -313,6 +313,18 @@ public:
 		return isDisplayArea && displayEnabled;
 	}
 
+	/** Is the VDP fetching display data, as far as the VRAM access slots are
+	  * concerned? The access grid does not follow the display area: it starts
+	  * 162 cycles into the line *before* it, where the VDP starts fetching the
+	  * sprite data of the first display line, and it ends 162 cycles into the
+	  * line after it. Measured at both borders, see section 12 of
+	  * doc/internal/vdp-vram-timing/2026-measurement-analysis.md.
+	  * @return true iff the display access grid applies.
+	  */
+	[[nodiscard]] bool isSlotTableDisplayEnabled() const {
+		return isSlotTableDisplayArea && displayEnabled;
+	}
+
 	/** Are sprites enabled?
 	  * @return True iff blanking is off, the current mode supports
 	  *   sprites and sprites are not disabled.
@@ -858,6 +870,22 @@ private:
 		}
 	} syncDisplayStart;
 
+	struct SyncSlotTableStart final : public SyncBase {
+		using SyncBase::SyncBase;
+		void executeUntil(EmuTime time) override {
+			auto& vdp = OUTER(VDP, syncSlotTableStart);
+			vdp.execSlotTableStart(time);
+		}
+	} syncSlotTableStart;
+
+	struct SyncSlotTableEnd final : public SyncBase {
+		using SyncBase::SyncBase;
+		void executeUntil(EmuTime time) override {
+			auto& vdp = OUTER(VDP, syncSlotTableEnd);
+			vdp.execSlotTableEnd(time);
+		}
+	} syncSlotTableEnd;
+
 	struct SyncVScan final : public SyncBase {
 		using SyncBase::SyncBase;
 		void executeUntil(EmuTime time) override {
@@ -933,6 +961,9 @@ private:
 	void execVSync(EmuTime time);
 	void execDisplayStart(EmuTime time);
 	void execVScan(EmuTime time);
+	void setSlotTableDisplayArea(bool enabled, EmuTime time);
+	void execSlotTableStart(EmuTime time);
+	void execSlotTableEnd(EmuTime time);
 	void execHScan();
 	void execHorAdjust(EmuTime time);
 	void execSetMode(EmuTime time);
@@ -1218,6 +1249,12 @@ private:
 	  */
 	EmuTime displayStartSyncTime;
 
+	/** Moments the access grid switches to and from the display tables:
+	  * 1408 cycles before 'displayStartSyncTime' and 40 cycles before
+	  * 'vScanSyncTime'. See isSlotTableDisplayEnabled(). */
+	EmuTime slotTableStartSyncTime;
+	EmuTime slotTableEndSyncTime;
+
 	/** Time of last set VSCAN sync point.
 	  */
 	EmuTime vScanSyncTime;
@@ -1301,6 +1338,10 @@ private:
 	/** Is the current scan position inside the display area?
 	  */
 	bool isDisplayArea;
+
+	/** Same, but for the VRAM access slot tables, which switch one line
+	  * earlier. See isSlotTableDisplayEnabled(). */
+	bool isSlotTableDisplayArea;
 
 	/** Is PAL timing active? False means NTSC timing.
 	  * This value is updated at the start of every frame,
@@ -1426,7 +1467,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 11);
+SERIALIZE_CLASS_VERSION(VDP, 12);
 
 } // namespace openmsx
 

@@ -18,48 +18,49 @@ inline constexpr int TICKS = VDP::TICKS_PER_LINE;
 enum class Delta : int {
 	D0        =  0 * TICKS, // These 2 are internal helpers
 	D1        =  1 * TICKS,
-	CPU_16    =  2 * TICKS, // These 2 are for CPU access delays (V99x8)
+	CPU_16    =  2 * TICKS, // These 3 are for CPU access delays (V99x8)
 	CPU_28    =  3 * TICKS, //                                   (TMS99x8)
-	CMD_24    =  4 * TICKS, // The remaining ones are command engine steps
-	CMD_32    =  5 * TICKS, //   counted in 'memory cycles' rather than 'VDP cycles'
-	CMD_36    =  6 * TICKS, //   see the comment about 'pad' in
-	CMD_46    =  7 * TICKS, //   VDPAccessSlots.cc
-	CMD_60    =  8 * TICKS,
-	CMD_72    =  9 * TICKS,
-	CMD_84    = 10 * TICKS,
-	CMD_88    = 11 * TICKS,
-	CMD_36_68 = 12 * TICKS, // 36+68 = 104
-	CMD_46_58 = 12 * TICKS, // 46+58 = 104 (notice: duplicate! skip in the FIRST/LAST indices below)
-	CMD_84_36 = 13 * TICKS, // 84+36 = 120
-	CMD_60_68 = 14 * TICKS, // 60+68 = 128
-	CMD_72_58 = 15 * TICKS, // 72+58 = 130
-	// The delay between the write to R#46 that starts a command and the
-	// command's first VRAM access. Measured from the rising edge of /CSW as
-	// 46, 70, 82, 82, 94 and 94 cycles; the values below are those plus the
-	// 18 cycles between openMSX's port-write timestamp and that edge. The
-	// startup is a wait like any other, so it is counted in memory cycles
-	// and it gets the sprite addend. POINT, PSET, SRCH, LMCM, LMMC and HMMC
-	// have not been measured and still start immediately.
-	CMD_START_64  = 16 * TICKS, // LMMM
-	CMD_START_88  = 11 * TICKS, // LMMV       (notice: duplicate of CMD_88!)
-	CMD_START_100 = 17 * TICKS, // HMMM, YMMM
-	CMD_START_112 = 18 * TICKS, // HMMV, LINE
 	// Like CPU_16, but without skipping the slots the CPU cannot be served
 	// in: the slot it would have been granted, which the VDP spends on a
 	// dummy read when the two differ.
-	CPU_16_ANY = 19 * TICKS,
+	CPU_16_ANY =  4 * TICKS,
+	CMD_24    =  5 * TICKS, // The remaining ones are command engine delays
+	CMD_32    =  6 * TICKS, //   counted in 'memory cycles' rather than 'VDP cycles'
+	CMD_36    =  7 * TICKS, //   see the comment about 'pad' in
+	CMD_46    =  8 * TICKS, //   VDPAccessSlots.cc
+	CMD_60    =  9 * TICKS,
+	CMD_72    = 10 * TICKS,
+	CMD_84    = 11 * TICKS,
+	CMD_88    = 12 * TICKS,
+	CMD_36_68 = 13 * TICKS, // 36+68 = 104
+	CMD_46_58 = 13 * TICKS, // 46+58 = 104 (notice: duplicate!)
+	CMD_84_36 = 14 * TICKS, // 84+36 = 120
+	CMD_60_68 = 15 * TICKS, // 60+68 = 128
+	CMD_72_58 = 16 * TICKS, // 72+58 = 130
+	// The delay between the write to R#46 that starts a command and the
+	// command's first VRAM access. Measured from the rising edge of /CSW as
+	// 45, 46, 58, 70, 82 and 94 cycles; the values below are those plus the
+	// 18 cycles between openMSX's port-write timestamp and that edge. The
+	// startup is a wait like any other, so it is counted in memory cycles
+	// and it gets the sprite addend.
+	CMD_START_63  = 17 * TICKS, // POINT
+	CMD_START_64  = 18 * TICKS, // LMMM
+	CMD_START_76  = 19 * TICKS, // LMCM
+	CMD_START_88  = 12 * TICKS, // LMMV, LMMC, PSET, SRCH  (= CMD_88!)
+	CMD_START_100 = 20 * TICKS, // HMMM, YMMM
+	CMD_START_112 = 21 * TICKS, // HMMV, LINE, HMMC
 };
-static constexpr int NUM_DELTAS = 20;
-/** The CPU access delays in the 'Delta' enum, CPU_D16 and CPU_D28. Note that
-  * CPU_16_ANY is deliberately not one of them: it is the only one that does
-  * use the slots the CPU cannot be served in. */
+static constexpr int NUM_DELTAS = 22;
+/** The CPU access delays in the 'Delta' enum: CPU_16, CPU_28 and CPU_16_ANY. */
 static constexpr int FIRST_CPU_DELTA = 2;
-static constexpr int LAST_CPU_DELTA = 4; // exclusive
+static constexpr int LAST_CPU_DELTA = 5; // exclusive
+/** The one of those that does use the slots the CPU cannot be served in. */
+static constexpr int CPU_ANY_DELTA = 4;
 /** The command engine delays in the 'Delta' enum: the steps and the startup
   * delays. These get the sprite addend; they and the CPU delays above are all
   * subject to the memory-cycle counting. */
-static constexpr int FIRST_CMD_DELTA = 4;
-static constexpr int LAST_CMD_DELTA = 19; // exclusive
+static constexpr int FIRST_CMD_DELTA = 5;
+static constexpr int LAST_CMD_DELTA = NUM_DELTAS; // exclusive
 
 /** VDP-VRAM access slot calculator, meant to be used in the inner loops of the
   * VDPCmdEngine commands. Code optimized for the case that:

@@ -70,6 +70,14 @@ static constexpr int CPU_REQUEST_DELAY = 29;
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
   * command engine that slot anyway, to a dummy read, if it arrives this many
   * cycles before it. */
+/** The access grid switches to the display tables 162 cycles into the line
+  * before the display area, which is 1368 + (202 - 162) cycles before
+  * 'displayStartSyncTime', and back 162 cycles into the line after it, which is
+  * (202 - 162) cycles before 'vScanSyncTime'. (Both those sync points are at
+  * cycle 202 of their line, where VR flips.) */
+static constexpr int SLOT_TABLE_START_LEAD = VDP::TICKS_PER_LINE + 202 - 162;
+static constexpr int SLOT_TABLE_END_LEAD = 202 - 162;
+
 static constexpr int DUMMY_WINDOW_LO = 18;
 static constexpr int DUMMY_WINDOW_HI = 22;
 
@@ -77,6 +85,8 @@ VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
 	, syncVSync(*this)
 	, syncDisplayStart(*this)
+	, syncSlotTableStart(*this)
+	, syncSlotTableEnd(*this)
 	, syncVScan(*this)
 	, syncHScan(*this)
 	, syncHorAdjust(*this)
@@ -108,6 +118,8 @@ VDP::VDP(const DeviceConfig& config)
 	, irqVertical  (getMotherBoard(), getName() + ".IRQvertical",   config)
 	, irqHorizontal(getMotherBoard(), getName() + ".IRQhorizontal", config)
 	, displayStartSyncTime(getCurrentTime())
+	, slotTableStartSyncTime(getCurrentTime())
+	, slotTableEndSyncTime(getCurrentTime())
 	, vScanSyncTime(getCurrentTime())
 	, hScanSyncTime(getCurrentTime())
 	, tooFastCallback(
@@ -293,6 +305,7 @@ void VDP::resetInit()
 
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
+	isSlotTableDisplayArea = false;
 	displayEnabled = false;
 	spriteEnabled = true;
 	superimposing = nullptr;
@@ -338,6 +351,8 @@ void VDP::reset(EmuTime time)
 {
 	syncVSync        .removeSyncPoint();
 	syncDisplayStart .removeSyncPoint();
+	syncSlotTableStart.removeSyncPoint();
+	syncSlotTableEnd .removeSyncPoint();
 	syncVScan        .removeSyncPoint();
 	syncHScan        .removeSyncPoint();
 	syncHorAdjust    .removeSyncPoint();
@@ -390,8 +405,22 @@ void VDP::execVSync(EmuTime time)
 	frameStart(time);
 }
 
+void VDP::setSlotTableDisplayArea(bool enabled, EmuTime time)
+{
+	if (isSlotTableDisplayArea == enabled) return;
+	// A command must not use the new grid for the accesses it still owes on
+	// the old one.
+	if (displayEnabled) cmdEngine->sync(time);
+	isSlotTableDisplayArea = enabled;
+}
+
 void VDP::execDisplayStart(EmuTime time)
 {
+	// The access grid normally switched over a line ago. It can still be off
+	// if the display start moved inside that line, because then the sync
+	// point that switches it was rescheduled into the past.
+	setSlotTableDisplayArea(true, time);
+
 	// Display area starts here, unless we're doing overscan and it
 	// was already active.
 	if (!isDisplayArea) {
@@ -402,8 +431,25 @@ void VDP::execDisplayStart(EmuTime time)
 	}
 }
 
+void VDP::execSlotTableStart(EmuTime time)
+{
+	// The VDP starts fetching the sprite data of the first display line here,
+	// and the access grid follows the fetching rather than the display.
+	setSlotTableDisplayArea(true, time);
+}
+
+void VDP::execSlotTableEnd(EmuTime time)
+{
+	setSlotTableDisplayArea(false, time);
+}
+
 void VDP::execVScan(EmuTime time)
 {
+	// Same the other way round: the grid normally switched back 40 cycles
+	// ago. (In overscan this is not reached at all, and the grid correctly
+	// stays on across the frame boundary.)
+	setSlotTableDisplayArea(false, time);
+
 	// VSCAN is the end of display.
 	// This will generate a VBLANK IRQ. Typically MSX software will
 	// poll the keyboard/joystick on this IRQ. So now is a good
@@ -492,6 +538,9 @@ void VDP::scheduleDisplayStart(EmuTime time)
 		syncDisplayStart.removeSyncPoint();
 		//cerr << "removing predicted DISPLAY_START sync point\n";
 	}
+	if (slotTableStartSyncTime > time) {
+		syncSlotTableStart.removeSyncPoint();
+	}
 
 	// Calculate when (lines and time) display starts.
 	int lineZero =
@@ -513,6 +562,13 @@ void VDP::scheduleDisplayStart(EmuTime time)
 		//cerr << "inserting new DISPLAY_START sync point\n";
 	}
 
+	// The access grid switches over 162 cycles into the line before this one.
+	slotTableStartSyncTime = displayStartSyncTime -
+	                         VDPClock::duration(SLOT_TABLE_START_LEAD);
+	if (slotTableStartSyncTime > time) {
+		syncSlotTableStart.setSyncPoint(slotTableStartSyncTime);
+	}
+
 	// HSCAN and VSCAN are relative to display start.
 	scheduleHScan(time);
 	scheduleVScan(time);
@@ -525,6 +581,9 @@ void VDP::scheduleVScan(EmuTime time)
 		syncVScan.removeSyncPoint();
 		//cerr << "removing predicted VSCAN sync point\n";
 	}
+	if (slotTableEndSyncTime > time) {
+		syncSlotTableEnd.removeSyncPoint();
+	}
 
 	// Calculate moment in time display end occurs.
 	vScanSyncTime = frameStartTime +
@@ -534,6 +593,12 @@ void VDP::scheduleVScan(EmuTime time)
 	if (vScanSyncTime > time) {
 		syncVScan.setSyncPoint(vScanSyncTime);
 		//cerr << "inserting new VSCAN sync point\n";
+	}
+
+	// The access grid switches back 162 cycles into the line after this one.
+	slotTableEndSyncTime = vScanSyncTime - VDPClock::duration(SLOT_TABLE_END_LEAD);
+	if (slotTableEndSyncTime > time) {
+		syncSlotTableEnd.setSyncPoint(slotTableEndSyncTime);
 	}
 }
 
@@ -2065,6 +2130,7 @@ int VDP::MsxX512PosInfo::calc(EmuTime time) const
 // version 9: update sprite-enabled-status only once per line
 // version 10: added writeAccess
 // version 11: added previousCpuSlot, previousCpuSlotIsLate, secondCpuSlot, secondCpuVramReqIsRead
+// version 12: added isSlotTableDisplayArea and its two sync points
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -2082,6 +2148,10 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		             // no need for syncCmdDone (only used for probe)
 		if (ar.versionAtLeast(serVersion, 11)) {
 			ar.serialize("syncCpuVramDummy", syncCpuVramDummy);
+		}
+		if (ar.versionAtLeast(serVersion, 12)) {
+			ar.serialize("syncSlotTableStart", syncSlotTableStart,
+			             "syncSlotTableEnd",   syncSlotTableEnd);
 		}
 	} else {
 		Schedulable::restoreOld(ar,
@@ -2161,6 +2231,13 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		ar.serialize("writeAccess", writeAccess);
 	} else {
 		writeAccess = !cpuVramReqIsRead; // best guess
+	}
+
+	if (ar.versionAtLeast(serVersion, 12)) {
+		ar.serialize("isSlotTableDisplayArea", isSlotTableDisplayArea);
+	} else if constexpr (Archive::IS_LOADER) {
+		// Close enough: it differs from 'isDisplayArea' for one line a frame.
+		isSlotTableDisplayArea = isDisplayArea;
 	}
 
 	if (ar.versionAtLeast(serVersion, 11)) {
