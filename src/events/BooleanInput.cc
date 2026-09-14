@@ -104,7 +104,7 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 	return std::nullopt;
 }
 
-std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadZone)
+std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadThreshold)
 {
 	return std::visit(overloaded{
 		[](const KeyDownEvent& e) -> std::optional<BooleanInput> {
@@ -126,9 +126,7 @@ std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref
 		},
 		[&](const JoystickAxisMotionEvent& e) -> std::optional<BooleanInput> {
 			auto joyId = e.getJoystick();
-			int deadZone = getJoyDeadZone(joyId); // percentage 0..100
-			int threshold = (deadZone * 32768) / 100;
-
+			int threshold = getJoyDeadThreshold(joyId);
 			auto value = e.getValue();
 			if ((-threshold <= value) && (value <= threshold)) {
 				return std::nullopt;
@@ -171,7 +169,7 @@ bool operator==(const BooleanInput& x, const BooleanInput& y)
 }
 
 std::optional<bool> match(const BooleanInput& binding, const Event& event,
-                          function_ref<int(JoystickId)> getJoyDeadZone)
+                          function_ref<int(JoystickId)> getJoyDeadThreshold)
 {
 	return std::visit(overloaded{
 		[](const BooleanKeyboard& bind, const KeyDownEvent& down) -> std::optional<bool> {
@@ -212,8 +210,7 @@ std::optional<bool> match(const BooleanInput& binding, const Event& event,
 		[&](const BooleanJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<bool> {
 			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
 			if (bind.getAxis() != e.getAxis()) return std::nullopt;
-			int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
-			int threshold = (deadZone * 32768) / 100;
+			int threshold = getJoyDeadThreshold(bind.getJoystick());
 			if (bind.getDirection() == BooleanJoystickAxis::Direction::POS) {
 				return e.getValue() > threshold;
 			} else {
