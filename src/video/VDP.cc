@@ -67,6 +67,16 @@ static uint8_t getDelayCycles(const XMLElement& devices)
   * VRAM request. Measured to 28.9 +- 0.2 cycles, so it could also be 28. */
 static constexpr int CPU_REQUEST_DELAY = 29;
 
+/** How far after openMSX's port-#98 read timestamp a pending VRAM read may
+  * still have its access slot and be seen by that IN. The Z80 samples the data
+  * bus 2.5 T-states after the start of T2 (T2, the I/O wait state, and half of
+  * T3): 15 cycles. The V9938 has the byte out of the DRAM about 6 cycles into
+  * the access (RAS, CAS, then two cycles to data). The difference is an
+  * estimate, not a measurement; the case that matters -- the BIOS's INIR scroll
+  * in TEXT2, 138 cycles per byte, where the slot table has gaps of up to 100
+  * cycles -- needs 6. */
+static constexpr int CPU_READ_SAMPLE_DELAY = 9;
+
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
   * command engine that slot anyway, to a dummy read, if it arrives this many
   * cycles before it. */
@@ -294,6 +304,7 @@ void VDP::resetInit()
 	vramPointer = 0;
 	cpuVramData = 0;
 	cpuVramReqIsRead = false; // avoid UMR
+	cpuVramReqData = 0;
 	dataLatch = 0;
 	cpuExtendedVram = false;
 	registerDataStored = false;
@@ -517,6 +528,7 @@ void VDP::execCpuVramAccess(EmuTime time)
 	if (secondCpuSlot != EmuTime::infinity()) [[unlikely]] {
 		// A request accepted just before this access now gets its turn.
 		cpuVramReqIsRead = secondCpuVramReqIsRead;
+		cpuVramReqData = secondCpuVramReqData;
 		pendingCpuAccess = true;
 		syncCpuVramAccess.setSyncPoint(secondCpuSlot);
 		secondCpuSlot = EmuTime::infinity();
@@ -861,11 +873,21 @@ void VDP::vramWrite(uint8_t value, EmuTime time)
 
 uint8_t VDP::vramRead(EmuTime time)
 {
-	if (allowTooFastAccess && pendingCpuAccess) [[unlikely]] {
-		// In this mode no access may be lost, so a read has to see the
-		// result of the access before it even when that access has not
-		// had its slot yet.
-		flushCpuVramAccesses(time);
+	if (pendingCpuAccess) [[unlikely]] {
+		if (allowTooFastAccess) {
+			// In this mode no access may be lost, so a read has to see
+			// the result of the access before it even when that access
+			// has not had its slot yet.
+			flushCpuVramAccesses(time);
+		} else if (cpuVramReqIsRead &&
+		           (*syncCpuVramAccess.isPending() <=
+		            (time + VDPClock::duration(CPU_READ_SAMPLE_DELAY)))) {
+			// The read before this one has its slot only just after
+			// 'time', but still before the Z80 samples the data bus, so
+			// this IN does see its result.
+			syncCpuVramAccess.removeSyncPoint();
+			execCpuVramAccess(time);
+		}
 	}
 	// Return the result from a previous read.
 	uint8_t result = cpuVramData;
@@ -897,6 +919,7 @@ void VDP::scheduleTMS99x8VramAccess(bool isRead, EmuTime time)
 			// The old request has been overwritten by the new request!
 			tooFastCallback.execute();
 			cpuVramReqIsRead = isRead;
+			cpuVramReqData = cpuVramData;
 			return;
 		}
 		// In 'ignore' mode no access may be lost, so give the one that is
@@ -930,6 +953,7 @@ void VDP::scheduleTMS99x8VramAccess(bool isRead, EmuTime time)
 	// other variables that influence the exact timing (7
 	// vs 8 cycles).
 	cpuVramReqIsRead = isRead;
+	cpuVramReqData = cpuVramData;
 	pendingCpuAccess = true;
 	syncCpuVramAccess.setSyncPoint(
 		getAccessSlot(time, VDPAccessSlots::Delta::CPU_28));
@@ -985,17 +1009,28 @@ void VDP::scheduleV99x8VramAccess(bool isRead, EmuTime time)
 
 	if (pendingCpuAccess) [[unlikely]] {
 		// Accepted while the access before it has not happened yet: it gets
-		// its sync point when that one fires. There can never be a third
-		// one, because the CPU cannot issue two port accesses less than 66
-		// cycles apart while the slot lattice never makes an accepted
-		// request wait more than 70 + 18 cycles, so by the time a third one
-		// is accepted the first access has taken place.
+		// its sync point when that one fires. This is not rare: the VDP
+		// registers the request 29 cycles after 'time', so a request that
+		// finds the buffer free right after the previous access has its
+		// port access up to 28 cycles before that access in emulated time.
+		// The BIOS's OTIR/INIR scroll in TEXT2 does this every line: 138
+		// cycles per byte, while a request there can wait 29 + 16 + 99
+		// cycles for its slot. There can never be a third one, because
+		// the CPU cannot issue two port accesses less than 66 cycles
+		// apart while no slot table makes an accepted request wait more
+		// than 100 + 18 cycles, so by the time a third one is accepted
+		// the first access has taken place. The write data has to travel
+		// with the request: the port access already put the new byte in
+		// 'cpuVramData', while the access before it has yet to store its
+		// own.
 		assert(secondCpuSlot == EmuTime::infinity());
 		assert(slot > *syncCpuVramAccess.isPending());
 		secondCpuSlot = slot;
 		secondCpuVramReqIsRead = isRead;
+		secondCpuVramReqData = cpuVramData;
 	} else {
 		cpuVramReqIsRead = isRead;
+		cpuVramReqData = cpuVramData;
 		pendingCpuAccess = true;
 		syncCpuVramAccess.setSyncPoint(slot);
 	}
@@ -1081,7 +1116,7 @@ void VDP::executeCpuVramAccess(EmuTime time)
 		if (cpuVramReqIsRead) {
 			cpuVramData = vram->cpuRead(addr, time);
 		} else {
-			vram->cpuWrite(addr, cpuVramData, time);
+			vram->cpuWrite(addr, cpuVramReqData, time);
 		}
 	} else {
 		if (cpuVramReqIsRead) {
@@ -2131,6 +2166,7 @@ int VDP::MsxX512PosInfo::calc(EmuTime time) const
 // version 10: added writeAccess
 // version 11: added previousCpuSlot, previousCpuSlotIsLate, secondCpuSlot, secondCpuVramReqIsRead
 // version 12: added isSlotTableDisplayArea and its two sync points
+// version 13: added cpuVramReqData, secondCpuVramReqData
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -2251,6 +2287,14 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		previousCpuSlot = EmuTime::zero();
 		previousCpuSlotIsLate = false;
 		secondCpuSlot = EmuTime::infinity();
+	}
+	if (ar.versionAtLeast(serVersion, 13)) {
+		ar.serialize("cpuVramReqData",       cpuVramReqData,
+		             "secondCpuVramReqData", secondCpuVramReqData);
+	} else if constexpr (Archive::IS_LOADER) {
+		// Right unless a second write was accepted just before saving.
+		cpuVramReqData = cpuVramData;
+		secondCpuVramReqData = cpuVramData;
 	}
 
 	// externalVideo does not need serializing. It is set on load by the

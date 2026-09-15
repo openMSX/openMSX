@@ -1407,10 +1407,14 @@ private:
 	  */
 	uint8_t cpuVramData;
 
-	/** CPU-VRAM requests are not executed immediately (though soon). This
-	  * variable indicates whether the pending request is read or write.
+	/** CPU-VRAM requests are not executed immediately (though soon). These
+	  * variables describe the pending request: read or write, and for a
+	  * write the byte to store. That byte cannot be taken from 'cpuVramData'
+	  * at the time of the access, because the CPU may by then have put the
+	  * next request's byte there (see 'secondCpuSlot').
 	  */
 	bool cpuVramReqIsRead;
+	uint8_t cpuVramReqData;
 	bool pendingCpuAccess; // always equal to syncCpuVramAccess.isPending()
 
 	/** The slot granted to the most recently accepted CPU-VRAM request, and
@@ -1423,11 +1427,12 @@ private:
 	bool previousCpuSlotIsLate = false;
 
 	/** A request accepted while the access before it has not taken place yet
-	  * (which only a 'late' slot allows) is booked here, until that earlier
-	  * access frees the sync point. 'infinity' means there is no such
-	  * request; there can never be more than one. */
+	  * is booked here, until that earlier access frees the sync point.
+	  * 'infinity' means there is no such request; there can never be more
+	  * than one. See scheduleV99x8VramAccess(). */
 	EmuTime secondCpuSlot = EmuTime::infinity();
 	bool secondCpuVramReqIsRead = false;
+	uint8_t secondCpuVramReqData = 0;
 
 	/** Does CPU interface access main VRAM (false) or extended VRAM (true)?
 	  * This is determined by MXC (R#45, bit 6).
@@ -1467,7 +1472,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 12);
+SERIALIZE_CLASS_VERSION(VDP, 13);
 
 } // namespace openmsx
 
