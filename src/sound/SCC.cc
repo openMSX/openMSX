@@ -390,7 +390,11 @@ void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 			per >>= 8;
 		}
 		period[channel] = per;
-		incr[channel] = (per <= 8) ? 0 : 32;
+		// The SCC needs 9 clock cycles to compute an output sample; when
+		// the period is shorter than that the multiplier is restarted
+		// before it ever finishes and the output latch keeps its value.
+		// A period of exactly 8 (9 cycles) still works.
+		incr[channel] = (per < 8) ? 0 : 32;
 		count[channel] = 0; // reset to begin of byte
 		if (deformValue & 0x20) {
 			pos[channel] = 0; // reset to begin of waveform
