@@ -404,9 +404,17 @@ public:
 	/** Get the absolute line number of display line zero.
 	  * Usually this is equal to the height of the top border,
 	  * but not so during overscan.
+	  * Note: until this frame's display line counter reset (in the top
+	  * border, see execLineCountReset()) this still refers to the previous
+	  * frame's display start, expressed relative to this frame, so it is
+	  * then negative.
 	  */
 	[[nodiscard]] int getLineZero() const {
-		return displayStart / TICKS_PER_LINE;
+		// Floor division, so that 'line - getLineZero()' keeps counting
+		// display lines correctly while displayStart is negative.
+		int line = displayStart / TICKS_PER_LINE;
+		if ((displayStart % TICKS_PER_LINE) < 0) --line;
+		return line;
 	}
 
 	/** Is PAL timing active?
@@ -862,6 +870,14 @@ private:
 		}
 	} syncVSync;
 
+	struct SyncLineCountReset final : public SyncBase {
+		using SyncBase::SyncBase;
+		void executeUntil(EmuTime time) override {
+			auto& vdp = OUTER(VDP, syncLineCountReset);
+			vdp.execLineCountReset(time);
+		}
+	} syncLineCountReset;
+
 	struct SyncDisplayStart final : public SyncBase {
 		using SyncBase::SyncBase;
 		void executeUntil(EmuTime time) override {
@@ -959,6 +975,7 @@ private:
 	} syncCmdDone;
 
 	void execVSync(EmuTime time);
+	void execLineCountReset(EmuTime time);
 	void execDisplayStart(EmuTime time);
 	void execVScan(EmuTime time);
 	void setSlotTableDisplayArea(bool enabled, EmuTime time);
@@ -1024,14 +1041,14 @@ private:
 	  */
 	void frameStart(EmuTime time);
 
-	/** Schedules a DISPLAY_START sync point.
-	  * Also removes a pending DISPLAY_START sync, if any.
-	  * Since HSCAN and VSCAN are relative to display start,
-	  * their schedule methods are called by this method.
+	/** Schedules the display line counter reset for this frame, at line
+	  * 8 + vertical adjust. Also removes a pending one, if any. The reset
+	  * is where DISPLAY_START, VSCAN and HSCAN get scheduled from, see
+	  * execLineCountReset().
 	  * @param time The moment in emulated time this call takes place.
-	  *   Note: time is not the DISPLAY_START sync time!
+	  *   Note: time is not the reset sync time!
 	  */
-	void scheduleDisplayStart(EmuTime time);
+	void scheduleLineCountReset(EmuTime time);
 
 	/** Schedules a VSCAN sync point.
 	  * Also removes a pending VSCAN sync, if any.
@@ -1245,6 +1262,12 @@ private:
 	  */
 	OptionalIRQHelper irqHorizontal;
 
+	/** Time of last set display line counter reset sync point.
+	  * Before it, in the top border, the counter still belongs to the
+	  * previous frame.
+	  */
+	EmuTime lineCountResetSyncTime;
+
 	/** Time of last set DISPLAY_START sync point.
 	  */
 	EmuTime displayStartSyncTime;
@@ -1289,12 +1312,18 @@ private:
 	  */
 	int frameCount;
 
-	/** VDP ticks between start of frame and start of display.
+	/** VDP ticks between start of frame and start of display, which is
+	  * where the display line counter reaches zero. Latched at the counter
+	  * reset in the top border (execLineCountReset()) and not changed
+	  * afterwards; from the next frame start until that frame's reset it
+	  * still describes the previous frame's display start, so it is then
+	  * negative.
 	  */
 	int displayStart;
 
 	/** VDP ticks between start of frame and the moment horizontal
-	  * scan match occurs.
+	  * scan match occurs. Like displayStart, this can point before the
+	  * start of this frame or beyond its end.
 	  */
 	int horizontalScanOffset;
 
@@ -1472,7 +1501,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 13);
+SERIALIZE_CLASS_VERSION(VDP, 14);
 
 } // namespace openmsx
 

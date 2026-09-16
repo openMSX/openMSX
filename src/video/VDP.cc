@@ -94,6 +94,7 @@ static constexpr int DUMMY_WINDOW_HI = 22;
 VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
 	, syncVSync(*this)
+	, syncLineCountReset(*this)
 	, syncDisplayStart(*this)
 	, syncSlotTableStart(*this)
 	, syncSlotTableEnd(*this)
@@ -127,6 +128,7 @@ VDP::VDP(const DeviceConfig& config)
 	, frameStartTime(getCurrentTime())
 	, irqVertical  (getMotherBoard(), getName() + ".IRQvertical",   config)
 	, irqHorizontal(getMotherBoard(), getName() + ".IRQhorizontal", config)
+	, lineCountResetSyncTime(getCurrentTime())
 	, displayStartSyncTime(getCurrentTime())
 	, slotTableStartSyncTime(getCurrentTime())
 	, slotTableEndSyncTime(getCurrentTime())
@@ -313,6 +315,12 @@ void VDP::resetInit()
 	blinkState = false;
 	blinkCount = 0;
 	horizontalAdjust = 7;
+	// Placeholders until the first display line counter reset latches the
+	// real values, see execLineCountReset().
+	displayStart = (8 + getVerticalAdjust()
+	                + ((controlRegs[9] & 0x02) ? 54 : 27)) * TICKS_PER_LINE
+	             + 100 + 102;
+	horizontalScanOffset = -1000 * TICKS_PER_LINE; // "never"
 
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
@@ -361,6 +369,7 @@ void VDP::powerUp(EmuTime time)
 void VDP::reset(EmuTime time)
 {
 	syncVSync        .removeSyncPoint();
+	syncLineCountReset.removeSyncPoint();
 	syncDisplayStart .removeSyncPoint();
 	syncSlotTableStart.removeSyncPoint();
 	syncSlotTableEnd .removeSyncPoint();
@@ -390,6 +399,7 @@ void VDP::reset(EmuTime time)
 
 	// Init scheduling.
 	frameCount = -1;
+	frameStartTime.reset(time); // no previous frame to carry over from
 	frameStart(time);
 	assert(frameCount == 0);
 }
@@ -540,39 +550,69 @@ void VDP::execSyncCmdDone(EmuTime time)
 	cmdEngine->sync(time);
 }
 
-// TODO: This approach assumes that an overscan-like approach can be used
-//       skip display start, so that the border is rendered instead.
-//       This makes sense, but it has not been tested on real MSX yet.
-void VDP::scheduleDisplayStart(EmuTime time)
+// The vertical timing of the V9938 hangs off one display line counter. It is
+// reset once per frame, in the top border, when the raster line plus the
+// vertical adjust equals 15 (so at line 8 + getVerticalAdjust()), to a
+// negative value that depends on the 50/60Hz and 192/212-lines bits of R#9
+// *as they are at that moment*. From there it counts up once per line:
+//  - display starts when it reaches 0,
+//  - the display area ends when it equals 192 or 212, compared against R#9
+//    bit 7 as it is then (so if the bit is changed after the counter passed
+//    the new value the display simply does not end: overscan),
+//  - the line interrupt fires when it equals R#19 - R#23.
+// Nothing about it changes until the next reset, so it keeps counting into
+// the top border of the next frame.
+// This was measured on FS-A1GT and FS-A1ST with the test program from PR
+// #2191, and matches the V9958 die-shot reconstruction (IKA9958_st.sv,
+// "vertical-auxiliary counter") in https://github.com/ika-musume/IKA9958.
+void VDP::scheduleLineCountReset(EmuTime time)
+{
+	// The reset happens at the start of the processing of the line, see
+	// syncAtNextLine().
+	int ticks = (8 + getVerticalAdjust()) * TICKS_PER_LINE
+	          + 144 + (horizontalAdjust - 7) * 4;
+	EmuTime resetTime = frameStartTime + ticks;
+	if (resetTime <= time) {
+		// Moved behind us by an adjust change. If a reset is still
+		// pending at its old position, leave it there.
+		// (The real chip would then skip the reset for this frame,
+		// not emulated.)
+		return;
+	}
+	if (lineCountResetSyncTime > time) {
+		syncLineCountReset.removeSyncPoint();
+	}
+	lineCountResetSyncTime = resetTime;
+	syncLineCountReset.setSyncPoint(resetTime);
+}
+
+void VDP::execLineCountReset(EmuTime time)
 {
 	// Remove pending DISPLAY_START sync point, if any.
 	if (displayStartSyncTime > time) {
 		syncDisplayStart.removeSyncPoint();
-		//cerr << "removing predicted DISPLAY_START sync point\n";
 	}
 	if (slotTableStartSyncTime > time) {
 		syncSlotTableStart.removeSyncPoint();
 	}
 
-	// Calculate when (lines and time) display starts.
-	int lineZero =
-		// sync + top erase:
-		3 + 13 +
-		// top border:
-		(palTiming ? 36 : 9) +
-		(controlRegs[9] & 0x80 ? 0 : 10) +
-		getVerticalAdjust(); // 0..15
+	// Display line zero moves here. In overscan the display is still on,
+	// so render and check sprites up to this point against the old one.
+	renderer->updateLineZero(time);
+	spriteChecker->sync(time);
+
+	// Lines from the reset to display line zero, i.e. minus the value the
+	// counter is reset to:
+	//   60Hz: 17 (212 lines) or 27 (192 lines)
+	//   50Hz: 44 (212 lines) or 54 (192 lines)
+	int linesToDisplay = ((controlRegs[9] & 0x02) ? 44 : 17)
+	                   + ((controlRegs[9] & 0x80) ?  0 : 10);
+	int resetLine = getTicksThisFrame(time) / TICKS_PER_LINE;
 	displayStart =
-		lineZero * TICKS_PER_LINE
+		(resetLine + linesToDisplay) * TICKS_PER_LINE
 		+ 100 + 102; // VR flips at start of left border
 	displayStartSyncTime = frameStartTime + displayStart;
-	//cerr << "new DISPLAY_START is " << (displayStart / TICKS_PER_LINE) << "\n";
-
-	// Register new DISPLAY_START sync point.
-	if (displayStartSyncTime > time) {
-		syncDisplayStart.setSyncPoint(displayStartSyncTime);
-		//cerr << "inserting new DISPLAY_START sync point\n";
-	}
+	syncDisplayStart.setSyncPoint(displayStartSyncTime);
 
 	// The access grid switches over 162 cycles into the line before this one.
 	slotTableStartSyncTime = displayStartSyncTime -
@@ -597,11 +637,20 @@ void VDP::scheduleVScan(EmuTime time)
 		syncSlotTableEnd.removeSyncPoint();
 	}
 
-	// Calculate moment in time display end occurs.
-	vScanSyncTime = frameStartTime +
-	                (displayStart + getNumberOfLines() * TICKS_PER_LINE);
+	// Display end is where the display line counter equals the number of
+	// lines selected by R#9 bit 7 as it is right now.
+	int offset = displayStart + getNumberOfLines() * TICKS_PER_LINE;
+	if (offset < 0) {
+		// That moment lies before this frame (the counter is still the
+		// previous frame's), so there is no display end until the next
+		// counter reset schedules one.
+		vScanSyncTime = slotTableEndSyncTime = time;
+		return;
+	}
+	vScanSyncTime = frameStartTime + offset;
 
-	// Register new VSCAN sync point.
+	// Register new VSCAN sync point. If the counter already passed the
+	// value there is none this frame: overscan.
 	if (vScanSyncTime > time) {
 		syncVScan.setSyncPoint(vScanSyncTime);
 		//cerr << "inserting new VSCAN sync point\n";
@@ -622,55 +671,35 @@ void VDP::scheduleHScan(EmuTime time)
 		hScanSyncTime = time;
 	}
 
-	// Calculate moment in time line match occurs.
+	// The match is where the display line counter equals R#19 - R#23. The
+	// counter started at 'displayStart' and keeps counting until the next
+	// reset, so the match sits at a fixed distance from the display start,
+	// possibly in the top border of the next frame. If that moment lies at
+	// or after the next reset, the counter never gets there.
 	horizontalScanOffset = displayStart - (100 + 102)
 		+ ((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE
 		+ getRightBorder();
-	// Display line counter continues into the next frame.
-	// Note that this implementation is not 100% accurate, since the
-	// number of ticks of the *previous* frame should be subtracted.
-	// By switching from NTSC to PAL it may even be possible to get two
-	// HSCANs in a single frame without modifying any other setting.
-	// Fortunately, no known program relies on this.
-	if (int ticksPerFrame = getTicksPerFrame();
-	    horizontalScanOffset >= ticksPerFrame) {
-		horizontalScanOffset -= ticksPerFrame;
-
-		// Time at which the internal VDP display line counter is reset,
-		// expressed in ticks after vsync.
-		// I would expect the counter to reset at line 16 (for neutral
-		// set-adjust), but measurements on NMS8250 show it is one line
-		// earlier. I'm not sure whether the actual counter reset
-		// happens on line 15 or whether the VDP timing may be one line
-		// off for some reason.
-		// TODO: This is just an assumption, more measurements on real MSX
-		//       are necessary to verify there is really such a thing and
-		//       if so, that the value is accurate.
-		// Note: see this bug report for some measurements on a real machine:
-		//   https://github.com/openMSX/openMSX/issues/1106
-		int lineCountResetTicks = (8 + getVerticalAdjust()) * TICKS_PER_LINE;
-
-		// Display line counter is reset at the start of the top border.
-		// Any HSCAN that has a higher line number never occurs.
-		if (horizontalScanOffset >= lineCountResetTicks) {
-			// This is one way to say "never".
-			horizontalScanOffset = -1000 * TICKS_PER_LINE;
-		}
+	if (horizontalScanOffset < 0) {
+		// Before this frame, so already behind us. (Possible while the
+		// counter is still the previous frame's.)
+		return;
+	}
+	EmuTime matchTime = frameStartTime + horizontalScanOffset;
+	EmuTime nextResetTime = (time < lineCountResetSyncTime)
+		? lineCountResetSyncTime
+		// Assumes the adjust and 50/60Hz settings don't change before
+		// then. Close enough.
+		: lineCountResetSyncTime + VDPClock::duration(getTicksPerFrame());
+	if (matchTime >= nextResetTime) {
+		// This is one way to say "never".
+		horizontalScanOffset = -1000 * TICKS_PER_LINE;
+		return;
 	}
 
 	// Register new HSCAN sync point if interrupt is enabled.
-	if ((controlRegs[0] & 0x10) && horizontalScanOffset >= 0) {
-		// No line interrupt will occur after bottom erase.
-		// NOT TRUE: "after next top border start" is correct.
-		// Note that line interrupt can occur in the next frame.
-		/*
-		EmuTime bottomEraseTime =
-			frameStartTime + getTicksPerFrame() - 3 * TICKS_PER_LINE;
-		*/
-		hScanSyncTime = frameStartTime + horizontalScanOffset;
-		if (hScanSyncTime > time) {
-			syncHScan.setSyncPoint(hScanSyncTime);
-		}
+	if ((controlRegs[0] & 0x10) && (matchTime > time)) {
+		hScanSyncTime = matchTime;
+		syncHScan.setSyncPoint(hScanSyncTime);
 	}
 }
 
@@ -718,11 +747,21 @@ void VDP::frameStart(EmuTime time)
 		renderer->updateSuperimposing(superimposing, time);
 	}
 
+	// The display line counter does not notice the frame boundary: it
+	// keeps counting from the previous frame's display start until this
+	// frame's reset (see execLineCountReset()). Keep 'displayStart' and
+	// 'horizontalScanOffset' pointing at the same moments, now expressed
+	// relative to the new frame start.
+	int elapsed = getTicksThisFrame(time);
+	displayStart -= elapsed;
+	horizontalScanOffset -= elapsed;
+
 	// Schedule next VSYNC.
 	frameStartTime.reset(time);
 	syncVSync.setSyncPoint(frameStartTime + getTicksPerFrame());
-	// Schedule DISPLAY_START, VSCAN and HSCAN.
-	scheduleDisplayStart(time);
+	// Schedule the display line counter reset in the top border, which in
+	// turn schedules DISPLAY_START, VSCAN and HSCAN.
+	scheduleLineCountReset(time);
 
 	// Inform VDP subcomponents.
 	// TODO: Do this via VDPVRAM?
@@ -1477,18 +1516,20 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 			cerr << "changed to " << (val & 0x80 ? 212 : 192) << " lines"
 				<< " at line " << (getTicksThisFrame(time) / TICKS_PER_LINE) << "\n";
 			*/
-			// Display lines (192/212) determines display start and end.
-			// TODO: Find out exactly when display start is fixed.
-			//       If it is fixed at VSYNC that would simplify things,
-			//       but I think it's more likely the current
-			//       implementation is accurate.
-			if (time < displayStartSyncTime) {
-				// Display start is not fixed yet.
-				scheduleDisplayStart(time);
-			} else {
-				// Display start is fixed, but display end is not.
-				scheduleVScan(time);
-			}
+			// The 192/212 lines bit is sampled at the display line
+			// counter reset in the top border, which is where the
+			// display start gets fixed (see execLineCountReset()), so
+			// a change has no effect on the display start until then.
+			// The display end, however, is a comparison against the
+			// bit as it is now.
+			scheduleVScan(time);
+		}
+		break;
+	case 18:
+		if (change & 0xF0) {
+			// The display line counter reset moves with the vertical
+			// adjust.
+			scheduleLineCountReset(time);
 		}
 		break;
 	case 19:
@@ -2167,6 +2208,8 @@ int VDP::MsxX512PosInfo::calc(EmuTime time) const
 // version 11: added previousCpuSlot, previousCpuSlotIsLate, secondCpuSlot, secondCpuVramReqIsRead
 // version 12: added isSlotTableDisplayArea and its two sync points
 // version 13: added cpuVramReqData, secondCpuVramReqData
+// version 14: added syncLineCountReset and lineCountResetSyncTime; displayStart
+//             is latched there instead of at frame start
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -2188,6 +2231,9 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		if (ar.versionAtLeast(serVersion, 12)) {
 			ar.serialize("syncSlotTableStart", syncSlotTableStart,
 			             "syncSlotTableEnd",   syncSlotTableEnd);
+		}
+		if (ar.versionAtLeast(serVersion, 14)) {
+			ar.serialize("syncLineCountReset", syncLineCountReset);
 		}
 	} else {
 		Schedulable::restoreOld(ar,
@@ -2274,6 +2320,17 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	} else if constexpr (Archive::IS_LOADER) {
 		// Close enough: it differs from 'isDisplayArea' for one line a frame.
 		isSlotTableDisplayArea = isDisplayArea;
+	}
+
+	if (ar.versionAtLeast(serVersion, 14)) {
+		ar.serialize("lineCountResetSyncTime", lineCountResetSyncTime);
+	} else if constexpr (Archive::IS_LOADER) {
+		// Older states computed displayStart at frame start. That is
+		// the value the reset would latch too, so if this frame's reset
+		// is still ahead just schedule it; it then only re-schedules
+		// what was already pending.
+		lineCountResetSyncTime = frameStartTime.getTime();
+		scheduleLineCountReset(getCurrentTime());
 	}
 
 	if (ar.versionAtLeast(serVersion, 11)) {

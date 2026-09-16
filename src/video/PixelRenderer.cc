@@ -375,6 +375,11 @@ void PixelRenderer::updateHorizontalAdjust(
 	rasterizer->setHorizontalAdjust(adjust);
 }
 
+void PixelRenderer::updateLineZero(EmuTime time)
+{
+	if (displayEnabled) sync(time);
+}
+
 void PixelRenderer::updateDisplayMode(
 	DisplayMode mode, EmuTime time)
 {

@@ -34,6 +34,7 @@ public:
 	void updateBorderMask(bool masked, EmuTime time) override;
 	void updateMultiPage(bool multiPage, EmuTime time) override;
 	void updateHorizontalAdjust(int adjust, EmuTime time) override;
+	void updateLineZero(EmuTime time) override;
 	void updateDisplayEnabled(bool enabled, EmuTime time) override;
 	void updateDisplayMode(DisplayMode mode, EmuTime time) override;
 	void updateNameBase(unsigned addr, EmuTime time) override;
