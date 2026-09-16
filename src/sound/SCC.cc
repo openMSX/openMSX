@@ -202,6 +202,7 @@ uint8_t SCC::readMem(uint8_t addr, EmuTime time)
 	//   SCC_plusmode:   0xC0..0xDF
 	if (((currentMode == Mode::Real) && (addr >= 0xE0)) ||
 	    ((currentMode != Mode::Real) && (0xC0 <= addr) && (addr < 0xE0))) {
+		updateStream(time);
 		setDeformReg(0xFF, time);
 	}
 	return peekMem(addr, time);
@@ -564,6 +565,7 @@ uint8_t SCC::Debuggable::read(unsigned address, EmuTime time)
 void SCC::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& scc = OUTER(SCC, debuggable);
+	scc.updateStream(time);
 	if (address < 0xA0) {
 		// read wave form 1..5
 		scc.writeWave(address >> 5, address, value);
