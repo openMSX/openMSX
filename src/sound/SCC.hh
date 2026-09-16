@@ -41,6 +41,8 @@ private:
 
 	[[nodiscard]] uint8_t readWave(unsigned channel, unsigned address, EmuTime time) const;
 	void writeWave(unsigned channel, unsigned address, uint8_t value);
+	void updatePeriod(unsigned channel);
+	void advancePos(unsigned channel, unsigned num);
 	void setDeformReg(uint8_t value, EmuTime time);
 	void setDeformRegHelper(uint8_t value);
 	void setFreqVol(unsigned address, uint8_t value, EmuTime time);
@@ -60,7 +62,6 @@ private:
 
 	std::array<std::array<int8_t, 32>, 5> wave;
 	std::array<std::array<float, 32>, 5> volAdjustedWave; // ints stored as floats, see comment in adjust()
-	std::array<unsigned, 5> incr;
 	std::array<unsigned, 5> count;
 	std::array<unsigned, 5> pos;
 	std::array<unsigned, 5> period;
@@ -72,6 +73,7 @@ private:
 	uint8_t deformValue;
 	std::array<bool, 5> rotate;
 	std::array<bool, 5> readOnly;
+	std::array<bool, 5> latchOutput;
 };
 
 } // namespace openmsx

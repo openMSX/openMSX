@@ -167,7 +167,8 @@ void SCC::powerUp(EmuTime time)
 	// (initialize before period)
 	std::ranges::fill(pos, 0);
 
-	// Initialize period (sets members orgPeriod, period, incr, count, out)
+	// Initialize period (sets members orgPeriod, period, latchOutput,
+	// count, out)
 	for (auto i : xrange(2 * 5)) {
 		setFreqVol(i, 0, time);
 	}
@@ -371,6 +372,37 @@ void SCC::writeWave(unsigned channel, unsigned address, uint8_t value)
 	}
 }
 
+// Recalculate the effective period, and whether the output latch is still
+// being updated, from orgPeriod[] and the deformation register.
+void SCC::updatePeriod(unsigned channel)
+{
+	unsigned per = orgPeriod[channel];
+	if (deformValue & 2) {
+		// 8 bit frequency
+		per &= 0xFF;
+	} else if (deformValue & 1) {
+		// 4 bit frequency
+		per >>= 8;
+	}
+	period[channel] = per;
+	// The SCC computes each sample with a serial multiplier that needs 9
+	// master clock cycles, one more than the period+1 cycles available
+	// below period 8. Under that the multiplier is restarted before it
+	// ever finishes and the output latch keeps its old value. The wave
+	// pointer is driven by the same frequency counter and keeps running.
+	latchOutput[channel] = per >= 8;
+}
+
+// Advance the wave pointer over 'num' output samples (32 master clock cycles
+// each), without touching the output latch.
+void SCC::advancePos(unsigned channel, unsigned num)
+{
+	unsigned period2 = period[channel] + 1;
+	unsigned newCount = count[channel] + num * 32;
+	count[channel] = newCount % period2;
+	pos[channel] = (pos[channel] + newCount / period2) % 32;
+}
+
 void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 {
 	address &= 0x0F; // region is visible twice
@@ -382,19 +414,7 @@ void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 			? ((value & 0xF) << 8) | (orgPeriod[channel] & 0xFF)
 			: (orgPeriod[channel] & 0xF00) | (value & 0xFF);
 		orgPeriod[channel] = per;
-		if (deformValue & 2) {
-			// 8 bit frequency
-			per &= 0xFF;
-		} else if (deformValue & 1) {
-			// 4 bit frequency
-			per >>= 8;
-		}
-		period[channel] = per;
-		// The SCC needs 9 clock cycles to compute an output sample; when
-		// the period is shorter than that the multiplier is restarted
-		// before it ever finishes and the output latch keeps its value.
-		// A period of exactly 8 (9 cycles) still works.
-		incr[channel] = (per < 8) ? 0 : 32;
+		updatePeriod(channel);
 		count[channel] = 0; // reset to begin of byte
 		if (deformValue & 0x20) {
 			pos[channel] = 0; // reset to begin of waveform
@@ -471,15 +491,29 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	unsigned enable = ch_enable;
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
-		if ((enable & 1) && (volume[i] || (out[i] != 0.0f))) {
+		if (!(enable & 1) || (!volume[i] && (out[i] == 0.0f))) {
+			bufs[i] = nullptr; // channel muted
+			// Update phase counter.
+			advancePos(i, num);
+			// Channel stays off until next waveform index.
+			out[i] = 0.0f;
+		} else if (!latchOutput[i]) {
+			// Period too short for the multiplier to finish, so the
+			// output latch keeps its value. The wave pointer does
+			// keep running.
+			auto out2 = out[i];
+			for (auto j : xrange(num)) {
+				bufs[i][j] += out2;
+			}
+			advancePos(i, num);
+		} else {
 			auto out2 = out[i];
 			unsigned count2 = count[i];
 			unsigned pos2 = pos[i];
-			unsigned incr2 = incr[i];
 			unsigned period2 = period[i] + 1;
 			for (auto j : xrange(num)) {
 				bufs[i][j] += out2;
-				count2 += incr2;
+				count2 += 32;
 				// Note: only for very small periods
 				//       this will take more than 1 iteration
 				while (count2 >= period2) [[unlikely]] {
@@ -491,14 +525,6 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 			out[i] = out2;
 			count[i] = count2;
 			pos[i] = pos2;
-		} else {
-			bufs[i] = nullptr; // channel muted
-			// Update phase counter.
-			unsigned newCount = count[i] + num * incr[i];
-			count[i] = newCount % (period[i] + 1);
-			pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
-			// Channel stays off until next waveform index.
-			out[i] = 0.0f;
 		}
 	}
 }
@@ -584,7 +610,7 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 		// recalculate rotate[5] and readOnly[5]
 		setDeformRegHelper(deformValue);
 
-		// recalculate incr[5] and period[5]
+		// recalculate latchOutput[5] and period[5]
 		//  this also (possibly) changes count[5], pos[5] and out[5]
 		//  as an unwanted side-effect, so (de)serialize those later
 		// Don't use current time, but instead use deformTimer, to
