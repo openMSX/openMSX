@@ -72,21 +72,6 @@ class EPOXY(DownloadablePackage):
 	def getMakeName(cls):
 		return 'EPOXY'
 
-class GLEW(DownloadablePackage):
-	downloadURL = 'http://downloads.sourceforge.net/glew'
-	niceName = 'GLEW'
-	sourceName = 'glew'
-	version = '2.2.0'
-	fileLength = 835861
-	checksums = {
-		'sha256':
-			'd4fc82893cfb00109578d0a1a2337fb8ca335b3ceccf97b97e5cc7f08e4353e1',
-		}
-
-	@classmethod
-	def getTarballName(cls):
-		return '%s-%s.tgz' % (cls.sourceName, cls.version)
-
 class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
