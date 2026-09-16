@@ -136,13 +136,20 @@ public:
 	virtual void updateMultiPage(bool multiPage, EmuTime time) = 0;
 
 	/** Informs the renderer of a horizontal adjust change.
-	  * Note that there is no similar method for vertical adjust updates,
-	  * because vertical adjust is calculated at start of frame and
-	  * then fixed.
+	  * Note that there is no similar method for vertical adjust updates:
+	  * vertical adjust only takes effect when the display line counter is
+	  * reset, see updateLineZero().
 	  * @param adjust The new adjust value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateHorizontalAdjust(int adjust, EmuTime time) = 0;
+
+	/** Informs the renderer that the display line counter is reset, which
+	  * moves display line zero (see VDP::getLineZero()). Lines before this
+	  * moment must be rendered against the old line zero.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateLineZero(EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP display enabled change.
 	  * Both the regular border start/end and forced blanking by clearing

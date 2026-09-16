@@ -68,6 +68,9 @@ void DummyRenderer::updateMultiPage(bool /*multiPage*/, EmuTime /*time*/) {
 void DummyRenderer::updateHorizontalAdjust(int /*adjust*/, EmuTime /*time*/) {
 }
 
+void DummyRenderer::updateLineZero(EmuTime /*time*/) {
+}
+
 void DummyRenderer::updateDisplayEnabled(bool /*enabled*/, EmuTime /*time*/) {
 }
 

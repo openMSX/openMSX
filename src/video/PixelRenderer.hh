@@ -54,6 +54,7 @@ public:
 	void updatePalette(unsigned index, int grb, EmuTime time) override;
 	void updateVerticalScroll(int scroll, EmuTime time) override;
 	void updateHorizontalAdjust(int adjust, EmuTime time) override;
+	void updateLineZero(EmuTime time) override;
 	void updateDisplayEnabled(bool enabled, EmuTime time) override;
 	void updateDisplayMode(DisplayMode mode, EmuTime time) override;
 	void updateNameBase(unsigned addr, EmuTime time) override;
