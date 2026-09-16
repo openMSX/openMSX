@@ -46,6 +46,12 @@ static void initializeSDL()
 {
 	int flags = 0;
 	flags |= SDL_INIT_JOYSTICK;
+
+	// On Linux, prefer x11 over wayland, because Dear ImGui ViewPorts are
+	// not (yet) supported on Wayland.
+#ifdef __linux__
+	SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11,wayland");
+#endif
 	if (!SDL_Init(flags)) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
