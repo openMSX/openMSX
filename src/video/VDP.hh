@@ -410,7 +410,11 @@ public:
 	  * then negative.
 	  */
 	[[nodiscard]] int getLineZero() const {
-		return displayStart / TICKS_PER_LINE;
+		// Floor division, so that 'line - getLineZero()' keeps counting
+		// display lines correctly while displayStart is negative.
+		int line = displayStart / TICKS_PER_LINE;
+		if ((displayStart % TICKS_PER_LINE) < 0) --line;
+		return line;
 	}
 
 	/** Is PAL timing active?
