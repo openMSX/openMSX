@@ -1,5 +1,7 @@
 # Hardcoded probe results for Visual C++ build.
 # Non-empty value means found, empty means not found.
+HAVE_EPOXY_H:=true
+HAVE_EPOXY_LIB:=true
 HAVE_GL_H:=true
 HAVE_GL_LIB:=true
 HAVE_GLEW_H:=true
