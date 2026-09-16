@@ -450,6 +450,12 @@ void SCC::setDeformReg(uint8_t value, EmuTime time)
 void SCC::setDeformRegHelper(uint8_t value)
 {
 	deformValue = value;
+	// Bits 0 and 1 (4 bit / 8 bit frequency) are gates in the frequency
+	// counter chain, so they change the pitch right away, without waiting
+	// for a write to a frequency register.
+	for (auto channel : xrange(5)) {
+		updatePeriod(channel);
+	}
 	if (currentMode != Mode::Real) {
 		value &= ~0x80;
 	}
