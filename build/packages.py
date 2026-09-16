@@ -53,6 +53,25 @@ class FreeType(DownloadablePackage):
 			'5c3a8e78f7b24c20b25b54ee575d6daa40007a5f4eea2845861c3409b3021747',
 		}
 
+class EPOXY(DownloadablePackage):
+	downloadURL = 'https://download.gnome.org/sources/libepoxy/1.5'
+	niceName = 'EPOXY'
+	sourceName = 'libepoxy'
+	version = '1.5.10'
+	fileLength = 223528
+	checksums = {
+		'sha256':
+			'072cda4b59dd098bba8c2363a6247299db1fa89411dc221c8b81b8ee8192e623',
+		}
+
+	@classmethod
+	def getTarballName(cls):
+		return '%s-%s.tar.xz' % (cls.sourceName, cls.version)
+
+	@classmethod
+	def getMakeName(cls):
+		return 'EPOXY'
+
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'

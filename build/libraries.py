@@ -249,6 +249,13 @@ class GL(Library):
 				return None
 		return execute
 
+class EPOXY(Library):
+	libName = 'epoxy'
+	makeName = 'EPOXY'
+	header = '<epoxy/gl.h>'
+	function = 'epoxy_gl_version'
+	dependsOn = ('GL', )
+
 class GLEW(Library):
 	makeName = 'GLEW'
 	header = '<GL/glew.h>'

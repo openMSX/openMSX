@@ -264,6 +264,36 @@ MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # Note: zlib's Makefile uses LDFLAGS to link its examples, not the library
 #       itself. If we mess with it, the build breaks.
 
+# Configure epoxy.
+# Note: libepoxy only ships a meson build; build/3rdparty-epoxy.mk compiles
+#       it directly instead, so that meson and ninja are not needed to build
+#       openMSX. Which dispatch APIs are needed follows from the target OS,
+#       the same way libepoxy's own build system decides it: re-check this
+#       against libepoxy's src/meson.build when updating the version.
+ifeq ($(TRIPLE_OS),mingw32)
+EPOXY_APIS:=gl wgl
+else
+ifeq ($(TRIPLE_OS),darwin)
+EPOXY_APIS:=gl
+else
+EPOXY_APIS:=gl glx egl
+endif
+endif
+
+# Note: libepoxy's own build compiles with -fno-strict-aliasing, so we do too.
+MAKEVAR_OVERRIDE_EPOXY:=\
+	SRC_DIR="$(PWD)/$(SOURCE_DIR)/$(PACKAGE_EPOXY)" \
+	INSTALL_DIR="$(PWD)/$(INSTALL_DIR)" \
+	PYTHON="$(PYTHON)" \
+	EPOXY_APIS="$(EPOXY_APIS)" \
+	CFLAGS="$(_CFLAGS) -fno-strict-aliasing"
+
+$(BUILD_DIR)/$(PACKAGE_EPOXY)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_EPOXY)/.extracted \
+  build/3rdparty-epoxy.mk
+	mkdir -p $(@D)
+	cp build/3rdparty-epoxy.mk $@
+
 # Don't configure GLEW.
 # GLEW does not support building outside of the source tree, so just copy
 # everything over (it's a small package).
