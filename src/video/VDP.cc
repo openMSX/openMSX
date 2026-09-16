@@ -584,6 +584,11 @@ void VDP::execLineCountReset(EmuTime time)
 		syncSlotTableStart.removeSyncPoint();
 	}
 
+	// Display line zero moves here. In overscan the display is still on,
+	// so render and check sprites up to this point against the old one.
+	renderer->updateLineZero(time);
+	spriteChecker->sync(time);
+
 	// Lines from the reset to display line zero, i.e. minus the value the
 	// counter is reset to:
 	//   60Hz: 17 (212 lines) or 27 (192 lines)
