@@ -166,6 +166,9 @@ void SCC::powerUp(EmuTime time)
 	// Actual initial value is difficult to measure, assume zero
 	// (initialize before period)
 	std::ranges::fill(pos, 0);
+	// The power-on period is below 8, so the loop below no longer writes
+	// out[]. All channels are disabled anyway.
+	std::ranges::fill(out, 0.0f);
 
 	// Initialize period (sets members orgPeriod, period, latchOutput,
 	// count, out)
@@ -423,8 +426,12 @@ void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 			// Artag's SCC sample player)
 			deformTimer.advance(time);
 		}
-		// after a freq change, update the output
-		out[channel] = volAdjustedWave[channel][pos[channel]];
+		// After a freq change the multiplier restarts, refreshing the
+		// output with the current sample and the current volume -- but
+		// only when the period is long enough for it to finish.
+		if (latchOutput[channel]) {
+			out[channel] = volAdjustedWave[channel][pos[channel]];
+		}
 	} else if (address < 0x0F) {
 		// change volume
 		unsigned channel = address - 0x0A;
