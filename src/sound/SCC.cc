@@ -171,7 +171,7 @@ void SCC::powerUp(EmuTime time)
 	std::ranges::fill(out, 0.0f);
 
 	// Initialize period (sets members orgPeriod, period, latchOutput,
-	// count, out)
+	// counter, out)
 	for (auto i : xrange(2 * 5)) {
 		setFreqVol(i, 0, time);
 	}
@@ -397,14 +397,66 @@ void SCC::updatePeriod(unsigned channel)
 	latchOutput[channel] = per >= 8;
 }
 
-// Advance the wave pointer over 'num' output samples (32 master clock cycles
-// each), without touching the output latch.
-void SCC::advancePos(unsigned channel, unsigned num)
+// Advance the frequency counter of a channel by the given number of master
+// clock cycles, and return how often the wave pointer stepped.
+//
+// The counter is a chain of three 4-bit down counters loaded from the
+// frequency register. Normally it acts as one 12-bit down counter that
+// reloads, and steps the wave pointer, on the cycle it reaches zero.
+// Deformation bit 1 takes the step from the low byte reaching zero instead,
+// so the top nibble never moves. Bit 0 makes the top nibble count every
+// cycle on its own, and the low byte just runs along (and wraps) until the
+// reload. The counter itself is the same in every mode, which is what
+// keeps this continuous across a change of the deformation register.
+unsigned SCC::advanceCounter(unsigned channel, unsigned clocks)
 {
-	unsigned period2 = period[channel] + 1;
-	unsigned newCount = count[channel] + num * 32;
-	count[channel] = newCount % period2;
-	pos[channel] = (pos[channel] + newCount / period2) % 32;
+	unsigned org = orgPeriod[channel];
+	unsigned cnt = counter[channel];
+	unsigned steps = 0;
+	if (deformValue & 2) {
+		// 8 bit frequency: step on the low byte
+		unsigned c  = cnt >> 8;
+		unsigned ba = cnt & 0xFF;
+		if (clocks > ba) {
+			clocks -= ba + 1;
+			unsigned p = (org & 0xFF) + 1;
+			steps = 1 + clocks / p;
+			clocks %= p;
+			c  = org >> 8;
+			ba = org & 0xFF;
+		}
+		ba -= clocks;
+		// bit 0 still makes the top nibble count every cycle, which
+		// only shows once the mode is switched again
+		if (deformValue & 1) c = (c - clocks) & 0xF;
+		cnt = (c << 8) | ba;
+	} else if (deformValue & 1) {
+		// 4 bit frequency: step on the top nibble, which counts every
+		// cycle, the low byte runs along
+		unsigned c  = cnt >> 8;
+		unsigned ba = cnt & 0xFF;
+		if (clocks > c) {
+			clocks -= c + 1;
+			unsigned p = (org >> 8) + 1;
+			steps = 1 + clocks / p;
+			clocks %= p;
+			c  = org >> 8;
+			ba = org & 0xFF;
+		}
+		cnt = ((c - clocks) << 8) | ((ba - clocks) & 0xFF);
+	} else {
+		// 12 bit frequency
+		if (clocks > cnt) {
+			clocks -= cnt + 1;
+			unsigned p = org + 1;
+			steps = 1 + clocks / p;
+			clocks %= p;
+			cnt = org;
+		}
+		cnt -= clocks;
+	}
+	counter[channel] = cnt;
+	return steps;
 }
 
 void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
@@ -419,7 +471,7 @@ void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 			: (orgPeriod[channel] & 0xF00) | (value & 0xFF);
 		orgPeriod[channel] = per;
 		updatePeriod(channel);
-		count[channel] = 0; // reset to begin of byte
+		counter[channel] = orgPeriod[channel]; // reload, restart the byte
 		if (deformValue & 0x20) {
 			pos[channel] = 0; // reset to begin of waveform
 			// also 'rotation' mode (confirmed by test based on
@@ -507,8 +559,8 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
 		if (!(enable & 1) || (!volume[i] && (out[i] == 0.0f))) {
 			bufs[i] = nullptr; // channel muted
-			// Update phase counter.
-			advancePos(i, num);
+			// The wave pointer keeps running.
+			pos[i] = (pos[i] + advanceCounter(i, num * 32)) % 32;
 			// Channel stays off until next waveform index.
 			out[i] = 0.0f;
 		} else if (!latchOutput[i]) {
@@ -519,25 +571,20 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 			for (auto j : xrange(num)) {
 				bufs[i][j] += out2;
 			}
-			advancePos(i, num);
+			pos[i] = (pos[i] + advanceCounter(i, num * 32)) % 32;
 		} else {
 			auto out2 = out[i];
-			unsigned count2 = count[i];
 			unsigned pos2 = pos[i];
-			unsigned period2 = period[i] + 1;
 			for (auto j : xrange(num)) {
 				bufs[i][j] += out2;
-				count2 += 32;
 				// Note: only for very small periods
-				//       this will take more than 1 iteration
-				while (count2 >= period2) [[unlikely]] {
-					count2 -= period2;
-					pos2 = (pos2 + 1) % 32;
+				//       this steps more than once per sample
+				if (unsigned steps = advanceCounter(i, 32); steps != 0) [[unlikely]] {
+					pos2 = (pos2 + steps) % 32;
 					out2 = volAdjustedWave[i][pos2];
 				}
 			}
 			out[i] = out2;
-			count[i] = count2;
 			pos[i] = pos2;
 		}
 	}
@@ -595,8 +642,13 @@ static constexpr auto chipModeInfo = std::to_array<enum_string<SCC::Mode>>({
 });
 SERIALIZE_ENUM(SCC::Mode, chipModeInfo);
 
+// version 1: initial version
+// version 2: 'count', the number of cycles since the frequency counter was
+//            last reloaded, replaced by 'counter', the frequency counter
+//            itself. The former only made sense for one setting of the
+//            deformation register.
 template<typename Archive>
-void SCC::serialize(Archive& ar, unsigned /*version*/)
+void SCC::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("mode",        currentMode,
 	             "period",      orgPeriod,
@@ -626,7 +678,7 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 		setDeformRegHelper(deformValue);
 
 		// recalculate latchOutput[5] and period[5]
-		//  this also (possibly) changes count[5], pos[5] and out[5]
+		//  this also (possibly) changes counter[5], pos[5] and out[5]
 		//  as an unwanted side-effect, so (de)serialize those later
 		// Don't use current time, but instead use deformTimer, to
 		// avoid changing the value of deformTimer.
@@ -639,9 +691,22 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	// call to setFreqVol() modifies these variables, see above
-	ar.serialize("count", count,
-	             "pos",   pos,
-	             "out",   out); // note: changed int->float, but no need to bump serialize-version
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("counter", counter);
+	} else {
+		std::array<unsigned, 5> count; // cycles since the last reload
+		ar.serialize("count", count);
+		for (auto channel : xrange(5)) {
+			unsigned org = orgPeriod[channel];
+			unsigned n = std::min(count[channel], period[channel]);
+			unsigned rem = period[channel] - n; // what is left to count
+			counter[channel] = (deformValue & 2) ? ((org & 0xF00) | rem)
+			                 : (deformValue & 1) ? ((rem << 8) | ((org - n) & 0xFF))
+			                 : rem;
+		}
+	}
+	ar.serialize("pos", pos,
+	             "out", out); // note: changed int->float, but no need to bump serialize-version
 }
 INSTANTIATE_SERIALIZE_METHODS(SCC);
 
