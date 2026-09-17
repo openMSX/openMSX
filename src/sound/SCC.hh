@@ -43,7 +43,11 @@ private:
 	void writeWave(unsigned channel, unsigned address, uint8_t value);
 	void resetRegisters();
 	void updatePeriod(unsigned channel);
+	[[nodiscard]] unsigned remaining(unsigned channel) const;
 	[[nodiscard]] unsigned advanceCounter(unsigned channel, unsigned clocks);
+	[[nodiscard]] bool isLatched(unsigned channel) const;
+	[[nodiscard]] float stepLatched(unsigned channel, float current);
+	void advanceBlock(unsigned channel, unsigned num);
 	void setDeformReg(uint8_t value, EmuTime time);
 	void setDeformRegHelper(uint8_t value);
 	void setFreqVol(unsigned address, uint8_t value, EmuTime time);
@@ -75,9 +79,10 @@ private:
 	std::array<bool, 5> rotate;
 	std::array<bool, 5> readOnly;
 	std::array<bool, 5> latchOutput;
+	std::array<int8_t, 2> waveLatch; // channel 4 and 5, see stepLatched()
 };
 
-SERIALIZE_CLASS_VERSION(SCC, 2);
+SERIALIZE_CLASS_VERSION(SCC, 3);
 
 } // namespace openmsx
 

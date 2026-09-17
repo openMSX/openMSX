@@ -161,6 +161,7 @@ void SCC::powerUp(EmuTime time)
 	for (auto& w1 : wave) {
 		std::ranges::fill(w1, ~0);
 	}
+	std::ranges::fill(waveLatch, int8_t(~0));
 	// Initialize volume (initialize this before period)
 	for (auto i : xrange(5)) {
 		setFreqVol(i + 10, 15, time);
@@ -470,6 +471,89 @@ unsigned SCC::advanceCounter(unsigned channel, unsigned clocks)
 	return steps;
 }
 
+// The number of cycles the frequency counter still counts down before the
+// next step, under the current deformation mode.
+unsigned SCC::remaining(unsigned channel) const
+{
+	unsigned cnt = counter[channel];
+	if (deformValue & 2) return cnt & 0xFF;
+	if (deformValue & 1) return cnt >> 8;
+	return cnt;
+}
+
+// Channels 4 and 5 of the SCC share one wave RAM, and don't read it the way
+// channels 1 to 3 read theirs. A free-running 32-cycle sequencer gives the
+// RAM channel 4's address for 16 cycles and channel 5's for the other 16,
+// and halfway through each window captures the byte in that channel's
+// latch. The multiplier reads bits from the latch, one per cycle, during
+// the 8 cycles after a step. So it sees the byte the pointer was at when
+// the latch was last captured, normally one position behind, and when a
+// capture lands inside those 8 cycles the low bits come from the old byte
+// and the high bits from the new one.
+//
+// The sequencer's period is exactly one of our samples, so within a sample
+// each latch is captured at a fixed edge: channel 4's on the first edge
+// after reset, channel 5's 16 later. Where that sits relative to the
+// sample grid can't be known here, only that it is fixed.
+bool SCC::isLatched(unsigned channel) const
+{
+	return (currentMode == Mode::Real) && (channel >= 3);
+}
+
+// One 32-cycle sample of a latched channel: advance the counter, the wave
+// pointer and the latch. Returns the output at the end of the sample, or
+// 'current' when there was no step.
+float SCC::stepLatched(unsigned channel, float current)
+{
+	static constexpr std::array<unsigned, 2> CAPTURE_EDGE = {1, 17};
+	unsigned capture = CAPTURE_EDGE[channel - 3];
+	unsigned s = remaining(channel) + 1; // edge of the first step
+	unsigned steps = advanceCounter(channel, 32);
+	unsigned p = period[channel] + 1;
+	auto& latch = waveLatch[channel - 3];
+	const auto& ram = wave[channel];
+	unsigned pos2 = pos[channel];
+	bool captured = false;
+	repeat(steps, [&] {
+		if (!captured && (capture <= s)) {
+			// on the same edge as the step it still sees the old
+			// position, and the multiplier then reads the new latch
+			latch = ram[pos2];
+			captured = true;
+		}
+		pos2 = (pos2 + 1) % 32;
+		int8_t b = latch;
+		// the next capture, possibly in the following sample
+		unsigned d = ((capture > s) ? capture : (capture + 32)) - s;
+		if (d <= 7) {
+			// inside the multiplier's window: bits 0..d-1 were
+			// already read from the old byte
+			auto mask = uint8_t((1 << d) - 1);
+			b = narrow_cast<int8_t>((uint8_t(ram[pos2]) & ~mask) |
+			                        (uint8_t(latch) & mask));
+		}
+		current = adjust(b, volume[channel]);
+		s += p;
+	});
+	if (!captured) latch = ram[pos2];
+	pos[channel] = pos2;
+	return current;
+}
+
+// Advance a channel over 'num' samples without producing output.
+void SCC::advanceBlock(unsigned channel, unsigned num)
+{
+	if (isLatched(channel)) {
+		// only the last sample matters for the latch
+		if (num > 1) {
+			pos[channel] = (pos[channel] + advanceCounter(channel, (num - 1) * 32)) % 32;
+		}
+		(void)stepLatched(channel, 0.0f);
+	} else {
+		pos[channel] = (pos[channel] + advanceCounter(channel, num * 32)) % 32;
+	}
+}
+
 void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 {
 	address &= 0x0F; // region is visible twice
@@ -493,7 +577,9 @@ void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 		// output with the current sample and the current volume -- but
 		// only when the period is long enough for it to finish.
 		if (latchOutput[channel]) {
-			out[channel] = volAdjustedWave[channel][pos[channel]];
+			out[channel] = isLatched(channel)
+				? adjust(waveLatch[channel - 3], volume[channel])
+				: volAdjustedWave[channel][pos[channel]];
 		}
 	} else if (address < 0x0F) {
 		// change volume
@@ -571,7 +657,7 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 		if (!(enable & 1) || (!volume[i] && (out[i] == 0.0f))) {
 			bufs[i] = nullptr; // channel muted
 			// The wave pointer keeps running.
-			pos[i] = (pos[i] + advanceCounter(i, num * 32)) % 32;
+			advanceBlock(i, num);
 			// Channel stays off until next waveform index.
 			out[i] = 0.0f;
 		} else if (!latchOutput[i]) {
@@ -582,7 +668,14 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 			for (auto j : xrange(num)) {
 				bufs[i][j] += out2;
 			}
-			pos[i] = (pos[i] + advanceCounter(i, num * 32)) % 32;
+			advanceBlock(i, num);
+		} else if (isLatched(i)) {
+			auto out2 = out[i];
+			for (auto j : xrange(num)) {
+				bufs[i][j] += out2;
+				out2 = stepLatched(i, out2);
+			}
+			out[i] = out2;
 		} else {
 			auto out2 = out[i];
 			unsigned pos2 = pos[i];
@@ -658,6 +751,8 @@ SERIALIZE_ENUM(SCC::Mode, chipModeInfo);
 //            last reloaded, replaced by 'counter', the frequency counter
 //            itself. The former only made sense for one setting of the
 //            deformation register.
+// version 3: added 'waveLatch', the byte channels 4 and 5 last captured
+//            from their shared wave RAM
 template<typename Archive>
 void SCC::serialize(Archive& ar, unsigned version)
 {
@@ -718,6 +813,11 @@ void SCC::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("pos", pos,
 	             "out", out); // note: changed int->float, but no need to bump serialize-version
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("waveLatch", waveLatch);
+	} else if constexpr (Archive::IS_LOADER) {
+		waveLatch = {wave[3][pos[3]], wave[4][pos[4]]};
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SCC);
 
