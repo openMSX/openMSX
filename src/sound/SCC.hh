@@ -41,6 +41,7 @@ private:
 
 	[[nodiscard]] uint8_t readWave(unsigned channel, unsigned address, EmuTime time) const;
 	void writeWave(unsigned channel, unsigned address, uint8_t value);
+	void resetRegisters();
 	void updatePeriod(unsigned channel);
 	[[nodiscard]] unsigned advanceCounter(unsigned channel, unsigned clocks);
 	void setDeformReg(uint8_t value, EmuTime time);

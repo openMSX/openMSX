@@ -153,7 +153,9 @@ void SCC::powerUp(EmuTime time)
 	//  <enen>    filled with $FF, some bits cleared but that seems random
 
 	// Initialize ch_enable, deform (initialize this before period)
-	reset(time);
+	// (Not via reset(): that updates the stream, and this also runs
+	// from the constructor, before the device is registered.)
+	resetRegisters();
 
 	// Initialize waveforms (initialize before volumes)
 	for (auto& w1 : wave) {
@@ -163,21 +165,22 @@ void SCC::powerUp(EmuTime time)
 	for (auto i : xrange(5)) {
 		setFreqVol(i + 10, 15, time);
 	}
-	// Actual initial value is difficult to measure, assume zero
-	// (initialize before period)
-	std::ranges::fill(pos, 0);
-	// The power-on period is below 8, so the loop below no longer writes
-	// out[]. All channels are disabled anyway.
-	std::ranges::fill(out, 0.0f);
+	// resetRegisters() above initialized pos, counter and out.
 
 	// Initialize period (sets members orgPeriod, period, latchOutput,
-	// counter, out)
+	// counter, and out if the period allows it)
 	for (auto i : xrange(2 * 5)) {
 		setFreqVol(i, 0, time);
 	}
 }
 
-void SCC::reset(EmuTime /*time*/)
+void SCC::reset(EmuTime time)
+{
+	updateStream(time);
+	resetRegisters();
+}
+
+void SCC::resetRegisters()
 {
 	if (currentMode != Mode::Real) {
 		setMode(Mode::Compatible);
@@ -185,6 +188,14 @@ void SCC::reset(EmuTime /*time*/)
 
 	setDeformRegHelper(0);
 	ch_enable = 0;
+	// /RESET also clears the address counters, so every channel starts
+	// its waveform from the top, and sets the frequency counters to all
+	// ones: the first step comes 4096 cycles later, and only that reload
+	// picks up the (unchanged) frequency register. The output latches go
+	// quiet along with the enable bits.
+	std::ranges::fill(pos, 0);
+	std::ranges::fill(counter, 0xFFF);
+	std::ranges::fill(out, 0.0f);
 }
 
 void SCC::setMode(Mode newMode)
