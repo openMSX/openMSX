@@ -98,6 +98,7 @@
 
 #include "SCC.hh"
 
+#include "Clock.hh"
 #include "DeviceConfig.hh"
 
 #include "cstd.hh"
@@ -126,7 +127,6 @@ SCC::SCC(const std::string& name_, const DeviceConfig& config,
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, false)
 	, debuggable(config.getMotherBoard(), getName())
-	, deformTimer(time)
 	, currentMode(mode)
 {
 	// Make valgrind happy
@@ -141,7 +141,7 @@ SCC::~SCC()
 	unregisterSound();
 }
 
-void SCC::powerUp(EmuTime time)
+void SCC::powerUp(EmuTime /*time*/)
 {
 	// Power on values, tested by enen (log from IRC #openmsx):
 	//
@@ -164,14 +164,14 @@ void SCC::powerUp(EmuTime time)
 	std::ranges::fill(waveLatch, int8_t(~0));
 	// Initialize volume (initialize this before period)
 	for (auto i : xrange(5)) {
-		setFreqVol(i + 10, 15, time);
+		setFreqVol(i + 10, 15);
 	}
 	// resetRegisters() above initialized pos, counter and out.
 
 	// Initialize period (sets members orgPeriod, period, latchOutput,
 	// counter, and out if the period allows it)
 	for (auto i : xrange(2 * 5)) {
-		setFreqVol(i, 0, time);
+		setFreqVol(i, 0);
 	}
 }
 
@@ -218,18 +218,23 @@ uint8_t SCC::readMem(uint8_t addr, EmuTime time)
 	if (((currentMode == Mode::Real) && (addr >= 0xE0)) ||
 	    ((currentMode != Mode::Real) && (0xC0 <= addr) && (addr < 0xE0))) {
 		updateStream(time);
-		setDeformReg(0xFF, time);
+		setDeformReg(0xFF);
+	}
+	// A read in 'rotation' mode returns the byte being played, so bring
+	// the wave pointers up to date first.
+	if (std::ranges::any_of(rotate, [](bool r) { return r; })) {
+		updateStream(time);
 	}
 	return peekMem(addr, time);
 }
 
-uint8_t SCC::peekMem(uint8_t address, EmuTime time) const
+uint8_t SCC::peekMem(uint8_t address, EmuTime /*time*/) const
 {
 	switch (currentMode) {
 	case Mode::Real:
 		if (address < 0x80) {
 			// 0x00..0x7F : read wave form 1..4
-			return readWave(address >> 5, address, time);
+			return readWave(address >> 5, address);
 		} else {
 			// 0x80..0x9F : freq volume block, write only
 			// 0xA0..0xDF : no function
@@ -239,13 +244,13 @@ uint8_t SCC::peekMem(uint8_t address, EmuTime time) const
 	case Mode::Compatible:
 		if (address < 0x80) {
 			// 0x00..0x7F : read wave form 1..4
-			return readWave(address >> 5, address, time);
+			return readWave(address >> 5, address);
 		} else if (address < 0xA0) {
 			// 0x80..0x9F : freq volume block
 			return 0xFF;
 		} else if (address < 0xC0) {
 			// 0xA0..0xBF : read wave form 5
-			return readWave(4, address, time);
+			return readWave(4, address);
 		} else {
 			// 0xC0..0xDF : deformation register
 			// 0xE0..0xFF : no function
@@ -254,7 +259,7 @@ uint8_t SCC::peekMem(uint8_t address, EmuTime time) const
 	case Mode::Plus:
 		if (address < 0xA0) {
 			// 0x00..0x9F : read wave form 1..5
-			return readWave(address >> 5, address, time);
+			return readWave(address >> 5, address);
 		} else {
 			// 0xA0..0xBF : freq volume block
 			// 0xC0..0xDF : deformation register
@@ -266,19 +271,27 @@ uint8_t SCC::peekMem(uint8_t address, EmuTime time) const
 	}
 }
 
-uint8_t SCC::readWave(unsigned channel, unsigned address, EmuTime time) const
+uint8_t SCC::readWave(unsigned channel, unsigned address) const
 {
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
-	} else {
-		unsigned ticks = deformTimer.getTicksTill(time);
-		unsigned periodCh = ((channel == 3) &&
-		                     (currentMode != Mode::Plus) &&
-		                     ((deformValue & 0xC0) == 0x40))
-		                  ? 4 : channel;
-		unsigned shift = ticks / (period[periodCh] + 1);
-		return wave[channel][(address + shift) & 0x1F];
 	}
+	// 'Rotation'. With deformation bit 6 set the wave RAM's address mux
+	// stays on the play pointer during a CPU access (the die schematic's
+	// CH1 RAM block: TEST_D6 forces the counter side of the mux and
+	// disables the write strobe), so a read returns the byte being
+	// played, whichever address was read. Read one address repeatedly and
+	// the waveform passes by at the channel's rate, which is what was
+	// always observed and described as the wave rotating.
+	//
+	// Channels 4 and 5 share one RAM whose address mux alternates between
+	// their pointers under a 32-cycle sequencer. What that does exactly
+	// during a CPU access in this mode is not settled (see the commit
+	// message); this keeps the documented observation: with bit 6 the
+	// shared RAM follows channel 5's pointer, with bit 7 channel 4's.
+	unsigned ptr = ((channel == 3) && (currentMode != Mode::Plus) &&
+	                ((deformValue & 0xC0) == 0x40)) ? 4 : channel;
+	return wave[channel][pos[ptr]];
 }
 
 
@@ -313,12 +326,12 @@ void SCC::writeMem(uint8_t address, uint8_t value, EmuTime time)
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xA0) {
 			// 0x80..0x9F : freq volume block
-			setFreqVol(address, value, time);
+			setFreqVol(address, value);
 		} else if (address < 0xE0) {
 			// 0xA0..0xDF : no function
 		} else {
 			// 0xE0..0xFF : deformation register
-			setDeformReg(value, time);
+			setDeformReg(value);
 		}
 		break;
 	case Mode::Compatible:
@@ -327,12 +340,12 @@ void SCC::writeMem(uint8_t address, uint8_t value, EmuTime time)
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xA0) {
 			// 0x80..0x9F : freq volume block
-			setFreqVol(address, value, time);
+			setFreqVol(address, value);
 		} else if (address < 0xC0) {
 			// 0xA0..0xBF : ignore write wave form 5
 		} else if (address < 0xE0) {
 			// 0xC0..0xDF : deformation register
-			setDeformReg(value, time);
+			setDeformReg(value);
 		} else {
 			// 0xE0..0xFF : no function
 		}
@@ -343,10 +356,10 @@ void SCC::writeMem(uint8_t address, uint8_t value, EmuTime time)
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xC0) {
 			// 0xA0..0xBF : freq volume block
-			setFreqVol(address, value, time);
+			setFreqVol(address, value);
 		} else if (address < 0xE0) {
 			// 0xC0..0xDF : deformation register
-			setDeformReg(value, time);
+			setDeformReg(value);
 		} else {
 			// 0xE0..0xFF : no function
 		}
@@ -371,9 +384,9 @@ static constexpr float adjust(int8_t wav, uint8_t vol)
 
 void SCC::writeWave(unsigned channel, unsigned address, uint8_t value)
 {
-	// write to channel 5 only possible in SCC+ mode
+	// in Real mode channels 4 and 5 are one RAM, addressed as channel 4
 	assert(channel < 5);
-	assert((channel != 4) || (currentMode == Mode::Plus));
+	assert((channel != 4) || (currentMode != Mode::Real));
 
 	if (!readOnly[channel]) {
 		unsigned p = address & 0x1F;
@@ -554,7 +567,7 @@ void SCC::advanceBlock(unsigned channel, unsigned num)
 	}
 }
 
-void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
+void SCC::setFreqVol(unsigned address, uint8_t value)
 {
 	address &= 0x0F; // region is visible twice
 	if (address < 0x0A) {
@@ -569,9 +582,6 @@ void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 		counter[channel] = orgPeriod[channel]; // reload, restart the byte
 		if (deformValue & 0x20) {
 			pos[channel] = 0; // reset to begin of waveform
-			// also 'rotation' mode (confirmed by test based on
-			// Artag's SCC sample player)
-			deformTimer.advance(time);
 		}
 		// After a freq change the multiplier restarts, refreshing the
 		// output with the current sample and the current volume -- but
@@ -595,12 +605,11 @@ void SCC::setFreqVol(unsigned address, uint8_t value, EmuTime time)
 	}
 }
 
-void SCC::setDeformReg(uint8_t value, EmuTime time)
+void SCC::setDeformReg(uint8_t value)
 {
 	if (value == deformValue) {
 		return;
 	}
-	deformTimer.advance(time);
 	setDeformRegHelper(value);
 }
 
@@ -703,12 +712,12 @@ SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& nam
 {
 }
 
-uint8_t SCC::Debuggable::read(unsigned address, EmuTime time)
+uint8_t SCC::Debuggable::read(unsigned address, EmuTime /*time*/)
 {
 	const auto& scc = OUTER(SCC, debuggable);
 	if (address < 0xA0) {
 		// read wave form 1..5
-		return scc.readWave(address >> 5, address, time);
+		return scc.readWave(address >> 5, address);
 	} else if (address < 0xC0) {
 		// freq volume block
 		return scc.getFreqVol(address);
@@ -725,14 +734,18 @@ void SCC::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 	auto& scc = OUTER(SCC, debuggable);
 	scc.updateStream(time);
 	if (address < 0xA0) {
-		// read wave form 1..5
-		scc.writeWave(address >> 5, address, value);
+		// write wave form 1..5
+		unsigned channel = address >> 5;
+		if ((channel == 4) && (scc.currentMode == Mode::Real)) {
+			channel = 3; // one RAM for channels 4 and 5
+		}
+		scc.writeWave(channel, address, value);
 	} else if (address < 0xC0) {
 		// freq volume block
-		scc.setFreqVol(address, value, time);
+		scc.setFreqVol(address, value);
 	} else if (address < 0xE0) {
 		// deformation register
-		scc.setDeformReg(value, time);
+		scc.setDeformReg(value);
 	} else {
 		// ignore
 	}
@@ -753,15 +766,19 @@ SERIALIZE_ENUM(SCC::Mode, chipModeInfo);
 //            deformation register.
 // version 3: added 'waveLatch', the byte channels 4 and 5 last captured
 //            from their shared wave RAM
+// version 4: removed 'deformTimer', the reference for the old rotation model
 template<typename Archive>
 void SCC::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("mode",        currentMode,
 	             "period",      orgPeriod,
 	             "volume",      volume,
-	             "ch_enable",   ch_enable,
-	             "deformTimer", deformTimer,
-	             "deform",      deformValue);
+	             "ch_enable",   ch_enable);
+	if (ar.versionBelow(version, 4)) {
+		Clock<CLOCK_FREQ> deformTimer(EmuTime::zero()); // no longer used
+		ar.serialize("deformTimer", deformTimer);
+	}
+	ar.serialize("deform", deformValue);
 	// multi-dimensional arrays are not directly support by the
 	// serialization framework, maybe in the future. So for now
 	// manually loop over the channels.
@@ -786,13 +803,10 @@ void SCC::serialize(Archive& ar, unsigned version)
 		// recalculate latchOutput[5] and period[5]
 		//  this also (possibly) changes counter[5], pos[5] and out[5]
 		//  as an unwanted side-effect, so (de)serialize those later
-		// Don't use current time, but instead use deformTimer, to
-		// avoid changing the value of deformTimer.
-		EmuTime time = deformTimer.getTime();
 		for (auto channel : xrange(5)) {
 			unsigned per = orgPeriod[channel];
-			setFreqVol(2 * channel + 0, (per & 0x0FF) >> 0, time);
-			setFreqVol(2 * channel + 1, (per & 0xF00) >> 8, time);
+			setFreqVol(2 * channel + 0, (per & 0x0FF) >> 0);
+			setFreqVol(2 * channel + 1, (per & 0xF00) >> 8);
 		}
 	}
 

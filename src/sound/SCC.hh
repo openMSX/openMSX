@@ -3,7 +3,6 @@
 
 #include "ResampledSoundDevice.hh"
 
-#include "Clock.hh"
 #include "SimpleDebuggable.hh"
 
 #include <array>
@@ -39,7 +38,7 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
-	[[nodiscard]] uint8_t readWave(unsigned channel, unsigned address, EmuTime time) const;
+	[[nodiscard]] uint8_t readWave(unsigned channel, unsigned address) const;
 	void writeWave(unsigned channel, unsigned address, uint8_t value);
 	void resetRegisters();
 	void updatePeriod(unsigned channel);
@@ -48,9 +47,9 @@ private:
 	[[nodiscard]] bool isLatched(unsigned channel) const;
 	[[nodiscard]] float stepLatched(unsigned channel, float current);
 	void advanceBlock(unsigned channel, unsigned num);
-	void setDeformReg(uint8_t value, EmuTime time);
+	void setDeformReg(uint8_t value);
 	void setDeformRegHelper(uint8_t value);
-	void setFreqVol(unsigned address, uint8_t value, EmuTime time);
+	void setFreqVol(unsigned address, uint8_t value);
 	[[nodiscard]] uint8_t getFreqVol(unsigned address) const;
 
 private:
@@ -62,7 +61,6 @@ private:
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
 
-	Clock<CLOCK_FREQ> deformTimer;
 	Mode currentMode;
 
 	std::array<std::array<int8_t, 32>, 5> wave;
@@ -82,7 +80,7 @@ private:
 	std::array<int8_t, 2> waveLatch; // channel 4 and 5, see stepLatched()
 };
 
-SERIALIZE_CLASS_VERSION(SCC, 3);
+SERIALIZE_CLASS_VERSION(SCC, 4);
 
 } // namespace openmsx
 
