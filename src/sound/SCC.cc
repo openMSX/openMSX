@@ -515,8 +515,9 @@ bool SCC::isLatched(unsigned channel) const
 
 // One 32-cycle sample of a latched channel: advance the counter, the wave
 // pointer and the latch. Returns the output at the end of the sample, or
-// 'current' when there was no step.
-float SCC::stepLatched(unsigned channel, float current)
+// 'current' when there was no step, and in 'average' the mean output over
+// the sample (see generateChannels()).
+float SCC::stepLatched(unsigned channel, float current, float& average)
 {
 	static constexpr std::array<unsigned, 2> CAPTURE_EDGE = {1, 17};
 	unsigned capture = CAPTURE_EDGE[channel - 3];
@@ -527,7 +528,11 @@ float SCC::stepLatched(unsigned channel, float current)
 	const auto& ram = wave[channel];
 	unsigned pos2 = pos[channel];
 	bool captured = false;
+	float acc = 0.0f;
+	unsigned last = 0; // edge up to which the output is accounted for
 	repeat(steps, [&] {
+		acc += current * float(s - last);
+		last = s;
 		if (!captured && (capture <= s)) {
 			// on the same edge as the step it still sees the old
 			// position, and the multiplier then reads the new latch
@@ -548,6 +553,8 @@ float SCC::stepLatched(unsigned channel, float current)
 		current = adjust(b, volume[channel]);
 		s += p;
 	});
+	acc += current * float(32 - last);
+	average = acc * (1.0f / 32.0f);
 	if (!captured) latch = ram[pos2];
 	pos[channel] = pos2;
 	return current;
@@ -561,7 +568,8 @@ void SCC::advanceBlock(unsigned channel, unsigned num)
 		if (num > 1) {
 			pos[channel] = (pos[channel] + advanceCounter(channel, (num - 1) * 32)) % 32;
 		}
-		(void)stepLatched(channel, 0.0f);
+		float dummy;
+		(void)stepLatched(channel, 0.0f, dummy);
 	} else {
 		pos[channel] = (pos[channel] + advanceCounter(channel, num * 32)) % 32;
 	}
@@ -659,6 +667,12 @@ void SCC::setDeformRegHelper(uint8_t value)
 	}
 }
 
+// Each of our samples covers 32 master clock cycles, in which the chip's
+// output can step several times, at any cycle. A sample carries the mean
+// of the output over its 32 cycles: a step counts for the cycles it was in
+// effect, wherever in the sample it falls, and no step is lost when they
+// come closer than 32 cycles. (The chip writes its output latch 9 cycles
+// after a step; that constant delay is left out.)
 void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	unsigned enable = ch_enable;
@@ -681,21 +695,33 @@ void SCC::generateChannels(std::span<float*> bufs, unsigned num)
 		} else if (isLatched(i)) {
 			auto out2 = out[i];
 			for (auto j : xrange(num)) {
-				bufs[i][j] += out2;
-				out2 = stepLatched(i, out2);
+				float average;
+				out2 = stepLatched(i, out2, average);
+				bufs[i][j] += average;
 			}
 			out[i] = out2;
 		} else {
 			auto out2 = out[i];
 			unsigned pos2 = pos[i];
+			unsigned p = period[i] + 1;
 			for (auto j : xrange(num)) {
-				bufs[i][j] += out2;
-				// Note: only for very small periods
-				//       this steps more than once per sample
-				if (unsigned steps = advanceCounter(i, 32); steps != 0) [[unlikely]] {
-					pos2 = (pos2 + steps) % 32;
-					out2 = volAdjustedWave[i][pos2];
+				unsigned s = remaining(i) + 1; // edge of the first step
+				unsigned steps = advanceCounter(i, 32);
+				if (steps == 0) [[likely]] {
+					bufs[i][j] += out2;
+					continue;
 				}
+				float acc = 0.0f;
+				unsigned last = 0;
+				repeat(steps, [&] {
+					acc += out2 * float(s - last);
+					last = s;
+					pos2 = (pos2 + 1) % 32;
+					out2 = volAdjustedWave[i][pos2];
+					s += p;
+				});
+				acc += out2 * float(32 - last);
+				bufs[i][j] += acc * (1.0f / 32.0f);
 			}
 			out[i] = out2;
 			pos[i] = pos2;

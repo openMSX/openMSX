@@ -45,7 +45,7 @@ private:
 	[[nodiscard]] unsigned remaining(unsigned channel) const;
 	[[nodiscard]] unsigned advanceCounter(unsigned channel, unsigned clocks);
 	[[nodiscard]] bool isLatched(unsigned channel) const;
-	[[nodiscard]] float stepLatched(unsigned channel, float current);
+	[[nodiscard]] float stepLatched(unsigned channel, float current, float& average);
 	void advanceBlock(unsigned channel, unsigned num);
 	void setDeformReg(uint8_t value);
 	void setDeformRegHelper(uint8_t value);
