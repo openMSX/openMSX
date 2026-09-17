@@ -377,14 +377,12 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		break;
 	case SDL_JOYAXISMOTION: {
 		if (auto joyId = joystickManager.translateSdlInstanceId(evt)) {
-			const auto* setting = joystickManager.getJoyDeadZoneSetting(*joyId);
-			assert(setting);
-			int deadZone = setting->getInt();
-			int threshold = (deadZone * 32768) / 100;
-			auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
-				: (evt.jaxis.value >  threshold) ? evt.jaxis.value
-								: 0;
 			event = JoystickAxisMotionEvent(evt);
+
+			int threshold = joystickManager.getJoyDeadThreshold(*joyId);
+			auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
+			           : (evt.jaxis.value >  threshold) ? evt.jaxis.value
+			                                            : 0;
 			triggerOsdControlEventsFromJoystickAxisMotion(
 				evt.jaxis.axis, value);
 		}
