@@ -7,6 +7,7 @@
 
 #include <array>
 #include <cstdint>
+#include <vector>
 
 namespace openmsx {
 
@@ -38,18 +39,27 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
+	struct Event;
+
+	[[nodiscard]] int waveChannel(uint8_t address, bool write) const;
+	[[nodiscard]] int8_t currentByte(unsigned channel, unsigned address) const;
 	[[nodiscard]] uint8_t readWave(unsigned channel, unsigned address) const;
 	void writeWave(unsigned channel, unsigned address, uint8_t value);
 	void resetRegisters();
-	void updatePeriod(unsigned channel);
+	[[nodiscard]] unsigned effectivePeriod(unsigned channel) const;
 	[[nodiscard]] unsigned remaining(unsigned channel) const;
 	[[nodiscard]] unsigned advanceCounter(unsigned channel, unsigned clocks);
 	[[nodiscard]] bool isLatched(unsigned channel) const;
-	[[nodiscard]] float stepLatched(unsigned channel, float current, float& average);
-	void advanceBlock(unsigned channel, unsigned num);
+	[[nodiscard]] uint64_t accessCycle(EmuTime time);
+	void queueEvent(unsigned channel, const Event& event);
+	void applyEvent(unsigned channel, const Event& event);
+	void reload(unsigned channel, bool restart);
+	[[nodiscard]] float sample(unsigned channel, uint64_t base);
+	[[nodiscard]] float runSample(unsigned channel, uint64_t base);
+	void skipBlock(unsigned channel, unsigned num);
 	void setDeformReg(uint8_t value);
 	void setDeformRegHelper(uint8_t value);
-	void setFreqVol(unsigned address, uint8_t value);
+	bool setFreqVol(unsigned address, uint8_t value);
 	[[nodiscard]] uint8_t getFreqVol(unsigned address) const;
 
 private:
@@ -61,13 +71,29 @@ private:
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
 
+	// Something the CPU did to a channel, taking effect at a cycle of the
+	// stream (see accessCycle()).
+	struct Event {
+		enum Kind : uint8_t { READ, WRITE, RELOAD };
+		uint64_t cycle;
+		Kind kind;
+		uint8_t address; // READ, WRITE: in the channel's RAM
+		uint8_t data;    // WRITE: the byte; RELOAD: bit 0 = restart the waveform
+	};
+	// The serial multiplier of a channel: 8 bits read one per cycle, the
+	// product written to the output latch on the cycle after.
+	struct Multiplier {
+		bool active = false;
+		uint8_t bit = 0;  // next bit to read, 8 = product ready
+		uint8_t byte = 0; // the bits read so far
+		uint8_t vol = 0;  // the volume as latched when it started
+	};
+
 	Mode currentMode;
 
 	std::array<std::array<int8_t, 32>, 5> wave;
-	std::array<std::array<float, 32>, 5> volAdjustedWave; // ints stored as floats, see comment in adjust()
 	std::array<unsigned, 5> counter; // 12-bit frequency counter, counts down
 	std::array<unsigned, 5> pos;
-	std::array<unsigned, 5> period;
 	std::array<unsigned, 5> orgPeriod;
 	std::array<float, 5> out; // ints stored as floats
 	std::array<uint8_t, 5> volume;
@@ -76,8 +102,15 @@ private:
 	uint8_t deformValue;
 	std::array<bool, 5> rotate;
 	std::array<bool, 5> readOnly;
-	std::array<bool, 5> latchOutput;
-	std::array<int8_t, 2> waveLatch; // channel 4 and 5, see stepLatched()
+	std::array<int8_t, 2> waveLatch; // channel 4 and 5, see isLatched()
+
+	// The stream position and what is pending on it. Not serialized: a
+	// loaded state starts with a clean stream.
+	uint64_t streamCycle = 0; // cycles generated so far
+	std::array<Multiplier, 5> multiplier;
+	std::array<std::vector<Event>, 5> events; // in order of time
+	std::array<uint64_t, 5> stealUntil = {}; // the RAM port shows the CPU's byte before this cycle ...
+	std::array<uint8_t, 5> stealByte = {};   // ... namely this one
 };
 
 SERIALIZE_CLASS_VERSION(SCC, 4);
