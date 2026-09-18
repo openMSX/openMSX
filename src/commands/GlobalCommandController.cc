@@ -425,16 +425,31 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 			try {
 				TclObject list = command.executeCommand(interpreter);
 				bool sensitive = true;
+				bool doneOrRewrite = false;
 				auto begin = list.begin();
 				auto end = list.end();
-				if (begin != end) {
-					if (auto back = end[-1]; back == one_of("true", "false")) {
-						--end;
-						sensitive = back == "true";
+				for (/**/; begin != end; ++begin) {
+					if (*begin == one_of("---case", "---nocase")) {
+						sensitive = *begin == "---case";
+					}
+					else if (*begin == one_of("---done", "---rewrite")) {
+						bool done = *begin == "---done";
+						if (++begin != end) {
+							tokens.back() = std::string(*begin);
+						}
+						if (done) { tokens.emplace_back(); }
+						doneOrRewrite = true;
+						break;
+					}
+					else {
+						if (*begin == "---") { ++begin; }
+						break;
 					}
 				}
-				Completer::completeString(
-					tokens, std::ranges::subrange(begin, end), sensitive);
+				if (!doneOrRewrite) {
+					Completer::completeString(
+						tokens, std::ranges::subrange(begin, end), sensitive);
+				}
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
