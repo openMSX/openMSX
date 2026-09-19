@@ -70,10 +70,13 @@ static constexpr int translateX(int absoluteX, bool narrow)
 	if (absoluteX < TICKS_LEFT_BORDER) return 0;
 	if (absoluteX > TICKS_RIGHT_BORDER) return maxX;
 
-	// Note: The ROUND_MASK forces the ticks to a pixel (2-tick) boundary.
-	//       If this is not done, rounding errors will occur.
-	const int ROUND_MASK = narrow ? ~1 : ~3;
-	return ((absoluteX - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
+	// Note: The origin is forced to a pixel boundary, otherwise rounding
+	//       errors will occur. It must be the same boundary the display area
+	//       sits on: getLeftBackground() is 2 (mod 4), so the origin is too,
+	//       else mid-line border-color changes land half a pixel off it.
+	static_assert((TICKS_VISIBLE_MIDDLE % 4) == 3);
+	const int origin = TICKS_VISIBLE_MIDDLE - 1;
+	return ((absoluteX - origin)
 		>> (narrow ? 1 : 2))
 		+ maxX / 2;
 }
