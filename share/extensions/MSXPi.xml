@@ -16,10 +16,21 @@
           <io base="0x56" num="1"/>
           <io base="0x57" num="1"/>
           <io base="0x5A" num="1"/>
+          <!-- Timing of the emulated Raspberry Pi, in microseconds of emulated
+               time. transfer_time: how long the Pi takes to clock one byte, which
+               is also how long a /WAIT stall lasts. ready_tail: how long the Pi
+               keeps READY up after the last clock of a byte; above 0 it opens the
+               window in which a burst write can start before the Pi is ready.
+               ready_gap: how long READY stays low between two separately
+               offered bytes, before the Pi raises it for the next one. -->
+          <transfer_time>20</transfer_time>
+          <ready_tail>0</ready_tail>
+          <ready_gap>0</ready_gap>
         </MSXPiDevice>
         <ROM id="MSXPi BIOS">
           <mem base="0x4000" size="0x4000"/>
           <rom>
+            <sha1>4f56b1971b247b676d97825442c258715cdce2af</sha1> <!-- Build 1.6.20260913.052 - BASIC BIOS, MSX-DOS1, UNAPI; no emulator branch, needs the CPLD-exact device-->
             <sha1>3cfffa59afef160439085a8a496953edcaeb0662</sha1> <!-- Build 1.5.20260808.020 - BASIC BIOS and MSX-DOS1-->
             <sha1>c429077a5f58b006125247a67783ea4ea6fb7389</sha1> <!-- Build 1.2.20250923.792 - BASIC BIOS only-->
             <filename>msxpibios.rom</filename>
