@@ -19,11 +19,11 @@ from os import environ
 
 def _get_pkg_config(distroRoot):
 	if distroRoot is None:
-		return 'pkg-config'
+		return 'pkgconf'
 	elif distroRoot.startswith('derived/'):
 		toolsDir = '%s/../tools/bin' % distroRoot
 		for name in listdir(toolsDir):
-			if name.endswith('-pkg-config'):
+			if name.endswith('-pkgconf'):
 				return toolsDir + '/' + name
 		raise RuntimeError('No cross-pkg-config found in 3rdparty build')
 	else:
