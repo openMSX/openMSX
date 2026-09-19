@@ -1,8 +1,10 @@
 #ifndef MSXPIDEVICE_HH
 #define MSXPIDEVICE_HH
 
+#include "IntegerSetting.hh"
 #include "MSXDevice.hh"
 #include "EmuTime.hh"
+#include "Observer.hh"
 #include "Poller.hh"
 #include "Socket.hh"
 
@@ -87,7 +89,7 @@ class DeviceConfig;
   * A server that sends no hello is too old to speak this protocol. It is
   * treated like an absent Pi: READY stays low.
   */
-class MSXPiDevice final : public MSXDevice
+class MSXPiDevice final : public MSXDevice, private Observer<Setting>
 {
 public:
 	explicit MSXPiDevice(const DeviceConfig& config);
@@ -125,6 +127,9 @@ private:
 	void sendFrame(byte op, byte arg); // mtx must be held
 	void closeSocket();
 
+	// Observer<Setting>
+	void update(const Setting& setting) noexcept override;
+
 	// --- Emulation thread only -------------------------------------------
 	byte latch = 0xFF;          // last value written to port 0x56 or 0x5A
 	bool busy = false;          // a transfer has been started, not completed
@@ -146,6 +151,9 @@ private:
 	std::deque<Offer> offers;        // visible offers, oldest first
 	std::condition_variable offerCv; // notified when offers become visible
 
+	// --- Shared, only accessed while holding socketMtx ---------------------
+	std::mutex socketMtx; // synchronizes closing/replacing 'sock'
+
 	// --- Shared, atomic (no lock needed) ------------------------------------
 	// offerCount always equals offers.size(): it is written only under mtx,
 	// together with every change to 'offers'. It exists so the status poll on
@@ -156,9 +164,11 @@ private:
 	std::atomic<Link> link = Link::DOWN;
 	std::atomic<unsigned> epoch = 0; // incremented on every new connection
 	std::atomic<SOCKET> sock = OPENMSX_INVALID_SOCKET;
+	std::atomic<int> activePort = 0;
 	std::atomic<bool> shouldStop = false;
 
 	// thread & connection
+	IntegerSetting portSetting;
 	SocketActivator socketActivator; // ensure windows sockets are initialized
 	std::thread thread;
 	Poller poller; // to abort read-thread in a portable way

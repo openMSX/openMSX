@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <chrono>
 
 namespace openmsx {
@@ -20,7 +21,7 @@ static constexpr byte OP_HELLO  = 0x7E;
 static constexpr byte PROTOCOL_VERSION = 1;
 
 static constexpr byte MSXPI_VERSION = 0x0E; // firmware version, port 0x57
-static constexpr uint16_t SERVER_PORT = 5000;
+static constexpr int DEFAULT_SERVER_PORT = 5000;
 
 // How long the Pi takes to clock one byte, and so how long a wait-mode stall
 // lasts. In the order of what the Pi's native GPIO engine needs.
@@ -28,12 +29,19 @@ static constexpr auto TRANSFER_TIME = EmuDuration::usec(20);
 
 MSXPiDevice::MSXPiDevice(const DeviceConfig& config)
 	: MSXDevice(config)
+	, activePort(DEFAULT_SERVER_PORT)
+	, portSetting(getCommandController(), "msxpiserver_port",
+		"TCP port used to connect to the MSXPi server",
+		DEFAULT_SERVER_PORT, 1, 65535)
 {
+	activePort = portSetting.getInt();
+	portSetting.attach(*this);
 	thread = std::thread(&MSXPiDevice::readLoop, this);
 }
 
 MSXPiDevice::~MSXPiDevice()
 {
+	portSetting.detach(*this);
 	shouldStop = true;
 	closeSocket();
 	if (thread.joinable()) {
@@ -42,8 +50,17 @@ MSXPiDevice::~MSXPiDevice()
 	}
 }
 
+void MSXPiDevice::update(const Setting& setting) noexcept
+{
+	(void)setting;
+	assert(&setting == &portSetting);
+	activePort = portSetting.getInt();
+	closeSocket();
+}
+
 void MSXPiDevice::closeSocket()
 {
+	std::lock_guard lock(socketMtx);
 	auto oldSock = sock.exchange(OPENMSX_INVALID_SOCKET);
 	if (oldSock != OPENMSX_INVALID_SOCKET) {
 		sock_close(oldSock);
@@ -286,11 +303,18 @@ bool MSXPiDevice::connectSocket()
 {
 	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
 	if (s == OPENMSX_INVALID_SOCKET) return false;
-	auto addr = sock_makeIPv4(INADDR_LOOPBACK, SERVER_PORT); // 127.0.0.1
+	auto port = activePort.load();
+	auto addr = sock_makeIPv4(INADDR_LOOPBACK, uint16_t(port)); // 127.0.0.1
 	// Every transfer is a small request/response; Nagle plus the server's
 	// delayed ACK would hold each frame back ~40 ms.
 	sock_setNoDelay(s);
 	if (connect(s, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0) {
+		sock_close(s);
+		return false;
+	}
+
+	std::lock_guard lock(socketMtx);
+	if ((port != activePort.load()) || (sock != OPENMSX_INVALID_SOCKET)) {
 		sock_close(s);
 		return false;
 	}
