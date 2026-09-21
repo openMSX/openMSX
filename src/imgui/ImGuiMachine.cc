@@ -710,8 +710,13 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, Mode mode
 									ImGui::TextDisabledUnformatted(displayName);
 								}
 							} else {
-								if (ImGui::Selectable(strCat(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true), "##", media.name).c_str(), false)) {
-									manager.media->showMediaWindow(media.name);
+								auto displayName = isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true);
+								if (mode == Mode::EDIT) {
+									if (ImGui::Selectable(strCat(displayName, "##", media.name).c_str(), false)) {
+										manager.media->showMediaWindow(media.name);
+									}
+								} else {
+									ImGui::TextUnformatted(displayName);
 								}
 								if (!isEmpty) {
 									im::ItemTooltip([&]{
@@ -736,7 +741,9 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, Mode mode
 							} else {
 								ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
 							}
-							simpleToolTip(targetStr);
+							if (!isEmpty) {
+								simpleToolTip(targetStr);
+							}
 						}
 					} else { // all next cases are the EDIT mode of the media which are not cart, disk or cassette....
 						auto formattedMediaName = formatMediaName(media.name);
