@@ -70,7 +70,6 @@
 
     <PSG id="PSG">
       <keyboardlayout>JIS</keyboardlayout>
-      <mirrored_registers>false</mirrored_registers>
       <sound>
         <volume>21000</volume>
       </sound>

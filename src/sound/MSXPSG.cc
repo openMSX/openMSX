@@ -37,7 +37,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(unsigned(i)); }))
 	, keyLayout(getKeyboardLayout(*this))
-	, addressMask(config.getChildDataAsBool("mirrored_registers", true) ? 0x0f : 0xff)
+	, addressMask(config.getChildDataAsBool("mirrored_registers", false) ? 0x0f : 0xff)
 	, ay8910(getName(), *this, config, getCurrentTime())
 {
 	reset(getCurrentTime());

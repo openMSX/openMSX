@@ -59,7 +59,6 @@
       <sound>
         <volume>21000</volume>
       </sound>
-      <mirrored_registers>false</mirrored_registers> <!-- guess based on use of Engine IC -->
       <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
