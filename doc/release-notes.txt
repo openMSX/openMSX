@@ -1,15 +1,15 @@
-Release Notes for openMSX 21.0 (2025-09-26)
+Release Notes for openMSX 22.0 (2026-xx-xx)
 ===========================================
 
-This release has many improvements on the new GUI introduced in openMSX 20.0
-(especially the debugger) and several other smaller features. It also
-introduces the "setups" concept, which enables you to define an MSX setup (e.g.
-a Philips VG 8020 with an external disk drive and a joystick, data recorder and
-printer connected). These can be created, loaded, and automatically started.
-They can also be saved automatically when you exit.
+Thanks to many contributors (who make well use of modern AI facilities), we
+have a very long list of changes again. Major features are found in the
+debugger GUI, with a new Raster Beam Viewer and Tracer functionality. We also
+have the Quick Setup Editor, for a one-window access to all major setup
+settings. Regarding emulation, we now have plotter emulation and many VDP
+accuracy improvements. There's now also a synthetic TCP/IP UNAPI device to be
+able to try out network programs in openMSX.
 
-Furthermore, flash chip emulation has become a lot more accurate, thanks to
-Laurens Holst.
+And many, many more things...
 
 Special thanks to all the contributors of this release who are not in the core
 team! Keep those pull requests coming!
@@ -17,189 +17,118 @@ team! Keep those pull requests coming!
 Here's the list with all highlights and details:
 
 MSX device support:
-- allow to set the position of the tape in a tape image in the tape deck
-- fixed Spectravideo SVI-707 boot to basic
-- updated MegaFlashROM SCC+ SD bank registers to 9-bit (was also updated in the
-  real hardware)
-- added emulation of DalSoRi R2 (OPL4 cartridge), which has 4MB of sample RAM
-  and a flash ROM
-- fixed a very long standing issue in the OPL4 4-operator FM mode, introduced
-  in 2008
-- added emulation of the Yamanooto mapper (without HOME/DEL boot keys)
-- added emulation of the Wonder Kid mapper
-- fixed missing VDP I/O delay of T9769 on IN instructions
-- fixed the border sizes on MSX1
-- V9990:
-  - fixed timing of the IEHM flag
-  - fixed the timing of the LINE command
-- V99x8:
-  - minor fixes in the BD bit in S#2 and clipping at the top/bottom border for
-    the LINE command
-- AMD flash chip emulation:
-  - changed AM29F040 to B variant and AM29F016 to D variant, these are the only
-    chips that are actually available and these have extra features
-  - correct CFI command address mask to 11 bits
-  - fixed: auto select sector protect flag requires A6 to be low
-  - fixed: S29GL064S returns 0xFFFF when accessing auto select through CFI
-  - implemented ready/busy# pin
-  - base status dataPolling on value written by CPU
-  - mask fast program address to page size
-  - check sector of buffer program data’s address: the PA (program address)
-    must lie within the SA (sector address)
-  - implemented erase and program timing
-  - implemented error on bit raise during program
-  - added support for erase and program suspend/resume
-- fixed the (relative) PSG volume for the Hamaraja Night mapper and improved
-  (?) it for all other mappers/devices that include a PSG and another sound
-  device
-- fixed the MegaFlashROM SCC+ to always allow SCC access in any Konami mode
+- fixed Yamanooto SCC register visibility
+- add emulation of the Sony PRN-C41 (like) plotters, including a viewer in the
+  GUI
+- fixed VDP I/O delay to 1 cycle for T9769 engines
+- fixed details on the turboR's FDC emulation, so that now FastCopy 3.0
+  properly detects it, including the correct number of drives
+- added Korean 128-in-1 mapper type
+- added Namco mapper type (A13-not-connected 16kB cartridges)
+- added ASCII8-R (reversed) mapper type
+- fixed details of MSX kanji ROM emulation, adding specific behaviour in many
+  machines and devices
+- assume that no PSG implementation mirrors its registers (no evidence found
+  they do)
 - added new machines/extensions, thanks to:
-  - Peter Hanraets: Sanyo MPC-1, Sanyo MPC-11
-  - Jipe: French Philips VG 8235 and Philips NMS 8245
-  - Jungsi: German Philips VG 8235/02
-  - Others: Computer Mates Disk Interface, Spanish Philips NMS 8245
+  - bsittler: Yamaha YIS-805/256
+- VDP:
+  - added implementation of the TEXT2-mode per line blink (bit 2 in VDP R#2)
+  - improved timing correctness of the YMMM and LMMM command
+  - several other VDP command timing improvements details (including start
+    delays)
+  - improved VDP-VRAM timing even further
+  - fixed display line counter latch (fixes Sex Bomb Bunny shaking screen)
+  - fixed border color changes at the wrong position (last part of Utopia)
 - updated machine/extension configurations of:
-  - Sony HB-F1XDJ, Sony HB-F1XV, National CF-2000
+  - Yamaha YIS-503
+  - Yamaha FD-03, Sony HB-701FD: add missing singlesided tag
 
 New or improved emulator features:
 - GUI:
-  - throttle GUI messages to avoid hangups if too many are generated
-  - added tape motor control to the Tape Deck window
-  - show savestates and replays ordered by time (newest first) and display
-    their date/time
-  - improve individual channel settings window (table headers, layout)
-  - add recent items for machine selector
-  - the OSD icon (LEDs, etc.) window can now be resized to use multiple rows
-  - you can now also reset the MSX after removing a cartridge/extension from
-    the Cartridge Slot window
-  - improve menu bar behaviour in full screen mode on Windows
-  - fixed underscore not properly visible in console text
-  - make items shown in status bar configurable
-  - show the mapper type in the status bar (if applicable)
-  - move items from the "Settings -> Misc" menu into the "Settings -> GUI" menu
-  - do not show an info message about a screenshot when saving states to avoid
-    confusion
-  - fixed slowness in cheat finder
-  - remember open/close status of chips in the audio channel viewer
-  - when changing hard disk image, ask user to confirm the power cycle
-  - allow to change view only mode with a new context menu on the reverse bar
-  - make ellipsis usage in the menus consistent and according to guidelines
-  - added MSX-MUSIC viewer window that shows all details of the chip live
-  - better support for non-Western fonts: all glyphs in a font are now
-    available to the user interface
-  - allow to hide machines and extensions that are not working, to avoid
-    cluttered lists
-  - some minor improvements in the layout of the Media windows, including an
-    eject button for the Tape Deck window
-  - redesigned the sound chip settings window to a vertical layout
-  - fixed screenshot remaining visible on GUI when savestate is deleted
-  - added Grab Input setting to Settings -> Input
-- Debugger (including its GUI):
-  - highlight known symbols in memory hex view
-  - added support for loading symbol files generated by WLA-DX and Z80ASM from
-    Z88DK
-  - added context menu with 'Show in Disassembly' entry to addresses in
-    breakpoints window.
-  - added tile data info in the tile-viewer as hover pop-up
-  - fixed crash in debuggable editor when clicking in the datatype dropdown
-    list in the data-preview pane
-  - take sprite magnification into account for bounding box display in sprite
-    viewer
-  - allow to open multiple bitmap/tile/sprite and disassembly viewers
-  - show the display page number in the bitmap viewer instead of a 0-1023 range
-    Y-coordinate
-  - added visualization of VDP block commands in the bitmap viewer
-  - extend segment number debug view to larger than 8-bit, for now only used
-    for KonamiUltimateCollection, Yamanooto and ASCII16-X mappers
-  - added "debug breakpoint" subcommand for listing, creating, configuring and
-    removing breakpoints and similarly "debug watchpoint" and "debug
-    condition" subcommands
-  - allow to enable and disable existing breakpoints/watchpoints/conditions,
-    without internally removing/re-adding them
-  - use the palette matching the used VDP in the palette viewers
-  - fixed HOME/END keys in debuggable editors
-  - don't take keyboard focus in debuggable editor (it stole the focus when
-    starting up with one still open)
-  - added the missing "copy code view" function: you can copy code from the
-    disassembly view to the clipboard, like in the external debugger
-  - added raster beam view also to the character viewer
-  - added hover with sprite pattern, attribute and color-attribute addresses to
-    the sprite viewer
-  - added export function for all debuggable editors (to clipboard or file)
-  - highlight changes in register/flag/debuggable editor/slot views - this was
-    still missing compared to the separate debugger
-  - improved keyboard navigation on the disassembly window
-  - added breakpoint session management
-  - added a context menu to the character viewer to copy pattern and color data
-    to the clipboard
-  - added a context menu to the sprite viewer to copy pattern data to the
-    clipboard
-  - fixed disassembly syntax of "DD CB" instructions: parentheses were missing
-  - fixed a crash when doing a debug write to "tracked" RAM
-  - added Link IX / IY preset options in debuggable editor
-  - fixed crash when user selects page 3 of screen 8 in a specific way
-  - added 'debug watchexpr' command
-  - fixed slot info for superexpanded SVI-328
-  - dramatically improved the speed of reading blocks from 'slotted memory'
-- do not persist freq_lock setting to avoid experiments to "overclock" a
-  machine to spill over to use on other machines
-- do not automatically rewind a tape when resetting the MSX and only perform
-  auto run at the start of the tape
-- allow speed settings smaller than 1 (change to float value). Note: this
-  breaks updates from openMSX to the Catapult speed slider and this will not be
-  fixed (as we have stopped updating Catapult).
-- added support for 512-pixel wide modes in the 'hq' and 'ScaleNx' scalers (was
-  not supported before on the SDLGL-PP renderer)
-- fixed pointer_hide_delay setting that got broken in 20.0
-- fixed bug that using the GUI could interrupt the replay (introduced in 20.0)
-- added support for TSX tape images
-- added a basic game shuffler Tcl script
-- fixed changing scale factor when openMSX is paused
-- fixed incorrect resetting of the machine time when resetting the machine
-- fixed several Space Manbow trainers
-- several small improvements/workarounds for Japanese keyboards in POSITIONAL
-  mode
-- fixed key up detection in CHARACTER mode (when the keycode is not provided)
-- enhanced the keyboard tracing, with the hope that it helps to fix keyboard
-  issues in an upcoming release
-- added a Tcl script that replaces sdcdb (SDCC debugger)
-- when both a LaserDisc and a cassette tape are present, auto run the cassette
-  tape. Use case: Mystery Disc
-- added a programmable device that directly connects to Tcl scripts
-- if a file is not found, show where openMSX was looking for it
-- added setups concept: support on console, command line, GUI. Also obsoletes
-  setting the default machine in the machine selector
-- fixed "osd info -mousecoord" when main-window doesn't have focus (this is
-  used in several OSD scripts)
-- allow raw screenshots to be saved with "auto" size
-- auto run cassettes: make use of the tape loading instruction given in the
-  filename, if it can't be derived from the contents (WAV files typically)
-- fixed POSITIONAL keyboard mapping for SVI machines
-- added a new setting to enable stretch-to-fit on full screen mode:
-  full_stretch
-- removed 'hqlite' scaler, as it doesn't add any value over 'hq'
-- removed 'fast' resampler, as the quality is very low and the better ones are
-  fine in terms of speed on contemporary hardware
-- removed OSD based raster beam viewer (use the bitmap/character viewer
-  instead)
-- removed OSD based FPS indicator (use the status bar instead)
-- removed OSD info panel (use the status bar instead)
-- removed OSD VU meters (use the audio channel viewer instead)
-- removed deprecated -msxonly flag in the screenshot command
+  - added Quick Setup Editor window, that allows you to quickly create or
+    change your setup
+  - added a "color blind" theme
+  - added a pitch estimate column to the audio viewer (hidden by default)
+  - sort mappert types in the GUI alphabetically
+  - added "recent machines" to the Machine menu
+  - added slot map viewer
+  - added I/O map viewer
+  - in the Cartridge Slot window: add a link to Generation MSX where known
+- debugger (including its GUI):
+  - allow to double-click a symbol in the Symbol Manager to jump to it in the
+    disassembly view
+  - allow to double-click an instruction with address to jump to that address
+    in the disassembly view
+    based screen, with coordinates, CRT fade, and position of the beam
+  - fixed unstable layout of bitmap viewer when screenmodes change (split)
+  - allow to specify a segment number for symbol files
+  - tile viewer: allow override of the color table
+  - added Raster Beam Viewer, which shows the currently in-progress raster
+    - with command engine busy overlay
+  - added debug Tracer (console and GUI), with timeline plotting of events in
+    Trace Viewer
+  - integration of Raster Beam Viewer and Tracer: show trace events on raster
+  - rewrote `vdpcmdtrace` in Tcl now using the Raster Beam Viewer
+  - added `cpu_trace` Tcl command which sets up traces that can be viewed in
+    the Trace Viewer
+  - bitmap viewer: show y=[0..1023] again
+  - sprite viewer: fix sprite attributes section height when zoomed
+  - added a profiler that uses the new Trace Viewer, see the `symboltracer` Tcl
+    command
+  - added option to export the ASCII view of the generic debuggable
+    editor/viewer
+- instead of showing corrupted video, a problem with shaders will now be a
+  fatal error
+- fixed issues with non-ASCII paths by forcing UTF-8 paths on Windows
+- improved support for .ttc font files for the GUI
+- fixed bug where full-width characters could not be displayed correctly in the
+  console input line
+- added pop-up menus for tab completion, making it easier to complete items
+  like paths with non-ASCII characters
+- fixed bug with loading savestates with devices containing spaces in the name
+- fixed bug in CPU loadstate code (showed on Spectravideo SVI-328 for instance)
+- release cursor grab when openMSX is paused
+- fixed illegal slot specification as was in the CIEL Expert-Turbo machine for
+  years
+- fixed crash in HQ resampler when running at very low speeds
+- improved UI responsiveness when paused/breaked
+- fixed the pause_on_lost_focus setting which broke since openMSX 20.0
+- fixed crash when having built against sdl2-compat
+- added UnapiNet: an MSX-UNAPI TCP/IP bridge device. A synthetic device on I/O
+  ports 0x28/0x29 that implements the MSX-UNAPI TCP/IP UNAPI functions (DNS,
+  TCP, UDP, ICMP echo) by bridging to the host's BSD sockets. Needs a specific
+  UNAPINET.ROM driver on the MSX-side
+- keyboard fixes:
+  - fixed the kbd_numkeypad_enter_key setting and add POSITIONAL mode support
+  - fixed wrong auto-toggle CODE/KANA lock when the key is manually pressed
+  - ignore the Grave key event for Japanese host keyboard layouts to avoid
+    hanging keys
+- fixed mouse speed scaling, depending on the host display size (including
+  HighDPI) and MSX screen resolution
+- allow SD cards and SCSI disks also to be manipulated by disk manipulator
+- fixed several bugs in the cashandler script (to use CAS files directly)
+- added 'rs232-raw' pluggable that connects to host RS-232C port
+- added emulation of the MSXPi device
+- restored functionality to query which host joysticks are connected from Tcl
+- fixed saving a setup with a '/' in the (machine) name, like "Philips VG
+  8235/39" and similar issues with saving a screenshot/savestate/replay
+- added a Maze of Galious password extractor, to easily save passwords in text
+  files and type them in later with type_from_file
+- dir-as-disk:
+  - added support for 40-track 180kB disk drives (e.g. Talent/AVT DPF-550)
+  - fixed writing files back to host filesystem on no-op data-sector writes
+- huge updates on the ROM database, including a simplified file format and
+  support for Sega SG-1000 and ColecoVision ROMs
 
 Build system, packaging, documentation:
-- required GNU compiler is now at least g++-12
-- required clang compiler is at least clang++-17
-- required Visual Studio Compiler is at least 2022
-- on macOS, at least Xcode 16.4 is required
+- required GNU compiler is now at least g++-13
+- at least macOS 13.3 is required to run openMSX
 - Android build is totally broken, and will require a lot of effort and help to
   get back up, which is not planned by us.
-- Dingux support was removed
-- 3rd party updates of SDL (2.30.7), Tcl (8.6.15), libPNG (1.6.44), FreeType
-  (2.13.3), zlib (1.3.1), Dear ImGui (1.92.0)
-- allow building against Tcl 9
-- quite a large update of the manual (mostly to include the new GUI)
-- added standalone xsa2dsk tool
+- 3rd party updates of SDL (2.32.10), Dear ImGui (1.92.9WIP)
+- macOS builds are now "notarized"
+- several fixes on the manual, e.g. debug subcommands and stale examples
 
 ...and of course the usual various bug fixes and performance improvements.
 
