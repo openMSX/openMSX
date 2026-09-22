@@ -32,9 +32,12 @@ proc register_lazy {script procs} {
 # yet-to-be-executed lazy scripts).
 proc lazy_handler {name} {
 	variable lazy
-	set name [namespace tail $name]
+	# Registered names can be fully qualified (e.g. 'cheat_finder::start'),
+	# so match on both the qualified name and the bare proc name.
+	set full [string trimleft $name :]
+	set tail [namespace tail $name]
 	dict for {script procs} $lazy {
-		if {[lsearch -exact $procs $name] == -1} continue
+		if {($full ni $procs) && ($tail ni $procs)} continue
 		dict unset lazy $script
 		dbg "start executing script $script (via lazy_handler)"
 		if {[catch {namespace eval :: [list source [data_file scripts/$script]]}]} {
