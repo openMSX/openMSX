@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1789406293">
+<softwaredb timestamp="1790115715">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1036,6 +1036,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Benny The Burglar" system="MSX" company="H. Kappert" year="1987" country="NL">
     <rom sha1="dfb8dc21a719a961ac8a9c86ab59419830a40746" type="Page2" />
   </software>
+  <software title="Berzerk Pixel Forge" system="MSX" company="PixelForge" year="2026" country="ES">
+    <rom sha1="808eb2617672d7b476cb4a62e93af5ad315e2d72" type="Mirrored" status="Author" remark="MSXdev2026" />
+  </software>
   <software title="Bestial Warrior" system="MSX" company="Dinamic" year="1989" country="ES" genmsxid="2114">
     <rom sha1="db5ba118dc95ea3bee5e8b5d7e5e240dd76272ea" type="ASCII16" />
     <rom sha1="aeb8138507069f8cac15c1498514b28f7451e0fc" type="ASCII8" />
@@ -1971,7 +1974,7 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="City Scape" system="MSX" company="Maragato" year="2026" country="DE">
     <rom sha1="0bb8653d7858efd6145cfd5f414e7b105a45723f" type="ASCII16" status="Author" remark="Demo" />
-    <rom sha1="3623b429129f8cdceaffe26c62cd754998c99362" type="ASCII16" status="Author" remark="Demo (13-09-2026) - Maragato (2026)" />
+    <rom sha1="3623b429129f8cdceaffe26c62cd754998c99362" type="ASCII16" status="Author" remark="Demo" />
   </software>
   <software title="Classic Adventure" system="MSX" company="Melbourne House" year="1985" country="GB" genmsxid="2740">
     <rom sha1="2f941a76f72f17643335a8cde61298006be5660b" type="Mirrored" />
@@ -3191,6 +3194,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="3987c45a35e5c3fe494a00ef0690a329790ae34d" type="Mirrored" remark="Korean Cart" />
     <rom sha1="0e0ca65312adae0829e6abab554ae9454e52ec0a" type="Mirrored" />
     <rom sha1="ce0a6c1bcdaa9e935ee6530c75c5afc7d7e4d62c" type="Mirrored" />
+    <rom sha1="56da7f9cc9d0dd30993ef9feb717644b1c1bd68e" type="Mirrored" remark="No Hiscore" />
   </software>
   <software title="Express" system="MSX" company="Al Alamiah" year="1985" country="KW" genmsxid="1924">
     <rom sha1="a5dc0aa283072f772ee4b9eb93b0966500dd306b" type="Mirrored" />
@@ -6041,6 +6045,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="48518d95d06a7761c4afe5235ef995bdc53c1952" type="Mirrored" />
     <rom sha1="3ca12cac125752985f3bf14a667d80a41aebc4ea" type="Mirrored" />
   </software>
+  <software title="Magical Happy Really" system="MSX" company="Kanon AI" year="2026" country="JP">
+    <rom sha1="4f89862ddf4994fff2da37511e2e5a901ccd6acc" type="Konami" status="Author" remark="Needs V9990" />
+  </software>
   <software title="Magical Kid Wiz" system="MSX" company="Sony" year="1986" country="JP" genmsxid="856">
     <rom sha1="087afebb16bfd96f465fb0d004326d55452bdd81" type="Mirrored" status="GoodMSX" />
     <rom sha1="3e2ef016f255168e2df1906e678ca22f880917b8" type="Mirrored" />
@@ -8008,6 +8015,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Pong" system="MSX" company="Mostly Vibes" year="2026" country="NL">
     <rom sha1="342b426404d930e7eed2ee28bbf53102cbe6fc10" type="Mirrored" status="Author" />
   </software>
+  <software title="Pong AI" system="MSX" company="Alexmoncks" year="2026" country="BR">
+    <rom sha1="023fc1d6be9204c8248c49648d599990bd6fe1e7" type="Mirrored" status="Author" />
+  </software>
   <software title="Pong Pixel Remastered" system="MSX" company="Chikuwa Teikoku" year="2023" country="JP">
     <rom sha1="10e663ec0498949866be642c224417e50e29a996" type="Mirrored" />
   </software>
@@ -8116,6 +8126,9 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Ptera Attack" system="MSX" company="Chikuwa Teikoku" year="2023" country="JP" genmsxid="7738">
     <rom sha1="2891aae2893986a500675a5e836a57a69fea6205" type="Mirrored" status="Author" />
+  </software>
+  <software title="Pulsenoid" system="MSX" company="Altaris Software" year="2026" country="AR">
+    <rom sha1="bf995bf9519ff542f6ba8e8ce04768399f1d0f42" type="Mirrored" status="Author" />
   </software>
   <software title="Punchy" system="MSX" company="Mr. Micro" year="1984" country="GB" genmsxid="2808">
     <rom sha1="901bd986a7997aac7169016f179091e2f6d9713d" type="Mirrored" />
@@ -8277,10 +8290,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="f20ff463bad03145fefd0133c669ef7d6f06dffd" type="Mirrored" />
   </software>
   <software title="RainBIOS" system="MSX" company="Salvogendut" year="2026" country="IT">
-    <rom sha1="d8ab322fb2e487de689482c50bc208b3c84e7a03" type="System" status="System" remark="Disk" />
-    <rom sha1="d22f8de51394716b0377979314ee39d6c431b474" type="System" status="System" remark="msx2" />
-    <rom sha1="518a7634d2d5f1b92ed710b695894d16c62a41ba" type="System" status="System" remark="msx2_sub" />
-    <rom sha1="160fd227d83eb6c7f11f67b7bc8972cbceab9dfd" type="System" status="System" remark="omega" />
+    <rom sha1="d8ab322fb2e487de689482c50bc208b3c84e7a03" type="Mirrored" status="System" remark="Disk" />
+    <rom sha1="d22f8de51394716b0377979314ee39d6c431b474" type="Mirrored" status="System" remark="msx2" />
+    <rom sha1="518a7634d2d5f1b92ed710b695894d16c62a41ba" type="Mirrored" status="System" remark="msx2_sub" />
+    <rom sha1="160fd227d83eb6c7f11f67b7bc8972cbceab9dfd" type="Mirrored" status="System" remark="omega" />
   </software>
   <software title="Rainbow Stories" system="MSX" company="Al Alamiah" year="1986" country="KW" genmsxid="1952">
     <rom sha1="108abde71e59839fb4d1e59c3a0cb2366220030c" type="Mirrored" />
@@ -10021,6 +10034,16 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="f34e1870a574c3d21addb153b3ee8395011e62f5" type="KonamiSCC" status="Author" remark="Needs FM-PAC or MSX-Audio" />
     <rom sha1="7f929f49a01a512ce3a0167787c1d24a367cf026" type="ASCII8" status="Author" remark="Needs FM-PAC or MSX-Audio" />
   </software>
+  <software title="Tech Demo - Bushy555 1bit music player" system="MSX" company="Bushy555" year="2026" country="AU">
+    <rom sha1="07d2dfd21a16f5aaec5b4984dce5dfb56ba97974" type="Mirrored" status="Author" remark="1943" />
+    <rom sha1="dfb72eca231f38d833bac4dcf006683acbf19772" type="Mirrored" status="Author" remark="eshaker" />
+    <rom sha1="5cee78fa8bffa254844d2a66204e185c32fe7556" type="Mirrored" status="Author" remark="follin" />
+    <rom sha1="32b181c6ff945983e2d1f80b95bf21368d19b399" type="Mirrored" status="Author" remark="monty" />
+    <rom sha1="841377d37df007624458b7ad4267b76c90634ab0" type="Mirrored" status="Author" remark="phazer" />
+    <rom sha1="e6e146ac22dd89f8f2358b89965a100f225decfd" type="Mirrored" status="Author" remark="plastic" />
+    <rom sha1="37282bb7c8494f3ff1b228703f1ab3bca69147c0" type="Mirrored" status="Author" remark="rootbeer" />
+    <rom sha1="c0d894f51a1a2c61d7c28e2b155d89ae1ddc8157" type="Mirrored" status="Author" remark="zspeak" />
+  </software>
   <software title="Tech Demo - COLOR ZERO Cemitiere" system="MSX" company="Uillaume" year="2026" country="FR">
     <rom sha1="7b48741c619359fba0abb636d62b75d64a1b1000" type="Mirrored" />
   </software>
@@ -10115,15 +10138,19 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="cd7669dbbaa36d92a9c574f0e5f286f4490e4200" type="Mirrored" />
   </software>
   <software title="Tech Demos - V9968 Sample Demos" system="MSX" company="Kanon AI" year="2026" country="JP">
-    <rom sha1="e576427e8b920162858076883fa9bcf499478339" type="Mirrored" status="Author" remark="Prism Flight - Current" />
-    <rom sha1="7fd8f3c00cdf4c53f835b8cad37a20ca09b24946" type="Mirrored" status="Author" remark="Prism Flight - Legacy openMSX Internal" />
-    <rom sha1="33438eb254696878b3b615841bedde06469c8945" type="Mirrored" status="Author" remark="Castrider - Legacy openMSX Internal" />
-    <rom sha1="40ba25ab671f671dd2250dfe0dcf505fef24253c" type="Mirrored" status="Author" remark="Mist Vale - Legacy openMSX" />
-    <rom sha1="72dab8ff9012761acb351d0ee1abf254f04b51ff" type="Mirrored" status="Author" remark="Mist Vale - Legacy openMSX Internal" />
-    <rom sha1="c58ba5a89221105247761687d9d326a471525ec8" type="Mirrored" status="Author" remark="Lumen Forge - Legacy openMSX Internal" />
-    <rom sha1="d6d747ffb6509f61c8b0b0bc06de3ecd935663df" type="Mirrored" status="Author" remark="Prism Flight - Legacy openMSX" />
-    <rom sha1="f9d31f35d4bc4f4de6900c7991da36d659dcda84" type="Mirrored" status="Author" remark="Castrider - Legacy openMSX" />
-    <rom sha1="35d2a047c81fd529702e31b0175e7972c2873da5" type="Mirrored" status="Author" remark="Lumen Forge - Legacy openMSX" />
+    <rom sha1="e576427e8b920162858076883fa9bcf499478339" type="ASCII16-X" status="Author" remark="Prism Flight - Current" />
+    <rom sha1="7fd8f3c00cdf4c53f835b8cad37a20ca09b24946" type="ASCII16-X" status="Author" remark="Prism Flight - Legacy openMSX Internal" />
+    <rom sha1="33438eb254696878b3b615841bedde06469c8945" type="ASCII16-X" status="Author" remark="Castrider - Legacy openMSX Internal" />
+    <rom sha1="40ba25ab671f671dd2250dfe0dcf505fef24253c" type="ASCII16-X" status="Author" remark="Mist Vale - Legacy openMSX" />
+    <rom sha1="72dab8ff9012761acb351d0ee1abf254f04b51ff" type="ASCII16-X" status="Author" remark="Mist Vale - Legacy openMSX Internal" />
+    <rom sha1="c58ba5a89221105247761687d9d326a471525ec8" type="ASCII16-X" status="Author" remark="Lumen Forge - Legacy openMSX Internal" />
+    <rom sha1="d6d747ffb6509f61c8b0b0bc06de3ecd935663df" type="ASCII16-X" status="Author" remark="Prism Flight - Legacy openMSX" />
+    <rom sha1="f9d31f35d4bc4f4de6900c7991da36d659dcda84" type="ASCII16-X" status="Author" remark="Castrider - Legacy openMSX" />
+    <rom sha1="35d2a047c81fd529702e31b0175e7972c2873da5" type="ASCII16-X" status="Author" remark="Lumen Forge - Legacy openMSX" />
+    <rom sha1="9b897ab61feca822a4f22b942cba702c143c7bf6" type="ASCII16-X" status="Author" remark="Scene 3 Benchmark Optimized" />
+    <rom sha1="74eda94e680a5af184cd6b76d66acdd622ca9c41" type="ASCII16-X" status="Author" remark="Scene 3 Benchmark" />
+    <rom sha1="3627db880e4e43987f946940f579ff9feb741150" type="ASCII16-X" status="Author" remark="V9968 Tech Demo" />
+    <rom sha1="d85f99dfdc28b886004754aa65467a13626634e5" type="Konami" status="Author" remark="Super Cat Coastal Flight - legacy openMSX internal" />
   </software>
   <software title="Tech Demp - Netcat for Fujinet" system="MSX" company="Thom Cherryhomes" year="2026" country="US">
     <rom sha1="0814c122155fea703daf5787645f64b649aefe80" type="Mirrored" status="Author" remark="Early Fujinet Netcat Version" />
@@ -10490,6 +10517,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="3b24504189722babdcef68b82a5ff6bb7d3ec608" type="Mirrored" />
     <rom sha1="93750ba3ce68b5700084184dff1e901a93e002e5" type="Mirrored" />
   </software>
+  <software title="The Odyssey" system="MSX" company="Fausto Pracek" year="2026" country="IT">
+    <rom sha1="cb586c76efce1b01e80e59c866e3131eb6f82f27" type="ASCII8" status="Author" remark="MSXDev2026" />
+  </software>
   <software title="The Oregon Trial" system="MSX" company="Cobinee" year="2020" country="JP">
     <rom sha1="9a1317529d189e64ef33aca18f173f964e4e9f15" type="Mirrored" status="Author" remark="Japanese Version" />
     <rom sha1="fdfbe92bb3a8665d5660f22627b19427a42ba322" type="Mirrored" status="Translated" remark="English Version" />
@@ -10663,6 +10693,9 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Tiny Basic" system="MSX" company="Cobinee" year="2021" country="JP">
     <rom sha1="da614fcf2d00163770df8cfc9964af565f166b26" type="Mirrored" status="Author" />
+  </software>
+  <software title="Tiny Quest" system="MSX" company="Andrea Schincaglia" year="2020" country="IT">
+    <rom sha1="759afef5a89ad32804fe8ba182aa45e3fccbc9f8" type="ASCII8" status="Hack" remark="MSX version by Outsoftware" />
   </software>
   <software title="Tiny Rise Out" system="MSX" company="Login Software" year="1985" country="JP">
     <rom sha1="817b7bdc9f9803836e257a38908dd9e5e35e539e" type="Mirrored" />
@@ -11635,6 +11668,10 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="6b117abb2101f118814e57e9b3dbc278b52c8c43" type="Mirrored" status="Author" remark="WIP" />
     <rom sha1="6999afbca0eeff16555cf9fbb1558e859d0efb8f" type="Mirrored" status="Author" remark="WIP" />
   </software>
+  <software title="YokoXevi" system="MSX" company="GWʼs-Workshop" country="JP">
+    <rom sha1="4e2372ec9e45da802250bdb60721d7d90e59dc8a" type="Mirrored" status="Author" remark="MSXdev2026" />
+    <rom sha1="3bdef557e57661ec8fe062589788f03059d46377" type="Mirrored" status="Author" remark="MSXdev2026" />
+  </software>
   <software title="Youkai Yashiki - Ghost House" system="MSX" company="Casio" year="1986" country="JP" genmsxid="874">
     <rom sha1="15345c8745028c96fc79036b2e3e180ad2f62dab" type="Mirrored" status="GoodMSX" />
     <rom sha1="5082c27b9c1a378c40a304468a1bb16c858169b2" type="Mirrored" status="Translated" remark="Graphics patch by Yazioh and Nestruo English" />
@@ -11872,6 +11909,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Neon Revenant" system="MSX Turbo-R" company="Kanon AI" year="2026" country="JP">
     <rom sha1="d0dd6fe7916be4f3bcd9ac44a386a2989ab5fac7" type="ASCII8" remark="WIP" />
   </software>
+  <software title="SAToReinker" system="MSX Turbo-R" company="Kanon AI" year="2026" country="JP">
+    <rom sha1="e7e50bf7d11c508c372bab3c957648181933ce3f" type="Konami" status="Author" remark="Needs V9990" />
+  </software>
   <software title="1942" system="MSX2" company="Capcom" year="1987" country="JP" genmsxid="707">
     <rom sha1="c9135b1e451193bd4c06d8143eaca934cc89fe05" type="ASCII8" status="GoodMSX" />
     <rom sha1="d9826cb2044ed0224124f2f31d0bdc1fb840d81c" type="ASCII8" />
@@ -12087,6 +12127,9 @@ The Database is located at https://romdb.vampier.net/
   <software title="Back To The Future" system="MSX2" company="Pony Canyon" year="1986" country="JP" genmsxid="827">
     <rom sha1="eb9b3e93c31694d2f99f411d3a682af7121f29b0" type="KonamiSCC" />
   </software>
+  <software title="Bandits" system="MSX2" company="Sirius Software" year="1982" country="US">
+    <rom sha1="2d66390793e65228958481e4ca09e3e60a854c67" type="Mirrored" status="Verified" remark="port by Maggoo" />
+  </software>
   <software title="Barbarian The Duel" system="MSX2" company="Bitvision" year="2018" country="ES">
     <rom sha1="7c6538f1406723f032938aee79588615b5ca8f3e" type="ASCII16" status="Author" remark="MSXDev2018" />
   </software>
@@ -12192,6 +12235,9 @@ The Database is located at https://romdb.vampier.net/
   </software>
   <software title="Crafton and Xunk" system="MSX2" company="Ere Informatique" year="1988" country="FR" genmsxid="4097">
     <rom sha1="89d41b1adb077273c0bcf5bab493ab470093f39f" type="ASCII8" remark="dsk2rom" />
+  </software>
+  <software title="Crazy Chase!" system="MSX2" company="Philips" year="1982" country="NL">
+    <rom sha1="821c71357340dcce3d9219227c8293005e448f99" type="Mirrored" status="Verified" remark="MSX port by Maggoo" />
   </software>
   <software title="Crimson" system="MSX2" company="XtalSoft" year="1987" country="JP" genmsxid="1102">
     <rom sha1="a21adba681956ec35816af673a9d4f6c7743253a" type="ASCII8" status="GoodMSX" />
@@ -13176,6 +13222,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="6b4a2a2b0ab009cfbd54e9d51d820e9c275bb82a" type="Mirrored" />
     <rom sha1="e6f648c2e215ea1ef1ec9ea6619846e6b3b9656d" type="Mirrored" />
   </software>
+  <software title="Munchkin" system="MSX2" company="Philips" year="1982" country="NL">
+    <rom sha1="b06cb428b66744576dd315af8a0fec659189d098" type="Mirrored" status="Verified" remark="port by Maggoo" />
+  </software>
   <software title="Myths and Dragons" system="MSX2" company="Kai Magazine" year="2017" country="ES" genmsxid="5526">
     <rom sha1="163c5e0300471db8cdd86b7ef553ebe2e00c9f35" type="KonamiSCC" status="Author" />
   </software>
@@ -13252,8 +13301,9 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="cdf99577dc8db02699bd7cfdbc2000a0b9f3157f" type="ASCII8" status="Hack" remark="Enhanced SMS 3D BGM" />
     <rom sha1="062ca504ed51b6ed4dd9e92837c918c099683056" type="ASCII8" status="Hack" remark="Enhanced SMS BGM" />
   </software>
-  <software title="Ovni" system="MSX2" company="Julian" year="2026">
+  <software title="Ovni" system="MSX2" company="Julian Jantsch" year="2026" country="BR">
     <rom sha1="c5af6964c9150c7a938c800eb47f127556cfdbab" type="Mirrored" status="Author" />
+    <rom sha1="aa932c7a3ded093949bf438c34fd26a2d46e0e28" type="Mirrored" status="Author" />
   </software>
   <software title="Pac-Man Collection DX Demo" system="MSX2" company="Opcode" year="2006" country="BR">
     <rom sha1="b1a97ef65f2bc3e79b628a51fde8dc98f37d9db6" type="Mirrored" status="Author" />
@@ -14173,7 +14223,7 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="6e4962d5e22dffc069efe89d28756122e47ccc81" type="ASCII8" status="Translated" remark="Partial English Translation" />
     <rom sha1="606a85bafe80ac4767209fb695e45e23fb462ebd" type="ASCII8" status="Translated" remark="Full English Translation" />
   </software>
-  <software title="Domino" system="MSX2Plus" company="Julian" year="2026">
+  <software title="Domino" system="MSX2Plus" company="Julian Jantsch" year="2026" country="BR">
     <rom sha1="85f341bd65f9311ea9baf3d454efca2b908648e2" type="Mirrored" status="Author" remark="Portugese" />
   </software>
   <software title="Shattered Decks" system="MSX2Plus" company="gameblabla" year="2026" country="FR">
@@ -17563,6 +17613,6 @@ The Database is located at https://romdb.vampier.net/
     <rom sha1="b6dd7af36c8d16b04fca4963f081db534e91b360" type="Mirrored" remark="SD-003C" />
   </software>
 
-<!-- Roms in this XML file: 9953 - Created on Mon Sep 14 2026 - 17:18:13
-      Per platform: ColecoVision: 1341 | MSX: 6795 | MSX Turbo-R: 12 | MSX2: 1447 | MSX2Plus: 6 | SG-1000: 341 | SVI: 11 -->
+<!-- Roms in this XML file: 9979 - Created on Tue Sep 22 2026 - 22:21:55
+      Per platform: ColecoVision: 1341 | MSX: 6816 | MSX Turbo-R: 13 | MSX2: 1451 | MSX2Plus: 6 | SG-1000: 341 | SVI: 11 -->
 </softwaredb>
