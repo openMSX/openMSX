@@ -507,6 +507,21 @@ void VDP::execHorAdjust(EmuTime time)
 	horizontalAdjust = newHorAdjust;
 }
 
+int VDP::getScrollBurstTicks(EmuTime time) const
+{
+	// The new value is used from the first 8-pixel group that starts at
+	// least LEAD ticks after the write (the burst for that group is fetched
+	// ahead of the beam).
+	static constexpr int LEAD = 16;
+	static constexpr int GROUP = 8 * 4; // 8 pixels of 4 ticks
+	if (!isDisplayEnabled() || !getDisplayMode().isBitmapMode()) return -1;
+	int ticks = getTicksThisFrame(time);
+	int lineStart = ticks - ticks % TICKS_PER_LINE;
+	int x = ticks - lineStart - getLeftSprites(); // ticks into display
+	if (x + LEAD <= 0) return -1;
+	return lineStart + getLeftSprites() + (x + LEAD + GROUP - 1) / GROUP * GROUP;
+}
+
 void VDP::execSetMode(EmuTime time)
 {
 	updateDisplayMode(
