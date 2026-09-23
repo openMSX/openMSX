@@ -126,6 +126,7 @@ sources = files(
     'debugger/Tracer.cc',
     'events/AdhocCliCommParser.cc',
     'events/AfterCommand.cc',
+    'events/AnalogInput.cc',
     'events/BooleanInput.cc',
     'events/CliComm.cc',
     'events/CliConnection.cc',
@@ -224,6 +225,7 @@ sources = files(
     'input/DummyJoystick.cc',
     'input/EventDelay.cc',
     'input/JoyMega.cc',
+    'input/JoyHandle.cc',
     'input/JoyTap.cc',
     'input/JoystickDevice.cc',
     'input/JoystickPort.cc',
@@ -532,6 +534,7 @@ main_sources = files(
 
 test_sources = files(
     'unittest/AdhocCliCommParser_test.cc',
+    'unittest/AnalogInput_test.cc',
     'unittest/Base64_test.cc',
     'unittest/BooleanInput_test.cc',
     'unittest/CRC16_test.cc',
@@ -555,6 +558,7 @@ test_sources = files(
     'unittest/TclObject_test.cc',
     'unittest/TigerTree_test.cc',
     'unittest/UnapiNetWire_test.cc',
+    'unittest/VectorPathDsl_test.cc',
     'unittest/WavData_test.cc',
     'unittest/XMLEscape_test.cc',
     'unittest/XMLOutputStream_test.cc',

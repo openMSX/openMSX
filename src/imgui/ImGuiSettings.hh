@@ -1,6 +1,7 @@
 #ifndef IMGUI_SETTINGS_HH
 #define IMGUI_SETTINGS_HH
 
+#include "AnalogInput.hh"
 #include "FileListWidget.hh"
 #include "ImGuiPart.hh"
 #include "ImGuiUtils.hh"
@@ -15,6 +16,8 @@
 #include <vector>
 
 namespace openmsx {
+
+class JoystickManager;
 
 class ImGuiSettings final : public ImGuiPart, private EventListener
 {
@@ -34,9 +37,11 @@ private:
 	bool signalEvent(const Event& event) override;
 	void initListener();
 	void deinitListener();
+	void deinitListenerIfIdle();
 
 	void setStyle() const;
-	void paintJoystick(MSXMotherBoard& motherBoard);
+	void paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& joystickManager);
+	void paintCalibrate(JoystickManager& joystickManager);
 	void paintFont();
 	void paintShortcut();
 	void paintEditShortcut();
@@ -55,11 +60,21 @@ private:
 	Shortcuts::ID editShortcutId = Shortcuts::ID::INVALID;
 
 	unsigned joystick = 0;
-	unsigned popupForKey = unsigned(-1);
+	unsigned addPopupForKey = unsigned(-1);
+	unsigned removePopupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;
 
+	bool showCalibrateJoystick = false;
+
+	struct AnalogStatus {
+		AnalogInput binding;
+		float value = 0.0f;
+	};
+	std::vector<AnalogStatus> analogBindings;
+
 	int selectedStyle = -1; // no style loaded yet
+	unsigned selectedJoystick = 0; // calibrate joystick
 	std::string saveLayoutName;
 
 	FileListWidget saveLayout;

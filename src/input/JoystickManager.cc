@@ -1,7 +1,7 @@
 #include "JoystickManager.hh"
 
 #include "CommandException.hh"
-#include "IntegerSetting.hh"
+#include "FloatSetting.hh"
 #include "Reactor.hh"
 
 #include "narrow.hh"
@@ -9,6 +9,8 @@
 #include "strCat.hh"
 
 #include <algorithm>
+#include <cassert>
+#include <cmath>
 
 namespace openmsx {
 
@@ -38,11 +40,22 @@ size_t JoystickManager::getFreeSlot()
 	}
 	auto idx = infos.size();
 	infos.emplace_back();
-	infos[idx].deadZoneSetting = std::make_unique<IntegerSetting>(
+	auto& info = infos[idx];
+	info.deadZoneSetting = std::make_unique<FloatSetting>(
 		commandController,
 		tmpStrCat("joystick", idx + 1, "_deadzone"),
-		"size (as a percentage) of the dead center zone",
-		25, 0, 100);
+		"(as a percentage) inputs below this threshold are clipped to zero (dead)",
+		25.0f, 0.0f, 100.0f);
+	info.midPointSetting = std::make_unique<FloatSetting>(
+		commandController,
+		tmpStrCat("joystick", idx + 1, "_midpoint"),
+		"(as a percentage) this input gets mapped to half-strength output, allows to select a non-linear curve",
+		75.0f, 0.0f, 100.0f);
+	info.saturationSetting = std::make_unique<FloatSetting>(
+		commandController,
+		tmpStrCat("joystick", idx + 1, "_saturation"),
+		"(as a percentage) inputs above this threshold get mapped to max-output",
+		90.0f, 0.0f, 100.0f);
 	return idx;
 }
 
@@ -75,10 +88,38 @@ std::vector<JoystickId> JoystickManager::getConnectedJoysticks() const
 	return result;
 }
 
-IntegerSetting* JoystickManager::getJoyDeadZoneSetting(JoystickId joyId) const
+int JoystickManager::getJoyDeadThreshold(JoystickId joyId) const
 {
 	unsigned id = joyId.raw();
-	return (id < infos.size()) ? infos[id].deadZoneSetting.get() : nullptr;
+	return (id < infos.size()) ? int(infos[id].deadZoneSetting->getFloat() * (32768.0f / 100.0f)) : 8192;
+}
+
+float JoystickManager::getJoyValue(JoystickId joyId, const JoystickAxisMotionEvent& e) const
+{
+	unsigned id = joyId.raw();
+	if (id >= infos.size()) return 0.0f;
+
+	auto rawValue = float(e.getValue()); // [-32768, 32767]
+	auto value = std::abs(rawValue) * (1.0f / 32768.0f);
+
+	const auto& info = infos[id];
+	auto inner = info.deadZoneSetting->getFloat() * (1.0f / 100.0f);
+	if (value <= inner) return 0.0f;
+	auto outer = info.saturationSetting->getFloat() * (1.0f / 100.0f);
+	if (value >= outer) return std::copysign(1.0f, rawValue);
+
+	assert(inner < outer);
+	auto middle = info.midPointSetting->getFloat() * (1.0f / 100.0f);
+	middle = std::clamp(middle, inner, outer);
+	auto f = std::log(0.5f) / std::log((middle - inner) / (outer - inner));
+	auto output = std::pow((value - inner) / (outer - inner), f);
+	return std::copysign(output, rawValue);
+}
+
+JoystickManager::Info* JoystickManager::getSettings(JoystickId joyId)
+{
+	unsigned id = joyId.raw();
+	return (id < infos.size()) ? &infos[id] : nullptr;
 }
 
 std::string JoystickManager::getDisplayName(JoystickId joyId) const
@@ -118,6 +159,14 @@ std::optional<unsigned> JoystickManager::getNumHats(JoystickId joyId) const
 	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
 	if (!joystick) return {};
 	return SDL_JoystickNumHats(joystick);
+}
+
+std::optional<int16_t> JoystickManager::getAxis(JoystickId joyId, int axis) const
+{
+	unsigned id = joyId.raw();
+	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
+	if (!joystick) return {};
+	return SDL_JoystickGetAxis(joystick, axis);
 }
 
 std::optional<JoystickId> JoystickManager::translateSdlInstanceId(SDL_Event& evt) const
