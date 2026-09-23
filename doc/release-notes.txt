@@ -60,11 +60,11 @@ New or improved emulator features:
     disassembly view
   - allow to double-click an instruction with address to jump to that address
     in the disassembly view
-    based screen, with coordinates, CRT fade, and position of the beam
   - fixed unstable layout of bitmap viewer when screenmodes change (split)
   - allow to specify a segment number for symbol files
   - tile viewer: allow override of the color table
   - added Raster Beam Viewer, which shows the currently in-progress raster
+    based screen, with coordinates, CRT fade, and position of the beam
     - with command engine busy overlay
   - added debug Tracer (console and GUI), with timeline plotting of events in
     Trace Viewer
