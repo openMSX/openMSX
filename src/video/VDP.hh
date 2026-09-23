@@ -560,6 +560,14 @@ public:
 	[[nodiscard]] EmuTime getTimeInFrame(int ticks) const {
 		return frameStartTime + ticks;
 	}
+
+	/** In bitmap modes the VDP fetches VRAM in bursts of 8 pixels, so a
+	  * vertical scroll (R#23) write mid-line only takes effect at a later
+	  * burst. Returns the frame tick at which a write at 'time' reaches the
+	  * screen, or -1 if it takes effect immediately.
+	  */
+	[[nodiscard]] int getScrollBurstTicks(EmuTime time) const;
+
 	[[nodiscard]] EmuTime getFrameStartTime() const {
 		return frameStartTime.getTime();
 	}
