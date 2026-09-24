@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <span>
 
 namespace openmsx {
@@ -213,6 +214,14 @@ public:
 		return collisionY;
 	}
 
+	/** On a V99x8 the sprite status flags in S#0 go up during the line the
+	  * sprites are checked at, not at the end of that line: the collision
+	  * flag when the beam reaches the colliding pixel. Checks that for the
+	  * current line. Call after sync(), before S#0 is read.
+	  * @param time The moment in emulated time S#0 is read.
+	  */
+	void checkStatusEarly(EmuTime time);
+
 	/** Reset sprite collision coordinates.
 	  * This happens directly after a read, so a timestamp for syncing is
 	  * not necessary.
@@ -227,6 +236,7 @@ public:
 	void frameStart(EmuTime time) {
 		frameStartTime.reset(time);
 		currentLine = 0;
+		earlyCollisionLine = -1;
 		std::ranges::fill(spriteCount, 0);
 		// TODO: Reset anything else? Does the real VDP?
 	}
@@ -317,6 +327,24 @@ private:
 	[[nodiscard]] SpritePattern calculatePatternNP(unsigned patternNr, unsigned y) const;
 	[[nodiscard]] SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y) const;
 
+	/** Result of fillSprites1/2().
+	  */
+	struct FillResult {
+		int nthSprite;  // number of the 5th/9th sprite on the earliest
+		                // line where that occurs, or -1
+		int numSprites; // number of sprites processed (till the end marker)
+	};
+
+	/** Determine which sprites are visible on each line, sprite mode 1
+	  * (MSX1).
+	  * @param minLine The first line number (inclusive) for which sprites
+	  *                should be checked.
+	  * @param maxLine The last line number (exclusive) for which sprites
+	  *                should be checked.
+	  * @effect Fills in the spriteBuffer and spriteCount arrays.
+	  */
+	FillResult fillSprites1(int minLine, int maxLine);
+
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
 	  * Separated from display code to make MSX behaviour consistent
@@ -329,6 +357,16 @@ private:
 	  */
 	void checkSprites1(int minLine, int maxLine);
 
+	/** X of the leftmost colliding pixel on a line in sprite mode 1, or
+	  * nullopt if none. The line must have been filled by fillSprites1().
+	  */
+	[[nodiscard]] std::optional<int> findCollision1(int line) const;
+
+	/** Determine which sprites are visible on each line, sprite mode 2
+	  * (MSX2). See fillSprites1().
+	  */
+	FillResult fillSprites2(int minLine, int maxLine);
+
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
 	  * Separated from display code to make MSX behaviour consistent
@@ -340,6 +378,11 @@ private:
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
 	void checkSprites2(int minLine, int maxLine);
+
+	/** X of the leftmost colliding pixel on a line in sprite mode 2, or
+	  * nullopt if none. The line must have been filled by fillSprites2().
+	  */
+	[[nodiscard]] std::optional<int> findCollision2(int line) const;
 
 private:
 	using UpdateSpritesMethod = void (SpriteChecker::*)(int limit);
@@ -368,6 +411,10 @@ private:
 	/** Sprites are checked up to and excluding this display line.
 	  */
 	int currentLine;
+
+	/** Line whose collision checkStatusEarly() already flagged, or -1.
+	  */
+	int earlyCollisionLine = -1;
 
 	/** X coordinate of sprite collision.
 	  * 9 bits long -> [0..511]?
@@ -398,7 +445,7 @@ private:
 	  */
 	bool planar;
 };
-SERIALIZE_CLASS_VERSION(SpriteChecker, 2);
+SERIALIZE_CLASS_VERSION(SpriteChecker, 3);
 
 } // namespace openmsx
 
