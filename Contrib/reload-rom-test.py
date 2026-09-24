@@ -8,6 +8,9 @@ from pathlib import Path
 import tempfile
 import time
 
+MEDIA_CARTA = 'machine_info media carta'
+CATCH_RELOAD = 'catch {reload_rom}'
+
 ROOT = Path(__file__).resolve().parents[1]
 helpers = runpy.run_path(str(ROOT / 'Contrib/rom-replacement-test.py'))
 Emulator, image, tcl_path = (helpers[n] for n in ('Emulator', 'image', 'tcl_path'))
@@ -39,14 +42,14 @@ def main():
         try:
             assert 'reload_rom' in emu.command('bind CTRL+SHIFT+R'), 'Hotkey not active'
             emu.expect(marker_before, original, bytes(old_view))
-            old_media = emu.command('machine_info media carta')
+            old_media = emu.command(MEDIA_CARTA)
             # Bad/missing build outputs must leave the existing cartridge inserted.
             rom.unlink()
-            assert emu.command('catch {reload_rom}') == '1'
-            assert emu.command('machine_info media carta') == old_media
+            assert emu.command(CATCH_RELOAD) == '1'
+            assert emu.command(MEDIA_CARTA) == old_media
             rom.write_bytes(b'')
-            assert emu.command('catch {reload_rom}') == '1'
-            assert emu.command('machine_info media carta') == old_media
+            assert emu.command(CATCH_RELOAD) == '1'
+            assert emu.command(MEDIA_CARTA) == old_media
             # The existing ROM hash cache compares timestamps at one-second precision.
             time.sleep(1.1)
             rom.write_bytes(encode(rebuilt))
@@ -67,7 +70,7 @@ def main():
 
             # Explicit cartridge selection, including a ROM in the second slot.
             emu.command('carta eject')
-            assert emu.command('catch {reload_rom}') == '1'
+            assert emu.command(CATCH_RELOAD) == '1'
             command = 'cartb ' + tcl_path(rom) + ' -romtype ' + mapper
             if ips:
                 command += ' -ips ' + tcl_path(ips)
@@ -77,7 +80,7 @@ def main():
             emu.expect(marker_after, rebuilt, bytes(new_view))
             assert emu.command('dict get [machine_info media cartb] mappertype') == mapper
             emu.command('carta ' + tcl_path(rom) + ' -romtype ASCII16')
-            assert emu.command('catch {reload_rom}') == '1', 'Ambiguous ROMs were silently selected'
+            assert emu.command(CATCH_RELOAD) == '1', 'Ambiguous ROMs were silently selected'
             events.append('empty-slot error, slot B reload and ambiguous-slot handling')
             results[name] = events
             print('PASS', name, *events, sep='\n  ', flush=True)
