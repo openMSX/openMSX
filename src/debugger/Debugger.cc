@@ -12,6 +12,7 @@
 #include "MSXMotherBoard.hh"
 #include "ProbeBreakPoint.hh"
 #include "Reactor.hh"
+#include "RomAscii16X.hh"
 #include "SymbolManager.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
@@ -234,6 +235,20 @@ void Debugger::Cmd::execute(
 		"size",              [&]{ size(tokens, result); },
 		"desc",              [&]{ desc(tokens, result); },
 		"list",              [&]{ list(result); },
+		"discard_flash_persistence", [&]{
+			checkNumArgs(tokens, 3, "device");
+			auto* device = dynamic_cast<RomAscii16X*>(
+				debugger().motherBoard.findDevice(tokens[2].getString()));
+			if (!device) throw CommandException("Expected an ASCII16-X ROM device");
+			device->discardPendingFlashPersistence();
+		},
+		"refresh_flash_from_rom", [&]{
+			checkNumArgs(tokens, 3, "device");
+			auto* device = dynamic_cast<RomAscii16X*>(
+				debugger().motherBoard.findDevice(tokens[2].getString()));
+			if (!device) throw CommandException("Expected an ASCII16-X ROM device");
+			result = device->refreshFlashFromRom();
+		},
 		"step",              [&]{ debugger().motherBoard.getCPUInterface().doStep(); },
 		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
 		"disasm",            [&]{ disasm(tokens, result, time); },
@@ -1180,6 +1195,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    write        write a byte to a debuggable\n"
 		"    read_block   read a whole block at once\n"
 		"    write_block  write a whole block at once\n"
+		"    refresh_flash_from_rom  refresh untouched ASCII16-X Flash from loaded ROM\n"
 		"    breakpoint   breakpoint related subcommands\n"
 		"    watchpoint   watchpoint related subcommands\n"
 		"    watchexpr    watch expression related subcommands\n"
@@ -1536,6 +1552,14 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		return readBlockHelp;
 	} else if (tokens[1] == "write_block") {
 		return writeBlockHelp;
+	} else if (tokens[1] == "discard_flash_persistence") {
+		return "debug discard_flash_persistence <device>\n"
+		       "Cancel pending ASCII16-X persistent writes before deleting a failed inactive developer restore.\n";
+	} else if (tokens[1] == "refresh_flash_from_rom") {
+		return "debug refresh_flash_from_rom <device>\n"
+		       "Developer restore helper: copy the loaded ROM image into untouched ASCII16-X Flash sectors.\n"
+		       "Preserves guest-modified sectors, CPU/RAM and mapper state; returns the byte count.\n"
+		       "Use loadstate_dev to read the current ROM file first. Not recorded for replay.\n";
 	} else if (tokens[1] == "breakpoint") {
 		if (size == 2) {
 			return breakPointHelp;
@@ -1670,7 +1694,7 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 		"write"sv, "write_block"sv,
 	};
 	static constexpr std::array otherCmds = {
-		"disasm"sv, "disasm_blob"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
+		"discard_flash_persistence"sv, "refresh_flash_from_rom"sv, "disasm"sv, "disasm_blob"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
 		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv, "trace"sv,
 		"probe"sv, "symbols"sv, "breakpoint"sv, "watchpoint"sv, "watchexpr"sv, "condition"sv,
 	};

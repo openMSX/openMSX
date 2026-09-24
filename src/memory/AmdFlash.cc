@@ -174,6 +174,34 @@ AmdFlash::~AmdFlash()
 	if (persistenceDirty) savePersistent();
 }
 
+void AmdFlash::discardPendingPersistence()
+{
+	persistentSync.cancelRT();
+	persistenceDirty = false;
+}
+
+size_t AmdFlash::refreshUnmodified(const Rom& rom)
+{
+	// Never alter an in-flight (or suspended) Flash operation or command sequence.
+	if (state != State::READ || !cmd.empty() || !program.buffer.empty() ||
+	    !erase.buffer.empty() || syncOperation.isPending() || syncSuspend.isPending()) {
+		throw MSXException("Cannot refresh Flash during a Flash command; save a state while Flash is idle");
+	}
+	if (rom.size() > size()) {
+		throw MSXException("ROM image exceeds Flash capacity");
+	}
+	size_t refreshed = 0;
+	for (const auto& sector : sectors) {
+		if (sector.writeProtect || modifiedSectors[sector.index] || sector.address >= rom.size()) continue;
+		auto count = std::min(size_t(sector.size), rom.size() - sector.address);
+		auto destination = ram->getWriteBackdoor().subspan(sector.writeAddress, count);
+		copy_to_range(std::span{rom}.subspan(sector.address, count), destination);
+		refreshed += count;
+	}
+	// These bytes remain initial ROM content, not persistent guest writes.
+	return refreshed;
+}
+
 // Based on Laurens Holst's sector persistence design in openMSX PR #1629.
 // Metadata and payload share one checksummed file so they cannot get out of sync.
 static constexpr std::array<uint8_t, 8> FLASH_FILE_MAGIC = {'O', 'M', 'S', 'X', 'F', 'L', 'S', 1};

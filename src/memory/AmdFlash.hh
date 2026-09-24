@@ -238,6 +238,11 @@ public:
 	         DeviceConfig& config, std::string_view id = {});
 	~AmdFlash();
 
+	// Developer restore: refresh only sectors never programmed/erased by the guest.
+	[[nodiscard]] size_t refreshUnmodified(const Rom& rom);
+	// Drop pending disk writes when discarding a failed, inactive developer restore.
+	void discardPendingPersistence();
+
 	void reset();
 	/**
 	 * Setting the Vpp/WP# pin LOW enables a certain kind of write

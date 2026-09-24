@@ -38,3 +38,6 @@ if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 	bind_default -msx "keyb META+CTRL+C" copy_screen_to_clipboard
 	bind_default -msx "keyb META+CTRL+V" type_clipboard
 }
+
+# Restore gameplay state with current ROM assets (development only).
+bind_default CTRL+SHIFT+F7 loadstate_dev
