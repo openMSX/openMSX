@@ -318,6 +318,21 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		rom = rom.subspan(windowBase, windowSize);
 	}
 
+#ifdef _WIN32
+	// A live file mapping prevents Windows tools from replacing/truncating
+	// the ROM. Keep an owned snapshot so rebuilding the file cannot change
+	// the running cartridge. Hashes and compressed-file names are resolved
+	// above; only a new cartridge insertion should read the new image.
+	if (file.is_open()) {
+		MemBuffer<uint8_t> snapshot(rom.size());
+		copy_to_range(rom, std::span{snapshot});
+		extendedRom = std::move(snapshot);
+		rom = std::span{extendedRom};
+		mmap.reset();
+		file.close();
+	}
+#endif
+
 	// Only create the debuggable once all checks succeeded.
 	if (!rom.empty()) {
 		romDebuggable = std::make_unique<RomDebuggable>(debugger, *this);

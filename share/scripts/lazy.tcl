@@ -34,6 +34,7 @@ register_lazy "_record_channels.tcl" {
 register_lazy "_record_chunks.tcl" {
 	record_chunks record_chunks_on_framerate_changes}
 register_lazy "_reg_log.tcl" reg_log
+register_lazy "_reload_rom.tcl" reload_rom
 register_lazy "_reverse.tcl" {
 	reverse_prev reverse_next goto_time_delta go_back_one_step
 	go_forward_one_step reverse_bookmarks

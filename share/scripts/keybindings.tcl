@@ -38,3 +38,6 @@ if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 	bind_default -msx "keyb META+CTRL+C" copy_screen_to_clipboard
 	bind_default -msx "keyb META+CTRL+V" type_clipboard
 }
+
+# Developer shortcut: re-read the inserted ROM, then reset the MSX.
+bind_default CTRL+SHIFT+R reload_rom
