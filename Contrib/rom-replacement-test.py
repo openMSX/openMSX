@@ -55,7 +55,7 @@ def tcl_path(path):
 class Emulator:
     def __init__(self, exe, out, firmware, rom, mapper, ips=None):
         exe = executable_path(exe)
-        if mapper not in ('ASCII16', 'ASCII16-X'):
+        if mapper not in ('ASCII16', 'ASCII16-X', 'Yamanooto'):
             raise ValueError('Unsupported synthetic-test mapper')
         out = out.resolve(strict=True)
         rom = rom.resolve(strict=True)
@@ -242,7 +242,7 @@ def main():
     args = parser.parse_args()
     out = Path(tempfile.mkdtemp(prefix='rom-replacement-', dir=ROOT / 'derived'))
     reports = {}
-    cases = [('ascii16', 'ASCII16', False, False), ('asciix16', 'ASCII16-X', False, False)]
+    cases = [('ascii16', 'ASCII16', False, False), ('asciix16', 'ASCII16-X', False, False), ('yamanooto', 'Yamanooto', False, False)]
     if not args.baseline:
         cases += [('gzip', 'ASCII16', True, False), ('ips', 'ASCII16', False, True)]
     for name, mapper, compressed, patch in cases:

@@ -1,7 +1,7 @@
 #ifndef ROM_HH
 #define ROM_HH
 
-#include "File.hh"
+#include "MappedFile.hh"
 
 #include "MemBuffer.hh"
 #include "sha1.hh"
@@ -63,7 +63,6 @@ private:
 	std::span<const uint8_t> rom;
 	MemBuffer<uint8_t> extendedRom;
 
-	File file; // can be a closed file
 	std::string filename;
 	std::optional<MappedFile<uint8_t>> mmap; // non-const to allow patching
 

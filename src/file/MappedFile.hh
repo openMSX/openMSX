@@ -8,11 +8,6 @@
 #include <type_traits>
 #include <utility>
 
-#ifdef _WIN32
-// Forward declare Windows HANDLE type without including windows.h (it pollutes too much)
-using HANDLE = void*;
-#endif
-
 namespace openmsx {
 
 class LocalFile;
@@ -29,7 +24,7 @@ class LocalFile;
  * - Only trivially copyable/destructible types T are allowed.
  * - If the file size is not a multiple of sizeof(T), the final partial
  *   element is excluded.
- * - The mapping is page-aligned, alignof(T) must not exceed 4096.
+ * - OS mappings are page-aligned; buffered fallbacks use malloc alignment.
  */
 class MappedFileImpl
 {
@@ -65,9 +60,6 @@ private:
 	void move_from(MappedFileImpl&& other) noexcept {
 		ptr = std::exchange(other.ptr, nullptr);
 		sz = std::exchange(other.sz, 0);
-	#ifdef _WIN32
-		mappingHandle = std::exchange(other.mappingHandle, nullptr);
-	#endif
 		alloc = std::exchange(other.alloc, false);
 		mapped = std::exchange(other.mapped, false);
 	}
@@ -80,9 +72,6 @@ private:
 private:
 	void* ptr = nullptr;
 	size_t sz = 0;
-#ifdef _WIN32
-	HANDLE mappingHandle = nullptr;
-#endif
 	bool alloc = false;
 	bool mapped = false;
 };

@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
     out = Path(tempfile.mkdtemp(prefix='reload-rom-', dir=ROOT / 'derived'))
     results = {}
-    for name, mapper in [('ascii16', 'ASCII16'), ('ips', 'ASCII16'), ('gzip', 'ASCII16')]:
+    for name, mapper in [('ascii16', 'ASCII16'), ('ips', 'ASCII16'), ('gzip', 'ASCII16'), ('yamanooto', 'Yamanooto')]:
         folder = out / name
         folder.mkdir()
         rom = folder / ('developer image.rom.gz' if name == 'gzip' else 'developer image.rom')
