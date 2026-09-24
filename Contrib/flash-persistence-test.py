@@ -8,6 +8,7 @@ import argparse
 import gzip
 import json
 import os
+import runpy
 from pathlib import Path
 import shutil
 import stat
@@ -20,6 +21,9 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 MAGIC = b'OMSXFLS\x01'
 SIZES = [0x2000] * 8 + [0x10000] * 127
+helpers = runpy.run_path(str(ROOT / 'Contrib/rom-replacement-test.py'))
+executable_path, tcl_path = (helpers[n] for n in ('executable_path', 'tcl_path'))
+PENDING_STATE = 'pending.oms'
 MARKER, SAVE, SECOND = 0x1000, 0x20100, 0x30100
 
 
@@ -51,9 +55,45 @@ def decode_sparse(path):
     return sectors
 
 
+def check_corrupt_files(sparse, run):
+    # Corrupt sparse data must fail closed, without changing the user's file.
+    # Expected empty sparse fixture is generated independently, not copied from
+    # emulator output. This checks the encoding as well as corruption handling.
+    header = MAGIC + struct.pack('<II', 0x800000, len(SIZES))
+    payload = header + b''.join(struct.pack('<IB', size, 0) for size in SIZES)
+    good = payload + struct.pack('<I', zlib.crc32(payload))
+    assert sparse.read_bytes() == good
+    def bad_metadata(offset, value):
+        data=bytearray(good)
+        data[offset]=value
+        struct.pack_into('<I',data,len(data)-4,zlib.crc32(data[:-4]))
+        return bytes(data)
+    for name,bad in [('truncated',good[:20]),('bad-crc',good[:-1]+bytes([good[-1]^1])),
+                     ('bad-geometry',bad_metadata(10,0)),
+                     ('bad-sector-size',bad_metadata(17,0)),
+                     ('bad-sector-flag',bad_metadata(20,2)),
+                     ('missing-payload',bad_metadata(20,1))]:
+        sparse.write_bytes(bad)
+        run(name,[],expect_error=True)
+        assert sparse.read_bytes() == bad
+    sparse.write_bytes(good)
+    run('valid-after-corrupt', [('expect',MARKER,0x33)])
+    if os.name == 'nt':
+        # Failed replacement must preserve the last good save and remove temp data.
+        existing=set(sparse.parent.iterdir())
+        sparse.chmod(stat.S_IREAD)
+        try:
+            run('replace-failure', [('program',SECOND,0xf0),('expect',SECOND,0xf0)])
+            assert sparse.read_bytes() == good
+            assert set(sparse.parent.iterdir()) == existing
+        finally:
+            sparse.chmod(stat.S_IWRITE | stat.S_IREAD)
+        run('after-replace-failure', [('expect',SECOND,0xff)])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--openmsx', type=Path, default=ROOT/'derived/x64-VC-Release/install/openmsx.exe')
+    parser.add_argument('--openmsx', type=executable_path, default=ROOT/'derived/x64-VC-Release/install/openmsx.exe')
     parser.add_argument('--firmware-dir', type=Path, required=True)
     parser.add_argument('--baseline', action='store_true', help='Confirm the old whole-image persistence bug')
     parser.add_argument('--ram-routines', type=Path, help='Assembled flash-persistence-ram.asm, loaded at C200h')
@@ -77,7 +117,7 @@ def main():
         plan = out/f'{count:02d}-{name}.tcl'
         result = out/f'{count:02d}-{name}.txt'
         def atom(value):
-            return '{' + str(value).replace('\\','/') + '}'
+            return tcl_path(Path(str(value).replace('\\', '/')))
         plan.write_text('set ::actions [list ' + ' '.join('[list '+' '.join(map(atom,a))+']' for a in actions) + ']\n')
         env = dict(os.environ, OPENMSX_HOME=str(profile), OPENMSX_USER_DATA=str(user),
                    OPENMSX_SYSTEM_DATA=str(ROOT/'share'), SDL_VIDEODRIVER='dummy', SDL_AUDIODRIVER='dummy',
@@ -85,9 +125,9 @@ def main():
                    FLASH_RAM_ROUTINES=str(args.ram_routines.resolve()) if args.ram_routines else '')
         process = subprocess.run([str(args.openmsx.resolve()), '-machine','Philips_NMS_8250',
                     '-cart',str(rom),'-romtype','ASCII16-X','-script',str(Path(__file__).with_suffix('.tcl'))],
-                    env=env, capture_output=True, text=True, timeout=60,
+                    shell=False, env=env, capture_output=True, text=True, timeout=60,
                     creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        (out/f'{count:02d}-{name}.json').write_text(json.dumps(dict(returncode=process.returncode, stdout=process.stdout, stderr=process.stderr),indent=2))
+        (out/f'{count:02d}-{name}.json').write_text(json.dumps({'returncode': process.returncode, 'stdout': process.stdout, 'stderr': process.stderr},indent=2))
         if expect_error:
             assert process.returncode == 1 and not result.exists(), (name,process.returncode,process.stdout,process.stderr)
         else:
@@ -121,34 +161,7 @@ def main():
     run('restore-clean', [('load',before),('expect',SAVE,0xff)])
     assert decode_sparse(sparse) == {}
     run('restart-clean', [('expect',MARKER,0x33),('expect',SAVE,0x88)])
-    # Corrupt sparse data must fail closed, without changing the user's file.
-    good=sparse.read_bytes()
-    def bad_metadata(offset, value):
-        data=bytearray(good)
-        data[offset]=value
-        struct.pack_into('<I',data,len(data)-4,zlib.crc32(data[:-4]))
-        return bytes(data)
-    for name,bad in [('truncated',good[:20]),('bad-crc',good[:-1]+bytes([good[-1]^1])),
-                     ('bad-geometry',bad_metadata(10,0)),
-                     ('bad-sector-size',bad_metadata(17,0)),
-                     ('bad-sector-flag',bad_metadata(20,2)),
-                     ('missing-payload',bad_metadata(20,1))]:
-        sparse.write_bytes(bad)
-        run(name,[],expect_error=True)
-        assert sparse.read_bytes() == bad
-    sparse.write_bytes(good)
-    run('valid-after-corrupt', [('expect',MARKER,0x33)])
-    if os.name == 'nt':
-        # Failed replacement must preserve the last good save and remove temp data.
-        existing=set(sparse.parent.iterdir())
-        sparse.chmod(stat.S_IREAD)
-        try:
-            run('replace-failure', [('program',SECOND,0xf0),('expect',SECOND,0xf0)])
-            assert sparse.read_bytes() == good
-            assert set(sparse.parent.iterdir()) == existing
-        finally:
-            sparse.chmod(stat.S_IWRITE | stat.S_IREAD)
-        run('after-replace-failure', [('expect',SECOND,0xff)])
+    check_corrupt_files(sparse, run)
     if args.ram_routines:
         # CPU executes the supplied routines from RAM, including status polling.
         # Map commands in page 1, data in page 2, code/source/stack in page 3.
@@ -160,11 +173,11 @@ def main():
         run('ram-erase', [('ram-erase',), ('ram-result',0), ('ram-erased',)])
         assert decode_sparse(sparse)[9] == bytes([255])*0x10000
         run('ram-erase-restart', [('ram-erased',), ('expect',MARKER,0x44)])
-        run('ram-pending-state', [('ram-program-pending',), ('save',out/'pending.oms'),
+        run('ram-pending-state', [('ram-program-pending',), ('save',out/PENDING_STATE),
                                  ('wait',1), ('ram-result',0),
-                                 ('load',out/'pending.oms'), ('wait',1),
+                                 ('load',out/PENDING_STATE), ('wait',1),
                                  ('ram-result',0), ('ram-data',)])
-        state=ET.fromstring(gzip.decompress((out/'pending.oms').read_bytes()))
+        state=ET.fromstring(gzip.decompress((out/PENDING_STATE).read_bytes()))
         assert any(f.findtext('state') == 'PROGRAM' for f in state.iter('flash'))
         # These two status inputs are deliberately synthetic RAM fixtures,
         # not claims that a real Flash timing-limit failure was induced.

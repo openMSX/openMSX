@@ -29,6 +29,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Rom;
 class SRAM;
+class File;
 class DeviceConfig;
 
 class AmdFlash
@@ -298,6 +299,8 @@ private:
 	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
 	bool loadPersistent();
+	bool loadLegacyPersistent(File& file, const std::string& path);
+	void validateModifiedSectors() const;
 	void savePersistent();
 	void schedulePersistentSave();
 	void markModified(const Sector& sector);
@@ -336,7 +339,7 @@ private:
 	void execProgramOperation(EmuTime time);
 	void execSuspend(EmuTime time);
 
-	const DeviceConfig config;
+	const DeviceConfig deviceConfig;
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
 	const Chip& chip;
@@ -419,7 +422,8 @@ private:
 			auto& outer = OUTER(AmdFlash, persistentSync);
 			outer.savePersistent();
 		}
-	} persistentSync;
+	};
+	PersistentSync persistentSync;
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 5);
 

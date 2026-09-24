@@ -14,7 +14,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 
-#include "Endian.hh"
+#include "endian.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -29,6 +29,7 @@
 #include <bit>
 #include <cassert>
 #include <cstdio>
+#include <exception>
 #include <iterator>
 #include <memory>
 #include <utility>
@@ -52,7 +53,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    const Rom* rom, std::span<const bool> writeProtectSectors,
                    DeviceConfig& config, std::string_view id)
-	: config(config)
+	: deviceConfig(config)
 	, motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
 	, syncOperation(motherBoard.getScheduler())
@@ -101,9 +102,9 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	}
 
 	std::unique_ptr<Rom> rom_;
-	const bool needsInitialContent = !loaded || std::ranges::any_of(sectors,
+	if (const bool needsInitialContent = !loaded || std::ranges::any_of(sectors,
 		[&](const Sector& s) { return !s.writeProtect && !modifiedSectors[s.index]; });
-	if (!rom && needsInitialContent) {
+	    !rom && needsInitialContent) {
 		// Without a ROM constructor parameter, load initial content for
 		// sectors that have no persistent modifications. This
 		// represents the original content of the flash when the device
@@ -171,7 +172,13 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 AmdFlash::~AmdFlash()
 {
 	persistentSync.cancelRT();
-	if (persistenceDirty) savePersistent();
+	try {
+		if (persistenceDirty) savePersistent();
+	} catch (const std::exception& e) {
+		// Destruction must not terminate the emulator on allocation or other
+		// unexpected errors. Ordinary file errors are reported by savePersistent.
+		fprintf(stderr, "Couldn't save Flash data during destruction: %s\n", e.what());
+	}
 }
 
 void AmdFlash::discardPendingPersistence()
@@ -206,10 +213,22 @@ size_t AmdFlash::refreshUnmodified(const Rom& rom)
 // Metadata and payload share one checksummed file so they cannot get out of sync.
 static constexpr std::array<uint8_t, 8> FLASH_FILE_MAGIC = {'O', 'M', 'S', 'X', 'F', 'L', 'S', 1};
 
+bool AmdFlash::loadLegacyPersistent(File& file, const std::string& path)
+{
+	// Legacy files contain every writable sector, with no history.
+	// Preserve all of them rather than infer modifications from a NEW ROM.
+	if (file.getSize() != ram->size() || FileOperations::exists(path + ".meta")) {
+		throw FileException("Unsupported legacy Flash data size or metadata");
+	}
+	file.read(ram->getWriteBackdoor());
+	for (const Sector& s : sectors) modifiedSectors[s.index] = !s.writeProtect;
+	return true;
+}
+
 bool AmdFlash::loadPersistent()
 {
-	const auto& context = config.getFileContext();
-	const auto filename = config.getChildData("sramname");
+	const auto& context = deviceConfig.getFileContext();
+	const auto filename = deviceConfig.getChildData("sramname");
 	std::string path;
 	bool sparse = true;
 	try {
@@ -226,14 +245,7 @@ bool AmdFlash::loadPersistent()
 	try {
 		File file(path);
 		if (!sparse) {
-			// Legacy files contain every writable sector, with no history.
-			// Preserve all of them rather than infer modifications from a NEW ROM.
-			if (file.getSize() != ram->size() || FileOperations::exists(path + ".meta")) {
-				throw FileException("Unsupported legacy Flash data size or metadata");
-			}
-			file.read(ram->getWriteBackdoor());
-			for (const Sector& s : sectors) modifiedSectors[s.index] = !s.writeProtect;
-			return true;
+			return loadLegacyPersistent(file, path);
 		}
 
 		const size_t headerSize = 16 + 5 * sectors.size();
@@ -248,8 +260,8 @@ bool AmdFlash::loadPersistent()
 		    Endian::read_UA_L32(bytes.data() + 12) != sectors.size()) {
 			throw FileException("Unsupported sparse Flash version or chip geometry");
 		}
-		const auto crc = crc32(0, bytes.data(), narrow<uInt>(bytes.size() - 4));
-		if (crc != Endian::read_UA_L32(bytes.data() + bytes.size() - 4)) {
+		if (const auto crc = crc32(0, bytes.data(), narrow<uInt>(bytes.size() - 4));
+		    crc != Endian::read_UA_L32(bytes.data() + bytes.size() - 4)) {
 			throw FileException("Sparse Flash checksum mismatch");
 		}
 		size_t expectedSize = headerSize + 4;
@@ -295,7 +307,7 @@ void AmdFlash::markModified(const Sector& sector)
 
 void AmdFlash::savePersistent()
 {
-	const auto filename = strCat(config.getChildData("sramname"), ".sparse");
+	const auto filename = strCat(deviceConfig.getChildData("sramname"), ".sparse");
 	std::string temporary;
 	try {
 		const size_t headerSize = 16 + 5 * sectors.size();
@@ -316,7 +328,7 @@ void AmdFlash::savePersistent()
 		bytes.resize(bytes.size() + 4);
 		Endian::write_UA_L32(bytes.data() + bytes.size() - 4, narrow<uint32_t>(crc));
 
-		const auto path = config.getFileContext().resolveCreate(filename);
+		const auto path = deviceConfig.getFileContext().resolveCreate(filename);
 		auto file = FileOperations::openUniqueFile(std::string(FileOperations::getDirName(path)), temporary);
 		if (!file || fwrite(bytes.data(), 1, bytes.size(), file.get()) != bytes.size() ||
 		    fflush(file.get()) != 0) {
@@ -327,7 +339,7 @@ void AmdFlash::savePersistent()
 		persistenceDirty = false;
 	} catch (FileException& e) {
 		if (!temporary.empty()) FileOperations::unlink(temporary);
-		config.getCliComm().printWarning("Couldn't save Flash data ", filename, " (", e.getMessage(), ").");
+		deviceConfig.getCliComm().printWarning("Couldn't save Flash data ", filename, " (", e.getMessage(), ").");
 	}
 }
 
@@ -1255,6 +1267,18 @@ void AmdFlash::ProgramOperation::serialize(Archive& ar, unsigned /*version*/)
 		             "buffer", buffer);
 }
 
+void AmdFlash::validateModifiedSectors() const
+{
+	if (modifiedSectors.size() != sectors.size()) {
+		throw MSXException("Invalid Flash save-state sector count");
+	}
+	for (const Sector& s : sectors) {
+		if (modifiedSectors[s.index] > 1 || (s.writeProtect && modifiedSectors[s.index])) {
+			throw MSXException("Invalid Flash save-state sector flags");
+		}
+	}
+}
+
 // version 1: Initial version.
 // version 2: Added vppWpPinLow.
 // version 3: Changed cmd to static_vector, added status.
@@ -1267,14 +1291,7 @@ void AmdFlash::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 5)) {
 		ar.serialize("modifiedSectors", modifiedSectors);
 		if constexpr (Archive::IS_LOADER) {
-			if (modifiedSectors.size() != sectors.size()) {
-				throw MSXException("Invalid Flash save-state sector count");
-			}
-			for (const Sector& s : sectors) {
-				if (modifiedSectors[s.index] > 1 || (s.writeProtect && modifiedSectors[s.index])) {
-					throw MSXException("Invalid Flash save-state sector flags");
-				}
-			}
+			validateModifiedSectors();
 		}
 	} else if constexpr (Archive::IS_LOADER) {
 		// Old snapshots have no modification history. Never guess away save data.

@@ -10,6 +10,7 @@ import gzip
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -29,12 +30,38 @@ def image(marker, size=0x40000):
     return bytes(data)
 
 
+def executable_path(value):
+    """Accept an explicit native openMSX executable, never a shell/batch command."""
+    path = Path(value).expanduser().resolve(strict=True)
+    pattern = r'openmsx(?:[-_.][A-Za-z0-9_.-]+)?'
+    if os.name == 'nt':
+        pattern += r'\.exe'
+    if not path.is_file() or not re.fullmatch(pattern, path.name, re.IGNORECASE):
+        raise ValueError('Expected a native openMSX executable file')
+    if os.name == 'nt':
+        with path.open('rb') as stream:
+            if stream.read(2) != b'MZ':
+                raise ValueError('Expected a Windows executable, not a command script')
+    return path
+
+
 def tcl_path(path):
-    return '{' + path.as_posix() + '}'
+    # A command substitution that returns exactly one value, even for braces,
+    # dollar signs, semicolons, brackets or newlines in a filesystem path.
+    encoded = base64.b64encode(path.as_posix().encode('utf-8')).decode('ascii')
+    return '[encoding convertfrom utf-8 [binary decode base64 {' + encoded + '}]]'
 
 
 class Emulator:
     def __init__(self, exe, out, firmware, rom, mapper, ips=None):
+        exe = executable_path(exe)
+        if mapper not in ('ASCII16', 'ASCII16-X'):
+            raise ValueError('Unsupported synthetic-test mapper')
+        out = out.resolve(strict=True)
+        rom = rom.resolve(strict=True)
+        firmware = firmware.resolve(strict=True)
+        if ips is not None:
+            ips = ips.resolve(strict=True)
         self.out = out
         self.request = out / 'request.tcl'
         self.response = out / 'response.txt'
@@ -72,7 +99,7 @@ after realtime 0.01 poll_test
             args += ['-ips', str(ips)]
         args += ['-script', str(script)]
         self.stderr = (out / 'stderr.txt').open('w')
-        self.process = subprocess.Popen(args, env=env, stdout=self.stderr, stderr=self.stderr,
+        self.process = subprocess.Popen(args, shell=False, env=env, stdout=self.stderr, stderr=self.stderr,
             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         try:
             self.command('set power on; set pause off')
@@ -116,8 +143,9 @@ after realtime 0.01 poll_test
         self.advance()
         assert int(self.command('debug read memory 0xc000')) == marker, 'Running ROM changed or stopped'
         for key, data in [('originalSHA1', raw), ('actualSHA1', patched or raw)]:
+            # Match openMSX's SHA-1 ROM identity, not a security/authentication check.
             actual = self.command(f'dict get [machine_info device [guess_rom_device]] {key}')
-            assert actual == hashlib.sha1(data).hexdigest(), (key, actual)
+            assert actual == hashlib.sha1(data, usedforsecurity=False).hexdigest(), (key, actual)
 
     def close(self):
         try:
@@ -208,7 +236,7 @@ def run_case(exe, out, firmware, mapper, compressed=False, patch=False, baseline
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--openmsx', type=Path, default=ROOT / 'derived/x64-VC-Release/install/openmsx.exe')
+    parser.add_argument('--openmsx', type=executable_path, default=ROOT / 'derived/x64-VC-Release/install/openmsx.exe')
     parser.add_argument('--firmware-dir', type=Path, required=True)
     parser.add_argument('--baseline', action='store_true')
     args = parser.parse_args()
