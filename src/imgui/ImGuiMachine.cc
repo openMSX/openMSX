@@ -710,7 +710,7 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, Mode mode
 									ImGui::TextDisabledUnformatted(displayName);
 								}
 							} else {
-								auto displayName = isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true);
+								auto displayName = isEmpty ? std::string(EMPTY) : manager.media->displayNameForRom(std::string(targetStr), true);
 								if (mode == Mode::EDIT) {
 									if (ImGui::Selectable(strCat(displayName, "##", media.name).c_str(), false)) {
 										manager.media->showMediaWindow(media.name);
