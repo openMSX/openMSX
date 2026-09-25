@@ -3,8 +3,8 @@
 #include "endian.hh"
 #include "MSXCliComm.hh"
 #include "narrow.hh"
+#include "one_of.hh"
 #include "OpenSSL.hh"
-#include "Poller.hh"
 #include "stl.hh"
 #include "StringOp.hh"
 #include "zstring_view.hh"
@@ -38,48 +38,60 @@
 
 namespace openmsx {
 
+// TCP-IP UNAPI command codes (spec 1.1, section 4; TCPIP_DNS_Q_NEW is an
+// implementation-specific routine of the ESP32-UNAPI firmware).
+static constexpr uint8_t UNAPI_GET_INFO     = 0;
+static constexpr uint8_t TCPIP_GET_CAPAB    = 1;
+static constexpr uint8_t TCPIP_GET_IPINFO   = 2;
+static constexpr uint8_t TCPIP_NET_STATE    = 3;
+static constexpr uint8_t TCPIP_DNS_Q        = 6;
+static constexpr uint8_t TCPIP_UDP_OPEN     = 8;
+static constexpr uint8_t TCPIP_UDP_CLOSE    = 9;
+static constexpr uint8_t TCPIP_UDP_STATE    = 10;
+static constexpr uint8_t TCPIP_UDP_SEND     = 11;
+static constexpr uint8_t TCPIP_UDP_RCV      = 12;
+static constexpr uint8_t TCPIP_TCP_OPEN     = 13;
+static constexpr uint8_t TCPIP_TCP_CLOSE    = 14;
+static constexpr uint8_t TCPIP_TCP_ABORT    = 15;
+static constexpr uint8_t TCPIP_TCP_STATE    = 16;
+static constexpr uint8_t TCPIP_TCP_SEND     = 17;
+static constexpr uint8_t TCPIP_TCP_RCV      = 18;
+static constexpr uint8_t TCPIP_CONFIG_AUTOIP = 25;
+static constexpr uint8_t TCPIP_CONFIG_IP     = 26;
+static constexpr uint8_t TCPIP_DNS_Q_NEW     = 206;
+
 // ---- helper: check if a custom command is "quick" (no parameters) ----
 // Mirrors the QUICK_COMMAND set executed directly in the RX_PARSER_IDLE
-// state of the ESP32 UNAPI firmware (see received_data_parser()).
-static bool isQuickCustomCommand(uint8_t cmd)
+// state of the ESP32 UNAPI firmware (see received_data_parser()). The
+// full custom command set is documented in the ESP32-UNAPI firmware
+// documentation:
+// https://github.com/ducasp/ESP32-UNAPI-Firmware/tree/main/documentation#readme
+[[nodiscard]] static bool isQuickCustomCommand(uint8_t cmd)
 {
-	switch (cmd) {
-	case 'R': case 'W': case '?': case 'V': case 'r':
-	case 'S': case 's': case 'g': case 'N': case 'D':
-	case 'O': case 'o': case 'Q': case 'c': case 'G':
-	case 'H': case 'h': case 'a': case 'w': case 'E': case 'I':
-		return true;
-	default:
-		return false;
-	}
+	return cmd == one_of('R', 'W', '?', 'V', 'r',
+	                     'S', 's', 'g', 'N', 'D',
+	                     'O', 'o', 'Q', 'c', 'G',
+	                     'H', 'h', 'a', 'b', 'w', 'E', 'I');
 }
 
 // ---- helper: check if a command carries a 2-byte size header + data ----
 // These commands move the parser to RX_PARSER_WAIT_DATA_SIZE. Mirrors the
 // command list of the ESP32 firmware's received_data_parser(); any other
 // byte is discarded while the parser stays IDLE.
-static bool isDataCommand(uint8_t cmd)
+[[nodiscard]] static bool isDataCommand(uint8_t cmd)
 {
-	switch (cmd) {
-	case 1: case 2: case 3: case 6:            // GET_CAPAB, GET_IPINFO, NET_STATE, DNS_Q
-	case 8: case 9: case 10: case 11: case 12: // UDP OPEN/CLOSE/STATE/SEND/RCV
-	case 13: case 14: case 15: case 16:        // TCP OPEN/CLOSE/ABORT/STATE
-	case 17: case 18:                          // TCP SEND/RCV
-	case 25: case 26:                          // CONFIG_AUTOIP, CONFIG_IP
-	case 206:                                  // TCPIP_DNS_Q_NEW
-		return true;
-	default:
-		break;
-	}
-	if (cmd >= 129 && cmd <= 143) return true; // SSH UNAPI
-	if (cmd >= 200 && cmd <= 202) return true; // HTTP client
-	switch (cmd) {
-	case 'A': case 'B': case 'd': case 'U': case 'u':
-	case 'Z': case 'Y': case 'z': case 'T': case 'C':
-		return true;
-	default:
-		return false;
-	}
+	return cmd == one_of(TCPIP_GET_CAPAB, TCPIP_GET_IPINFO, TCPIP_NET_STATE,
+	                     TCPIP_DNS_Q,
+	                     TCPIP_UDP_OPEN, TCPIP_UDP_CLOSE, TCPIP_UDP_STATE,
+	                     TCPIP_UDP_SEND, TCPIP_UDP_RCV,
+	                     TCPIP_TCP_OPEN, TCPIP_TCP_CLOSE, TCPIP_TCP_ABORT,
+	                     TCPIP_TCP_STATE, TCPIP_TCP_SEND, TCPIP_TCP_RCV,
+	                     TCPIP_CONFIG_AUTOIP, TCPIP_CONFIG_IP,
+	                     TCPIP_DNS_Q_NEW) ||
+	       (129 <= cmd && cmd <= 143) || // SSH UNAPI
+	       (200 <= cmd && cmd <= 202) || // HTTP client
+	       cmd == one_of('A', 'B', 'd', 'U', 'u',
+	                     'Z', 'Y', 'z', 'T', 'C');
 }
 
 // Max command data block size (MAX_CMD_DATA_LEN in UNAPIESP.h)
@@ -123,35 +135,6 @@ static bool parseIPv4String(std::string_view str, uint32_t& ipOut)
 	return true;
 }
 
-#ifndef _WIN32
-// Read the first two DNS servers from /etc/resolv.conf
-static void readResolvConfDns(uint32_t& dns1, uint32_t& dns2)
-{
-	std::ifstream f("/etc/resolv.conf");
-	std::string line;
-	int n = 0;
-	while (n < 2 && std::getline(f, line)) {
-		auto pos = line.find_first_not_of(" \t");
-		if (pos == std::string::npos) continue;
-		std::string_view entry(line);
-		entry.remove_prefix(pos);
-		if (!entry.starts_with("nameserver ")) continue;
-		entry.remove_prefix(11);
-		entry = entry.substr(0, entry.find('#'));
-		entry = entry.substr(0, entry.find_last_not_of(" \t") + 1);
-		uint32_t ip = 0;
-		if (parseIPv4String(entry, ip)) {
-			if (n == 0) {
-				dns1 = ip;
-			} else {
-				dns2 = ip;
-			}
-			++n;
-		}
-	}
-}
-#endif
-
 #ifdef _WIN32
 // Adapter name markers of virtual network adapters (virtual switches,
 // VM/VPN software, ...), matched case-insensitively against the adapter's
@@ -168,7 +151,7 @@ static bool nameContainsVirtual(const WCHAR* name)
 		lower.push_back(std::towlower(c));
 	}
 	return std::ranges::any_of(markers, [&](const auto& m) {
-		return lower.find(m) != std::wstring::npos;
+		return lower.contains(m);
 	});
 }
 
@@ -240,17 +223,41 @@ static std::optional<HostNetInfo> getHostNetInfo()
 	std::optional<HostNetInfo> bestInfo;
 	for (auto* a = adapters; a; a = a->Next) {
 		int score = adapterScore(*a);
-		if (score < 0 || score < bestScore) continue;
+		if (score <= bestScore) continue; // ties keep the first one
 		auto info = hostNetInfoFromAdapter(*a);
 		if (!info) continue;
-		if (score > bestScore) {
-			bestScore = score;
-			bestInfo = std::move(info);
-		}
+		bestScore = score;
+		bestInfo = std::move(info);
 	}
 	return bestInfo;
 }
 #else
+// Read the first two DNS servers from /etc/resolv.conf
+static void readResolvConfDns(uint32_t& dns1, uint32_t& dns2)
+{
+	std::ifstream f("/etc/resolv.conf");
+	std::string line;
+	int n = 0;
+	while (n < 2 && std::getline(f, line)) {
+		std::string_view entry(line);
+		StringOp::trim(entry, " \t");
+		if (entry.empty()) continue;
+		if (!entry.starts_with("nameserver ")) continue;
+		entry.remove_prefix(11);
+		entry = entry.substr(0, entry.find('#'));
+		StringOp::trim(entry, " \t");
+		uint32_t ip = 0;
+		if (parseIPv4String(entry, ip)) {
+			if (n == 0) {
+				dns1 = ip;
+			} else {
+				dns2 = ip;
+			}
+			++n;
+		}
+	}
+}
+
 // Default gateway (Linux): /proc/net/route, first default (00000000)
 // route. The address is printed as a little-endian hex value.
 static void readDefaultGateway(HostNetInfo& info)
@@ -266,6 +273,7 @@ static void readDefaultGateway(HostNetInfo& info)
 		std::string flags;
 		iss >> iface >> dest >> gw >> flags;
 		if (dest != "00000000") continue; // not the default route
+		// flags bit 0 = RTF_UP: the route is usable
 		if (auto f = StringOp::stringToBase<16, unsigned long>(flags);
 		    !f.has_value() || !(*f & 1)) continue;
 		auto g = StringOp::stringToBase<16, unsigned long>(gw);
@@ -309,7 +317,7 @@ static std::optional<HostNetInfo> getHostNetInfo()
 	for (auto* it = ifa; it; it = it->ifa_next) {
 		if (!it->ifa_addr || it->ifa_addr->sa_family != AF_INET) continue;
 		int score = interfaceScore(it->ifa_name, it->ifa_flags);
-		if (score < 0 || score < bestScore) continue;
+		if (score <= bestScore) continue; // ties keep the first one
 		auto* sa = std::bit_cast<const sockaddr_in*>(it->ifa_addr);
 		uint32_t ip = ntohl(sa->sin_addr.s_addr);
 		if (ip == 0) continue;
@@ -319,10 +327,8 @@ static std::optional<HostNetInfo> getHostNetInfo()
 			auto* sm = std::bit_cast<const sockaddr_in*>(it->ifa_netmask);
 			info.netmask = ntohl(sm->sin_addr.s_addr);
 		}
-		if (score > bestScore) {
-			bestScore = score;
-			bestInfo = std::move(info);
-		}
+		bestScore = score;
+		bestInfo = std::move(info);
 	}
 	freeifaddrs(ifa);
 	if (!bestInfo) return std::nullopt;
@@ -350,12 +356,17 @@ static uint16_t randomEphemeralPort()
 // ---- connection structure ----
 
 // Passive TCP listener registry entry: multiple passive connections may
-// share a listener for the same local port; the socket is owned by the
-// registry and closed when the last referencing connection is freed.
+// share a listener for the same local port. The socket is owned by the
+// shared ListenSocket object and closed by its destructor when the last
+// referencing connection is freed.
 struct EmulatedEsp32::ListenSocket {
 	SOCKET sock = OPENMSX_INVALID_SOCKET;
 	uint16_t port = 0;
-	int refs = 0;
+	~ListenSocket() {
+		if (sock != OPENMSX_INVALID_SOCKET) {
+			sock_close(sock);
+		}
+	}
 };
 
 class EmulatedEsp32::Connection {
@@ -367,22 +378,23 @@ public:
 
 	// Received-data buffer, guarded by recvMutex: all access goes through
 	// the methods below.
-	void pushRecv(uint8_t b) {
+	void pushRecv(std::span<const uint8_t> data) {
 		std::scoped_lock lock(recvMutex);
-		recvBuffer.push_back(b);
+		for (auto b : data) {
+			recvBuffer.push_back(b);
+		}
 	}
 	[[nodiscard]] size_t recvAvail() const {
 		std::scoped_lock lock(recvMutex);
 		return recvBuffer.size();
 	}
+	// Copies up to 'max' bytes into 'out' (the content of 'out' is
+	// replaced) and removes them from the buffer.
 	void popRecv(std::vector<uint8_t>& out, size_t max) {
 		std::scoped_lock lock(recvMutex);
 		size_t toRead = std::min(recvBuffer.size(), max);
-		out.reserve(2 + toRead);
-		for (size_t i = 0; i < toRead; ++i) {
-			out.push_back(recvBuffer.front());
-			recvBuffer.pop_front();
-		}
+		out.assign(recvBuffer.begin(), recvBuffer.begin() + toRead);
+		recvBuffer.remove_prefix(toRead);
 	}
 	void clearRecv() {
 		std::scoped_lock lock(recvMutex);
@@ -399,7 +411,7 @@ private:
 	// like the firmware's ClientList.
 	SOCKET listenSock = OPENMSX_INVALID_SOCKET;
 	SOCKET clientSock = OPENMSX_INVALID_SOCKET;
-	int listenIdx = -1; // index into the listenSockets registry
+	std::shared_ptr<ListenSocket> listen; // the shared listener (passive)
 	std::atomic<bool> clientEof{false}; // accepted client closed remotely
 
 	uint32_t remoteIP = 0;
@@ -416,8 +428,7 @@ private:
 	bool tlsVerify = false;     // validate the server certificate
 	std::atomic<uint8_t> handshakePhase{0}; // 0=no TLS, 1=handshaking, 2=done
 
-	std::unique_ptr<std::thread> readerThread;
-	std::unique_ptr<Poller> poller;
+	std::thread readerThread;
 	std::atomic<bool> readerActive{false};
 
 	cb_queue<uint8_t> recvBuffer;
@@ -428,10 +439,11 @@ private:
 //  Construction / destruction
 // ====================================================================
 
-EmulatedEsp32::EmulatedEsp32(const DeviceConfig& config, std::function<void(uint8_t)> sink_)
+EmulatedEsp32::EmulatedEsp32(const DeviceConfig& config, std::function<void(std::span<const uint8_t>)> sink_)
 	: enabledSetting(
 		config.getCommandController(), "smxwifi-emulatedesp32-link-enabled",
 		"Report the emulated ESP32 WiFi link as up (UNAPI NET_STATE)", true)
+	, cliComm(config.getCliComm())
 	, sink(std::move(sink_))
 {
 	// Probe for a host-installed OpenSSL runtime; TLS support is
@@ -475,18 +487,21 @@ void EmulatedEsp32::resetState()
 		for (auto& cp : connections) {
 			if (!cp) continue;
 			cp->readerActive = false;
-			if (cp->poller) cp->poller->abort();
-			if (cp->readerThread && cp->readerThread->joinable()) {
-				cp->readerThread->join();
+			if (cp->readerThread.joinable()) {
+				cp->readerThread.join();
 			}
-			cp->readerThread.reset();
-			cp->poller.reset();
-	if (cp->ssl) {
-		cp->ssl.reset();
-	}
-			if (cp->sock != OPENMSX_INVALID_SOCKET) {
+			cp->readerThread = std::thread();
+			if (cp->ssl) {
+				cp->ssl.reset();
+			}
+			if (cp->clientSock != OPENMSX_INVALID_SOCKET) {
+				sock_close(cp->clientSock);
+			}
+			if (!cp->listen && cp->sock != OPENMSX_INVALID_SOCKET) {
 				sock_close(cp->sock);
 			}
+			// Dropping 'cp' releases the shared listener; its socket is
+			// closed by the destructor when the last connection goes.
 			cp.reset();
 		}
 	}
@@ -550,16 +565,20 @@ void EmulatedEsp32::stop()
 		for (const auto& cp : connections) {
 			if (!cp) continue;
 			cp->readerActive = false;
-			if (cp->poller) cp->poller->abort();
-			if (cp->readerThread && cp->readerThread->joinable()) {
-				cp->readerThread->join();
+			if (cp->readerThread.joinable()) {
+				cp->readerThread.join();
 			}
-			cp->readerThread.reset();
-			cp->poller.reset();
-	if (cp->ssl) {
-		cp->ssl.reset();
-	}
-			if (cp->sock != OPENMSX_INVALID_SOCKET) {
+			cp->readerThread = std::thread();
+			if (cp->ssl) {
+				cp->ssl.reset();
+			}
+			if (cp->listen) {
+				// Shared listener: dropping the reference closes the
+				// socket when the last connection goes away.
+				cp->listen.reset();
+				cp->listenSock = OPENMSX_INVALID_SOCKET;
+				cp->sock = OPENMSX_INVALID_SOCKET;
+			} else if (cp->sock != OPENMSX_INVALID_SOCKET) {
 				sock_close(cp->sock);
 				cp->sock = OPENMSX_INVALID_SOCKET;
 			}
@@ -572,13 +591,12 @@ void EmulatedEsp32::stop()
 // ====================================================================
 
 // Boot sequence text to the MSX side (greeting, "Ready"): delivered
-// byte-by-byte through the sink, like RS232Raw delivers bytes from the
+// as one block through the sink, like RS232Raw delivers bytes from the
 // real ESP32 through the connector.
 void EmulatedEsp32::pushBootText(std::string_view text) const
 {
-	for (char c : text) {
-		sink(static_cast<uint8_t>(c));
-	}
+	sink(std::span<const uint8_t>(
+		std::bit_cast<const uint8_t*>(text.data()), text.size()));
 }
 
 void EmulatedEsp32::resetParser()
@@ -807,7 +825,7 @@ bool EmulatedEsp32::tcpPollConnection(Connection* conn, int connIdx)
 	if (haveClient) {
 		FD_SET(conn->clientSock, &rfds);
 	}
-	struct timeval tv = {0, 0}; // poll, never block
+	struct timeval tv = {5, 0}; // 5 ms poll interval (also bounds shutdown latency)
 #ifdef _WIN32
 	if (int sel = select(0, &rfds,
 	                     inHandshake ? &wfds : nullptr, nullptr, &tv);
@@ -821,9 +839,8 @@ bool EmulatedEsp32::tcpPollConnection(Connection* conn, int connIdx)
 	                     inHandshake ? &wfds : nullptr, nullptr, &tv);
 	    sel <= 0) {
 #endif
-		// Nothing to read yet (or transient select error); re-check the
-		// shutdown flag and try again
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		// Nothing ready (or a transient select error): the 5 ms timeout
+		// makes this a bounded re-check of the shutdown flag.
 		return true;
 	}
 	if (FD_ISSET(s, &rfds) || (inHandshake && FD_ISSET(s, &wfds))) {
@@ -885,25 +902,34 @@ void EmulatedEsp32::tcpAcceptClient(Connection* conn) const
 // the handshake and certificate validation have finished).
 void EmulatedEsp32::tcpDriveHandshake(Connection* conn, int connIdx)
 {
-	int r = conn->ssl->handshake();
-	if (r == 1) {
-		// Handshake finished: validate the certificate before the
-		// connection becomes ESTABLISHED
-		uint8_t reason = conn->tlsVerify
-			? static_cast<uint8_t>(conn->ssl->verifyResult())
-			: 0;
-		if (reason != 0) {
-			tcpTlsFail(conn, connIdx, reason);
-		} else {
-			conn->handshakePhase.store(2);
-			conn->state = 2; // open -> ESTABLISHED
+	auto r = conn->ssl->handshake();
+	if (r.type == OpenSSL::HandshakeResult::Type::Done) {
+		// Handshake finished. With SSL_VERIFY_PEER a certificate
+		// validation failure aborts the handshake itself, so success
+		// here implies the certificate was accepted (spec 4.5.5: only
+		// then the connection may report ESTABLISHED).
+		conn->handshakePhase.store(2);
+		conn->state = 2; // open -> ESTABLISHED
+	} else if (r.type == OpenSSL::HandshakeResult::Type::Failed) {
+		if (conn->tlsVerify) {
+			// Certificate validation failure (self-signed, expired,
+			// hostname mismatch, ...): the specific reason is reported
+			// by SSL_get_verify_result(), not by the error queue (which
+			// only holds the generic "certificate verify failed" entry).
+			uint8_t reason = static_cast<uint8_t>(conn->ssl->verifyResult());
+			if (reason != 0) {
+				cliComm.printWarning("SMXWiFi: TLS failure: certificate verification: ",
+				                     conn->ssl->verifyErrorDescription());
+				tcpTlsFail(conn, connIdx, reason);
+				return;
+			}
 		}
-	} else if (r < 0) {
-		// Handshake failed (protocol error, peer reset, ...): report a
-		// TLS error like the firmware (reason 19)
+		// Other handshake failure (protocol error, peer reset, ...):
+		// report a TLS error like the firmware (reason 19)
+		logTlsError(r.code);
 		tcpTlsFail(conn, connIdx, 19);
 	}
-	// r == 0 or 2: still waiting for read/write readiness
+	// NeedRead / NeedWrite: still waiting for the requested readiness
 }
 
 // Records a TLS failure: the close reason is sequenced before the state
@@ -912,6 +938,15 @@ void EmulatedEsp32::tcpTlsFail(Connection* conn, int connIdx, uint8_t reason)
 {
 	closeReason[connIdx].store(reason);
 	conn->state = 4; // failed (TLS) -> TCP_STATE reports ERR_NO_CONN
+}
+
+// Console diagnostics for TLS failures: the error code was captured at
+// the moment of failure by OpenSSL::read()/write()/handshake(). No-op
+// when the OpenSSL error queue was empty (e.g. a plain syscall failure).
+void EmulatedEsp32::logTlsError(OpenSSL::ErrorCode code) const
+{
+	if (code.value == 0) return;
+	cliComm.printWarning("SMXWiFi: TLS failure: ", OpenSSL::to_string(code));
 }
 
 // Active: read inbound data. Returns true when the reader loop must stop
@@ -924,14 +959,14 @@ bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 		// TLS: decrypt; a clean TLS close is a close_notify, a real
 		// error fails the connection, WouldBlock is just "try again
 		// later".
-		auto r = conn->ssl->read(
-			std::span<char>(buf.data(), buf.size()));
+		auto r = conn->ssl->read(buf);
 		if (!r.has_value()) {
-			if (r.error() == OpenSSL::IoError::Closed) {
+			if (r.error().type == OpenSSL::IoError::Type::Closed) {
 				conn->state = 3; // remote closed -> CLOSE_WAIT
 				return true;
 			}
-			if (r.error() == OpenSSL::IoError::Failed) {
+			if (r.error().type == OpenSSL::IoError::Type::Failed) {
+				logTlsError(r.error().code);
 				tcpTlsFail(conn, connIdx, 19); // TLS: other error
 				return true;
 			}
@@ -948,11 +983,8 @@ bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 		}
 	}
 	if (n > 0) {
-		{
-			for (ptrdiff_t i = 0; i < n; ++i) {
-				conn->pushRecv(buf[static_cast<size_t>(i)]);
-			}
-		}
+		conn->pushRecv(std::span<const uint8_t>(
+			std::bit_cast<const uint8_t*>(buf.data()), static_cast<size_t>(n)));
 		if (conn->ssl) {
 			tcpDrainSsl(conn, connIdx);
 		}
@@ -967,21 +999,20 @@ void EmulatedEsp32::tcpDrainSsl(Connection* conn, int connIdx)
 {
 	std::array<char, 1024> buf;
 	for (;;) {
-		auto r = conn->ssl->read(
-			std::span<char>(buf.data(), buf.size()));
+		auto r = conn->ssl->read(buf);
 		if (!r.has_value()) {
-			if (r.error() == OpenSSL::IoError::Closed) {
+			if (r.error().type == OpenSSL::IoError::Type::Closed) {
 				conn->state = 3; // remote closed -> CLOSE_WAIT
 			}
-			if (r.error() == OpenSSL::IoError::Failed) {
+			if (r.error().type == OpenSSL::IoError::Type::Failed) {
+				logTlsError(r.error().code);
 				tcpTlsFail(conn, connIdx, 19);
 			}
 			// WouldBlock: nothing more to drain
 			return;
 		}
-		for (ptrdiff_t i = 0; i < *r; ++i) {
-			conn->pushRecv(buf[static_cast<size_t>(i)]);
-		}
+		conn->pushRecv(std::span<const uint8_t>(
+			std::bit_cast<const uint8_t*>(buf.data()), *r));
 	}
 }
 
@@ -998,9 +1029,8 @@ void EmulatedEsp32::tcpReadClient(Connection* conn) const
 		conn->state = 3; // remote closed -> CLOSE_WAIT
 		return;
 	}
-	for (ptrdiff_t i = 0; i < n; ++i) {
-		conn->pushRecv(buf[static_cast<size_t>(i)]);
-	}
+	conn->pushRecv(std::span<const uint8_t>(
+		std::bit_cast<const uint8_t*>(buf.data()), static_cast<size_t>(n)));
 }
 
 // ====================================================================
@@ -1025,32 +1055,23 @@ EmulatedEsp32::Connection* EmulatedEsp32::allocateConnection()
 // Resets a previously used connection slot to its fresh state.
 void EmulatedEsp32::resetConnectionSlot(int i)
 {
-	connections[i]->type = 0;
-	connections[i]->sock = OPENMSX_INVALID_SOCKET;
-	connections[i]->listenSock = OPENMSX_INVALID_SOCKET;
-	connections[i]->clientSock = OPENMSX_INVALID_SOCKET;
-	connections[i]->listenIdx = -1;
-	connections[i]->clientEof = false;
-	connections[i]->clearRecv();
-	connections[i]->remoteIP = 0;
-	connections[i]->remotePort = 0;
-	connections[i]->localPort = 0;
-	connections[i]->flags = 0;
-	connections[i]->state = 0;
-	connections[i]->ssl.reset();
-	connections[i]->tlsVerify = false;
-	connections[i]->handshakePhase.store(0);
-	connections[i]->readerActive = false;
-	if (connections[i]->poller) connections[i]->poller->reset();
-}
-
-void EmulatedEsp32::releaseListenEntry(int idx)
-{
-	if (idx < 0 || idx >= static_cast<int>(listenSockets.size())) return;
-	const auto& e = listenSockets[idx];
-	if (--e->refs > 0) return; // still referenced by other connections
-	sock_close(e->sock);
-	listenSockets.erase(listenSockets.begin() + idx);
+	auto& c = *connections[i];
+	c.type = 0;
+	c.sock = OPENMSX_INVALID_SOCKET;
+	c.listenSock = OPENMSX_INVALID_SOCKET;
+	c.clientSock = OPENMSX_INVALID_SOCKET;
+	c.listen.reset();
+	c.clientEof = false;
+	c.clearRecv();
+	c.remoteIP = 0;
+	c.remotePort = 0;
+	c.localPort = 0;
+	c.flags = 0;
+	c.state = 0;
+	c.ssl.reset();
+	c.tlsVerify = false;
+	c.handshakePhase.store(0);
+	c.readerActive = false;
 }
 
 void EmulatedEsp32::freeConnection(int idx)
@@ -1059,12 +1080,10 @@ void EmulatedEsp32::freeConnection(int idx)
 	const auto& cp = connections[idx];
 	if (!cp) return;
 	cp->readerActive = false;
-	if (cp->poller) cp->poller->abort();
-	if (cp->readerThread && cp->readerThread->joinable()) {
-		cp->readerThread->join();
+	if (cp->readerThread.joinable()) {
+		cp->readerThread.join();
 	}
-	cp->readerThread.reset();
-	cp->poller.reset();
+	cp->readerThread = std::thread();
 	// Tear down the TLS session first (best-effort close_notify, then
 	// free); afterwards the socket can be closed.
 	if (cp->ssl) {
@@ -1074,19 +1093,17 @@ void EmulatedEsp32::freeConnection(int idx)
 		sock_close(cp->clientSock);
 		cp->clientSock = OPENMSX_INVALID_SOCKET;
 	}
-	if (cp->listenIdx >= 0) {
-		// Passive connection: the listener socket is shared and owned by
-		// the registry; release our reference (the socket is closed when
-		// the last referencing connection is freed).
-		releaseListenEntry(cp->listenIdx);
-		cp->listenIdx = -1;
+	if (cp->listen) {
+		// Passive connection: the listener socket is shared; dropping
+		// our reference closes it when the last connection goes away.
+		cp->listen.reset();
 		cp->listenSock = OPENMSX_INVALID_SOCKET;
 		cp->sock = OPENMSX_INVALID_SOCKET; // same shared socket
 	} else if (cp->sock != OPENMSX_INVALID_SOCKET) {
 		sock_close(cp->sock);
 		cp->sock = OPENMSX_INVALID_SOCKET;
 	}
-		cp->handshakePhase.store(0);
+	cp->handshakePhase.store(0);
 	cp->tlsVerify = false;
 	cp->type = 0;
 	cp->state = 0;
@@ -1121,8 +1138,7 @@ void EmulatedEsp32::sendQuickResponse(uint8_t cmdByte, uint8_t errorCode)
 {
 	std::array<uint8_t, 2> resp = {cmdByte, errorCode};
 	saveLastResponse(resp);
-	sink(cmdByte);
-	sink(errorCode);
+	sink(resp);
 }
 
 void EmulatedEsp32::sendResponse(uint8_t cmdByte, uint8_t errorCode,
@@ -1135,17 +1151,13 @@ void EmulatedEsp32::sendResponse(uint8_t cmdByte, uint8_t errorCode,
 	                   data);
 
 	saveLastResponse(resp);
-	for (uint8_t b : resp) {
-		sink(b);
-	}
+	sink(resp);
 }
 
 void EmulatedEsp32::sendRawResponse(std::span<const uint8_t> data)
 {
 	saveLastResponse(data);
-	for (uint8_t b : data) {
-		sink(b);
-	}
+	sink(data);
 }
 
 // ====================================================================
@@ -1164,6 +1176,7 @@ void EmulatedEsp32::handleCustomCommand(uint8_t cmd, std::span<const uint8_t> da
 	case 's': cmdScanResults(data); break;
 	case 'A': cmdConnectAP(data); break;
 	case 'g': cmdGetAPStatus(data); break;
+	case 'b': cmdGetBoard(data); break;
 	case 'B': case 'U': case 'u': case 'Z': case 'Y':
 	case 'z': case 'E': case 'I':
 		cmdFirmwareUpdate(cmd, data); break;
@@ -1182,33 +1195,29 @@ void EmulatedEsp32::handleCustomCommand(uint8_t cmd, std::span<const uint8_t> da
 
 void EmulatedEsp32::handleUnapiCommand(uint8_t cmd, std::span<const uint8_t> data)
 {
-	// Unimplemented command codes of the UNAPI spec: handled before the
-	// switch to keep its case count low.
-	if (cmd == 4 || cmd == 5 || cmd == 7 ||
-	    (cmd >= 19 && cmd <= 24) || (cmd >= 27 && cmd <= 29)) {
-		unimplementedCmd(cmd);
-		return;
-	}
 	switch (cmd) {
-	case 0:  cmdGetInfo(data); break;
-	case 1:  cmdGetCapab(data); break;
-	case 2:  cmdGetIPInfo(data); break;
-	case 3:  cmdNetState(data); break;
-	case 6:  cmdDnsQ(data); break;
-	case 8:  cmdUdpOpen(data); break;
-	case 9:  cmdUdpClose(data); break;
-	case 10: cmdUdpState(data); break;
-	case 11: cmdUdpSend(data); break;
-	case 12: cmdUdpRcv(data); break;
-	case 13: cmdTcpOpen(data); break;
-	case 14: cmdTcpClose(data); break;
-	case 15: cmdTcpAbort(data); break;
-	case 16: cmdTcpState(data); break;
-	case 17: cmdTcpSend(data); break;
-	case 18: cmdTcpRcv(data); break;
-	case 25: cmdCfgAutoIP(data); break;
-	case 26: cmdCfgIP(data); break;
-	case 206: cmdDnsQNew(data); break;
+	case UNAPI_GET_INFO:     cmdGetInfo(data); break;
+	case TCPIP_GET_CAPAB:    cmdGetCapab(data); break;
+	case TCPIP_GET_IPINFO:   cmdGetIPInfo(data); break;
+	case TCPIP_NET_STATE:    cmdNetState(data); break;
+	case TCPIP_DNS_Q:        cmdDnsQ(data); break;
+	case TCPIP_UDP_OPEN:     cmdUdpOpen(data); break;
+	case TCPIP_UDP_CLOSE:    cmdUdpClose(data); break;
+	case TCPIP_UDP_STATE:    cmdUdpState(data); break;
+	case TCPIP_UDP_SEND:     cmdUdpSend(data); break;
+	case TCPIP_UDP_RCV:      cmdUdpRcv(data); break;
+	case TCPIP_TCP_OPEN:     cmdTcpOpen(data); break;
+	case TCPIP_TCP_CLOSE:    cmdTcpClose(data); break;
+	case TCPIP_TCP_ABORT:    cmdTcpAbort(data); break;
+	case TCPIP_TCP_STATE:    cmdTcpState(data); break;
+	case TCPIP_TCP_SEND:     cmdTcpSend(data); break;
+	case TCPIP_TCP_RCV:      cmdTcpRcv(data); break;
+	case TCPIP_CONFIG_AUTOIP: cmdCfgAutoIP(data); break;
+	case TCPIP_CONFIG_IP:     cmdCfgIP(data); break;
+	case TCPIP_DNS_Q_NEW:     cmdDnsQNew(data); break;
+	// Unimplemented command codes of the UNAPI spec also fall here:
+	// 4 (SEND_ECHO), 5 (RCV_ECHO), 7 (legacy DNS, driver use improved 206 instead), 
+	// 19 to 24 (DISCARD and RAW IP functions) and 27 to 29 (TTL/PING CFG/WAIT)
 	default:
 		unimplementedCmd(cmd);
 		break;
@@ -1282,9 +1291,7 @@ void EmulatedEsp32::cmdRetry(std::span<const uint8_t> /*data*/)
 		sendQuickResponse('r', 4); // no previous response
 		return;
 	}
-	for (uint8_t b : lastResponse) {
-		sink(b);
-	}
+	sink(lastResponse);
 }
 
 void EmulatedEsp32::cmdScanAP(std::span<const uint8_t> /*data*/)
@@ -1318,6 +1325,16 @@ void EmulatedEsp32::cmdGetAPStatus(std::span<const uint8_t> /*data*/)
 	resp.push_back(0); // null terminator
 
 	sendResponse('g', 0, resp);
+}
+
+void EmulatedEsp32::cmdGetBoard(std::span<const uint8_t> /*data*/)
+{
+	// Board identification, like the firmware's FIRMWARETYPE ('b' GETBOARD
+	// command): 'UN32OMSX' identifies the openMSX emulated ESP32.
+	static constexpr auto boardId = std::to_array<uint8_t>({
+		'U', 'N', '3', '2', 'O', 'M', 'S', 'X', 0
+	});
+	sendResponse('b', 0, boardId);
 }
 
 void EmulatedEsp32::cmdFirmwareUpdate(uint8_t cmd, std::span<const uint8_t> /*data*/)
@@ -1935,12 +1952,14 @@ void EmulatedEsp32::cmdTcpOpenPassive(uint16_t localPort, uint8_t flags)
 {
 	std::scoped_lock lock(connectionsMutex);
 
-	ListenSocket* entry = nullptr;
-	int entryIdx = -1;
-	for (size_t i = 0; i < listenSockets.size(); ++i) {
-		if (listenSockets[i]->port == localPort) {
-			entry = listenSockets[i].get();
-			entryIdx = static_cast<int>(i);
+	// Find an existing shared listener for this port, or create a new
+	// one (passive connections with unspecified remote socket may share
+	// a local port, spec 4.5.1). Expired registry entries are pruned.
+	std::shared_ptr<ListenSocket> entry;
+	std::erase_if(listenSockets, [](const auto& w) { return w.expired(); });
+	for (const auto& w : listenSockets) {
+		if (auto e = w.lock(); e && e->port == localPort) {
+			entry = std::move(e);
 			break;
 		}
 	}
@@ -1964,20 +1983,16 @@ void EmulatedEsp32::cmdTcpOpenPassive(uint16_t localPort, uint8_t flags)
 			return;
 		}
 		sock_setNonBlocking(ls);
-		auto up = std::make_unique<ListenSocket>();
-		up->sock = ls;
-		up->port = localPort;
-		up->refs = 1;
-		entryIdx = static_cast<int>(listenSockets.size());
-		listenSockets.push_back(std::move(up));
-		entry = listenSockets.back().get();
-	} else {
-		++entry->refs;
+		entry = std::make_shared<ListenSocket>();
+		entry->sock = ls;
+		entry->port = localPort;
+		listenSockets.push_back(entry);
 	}
 
 	Connection* conn = allocateConnection();
 	if (!conn) {
-		releaseListenEntry(entryIdx);
+		// The local 'entry' reference goes away here: a freshly created
+		// listener is closed and its registry entry becomes expired.
 		sendResponse(13, 9); // ERR_NO_FREE_CONN
 		return;
 	}
@@ -1989,9 +2004,9 @@ void EmulatedEsp32::cmdTcpOpenPassive(uint16_t localPort, uint8_t flags)
 		}
 	}
 	conn->type = 1; // TCP
+	conn->listen = entry;
 	conn->sock = entry->sock;
 	conn->listenSock = entry->sock;
-	conn->listenIdx = entryIdx;
 	conn->clientSock = OPENMSX_INVALID_SOCKET;
 	conn->clientEof = false;
 	conn->remoteIP = 0;
@@ -2002,7 +2017,7 @@ void EmulatedEsp32::cmdTcpOpenPassive(uint16_t localPort, uint8_t flags)
 
 	// Start reader thread (accepts clients and reads inbound data)
 	conn->readerActive = true;
-	conn->readerThread = std::make_unique<std::thread>(
+	conn->readerThread = std::thread(
 	        [this, connIdx] { tcpReaderThreadFunc(connIdx); });
 
 	auto connNum = static_cast<uint8_t>(connIdx + 1);
@@ -2021,15 +2036,15 @@ void EmulatedEsp32::cmdTcpOpenActive(uint32_t remoteIP, uint16_t remotePort,
 	{
 		std::scoped_lock lock(connectionsMutex);
 		for (const auto& cp : connections) {
-			if (cp && cp->type == 1 && cp->listenIdx < 0 &&
+			if (cp && cp->type == 1 && !cp->listen &&
 			    cp->localPort == localPort && cp->remoteIP == remoteIP &&
 			    cp->remotePort == remotePort) {
 				sendResponse(13, 10); // ERR_CONN_EXISTS
 				return;
 			}
 		}
-		for (const auto& e : listenSockets) {
-			if (e->port == localPort) {
+		for (const auto& w : listenSockets) {
+			if (auto e = w.lock(); e && e->port == localPort) {
 				sendResponse(13, 10); // ERR_CONN_EXISTS
 				return;
 			}
@@ -2131,7 +2146,7 @@ void EmulatedEsp32::cmdTcpOpenActive(uint32_t remoteIP, uint16_t remotePort,
 
 		// Start reader thread
 		conn->readerActive = true;
-		conn->readerThread = std::make_unique<std::thread>(
+		conn->readerThread = std::thread(
 		        [this, connIdx] { tcpReaderThreadFunc(connIdx); });
 
 		auto connNum = static_cast<uint8_t>(connIdx + 1);
@@ -2331,20 +2346,24 @@ void EmulatedEsp32::cmdTcpSend(std::span<const uint8_t> data)
 			std::span<const char>(std::bit_cast<const char*>(payload.data()),
 			                      payload.size()));
 		if (!r.has_value()) {
-			if (r.error() == OpenSSL::IoError::Closed) {
+			if (r.error().type == OpenSSL::IoError::Type::Closed) {
 				// Peer sent close_notify: the connection is closed
 				conn->state = 3; // remote closed -> CLOSE_WAIT
 				sendResponse(17, 12); // ERR_CONN_STATE
 				return;
 			}
-			// WouldBlock (send buffer full): report the retryable
-			// ERR_BUFFER, like the plain-socket path does. A real TLS
-			// error (Failed) keeps ERR_CONN_STATE. Note: SSL_write may
-			// have partially written a record before blocking, so a
-			// driver retrying the same payload can in rare cases
-			// deliver it twice.
-			sendResponse(17, (r.error() == OpenSSL::IoError::WouldBlock) ? 13 : 12);
-			return;
+			if (r.error().type == OpenSSL::IoError::Type::WouldBlock) {
+				// Send buffer full: report the retryable ERR_BUFFER,
+				// like the plain-socket path does. Note: SSL_write may
+				// have partially written a record before blocking, so a
+				// driver retrying the same payload can in rare cases
+				// deliver it twice.
+				sendResponse(17, 13); // ERR_BUFFER
+				return;
+			}
+			// Real TLS error: report ERR_CONN_STATE and log the code
+			logTlsError(r.error().code);
+			sendResponse(17, 12); // ERR_CONN_STATE
 		}
 		n = *r;
 	} else {

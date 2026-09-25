@@ -3,7 +3,6 @@
 #include <array>
 #include <bit>
 #include <cstdio>
-#include <cstring>
 #include <mutex>
 #include <string>
 #include <utility>
@@ -17,68 +16,26 @@
 #endif
 
 namespace openmsx::OpenSSL {
-namespace {
 
-// ---------------------------------------------------------------------
-//  Runtime library handle
-// ---------------------------------------------------------------------
+// Opaque OpenSSL runtime types, used only by the resolved entry points
+// (forward-declared here so that openMSX never needs the OpenSSL
+// development headers).
+struct SslCtx;
+struct X509;
+struct X509VerifyParam;
+struct SslMethod;
+struct X509StoreCtx;
+struct SslInitSettings;
 
-#ifdef _WIN32
-using DllHandle = HMODULE;
-DllHandle openSslLib(const char* name)
-{
-	return LoadLibraryA(name);
-}
-constexpr auto libraryCandidates = std::to_array<const char*>({
-	"libssl-4-x64.dll", "libssl-4.dll",
-	"libssl-3-x64.dll", "libssl-3.dll",
-	"libssl-1_1-x64.dll", "libssl-1_1.dll",
-	"libssl.dll", "ssleay32.dll"
-});
-#else
-using DllHandle = void*;
-DllHandle openSslLib(const char* name)
-{
-	return dlopen(name, RTLD_NOW | RTLD_LOCAL);
-}
-constexpr auto libraryCandidates = std::to_array<const char*>({
-	// Homebrew (Apple Silicon / Intel) and system-wide installs
-	"/opt/homebrew/opt/openssl@3/lib/libssl.3.dylib",
-	"/opt/homebrew/opt/openssl@1.1/lib/libssl.1.1.dylib",
-	"/usr/local/opt/openssl@3/lib/libssl.3.dylib",
-	"/usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib",
-	"/usr/local/lib/libssl.dylib",
-	"/opt/homebrew/lib/libssl.dylib",
-	// Generic names (ldconfig cache on Linux, default dyld paths on macOS)
-	"libssl.so.3", "libssl.so.1.1", "libssl.so",
-	"libssl.3.dylib", "libssl.dylib"
-});
-#endif
-
-// Resolves one exported symbol, reinterpreted to the type the caller
-// expects. Returns nullptr when it is not present. All pointer types have
-// the same width, so this is ABI-safe.
-template<typename T>
-T resolveSymbol(DllHandle lib, const char* name)
-{
-#ifdef _WIN32
-	return std::bit_cast<T>(GetProcAddress(lib, name));
-#else
-	return std::bit_cast<T>(dlsym(lib, name));
-#endif
-}
-
-// ---------------------------------------------------------------------
-//  Resolved OpenSSL entry points (all optional except the core set)
-// ---------------------------------------------------------------------
-
+// Resolved OpenSSL entry points. Every member is mandatory (load() refuses
+// the library when any is missing); the only exception is `version`, whose
+// three name spellings differ across OpenSSL/LibreSSL and which is
+// diagnostic-only.
 struct OpenSSLApi {
 	// init
 	int (*init)(unsigned long long opts, const SslInitSettings* settings) = nullptr;
-	int (*libraryInit)() = nullptr;
 	// methods / contexts
 	const SslMethod* (*tlsClientMethod)() = nullptr;
-	const SslMethod* (*ssl23ClientMethod)() = nullptr;
 	SslCtx* (*ctxNew)(const SslMethod* method) = nullptr;
 	int (*ctxSetDefaultVerifyPaths)(SslCtx* ctx) = nullptr;
 	int (*ctxLoadVerifyLocations)(SslCtx* ctx, const char* caFile,
@@ -101,6 +58,7 @@ struct OpenSSLApi {
 	// errors / verification
 	int (*getError)(const Ssl* ssl, int ret) = nullptr;
 	long (*getVerifyResult)(const Ssl* ssl) = nullptr;
+	const char* (*verifyCertErrorString)(long code) = nullptr;
 	X509* (*get1PeerCertificate)(const Ssl* ssl) = nullptr;
 	void (*freeX509)(X509* x) = nullptr;
 	unsigned long (*errGetError)() = nullptr;
@@ -108,48 +66,64 @@ struct OpenSSLApi {
 	const char* (*version)(int type) = nullptr;
 };
 
-// All mutable runtime state, held in a function-local singleton so there are
-// no non-const namespace-scope variables (SonarCloud cpp:S1132).
-struct Runtime {
-	OpenSSLApi api;
-	DllHandle libHandle = nullptr;
-	DllHandle cryptoHandle = nullptr;
-	bool loadAttempted = false;
-	bool loaded = false;
-};
+namespace {
 
-Runtime& runtime()
+// ---------------------------------------------------------------------
+//  Runtime library handle
+// ---------------------------------------------------------------------
+
+#ifdef _WIN32
+using DllHandle = HMODULE;
+DllHandle openSslLib(const char* name)
 {
-	static Runtime r;
-	return r;
+	return LoadLibraryA(name);
 }
+#else
+using DllHandle = void*;
+DllHandle openSslLib(const char* name)
+{
+	return dlopen(name, RTLD_NOW | RTLD_LOCAL);
+}
+#endif
 
-constexpr unsigned long OPENSSL_INIT_LOAD_SSL_STRINGS = 0x00200000UL;
-constexpr unsigned long OPENSSL_INIT_LOAD_CRYPTO_STRINGS = 0x00000001UL;
+#ifdef _WIN32
+constexpr auto libraryCandidates = std::to_array<const char*>({
+	"libssl-4-x64.dll", "libssl-4.dll",
+	"libssl-3-x64.dll", "libssl-3.dll",
+	"libssl-1_1-x64.dll", "libssl-1_1.dll",
+	"libssl.dll"
+});
+#elif defined(__APPLE__)
+constexpr auto libraryCandidates = std::to_array<const char*>({
+	// Homebrew (Apple Silicon / Intel) and system-wide installs
+	"/opt/homebrew/opt/openssl@3/lib/libssl.3.dylib",
+	"/opt/homebrew/opt/openssl@1.1/lib/libssl.1.1.dylib",
+	"/usr/local/opt/openssl@3/lib/libssl.3.dylib",
+	"/usr/local/opt/openssl@1.1/lib/libssl.1.1.dylib",
+	"/usr/local/lib/libssl.dylib",
+	"/opt/homebrew/lib/libssl.dylib",
+	// Generic names (default dyld search paths)
+	"libssl.3.dylib", "libssl.1.1.dylib", "libssl.dylib"
+});
+#else
+constexpr auto libraryCandidates = std::to_array<const char*>({
+	// Generic names (ldconfig cache)
+	"libssl.so.3", "libssl.so.1.1", "libssl.so"
+});
+#endif
 
-constexpr int SSL_VERIFY_NONE = 0x00;
-constexpr int SSL_VERIFY_PEER = 0x01;
-constexpr int SSL_ERROR_WANT_READ = 2;
-constexpr int SSL_ERROR_WANT_WRITE = 3;
-constexpr int SSL_ERROR_ZERO_RETURN = 6;
-constexpr int SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
-constexpr long TLSEXT_NAMETYPE_HOST_NAME = 0;
-constexpr int OPENSSL_VERSION = 0;
-
-// X509 verify error codes (used to map to TCP-IP UNAPI close reasons)
-constexpr long X509_V_OK = 0;
-constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT = 2;
-constexpr long X509_V_ERR_CERT_NOT_YET_VALID = 9;
-constexpr long X509_V_ERR_CERT_HAS_EXPIRED = 10;
-constexpr long X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT = 18;
-constexpr long X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN = 19;
-constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY = 20;
-constexpr long X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE = 21;
-constexpr long X509_V_ERR_CERT_REVOKED = 23;
-constexpr long X509_V_ERR_INVALID_CA = 24;
-constexpr long X509_V_ERR_CERT_UNTRUSTED = 27;
-constexpr long X509_V_ERR_CERT_REJECTED = 28;
-constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
+// Resolves one exported symbol, reinterpreted to the type the caller
+// expects. Returns nullptr when it is not present. All pointer types have
+// the same width, so this is ABI-safe.
+template<typename T>
+T resolveSymbol(DllHandle lib, const char* name)
+{
+#ifdef _WIN32
+	return std::bit_cast<T>(GetProcAddress(lib, name));
+#else
+	return std::bit_cast<T>(dlsym(lib, name));
+#endif
+}
 
 // ---------------------------------------------------------------------
 //  Trust store setup
@@ -159,9 +133,8 @@ constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
 // Exports the Windows system root certificates as a PEM file and loads it
 // into the given context, so that the device trusts the same CAs as the
 // host operating system.
-bool loadWindowsTrustStore(SslCtx* ctx)
+bool loadWindowsTrustStore(const OpenSSLApi& api, SslCtx* ctx)
 {
-	const OpenSSLApi& api = runtime().api;
 	// The Windows system store provides the full root CA list
 	HCERTSTORE hStore = CertOpenStore(CERT_STORE_PROV_SYSTEM_A, 0, 0,
 	                                  CERT_SYSTEM_STORE_CURRENT_USER,
@@ -200,7 +173,7 @@ bool loadWindowsTrustStore(SslCtx* ctx)
 			}
 		}
 		fclose(f);
-		ok = api.ctxLoadVerifyLocations && api.ctxLoadVerifyLocations(ctx, tmpFile.data(), nullptr) == 1;
+		ok = api.ctxLoadVerifyLocations(ctx, tmpFile.data(), nullptr) == 1;
 	}
 	CertCloseStore(hStore, 0);
 	DeleteFileA(tmpFile.data());
@@ -208,40 +181,37 @@ bool loadWindowsTrustStore(SslCtx* ctx)
 }
 #endif
 
-void setupTrustStore(SslCtx* ctx)
+// Best-effort trust-store setup: failures only reduce what can be
+// verified, they never prevent TLS, so the return values are ignored.
+void setupTrustStore(const OpenSSLApi& api, SslCtx* ctx)
 {
-	const OpenSSLApi& api = runtime().api;
 #ifdef _WIN32
 	// The Windows system store provides the full root CA list
-	loadWindowsTrustStore(ctx);
+	loadWindowsTrustStore(api, ctx);
 #else
-	// macOS keeps the root certificates at a well-known location that is
-	// not part of OpenSSL's default search path (libressl uses /etc/ssl
-	// with a symlink, but Homebrew builds do not)
-	if (api.ctxLoadVerifyLocations) {
-		api.ctxLoadVerifyLocations(ctx, "/etc/ssl/cert.pem", nullptr);
-	}
+	// Load the common POSIX CA bundle first: it is needed on macOS
+	// (Homebrew builds do not use OpenSSL's compiled-in default paths)
+	// and covers Linux distros whose bundle is not on those paths either.
+	// Best effort: when the file is missing, the default paths below may
+	// still work.
+	api.ctxLoadVerifyLocations(ctx, "/etc/ssl/cert.pem", nullptr);
 #endif
-	if (api.ctxSetDefaultVerifyPaths) {
-		api.ctxSetDefaultVerifyPaths(ctx);
-	}
+	// The library's compiled-in default paths (e.g. /etc/ssl/certs on
+	// Linux); on macOS Homebrew builds this fails, but the bundle above
+	// was already loaded.
+	api.ctxSetDefaultVerifyPaths(ctx);
 }
 
 // Shared client context, created once on first use
-SslCtx* getSharedContext()
+SslCtx* getSharedContext(const OpenSSLApi& api)
 {
 	static std::once_flag flag;
 	static SslCtx* ctx = nullptr;
-	std::call_once(flag, [] {
-		const auto& api = runtime().api;
-		const SslMethod* method = api.tlsClientMethod ? api.tlsClientMethod() : nullptr;
-		if (!method && api.ssl23ClientMethod) {
-			method = api.ssl23ClientMethod();
-		}
-		if (!method || !api.ctxNew) return;
-		ctx = api.ctxNew(method);
+	std::call_once(flag, [&api] {
+		// TLS_client_method and SSL_CTX_new are mandatory entry points
+		ctx = api.ctxNew(api.tlsClientMethod());
 		if (ctx) {
-			setupTrustStore(ctx);
+			setupTrustStore(api, ctx);
 		}
 	});
 	return ctx;
@@ -250,6 +220,9 @@ SslCtx* getSharedContext()
 // ---------------------------------------------------------------------
 //  Symbol resolution
 // ---------------------------------------------------------------------
+
+constexpr unsigned long OPENSSL_INIT_LOAD_SSL_STRINGS = 0x00200000UL;
+constexpr unsigned long OPENSSL_INIT_LOAD_CRYPTO_STRINGS = 0x00000001UL;
 
 template<typename T>
 T resolve(DllHandle lib, const char* name)
@@ -261,13 +234,13 @@ T resolve(DllHandle lib, const char* name)
 // entry points live in libcrypto (GetProcAddress does not search DLL
 // dependencies, so on Windows the crypto library must be loaded too)
 template<typename T>
-T resolveAny(const char* name)
+T resolveAny(DllHandle lib, DllHandle crypto, const char* name)
 {
-	if (auto p = resolveSymbol<T>(runtime().libHandle, name)) {
+	if (auto p = resolveSymbol<T>(lib, name)) {
 		return p;
 	}
-	if (runtime().cryptoHandle) {
-		if (auto p = resolveSymbol<T>(runtime().cryptoHandle, name)) {
+	if (crypto) {
+		if (auto p = resolveSymbol<T>(crypto, name)) {
 			return p;
 		}
 	}
@@ -275,87 +248,26 @@ T resolveAny(const char* name)
 }
 
 // Name of the libcrypto DLL that belongs to a libssl DLL
-std::string cryptoNameFor(const char* sslName)
+std::string cryptoNameFor(std::string n)
 {
-	std::string n = sslName;
 	if (auto pos = n.find("libssl"); pos != std::string::npos) {
 		n.replace(pos, 6, "libcrypto");
-	} else if (n == "ssleay32.dll") {
-		n = "libeay32.dll";
 	}
 	return n;
 }
 
-bool resolveSymbols()
-{
-	OpenSSLApi& api = runtime().api;
-	DllHandle& libHandle = runtime().libHandle;
-	api.init = resolve<decltype(api.init)>(libHandle, "OPENSSL_init_ssl");
-	api.libraryInit = resolve<decltype(api.libraryInit)>(libHandle, "SSL_library_init");
-	api.tlsClientMethod = resolve<decltype(api.tlsClientMethod)>(libHandle, "TLS_client_method");
-	api.ssl23ClientMethod = resolve<decltype(api.ssl23ClientMethod)>(libHandle, "SSLv23_client_method");
-	api.ctxNew = resolve<decltype(api.ctxNew)>(libHandle, "SSL_CTX_new");
-	api.ctxSetDefaultVerifyPaths = resolve<decltype(api.ctxSetDefaultVerifyPaths)>(libHandle, "SSL_CTX_set_default_verify_paths");
-	api.ctxLoadVerifyLocations = resolve<decltype(api.ctxLoadVerifyLocations)>(libHandle, "SSL_CTX_load_verify_locations");
-	api.newSession = resolve<decltype(api.newSession)>(libHandle, "SSL_new");
-	api.freeSession = resolve<decltype(api.freeSession)>(libHandle, "SSL_free");
-	api.setFd = resolve<decltype(api.setFd)>(libHandle, "SSL_set_fd");
-	api.setVerify = resolve<decltype(api.setVerify)>(libHandle, "SSL_set_verify");
-	api.connect = resolve<decltype(api.connect)>(libHandle, "SSL_connect");
-	api.ctrl = resolve<decltype(api.ctrl)>(libHandle, "SSL_ctrl");
-	api.get0Param = resolve<decltype(api.get0Param)>(libHandle, "SSL_get0_param");
-	api.verifyParamSet1Host = resolveAny<decltype(api.verifyParamSet1Host)>("X509_VERIFY_PARAM_set1_host");
-	api.read = resolve<decltype(api.read)>(libHandle, "SSL_read");
-	api.write = resolve<decltype(api.write)>(libHandle, "SSL_write");
-	api.pending = resolve<decltype(api.pending)>(libHandle, "SSL_pending");
-	api.shutdown = resolve<decltype(api.shutdown)>(libHandle, "SSL_shutdown");
-	api.getError = resolve<decltype(api.getError)>(libHandle, "SSL_get_error");
-	api.getVerifyResult = resolve<decltype(api.getVerifyResult)>(libHandle, "SSL_get_verify_result");
-	api.get1PeerCertificate = resolve<decltype(api.get1PeerCertificate)>(libHandle, "SSL_get1_peer_certificate");
-	api.freeX509 = resolveAny<decltype(api.freeX509)>("X509_free");
-	api.errGetError = resolveAny<decltype(api.errGetError)>("ERR_get_error");
-	api.errErrorStringN = resolveAny<decltype(api.errErrorStringN)>("ERR_error_string_n");
-	api.version = resolveAny<decltype(api.version)>("OPENSSL_version");
-	if (!api.version) {
-		// LibreSSL exports the version function with this exact name
-		api.version = resolveAny<decltype(api.version)>("OpenSSL_version");
-	}
-	if (!api.version) {
-		api.version = resolveAny<decltype(api.version)>("SSLeay_version");
-	}
-
-	// Core set: without these there is nothing to work with
-	if (!api.init && !api.libraryInit) return false;
-	if (!api.tlsClientMethod && !api.ssl23ClientMethod) return false;
-	if (!api.ctxNew || !api.newSession || !api.freeSession ||
-	    !api.setFd || !api.setVerify || !api.connect || !api.read ||
-	    !api.write || !api.shutdown || !api.getError) {
-		return false;
-	}
-
-	// Initialize the library (idempotent in OpenSSL >= 1.1)
-	if (api.init) {
-		if (api.init(OPENSSL_INIT_LOAD_SSL_STRINGS |
-		             OPENSSL_INIT_LOAD_CRYPTO_STRINGS, nullptr) != 1) {
-			return false;
-		}
-	} else if (api.libraryInit() != 1) {
-		return false;
-	}
-	return true;
-}
-
-bool openLibrary()
+bool openLibrary(DllHandle& sslLib, DllHandle& cryptoLib)
 {
 	for (const char* name : libraryCandidates) {
 		if (auto h = openSslLib(name)) {
-			runtime().libHandle = h;
+			sslLib = h;
 			// Load the matching libcrypto as well: the X509/ERR entry
 			// points are exported by libcrypto, and GetProcAddress does
 			// not search DLL dependencies (best effort; the TLS session
 			// functions themselves all live in libssl).
-			if (auto ch = openSslLib(cryptoNameFor(name).c_str())) {
-				runtime().cryptoHandle = ch;
+			std::string cryptoName = cryptoNameFor(name);
+			if (auto ch = openSslLib(cryptoName.c_str())) {
+				cryptoLib = ch;
 			}
 			return true;
 		}
@@ -363,29 +275,128 @@ bool openLibrary()
 	return false;
 }
 
+bool resolveSymbols(OpenSSLApi& api, DllHandle sslLib, DllHandle cryptoLib)
+{
+	api.init = resolve<decltype(api.init)>(sslLib, "OPENSSL_init_ssl");
+	api.tlsClientMethod = resolve<decltype(api.tlsClientMethod)>(sslLib, "TLS_client_method");
+	api.ctxNew = resolve<decltype(api.ctxNew)>(sslLib, "SSL_CTX_new");
+	api.ctxSetDefaultVerifyPaths = resolve<decltype(api.ctxSetDefaultVerifyPaths)>(sslLib, "SSL_CTX_set_default_verify_paths");
+	api.ctxLoadVerifyLocations = resolve<decltype(api.ctxLoadVerifyLocations)>(sslLib, "SSL_CTX_load_verify_locations");
+	api.newSession = resolve<decltype(api.newSession)>(sslLib, "SSL_new");
+	api.freeSession = resolve<decltype(api.freeSession)>(sslLib, "SSL_free");
+	api.setFd = resolve<decltype(api.setFd)>(sslLib, "SSL_set_fd");
+	api.setVerify = resolve<decltype(api.setVerify)>(sslLib, "SSL_set_verify");
+	api.connect = resolve<decltype(api.connect)>(sslLib, "SSL_connect");
+	api.ctrl = resolve<decltype(api.ctrl)>(sslLib, "SSL_ctrl");
+	api.get0Param = resolve<decltype(api.get0Param)>(sslLib, "SSL_get0_param");
+	api.verifyParamSet1Host = resolveAny<decltype(api.verifyParamSet1Host)>(sslLib, cryptoLib, "X509_VERIFY_PARAM_set1_host");
+	api.read = resolve<decltype(api.read)>(sslLib, "SSL_read");
+	api.write = resolve<decltype(api.write)>(sslLib, "SSL_write");
+	api.pending = resolve<decltype(api.pending)>(sslLib, "SSL_pending");
+	api.shutdown = resolve<decltype(api.shutdown)>(sslLib, "SSL_shutdown");
+	api.getError = resolve<decltype(api.getError)>(sslLib, "SSL_get_error");
+	api.getVerifyResult = resolve<decltype(api.getVerifyResult)>(sslLib, "SSL_get_verify_result");
+	api.verifyCertErrorString = resolveAny<decltype(api.verifyCertErrorString)>(sslLib, cryptoLib, "X509_verify_cert_error_string");
+	api.get1PeerCertificate = resolve<decltype(api.get1PeerCertificate)>(sslLib, "SSL_get1_peer_certificate");
+	api.freeX509 = resolveAny<decltype(api.freeX509)>(sslLib, cryptoLib, "X509_free");
+	api.errGetError = resolveAny<decltype(api.errGetError)>(sslLib, cryptoLib, "ERR_get_error");
+	api.errErrorStringN = resolveAny<decltype(api.errErrorStringN)>(sslLib, cryptoLib, "ERR_error_string_n");
+	api.version = resolveAny<decltype(api.version)>(sslLib, cryptoLib, "OPENSSL_version");
+	if (!api.version) {
+		// LibreSSL exports the version function with this exact name
+		api.version = resolveAny<decltype(api.version)>(sslLib, cryptoLib, "OpenSSL_version");
+	}
+	if (!api.version) {
+		api.version = resolveAny<decltype(api.version)>(sslLib, cryptoLib, "SSLeay_version");
+	}
+
+	// All entry points are mandatory (except the version spellings above,
+	// which are diagnostic-only): refuse to load the library when
+	// anything essential is missing. This requires OpenSSL >= 1.1 or
+	// LibreSSL >= 3.5.
+	if (!api.init || !api.tlsClientMethod || !api.ctxNew ||
+	    !api.ctxSetDefaultVerifyPaths || !api.ctxLoadVerifyLocations ||
+	    !api.newSession || !api.freeSession || !api.setFd || !api.setVerify ||
+	    !api.connect || !api.ctrl || !api.get0Param || !api.verifyParamSet1Host ||
+	    !api.read || !api.write || !api.pending || !api.shutdown || !api.getError ||
+	    !api.getVerifyResult || !api.verifyCertErrorString ||
+	    !api.get1PeerCertificate || !api.freeX509 ||
+	    !api.errGetError || !api.errErrorStringN) {
+		return false;
+	}
+
+	// Initialize the library (idempotent in OpenSSL >= 1.1)
+	if (api.init(OPENSSL_INIT_LOAD_SSL_STRINGS |
+	             OPENSSL_INIT_LOAD_CRYPTO_STRINGS, nullptr) != 1) {
+		return false;
+	}
+	return true;
+}
+
+constexpr int SSL_VERIFY_NONE = 0x00;
+constexpr int SSL_VERIFY_PEER = 0x01;
+constexpr int SSL_ERROR_WANT_READ = 2;
+constexpr int SSL_ERROR_WANT_WRITE = 3;
+constexpr int SSL_ERROR_ZERO_RETURN = 6;
+constexpr int SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
+constexpr long TLSEXT_NAMETYPE_HOST_NAME = 0;
+constexpr int OPENSSL_VERSION = 0;
+
+// X509 verify error codes (used to map to TCP-IP UNAPI close reasons)
+constexpr long X509_V_OK = 0;
+constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT = 2;
+constexpr long X509_V_ERR_CERT_NOT_YET_VALID = 9;
+constexpr long X509_V_ERR_CERT_HAS_EXPIRED = 10;
+constexpr long X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT = 18;
+constexpr long X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN = 19;
+constexpr long X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY = 20;
+constexpr long X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE = 21;
+constexpr long X509_V_ERR_CERT_REVOKED = 23;
+constexpr long X509_V_ERR_INVALID_CA = 24;
+constexpr long X509_V_ERR_CERT_UNTRUSTED = 27;
+constexpr long X509_V_ERR_CERT_REJECTED = 28;
+constexpr long X509_V_ERR_HOSTNAME_MISMATCH = 62;
+
 } // namespace
 
 // ---------------------------------------------------------------------
 //  OpenSSL public interface
 // ---------------------------------------------------------------------
 
-LibHandle* load()
+LibHandle::LibHandle()
+	: api(std::make_unique<OpenSSLApi>())
 {
-	static LibHandle singleton; // only valid (and non-null) after a successful load
-	if (runtime().loadAttempted) return runtime().loaded ? &singleton : nullptr;
-	runtime().loadAttempted = true;
-	if (!openLibrary()) return nullptr;
-	runtime().loaded = resolveSymbols();
-	return runtime().loaded ? &singleton : nullptr;
 }
 
-SessionHandle::SessionHandle(Ssl* ssl_)
+LibHandle::~LibHandle() = default;
+
+LibHandle* load()
+{
+	static LibHandle singleton;
+	static std::once_flag flag;
+	std::call_once(flag, [] {
+		// The handles are only needed during symbol resolution; the
+		// loaded libraries stay resident for the process lifetime.
+		DllHandle sslLib = nullptr;
+		DllHandle cryptoLib = nullptr;
+		if (openLibrary(sslLib, cryptoLib)) {
+			singleton.loaded = resolveSymbols(*singleton.api, sslLib, cryptoLib);
+			singleton.libHandle = sslLib;
+			singleton.cryptoHandle = cryptoLib;
+		}
+	});
+	return singleton.loaded ? &singleton : nullptr;
+}
+
+SessionHandle::SessionHandle(Ssl* ssl_, const OpenSSLApi* api_)
 	: ssl(ssl_)
+	, api(api_)
 {
 }
 
 SessionHandle::SessionHandle(SessionHandle&& other) noexcept
 	: ssl(std::exchange(other.ssl, nullptr))
+	, api(other.api)
 {
 }
 
@@ -394,6 +405,7 @@ SessionHandle& SessionHandle::operator=(SessionHandle&& other) noexcept
 	if (this != &other) {
 		release();
 		ssl = std::exchange(other.ssl, nullptr);
+		api = other.api;
 	}
 	return *this;
 }
@@ -405,42 +417,37 @@ SessionHandle::~SessionHandle()
 
 void SessionHandle::release() noexcept
 {
-	const OpenSSLApi& api = runtime().api;
-	if (!ssl || !api.shutdown || !api.freeSession) return;
+	if (!ssl) return;
 	// Best-effort shutdown: the peer may already be gone
-	api.shutdown(ssl);
-	api.freeSession(ssl);
+	api->shutdown(ssl);
+	api->freeSession(ssl);
 	ssl = nullptr;
 }
 
-int SessionHandle::handshake() const
+HandshakeResult SessionHandle::handshake() const
 {
-	const OpenSSLApi& api = runtime().api;
-	if (!api.connect || !api.getError) return -1;
-	int r = api.connect(ssl);
-	if (r == 1) return 1;
-	int e = api.getError(ssl, r);
-	if (e == SSL_ERROR_WANT_READ) return 0;
-	if (e == SSL_ERROR_WANT_WRITE) return 2;
-	return -1;
+	using enum HandshakeResult::Type;
+	int r = api->connect(ssl);
+	if (r == 1) return HandshakeResult{Done};
+	int e = api->getError(ssl, r);
+	if (e == SSL_ERROR_WANT_READ) return HandshakeResult{NeedRead};
+	if (e == SSL_ERROR_WANT_WRITE) return HandshakeResult{NeedWrite};
+	// Real error: capture the OpenSSL error code now, before any other
+	// OpenSSL call can overwrite the error queue (mirrors serial::ErrorCode).
+	return HandshakeResult{Failed, ErrorCode{api->errGetError()}};
 }
 
 int SessionHandle::verifyResult() const
 {
-	const OpenSSLApi& api = runtime().api;
-	if (!api.getVerifyResult) return 0;
-	long vr = api.getVerifyResult(ssl);
+	long vr = api->getVerifyResult(ssl);
 	if (vr == X509_V_OK) return 0;
 
 	// The server did not provide a certificate at all
-	if (api.get1PeerCertificate && api.freeX509) {
-		X509* peer = api.get1PeerCertificate(ssl);
-		if (peer) {
-			api.freeX509(peer);
-		} else {
-			return 9; // TLS: server did not provide a certificate
-		}
+	X509* peer = api->get1PeerCertificate(ssl);
+	if (!peer) {
+		return 9; // TLS: server did not provide a certificate
 	}
+	api->freeX509(peer);
 
 	// Map the X509 verify error to a TCP-IP UNAPI close reason (spec 4.5.4)
 	switch (vr) {
@@ -467,93 +474,95 @@ int SessionHandle::verifyResult() const
 	}
 }
 
+std::string SessionHandle::verifyErrorDescription() const
+{
+	long vr = api->getVerifyResult(ssl);
+	if (vr == X509_V_OK) return "";
+	return api->verifyCertErrorString(vr);
+}
+
 IoResult SessionHandle::read(std::span<char> buf) const
 {
-	const OpenSSLApi& api = runtime().api;
-	using enum IoError;
-	if (!api.read || !api.getError) return std::unexpected(Failed);
-	int r = api.read(ssl, buf.data(), static_cast<int>(buf.size()));
+	using enum IoError::Type;
+	int r = api->read(ssl, buf.data(), static_cast<int>(buf.size()));
 	if (r > 0) return IoResult(r);
-	int e = api.getError(ssl, r);
+	int e = api->getError(ssl, r);
 	if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE) {
-		return std::unexpected(WouldBlock);
+		return std::unexpected(IoError{WouldBlock});
 	}
 	if (e == SSL_ERROR_ZERO_RETURN) {
-		return std::unexpected(Closed); // clean TLS close
+		return std::unexpected(IoError{Closed}); // clean TLS close
 	}
-	return std::unexpected(Failed);
+	// Real error: capture the OpenSSL error code now, before any other
+	// OpenSSL call can overwrite the error queue (mirrors serial::ErrorCode).
+	return std::unexpected(IoError{Failed, ErrorCode{api->errGetError()}});
 }
 
 IoResult SessionHandle::write(std::span<const char> buf) const
 {
-	const OpenSSLApi& api = runtime().api;
-	using enum IoError;
-	if (!api.write || !api.getError) return std::unexpected(Failed);
-	int r = api.write(ssl, buf.data(), static_cast<int>(buf.size()));
+	using enum IoError::Type;
+	int r = api->write(ssl, buf.data(), static_cast<int>(buf.size()));
 	if (r > 0) return IoResult(r);
-	int e = api.getError(ssl, r);
+	int e = api->getError(ssl, r);
 	if (e == SSL_ERROR_WANT_READ || e == SSL_ERROR_WANT_WRITE) {
-		return std::unexpected(WouldBlock);
+		return std::unexpected(IoError{WouldBlock});
 	}
 	if (e == SSL_ERROR_ZERO_RETURN) {
-		return std::unexpected(Closed); // peer sent close_notify
+		return std::unexpected(IoError{Closed}); // peer sent close_notify
 	}
-	return std::unexpected(Failed);
+	// Real error: capture the OpenSSL error code now, before any other
+	// OpenSSL call can overwrite the error queue (mirrors serial::ErrorCode).
+	return std::unexpected(IoError{Failed, ErrorCode{api->errGetError()}});
 }
 
-int SessionHandle::pending() const
+size_t SessionHandle::pending() const
 {
-	const OpenSSLApi& api = runtime().api;
-	return api.pending ? api.pending(ssl) : 0;
+	return static_cast<size_t>(api->pending(ssl));
 }
 
 std::optional<SessionHandle> LibHandle::createClientSession(
 	bool verify, zstring_view hostname, int fd) const
 {
-	const OpenSSLApi& api = runtime().api;
-	if (!runtime().loaded) return std::nullopt;
-	SslCtx* ctx = getSharedContext();
+	const OpenSSLApi& sslApi = *this->api;
+	SslCtx* ctx = getSharedContext(sslApi);
 	if (!ctx) return std::nullopt;
-	if (!api.newSession || !api.setFd || !api.freeSession || !api.setVerify) {
-		return std::nullopt;
-	}
-
-	Ssl* ssl = api.newSession(ctx);
+	Ssl* ssl = sslApi.newSession(ctx);
 	if (!ssl) return std::nullopt;
-	if (api.setFd(ssl, fd) != 1) {
-		api.freeSession(ssl);
+	if (sslApi.setFd(ssl, fd) != 1) {
+		sslApi.freeSession(ssl);
 		return std::nullopt;
 	}
-	api.setVerify(ssl, verify ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, nullptr);
+	sslApi.setVerify(ssl, verify ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, nullptr);
 
 	// Server name: sent as SNI and, when verifying, used to check the
 	// host name in the server certificate
 	if (!hostname.empty()) {
-		if (api.ctrl) {
-			api.ctrl(ssl, SSL_CTRL_SET_TLSEXT_HOSTNAME,
-			         TLSEXT_NAMETYPE_HOST_NAME,
-			         hostname.data());
-		}
-		if (verify && api.get0Param && api.verifyParamSet1Host) {
-			api.verifyParamSet1Host(api.get0Param(ssl), hostname.data(),
-			                        hostname.size());
+		sslApi.ctrl(ssl, SSL_CTRL_SET_TLSEXT_HOSTNAME,
+		            TLSEXT_NAMETYPE_HOST_NAME,
+		            hostname.data());
+		if (verify) {
+			sslApi.verifyParamSet1Host(sslApi.get0Param(ssl), hostname.data(),
+			                           hostname.size());
 		}
 	}
-	return SessionHandle(ssl);
+	return SessionHandle(ssl, &sslApi);
 }
 
 zstring_view LibHandle::version() const
 {
-	const OpenSSLApi& api = runtime().api;
-	return api.version ? api.version(OPENSSL_VERSION) : "";
+	const OpenSSLApi& sslApi = *this->api;
+	return sslApi.version ? sslApi.version(OPENSSL_VERSION) : "";
 }
 
-zstring_view LibHandle::last_error() const
+std::string to_string(ErrorCode ec)
 {
-	if (const OpenSSLApi& api = runtime().api;
-	    api.errGetError && api.errErrorStringN) {
-		thread_local std::array<char, 256> buf;
-		api.errErrorStringN(api.errGetError(), buf.data(), buf.size());
+	// An ErrorCode can only have been produced by an I/O call on a
+	// session, so the library is loaded here (load() is idempotent and
+	// thread-safe). A value of 0 means no error was queued: report a
+	// generic message.
+	if (const auto* lib = load(); lib && ec.value != 0) {
+		std::array<char, 256> buf;
+		lib->api->errErrorStringN(ec.value, buf.data(), buf.size());
 		return buf.data();
 	}
 	return "OpenSSL error";

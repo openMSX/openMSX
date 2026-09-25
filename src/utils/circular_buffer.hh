@@ -14,6 +14,7 @@
 #define CIRCULAR_BUFFER_HH
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdlib>
 #include <iterator>
@@ -241,6 +242,16 @@ public:
 		--siz;
 	}
 
+	// Remove the first 'n' elements, like std::string_view::remove_prefix().
+	void remove_prefix(size_t n) {
+		assert(n <= size());
+		for (size_t i = 0; i < n; ++i) {
+			first->~T();
+			increment(first);
+		}
+		siz -= n;
+	}
+
 	void clear() {
 		for (size_t i = 0; i < size(); ++i, increment(first)) {
 			first->~T();
@@ -374,6 +385,9 @@ public:
 	[[nodiscard]] size_t size() const { return buf.size(); }
 	[[nodiscard]] bool empty() const { return buf.empty(); }
 	void clear() { buf.clear(); }
+
+	// Remove the first 'n' elements, like std::string_view::remove_prefix().
+	void remove_prefix(size_t n) { buf.remove_prefix(n); }
 
 	[[nodiscard]] auto& getBuffer()       { return buf; }
 	[[nodiscard]] auto& getBuffer() const { return buf; }

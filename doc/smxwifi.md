@@ -10,104 +10,28 @@ The `smxwifi` device emulates the DucaSP SM-X WiFi (2020): an I/O-mapped
 UART interface between the MSX and an ESP WiFi module, where the ESP side
 runs the ESP32-UNAPI firmware. The UART link is either:
 
-* **a real ESP32** on a host serial port, attached through the device's
-  RS232 connector with `rs232-raw`, or
-* **an emulated ESP32** inside openMSX, when no real ESP32 is reachable.
+* **an emulated ESP32** (default), or
+* **a real ESP32** on a host serial port, attached through the device's RS232 connector with `rs232-raw`
 
-The device switches between the two automatically: while the RS232 connector
-has no `rs232-raw` device plugged in (or its host serial port is not open,
-e.g. no port selected), the MSX talks to the emulated ESP32. As soon as a
-valid `rs232-raw` selection is present and its port can be opened,
-communication is switched over to the real ESP32 and the current UART
-parameters are applied to the port. Switching in either direction closes all
-emulated network connections and starts the emulation clean.
+This should not be a concern for most users, where the emulated ESP32 will
+be used. In some cases, user might want to not use the host network / bypass
+host network limitations without changing firewall / binding / settings, 
+those users can refer to the Using a real ESP32 section.
 
-MSX software uses the adapter through the SM-X WiFi UNAPI BIOS driver, which
+MSX software uses the adapter through the SM-X WiFi UNAPI BIOS / driver, which
 implements the TCP-IP UNAPI specification over the UART protocol spoken by
 the ESP32 firmware.
 
-## UNAPI BIOS driver
+## UNAPI BIOS / driver
 
 To add UNAPI capabilities to the MSX, download `ESPUNAPI_IO.rom`
 from the [UNAPI_BIOS_CUSTOM_ESP_V2](https://github.com/ducasp/MSX-Development/tree/master/UNAPI_BIOS_CUSTOM_ESP_V2)
 
-It is free for use and required for this device.
-
-## ESP32 firmware
-
-A real ESP32 module must run the ESP32-UNAPI firmware, which is built from the
-[ESP32-UNAPI-Firmware](https://github.com/ducasp/ESP32-UNAPI-Firmware)
-repository and flashed to the ESP32. We recommend using an **ESP32-C6** or
-**ESP32-S3** board with **at least 8 MB of flash; 16 MB is recommended**.
-
-## I/O ports
-
-The extension (`smxwifi.xml`) occupies 2 I/O ports at base `0x06`:
-
-| Port     | Direction | Function                                             |
-| -------- | --------- | ---------------------------------------------------- |
-| base     | read      | UART RX FIFO byte (from the ESP module)              |
-| base     | write     | UART command (baud-rate select, FIFO reset)          |
-| base + 1 | read      | UART status                                          |
-| base + 1 | write     | UART TX byte (to the ESP module)                     |
-
-UART status bits:
-
-| Bit | Meaning                                            |
-| --- | -------------------------------------------------- |
-| 0   | RX data available in the FIFO                      |
-| 3   | Quick receive supported                            |
-| 4   | Underrun (read of an empty FIFO), cleared by read  |
-
-Reading the data port waits a short time (about 30 ms) for the ESP module to
-provide data; if none arrives, `0xFF` is returned and the underrun bit is set.
-
-UART command values (write to the data port base):
-
-| Value | Function                                   |
-| ----- | ------------------------------------------ |
-| 0-9   | Select baud rate (see table below)         |
-| 20    | Reset the RX FIFO                          |
-
-Baud rates (value = index):
-
-| Value | Baud rate | Value | Baud rate |
-| ----- | --------- | ----- | --------- |
-| 0     | 859372    | 5     | 38400     |
-| 1     | 346520    | 6     | 31250     |
-| 2     | 231014    | 7     | 19200     |
-| 3     | 115200    | 8     | 9600      |
-| 4     | 57600     | 9     | 4800      |
-
-The default after reset is baud rate 0 (859372). The UART parameters are
-always 8 data bits, 1 stop bit, no parity. With the emulated ESP32 the baud
-rate is not considered (there is no real serial communication).
-
-## Connector and pluggables
-
-The device exposes an RS232 connector named `smxwifi`. If you plan to use a
-real ESP32 module instead of the emulated one, plug `rs232-raw` into it to
-connect the UART to a real ESP32 (or another compatible module) on a host
-serial port:
-
-```
-ext smxwifi
-plug smxwifi rs232-raw
-set rs232-raw-port COM7
-```
-
-As long as the connector has no `rs232-raw` device plugged in, or its host
-serial port is not open (no port selected, port in use, ...), the device
-talks to the emulated ESP32, so the adapter keeps working with no real
-hardware attached. Plugging a device other than `rs232-raw` (e.g.
-`rs232-tester`, useful to inspect the traffic between the driver and the ESP
-module) also leaves the emulated ESP32 in charge.
-
-Note: changes can be done pretty easily on the GUI in the connectors menu.
-
-With `rs232-raw` the networking happens on the attached real device, so the
-host networking considerations of the emulated ESP32 (firewall, ports, TLS)
-do not apply.
+It is free for use and required for this device. When using with a real ESP32 module,
+keep F1 pressed during reset to connect to an AP, configure some features, etc.
+While you can access this setup with an emulated ESP, no configuration is needed
+and most of the configurations will not take any effect (as the host system will
+govern those).
 
 ## Emulated ESP32
 
@@ -126,10 +50,10 @@ startup.
 
 * If OpenSSL is found, the "_Use TLS in TCP active connections_" capability
   bit is advertised and TLS connections can be opened. The OpenSSL version
-  is printed to the openMSX console at startup.
+  is printed to the openMSX console when the extension is inserted.
 * If OpenSSL is not found, the capability bit is **not** advertised and a
   `TCPIP_TCP_OPEN` with the TLS flag returns `ERR_NOT_IMP`. A message is
-  printed to the openMSX console at startup.
+  printed to the openMSX console when the extension is inserted.
 
 TLS in **passive** connections is not implemented (the "_Use TLS in TCP
 passive connections_" capability bit is never advertised, and requesting it
@@ -143,7 +67,7 @@ operating system:
 
 * **Windows:** the Windows system certificate store (`ROOT`) is used.
 * **Linux:** the default OpenSSL system trust store is used
-  (`/etc/ssl/certs` and friends).
+  (`/etc/ssl/cert.pem` and `/etc/ssl/certs` and friends).
 * **macOS:** the `/etc/ssl/cert.pem` bundle is used (this file is provided by
   the system).
 
@@ -165,7 +89,7 @@ close reason (spec 4.5.4, reasons 9-19) is reported by `TCPIP_TCP_STATE` as
   [slproweb.com](https://slproweb.com/products/Win32OpenSSL.html) or the
   "OpenSSL" builds by [FireDaemon](https://firedaemon.com) (which are based
   on LibreSSL and use `libssl-4-x64.dll` / `libcrypto-4-x64.dll`). OpenSSL
-  1.1.x, 3.x and LibreSSL 3.x/4.x are all supported. Make sure the OpenSSL
+  1.1.x, 3.x and LibreSSL 3.5.x/4.x are all supported. Make sure the OpenSSL
   DLLs (`libssl-*.dll` / `libcrypto-*.dll`) are in `PATH` or in the openMSX
   executable directory.
 * **macOS:** install via Homebrew: `brew install openssl@3`.
@@ -187,15 +111,6 @@ chosen:
 The loopback adapter and adapters that are down are never used. Tunnels
 (6to4, ISATAP, Teredo) and VPN software (Tailscale, ZeroTier, WireGuard, ...)
 count as virtual.
-
-Virtual adapters are recognized by their type and name:
-
-* **Windows:** tunnel adapters, and adapter names containing `wsl`,
-  `vEthernet`, `Hyper-V`, `virtual`, `VMware`, `VirtualBox`, `Tailscale`,
-  `ZeroTier`, `Docker`, `tap-`, `isatap` or `teredo` (case-insensitive).
-* **Linux/macOS:** interface names starting with `docker`, `veth`, `virbr`,
-  `br-`, `tun`, `tap`, `utun`, `awdl`, `bridge`, `tailscale`, `zt`, `wg`,
-  `vmnet` or `vbox`.
 
 When adapters tie in preference, the first one is used.
 
@@ -265,9 +180,9 @@ connections are normally not affected.
   nftables-based firewalls need equivalent rules.
 
 * **Privileged ports:** on Linux and macOS, binding a port below 1024
-  requires root privileges. If an MSX application uses such a port (for
-  example an FTP server on port 21), either run openMSX as root, or grant
-  the capability once so regular users can bind these ports:
+  requires privileges. If an MSX application uses such a port (for
+  example an FTP server on port 21), grant the capability once so regular
+  users can bind these ports:
 
       sudo setcap 'cap_net_bind_service=+ep' /path/to/openmsx
 
@@ -275,10 +190,99 @@ connections are normally not affected.
   filesystem must support file capabilities). Alternatively,
   `authbind --deep openmsx` can be used. Windows has no privileged ports.
 
-## Setting: simulated WiFi link
+## Technical / Advanced Information
+
+### Setting: simulated WiFi link
 
 The `smxwifi-emulatedesp32-link-enabled` setting (default `true`) simulates
 the WiFi link state of the emulated ESP32: with the setting disabled, the
 emulated ESP32 reports its network link as closed (which is what
 `TCPIP_NET_STATE` reports), like a real ESP32 whose WiFi radio is off. It
-does not affect a real ESP32 attached through `rs232-raw`.
+does not affect a real ESP32 attached through `rs232-raw`. This is useful
+for developers that want to test cable / AP disconnected.
+
+### I/O ports
+
+The extension (`smxwifi.xml`) occupies 2 I/O ports at base `0x06`:
+
+| Port     | Direction | Function                                             |
+| -------- | --------- | ---------------------------------------------------- |
+| base     | read      | UART RX FIFO byte (from the ESP module)              |
+| base     | write     | UART command (baud-rate select, FIFO reset)          |
+| base + 1 | read      | UART status                                          |
+| base + 1 | write     | UART TX byte (to the ESP module)                     |
+
+UART status bits:
+
+| Bit | Meaning                                            |
+| --- | -------------------------------------------------- |
+| 0   | RX data available in the FIFO                      |
+| 3   | Quick receive supported                            |
+| 4   | Underrun (read of an empty FIFO), cleared by read  |
+
+Quick receive is on by default, it works by safeguarding the read of an UART
+RX FIFO byte, if FIFO is empty it will assert WAIT on the BUS (so z80 will
+not continue processing) until a byte arrives OR a timeout elapses (about 30
+ms); if no data arrives, `0xFF` is returned and the underrun bit is set.
+UNAPI Driver make use of this feature to accelerate receiving data from
+connections, in a way that it is guaranteed that extra bytes are coming, in
+all other operations it is always checking if there is a byte available
+before reading. The end result is faster receiving at the "expense" of
+asserting WAIT for some time. The `smxwifi-emulatedesp32-quickrcv-enabled`
+setting (default `true`) can be used to turn this feature off.
+
+UART command values (write to the data port base):
+
+| Value | Function                                   |
+| ----- | ------------------------------------------ |
+| 0-9   | Select baud rate (see table below)         |
+| 20    | Reset the RX FIFO                          |
+
+Baud rates (value = index):
+
+| Value | Baud rate | Value | Baud rate |
+| ----- | --------- | ----- | --------- |
+| 0     | 859372    | 5     | 38400     |
+| 1     | 346520    | 6     | 31250     |
+| 2     | 231014    | 7     | 19200     |
+| 3     | 115200    | 8     | 9600      |
+| 4     | 57600     | 9     | 4800      |
+
+The default after reset is baud rate 0 (859372). The UART parameters are
+always 8 data bits, 1 stop bit, no parity. With the emulated ESP32 the baud
+rate is not considered (there is no real serial communication).
+
+## Using a real ESP32
+
+### ESP Firmware
+
+A real ESP32 module can be useful for developers or advanced users that do
+not want to run into the host network limitations or want to have a separate
+physical connection to the MSX. This module must run the ESP32-UNAPI firmware,
+which is built from the [ESP32-UNAPI-Firmware](https://github.com/ducasp/ESP32-UNAPI-Firmware)
+repository and flashed to the ESP32. We recommend using an **ESP32-C6** or
+**ESP32-S3** board with **at least 8 MB of flash; 16 MB is recommended**.
+
+### Connector and pluggables
+
+Once the extension is inserted, it exposes an RS232 connector named `smxwifi`.
+If you plan to use a real ESP32 module instead of the emulated one, plug
+`rs232-raw` into it to connect the UART to a real ESP32 on a host serial port:
+
+```
+ext smxwifi
+plug smxwifi rs232-raw
+set rs232-raw-port COM7
+```
+
+As long as the connector has no `rs232-raw` device plugged in, or its host
+serial port is not open (no port selected, port in use, ...), the device
+talks to the emulated ESP32, so the adapter keeps working with no real
+hardware attached. Plugging a device other than `rs232-raw` also leaves the
+emulated ESP32 in charge.
+
+Note: changes can be done pretty easily on the GUI as well, using the connectors menu.
+
+With `rs232-raw` the networking happens on the attached real device, so the
+host networking considerations of the emulated ESP32 (firewall, ports, TLS)
+do not apply.

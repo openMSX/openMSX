@@ -5,8 +5,10 @@
 
 #include <cstddef>
 #include <expected>
+#include <memory>
 #include <optional>
 #include <span>
+#include <string>
 
 namespace openmsx::OpenSSL {
 
@@ -21,26 +23,59 @@ namespace openmsx::OpenSSL {
 // and TCP_OPEN with the TLS flag returns ERR_NOT_IMP.
 //
 // Supported: OpenSSL 1.1.x and 3.x on Windows, Linux and macOS (LibreSSL
-// is mostly API-compatible and will also be picked up as a fallback).
+// 3.5 and newer is mostly API-compatible and will also be picked up as a
+// fallback).
 
-// Opaque handles for OpenSSL runtime types, kept forward-declared so that
-// openMSX itself never needs the OpenSSL development headers.
-struct SslCtx;
+// Opaque handle for an OpenSSL runtime type, kept forward-declared so that
+// openMSX itself never needs the OpenSSL development headers. The other
+// opaque types used internally by the resolved entry points are declared
+// in OpenSSL.cc.
 struct Ssl;
-struct X509;
-struct X509VerifyParam;
-struct SslMethod;
-struct X509StoreCtx;
-struct SslInitSettings;
+
+// Resolved OpenSSL entry points (defined in OpenSSL.cc; only declared here
+// so that the load state can live in the LibHandle singleton).
+struct OpenSSLApi;
+
+// OpenSSL error code captured at the moment of failure (the value returned
+// by ERR_get_error(); 0 when the error queue was empty, e.g. a plain
+// syscall failure reported through SSL_ERROR_SYSCALL). It is safe to store
+// the value and format it later with to_string(): no other OpenSSL call
+// can overwrite it in between (same pattern as serial::ErrorCode).
+struct ErrorCode {
+	unsigned long value = 0;
+};
+
+// Formats an OpenSSL error code, e.g.
+// "error:1408A0C1:SSL routines:ssl3_get_record:wrong version number".
+[[nodiscard]] std::string to_string(ErrorCode ec);
 
 // Result of a (non-blocking) read() or write(): success carries the
 // number of bytes transferred; on failure IoError says why.
-enum class IoError {
-	WouldBlock, // the call would block; retry later (either readiness)
-	Closed,     // clean TLS close (peer sent close_notify)
-	Failed      // real error
+struct IoError {
+	enum class Type {
+		WouldBlock, // the call would block; retry later (either readiness)
+		Closed,     // clean TLS close (peer sent close_notify)
+		Failed      // real error
+	};
+	Type type = Type::Failed;
+	ErrorCode code; // meaningful when type == Type::Failed
 };
 using IoResult = std::expected<size_t, IoError>;
+
+// Result of driving the TLS handshake (non-blocking). The caller must
+// retry the handshake when the socket reaches the requested readiness.
+// The values map 1:1 to the underlying SSL_connect()/SSL_get_error()
+// contract.
+struct HandshakeResult {
+	enum class Type {
+		NeedRead = 0,  // retry when the socket is readable
+		Done = 1,      // handshake completed successfully
+		NeedWrite = 2, // retry when the socket is writable
+		Failed = -1    // handshake failed
+	};
+	Type type = Type::Failed;
+	ErrorCode code; // meaningful when type == Type::Failed
+};
 
 // An active TLS session on a connected (non-blocking) socket. Move-only
 // RAII: the destructor performs the best-effort shutdown and releases the
@@ -52,33 +87,43 @@ struct SessionHandle {
 	SessionHandle& operator=(SessionHandle&& other) noexcept;
 	~SessionHandle();
 
-	// Drives the TLS handshake. Returns 1 when completed, 0 when it needs
-	// read readiness, 2 when it needs write readiness, -1 on failure.
-	[[nodiscard]] int handshake() const;
+	// Drives the TLS handshake (non-blocking).
+	[[nodiscard]] HandshakeResult handshake() const;
 
-	// Certificate validation result after a completed handshake (only
-	// meaningful when the session was created with verify=true). Returns
-	// 0 when the certificate is valid, otherwise a TCP-IP UNAPI close
-	// reason code in the range 9..19 (spec 4.5.4).
+	// Certificate validation result after a handshake attempt (only
+	// meaningful when the session was created with verify=true; valid
+	// whether the handshake itself failed or not). Returns 0 when the
+	// certificate is valid, otherwise a TCP-IP UNAPI close reason code
+	// in the range 9..19 (spec 4.5.4). The code is purely informational
+	// - the connection is refused either way - so a non-zero value
+	// requires no special handling.
 	[[nodiscard]] int verifyResult() const;
 
+	// Human-readable description of the certificate verification result
+	// (e.g. "self-signed certificate", "hostname mismatch"); empty when
+	// the certificate verified OK. Valid after any handshake attempt.
+	[[nodiscard]] std::string verifyErrorDescription() const;
+
 	// Decrypts inbound data. Success: number of bytes read. Failure:
-	// WouldBlock, or Closed on a clean TLS close (close_notify).
+	// WouldBlock, or Closed on a clean TLS close (close_notify), or
+	// Failed with the OpenSSL error code.
 	[[nodiscard]] IoResult read(std::span<char> buf) const;
 
 	// Encrypts and sends data. Success: number of bytes written. Failure:
-	// WouldBlock, or Closed when the peer sent close_notify.
+	// WouldBlock, or Closed when the peer sent close_notify, or Failed
+	// with the OpenSSL error code.
 	[[nodiscard]] IoResult write(std::span<const char> buf) const;
 
 	// Plaintext bytes already decrypted and buffered by the SSL layer,
 	// readable without waiting for socket readiness.
-	[[nodiscard]] int pending() const;
+	[[nodiscard]] size_t pending() const;
 
 private:
 	friend struct LibHandle;
-	explicit SessionHandle(Ssl* ssl_);
+	SessionHandle(Ssl* ssl_, const OpenSSLApi* api_);
 	void release() noexcept;
 	Ssl* ssl;
+	const OpenSSLApi* api;
 };
 
 // Handle to the loaded OpenSSL runtime. Obtained from load(); its members
@@ -86,9 +131,6 @@ private:
 struct LibHandle {
 	// Version string, e.g. "OpenSSL 3.1.4 24 Oct 2023".
 	[[nodiscard]] zstring_view version() const;
-
-	// Description of the last OpenSSL error (for console diagnostics).
-	[[nodiscard]] zstring_view last_error() const;
 
 	// Creates a TLS client session on the given connected (non-blocking)
 	// socket.
@@ -103,12 +145,20 @@ struct LibHandle {
 
 private:
 	friend LibHandle* load();
-	LibHandle() = default;
+	friend std::string to_string(ErrorCode ec);
+	LibHandle();
+	~LibHandle();
+	std::unique_ptr<OpenSSLApi> api; // resolved entry points
+	void* libHandle = nullptr;       // HMODULE / dlopen handle
+	void* cryptoHandle = nullptr;    // matching libcrypto handle
+	bool loaded = false;
 };
 
 // Loads the runtime library and resolves the needed entry points.
-// Idempotent; returns nullptr when OpenSSL is not available (the returned
-// pointer is the same on every successful call).
+// Idempotent and thread-safe (the library is loaded at most once, also
+// when called concurrently from several threads). Returns nullptr when
+// OpenSSL is not available (the returned pointer is the same on every
+// successful call).
 LibHandle* load();
 
 } // namespace openmsx::OpenSSL

@@ -23,6 +23,12 @@
 
 namespace openmsx {
 
+// Forward declarations (the full types are only needed in the .cc).
+class CliComm;
+namespace OpenSSL {
+struct ErrorCode; // see OpenSSL.hh
+}
+
 // Emulates the ESP32 of the SMXWiFi device: it presents the same variable
 // serial contract as RS232Raw (recvByte + setBaudRate — the SM-X WiFi UART
 // only ever changes the baud rate; the format is fixed 8N1) and implements
@@ -33,7 +39,7 @@ namespace openmsx {
 class EmulatedEsp32
 {
 public:
-	EmulatedEsp32(const DeviceConfig& config, std::function<void(uint8_t)> sink);
+	EmulatedEsp32(const DeviceConfig& config, std::function<void(std::span<const uint8_t>)> sink);
 	~EmulatedEsp32();
 
 	// Serial contract (same variable part as RS232Raw): the owner routes
@@ -84,6 +90,9 @@ private:
 	void tcpAcceptClient(Connection* conn) const;
 	void tcpDriveHandshake(Connection* conn, int connIdx);
 	void tcpTlsFail(Connection* conn, int connIdx, uint8_t reason);
+	// Console diagnostics for TLS failures (printed from the ESP/reader
+	// threads; CliComm is thread-safe). No-op when no error was queued.
+	void logTlsError(OpenSSL::ErrorCode code) const;
 	// Reads inbound data; returns true when the reader loop must stop
 	// (the remote side closed the connection or TLS failed).
 	[[nodiscard]] bool tcpReadData(Connection* conn, int connIdx);
@@ -98,7 +107,6 @@ private:
 	void freeConnection(int idx);
 	Connection* getConnection(int idx) const;
 	int getFreeConnectionSlot() const;
-	void releaseListenEntry(int idx);
 
 	// Command dispatch
 	void handleCustomCommand(uint8_t cmd, std::span<const uint8_t> data);
@@ -124,6 +132,7 @@ private:
 	void cmdScanResults(std::span<const uint8_t> data);
 	void cmdConnectAP(std::span<const uint8_t> data);
 	void cmdGetAPStatus(std::span<const uint8_t> data);
+	void cmdGetBoard(std::span<const uint8_t> data);
 	void cmdFirmwareUpdate(uint8_t cmd, std::span<const uint8_t> data);
 	void cmdGetSettings(std::span<const uint8_t> data);
 	void cmdAutoClock(uint8_t cmd, std::span<const uint8_t> data);
@@ -165,6 +174,9 @@ private:
 
 	// Settings
 	BooleanSetting enabledSetting;
+
+	// Console interface (TLS failure diagnostics).
+	CliComm& cliComm;
 
 	// MSX->ESP FIFO
 	cb_queue<uint8_t> msxToEspFifo;
@@ -209,15 +221,17 @@ private:
 
 	// Passive TCP listeners: several passive connections may share one
 	// listening socket for the same local port (TCP-IP UNAPI spec 1.1,
-	// section 4.5.1). Guarded by connectionsMutex.
-	std::vector<std::unique_ptr<ListenSocket>> listenSockets;
+	// section 4.5.1). The connections own the listeners via shared_ptr;
+	// this registry is only a weak_ptr lookup (expired entries are
+	// pruned). Guarded by connectionsMutex.
+	std::vector<std::weak_ptr<ListenSocket>> listenSockets;
 
 	// Socket subsystem init
 	[[no_unique_address]] SocketActivator socketActivator;
 
 	// Byte delivery into the owner's UART FIFO (thread-safe by the
-	// owner's FIFO mutex).
-	std::function<void(uint8_t)> sink;
+	// owner's FIFO mutex); a whole block is delivered per call.
+	std::function<void(std::span<const uint8_t>)> sink;
 };
 
 } // namespace openmsx

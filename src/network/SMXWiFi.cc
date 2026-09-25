@@ -6,10 +6,12 @@
 #include "MSXException.hh"
 #include "RS232Device.hh"
 #include "RS232Raw.hh"
+#include "Timer.hh"
 #include "serialize.hh"
 
 #include <array>
 #include <cassert>
+#include <chrono>
 #include <functional>
 #include <memory>
 
@@ -24,9 +26,12 @@ SMXWiFi::SMXWiFi(DeviceConfig& config)
 	, RS232Connector(MSXDevice::getPluggingController(), "smxwifi")
 	, rom(MSXDevice::getName() + " ROM", "rom", config)
 	, cpu(getCPU())
+	, quickRcvSetting(config.getCommandController(),
+		"smxwifi-emulatedesp32-quickrcv-enabled",
+		"Use quick receive (assert WAIT when the UART FIFO is empty)", true)
 {
 	emulated = std::make_unique<EmulatedEsp32>(
-		config, [this](uint8_t b) { pushToFifo(b); });
+		config, [this](std::span<const uint8_t> bytes) { pushToFifo(bytes); });
 }
 
 SMXWiFi::~SMXWiFi() = default;
@@ -35,12 +40,14 @@ SMXWiFi::~SMXWiFi() = default;
 //  Memory-mapped ROM
 // ====================================================================
 
-uint8_t SMXWiFi::readMem(uint16_t address, EmuTime /*time*/)
+uint8_t SMXWiFi::peekMem(uint16_t address, EmuTime /*time*/) const
 {
-	if (0x4000 <= address && address < 0x8000) {
-		return rom[address & 0x3FFF];
-	}
-	return 0xFF;
+	return *getReadCacheLine(address);
+}
+
+uint8_t SMXWiFi::readMem(uint16_t address, EmuTime time)
+{
+	return peekMem(address, time);
 }
 
 const uint8_t* SMXWiFi::getReadCacheLine(uint16_t start) const
@@ -51,11 +58,12 @@ const uint8_t* SMXWiFi::getReadCacheLine(uint16_t start) const
 	return unmappedRead.data();
 }
 
-void SMXWiFi::powerUp(EmuTime time)
-{
-	reset(time);
-}
-
+// powerDown: stop the emulated ESP32 while the MSX is powered off — it
+// runs as a host thread with real network sockets, and on the real
+// device the ESP32 is powered from the MSX bus, so it powers down with
+// it. The destructor only covers device removal; power cycles happen
+// without destruction. On power-up the default MSXDevice::powerUp()
+// calls reset(), which resets and restarts the emulation.
 void SMXWiFi::powerDown(EmuTime /*time*/)
 {
 	emulated->stop();
@@ -166,13 +174,15 @@ void SMXWiFi::recvByte(uint8_t value, EmuTime /*time*/)
 	// port is not open) is attached, the emulated ESP32 is the active
 	// endpoint and bytes from the real side are dropped.
 	if (!isRealEndpoint()) return;
-	pushToFifo(value);
+	pushToFifo(std::span(&value, 1));
 }
 
-void SMXWiFi::pushToFifo(uint8_t value)
+void SMXWiFi::pushToFifo(std::span<const uint8_t> data)
 {
 	std::scoped_lock lock(fifoMutex);
-	fifo.push_back(value);
+	for (auto b : data) {
+		fifo.push_back(b);
+	}
 }
 
 bool SMXWiFi::ready()
@@ -232,16 +242,38 @@ uint8_t SMXWiFi::readFIFO(EmuTime time)
 	};
 	uint8_t v;
 	if (tryPop(v)) return v;
+	if (!quickRcvSetting.getBoolean()) {
+		// Quick receive disabled: no WAIT stall on an empty FIFO; the
+		// driver is told (status bit 3) that quick receive is
+		// unsupported and polls the status register instead.
+		return 0xFF;
+	}
 
 	// FIFO empty: give the producer (the emulated ESP32 thread or a real
 	// ESP over the serial port) a short chance to provide data by
 	// stalling only the CPU in emulated-time slices — the rest of the
 	// machine keeps running.
+	//
+	// cpu.wait() only advances emulated time; the real time the stall
+	// actually takes can be much less (a real ESP32 over the serial
+	// port, or the emulated ESP32 waiting on host network data, needs
+	// wall-clock time to deliver). Sleep the shortfall so the stall
+	// keeps up with the real clock; if timer granularity overshoots,
+	// the next iteration detects it and the emulation catches up again.
 	auto deadline = time + FIFO_TIMEOUT;
+	auto emuStart = time;
+	auto realStart = std::chrono::steady_clock::now();
 	while (time < deadline) {
 		cpu.wait(time + FIFO_POLL);
-		if (tryPop(v)) return v;
 		time = getCurrentTime();
+		if (tryPop(v)) return v;
+		auto target = realStart + std::chrono::duration<double>(
+			(time - emuStart).toDouble());
+		if (auto shortfall = target - std::chrono::steady_clock::now();
+		    shortfall > std::chrono::microseconds(0)) {
+			Timer::sleep(std::chrono::duration_cast<
+			             std::chrono::microseconds>(shortfall).count());
+		}
 	}
 
 	underrun = true;
@@ -268,7 +300,7 @@ uint8_t SMXWiFi::peekStatusLocked() const
 {
 	uint8_t status = 0;
 	if (!fifo.empty()) status |= 0x01;
-	status |= 0x08; // Quick receive supported
+	if (quickRcvSetting.getBoolean()) status |= 0x08; // quick receive
 	if (underrun) status |= 0x10;
 	return status;
 }
