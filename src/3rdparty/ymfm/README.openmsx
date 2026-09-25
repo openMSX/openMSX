@@ -1,4 +1,9 @@
 YMFM by Aaron Giles and contributors (BSD-3-Clause).
 https://github.com/aaronsgiles/ymfm
 Pinned revision: 81aec25ccbb98f4873a255f7551ac4dadac59b4a
-Unmodified OPN/SSG/ADPCM core subset. See LICENSE.
+OPN/SSG/ADPCM core subset. See LICENSE.
+
+Local patch: value-initialize fm_operator::m_cache in the constructor.
+Normal synthesis populates it in prepare() before use; initialization also
+gives its fields a defined initial state and addresses Sonar cpp:S2107.
+No synthesis algorithm or timing changes.
