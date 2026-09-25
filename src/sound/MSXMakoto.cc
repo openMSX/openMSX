@@ -220,4 +220,3 @@ void MSXMakoto::serialize(Archive& ar, unsigned /*version*/) {
 INSTANTIATE_SERIALIZE_METHODS(MSXMakoto);
 REGISTER_MSXDEVICE(MSXMakoto, "Makoto");
 }
-
