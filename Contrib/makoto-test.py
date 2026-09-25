@@ -187,4 +187,3 @@ def main():
  finally:e.close()
  (out/'results.json').write_text(json.dumps({'passed':passed},indent=2));print(out);print('\n'.join(passed))
 if __name__=='__main__':main()
-
