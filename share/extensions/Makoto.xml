@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+ <info>
+  <name>Makoto (experimental)</name>
+  <manufacturer>SuperSoniqs / Electric River Hardware</manufacturer>
+  <code>Makoto</code><release_year>2024</release_year>
+  <description>YM2608 OPNA. FM/SSG timing prototype; 256 KB sample RAM. Analogue balance and IRQ wiring need hardware validation.</description>
+  <type>sound expansion</type>
+ </info>
+ <devices>
+  <Makoto id="Makoto">
+   <io base="0x14" num="4"/>
+   <clock>8000000</clock>
+   <!-- IRQ wiring is provisional; the demo uses status polling. -->
+   <irq_connected>false</irq_connected>
+   <!-- Common +24 dB output gain; preserves the Master/SSG balance. -->
+   <sound><volume>192000</volume></sound>
+   <!-- Optional 8192-byte internal rhythm ROM: <rom><filename>ym2608_adpcm_rom.bin</filename></rom> -->
+  </Makoto>
+ </devices>
+</msxconfig>
