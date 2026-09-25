@@ -380,6 +380,7 @@ fm_operator<RegisterType>::fm_operator(fm_engine_base<RegisterType> &owner, uint
 	m_ssg_inverted(false),
 	m_key_state(0),
 	m_keyon_live(0),
+	m_cache{},
 	m_regs(owner.regs()),
 	m_owner(owner)
 {
