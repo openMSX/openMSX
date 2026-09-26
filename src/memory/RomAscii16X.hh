@@ -14,6 +14,9 @@ class RomAscii16X final : public MSXRom
 public:
 	RomAscii16X(DeviceConfig& config, Rom&& rom);
 
+	[[nodiscard]] size_t refreshFlashFromRom();
+	void discardPendingFlashPersistence() { flash.discardPendingPersistence(); }
+
 	void reset(EmuTime time) override;
 	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
 	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
