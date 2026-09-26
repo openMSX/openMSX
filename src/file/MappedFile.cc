@@ -3,48 +3,40 @@
 #include "FileException.hh"
 #include "LocalFile.hh"
 
-#ifdef _WIN32
-#  include <windows.h>
-#  include <io.h>  // _get_osfhandle
-#else
+#include <bit>
+#include <cstdlib>
+
+#ifdef HAVE_MMAP
 #  include <sys/mman.h>
 #  include <sys/stat.h>
 #  include <unistd.h>
 #endif
 
-#include <bit>
-#include <cstdlib>
-
 namespace openmsx {
 
+#ifdef HAVE_MMAP
 static size_t getPageSize()
 {
-#ifdef _WIN32
-	SYSTEM_INFO sysInfo;
-	GetSystemInfo(&sysInfo);
-	return static_cast<size_t>(sysInfo.dwPageSize);
-#else
 	return static_cast<size_t>(sysconf(_SC_PAGE_SIZE));
-#endif
+
+	// This code path does not trigger on windows,
+	// but if we ever need it in the future:
+	//SYSTEM_INFO sysInfo;
+	//GetSystemInfo(&sysInfo);
+	//return static_cast<size_t>(sysInfo.dwPageSize);
 }
+#endif
 
 MappedFileImpl::MappedFileImpl(LocalFile& file, size_t extra, bool is_const)
 {
 	auto fileSize = file.getSize();
 	sz = fileSize + extra;
 
-#if !defined(_WIN32) && !defined(HAVE_MMAP)
-	// Fallback, OS without mmap()
-	ptr = malloc(sz);
-	alloc = true;
-	file.read({static_cast<uint8_t*>(ptr), fileSize});
-	memset(static_cast<uint8_t*>(ptr) + fileSize, 0, extra);
-	return;
-#endif
-
+#ifdef HAVE_MMAP
 	// Step 0: empty file (cannot be mmap()'ed).
 	if (fileSize == 0) {
 		ptr = calloc(extra, 1);
+		alloc = true;
 		return;
 	}
 
@@ -67,7 +59,6 @@ MappedFileImpl::MappedFileImpl(LocalFile& file, size_t extra, bool is_const)
 	}
 
 	// Step 2: Try to extend with anonymous pages (Unix only)
-#if !defined(_WIN32) && defined(HAVE_MMAP)
 	auto additionalBytesNeeded = extra - bytesAvailableInPage;
 	auto extraPagesNeeded = (additionalBytesNeeded + pageSize - 1) / pageSize; // round up
 	auto extraMappingSize = extraPagesNeeded * pageSize;
@@ -83,7 +74,6 @@ MappedFileImpl::MappedFileImpl(LocalFile& file, size_t extra, bool is_const)
 		assert(anonymousMap == extraStartAddr); // MAP_FIXED should guarantee this
 		return;
 	}
-#endif
 
 	// Step 3: Fall back to malloc
 	auto* buffer = static_cast<uint8_t*>(malloc(sz));
@@ -101,6 +91,14 @@ MappedFileImpl::MappedFileImpl(LocalFile& file, size_t extra, bool is_const)
 	mapped = false;
 	alloc = true; // we're using malloc now
 	ptr = buffer;
+
+#else
+	// Fallback, OS without mmap() (including Windows)
+	ptr = malloc(sz);
+	alloc = true;
+	file.read({static_cast<uint8_t*>(ptr), fileSize});
+	memset(static_cast<uint8_t*>(ptr) + fileSize, 0, extra);
+#endif
 }
 
 MappedFileImpl::MappedFileImpl(std::span<const uint8_t> buf, size_t extra, bool is_const)
@@ -120,10 +118,12 @@ MappedFileImpl::MappedFileImpl(std::span<const uint8_t> buf, size_t extra, bool 
 
 void MappedFileImpl::release() noexcept
 {
+#ifdef HAVE_MMAP
 	if (mapped) {
 		mapped = false;
 		unmapFile(ptr, sz);
 	}
+#endif
 	if (alloc) {
 		alloc = false;
 		free(ptr);
@@ -132,30 +132,9 @@ void MappedFileImpl::release() noexcept
 	sz = 0;
 }
 
+#ifdef HAVE_MMAP
 void MappedFileImpl::mapFile(LocalFile& file, bool is_const)
 {
-#ifdef _WIN32
-	int fd = file.getFD();
-	auto handle = reinterpret_cast<HANDLE>(_get_osfhandle(fd));
-	if (handle == INVALID_HANDLE_VALUE) {
-		throw FileException("_get_osfhandle failed");
-	}
-
-	auto protect = is_const ? PAGE_READONLY : PAGE_WRITECOPY;
-	mappingHandle = CreateFileMapping(handle, nullptr, protect, 0, 0, nullptr);
-	if (!mappingHandle) {
-		throw FileException("CreateFileMapping failed: ", GetLastError());
-	}
-
-	auto access = is_const ? FILE_MAP_READ : FILE_MAP_COPY;
-	ptr = MapViewOfFile(mappingHandle, access, 0, 0, 0);
-	if (!ptr) {
-		auto err = GetLastError();
-		CloseHandle(mappingHandle);
-		throw FileException("MapViewOfFile failed: ", err);
-	}
-
-#elifdef HAVE_MMAP
 	auto prot = PROT_READ | (is_const ? 0 : PROT_WRITE);
 	auto flags = MAP_PRIVATE;
 	#ifndef __APPLE__
@@ -171,20 +150,14 @@ void MappedFileImpl::mapFile(LocalFile& file, bool is_const)
 	#ifdef __APPLE__
 	madvise(ptr, sz, MADV_WILLNEED); // instead of MAP_POPULATE
 	#endif
-#endif
 
 	mapped = true;
 }
 
 void MappedFileImpl::unmapFile(void* p, size_t size)
 {
-#ifdef _WIN32
-	UnmapViewOfFile(p);
-	CloseHandle(mappingHandle);
-	mappingHandle = nullptr;
-#elifdef HAVE_MMAP
 	munmap(p, size);
-#endif
 }
+#endif
 
 } // namespace openmsx
