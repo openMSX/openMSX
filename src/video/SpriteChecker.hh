@@ -213,6 +213,14 @@ public:
 		return collisionY;
 	}
 
+	/** On a V99x8 a sprite collision is flagged when the beam reaches the
+	  * colliding pixel on the line the sprites are checked at, not at the
+	  * end of that line. Checks that for the current line. Call after
+	  * sync(), before S#0 is read.
+	  * @param time The moment in emulated time S#0 is read.
+	  */
+	void checkCollisionEarly(EmuTime time);
+
 	/** Reset sprite collision coordinates.
 	  * This happens directly after a read, so a timestamp for syncing is
 	  * not necessary.
@@ -227,6 +235,7 @@ public:
 	void frameStart(EmuTime time) {
 		frameStartTime.reset(time);
 		currentLine = 0;
+		earlyCollisionLine = -1;
 		std::ranges::fill(spriteCount, 0);
 		// TODO: Reset anything else? Does the real VDP?
 	}
@@ -325,9 +334,16 @@ private:
 	  *                should be checked.
 	  * @param maxLine The last line number (exclusive) for which sprites
 	  *                should be checked.
+	  * @param fillOnly Only fill in the sprite buffers, don't update the
+	  *                 status register.
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	void checkSprites1(int minLine, int maxLine);
+	void checkSprites1(int minLine, int maxLine, bool fillOnly = false);
+
+	/** X of the leftmost colliding pixel on a line in sprite mode 1, or
+	  * 999 if none. The line must have been filled by checkSprites1().
+	  */
+	[[nodiscard]] int findCollision1(int line) const;
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
@@ -337,9 +353,16 @@ private:
 	  *                should be checked.
 	  * @param maxLine The last line number (exclusive) for which sprites
 	  *                should be checked.
+	  * @param fillOnly Only fill in the sprite buffers, don't update the
+	  *                 status register.
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	void checkSprites2(int minLine, int maxLine);
+	void checkSprites2(int minLine, int maxLine, bool fillOnly = false);
+
+	/** X of the leftmost colliding pixel on a line in sprite mode 2, or
+	  * 999 if none. The line must have been filled by checkSprites2().
+	  */
+	[[nodiscard]] int findCollision2(int line) const;
 
 private:
 	using UpdateSpritesMethod = void (SpriteChecker::*)(int limit);
@@ -368,6 +391,12 @@ private:
 	/** Sprites are checked up to and excluding this display line.
 	  */
 	int currentLine;
+
+	/** Line whose collision checkCollisionEarly() already flagged, or -1.
+	  * Not serialized: after a loadstate on such a line its collision can
+	  * be flagged twice.
+	  */
+	int earlyCollisionLine = -1;
 
 	/** X coordinate of sprite collision.
 	  * 9 bits long -> [0..511]?

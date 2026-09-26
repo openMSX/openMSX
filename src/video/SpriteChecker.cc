@@ -84,7 +84,7 @@ void SpriteChecker::updateSprites1(int limit)
 	currentLine = limit;
 }
 
-inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
+inline void SpriteChecker::checkSprites1(int minLine, int maxLine, bool fillOnly)
 {
 	// This implementation contains a double for-loop. The outer loop goes
 	// over the sprites, the inner loop over the to-be-checked lines. This
@@ -155,6 +155,8 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 		}
 	}
 
+	if (fillOnly) return;
+
 	// Update status register.
 	uint8_t status = vdp.getStatusReg0();
 	if (fifthSpriteNum != -1) {
@@ -195,40 +197,10 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	but there are max 4 sprites and therefore max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
-	bool can0collide = vdp.canSpriteColor0Collide();
 	for (auto line : xrange(minLine, maxLine)) {
-		int minXCollision = 999;
-		for (int i = std::min<int>(4, spriteCount[line]); --i >= 1; /**/) {
-			auto color1 = spriteBuffer[line][i].colorAttrib & 0xf;
-			if (!can0collide && (color1 == 0)) continue;
-			int x_i = spriteBuffer[line][i].x;
-			SpritePattern pattern_i = spriteBuffer[line][i].pattern;
-			for (int j = i; --j >= 0; /**/) {
-				auto color2 = spriteBuffer[line][j].colorAttrib & 0xf;
-				if (!can0collide && (color2 == 0)) continue;
-				// Do sprite i and sprite j collide?
-				int x_j = spriteBuffer[line][j].x;
-				int dist = x_j - x_i;
-				if ((-magSize < dist) && (dist < magSize)) {
-					SpritePattern pattern_j = spriteBuffer[line][j].pattern;
-					if (dist < 0) {
-						pattern_j <<= -dist;
-					} else {
-						pattern_j >>= dist;
-					}
-					SpritePattern colPat = pattern_i & pattern_j;
-					if (x_i < 0) {
-						assert(x_i >= -32);
-						colPat &= (1 << (32 + x_i)) - 1;
-					}
-					if (colPat) {
-						int xCollision = x_i + std::countl_zero(colPat);
-						assert(xCollision >= 0);
-						minXCollision = std::min(minXCollision, xCollision);
-					}
-				}
-			}
-		}
+		// already flagged by checkCollisionEarly()
+		if (line == earlyCollisionLine) continue;
+		int minXCollision = findCollision1(line);
 		if (minXCollision < 256) {
 			vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
 			// verified: collision coords are also filled
@@ -240,6 +212,45 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 			return; // don't check lines with higher Y-coord
 		}
 	}
+}
+
+int SpriteChecker::findCollision1(int line) const
+{
+	bool can0collide = vdp.canSpriteColor0Collide();
+	int magSize = (vdp.isSpriteMag() + 1) * vdp.getSpriteSize();
+	int minXCollision = 999; // no collision
+	for (int i = std::min<int>(4, spriteCount[line]); --i >= 1; /**/) {
+		auto color1 = spriteBuffer[line][i].colorAttrib & 0xf;
+		if (!can0collide && (color1 == 0)) continue;
+		int x_i = spriteBuffer[line][i].x;
+		SpritePattern pattern_i = spriteBuffer[line][i].pattern;
+		for (int j = i; --j >= 0; /**/) {
+			auto color2 = spriteBuffer[line][j].colorAttrib & 0xf;
+			if (!can0collide && (color2 == 0)) continue;
+			// Do sprite i and sprite j collide?
+			int x_j = spriteBuffer[line][j].x;
+			int dist = x_j - x_i;
+			if ((-magSize < dist) && (dist < magSize)) {
+				SpritePattern pattern_j = spriteBuffer[line][j].pattern;
+				if (dist < 0) {
+					pattern_j <<= -dist;
+				} else {
+					pattern_j >>= dist;
+				}
+				SpritePattern colPat = pattern_i & pattern_j;
+				if (x_i < 0) {
+					assert(x_i >= -32);
+					colPat &= (1 << (32 + x_i)) - 1;
+				}
+				if (colPat) {
+					int xCollision = x_i + std::countl_zero(colPat);
+					assert(xCollision >= 0);
+					minXCollision = std::min(minXCollision, xCollision);
+				}
+			}
+		}
+	}
+	return minXCollision;
 }
 
 void SpriteChecker::updateSprites2(int limit)
@@ -260,7 +271,7 @@ void SpriteChecker::updateSprites2(int limit)
 	currentLine = limit;
 }
 
-inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
+inline void SpriteChecker::checkSprites2(int minLine, int maxLine, bool fillOnly)
 {
 	// See comment in checkSprites1() about order of inner and outer loops.
 
@@ -385,6 +396,8 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 		}
 	}
 
+	if (fillOnly) return;
+
 	// Update status register.
 	uint8_t status = vdp.getStatusReg0();
 	if (ninthSpriteNum != -1) {
@@ -428,47 +441,10 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	  TODO: Maybe this is slow... Think of something faster.
 	        Probably new approach is needed anyway for OR-ing.
 	*/
-	bool can0collide = vdp.canSpriteColor0Collide();
 	for (auto line : xrange(minLine, maxLine)) {
-		int minXCollision = 999; // no collision
-		std::span<SpriteInfo, 32 + 1> visibleSprites = spriteBuffer[line];
-		for (int i = std::min<int>(8, spriteCount[line]); --i >= 1; /**/) {
-			auto colorAttrib1 = visibleSprites[i].colorAttrib;
-			if (!can0collide && ((colorAttrib1 & 0xf) == 0)) continue;
-			// If CC or IC is set, this sprite cannot collide.
-			if (colorAttrib1 & 0x60) continue;
-
-			int x_i = visibleSprites[i].x;
-			SpritePattern pattern_i = visibleSprites[i].pattern;
-			for (int j = i; --j >= 0; /**/) {
-				auto colorAttrib2 = visibleSprites[j].colorAttrib;
-				if (!can0collide && ((colorAttrib2 & 0xf) == 0)) continue;
-				// If CC or IC is set, this sprite cannot collide.
-				if (colorAttrib2 & 0x60) continue;
-
-				// Do sprite i and sprite j collide?
-				int x_j = visibleSprites[j].x;
-				int dist = x_j - x_i;
-				if ((-magSize < dist) && (dist < magSize)) {
-					SpritePattern pattern_j = visibleSprites[j].pattern;
-					if (dist < 0) {
-						pattern_j <<= -dist;
-					} else {
-						pattern_j >>= dist;
-					}
-					SpritePattern colPat = pattern_i & pattern_j;
-					if (x_i < 0) {
-						assert(x_i >= -32);
-						colPat &= (1 << (32 + x_i)) - 1;
-					}
-					if (colPat) {
-						int xCollision = x_i + std::countl_zero(colPat);
-						assert(xCollision >= 0);
-						minXCollision = std::min(minXCollision, xCollision);
-					}
-				}
-			}
-		}
+		// already flagged by checkCollisionEarly()
+		if (line == earlyCollisionLine) continue;
+		int minXCollision = findCollision2(line);
 		if (minXCollision < 256) {
 			vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
 			// x-coord should be increased by 12
@@ -478,6 +454,87 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 			return; // don't check lines with higher Y-coord
 		}
 	}
+}
+
+int SpriteChecker::findCollision2(int line) const
+{
+	bool can0collide = vdp.canSpriteColor0Collide();
+	int magSize = (vdp.isSpriteMag() + 1) * vdp.getSpriteSize();
+	int minXCollision = 999; // no collision
+	std::span<const SpriteInfo, 32 + 1> visibleSprites = spriteBuffer[line];
+	for (int i = std::min<int>(8, spriteCount[line]); --i >= 1; /**/) {
+		auto colorAttrib1 = visibleSprites[i].colorAttrib;
+		if (!can0collide && ((colorAttrib1 & 0xf) == 0)) continue;
+		// If CC or IC is set, this sprite cannot collide.
+		if (colorAttrib1 & 0x60) continue;
+
+		int x_i = visibleSprites[i].x;
+		SpritePattern pattern_i = visibleSprites[i].pattern;
+		for (int j = i; --j >= 0; /**/) {
+			auto colorAttrib2 = visibleSprites[j].colorAttrib;
+			if (!can0collide && ((colorAttrib2 & 0xf) == 0)) continue;
+			// If CC or IC is set, this sprite cannot collide.
+			if (colorAttrib2 & 0x60) continue;
+
+			// Do sprite i and sprite j collide?
+			int x_j = visibleSprites[j].x;
+			int dist = x_j - x_i;
+			if ((-magSize < dist) && (dist < magSize)) {
+				SpritePattern pattern_j = visibleSprites[j].pattern;
+				if (dist < 0) {
+					pattern_j <<= -dist;
+				} else {
+					pattern_j >>= dist;
+				}
+				SpritePattern colPat = pattern_i & pattern_j;
+				if (x_i < 0) {
+					assert(x_i >= -32);
+					colPat &= (1 << (32 + x_i)) - 1;
+				}
+				if (colPat) {
+					int xCollision = x_i + std::countl_zero(colPat);
+					assert(xCollision >= 0);
+					minXCollision = std::min(minXCollision, xCollision);
+				}
+			}
+		}
+	}
+	return minXCollision;
+}
+
+void SpriteChecker::checkCollisionEarly(EmuTime time)
+{
+	// Measured on a V9958 with the sprite-collision loop the MSX2+ boot
+	// logo uses: the flag goes up when the beam is about 5 pixels past the
+	// colliding pixel. The TMS99xx still flags at the end of the line.
+	static constexpr int COLLISION_DELAY = 5; // pixels
+	if (vdp.isMSX1VDP()) return;
+	bool mode1 = updateSpritesMethod == &SpriteChecker::updateSprites1;
+	if (!mode1 && updateSpritesMethod != &SpriteChecker::updateSprites2) return;
+	if (!vdp.spritesEnabledFast() || !vdp.isDisplayEnabled()) return;
+	if (vdp.getStatusReg0() & 0x20) return;
+	int ticks = narrow<int>(frameStartTime.getTicksTill(time));
+	int line = ticks / VDP::TICKS_PER_LINE;
+	if (line != currentLine || line == earlyCollisionLine) return;
+	int x = (ticks % VDP::TICKS_PER_LINE - vdp.getLeftSprites()) / 4
+	      - COLLISION_DELAY;
+	if (x < 0) return;
+
+	int minXCollision;
+	if (mode1) {
+		checkSprites1(line, line + 1, true);
+		minXCollision = findCollision1(line);
+	} else {
+		checkSprites2(line, line + 1, true);
+		minXCollision = findCollision2(line);
+	}
+	spriteCount[line] = 0; // updateSprites1/2() fill this line again
+	if (minXCollision > x) return; // none, or the beam isn't there yet
+
+	vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
+	collisionX = minXCollision + 12;
+	collisionY = line - vdp.getLineZero() + 8;
+	earlyCollisionLine = line;
 }
 
 // version 1: initial version
