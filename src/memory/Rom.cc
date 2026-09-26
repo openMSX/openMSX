@@ -5,6 +5,7 @@
 #include "Debugger.hh"
 #include "DeviceConfig.hh"
 #include "EmptyPatch.hh"
+#include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FilePool.hh"
@@ -90,6 +91,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 	// of a savestate, we want to compare the sha1sum of the ROM from the
 	// time the savestate was created with the one from the loaded
 	// savestate. External state can be a .rom file or a patch file.
+	File file; // Mapping owns its data independently of this handle.
 	bool checkResolvedSha1 = false;
 
 	auto sums      = config.getChildren("sha1");
@@ -335,7 +337,6 @@ bool Rom::checkSHA1(const XMLElement& config) const
 Rom::Rom(Rom&& r) noexcept
 	: rom          (r.rom)
 	, extendedRom  (std::move(r.extendedRom))
-	, file         (std::move(r.file))
 	, filename     (std::move(r.filename))
 	, mmap         (std::move(r.mmap))
 	, originalSha1 (r.originalSha1)
