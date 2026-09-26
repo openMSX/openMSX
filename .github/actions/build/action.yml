@@ -18,11 +18,11 @@ runs:
     - name: Install Linux prerequisites
       if: ${{ inputs.os == 'linux' }}
       shell: bash
-      run: sudo apt-get update && sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev libxext-dev
+      run: sudo apt-get update && sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev libxext-dev libegl-dev
     - name: Install extra Linux prerequisites for native/dynamic build (e.g. for unittesting)
       if: ${{ inputs.os == 'linux' && (inputs.flavour == 'unittest' || inputs.flavour == 'super-opt' || inputs.flavour == 'debug')}}
       shell: bash
-      run: sudo apt-get install libsdl2-dev libpng-dev tcl-dev libglew-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
+      run: sudo apt-get install libsdl2-dev libpng-dev tcl-dev libepoxy-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
     - name: Install Windows prerequisites
       if: ${{ contains(inputs.os, 'mingw') }}
       shell: bash
@@ -61,6 +61,24 @@ runs:
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v3
       id: cpu-cores
+    - name: Determine version and redistributable paths and names (before building)
+      shell: bash
+      id: openmsx
+      run: |
+        OPENMSX_VERSION=`python3 build/version.py`
+        DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
+        if [ "${{ inputs.os }}" = "darwin" ]; then
+          HAS_SINGLE_FILE_OUTPUT=true
+          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
+        else
+          HAS_SINGLE_FILE_OUTPUT=false
+        fi
+        echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
+        echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
+        echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
+        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
+        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Make
       if: ${{ inputs.os != 'windows-vc' }}
       shell: bash
@@ -99,24 +117,6 @@ runs:
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
-    - name: Determine version and redistributable paths and names
-      shell: bash
-      id: openmsx
-      run: |
-        OPENMSX_VERSION=`python3 build/version.py`
-        DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
-        if [ "${{ inputs.os }}" = "darwin" ]; then
-          HAS_SINGLE_FILE_OUTPUT=true
-          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
-        else
-          HAS_SINGLE_FILE_OUTPUT=false
-        fi
-        echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
-        echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
-        echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
-        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
-        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
-        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Run unittests
       if: ${{ inputs.flavour == 'unittest' }}
       shell: bash
@@ -140,7 +140,7 @@ runs:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
-      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' && failure() }}
       uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
