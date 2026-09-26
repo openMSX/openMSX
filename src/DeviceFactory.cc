@@ -39,6 +39,7 @@
 #include "MSXMirrorDevice.hh"
 #include "MSXModem.hh"
 #include "MSXMoonSound.hh"
+#include "MSXMakoto.hh"
 #include "MSXMusic.hh"
 #include "MSXOPL3Cartridge.hh"
 #include "MSXPPI.hh"
@@ -204,6 +205,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<MSXYamahaSFG>(conf);
 	} else if (type == "MoonSound") {
 		result = std::make_unique<MSXMoonSound>(conf);
+	} else if (type == "Makoto") {
+		result = std::make_unique<MSXMakoto>(conf);
 	} else if (type == "DalSoRiR2") {
 		result = std::make_unique<DalSoRiR2>(conf);
 	} else if (type == "OPL3Cartridge") {

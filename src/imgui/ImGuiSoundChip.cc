@@ -5,6 +5,8 @@
 #include "ImGuiUtils.hh"
 
 #include "MSXMixer.hh"
+#include "MSXCommandController.hh"
+#include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "SoundDevice.hh"
 #include "StringSetting.hh"
@@ -132,6 +134,14 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 				}
 			});
 		});
+		auto& controller = motherBoard.getMSXCommandController();
+		if (auto* mainGain = dynamic_cast<IntegerSetting*>(controller.findSetting("makoto_master_volume"))) {
+			ImGui::SeparatorText("Makoto cartridge controls");
+			SliderInt("Master", *mainGain);
+			if (auto* psg = dynamic_cast<IntegerSetting*>(controller.findSetting("makoto_psg_volume"))) {
+				SliderInt("SSG", *psg);
+			}
+		}
 	});
 }
 
