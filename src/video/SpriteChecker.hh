@@ -213,13 +213,15 @@ public:
 		return collisionY;
 	}
 
-	/** On a V99x8 a sprite collision is flagged when the beam reaches the
-	  * colliding pixel on the line the sprites are checked at, not at the
-	  * end of that line. Checks that for the current line. Call after
-	  * sync(), before S#0 is read.
+	/** On a V99x8 the 5th/9th sprite flag and the collision flag go up
+	  * during the line the sprites are checked at, not at the end of that
+	  * line: the 5th/9th sprite flag once the VDP has read the y-coordinate
+	  * of the sprite that doesn't fit, the collision flag when the beam
+	  * reaches the colliding pixel. Checks that for the current line. Call
+	  * after sync(), before S#0 is read.
 	  * @param time The moment in emulated time S#0 is read.
 	  */
-	void checkCollisionEarly(EmuTime time);
+	void checkStatusEarly(EmuTime time);
 
 	/** Reset sprite collision coordinates.
 	  * This happens directly after a read, so a timestamp for syncing is
@@ -236,6 +238,7 @@ public:
 		frameStartTime.reset(time);
 		currentLine = 0;
 		earlyCollisionLine = -1;
+		earlySpriteLine = -1;
 		std::ranges::fill(spriteCount, 0);
 		// TODO: Reset anything else? Does the real VDP?
 	}
@@ -334,11 +337,12 @@ private:
 	  *                should be checked.
 	  * @param maxLine The last line number (exclusive) for which sprites
 	  *                should be checked.
-	  * @param fillOnly Only fill in the sprite buffers, don't update the
-	  *                 status register.
+	  * @param nthSprite If not null: only fill in the sprite buffers, don't
+	  *                  update the status register, and store the number of
+	  *                  the 5th sprite on the line here (or -1).
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	void checkSprites1(int minLine, int maxLine, bool fillOnly = false);
+	void checkSprites1(int minLine, int maxLine, int* nthSprite = nullptr);
 
 	/** X of the leftmost colliding pixel on a line in sprite mode 1, or
 	  * 999 if none. The line must have been filled by checkSprites1().
@@ -353,11 +357,12 @@ private:
 	  *                should be checked.
 	  * @param maxLine The last line number (exclusive) for which sprites
 	  *                should be checked.
-	  * @param fillOnly Only fill in the sprite buffers, don't update the
-	  *                 status register.
+	  * @param nthSprite If not null: only fill in the sprite buffers, don't
+	  *                  update the status register, and store the number of
+	  *                  the 9th sprite on the line here (or -1).
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	void checkSprites2(int minLine, int maxLine, bool fillOnly = false);
+	void checkSprites2(int minLine, int maxLine, int* nthSprite = nullptr);
 
 	/** X of the leftmost colliding pixel on a line in sprite mode 2, or
 	  * 999 if none. The line must have been filled by checkSprites2().
@@ -392,7 +397,12 @@ private:
 	  */
 	int currentLine;
 
-	/** Line whose collision checkCollisionEarly() already flagged, or -1.
+	/** Line whose 5th/9th sprite checkStatusEarly() already flagged, or -1.
+	  * Not serialized, like earlyCollisionLine.
+	  */
+	int earlySpriteLine = -1;
+
+	/** Line whose collision checkStatusEarly() already flagged, or -1.
 	  * Not serialized: after a loadstate on such a line its collision can
 	  * be flagged twice.
 	  */
