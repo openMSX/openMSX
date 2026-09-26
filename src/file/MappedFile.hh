@@ -62,7 +62,7 @@ private:
 		ptr = std::exchange(other.ptr, nullptr);
 		sz = std::exchange(other.sz, 0);
 		alloc = std::exchange(other.alloc, false);
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 		mapped = std::exchange(other.mapped, false);
 #endif
 	}
@@ -74,7 +74,7 @@ private:
 	size_t sz = 0;
 	bool alloc = false;
 
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 	void mapFile(LocalFile& file, bool is_const);
 	void unmapFile(void* p, size_t size);
 	bool mapped = false;

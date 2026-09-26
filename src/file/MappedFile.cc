@@ -6,7 +6,7 @@
 #include <bit>
 #include <cstdlib>
 
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 #  include <sys/mman.h>
 #  include <sys/stat.h>
 #  include <unistd.h>
@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 static size_t getPageSize()
 {
 	return static_cast<size_t>(sysconf(_SC_PAGE_SIZE));
@@ -32,7 +32,7 @@ MappedFileImpl::MappedFileImpl(LocalFile& file, size_t extra, bool is_const)
 	auto fileSize = file.getSize();
 	sz = fileSize + extra;
 
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 	// Step 0: empty file (cannot be mmap()'ed).
 	if (fileSize == 0) {
 		ptr = calloc(extra, 1);
@@ -118,7 +118,7 @@ MappedFileImpl::MappedFileImpl(std::span<const uint8_t> buf, size_t extra, bool 
 
 void MappedFileImpl::release() noexcept
 {
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 	if (mapped) {
 		mapped = false;
 		unmapFile(ptr, sz);
@@ -132,7 +132,7 @@ void MappedFileImpl::release() noexcept
 	sz = 0;
 }
 
-#ifdef HAVE_MMAP
+#if HAVE_MMAP
 void MappedFileImpl::mapFile(LocalFile& file, bool is_const)
 {
 	auto prot = PROT_READ | (is_const ? 0 : PROT_WRITE);
