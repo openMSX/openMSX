@@ -314,7 +314,6 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--disable-shared \
-		--disable-threads \
 		--without-tzdata \
 		$(CONFIGURE_OVERRIDE_TCL) \
 		CFLAGS="$(_CFLAGS)" \
