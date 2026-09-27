@@ -16,7 +16,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <vector>
 
 namespace openmsx {
@@ -78,11 +77,6 @@ public:
 		chip.set_channel_output(channelOutput.data());
 		ssgGain = (1.0f / 4.3f) * float(psgVolume.getInt()) / 100.0f;
 		psgVolume.attach(*this);
-		// 100k feedback resistor in parallel with 47 pF: tau = 4.7 us.
-		filterAlpha = float(-std::expm1(-8.0 / (double(CLOCK) * 100000.0 * 47e-12)));
-		for (unsigned i = 0; i < filterDecay.size(); ++i) {
-			filterDecay[i] = std::pow(1.0f - filterAlpha, float(i));
-		}
 		reset(time);
 		registerSound(config);
 	}
@@ -99,7 +93,6 @@ public:
 		chip.reset();
 		busyEnd = time;
 		channelOutput.fill(0);
-		filterState.fill(0.0f);
 		irq.reset();
 	}
 	byte read(unsigned port, EmuTime time)
@@ -163,12 +156,17 @@ public:
 			}
 		}
 		if (ar.versionAtLeast(version, 2)) {
-			ar.serialize("channelOutput", channelOutput, "filterState", filterState);
+			ar.serialize("channelOutput", channelOutput);
+			if constexpr (Archive::IS_LOADER) {
+				if (!ar.versionAtLeast(version, 5)) {
+					std::array<float, 32> oldFilterState;
+					ar.serialize("filterState", oldFilterState);
+				}
+			}
 		} else if constexpr (Archive::IS_LOADER) {
-			// Legacy states did not retain separated voices or analogue filter history.
+			// Legacy states did not retain separated voices.
 			// Start those caches silent; voices refresh on the next FM clock (<18 us).
 			channelOutput.fill(0);
-			filterState.fill(0.0f);
 		}
 		if constexpr (Archive::IS_LOADER) {
 			// Reject truncated core state instead of allowing YMFM's zero-fill
@@ -277,63 +275,22 @@ private:
 		}
 	}
 
-	void advanceFilters(const std::array<float, 32>& targets, unsigned count)
-	{
-		if (count == 0)
-			return;
-		float decay = count < filterDecay.size()
-				  ? filterDecay[count]
-				  : std::pow(1.0f - filterAlpha, float(count));
-		for (unsigned c = 0; c < 32; ++c) {
-			auto& filtered = filterState[c];
-			if (targets[c] == 0.0f && filtered == 0.0f)
-				continue;
-			// Exact recurrence for a constant input over count chip samples.
-			filtered = targets[c] + (filtered - targets[c]) * decay;
-			if (targets[c] == 0.0f && std::abs(filtered) < 1e-10f)
-				filtered = 0.0f;
-		}
-	}
-
 	void generateChannels(std::span<float*> buffers, unsigned num) override
 	{
-		std::array<float, 32> targets = {};
-		// Usually openMSX asks for the combined output. Filter that sum at
-		// 1 MHz, and advance individual histories only when an input changes.
-		// This preserves histories when the channel viewer/mutes are enabled.
+		// Normal playback can use YMFM's combined FM/ADPCM and SSG output
+		// directly. The host resampler provides the output low-pass filter.
 		if (std::ranges::all_of(buffers, [&](auto* b) { return b == buffers[0]; })) {
-			std::array<float, 2> combined = {};
-			for (unsigned c = 0; c < 32; ++c)
-				combined[c & 1] += filterState[c];
-			std::array<int32_t, 3> lastSSG = {};
-			unsigned pending = 0;
 			bool audible = false;
 			for (unsigned i = 0; i < num; ++i) {
 				ymfm::ym2608::output_data mixed;
 				chip.generate(&mixed);
-				const auto& ssg = chip.ssg_output();
-				bool changed = i == 0 || chip.channel_output_changed();
-				for (unsigned c = 0; c < 3; ++c) {
-					changed = changed || lastSSG[c] != ssg.data[c];
-					lastSSG[c] = ssg.data[c];
-				}
-				if (changed) {
-					advanceFilters(targets, pending);
-					makeTargets(mixed, targets);
-					pending = 0;
-				}
-				++pending;
 				for (unsigned side = 0; side < 2; ++side) {
-					float target = float(mixed.data[side]) +
+					float sample = float(mixed.data[side]) +
 						       ssgGain * float(mixed.data[2]);
-					combined[side] += filterAlpha * (target - combined[side]);
-					if (target == 0.0f && std::abs(combined[side]) < 1e-10f)
-						combined[side] = 0.0f;
-					buffers[0][2 * i + side] += combined[side];
-					audible = audible || combined[side] != 0.0f;
+					buffers[0][2 * i + side] += sample;
+					audible = audible || sample != 0.0f;
 				}
 			}
-			advanceFilters(targets, pending);
 			for (unsigned c = 1; c < 16; ++c)
 				buffers[c] = nullptr;
 			if (!audible)
@@ -341,6 +298,7 @@ private:
 			return;
 		}
 
+		std::array<float, 32> targets = {};
 		std::array<bool, 16> audible = {};
 		std::array<int32_t, 3> lastSSG = {};
 		for (unsigned i = 0; i < num; ++i) {
@@ -359,15 +317,9 @@ private:
 			for (unsigned c = 0; c < 16; ++c) {
 				for (unsigned side = 0; side < 2; ++side) {
 					auto index = 2 * c + side;
-					auto& filtered = filterState[index];
-					float target = targets[index];
-					if (target == 0.0f && filtered == 0.0f)
-						continue;
-					filtered += filterAlpha * (target - filtered);
-					if (target == 0.0f && std::abs(filtered) < 1e-10f)
-						filtered = 0.0f;
-					buffers[c][2 * i + side] += filtered;
-					audible[c] = audible[c] || filtered != 0.0f;
+					float sample = targets[index];
+					buffers[c][2 * i + side] += sample;
+					audible[c] = audible[c] || sample != 0.0f;
 				}
 			}
 		}
@@ -398,9 +350,6 @@ private:
 		MakotoSound& owner;
 	};
 	std::array<int32_t, 32> channelOutput = {};
-	std::array<float, 32> filterState = {};
-	float filterAlpha = 0.0f;
-	std::array<float, 19> filterDecay = {};
 	float ssgGain = 0.0f;
 	bool sampleClockInitialized = false;
 	IRQHelper irq;
@@ -415,7 +364,8 @@ private:
 };
 
 // Versions 1/2 were distributed in the public Makoto preview builds.
-SERIALIZE_CLASS_VERSION(MakotoSound, 4);
+// Version 5 drops analogue filter histories; older fork states remain readable.
+SERIALIZE_CLASS_VERSION(MakotoSound, 5);
 
 MSXMakoto::MSXMakoto(DeviceConfig& config)
 	: MSXDevice(config)
