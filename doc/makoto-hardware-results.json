@@ -1,0 +1,131 @@
+{
+  "core": {
+    "samples": 360000,
+    "voices": 16,
+    "prescalers": 3,
+    "mixed_samples_and_core_state_match": true,
+    "core_format": 1,
+    "state_bytes": 1133,
+    "state_fnv1a": "4faf7577"
+  },
+  "timer_and_state_checks": [
+    "Standard device volume defaults to 75 percent and SSG to 50 percent",
+    "BUSY appears on both status ports and expires",
+    "Timer A period, sticky overflow, acknowledge and reload",
+    "Timer B period and overflow",
+    "Stopping timers cancels scheduled overflows",
+    "Both timers raise MSX CPU IRQ; acknowledge and cancellation release it",
+    "Debugger peeks preserve the entire chip state",
+    "Save/restore resumes the same chip, RAM, BUSY and timer state",
+    "MSX reset stops OPNA timers"
+  ],
+  "integration": {
+    "current-ssg-high": {
+      "rms": [
+        465.5883218043373,
+        465.5883218043373
+      ],
+      "peak": 660.0
+    },
+    "current-ssg-low": {
+      "rms": [
+        550.505711915282,
+        550.505711915282
+      ],
+      "peak": 649.0
+    },
+    "current-separate-buffers": {
+      "rms": [
+        550.5014449156761,
+        550.5014449156761
+      ],
+      "peak": 649.0
+    },
+    "channel_tools_output_ratio": 0.9999922489458083,
+    "current-ssg-muted": {
+      "rms": [
+        1.9650972349624694,
+        1.9650972349624694
+      ],
+      "peak": 11.0
+    },
+    "current-other-muted": {
+      "rms": [
+        550.4931572837361,
+        550.4931572837361
+      ],
+      "peak": 657.0
+    },
+    "current-fm-left": {
+      "rms": [
+        158.3960712762564,
+        1.953921410985836
+      ],
+      "peak": 235.0
+    },
+    "current-fm-muted": {
+      "rms": [
+        0.0,
+        0.0
+      ],
+      "peak": 0.0
+    },
+    "current-master-zero": {
+      "rms": [
+        0.0,
+        0.0
+      ],
+      "peak": 0.0
+    },
+    "state_format": "RAM restored; unknown core format explicitly rejected",
+    "legacy_state": "loaded and continued",
+    "channels": "16 voices exposed; SSG/FM isolation and stereo pan passed",
+    "ram": "CPU readback in each 64KB quarter of 256KB x1-mode RAM passed",
+    "baseline-ssg-high": {
+      "rms": [
+        503.0790694039992,
+        503.0790694039992
+      ],
+      "peak": 721.0
+    },
+    "baseline-ssg-low": {
+      "rms": [
+        552.1287837948568,
+        552.1287837948568
+      ],
+      "peak": 667.0
+    },
+    "high_filter": {
+      "measured": 0.9254995023676408,
+      "expected": 0.9254953920938258
+    },
+    "low_filter": {
+      "measured": 0.9995742438575513,
+      "expected": 0.9995658863698358
+    }
+  },
+  "turbo_r_demo": [
+    {
+      "track": "THUNDER",
+      "writes": 2975,
+      "timestamps_and_values_match_previous_build": true,
+      "late_ticks": 2,
+      "hardware_error": 0
+    },
+    {
+      "track": "THEMEA",
+      "writes": 23203,
+      "timestamps_and_values_match_previous_build": true,
+      "late_ticks": 1,
+      "hardware_error": 0
+    },
+    {
+      "track": "THEMEB",
+      "writes": 8801,
+      "timestamps_and_values_match_previous_build": true,
+      "late_ticks": 1,
+      "hardware_error": 0
+    }
+  ],
+  "windows_executable_sha256": "9b836ef2b26d5387b0531e34517ac86171d2c180fd106479fdcaaf7ebda59444"
+}

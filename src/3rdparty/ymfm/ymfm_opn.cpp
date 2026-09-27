@@ -1289,6 +1289,7 @@ void ym2608::write(uint32_t offset, uint8_t data)
 
 void ym2608::generate(output_data *output, uint32_t numsamples)
 {
+	m_channel_output_changed = false;
 	// FM output is just repeated the prescale number of times; note that
 	// 0 is a special 1.5 case
 	if (m_fm_samples_per_output != 0)
@@ -1402,12 +1403,36 @@ void ym2608::clock_fm_and_adpcm()
 	// clock the ADPCM-B engine every cycle
 	m_adpcm_b.clock();
 
-	// update the FM content; OPNA is 13-bit with no intermediate clipping
-	m_fm.output(m_last_fm.clear(), 1, 32767, fmmask);
-
-	// mix in the ADPCM and clamp
-	m_adpcm_a.output(m_last_fm, 0x3f);
-	m_adpcm_b.output(m_last_fm, 1);
+	// openMSX: render each voice once when the host requests channel output.
+	// Keep the original mixed path available for differential testing.
+	if (m_channel_output != nullptr)
+	{
+		m_channel_output_changed = true;
+		m_last_fm.clear();
+		for (unsigned channel = 0; channel < 16; channel++)
+		{
+			fm_engine::output_data voice;
+			voice.clear();
+			if (channel < 6)
+				m_fm.output(voice, 1, 32767, fmmask & (1U << channel));
+			else if (channel == 9)
+				m_adpcm_b.output(voice, 1);
+			else if (channel >= 10)
+				m_adpcm_a.output(voice, 1U << (channel - 10));
+			for (unsigned side = 0; side < 2; side++)
+			{
+				m_channel_output[2 * channel + side] = voice.data[side];
+				m_last_fm.data[side] += voice.data[side];
+			}
+		}
+	}
+	else
+	{
+		// OPNA is 13-bit with no intermediate clipping.
+		m_fm.output(m_last_fm.clear(), 1, 32767, fmmask);
+		m_adpcm_a.output(m_last_fm, 0x3f);
+		m_adpcm_b.output(m_last_fm, 1);
+	}
 	m_last_fm.clamp16();
 }
 

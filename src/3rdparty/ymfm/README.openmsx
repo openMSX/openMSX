@@ -3,7 +3,22 @@ https://github.com/aaronsgiles/ymfm
 Pinned revision: 81aec25ccbb98f4873a255f7551ac4dadac59b4a
 OPN/SSG/ADPCM core subset. See LICENSE.
 
-Local patch: value-initialize fm_operator::m_cache in the constructor.
-Normal synthesis populates it in prepare() before use; initialization also
-gives its fields a defined initial state and addresses Sonar cpp:S2107.
-No synthesis algorithm or timing changes.
+Local patches:
+1. Value-initialize fm_operator::m_cache. Normal synthesis fills it in prepare();
+   initialization gives the fields a defined state and addresses cpp:S2107.
+2. Add an optional host-owned YM2608 channel-output cache and an accessor to
+   the last SSG outputs. When requested, FM/ADPCM voices are rendered individually
+   before the same aggregate DAC clamp. The original mixed path remains available.
+   No clocks, envelopes, operator calculations or raw core state fields change.
+   SSG separation is used only at MAX fidelity, whose prescalers repeat samples.
+
+Contrib/makoto-core-test.cc compares both paths, including chip state, for
+360,000 samples covering all 16 voices and all three prescalers. It also pins a
+1133-byte reference state (FNV-1a 4faf7577). This fingerprint is a regression
+check, not a security checksum.
+
+Makoto core format 1 is the raw state layout from this pinned revision. The
+host wrapper explicitly records the core format separately from its component
+version. Future upgrades must keep a reader/converter for format 1; byte count
+alone is not a sufficient compatibility check. Host filter and voice caches
+are separately serialized and do not change the pinned raw core format.

@@ -135,12 +135,9 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 			});
 		});
 		auto& controller = motherBoard.getMSXCommandController();
-		if (auto* mainGain = dynamic_cast<IntegerSetting*>(controller.findSetting("makoto_master_volume"))) {
-			ImGui::SeparatorText("Makoto cartridge controls");
-			SliderInt("Master", *mainGain);
-			if (auto* psg = dynamic_cast<IntegerSetting*>(controller.findSetting("makoto_psg_volume"))) {
-				SliderInt("SSG", *psg);
-			}
+		if (auto* ssg = dynamic_cast<IntegerSetting*>(controller.findSetting("makoto_psg_volume"))) {
+			ImGui::SeparatorText("Makoto cartridge balance");
+			SliderInt("SSG", *ssg);
 		}
 	});
 }

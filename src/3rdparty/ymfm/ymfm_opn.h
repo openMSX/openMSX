@@ -363,6 +363,8 @@ public:
 
 	// get the current sample index
 	uint32_t sampindex() const { return m_sampindex; }
+	// openMSX: individual SSG outputs for the MAX-fidelity integer repeat modes.
+	const ssg_engine::output_data &last_output() const { return m_last; }
 
 	// configure the ratio
 	void configure(uint8_t outsamples, uint8_t srcsamples);
@@ -543,6 +545,12 @@ public:
 	void write_data_hi(uint8_t data);
 	void write(uint32_t offset, uint8_t data);
 
+	// openMSX: optional 16-channel output cache, owned/serialized by the host.
+	// FM 0-5, SSG 6-8, ADPCM-B 9, rhythm 10-15; stereo pairs.
+	void set_channel_output(int32_t *output) { m_channel_output = output; }
+	bool channel_output_changed() const { return m_channel_output_changed; }
+	const ssg_engine::output_data &ssg_output() const { return m_ssg_resampler.last_output(); }
+
 	// generate one sample of sound
 	void generate(output_data *output, uint32_t numsamples = 1);
 
@@ -552,6 +560,8 @@ protected:
 	void clock_fm_and_adpcm();
 
 	// internal state
+	bool m_channel_output_changed = false; // cache notification, not chip state
+	int32_t *m_channel_output = nullptr; // optional host output cache (not chip state)
 	opn_fidelity m_fidelity;            // configured fidelity
 	uint16_t m_address;                 // address register
 	uint8_t m_fm_samples_per_output;    // how many samples to repeat
