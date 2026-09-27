@@ -301,8 +301,8 @@ private:
 	bool focus = true;
 
 	/** Flag for tracking the combined state (OR) of left and right Shift keys */
-	bool lshift_pressed = false;
-	bool rshift_pressed = false;
+	bool leftShiftPressed= false;
+	bool rightShiftPressed = false;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 5);
 

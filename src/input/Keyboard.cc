@@ -164,7 +164,6 @@ static constexpr auto extractCombinedShiftFlag(GetMapping getMapping)
 	constexpr auto mapping = getMapping();
 	constexpr size_t N = count(mapping, &MsxKeyScanMapping::hostKeyCodes);
 	std::array<KeyCodeMsxMapping, N> result;
-	size_t i = 0;
 	for (const auto& m : mapping) {
 		bool lshift = false;
 		bool rshift = false;
@@ -1057,11 +1056,11 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		processKeypadEnterKey(time, down);
 		return false;
 	} else if (combinedShiftFlag && ((key.sym.sym == SDLK_LSHIFT) || (key.sym.sym == SDLK_RSHIFT))) {
-		if (key.sym.sym == SDLK_LSHIFT) lshift_pressed = down;
-		if (key.sym.sym == SDLK_RSHIFT) rshift_pressed = down;
-		if (down && (lshift_pressed != rshift_pressed)) {
+		if (key.sym.sym == SDLK_LSHIFT) leftShiftPressed= down;
+		if (key.sym.sym == SDLK_RSHIFT) rightShiftPressed = down;
+		if (down && (leftShiftPressed!= rightShiftPressed)) {
 			processSdlKey(time, SDLKey::create(SDLK_LSHIFT,SDL_SCANCODE_LSHIFT, down, key.sym.mod));
-		} else if (!down && (lshift_pressed == rshift_pressed)) {
+		} else if (!down && (leftShiftPressed== rightShiftPressed)) {
 			processSdlKey(time, SDLKey::create(SDLK_LSHIFT,SDL_SCANCODE_LSHIFT, down, key.sym.mod));
 		}
 		return false;
