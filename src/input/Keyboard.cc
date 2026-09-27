@@ -47,8 +47,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <windows.h>
-#include <imm.h>
 #ifdef _MSC_VER
 #pragma comment(lib, "imm32")
 #endif
@@ -696,7 +694,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxcode2UnicodeCmd(commandController)
 	, unicode2MsxcodeCmd(commandController)
 	, capsLockAligner(eventDistributor, scheduler_)
+#if defined(_WIN32)
 	, imeManager(eventDistributor)
+#endif
 	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
@@ -2041,6 +2041,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime time)
 	}
 }
 
+#if defined(_WIN32)
 // class ImeManager
 
 /*  FOR WINDOWS:
@@ -2051,19 +2052,13 @@ Keyboard::ImeManager::ImeManager(
 		EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 {
-	for (auto type : { EventType::WINDOW }) {
-		eventDistributor.registerEventListener(type, *this);
-	}
-#if defined(_WIN32)
+	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 	hImc = 0;
-#endif
 }
 
 Keyboard::ImeManager::~ImeManager()
 {
-	for (auto type : { EventType::WINDOW }) {
-		eventDistributor.unregisterEventListener(type, *this);
-	}
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 }
 
 /*
@@ -2072,7 +2067,6 @@ Keyboard::ImeManager::~ImeManager()
  */
 bool Keyboard::ImeManager::signalEvent(const Event& event)
 {
-#if defined(_WIN32)
 	auto getWindow = [](const WindowEvent& e) -> HWND {
 		SDL_SysWMinfo info;
 		SDL_VERSION(&info.version);
@@ -2082,7 +2076,6 @@ bool Keyboard::ImeManager::signalEvent(const Event& event)
 		}
 		return nullptr;
 	};
-#endif
 
 	std::visit(overloaded{
 		[&](const WindowEvent& e) {
@@ -2092,21 +2085,17 @@ bool Keyboard::ImeManager::signalEvent(const Event& event)
 					auto& keyboard = OUTER(Keyboard, imeManager);
 					if (keyboard.keyboardSettings.getDisableIME()) {
 						// disable IME when focus is gained
-					#if defined(_WIN32)
 						auto hwnd = getWindow(e);
 						if (hwnd) {
 							hImc = ::ImmAssociateContext(hwnd, 0);
 						}
-					#endif
 					}
 				}
 				else if (evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-				#if defined(_WIN32)
 					auto hwnd = getWindow(e);
 					if (hwnd && hImc) {
 						hImc = ::ImmAssociateContext(hwnd, hImc);
 					}
-				#endif
 				}
 			}
 		},
@@ -2115,6 +2104,7 @@ bool Keyboard::ImeManager::signalEvent(const Event& event)
 
 	return false;
 }
+#endif
 
 // class KeybDebuggable
 

@@ -232,6 +232,7 @@ private:
 		} state = IDLE;
 	} capsLockAligner;
 
+#if defined(_WIN32)
 	class ImeManager final : private EventListener {
 	public:
 		ImeManager(EventDistributor& eventDistributor);
@@ -244,11 +245,10 @@ private:
 	private:
 		EventDistributor& eventDistributor;
 
-	#if defined(_WIN32)
 		HIMC hImc;
-	#endif
 
 	} imeManager;
+#endif
 
 	KeyboardSettings keyboardSettings;
 
