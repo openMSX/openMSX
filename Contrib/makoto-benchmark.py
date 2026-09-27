@@ -2,6 +2,8 @@
 
 Needs NumPy and the same firmware files as makoto-test.py. CPU timing uses
 GetProcessTimes on Windows; wall timing is reported on all platforms.
+The executable arguments must name trusted developer builds; this tool is not
+a sandbox for running untrusted executables.
 """
 import argparse
 import ctypes
@@ -68,6 +70,10 @@ def main():
         root = ET.fromstring(gzip.decompress(path.read_bytes()))
         return ET.tostring(root.find('.//device[@type="Makoto"]/sound'))
 
+    # The output name is fixed inside our fresh private run directory. Create
+    # it exclusively before starting either executable, then keep the handle;
+    # the final write does not resolve a path that a child could have replaced.
+    report = (out / 'results.json').open('x', encoding='utf-8')
     try:
         for label, exe in (('baseline', a.baseline), ('candidate', a.candidate)):
             directory = out / label
@@ -147,9 +153,12 @@ def main():
             results['summary'][mode] = {'median_seconds': medians,
                 'reduction_percent': 100 * (1 - medians['candidate'] / medians['baseline'])}
     finally:
-        for e in emulators.values():
-            e.close()
-        (out / 'results.json').write_text(json.dumps(results, indent=2))
+        try:
+            for e in emulators.values():
+                e.close()
+        finally:
+            with report:
+                json.dump(results, report, indent=2)
     print(out)
     print(json.dumps(results['audio'], indent=2))
     print(json.dumps(results['summary'], indent=2))
