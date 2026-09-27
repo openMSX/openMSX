@@ -36,7 +36,7 @@ def tcl_path(path):
 
 
 class Emulator:
-    def __init__(self, exe, out, firmware, rom, mapper, ips=None):
+    def __init__(self, exe, out, firmware, rom, mapper, ips=None, machine="Philips_NMS_8250"):
         exe = executable_path(exe)
         if mapper not in ('ASCII16', 'ASCII16-X', 'Yamanooto'):
             raise ValueError('Unsupported synthetic-test mapper')
@@ -51,7 +51,11 @@ class Emulator:
         self.log = []
         user = out / 'home/share'
         (user / 'systemroms').mkdir(parents=True)
-        for name in ('nms8250_basic-bios2.rom', 'nms8250_msx2sub.rom', 'nms8250_disk.rom'):
+        firmware_names = {
+            'Philips_NMS_8250': ('nms8250_basic-bios2.rom', 'nms8250_msx2sub.rom', 'nms8250_disk.rom'),
+            'Panasonic_FS-A1GT': ('fs-a1gt_firmware.rom', 'fs-a1gt_kanjifont.rom'),
+        }
+        for name in firmware_names[machine]:
             shutil.copy2(firmware / name, user / 'systemroms' / name)
         script = out / 'start.tcl'
         script.write_text("""set renderer none
@@ -77,7 +81,7 @@ after realtime 0.01 poll_test
         env = dict(os.environ, OPENMSX_HOME=str(out / 'home'), OPENMSX_USER_DATA=str(user),
                    OPENMSX_SYSTEM_DATA=str(ROOT / 'share'), ROM_TEST_DIR=str(out),
                    SDL_VIDEODRIVER='dummy', SDL_AUDIODRIVER='dummy')
-        args = [str(exe), '-machine', 'Philips_NMS_8250', '-cart', str(rom), '-romtype', mapper]
+        args = [str(exe), '-machine', machine, '-cart', str(rom), '-romtype', mapper]
         if ips:
             args += ['-ips', str(ips)]
         args += ['-script', str(script)]

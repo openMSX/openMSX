@@ -1,4 +1,4 @@
-"""Makoto channel isolation, analogue filtering, RAM and legacy-state checks."""
+"""Makoto channel isolation, RAM and legacy-state checks."""
 import argparse, array, importlib.util, json, math, tempfile, time, wave
 from pathlib import Path
 import numpy as np
@@ -129,7 +129,7 @@ for variant, exe in variants:
   xml=gzip.decompress(saved.read_bytes())
   import re
   assert b"<coreFormat>" not in xml
-  changed,n = re.subn(rb'(<sound\b[^>]*\bversion=")4(")', rb'\g<1>999\2', xml)
+  changed,n = re.subn(rb'(<sound\b[^>]*\bversion=")[0-9]+(")', rb'\g<1>999\2', xml)
   assert n == 1
   unsupported.write_bytes(gzip.compress(changed))
   error=e.command("catch {restore_machine "+m.tcl_path(unsupported)+"} reason; set reason")
@@ -141,9 +141,9 @@ for variant, exe in variants:
     root=ET.fromstring(gzip.decompress(path.read_bytes()))
     return root,root.find('.//device[@type="Makoto"]/sound')
    legacy_root,legacy_sound=sound_state(legacy_path)
-   assert legacy_sound.get("version","1") in ("1","2","3")
+   assert legacy_sound.get("version","1") in ("1","2","3","4")
    deadlines=[int(x.text) for x in legacy_sound.findall("deadlines/item/time")]
-   if legacy_sound.get("version")=="3":
+   if legacy_sound.get("version") in ("3","4"):
     deadlines=[]
     for name in ("timerA","timerB"):
      node=legacy_sound.find(name+"/Schedulable/syncPoints/item/time/time")
@@ -192,14 +192,14 @@ for variant, exe in variants:
   metrics["ram"]="CPU readback in each 64KB quarter of 256KB x1-mode RAM passed"
  finally:e.close()
 if a.baseline:
- # Compare the fundamental, excluding square-wave harmonics and filter startup.
+ # Compare removal against a filtered baseline, excluding harmonics/startup.
  def fundamental(x,rate,f):
   t=np.arange(len(x))/rate
   return abs(np.sum(x[:,0]*np.hanning(len(x))*np.exp(-2j*np.pi*f*t)))
  for label,freq in (("high",125000/9),("low",1000)):
   got=fundamental(results["current"][label],results["current"]["rate"],freq)/fundamental(results["baseline"][label],results["baseline"]["rate"],freq)
   alpha=-math.expm1(-1e-6/(100000*47e-12))
-  expected=alpha/abs(1-(1-alpha)*np.exp(-2j*np.pi*freq/1e6))
+  expected=abs(1-(1-alpha)*np.exp(-2j*np.pi*freq/1e6))/alpha
   assert abs(got-expected)<.015,(label,got,expected)
   metrics[label+"_filter"]={"measured":got,"expected":float(expected)}
 (out/"results.json").write_text(json.dumps(metrics,indent=2))

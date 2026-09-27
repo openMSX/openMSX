@@ -14,7 +14,8 @@ by its designer; this is not a claim of fully hardware-validated emulation.
 - Standard `Makoto_volume` for the combined output, plus `makoto_psg_volume`
   for the physical SSG balance adjustment. The extra Master setting is removed.
 - All 16 voices exposed to openMSX's existing mute/record/channel-viewer tools.
-- A first-order analogue low-pass based on the 100k/47 pF summer feedback.
+- Standard host resampling; the cartridge summer filter is omitted after a
+  [blind listening and CPU comparison](makoto-filter-comparison.md).
 - Native debugger watchpoints and probe traces for I/O and IRQ analysis.
 
 The pinned YMFM source and BSD license are under `src/3rdparty/ymfm`.
@@ -74,12 +75,13 @@ The cartridge designer supplied the following details through the owner:
   feeds MSX SOUNDIN through 7.5k.
 - Rev 1.1 uses LMV358; Rev 1.2 uses NE5532. Pot taper is unspecified.
 
-The implementation models the confirmed digital wiring, relative gain and
-summer filter. The filter uses tau = 100k * 47 pF = 4.7 us (33.86 kHz corner),
-with an exact exponential step response at the 1 MHz core output rate. Filtering
-the individual voices is equivalent to filtering their sum because the filter
-is linear; this also allows the ordinary channel tools to work. The shared DAC
-clamp is applied before the filter, preserving the original mixed signal.
+The implementation models the confirmed digital wiring, relative gain and shared
+DAC clamp. The physical summer's 100k/47 pF feedback gives a 33.86 kHz low-pass
+corner; this additional filter is now omitted. The normal host resampler remains
+active. A blind test scored 6/12, while a local paired benchmark measured 16.86%
+less whole-process CPU in normal playback and 8.58% less with channel tools.
+These results motivated the tradeoff; they do not prove universal inaudibility.
+See the [comparison and limitations](makoto-filter-comparison.md).
 
 The amplifier's constant x1.23 is absorbed into listening normalization; output
 samples are not calibrated jack voltages. We do not invent board-revision
@@ -223,20 +225,20 @@ not been run locally. This is not a new real-board audio comparison.
 | 10 | ADPCM-B |
 | 11-16 | Bass drum, snare, cymbal, hi-hat, tom, rim shot |
 
-Normal playback filters the combined output and advances individual histories
-analytically between input changes. Separate-channel tools use per-voice filtering.
-Silent voices skip filter arithmetic and buffer writes; empty buffers are marked
-silent so openMSX can bypass downstream mixing/resampling work. Chip clocks,
-envelopes, noise and ADPCM continue running. This is a conservative host-side
-optimization and does not fix late updates caused by an overloaded emulated Z80.
+Normal playback uses the combined YMFM FM/ADPCM and SSG output directly.
+Separate-channel tools reuse per-voice targets until an input changes. Empty
+buffers are marked silent so openMSX can bypass downstream mixing/resampling
+work. Chip clocks, envelopes, noise and ADPCM continue running. This saves host
+CPU and does not fix late updates caused by an overloaded emulated Z80.
 
 Makoto sound-state version 3 stores two native scheduled timers and uses the
 ordinary openMSX class version to identify the pinned YMFM state layout.
 Versions 1 and 2 shipped in public preview builds and still load: their absolute
 timer deadlines are migrated without restarting the counters. Version 2's
 `coreFormat` identifier is accepted only for its supported value (1).
-Version 1 lacks filter and voice histories; they start at zero and refill at
-the next FM update. Current states retain those histories.
+Version 1 lacks voice histories; they start at zero and refill at the next FM
+update. Current fork version 5 retains voice caches but omits filter histories.
+Versions 2-4 still load; their obsolete filter histories are read and discarded.
 A future core-layout change must bump the sound-state version and provide a
 migration/legacy decoder rather than guessing compatibility from byte count.
 The core regression pins a deterministic old-format state fingerprint as well
@@ -359,8 +361,9 @@ The comparison changes prescalers and SSG gain during playback. Timer/IRQ,
 percussion, debugger, 256 KiB RAM and legacy-state regression tests also pass.
 Reproduce with `Contrib/makoto-benchmark.py --baseline ... --candidate ...
 --firmware-dir ...`; see [raw results](makoto-performance-results.json).
-The 1 MHz MAX-fidelity stream and 34 kHz summer filter remain in use. Broader
-sample-rate or filter changes still need separate measurements and listening.
+That earlier comparison retained the 1 MHz stream and 34 kHz filter. The later
+[filter-removal comparison](makoto-filter-comparison.md) retains the stream but
+removes the filter, with separate CPU measurements and a completed blind test.
 
 ## Test-tool report safety
 
