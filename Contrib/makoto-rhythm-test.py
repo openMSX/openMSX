@@ -30,10 +30,10 @@ def main():
     source = source[source.index("{") + 1:source.index("}")]
     data = bytes(int(x, 16) for x in re.findall(r"0x([0-9a-fA-F]+)", source))
     assert len(data) == 8192
-    assert hashlib.sha1(data).hexdigest() == "50b6c3e288eaa12ad275d4f323267bb72b0445df"
+    assert hashlib.sha256(data).hexdigest() == "53afd0fa9c62eda3e2be939e23f3adf48a2af8ad37bb1640261726c5d5adeba8"
     rom = out / "test.rom"
     rom.write_bytes(m.image(0x38))
-    results = {"sample_sha1": hashlib.sha1(data).hexdigest(), "voices": {}}
+    results = {"sample_sha256": hashlib.sha256(data).hexdigest(), "voices": {}}
     e = m.Emulator(args.openmsx, out, args.firmware_dir, rom, "ASCII16")
 
     def write(reg, value):

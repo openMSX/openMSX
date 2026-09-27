@@ -361,3 +361,14 @@ Reproduce with `Contrib/makoto-benchmark.py --baseline ... --candidate ...
 --firmware-dir ...`; see [raw results](makoto-performance-results.json).
 The 1 MHz MAX-fidelity stream and 34 kHz summer filter remain in use. Broader
 sample-rate or filter changes still need separate measurements and listening.
+
+## Test-tool report safety
+
+The rhythm test uses SHA-256 to identify the pinned sample data. Historical
+CRC32/SHA1 values remain in the provenance note for comparison with upstream.
+The benchmark creates `results.json` exclusively inside its fresh run directory
+before launching the emulators and keeps that file handle through cleanup.
+No CLI option selects the report path, and the final write does not re-resolve
+it. `Contrib/makoto-tools-test.py` checks refusal to overwrite an existing or
+linked file and report cleanup after a launch failure. As with any developer
+test harness, executable arguments must point to builds the developer trusts.
