@@ -1072,7 +1072,7 @@ uint8_t ym2608::read_data()
 //  register
 //-------------------------------------------------
 
-uint8_t ym2608::read_status_hi()
+uint8_t ym2608::status_hi() const
 {
 	// fetch regular status
 	uint8_t status = m_fm.status() & ~(STATUS_ADPCM_B_EOS | STATUS_ADPCM_B_BRDY | STATUS_ADPCM_B_PLAYING);
@@ -1088,6 +1088,13 @@ uint8_t ym2608::read_status_hi()
 
 	// turn off any bits that have been requested to be masked
 	status &= ~(m_flag_control & 0x1f);
+
+	return status;
+}
+
+uint8_t ym2608::read_status_hi()
+{
+	uint8_t status = status_hi();
 
 	// update the status so that IRQs are propagated
 	m_fm.set_reset_status(status, ~status);
@@ -1141,6 +1148,53 @@ uint8_t ym2608::read(uint32_t offset)
 			break;
 	}
 	return result;
+}
+
+
+// Debugger reads deliberately bypass read_status_hi()'s IRQ update and the
+// ADPCM data port's dummy reads, address advancement and flag changes.
+uint8_t ym2608::peek(uint32_t offset)
+{
+	switch (offset & 3)
+	{
+		case 0:
+			return read_status(); // already side-effect-free
+		case 1:
+			if (m_address < 0x10)
+				return m_ssg.peek(m_address);
+			return (m_address == 0xff) ? 1 : 0;
+		case 2:
+			return status_hi() | (m_fm.intf().ymfm_is_busy() ? fm_engine::STATUS_BUSY : 0);
+		case 3:
+			return ((m_address & 0xff) < 0x10) ? m_adpcm_b.peek(m_address & 0x0f) : 0;
+	}
+	return 0;
+}
+
+// openMSX: normal port-write behavior without disturbing a pending CPU write.
+void ym2608::write_register(uint16_t regnum, uint8_t data)
+{
+	uint16_t saved_address = m_address;
+	uint32_t port = (regnum & 0x100) ? 2 : 0;
+	write(port, uint8_t(regnum));
+	write(port + 1, data);
+	m_address = saved_address;
+}
+
+uint8_t ym2608::peek_register(uint16_t regnum) const
+{
+	assert(regnum < 0x200);
+	if (regnum < 0x10)
+		return m_ssg.regs().read(regnum);
+	if (regnum < 0x20)
+		return m_adpcm_a.regs().read(regnum & 0x0f);
+	if (regnum == 0x29)
+		return m_irq_enable;
+	if (regnum >= 0x100 && regnum < 0x110)
+		return m_adpcm_b.regs().read(regnum & 0x0f);
+	if (regnum == 0x110)
+		return m_flag_control;
+	return m_fm.regs().read(regnum);
 }
 
 

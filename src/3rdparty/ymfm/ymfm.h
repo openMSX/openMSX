@@ -551,6 +551,10 @@ public:
 	// of the chip; our responsibility is to provide the data requested
 	virtual uint8_t ymfm_external_read(access_class type, uint32_t address) { return 0; }
 
+	// Debugger-only external reads. Hosts may override this to inspect memory or
+	// I/O without side effects; never fall back to the ordinary read callback.
+	virtual uint8_t ymfm_external_peek(access_class type, uint32_t address) { return 0xff; }
+
 	// the chip implementation calls this whenever data is written outside
 	// of the chip; our responsibility is to pass the written data on to any consumers
 	virtual void ymfm_external_write(access_class type, uint32_t address, uint8_t data) { }

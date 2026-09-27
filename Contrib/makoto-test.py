@@ -179,9 +179,21 @@ def main():
   step(.002);assert read(0x16)&2;irq(True);passed.append('Timer B period and overflow')
   write(0x27,0x30);step(.001);assert read(0x16)&3==0;irq(False);passed.append('Stopping timers cancels scheduled overflows')
   passed.append('Both timers raise MSX CPU IRQ; acknowledge and cancellation release it')
+  write(0x24,0xfe);write(0x25,0);write(0x26,0xf0);write(0x27,0x0f)
+  write(0x27,0x1a) # stop/ack A while B keeps running
+  step(.005);assert read(0x16)&3==2;irq(True)
+  write(0x27,0x30);irq(False)
+  passed.append('Cancelling timer A leaves independently scheduled timer B running')
   write(0,0x40);write(1,0);write(7,0x3e);write(8,15)
   assert e.command('debug read {Makoto registers} 8')=='15'
-  write(0x24,0xf0);write(0x25,0);write(0x27,5)
+  # Inspect effective core values, including ID, special masks and latched FM.
+  e.command('debug write ioports 20 255');assert read(0x15)==1
+  write(0xa4,0x22);write(0xa0,0x69);write(0xa4,0x35)
+  assert e.command('debug read {Makoto registers} 164')=='34'
+  write(0xa0,0x70);assert e.command('debug read {Makoto registers} 164')=='53'
+  assert e.command('debug read {Makoto registers} 41')=='131'
+  passed.append('Debugger exposes core ID, IRQ mask and effective latched FM registers')
+  write(0x24,0xf0);write(0x25,0);write(0x26,0xf0);write(0x27,0x0f)
   state=snapshot('before'); before=core(state);assert before
   for _ in range(30):read(0x16)
   assert core(snapshot('after-peek'))==before;passed.append('Debugger peeks preserve the entire chip state')
@@ -189,7 +201,18 @@ def main():
   e.command('set old [machine]; set new [restore_machine '+tcl_path(state)+']; delete_machine $old; activate_machine $new')
   step(.123);actual=core(snapshot('actual'))
   assert actual==expected,'Chip/timer state diverged after restore'
-  passed.append('Save/restore resumes the same chip, RAM, BUSY and timer state')
+  passed.append('Save/restore resumes the same chip, RAM, BUSY and both active timers')
+  # Exercise native watchpoints with real Z80 OUT instructions.
+  write(0x27,0x30)
+  e.command('set makoto_write_watch [debug watchpoint create -type write_io -address {0x14 0x17} -command {debug trace add Makoto.IO [format "%02X=%02X" [expr {$::wp_last_address & 255}] $::wp_last_value] -type string}]; debug trace probe Makoto.IRQ')
+  code=bytes.fromhex('f3 3e 08 d3 14 3e 0f d3 15 c3 09 c1')
+  e.command('debug write_block memory 0xc100 [binary decode hex {'+code.hex()+'}]; reg PC 0xc100')
+  step(.001)
+  assert e.command('lmap item [debug trace list Makoto.IO] {lindex $item 1}') == '14=08 15=0F'
+  write(0x27,5);step(.003)
+  assert int(e.command('llength [debug trace list Makoto.IRQ]')) >= 1
+  e.command('debug watchpoint remove $makoto_write_watch; debug trace drop Makoto.IRQ; debug trace drop Makoto.IO')
+  passed.append('Native I/O watchpoints and IRQ probe tracing work without device file tracing')
   e.command('reset');step(.01);assert read(0x16)&3==0;passed.append('MSX reset stops OPNA timers')
  finally:e.close()
  (out/'results.json').write_text(json.dumps({'passed':passed},indent=2));print(out);print('\n'.join(passed))

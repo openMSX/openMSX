@@ -11,14 +11,28 @@ Local patches:
    before the same aggregate DAC clamp. The original mixed path remains available.
    No clocks, envelopes, operator calculations or raw core state fields change.
    SSG separation is used only at MAX fidelity, whose prescalers repeat samples.
+3. Add explicit YM2608 port peeks, effective register accessors and safe SSG /
+   ADPCM external-peek callbacks for debugger use. Normal read/write semantics
+   and serialized core fields are unchanged. Hosts/SSG overrides without a
+   peek callback return FFh rather than calling a potentially destructive read.
+   Contrib/makoto-peek-test.cc checks values against cloned-core real reads and
+   proves that peeks leave chip state and host side effects untouched.
+
+
+4. Add a debugger register-write helper that uses normal port semantics but
+   restores the CPU address latch afterward. The host synchronizes audio first.
+   Contrib/makoto-register-test.py compares full chip state with equivalent I/O
+   writes, including timers, ADPCM RAM and prescalers. No serialized fields change.
 
 Contrib/makoto-core-test.cc compares both paths, including chip state, for
 360,000 samples covering all 16 voices and all three prescalers. It also pins a
 1133-byte reference state (FNV-1a 4faf7577). This fingerprint is a regression
 check, not a security checksum.
 
-Makoto core format 1 is the raw state layout from this pinned revision. The
-host wrapper explicitly records the core format separately from its component
-version. Future upgrades must keep a reader/converter for format 1; byte count
-alone is not a sufficient compatibility check. Host filter and voice caches
-are separately serialized and do not change the pinned raw core format.
+Makoto sound-state versions 1 through 4 use this pinned raw YMFM layout.
+Version 3 uses native openMSX class versioning; legacy version 2 additionally
+stored coreFormat=1, which the compatibility reader validates. Future core
+upgrades must bump the sound-state version and retain an appropriate reader
+or converter; byte count alone is not a sufficient compatibility check.
+Version 4 drops redundant host register/latch copies; legacy copies are ignored
+after reading them. Host filter and voice caches are separately serialized.
