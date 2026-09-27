@@ -96,7 +96,11 @@ MappedFileImpl::MappedFileImpl(LocalFile& file, size_t extra, bool is_const)
 	// Fallback, OS without mmap() (including Windows)
 	ptr = malloc(sz);
 	alloc = true;
+	// Like mmap(), read from the start without changing the file position.
+	auto oldPosition = file.getPos();
+	file.seek(0);
 	file.read({static_cast<uint8_t*>(ptr), fileSize});
+	file.seek(oldPosition);
 	memset(static_cast<uint8_t*>(ptr) + fileSize, 0, extra);
 #endif
 }

@@ -548,6 +548,7 @@ test_sources = files(
     'unittest/Keys_test.cc',
     'unittest/Math_test.cc',
     'unittest/MemoryBufferFile.cc',
+    'unittest/MappedFile_test.cc',
     'unittest/MemoryBufferFile_test.cc',
     'unittest/ObjectPool_test.cc',
     'unittest/PlotterFont_test.cc',
