@@ -156,22 +156,29 @@ def main():
   return ET.tostring(root.find('.//device[@type="Makoto"]/sound'))
  try:
   e.command('set pause on; ext Makoto')
-  assert e.command('set makoto_master_volume')=='50'
+  assert e.command('set Makoto_volume')=='75'
+  assert e.command('info exists makoto_master_volume')=='0'
   assert e.command('set makoto_psg_volume')=='50'
-  passed.append('Master defaults to 50 percent and SSG to 50 percent')
+  passed.append('Standard device volume defaults to 75 percent and SSG to 50 percent')
   write(7,63)
   assert read(0x14)&128 and read(0x16)&128
   step(.0001);assert not(read(0x14)&128 or read(0x16)&128);passed.append('BUSY appears on both status ports and expires')
-  write(0x29,0x80);write(0x110,0x1c)
+  write(0x29,0x83);write(0x110,0x1c)
+  pending_irq = int(e.command('debug probe read z80.pendingIRQ'))
+  def irq(expected):
+   assert int(e.command('debug probe read Makoto.IRQ')) == int(expected)
+   assert int(e.command('debug probe read z80.pendingIRQ')) == pending_irq + int(expected)
+  irq(False)
   write(0x24,0xfe);write(0x25,0);write(0x27,5) # 8*144/8MHz=144us
   step(.00010);assert read(0x16)&1==0
-  step(.00006);assert read(0x16)&1==1
-  write(0x27,0x15);assert read(0x16)&1==0
+  step(.00006);assert read(0x16)&1==1;irq(True)
+  write(0x27,0x15);assert read(0x16)&1==0;irq(False)
   step(.00016);assert read(0x16)&1==1;passed.append('Timer A period, sticky overflow, acknowledge and reload')
   write(0x27,0x30);write(0x26,0xf0);write(0x27,0x0a) # 16 timer-B steps, allowing its free-running divider phase
   step(.003);assert read(0x16)&2==0
-  step(.002);assert read(0x16)&2;passed.append('Timer B period and overflow')
-  write(0x27,0x30);step(.001);assert read(0x16)&3==0;passed.append('Stopping timers cancels scheduled overflows')
+  step(.002);assert read(0x16)&2;irq(True);passed.append('Timer B period and overflow')
+  write(0x27,0x30);step(.001);assert read(0x16)&3==0;irq(False);passed.append('Stopping timers cancels scheduled overflows')
+  passed.append('Both timers raise MSX CPU IRQ; acknowledge and cancellation release it')
   write(0,0x40);write(1,0);write(7,0x3e);write(8,15)
   assert e.command('debug read {Makoto registers} 8')=='15'
   write(0x24,0xf0);write(0x25,0);write(0x27,5)
