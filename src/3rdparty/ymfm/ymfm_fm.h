@@ -413,6 +413,7 @@ public:
 
 	// return a reference to our registers
 	RegisterType &regs() { return m_regs; }
+	const RegisterType &regs() const { return m_regs; }
 
 	// invalidate any caches
 	void invalidate_caches() { m_modified_channels = RegisterType::ALL_CHANNELS; }

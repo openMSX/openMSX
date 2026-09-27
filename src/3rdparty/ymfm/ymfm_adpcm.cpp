@@ -562,6 +562,16 @@ void adpcm_b_channel::output(ymfm_output<NumOutputs> &output, uint32_t rshift) c
 //  read - handle special register reads
 //-------------------------------------------------
 
+uint8_t adpcm_b_channel::peek(uint32_t regnum) const
+{
+	// Observe the next CPU read without consuming dummy reads, advancing RAM,
+	// changing EOS/BRDY or invoking a potentially destructive host read.
+	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() &&
+		m_regs.external() && m_dummy_read == 0)
+		return m_owner.intf().ymfm_external_peek(ACCESS_ADPCM_B, m_curaddress);
+	return 0;
+}
+
 uint8_t adpcm_b_channel::read(uint32_t regnum)
 {
 	uint8_t result = 0;

@@ -56,6 +56,7 @@ public:
 
 	// read/write to the SSG registers
 	virtual uint8_t ssg_read(uint32_t regnum) = 0;
+	virtual uint8_t ssg_peek(uint32_t regnum) { return 0xff; }
 	virtual void ssg_write(uint32_t regnum, uint8_t data) = 0;
 
 	// notification when the prescale has changed
@@ -116,7 +117,7 @@ public:
 	void save_restore(ymfm_saved_state &state);
 
 	// direct read/write access
-	uint8_t read(uint32_t index) { return m_regdata[index]; }
+	uint8_t read(uint32_t index) const { return m_regdata[index]; }
 	void write(uint32_t index, uint8_t data) { m_regdata[index] = data; }
 
 	// system-wide registers
@@ -175,6 +176,7 @@ public:
 
 	// read/write to the SSG registers
 	uint8_t read(uint32_t regnum);
+	uint8_t peek(uint32_t regnum) const;
 	void write(uint32_t regnum, uint8_t data);
 
 	// return a reference to our interface
@@ -182,6 +184,7 @@ public:
 
 	// return a reference to our registers
 	ssg_registers &regs() { return m_regs; }
+	const ssg_registers &regs() const { return m_regs; }
 
 	// true if we are overridden
 	bool overridden() const { return (m_override != nullptr); }

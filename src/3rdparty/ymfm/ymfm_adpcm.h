@@ -91,6 +91,7 @@ public:
 	}
 
 	// direct read/write access
+	uint8_t read(uint32_t index) const { return m_regdata[index]; }
 	void write(uint32_t index, uint8_t data) { m_regdata[index] = data; }
 
 	// system-wide registers
@@ -202,6 +203,7 @@ public:
 
 	// return a reference to our registers
 	adpcm_a_registers &regs() { return m_regs; }
+	const adpcm_a_registers &regs() const { return m_regs; }
 
 private:
 	// internal state
@@ -263,6 +265,7 @@ public:
 	void save_restore(ymfm_saved_state &state);
 
 	// direct read/write access
+	uint8_t read(uint32_t index) const { return m_regdata[index]; }
 	void write(uint32_t index, uint8_t data) { m_regdata[index] = data; }
 
 	// system-wide registers
@@ -330,6 +333,7 @@ public:
 
 	// handle special register reads
 	uint8_t read(uint32_t regnum);
+	uint8_t peek(uint32_t regnum) const;
 
 	// handle special register writes
 	void write(uint32_t regnum, uint8_t value);
@@ -386,6 +390,7 @@ public:
 
 	// read from the ADPCM-B registers
 	uint32_t read(uint32_t regnum) { return m_channel->read(regnum); }
+	uint8_t peek(uint32_t regnum) const { return m_channel->peek(regnum); }
 
 	// write to the ADPCM-B registers
 	void write(uint32_t regnum, uint8_t data);
@@ -398,6 +403,7 @@ public:
 
 	// return a reference to our registers
 	adpcm_b_registers &regs() { return m_regs; }
+	const adpcm_b_registers &regs() const { return m_regs; }
 
 private:
 	// internal state

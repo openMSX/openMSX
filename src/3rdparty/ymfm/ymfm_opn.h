@@ -538,6 +538,11 @@ public:
 	uint8_t read_data_hi();
 	uint8_t read(uint32_t offset);
 
+	// Debugger access: no audio clocks, IRQ updates or sample read side effects.
+	uint8_t peek(uint32_t offset);
+	// Effective core registers, not a history of writes (FM pairs are latched).
+	uint8_t peek_register(uint16_t regnum) const;
+
 	// write access
 	void write_address(uint8_t data);
 	void write_data(uint8_t data);
@@ -548,6 +553,9 @@ public:
 	// openMSX: optional 16-channel output cache, owned/serialized by the host.
 	// FM 0-5, SSG 6-8, ADPCM-B 9, rhythm 10-15; stereo pairs.
 	void set_channel_output(int32_t *output) { m_channel_output = output; }
+	// openMSX: debugger writes use normal register semantics, preserving the
+	// program's address latch. Address-only prescaler writes still take effect.
+	void write_register(uint16_t regnum, uint8_t data);
 	bool channel_output_changed() const { return m_channel_output_changed; }
 	const ssg_engine::output_data &ssg_output() const { return m_ssg_resampler.last_output(); }
 
@@ -555,6 +563,9 @@ public:
 	void generate(output_data *output, uint32_t numsamples = 1);
 
 protected:
+	// Status without BUSY or IRQ propagation.
+	uint8_t status_hi() const;
+
 	// internal helpers
 	void update_prescale(uint8_t prescale);
 	void clock_fm_and_adpcm();

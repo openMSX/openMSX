@@ -234,6 +234,17 @@ void ssg_engine::output(output_data &output)
 //  read - handle reads from the SSG registers
 //-------------------------------------------------
 
+uint8_t ssg_engine::peek(uint32_t regnum) const
+{
+	if (m_override != nullptr)
+		return m_override->ssg_peek(regnum);
+	if (regnum == 0x0e && !m_regs.io_a_out())
+		return m_intf.ymfm_external_peek(ACCESS_IO, 0);
+	if (regnum == 0x0f && !m_regs.io_b_out())
+		return m_intf.ymfm_external_peek(ACCESS_IO, 1);
+	return m_regs.read(regnum);
+}
+
 uint8_t ssg_engine::read(uint32_t regnum)
 {
 	// defer to the override if present
