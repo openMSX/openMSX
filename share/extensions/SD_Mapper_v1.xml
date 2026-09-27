@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>SD Mapper v1</name>
+    <manufacturer>Fabio Belavenuto</manufacturer>
+    <code/>
+    <release_year>2014</release_year>
+    <description>SD Mapper v1 (msxsdmapper): 128kB flash cartridge with two SD cards and 512kB memory mapper or MegaRAM. This is not the later, incompatible SD Mapper v2. With ram enabled the cartridge expands its slot (subslot 1 = flash/SPI, subslot 3 = RAM) and must be inserted in an unexpanded primary slot. Set ram to false to use only the SD interface, including in an expanded slot.</description>
+    <type>SD Mapper v1</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <SdMapperV1 id="SD Mapper v1">
+          <mem base="0x0000" size="0x10000"/>
+          <rom>
+            <!-- sdmapper.rom Driver 1.0.7 Nextor 2.1.2 -->
+            <sha1>26de5eeef26ffb48a233b7844076e341c7f0685f</sha1>
+            <filename>sdmapper.rom</filename>
+          </rom>
+          <!-- ram: false disables the slot expander and the 512kB SRAM -->
+          <ram>true</ram>
+          <!-- mode: mapper ($FC-$FF) or megaram ($8E/$8F). Ignored when ram is false. -->
+          <mode>mapper</mode>
+          <sdcard1>
+            <filename>sdmapperv1-1.sdc</filename>
+            <size>32</size>
+          </sdcard1>
+          <sdcard2>
+            <filename>sdmapperv1-2.sdc</filename>
+            <size>32</size>
+          </sdcard2>
+        </SdMapperV1>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

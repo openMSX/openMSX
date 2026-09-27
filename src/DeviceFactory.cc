@@ -81,6 +81,7 @@
 #include "SVIPSG.hh"
 #include "SVIPrinterPort.hh"
 #include "SanyoFDC.hh"
+#include "SdMapperV1.hh"
 #include "SensorKid.hh"
 #include "SpectravideoFDC.hh"
 #include "SunriseIDE.hh"
@@ -322,6 +323,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<CanonWordProcessor>(conf);
 	} else if (type == "MegaFlashRomSCCPlusSD") {
 		result = std::make_unique<MegaFlashRomSCCPlusSD>(conf);
+	} else if (type == "SdMapperV1") {
+		result = std::make_unique<SdMapperV1>(conf);
 	} else if (type == "MusicalMemoryMapper") {
 		result = std::make_unique<MusicalMemoryMapper>(conf);
 	} else if (type == "Carnivore2") {
