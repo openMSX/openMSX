@@ -7,13 +7,17 @@ from libraries import allDependencies, librariesByName
 from packages import getPackage
 from patch import Diff, patch
 
-from os import makedirs
+from os import makedirs, remove
 from os.path import isdir, isfile, join as joinpath
 from shutil import rmtree
+from time import sleep
 import sys
 
 # TODO: Make DirectX headers for MinGW a package and make the DirectX sound
 #       driver a component.
+
+NUM_DOWNLOAD_ATTEMPTS = 3
+DOWNLOAD_RETRY_DELAY = 5 # seconds
 
 def downloadPackage(package, tarballsDir):
 	if not isdir(tarballsDir):
@@ -27,14 +31,49 @@ def downloadPackage(package, tarballsDir):
 		downloadURL(package.getURL(), tarballsDir)
 
 def verifyPackage(package, tarballsDir):
+	'''Returns None if the tarball is intact, or a description of what is wrong
+	with it otherwise.
+	'''
 	filePath = joinpath(tarballsDir, package.getTarballName())
 	try:
 		verifyFile(filePath, package.fileLength, package.checksums)
 	except OSError as ex:
-		print('%s corrupt: %s' % (
-			package.getTarballName(), ex
-			), file=sys.stderr)
-		sys.exit(1)
+		return str(ex)
+	else:
+		return None
+
+def fetchPackage(package, tarballsDir):
+	'''Downloads the tarball and checks it, retrying a couple of times. A
+	download can simply fail, but a server can also hand out an error page
+	instead of the file, which only shows up when verifying it.
+	'''
+	filePath = joinpath(tarballsDir, package.getTarballName())
+	for attempt in range(NUM_DOWNLOAD_ATTEMPTS):
+		try:
+			downloadPackage(package, tarballsDir)
+		except OSError as ex:
+			problem = str(ex)
+		else:
+			problem = verifyPackage(package, tarballsDir)
+			if problem is None:
+				return
+			problem = 'corrupt: %s' % problem
+		# Throw it away, so that the next attempt downloads it again.
+		if isfile(filePath):
+			remove(filePath)
+		# Keep the order of the messages in the output intact.
+		sys.stdout.flush()
+		print('%s %s' % (package.getTarballName(), problem), file=sys.stderr)
+		if attempt + 1 != NUM_DOWNLOAD_ATTEMPTS:
+			print('Retrying in %d seconds (attempt %d of %d)' % (
+				DOWNLOAD_RETRY_DELAY, attempt + 2, NUM_DOWNLOAD_ATTEMPTS
+				), file=sys.stderr)
+			sys.stderr.flush()
+			sleep(DOWNLOAD_RETRY_DELAY)
+	print('Giving up on %s after %d attempts' % (
+		package.getTarballName(), NUM_DOWNLOAD_ATTEMPTS
+		), file=sys.stderr)
+	sys.exit(1)
 
 def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 	if not isdir(sourcesDir):
@@ -57,8 +96,7 @@ def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 
 def fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir):
 		package = getPackage(makeName)
-		downloadPackage(package, tarballsDir)
-		verifyPackage(package, tarballsDir)
+		fetchPackage(package, tarballsDir)
 		extractPackage(package, tarballsDir, sourcesDir, patchesDir)
 
 def main(platform, tarballsDir, sourcesDir, patchesDir):
