@@ -1,4 +1,4 @@
-"""Makoto's built-in percussion, external override and mid-voice save tests."""
+"""Makoto's fixed built-in percussion and mid-voice save tests."""
 import argparse
 import gzip
 import hashlib
@@ -117,34 +117,6 @@ def main():
         assert np.max(abs(samples.astype(float))) <= 1
         results["controls"] = "All six channel mutes, left/right pan and key-off passed"
         results["save"] = "Mid-cymbal restoration gives identical full chip state after 60 ms"
-        # An external zero-filled ROM must override, not silently use built-in data.
-        e.command("remove_extension Makoto")
-        extdir = out / "home/share/extensions"
-        extdir.mkdir(parents=True, exist_ok=True)
-        override = out / "override.bin"
-        override.write_bytes(bytes(8192))
-        config = (ROOT / "share/extensions/Makoto.xml").read_text()
-        config = config.replace('<io base="0x14" num="4"/>',
-                                '<io base="0x14" num="4"/><rom><filename>' +
-                                override.as_posix() + '</filename></rom>')
-        (extdir / "MakotoOverride.xml").write_text(config)
-        e.command("ext MakotoOverride; set Makoto_volume 20")
-        write(0x11, 0x3f)
-        overridden = record("external-override", 0)
-        # The zero ADPCM codes produce a different waveform from the bass sample.
-        with wave.open(str(out / "bass.wav")) as wav:
-            original = np.frombuffer(wav.readframes(wav.getnframes()), dtype="<i2").reshape(-1, 2).astype(float)
-        ratio = float(np.sqrt(np.mean(overridden ** 2)) / np.sqrt(np.mean(original ** 2)))
-        assert abs(ratio - 1) > .1, ratio
-        custom = out / "external.oms"
-        save(custom)
-        restore(custom)
-        results["external_override"] = {"restored": True, "rms_ratio_to_builtin": ratio}
-        e.command("remove_extension MakotoOverride")
-        override.write_bytes(bytes(8191))
-        error = e.command("catch {ext MakotoOverride} reason; set reason")
-        assert "8192" in error, error
-        results["wrong_size"] = "8191-byte external rhythm ROM rejected"
     finally:
         e.close()
     (out / "results.json").write_text(json.dumps(results, indent=2))

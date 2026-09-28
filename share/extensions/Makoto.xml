@@ -14,7 +14,7 @@
    <!-- Listening normalization includes the former 50% master default.
         The standard Makoto_volume slider now controls the combined output. -->
    <sound><volume>96000</volume></sound>
-   <!-- Internal rhythm samples are built in. Optional 8192-byte override: <rom><filename>ym2608_adpcm_rom.bin</filename></rom> -->
+   <!-- The YM2608 internal rhythm samples are fixed and built in. -->
   </Makoto>
  </devices>
 </msxconfig>
