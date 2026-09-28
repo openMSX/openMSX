@@ -62,7 +62,12 @@ class Emulator:
 set throttle off
 set save_settings_on_exit false
 set mute on
+proc bgerror {message} {
+    puts stderr "Makoto test callback failed: $message\n$::errorInfo"
+    flush stderr
+}
 proc poll_test {} {
+    after realtime 0.01 poll_test
     set request [file join $::env(ROM_TEST_DIR) request.tcl]
     if {[file exists $request]} {
         set f [open $request r];set script [read $f];close $f
@@ -74,7 +79,6 @@ proc poll_test {} {
         close $f
         file rename [file join $::env(ROM_TEST_DIR) response.tmp] [file join $::env(ROM_TEST_DIR) response.txt]
     }
-    after realtime 0.01 poll_test
 }
 after realtime 0.01 poll_test
 """)
@@ -206,6 +210,16 @@ def main():
   step(.123);actual=core(snapshot('actual'))
   assert actual==expected,'Chip/timer state diverged after restore'
   passed.append('Save/restore resumes the same chip, RAM, BUSY and both active timers')
+  # Native rewind uses the positional in-memory serializer, unlike XML saves.
+  e.command('reverse start')
+  step(.6)
+  rewind_time=e.command('machine_info time')
+  rewind_before=core(snapshot('rewind-before'))
+  step(.6)
+  e.command('reverse goto '+rewind_time)
+  assert core(snapshot('rewind-after'))==rewind_before,'Native rewind changed Makoto state'
+  e.command('reverse stop')
+  passed.append('Native in-memory rewind restores active timers and complete Makoto state')
   # Exercise native watchpoints with real Z80 OUT instructions.
   write(0x27,0x30)
   e.command('set makoto_write_watch [debug watchpoint create -type write_io -address {0x14 0x17} -command {debug trace add Makoto.IO [format "%02X=%02X" [expr {$::wp_last_address & 255}] $::wp_last_value] -type string}]; debug trace probe Makoto.IRQ')

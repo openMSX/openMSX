@@ -101,10 +101,10 @@ source revision, checksums and attribution are in
 engine and requires no user-supplied sample file. This does not affect the
 cartridge's separate 256 KiB ADPCM-B RAM.
 
-The optional `<rom><filename>ym2608_adpcm_rom.bin</filename></rom>` entry still
-overrides the built-in table and must contain exactly 8192 bytes. Older saved
-machines with this entry continue to use their external ROM; those without it
-now use the built-in samples. Core state and save-state version are unchanged.
+The rhythm samples are internal to the YM2608, not a replaceable ROM on the
+Makoto cartridge. The upstream device always uses the built-in reconstruction;
+there is no external rhythm-ROM setting. The development fork retains an
+override for experiments and compatibility with its earlier saved machines.
 The Illusion City opening tests use FM and SSG, so this change does not alter
 their instruments or timing.
 
@@ -226,32 +226,32 @@ not been run locally. This is not a new real-board audio comparison.
 | 11-16 | Bass drum, snare, cymbal, hi-hat, tom, rim shot |
 
 Normal playback uses the combined YMFM FM/ADPCM and SSG output directly.
-Separate-channel tools reuse per-voice targets until an input changes. Empty
-buffers are marked silent so openMSX can bypass downstream mixing/resampling
+Separate-channel tools reuse per-voice targets until an input changes. Whole-chip
+silent buffers are marked silent so openMSX can bypass downstream mixing/resampling
 work. Chip clocks, envelopes, noise and ADPCM continue running. This saves host
 CPU and does not fix late updates caused by an overloaded emulated Z80.
 
-Makoto sound-state version 3 stores two native scheduled timers and uses the
-ordinary openMSX class version to identify the pinned YMFM state layout.
-Versions 1 and 2 shipped in public preview builds and still load: their absolute
-timer deadlines are migrated without restarting the counters. Version 2's
-`coreFormat` identifier is accepted only for its supported value (1).
-Version 1 lacks voice histories; they start at zero and refill at the next FM
-update. Current fork version 5 retains voice caches but omits filter histories.
-Versions 2-4 still load; their obsolete filter histories are read and discarded.
+The upstream Makoto state format starts at version 1. Save and load serialize
+native timers, chip state, RAM, BUSY, IRQ, sample clock and voice caches in the
+same order. Compatibility with earlier public fork previews stays in the fork.
+Obsolete XML fields do not need to be read and discarded.
+
 A future core-layout change must bump the sound-state version and provide a
 migration/legacy decoder rather than guessing compatibility from byte count.
 The core regression pins a deterministic old-format state fingerprint as well
 as checking exact mixed-output equivalence. Host resampler buffers remain outside
 the device state, so immediate WAV continuity after restore is not guaranteed.
 
+See the [2026-09-28 review follow-up](makoto-review-2026-09-28.md) for mixing,
+silence-detection, CPU and state-format validation.
+
 ## Reproducing the checks
 
 `Contrib/makoto-test.py` covers timers, CPU IRQs, peeks, reset and save/restore.
 `Contrib/makoto-integration-test.py` additionally tests channel isolation, stereo,
-CPU-driven x1-mode RAM transfers and optional older-state/filter comparisons.
+CPU-driven x1-mode RAM transfers and optional filter comparisons.
 It requires NumPy; use `--openmsx` and `--firmware-dir`, with optional
-`--legacy-state` and `--baseline` (the earlier gain-corrected binary). Both
+`--baseline` (the earlier gain-corrected binary). Both
 executables use the same extension configuration for the filter comparison.
 
 `Contrib/makoto-core-test.cc` needs no MSX firmware. Compile it as C++17 or newer
@@ -259,6 +259,12 @@ with `src/3rdparty/ymfm/ymfm_opn.cpp`, `ymfm_ssg.cpp`, `ymfm_adpcm.cpp`, and tha
 directory on the include path. It exercises all voices with synthetic data.
 The checks use synthetic programs, plus the public internal rhythm reconstruction;
 no game assets are included.
+
+## Historical fork development notes
+
+The following dated results describe public fork builds. Version numbers and
+legacy migration tests in this history are fork-specific; the upstream device
+starts at version 1 and does not load these preview sound-state formats.
 
 ## Timing cleanup, 2026-09-27
 
@@ -314,15 +320,16 @@ Makoto now supplies the public 8192-byte YM2608 rhythm reconstruction by default
 Previously the missing-ROM callback returned zero bytes; ADPCM zero codes are
 not silence, so software triggering percussion could receive an incorrect
 waveform. All six voices now receive their actual reconstructed sample data.
-External 8192-byte rhythm ROMs remain supported, including in older snapshots.
+The development fork retains external 8192-byte rhythm ROM support, including
+older snapshots. This override is omitted from the upstream device.
 The table is immutable and does not change the serialized core layout.
 
 `Contrib/makoto-rhythm-test.py` verifies the pinned sample checksum and records
 all six voices in an isolated emulator profile with no external rhythm ROM.
 It checks per-voice muting, stereo pan, key-off, and exact full chip-state
-continuation after restoring a snapshot taken during cymbal playback. It also
-checks that an external ROM really overrides the table, its snapshot restores,
-and an incorrectly sized override is rejected. This validates emulation paths;
+continuation after restoring a snapshot taken during cymbal playback. The fork
+additionally tests its external override and size validation. These tests validate
+emulation paths;
 it does not replace a percussion listening comparison with the physical board.
 
 Run it with the same `--openmsx` and `--firmware-dir` arguments as the other

@@ -1,0 +1,114 @@
+{
+  "emulated_seconds_per_run": 30.0,
+  "runs": [
+    {
+      "mode": "combined",
+      "build": "baseline",
+      "repeat": 0,
+      "wall_seconds": 5.155151699989801,
+      "cpu_seconds": 4.671875
+    },
+    {
+      "mode": "combined",
+      "build": "candidate",
+      "repeat": 0,
+      "wall_seconds": 4.92127600000822,
+      "cpu_seconds": 4.578125
+    },
+    {
+      "mode": "combined",
+      "build": "candidate",
+      "repeat": 1,
+      "wall_seconds": 4.926358299999265,
+      "cpu_seconds": 4.546875
+    },
+    {
+      "mode": "combined",
+      "build": "baseline",
+      "repeat": 1,
+      "wall_seconds": 5.132654900022317,
+      "cpu_seconds": 4.765625
+    },
+    {
+      "mode": "combined",
+      "build": "baseline",
+      "repeat": 2,
+      "wall_seconds": 4.884200700005749,
+      "cpu_seconds": 4.53125
+    },
+    {
+      "mode": "combined",
+      "build": "candidate",
+      "repeat": 2,
+      "wall_seconds": 4.928560499974992,
+      "cpu_seconds": 4.515625
+    },
+    {
+      "mode": "channel-tools",
+      "build": "baseline",
+      "repeat": 0,
+      "wall_seconds": 10.156939100008458,
+      "cpu_seconds": 9.515625
+    },
+    {
+      "mode": "channel-tools",
+      "build": "candidate",
+      "repeat": 0,
+      "wall_seconds": 8.063671900017653,
+      "cpu_seconds": 7.515625
+    },
+    {
+      "mode": "channel-tools",
+      "build": "candidate",
+      "repeat": 1,
+      "wall_seconds": 7.914003499987302,
+      "cpu_seconds": 7.46875
+    },
+    {
+      "mode": "channel-tools",
+      "build": "baseline",
+      "repeat": 1,
+      "wall_seconds": 9.517624700005399,
+      "cpu_seconds": 8.8125
+    },
+    {
+      "mode": "channel-tools",
+      "build": "baseline",
+      "repeat": 2,
+      "wall_seconds": 11.302485699998215,
+      "cpu_seconds": 10.75
+    },
+    {
+      "mode": "channel-tools",
+      "build": "candidate",
+      "repeat": 2,
+      "wall_seconds": 9.430960099998629,
+      "cpu_seconds": 8.671875
+    }
+  ],
+  "audio": {
+    "combined": "32768 PCM values and chip state (excluding unused SSG tap slots) match exactly",
+    "combined_vs_channel_tools": {
+      "pcm_values": 32768,
+      "max_delta": 0,
+      "different_values": 0
+    },
+    "channel-tools": "32768 PCM values and chip state (excluding unused SSG tap slots) match exactly"
+  },
+  "summary": {
+    "combined": {
+      "median_seconds": {
+        "baseline": 4.671875,
+        "candidate": 4.546875
+      },
+      "reduction_percent": 2.6755852842809347
+    },
+    "channel-tools": {
+      "median_seconds": {
+        "baseline": 9.515625,
+        "candidate": 7.515625
+      },
+      "reduction_percent": 21.018062397372738
+    }
+  }
+}

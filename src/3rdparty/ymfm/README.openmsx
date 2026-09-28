@@ -29,10 +29,7 @@ Contrib/makoto-core-test.cc compares both paths, including chip state, for
 1133-byte reference state (FNV-1a 4faf7577). This fingerprint is a regression
 check, not a security checksum.
 
-Makoto sound-state versions 1 through 4 use this pinned raw YMFM layout.
-Version 3 uses native openMSX class versioning; legacy version 2 additionally
-stored coreFormat=1, which the compatibility reader validates. Future core
-upgrades must bump the sound-state version and retain an appropriate reader
-or converter; byte count alone is not a sufficient compatibility check.
-Version 4 drops redundant host register/latch copies; legacy copies are ignored
-after reading them. Host filter and voice caches are separately serialized.
+The initial upstream Makoto sound-state format is version 1 and uses this pinned
+raw YMFM layout. Future core upgrades must version the layout and provide an
+appropriate reader; byte count alone does not establish compatibility.
+Fork preview-state migrations are maintained separately in the public fork.
