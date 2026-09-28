@@ -214,10 +214,12 @@ public:
 		return collisionY;
 	}
 
-	/** On a V99x8 the sprite status flags in S#0 go up during the line the
-	  * sprites are checked at, not at the end of that line: the collision
-	  * flag when the beam reaches the colliding pixel. Checks that for the
-	  * current line. Call after sync(), before S#0 is read.
+	/** On a V99x8 the 5th/9th sprite flag and the collision flag go up
+	  * during the line the sprites are checked at, not at the end of that
+	  * line: the 5th/9th sprite flag once the VDP has read the y-coordinate
+	  * of the sprite that doesn't fit, the collision flag when the beam
+	  * reaches the colliding pixel. Checks that for the current line. Call
+	  * after sync(), before S#0 is read.
 	  * @param time The moment in emulated time S#0 is read.
 	  */
 	void checkStatusEarly(EmuTime time);
@@ -237,6 +239,7 @@ public:
 		frameStartTime.reset(time);
 		currentLine = 0;
 		earlyCollisionLine = -1;
+		earlySpriteLine = -1;
 		std::ranges::fill(spriteCount, 0);
 		// TODO: Reset anything else? Does the real VDP?
 	}
@@ -411,6 +414,10 @@ private:
 	/** Sprites are checked up to and excluding this display line.
 	  */
 	int currentLine;
+
+	/** Line whose 5th/9th sprite checkStatusEarly() already flagged, or -1.
+	  */
+	int earlySpriteLine = -1;
 
 	/** Line whose collision checkStatusEarly() already flagged, or -1.
 	  */

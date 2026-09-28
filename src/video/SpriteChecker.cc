@@ -135,7 +135,7 @@ inline SpriteChecker::FillResult SpriteChecker::fillSprites1(int minLine, int ma
 			auto visibleIndex = spriteCount[line];
 			if (visibleIndex == 4) {
 				// Find earliest line where this condition occurs.
-				if (line < fifthSpriteLine) {
+				if (line < fifthSpriteLine && line != earlySpriteLine) {
 					fifthSpriteLine = line;
 					fifthSpriteNum = sprite;
 				}
@@ -317,7 +317,7 @@ inline SpriteChecker::FillResult SpriteChecker::fillSprites2(int minLine, int ma
 				auto visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
 					// Find earliest line where this condition occurs.
-					if (line < ninthSpriteLine) {
+					if (line < ninthSpriteLine && line != earlySpriteLine) {
 						ninthSpriteLine = line;
 						ninthSpriteNum = sprite;
 					}
@@ -362,7 +362,7 @@ inline SpriteChecker::FillResult SpriteChecker::fillSprites2(int minLine, int ma
 				auto visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
 					// Find earliest line where this condition occurs.
-					if (line < ninthSpriteLine) {
+					if (line < ninthSpriteLine && line != earlySpriteLine) {
 						ninthSpriteLine = line;
 						ninthSpriteNum = sprite;
 					}
@@ -512,43 +512,58 @@ std::optional<int> SpriteChecker::findCollision2(int line) const
 
 void SpriteChecker::checkStatusEarly(EmuTime time)
 {
-	// Measured on a V9958 with the sprite-collision loop the MSX2+ boot
-	// logo uses: the flag goes up when the beam is about 5 pixels past the
-	// colliding pixel. The TMS99xx was not measured, so it keeps flagging
-	// at the end of the line.
-	static constexpr int COLLISION_DELAY = 5; // pixels
+	// Not measured on the TMS99xx, so it keeps flagging at the end of the
+	// line.
 	if (vdp.isMSX1VDP()) return;
 	bool mode1 = updateSpritesMethod == &SpriteChecker::updateSprites1;
 	if (!mode1 && updateSpritesMethod != &SpriteChecker::updateSprites2) return;
-	if (!vdp.spritesEnabledFast() || !vdp.isDisplayEnabled()) return;
-	if (vdp.getStatusReg0() & 0x20) return;
+	if (!vdp.spritesEnabledFast()) return;
 	int ticks = narrow<int>(frameStartTime.getTicksTill(time));
 	int line = ticks / VDP::TICKS_PER_LINE;
-	if (line != currentLine || line == earlyCollisionLine) return;
-	int x = (ticks % VDP::TICKS_PER_LINE - vdp.getLeftSprites()) / 4
-	      - COLLISION_DELAY;
-	if (x < 0) return;
+	if (line != currentLine) return;
+	// as updateSprites1/2(): in the border only the last line of the top
+	// border is checked (for the first display line)
+	if (!vdp.isDisplayEnabled() && (line != vdp.getLineZero() - 1)) return;
+	uint8_t status = vdp.getStatusReg0();
+	bool wantSprite    = !(status & 0xC0) && (line != earlySpriteLine);
+	bool wantCollision = !(status & 0x20) && (line != earlyCollisionLine);
+	if (!wantSprite && !wantCollision) return;
 
-	std::optional<int> minXCollision;
-	if (mode1) {
-		fillSprites1(line, line + 1);
-		minXCollision = findCollision1(line);
-	} else {
-		fillSprites2(line, line + 1);
-		minXCollision = findCollision2(line);
-	}
+	int nthSprite = mode1 ? fillSprites1(line, line + 1).nthSprite
+	                      : fillSprites2(line, line + 1).nthSprite;
+	std::optional<int> minXCollision = mode1 ? findCollision1(line)
+	                                         : findCollision2(line);
 	spriteCount[line] = 0; // updateSprites1/2() fill this line again
-	if (!minXCollision || (*minXCollision > x)) return; // none, or the beam isn't there yet
+	int cycle = ticks % VDP::TICKS_PER_LINE;
 
-	vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
-	collisionX = *minXCollision + 12;
-	collisionY = line - vdp.getLineZero() + 8;
-	earlyCollisionLine = line;
+	// The VDP reads the y-coordinates of the 32 sprites one by one during
+	// the line, sprite n at cycle 182 + 32n in bitmap modes and at
+	// 226 + 32n in character modes, each read taking 6 cycles (see
+	// doc/internal/vdp-vram-timing). The 5th/9th sprite flag goes up once
+	// it has read the sprite that doesn't fit.
+	int firstRead = vdp.getDisplayMode().isBitmapMode() ? 182 : 226;
+	if (wantSprite && (nthSprite != -1) &&
+	    (cycle >= firstRead + 32 * nthSprite + 6)) {
+		vdp.setSpriteStatus(uint8_t(0x40 | (vdp.getStatusReg0() & 0x20) | nthSprite));
+		earlySpriteLine = line;
+	}
+
+	// Measured on a V9958 with the sprite-collision loop the MSX2+ boot
+	// logo uses: the collision flag goes up when the beam is about 5 pixels
+	// past the colliding pixel.
+	static constexpr int COLLISION_DELAY = 5; // pixels
+	int x = (cycle - vdp.getLeftSprites()) / 4 - COLLISION_DELAY;
+	if (wantCollision && minXCollision && (*minXCollision <= x)) {
+		vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
+		collisionX = *minXCollision + 12;
+		collisionY = line - vdp.getLineZero() + 8;
+		earlyCollisionLine = line;
+	}
 }
 
 // version 1: initial version
 // version 2: bug fix: also serialize 'currentLine'
-// version 3: added 'earlyCollisionLine'
+// version 3: added 'earlyCollisionLine' and 'earlySpriteLine'
 template<typename Archive>
 void SpriteChecker::serialize(Archive& ar, unsigned version)
 {
@@ -575,9 +590,12 @@ void SpriteChecker::serialize(Archive& ar, unsigned version)
 		currentLine = 0;
 	}
 	if (ar.versionAtLeast(version, 3)) {
-		ar.serialize("earlyCollisionLine", earlyCollisionLine);
+		ar.serialize("earlyCollisionLine", earlyCollisionLine,
+		             "earlySpriteLine",    earlySpriteLine);
 	} else {
-		earlyCollisionLine = -1; // older versions never flagged early
+		// older versions never flagged early
+		earlyCollisionLine = -1;
+		earlySpriteLine = -1;
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SpriteChecker);
