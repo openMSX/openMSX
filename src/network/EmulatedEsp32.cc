@@ -380,9 +380,7 @@ public:
 	// the methods below.
 	void pushRecv(std::span<const uint8_t> data) {
 		std::scoped_lock lock(recvMutex);
-		for (auto b : data) {
-			recvBuffer.push_back(b);
-		}
+		recvBuffer.push_back_range(data);
 	}
 	[[nodiscard]] size_t recvAvail() const {
 		std::scoped_lock lock(recvMutex);
@@ -898,19 +896,39 @@ void EmulatedEsp32::tcpAcceptClient(Connection* conn) const
 	conn->state = 2; // open -> ESTABLISHED
 }
 
+// The generic openMSX socket helpers use char buffers (BSD sockets), while
+// the SMXWiFi code is byte-oriented (uint8_t). Keep the char <-> uint8_t
+// conversions in these wrappers, instead of at every call site.
+[[nodiscard]] static ptrdiff_t sockRecv(SOCKET sd, std::span<uint8_t> buf)
+{
+	return sock_recv(sd, std::bit_cast<char*>(buf.data()), buf.size());
+}
+
+[[nodiscard]] static ptrdiff_t sockSend(SOCKET sd, std::span<const uint8_t> buf)
+{
+	return sock_send(sd, std::bit_cast<const char*>(buf.data()), buf.size());
+}
+
+[[nodiscard]] static int sockSendTo(SOCKET sd, std::span<const uint8_t> buf,
+                                    const struct sockaddr* dest, ::socklen_t destLen)
+{
+	return sendto(sd, std::bit_cast<const char*>(buf.data()),
+	              static_cast<int>(buf.size()), 0, dest, destLen);
+}
+
+[[nodiscard]] static int sockRecvFrom(SOCKET sd, std::span<uint8_t> buf,
+                                      struct sockaddr* from, ::socklen_t* fromLen)
+{
+	return recvfrom(sd, std::bit_cast<char*>(buf.data()),
+	                static_cast<int>(buf.size()), 0, from, fromLen);
+}
+
 // Active TLS: drive the handshake (the connection reports SYN-SENT until
 // the handshake and certificate validation have finished).
 void EmulatedEsp32::tcpDriveHandshake(Connection* conn, int connIdx)
 {
 	auto r = conn->ssl->handshake();
-	if (r.type == OpenSSL::HandshakeResult::Type::Done) {
-		// Handshake finished. With SSL_VERIFY_PEER a certificate
-		// validation failure aborts the handshake itself, so success
-		// here implies the certificate was accepted (spec 4.5.5: only
-		// then the connection may report ESTABLISHED).
-		conn->handshakePhase.store(2);
-		conn->state = 2; // open -> ESTABLISHED
-	} else if (r.type == OpenSSL::HandshakeResult::Type::Failed) {
+	if (!r) {
 		if (conn->tlsVerify) {
 			// Certificate validation failure (self-signed, expired,
 			// hostname mismatch, ...): the specific reason is reported
@@ -926,8 +944,15 @@ void EmulatedEsp32::tcpDriveHandshake(Connection* conn, int connIdx)
 		}
 		// Other handshake failure (protocol error, peer reset, ...):
 		// report a TLS error like the firmware (reason 19)
-		logTlsError(r.code);
+		logTlsError(r.error());
 		tcpTlsFail(conn, connIdx, 19);
+	} else if (*r == OpenSSL::HandshakeType::Done) {
+		// Handshake finished. With SSL_VERIFY_PEER a certificate
+		// validation failure aborts the handshake itself, so success
+		// here implies the certificate was accepted (spec 4.5.5: only
+		// then the connection may report ESTABLISHED).
+		conn->handshakePhase.store(2);
+		conn->state = 2; // open -> ESTABLISHED
 	}
 	// NeedRead / NeedWrite: still waiting for the requested readiness
 }
@@ -953,29 +978,30 @@ void EmulatedEsp32::logTlsError(OpenSSL::ErrorCode code) const
 // (the remote side closed the connection, or TLS failed).
 bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 {
-	std::array<char, 1024> buf;
+	std::array<uint8_t, 1024> buf;
 	ptrdiff_t n = 0;
 	if (conn->ssl) {
 		// TLS: decrypt; a clean TLS close is a close_notify, a real
 		// error fails the connection, WouldBlock is just "try again
 		// later".
 		auto r = conn->ssl->read(buf);
-		if (!r.has_value()) {
-			if (r.error().type == OpenSSL::IoError::Type::Closed) {
-				conn->state = 3; // remote closed -> CLOSE_WAIT
-				return true;
+		if (!r) {
+			auto& err = r.error();
+			if (err) { // WouldBlock or Closed: no real error
+				if (*err == OpenSSL::IoResult::Closed) {
+					conn->state = 3; // remote closed -> CLOSE_WAIT
+					return true;
+				}
+				// WouldBlock: nothing to do, loop again
+				return false;
 			}
-			if (r.error().type == OpenSSL::IoError::Type::Failed) {
-				logTlsError(r.error().code);
-				tcpTlsFail(conn, connIdx, 19); // TLS: other error
-				return true;
-			}
-			// WouldBlock: nothing to do, loop again
-			return false;
+			logTlsError(err.error());
+			tcpTlsFail(conn, connIdx, 19); // TLS: other error
+			return true;
 		}
-		n = *r;
+		n = static_cast<ptrdiff_t>(*r);
 	} else {
-		n = sock_recv(conn->sock, buf.data(), buf.size());
+		n = sockRecv(conn->sock, buf);
 		if (n < 0) {
 			// Socket closed by the remote side (EOF) or error
 			conn->state = 3; // remote closed -> CLOSE_WAIT
@@ -983,8 +1009,7 @@ bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 		}
 	}
 	if (n > 0) {
-		conn->pushRecv(std::span<const uint8_t>(
-			std::bit_cast<const uint8_t*>(buf.data()), static_cast<size_t>(n)));
+		conn->pushRecv(std::span(buf).first(static_cast<size_t>(n)));
 		if (conn->ssl) {
 			tcpDrainSsl(conn, connIdx);
 		}
@@ -997,22 +1022,23 @@ bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 // selectable again).
 void EmulatedEsp32::tcpDrainSsl(Connection* conn, int connIdx)
 {
-	std::array<char, 1024> buf;
+	std::array<uint8_t, 1024> buf;
 	for (;;) {
 		auto r = conn->ssl->read(buf);
-		if (!r.has_value()) {
-			if (r.error().type == OpenSSL::IoError::Type::Closed) {
-				conn->state = 3; // remote closed -> CLOSE_WAIT
-			}
-			if (r.error().type == OpenSSL::IoError::Type::Failed) {
-				logTlsError(r.error().code);
+		if (!r) {
+			auto& err = r.error();
+			if (err) {
+				if (*err == OpenSSL::IoResult::Closed) {
+					conn->state = 3; // remote closed -> CLOSE_WAIT
+				}
+				// WouldBlock: nothing more to drain
+			} else {
+				logTlsError(err.error());
 				tcpTlsFail(conn, connIdx, 19);
 			}
-			// WouldBlock: nothing more to drain
 			return;
 		}
-		conn->pushRecv(std::span<const uint8_t>(
-			std::bit_cast<const uint8_t*>(buf.data()), *r));
+		conn->pushRecv(std::span(buf).first(*r));
 	}
 }
 
@@ -1022,15 +1048,14 @@ void EmulatedEsp32::tcpDrainSsl(Connection* conn, int connIdx)
 // dropped.
 void EmulatedEsp32::tcpReadClient(Connection* conn) const
 {
-	std::array<char, 1024> buf;
-	auto n = sock_recv(conn->clientSock, buf.data(), buf.size());
+	std::array<uint8_t, 1024> buf;
+	auto n = sockRecv(conn->clientSock, buf);
 	if (n < 0) {
 		conn->clientEof = true;
 		conn->state = 3; // remote closed -> CLOSE_WAIT
 		return;
 	}
-	conn->pushRecv(std::span<const uint8_t>(
-		std::bit_cast<const uint8_t*>(buf.data()), static_cast<size_t>(n)));
+	conn->pushRecv(std::span(buf).first(static_cast<size_t>(n)));
 }
 
 // ====================================================================
@@ -1773,10 +1798,8 @@ void EmulatedEsp32::cmdUdpSend(std::span<const uint8_t> data)
 	sockaddr_in dest = sock_makeIPv4(destIP, destPort);
 
 	auto payload = data.subspan(7);
-	if (int n = sendto(conn->sock,
-	                   std::bit_cast<const char*>(payload.data()),
-	                   static_cast<int>(payload.size()), 0,
-	                   std::bit_cast<struct sockaddr*>(&dest), sizeof(dest));
+	if (int n = sockSendTo(conn->sock, payload,
+	                       std::bit_cast<struct sockaddr*>(&dest), sizeof(dest));
 	    n != static_cast<int>(payload.size())) {
 		sendResponse(11, 2); // ERR_NO_NETWORK
 		return;
@@ -1806,11 +1829,11 @@ void EmulatedEsp32::cmdUdpRcv(std::span<const uint8_t> data)
 	}
 
 	// Non-blocking receive
-	std::vector<char> buf(maxSize > 0 ? maxSize : 2048);
+	std::vector<uint8_t> buf(maxSize > 0 ? maxSize : 2048);
 	struct sockaddr_in from{};
 	::socklen_t fromLen = sizeof(from);
-	int n = recvfrom(conn->sock, buf.data(), static_cast<int>(buf.size()), 0,
-	                 std::bit_cast<struct sockaddr*>(&from), &fromLen);
+	int n = sockRecvFrom(conn->sock, buf,
+	                     std::bit_cast<struct sockaddr*>(&from), &fromLen);
 #ifdef _WIN32
 	// Winsock reports a datagram larger than the buffer as an error
 	// (WSAEMSGSIZE) after filling the buffer and consuming the datagram:
@@ -2342,34 +2365,32 @@ void EmulatedEsp32::cmdTcpSend(std::span<const uint8_t> data)
 			sendResponse(17, 12); // ERR_CONN_STATE
 			return;
 		}
-		auto r = conn->ssl->write(
-			std::span<const char>(std::bit_cast<const char*>(payload.data()),
-			                      payload.size()));
-		if (!r.has_value()) {
-			if (r.error().type == OpenSSL::IoError::Type::Closed) {
-				// Peer sent close_notify: the connection is closed
-				conn->state = 3; // remote closed -> CLOSE_WAIT
+		auto r = conn->ssl->write(payload);
+		if (!r) {
+			auto& err = r.error();
+			if (err) { // WouldBlock or Closed: no real error
+				if (*err == OpenSSL::IoResult::Closed) {
+					// Peer sent close_notify: the connection is closed
+					conn->state = 3; // remote closed -> CLOSE_WAIT
+					sendResponse(17, 12); // ERR_CONN_STATE
+				} else {
+					// WouldBlock: send buffer full. Report the retryable
+					// ERR_BUFFER, like the plain-socket path does. Note:
+					// SSL_write may have partially written a record before
+					// blocking, so a driver retrying the same payload can
+					// in rare cases deliver it twice.
+					sendResponse(17, 13); // ERR_BUFFER
+				}
+			} else {
+				// Real TLS error: report ERR_CONN_STATE and log the code
+				logTlsError(err.error());
 				sendResponse(17, 12); // ERR_CONN_STATE
-				return;
 			}
-			if (r.error().type == OpenSSL::IoError::Type::WouldBlock) {
-				// Send buffer full: report the retryable ERR_BUFFER,
-				// like the plain-socket path does. Note: SSL_write may
-				// have partially written a record before blocking, so a
-				// driver retrying the same payload can in rare cases
-				// deliver it twice.
-				sendResponse(17, 13); // ERR_BUFFER
-				return;
-			}
-			// Real TLS error: report ERR_CONN_STATE and log the code
-			logTlsError(r.error().code);
-			sendResponse(17, 12); // ERR_CONN_STATE
+			return;
 		}
-		n = *r;
+		n = static_cast<ptrdiff_t>(*r);
 	} else {
-		n = sock_send(sendSock,
-		              std::bit_cast<const char*>(payload.data()),
-		              payload.size());
+		n = sockSend(sendSock, payload);
 	}
 	if (n < 0) {
 		sendResponse(17, 12); // ERR_CONN_STATE

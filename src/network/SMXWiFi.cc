@@ -180,9 +180,7 @@ void SMXWiFi::recvByte(uint8_t value, EmuTime /*time*/)
 void SMXWiFi::pushToFifo(std::span<const uint8_t> data)
 {
 	std::scoped_lock lock(fifoMutex);
-	for (auto b : data) {
-		fifo.push_back(b);
-	}
+	fifo.push_back_range(data);
 }
 
 bool SMXWiFi::ready()

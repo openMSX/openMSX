@@ -4,6 +4,7 @@
 #include "zstring_view.hh"
 
 #include <cstddef>
+#include <cstdint>
 #include <expected>
 #include <memory>
 #include <optional>
@@ -49,33 +50,35 @@ struct ErrorCode {
 // "error:1408A0C1:SSL routines:ssl3_get_record:wrong version number".
 [[nodiscard]] std::string to_string(ErrorCode ec);
 
-// Result of a (non-blocking) read() or write(): success carries the
-// number of bytes transferred; on failure IoError says why.
-struct IoError {
-	enum class Type {
-		WouldBlock, // the call would block; retry later (either readiness)
-		Closed,     // clean TLS close (peer sent close_notify)
-		Failed      // real error
-	};
-	Type type = Type::Failed;
-	ErrorCode code; // meaningful when type == Type::Failed
+// Non-failure outcome of a non-blocking read() or write(): no bytes were
+// transferred, either because the call would block or because the peer
+// cleanly closed the TLS session.
+enum class IoResult {
+	WouldBlock, // the call would block; retry later (either readiness)
+	Closed      // clean TLS close (peer sent close_notify)
 };
-using IoResult = std::expected<size_t, IoError>;
+
+// Error channel of a non-blocking read()/write(): either such an outcome,
+// or a real failure carrying the OpenSSL error code captured at the moment
+// of the failure. The code can only be reached in the failure case, so it
+// can never be used when it is not meaningful.
+using IoError = std::expected<IoResult, ErrorCode>;
+
+// Result of a (non-blocking) read() or write(): success carries the
+// number of bytes transferred, otherwise IoError says why.
+using IoReturn = std::expected<size_t, IoError>;
 
 // Result of driving the TLS handshake (non-blocking). The caller must
 // retry the handshake when the socket reaches the requested readiness.
-// The values map 1:1 to the underlying SSL_connect()/SSL_get_error()
-// contract.
-struct HandshakeResult {
-	enum class Type {
-		NeedRead = 0,  // retry when the socket is readable
-		Done = 1,      // handshake completed successfully
-		NeedWrite = 2, // retry when the socket is writable
-		Failed = -1    // handshake failed
-	};
-	Type type = Type::Failed;
-	ErrorCode code; // meaningful when type == Type::Failed
+// The values of the non-failure outcomes map 1:1 to the underlying
+// SSL_connect()/SSL_get_error() contract; on failure the captured OpenSSL
+// error code is returned instead.
+enum class HandshakeType {
+	NeedRead = 0,  // retry when the socket is readable
+	Done = 1,      // handshake completed successfully
+	NeedWrite = 2, // retry when the socket is writable
 };
+using HandshakeResult = std::expected<HandshakeType, ErrorCode>;
 
 // An active TLS session on a connected (non-blocking) socket. Move-only
 // RAII: the destructor performs the best-effort shutdown and releases the
@@ -105,14 +108,14 @@ struct SessionHandle {
 	[[nodiscard]] std::string verifyErrorDescription() const;
 
 	// Decrypts inbound data. Success: number of bytes read. Failure:
-	// WouldBlock, or Closed on a clean TLS close (close_notify), or
-	// Failed with the OpenSSL error code.
-	[[nodiscard]] IoResult read(std::span<char> buf) const;
+	// either a benign no-transfer outcome (WouldBlock; or Closed on a
+	// clean TLS close (close_notify)) or a real error.
+	[[nodiscard]] IoReturn read(std::span<uint8_t> buf) const;
 
 	// Encrypts and sends data. Success: number of bytes written. Failure:
-	// WouldBlock, or Closed when the peer sent close_notify, or Failed
-	// with the OpenSSL error code.
-	[[nodiscard]] IoResult write(std::span<const char> buf) const;
+	// either a benign no-transfer outcome (WouldBlock; or Closed when the
+	// peer sent close_notify) or a real error.
+	[[nodiscard]] IoReturn write(std::span<const uint8_t> buf) const;
 
 	// Plaintext bytes already decrypted and buffered by the SSL layer,
 	// readable without waiting for socket readiness.
