@@ -590,6 +590,8 @@ void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, Mode
 							(config->getType() == HardwareConfig::Type::EXTENSION ? manager.media->displayNameForExtension(config->getConfigName()) :
 							manager.media->displayNameForRom(std::string(config->getRomFilename()), true)) :
 							std::string(EMPTY);
+						// the popup auto-fits to its fixed-width items, give the (fill-width) combo room
+						ImGui::SetNextWindowSizeConstraints({20.0f * ImGui::GetFontSize(), 0.0f}, {FLT_MAX, FLT_MAX});
 						im::Menu(strCat(currentConfigName, "##", i).c_str(), [&]{
 							manager.media->showExtensionSelector(i, currentConfigName);
 							if (config) {
