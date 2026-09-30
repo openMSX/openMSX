@@ -12,21 +12,29 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
+        <!-- The whole board in one device: the CPLD's ports and the 32KB
+             EEPROM msxpibios.rom, wired as the board wires it - /SLTSL 
+			 alone selects the chip, so it answers in every page of the slot.
+			 The board's jumpers are openMSX settings, read at reset:
+               set msxpirom_bank  BANK2|BANK1  (default BANK2: MSX-DOS at
+                                  4000h; BANK1: BIOS only; the other half
+                                  is mirrored at 8000h, as on the board)
+               set msxpirom_sltsl ON|OFF       (default ON)-->
         <MSXPiDevice id="MSXPi">
+          <mem base="0x0000" size="0x10000"/>
           <io base="0x56" num="1"/>
           <io base="0x57" num="1"/>
           <io base="0x5A" num="1"/>
-        </MSXPiDevice>
-        <ROM id="MSXPi BIOS">
-          <mem base="0x4000" size="0x4000"/>
           <rom>
+            <sha1>163cd9d809e3fc93d6e74de01853a62a5c680d60</sha1>
+            <sha1>9b1e0fb8578a732608b148d3892f563c70e8a028</sha1> <!-- Version 1.6.1 - BASIC BIOS; Jumper for MSX-DOS1; UNAPI; CPLD-exact device; Legacy compatibility layer-->
             <sha1>a0c2775e25b6214e9df3673092caf3534be7314a</sha1> <!-- Version 1.6 - BASIC BIOS; MSX-DOS1; UNAPI; CPLD-exact device; Legacy compatibility layer-->
             <sha1>45b204426039c909ddc142c12c2aa5738cbbbb50</sha1> <!-- Version 1.3 - BASIC BIOS; MSX-DOS1-->
             <sha1>3cfffa59afef160439085a8a496953edcaeb0662</sha1> <!-- Version 1.5 - BASIC BIOS; MSX-DOS1-->
             <sha1>c429077a5f58b006125247a67783ea4ea6fb7389</sha1> <!-- Version 1.2 - BASIC BIOS-->
             <filename>msxpibios.rom</filename>
           </rom>
-        </ROM>
+        </MSXPiDevice>
       </secondary>
     </primary>
   </devices>
