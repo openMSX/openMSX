@@ -10,6 +10,7 @@
 #include "MSXMotherBoard.hh"
 #include "SoundDevice.hh"
 #include "StringSetting.hh"
+#include "StringOp.hh"
 
 #include <imgui.h>
 
@@ -135,10 +136,14 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 			});
 		});
 		auto& controller = motherBoard.getMSXCommandController();
-		if (auto* ssg = dynamic_cast<IntegerSetting*>(controller.findSetting("makoto_psg_volume"))) {
-			ImGui::SeparatorText("Makoto cartridge balance");
-			SliderInt("SSG", *ssg);
-		}
+		const auto& infos = motherBoard.getMSXMixer().getDeviceInfos();
+		im::ID_for_range(infos.size(), [&](int i) {
+			const auto& name = infos[i].device->getName();
+			if (auto* ssg = dynamic_cast<IntegerSetting*>(controller.findSetting(strCat(name, "_psg_volume")))) {
+				ImGui::SeparatorText(tmpStrCat(name, " cartridge balance").c_str());
+				SliderInt("SSG", *ssg);
+			}
+		});
 	});
 }
 

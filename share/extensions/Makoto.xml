@@ -11,6 +11,8 @@
  <devices>
   <Makoto id="Makoto">
    <io base="0x14" num="4"/>
+   <!-- FM/ADPCM and SSG are separate sound devices. Equal volumes retain
+        the calibrated balance and the separate SSG trim. -->
    <sound><volume>96000</volume></sound>
   </Makoto>
  </devices>

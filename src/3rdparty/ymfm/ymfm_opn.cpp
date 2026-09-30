@@ -1030,6 +1030,10 @@ void ym2608::save_restore(ymfm_saved_state &state)
 	m_ssg_resampler.save_restore(state);
 	m_adpcm_a.save_restore(state);
 	m_adpcm_b.save_restore(state);
+	// Rebuild derived sampling configuration from the restored prescaler.
+	// The FM repeat count and SSG resampler function are not serialized.
+	if (!state.saving())
+		update_prescale(m_fm.clock_prescale());
 }
 
 
@@ -1487,7 +1491,7 @@ void ym2608::clock_fm_and_adpcm()
 		m_adpcm_a.output(m_last_fm, 0x3f);
 		m_adpcm_b.output(m_last_fm, 1);
 	}
-	m_last_fm.clamp16();
+	// openMSX mixes floating-point voices; defer clipping to the host output.
 }
 
 

@@ -38,12 +38,17 @@ for variant, exe in variants:
   metrics[variant+"-"+label]={"rms":rms.tolist(),"peak":float(np.max(abs(data)))}
   return data,rate
  try:
-  e.command("set pause on; ext Makoto; set mute off; set volume 50; set makoto_psg_volume 100")
+  e.command("set pause on; ext Makoto; set mute off; set volume 50; set [lindex [info vars ?akoto_psg_volume] 0] 100")
   if variant == "baseline":
    e.command("set makoto_master_volume 100; set Makoto_volume 20")
   else:
    e.command("set Makoto_volume 20")
-   assert e.command("llength [info vars Makoto_ch*_mute]") == "16"
+   native = e.command("info exists {Makoto SSG_volume}") == "1"
+   if native:
+    e.command("set {Makoto SSG_volume} 20")
+    assert e.command("llength [info vars Makoto_ch*_mute]") == "13"
+    assert e.command("llength [info vars {Makoto SSG_ch*_mute}]") == "3"
+   else: assert e.command("llength [info vars Makoto_ch*_mute]") == "16"
   write(0,9);write(1,0);write(7,0x3e);write(8,15)
   x,rate=record("ssg-high")
   results[variant]={"high":x,"rate":rate}
@@ -52,14 +57,16 @@ for variant, exe in variants:
   results[variant]["low"]=x
   if variant == "baseline": continue
   e.command("set Makoto_ch1_record "+m.tcl_path(directory/"fm1-alone.wav"))
+  if native: e.command("set {Makoto SSG_ch1_record} "+m.tcl_path(directory/"ssg1-alone.wav"))
   separate,_=record("separate-buffers")
   e.command("set Makoto_ch1_record {}")
+  if native: e.command("set {Makoto SSG_ch1_record} {}")
   ratio=float(np.sqrt(np.mean(separate*separate))/np.sqrt(np.mean(x*x)))
   assert abs(ratio-1)<.005,ratio
   metrics["channel_tools_output_ratio"]=ratio
-  e.command("set Makoto_ch7_mute true")
+  e.command("set {Makoto SSG_ch1_mute} true" if native else "set Makoto_ch7_mute true")
   x,_=record("ssg-muted"); assert np.max(abs(x[-1024:])) <= 1
-  e.command("set Makoto_ch7_mute false; set Makoto_ch1_mute true")
+  e.command(("set {Makoto SSG_ch1_mute} false" if native else "set Makoto_ch7_mute false") + "; set Makoto_ch1_mute true")
   x,_=record("other-muted"); assert np.sqrt(np.mean(x*x)) > 5
   e.command("set Makoto_ch1_mute false")
   write(8,0)
@@ -135,6 +142,21 @@ for variant, exe in variants:
   error=e.command("catch {restore_machine "+m.tcl_path(unsupported)+"} reason; set reason")
   assert "version" in error.lower(),error
   metrics["state_format"]="RAM restored; future sound-state version rejected by the native serializer"
+  # Save the new unfinished-write latch through the complete device serializer.
+  start(0,0x60)
+  write(0x108,0xa7)
+  write(0x100,0);write(0x100,0x20)
+  e.command("debug write ioports 22 8")
+  assert e.command("debug read ioports 23") == "167"
+  pending=out/"unfinished-write.oms"
+  e.command("store_machine [machine] "+m.tcl_path(pending))
+  write(0x100,1)
+  e.command("set old [machine]; set new [restore_machine "+m.tcl_path(pending)+"]; delete_machine $old; activate_machine $new")
+  assert e.command("debug read ioports 23") == "167", "Lost unfinished writer after restore"
+  write(0x100,1);write(0x100,0x20)
+  e.command("debug write ioports 22 8")
+  assert e.command("debug read ioports 23") == "0", "Reset did not clear writer latch"
+  metrics["unfinished_write_state"]="stale A7 buffer survives device save/restore; RESET releases it"
   metrics["channels"]="16 voices exposed; SSG/FM isolation and stereo pan passed"
   metrics["ram"]="CPU readback in each 64KB quarter of 256KB x1-mode RAM passed"
  finally:e.close()

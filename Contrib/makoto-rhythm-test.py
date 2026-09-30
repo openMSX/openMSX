@@ -77,6 +77,7 @@ def main():
 
     try:
         e.command("set pause on; ext Makoto; set mute off; set volume 50; set Makoto_volume 20")
+        rhythm_channel = 8 if e.command("info exists {Makoto SSG_volume}") == "1" else 11
         write(0x11, 0x3f)
         for channel, name in enumerate(("bass", "snare", "cymbal", "hihat", "tom", "rim")):
             samples = record(name, channel)
@@ -84,10 +85,10 @@ def main():
             assert min(peaks) > 20, (name, peaks)
             assert np.array_equal(samples[:, 0], samples[:, 1]), name
             results["voices"][name] = {"peak": peaks}
-            e.command(f"set Makoto_ch{11 + channel}_mute true")
+            e.command(f"set Makoto_ch{rhythm_channel + channel}_mute true")
             muted = record(name + "-muted", channel)
             assert max(peak(muted)) <= 1, (name, peak(muted))
-            e.command(f"set Makoto_ch{11 + channel}_mute false")
+            e.command(f"set Makoto_ch{rhythm_channel + channel}_mute false")
         left = peak(record("left", 1, 0x80))
         right = peak(record("right", 1, 0x40))
         assert left[0] > 20 and left[1] <= 1, left

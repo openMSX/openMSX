@@ -3,7 +3,10 @@
     It was verified, using real YM2608, that this ADPCM stream produces 100% correct output signal.
 */
 
-static const unsigned char YM2608_ADPCM_ROM[0x2000] = {
+#include <array>
+#include <cstdint>
+
+static constexpr std::array<uint8_t, 0x2000> YM2608_ADPCM_ROM = {
 
 /* Source: 01BD.ROM */
 /* Length: 448 / 0x000001C0 */
