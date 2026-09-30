@@ -21,7 +21,7 @@ class EmulationCore(Component):
 class GLRenderer(Component):
 	niceName = 'GL renderer'
 	makeName = 'GL'
-	dependsOn = ('GL', 'GLEW')
+	dependsOn = ('GL', 'EPOXY')
 
 class Laserdisc(Component):
 	niceName = 'Laserdisc'

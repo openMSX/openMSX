@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{6b2c9a51-0f8d-4a3e-91b6-2f5d7c4e8a10}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{9d3f7e24-5a1b-4c6f-8e02-71b4d9a3c5f8}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Registry">
+      <UniqueIdentifier>{2a8c4b17-6d90-4f52-a3c1-84e7f0b6d219}</UniqueIdentifier>
+      <Extensions>xml</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(EpoxySrcDir)\src\dispatch_common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(EpoxySrcDir)\src\dispatch_wgl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(EpoxyGenDir)\gl_generated_dispatch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(EpoxyGenDir)\wgl_generated_dispatch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(EpoxySrcDir)\src\dispatch_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="libepoxy-config.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="$(EpoxySrcDir)\include\epoxy\common.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="$(EpoxySrcDir)\include\epoxy\gl.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="$(EpoxySrcDir)\include\epoxy\wgl.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="$(EpoxySrcDir)\registry\gl.xml">
+      <Filter>Registry</Filter>
+    </CustomBuild>
+    <CustomBuild Include="$(EpoxySrcDir)\registry\wgl.xml">
+      <Filter>Registry</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
