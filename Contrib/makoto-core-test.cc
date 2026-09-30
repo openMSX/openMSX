@@ -70,8 +70,10 @@ int main() {
  for(unsigned c=0;c<16;++c) { if(!heard[c]) std::cerr<<"Missing channel "<<c<<'\n'; require(heard[c],"Voice not exercised"); }
  require(state(original)==state(separated),"Final state differs");
  uint32_t hash=2166136261U;
- for(auto value:state(original)) hash=(hash^value)*16777619U;
- require(hash==0x4faf7577U && state(original).size()==1133, "Pinned core state changed: format migration required");
- std::cout<<"Pinned core state FNV-1a: "<<std::hex<<hash<<std::dec<<" ("<<state(original).size()<<" bytes)\n";
+ auto savedState=state(original);
+ require(savedState.size()==1134 && savedState.back()==0, "Invalid appended transfer latch");
+ for(unsigned i=0;i<1133;++i) hash=(hash^savedState[i])*16777619U;
+ require(hash==0x4faf7577U && state(original).size()==1134, "Pinned core state changed: format migration required");
+ std::cout<<"Pinned legacy core prefix FNV-1a: "<<std::hex<<hash<<std::dec<<" ("<<state(original).size()<<" bytes)\n";
  std::cout<<samples<<" samples match the original mixed path exactly; all 16 voices exercised.\n";
 }
