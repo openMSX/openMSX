@@ -2,6 +2,7 @@
 
 #include "DeviceConfig.hh"
 #include "MSXCPU.hh"
+#include "MSXException.hh"
 #include "MSXMotherBoard.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
@@ -27,15 +28,34 @@ static constexpr int DEFAULT_SERVER_PORT = 5000;
 // lasts. In the order of what the Pi's native GPIO engine needs.
 static constexpr auto TRANSFER_TIME = EmuDuration::usec(20);
 
-MSXPiDevice::MSXPiDevice(const DeviceConfig& config)
+MSXPiDevice::MSXPiDevice(DeviceConfig& config)
 	: MSXDevice(config)
 	, activePort(DEFAULT_SERVER_PORT)
+	, rom(config.findChild("rom")
+		? std::make_unique<Rom>(getName() + " ROM", "MSXPi EEPROM", config)
+		: nullptr)
+	, bankSetting(getCommandController(), "msxpirom_bank",
+		"MSXPi bank jumper, as labelled on the PCB: BANK2 (EEPROM A14 = CPU "
+		"A15) puts the lower half (MSX-DOS) at 4000h, BANK1 (EEPROM A14 = CPU "
+		"A14) the upper half (BIOS only). Takes effect at the next reset",
+		Bank::A15,
+		EnumSetting<Bank>::Map{{"BANK1", Bank::A14}, {"BANK2", Bank::A15}})
+	, sltslSetting(getCommandController(), "msxpirom_sltsl",
+		"MSXPi J3 SLTSL jumper: OFF disconnects the EEPROM, the interface "
+		"ports keep working. Takes effect at the next reset", Sltsl::ON,
+		EnumSetting<Sltsl>::Map{{"ON", Sltsl::ON}, {"OFF", Sltsl::OFF}})
 	, portSetting(getCommandController(), "msxpiserver_port",
 		"TCP port used to connect to the MSXPi server",
 		DEFAULT_SERVER_PORT, 1, 65535)
 {
 	activePort = portSetting.getInt();
 	portSetting.attach(*this);
+	if (rom && rom->size() != 0x4000 && rom->size() != 0x8000) {
+		throw MSXException("MSXPi EEPROM image must be 16KB or 32KB, got ",
+		                   rom->size(), " bytes");
+	}
+	bank = bankSetting.getEnum(); // read before the first access
+	romEnabled = sltslSetting.getEnum() == Sltsl::ON;
 	thread = std::thread(&MSXPiDevice::readLoop, this);
 }
 
@@ -86,6 +106,60 @@ void MSXPiDevice::powerUp(EmuTime /*time*/)
 {
 	interfaceReset();
 	latch = 0xFF;
+	applyJumpers();
+}
+
+void MSXPiDevice::reset(EmuTime /*time*/)
+{
+	// The interface itself has no reset input (see powerUp); only the
+	// EEPROM jumpers, which are read as the machine comes up, are picked up.
+	applyJumpers();
+}
+
+// ---------------------------------------------------------------------------
+// EEPROM
+// ---------------------------------------------------------------------------
+
+void MSXPiDevice::applyJumpers()
+{
+	if (!rom) return;
+	auto newBank = bankSetting.getEnum();
+	auto newEnabled = sltslSetting.getEnum() == Sltsl::ON;
+	if (newBank == bank && newEnabled == romEnabled) return;
+	bank = newBank;
+	romEnabled = newEnabled;
+	invalidateDeviceRCache();
+}
+
+const byte* MSXPiDevice::romByte(uint16_t address) const
+{
+	// The chip's A14 is CPU A15 or CPU A14, as the bank jumper wires it.
+	static constexpr std::array<byte, 0x100> ERASED = [] {
+		std::array<byte, 0x100> a{};
+		a.fill(0xFF);
+		return a;
+	}();
+	if (!romEnabled) return &ERASED[address & 0xFF]; // /CE not connected
+	unsigned a14 = (bank == Bank::A15) ? (address >> 15) & 1 : (address >> 14) & 1;
+	unsigned chip = (a14 << 14) | (address & 0x3FFF);
+	if (chip >= rom->size()) return &ERASED[address & 0xFF]; // 16KB image
+	return &(*rom)[chip];
+}
+
+byte MSXPiDevice::readMem(uint16_t address, EmuTime time)
+{
+	return peekMem(address, time);
+}
+
+byte MSXPiDevice::peekMem(uint16_t address, EmuTime /*time*/) const
+{
+	return rom ? *romByte(address) : 0xFF;
+}
+
+const byte* MSXPiDevice::getReadCacheLine(uint16_t start) const
+{
+	// A cache line never crosses a 16KB boundary, so one lookup covers it.
+	return rom ? romByte(start) : MSXDevice::getReadCacheLine(start);
 }
 
 bool MSXPiDevice::ready() const
