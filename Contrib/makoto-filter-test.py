@@ -42,7 +42,7 @@ def write(e, reg, value):
 def restore(e, path):
     e.command('set old [machine]; set new [restore_machine '+m.tcl_path(path)+
               ']; delete_machine $old; activate_machine $new; set pause on; '
-              'set mute off; set volume 100; set Makoto_volume 20; set makoto_psg_volume 50')
+              'set mute off; set volume 100; set Makoto_volume 20; set [lindex [info vars ?akoto_psg_volume] 0] 50')
 
 
 def save(e, path):
@@ -102,7 +102,7 @@ def main():
             e = m.Emulator(exe, d, a.firmware_dir, rom, 'ASCII16',
                            machine='Panasonic_FS-A1GT' if a.music_rom else 'Philips_NMS_8250')
             emulators[label] = e
-            e.command('set pause on; ext Makoto; set mute off; set volume 100; set Makoto_volume 20; set makoto_psg_volume 50')
+            e.command('set pause on; ext Makoto; set mute off; set volume 100; set Makoto_volume 20; set [lindex [info vars ?akoto_psg_volume] 0] 50')
             if a.music_rom:
                 for name in ('fs-a1gt_firmware.rom', 'fs-a1gt_kanjifont.rom'):
                     shutil.copy2(a.firmware_dir/name, d/'home/share/systemroms'/name)
@@ -136,7 +136,7 @@ def main():
         if a.music_rom:
             e.command('carta eject')
             e.command('carta '+m.tcl_path(a.music_rom.resolve())+' -romtype ASCII16-X')
-            e.command('reset; set power on; set pause on; set mute off; set volume 100; set Makoto_volume 20; set makoto_psg_volume 50')
+            e.command('reset; set power on; set pause on; set mute off; set volume 100; set Makoto_volume 20; set [lindex [info vars ?akoto_psg_volume] 0] 50')
             step(e,20)
             assert e.command('get_active_cpu').lower() == 'r800'
             e.command('debug write memory 0xd200 9; debug write memory 0xd201 4; keymatrixdown 8 1')

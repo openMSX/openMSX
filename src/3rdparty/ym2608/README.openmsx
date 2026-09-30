@@ -5,7 +5,8 @@ Source: ValleyBell/libvgm, emu/cores/fmopn_2608rom.h
 Revision: c8b998b606895990c409a512b86c5509070f9f0d
 https://github.com/ValleyBell/libvgm/blob/c8b998b606895990c409a512b86c5509070f9f0d/emu/cores/fmopn_2608rom.h
 
-The header is copied unchanged. Its upstream comment describes reconstruction
+The data bytes are copied unchanged; the declaration uses std::array for C++.
+The upstream comment describes reconstruction
 from the chip's output, verified against a real YM2608. It is not a game asset.
 The 8192 data bytes have CRC32 23c9e0d8 and SHA1
 50b6c3e288eaa12ad275d4f323267bb72b0445df. The regression test uses SHA256:

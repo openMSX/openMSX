@@ -65,7 +65,7 @@ def main():
     def restore(e):
         e.command('set old [machine]; set new [restore_machine ' + m.tcl_path(out / 'fixture.oms') +
                   ']; delete_machine $old; activate_machine $new; set pause on; set mute off; '
-                  'set Makoto_volume 20; set makoto_psg_volume 50')
+                  'set Makoto_volume 20; set [lindex [info vars ?akoto_psg_volume] 0] 50')
 
     def sound_state(path):
         root = ET.fromstring(gzip.decompress(path.read_bytes()))
@@ -120,7 +120,7 @@ def main():
                 wav_path = out / label / (mode + '.wav')
                 e.command('soundlog start ' + m.tcl_path(wav_path))
                 for reg, gain in ((0x2d, 50), (0x2e, 75), (0x2f, 0), (0x2d, 50)):
-                    e.command(f'debug write ioports 20 {reg}; set makoto_psg_volume {gain}')
+                    e.command(f'debug write ioports 20 {reg}; set [lindex [info vars ?akoto_psg_volume] 0] {gain}')
                     step(e, .1)
                 e.command('soundlog stop; set Makoto_ch1_record {}')
                 with wave.open(str(wav_path)) as f:

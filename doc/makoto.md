@@ -4,10 +4,10 @@ Insert the **Makoto** extension to emulate the YM2608 OPNA cartridge. It provide
 six FM voices, three SSG voices, six internal rhythm sounds and ADPCM-B playback
 with 256 KiB sample RAM. No additional rhythm-ROM file is required.
 
-Use the normal **Makoto volume** control for overall volume. The
-`makoto_psg_volume` setting adjusts SSG balance, corresponding to the board's
-separate SSG control. The audio channel viewer supports all 16 voices, including
-individual muting and recording.
+Use the **Makoto** volume for FM, rhythm and ADPCM, and **Makoto SSG** for
+SSG. Keep the two volumes equal to retain the calibrated balance. The
+`Makoto_psg_volume` setting provides an additional linear SSG trim, default 50%.
+All 16 voices support individual muting and recording (13 in Makoto, 3 in SSG).
 
 The debugger exposes **Makoto registers** and **Makoto ADPCM RAM**. Pause playback
 before editing sample memory. Normal openMSX save states and rewind are supported.
@@ -20,3 +20,13 @@ Makoto remains optional: it consumes host CPU even when silent. Analogue
 amplifier distortion, headphone-load response and the physical pot taper are not
 calibrated. Implementation and regression details are in
 [the developer notes](internal/makoto.md).
+
+## Multiple cartridges
+
+Device, setting, IRQ and debugger names follow the extension's XML device ID.
+A second Makoto is named `Makoto (1)`, for example
+`{Makoto (1)_psg_volume}`, `{Makoto (1) registers}` and `{Makoto (1).IRQ}`.
+The first cartridge's SSG setting is now `Makoto_psg_volume` (capital M);
+older custom startup scripts using `makoto_psg_volume` need that spelling update.
+Each cartridge retains its own RAM, timers and state. Real Makoto uses 14h-17h;
+a copied test configuration can map another instance to a different aligned range.

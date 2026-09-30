@@ -166,7 +166,7 @@ def main():
   e.command('set pause on; ext Makoto')
   assert e.command('set Makoto_volume')=='75'
   assert e.command('info exists makoto_master_volume')=='0'
-  assert e.command('set makoto_psg_volume')=='50'
+  assert e.command('set [lindex [info vars ?akoto_psg_volume] 0]')=='50'
   passed.append('Standard device volume defaults to 75 percent and SSG to 50 percent')
   write(7,63)
   assert read(0x14)&128 and read(0x16)&128
