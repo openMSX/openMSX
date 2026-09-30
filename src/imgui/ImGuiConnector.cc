@@ -13,6 +13,8 @@
 
 #include <imgui.h>
 
+#include <algorithm>
+
 using namespace std::literals;
 
 namespace openmsx {
@@ -102,6 +104,12 @@ void ImGuiConnector::showPluggables(PluggingController& controller, Mode mode)
 					paintImGuiExtra(currentPluggable);
 					break;
 				case SUBMENU:
+					if (plugName.empty() && std::ranges::none_of(controller.getPluggables(), [&](const auto& plug) {
+							return plug->getClass() == connector->getClass(); })) {
+						// nothing to choose from, avoid an empty submenu
+						ImGui::TextUnformatted("(empty)"sv);
+						break;
+					}
 					im::Menu(tmpStrCat(strCat_if(plugName.empty(), "(empty)##", connectorName).else_(STRCAT_LAZY(pluggableToGuiString(plugName)))).c_str(), [&] {
 						paintPluggableSelectables(controller, *connector);
 					});
