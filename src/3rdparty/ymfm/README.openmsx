@@ -24,12 +24,28 @@ Local patches:
    Contrib/makoto-register-test.py compares full chip state with equivalent I/O
    writes, including timers, ADPCM RAM and prescalers. No serialized fields change.
 
+5. Fix inclusive ADPCM-B CPU transfer boundaries: store the last byte of
+   the end chunk, and read the last byte of the limit chunk before wrapping.
+   Confirmed with the Makoto V5 probe on Sanyo MSX2+ and Panasonic turbo R:
+   x1 END=0 stores A1 A2 A3 A4; LIMIT=0 repeats B1 B2 B3 B4.
+   Contrib/makoto-adpcm-transfer-test.cc covers these and software boundary
+   regressions. Playback boundary helpers and serialized fields are unchanged.
+
+6. Track an unfinished CPU RAM writer across mode changes. A CPU read before
+   explicit ADPCM RESET returns the last written buffer byte, matching physical
+   Makoto V4 rows A/B; reset permits normal reads (rows C/D). Peeks obey the same
+   rule without side effects. The latch is appended as one serialized byte;
+   no existing field or audio synthesis calculation is changed.
+   This is a targeted write-to-read transition fix, not a complete bus-level
+   model. The independent YM2608-LLE reference reproduced the stale-buffer
+   transition; its code is not included or linked into this core.
+
 Contrib/makoto-core-test.cc compares both paths, including chip state, for
 360,000 samples covering all 16 voices and all three prescalers. It also pins a
-1133-byte reference state (FNV-1a 4faf7577). This fingerprint is a regression
+1133-byte legacy prefix (FNV-1a 4faf7577) plus the new zero latch byte.
+The current YM2608 state is 1134 bytes. This fingerprint is a regression
 check, not a security checksum.
 
-The initial upstream Makoto sound-state format is version 1 and uses this pinned
-raw YMFM layout. Future core upgrades must version the layout and provide an
-appropriate reader; byte count alone does not establish compatibility.
-Fork preview-state migrations are maintained separately in the public fork.
+The initial upstream Makoto sound-state version 1 uses the 1134-byte layout.
+Fork-only legacy migration remains in the fork. Future core changes must use
+an explicit version/migration, not silently accept a matching byte count.

@@ -5,16 +5,13 @@
   <name>Makoto (experimental)</name>
   <manufacturer>SuperSoniqs / Electric River Hardware</manufacturer>
   <code>Makoto</code><release_year>2024</release_year>
-  <description>YM2608 OPNA. FM/SSG timing prototype; 256 KB sample RAM. 8 MHz clock, direct MSX IRQ and board-calibrated FM/SSG gain.</description>
+  <description>YM2608 OPNA with FM, SSG, internal rhythm sounds and 256 KiB ADPCM sample RAM.</description>
   <type>sound expansion</type>
  </info>
  <devices>
   <Makoto id="Makoto">
    <io base="0x14" num="4"/>
-   <!-- Listening normalization includes the former 50% master default.
-        The standard Makoto_volume slider now controls the combined output. -->
    <sound><volume>96000</volume></sound>
-   <!-- The YM2608 internal rhythm samples are fixed and built in. -->
   </Makoto>
  </devices>
 </msxconfig>

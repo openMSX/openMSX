@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -11,8 +12,8 @@ namespace openmsx {
 struct MakotoMix {
 	std::array<float, 32> voices = {};
 
-	void update(const std::array<int32_t, 32>& channelOutput,
-	            const int32_t* ssg, const int32_t* mixed, float ssgGain)
+	void update(std::span<const int32_t, 32> channelOutput,
+	            std::span<const int32_t, 3> ssg, std::span<const int32_t, 3> mixed, float ssgGain)
 	{
 		std::array<int, 3> scaledSSG = {ssg[0] * 2 / 3, ssg[1] * 2 / 3, ssg[2] * 2 / 3};
 		// YMFM rounds the SSG sum after multiplying by 2/3. Assign the
@@ -22,17 +23,22 @@ struct MakotoMix {
 		for (unsigned side = 0; side < 2; ++side) {
 			int total = 0;
 			for (unsigned c = 0; c < 16; ++c) {
-				if (c < 6 || c >= 9) total += channelOutput[2 * c + side];
+				if (c < 6 || c >= 9) {
+					auto value = channelOutput[2 * c + side];
+					total += value;
+					voices[2 * c + side] = float(value);
+				}
 			}
-			// FM, rhythm and ADPCM-B share one DAC clamp in YMFM. Its
-			// pre-clamp taps cannot be independently clamped; distribute
-			// the aggregate attenuation proportionally across these taps.
-			float dacScale = total ? float(mixed[side]) / float(total) : 1.0f;
-			for (unsigned c = 0; c < 16; ++c) {
-				float value = (c >= 6 && c < 9)
-					? float(scaledSSG[c - 6]) * ssgGain
-					: float(channelOutput[2 * c + side]) * dacScale;
-				voices[2 * c + side] = value;
+			// FM, rhythm and ADPCM-B share one DAC clamp in YMFM.
+			// Only clipped output needs proportional attenuation of the taps.
+			if (total && total != mixed[side]) {
+				float dacScale = float(mixed[side]) / float(total);
+				for (unsigned c = 0; c < 16; ++c) {
+					if (c < 6 || c >= 9) voices[2 * c + side] *= dacScale;
+				}
+			}
+			for (unsigned c = 0; c < 3; ++c) {
+				voices[2 * (c + 6) + side] = float(scaledSSG[c]) * ssgGain;
 			}
 		}
 	}

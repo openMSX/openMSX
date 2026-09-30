@@ -362,6 +362,7 @@ private:
 	int32_t m_accumulator;          // accumulator
 	int32_t m_prev_accum;           // previous accumulator (for linear interp)
 	int32_t m_adpcm_step;           // next forecast
+	bool m_cpu_write_active;       // unfinished CPU RAM write sequence
 	adpcm_b_registers &m_regs;      // reference to registers
 	adpcm_b_engine &m_owner;        // reference to our owner
 };

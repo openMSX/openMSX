@@ -398,6 +398,7 @@ adpcm_b_channel::adpcm_b_channel(adpcm_b_engine &owner, uint32_t addrshift) :
 	m_accumulator(0),
 	m_prev_accum(0),
 	m_adpcm_step(STEP_MIN),
+	m_cpu_write_active(false),
 	m_regs(owner.regs()),
 	m_owner(owner)
 {
@@ -419,6 +420,7 @@ void adpcm_b_channel::reset()
 	m_accumulator = 0;
 	m_prev_accum = 0;
 	m_adpcm_step = STEP_MIN;
+	m_cpu_write_active = false;
 }
 
 
@@ -437,6 +439,7 @@ void adpcm_b_channel::save_restore(ymfm_saved_state &state)
 	state.save_restore(m_accumulator);
 	state.save_restore(m_prev_accum);
 	state.save_restore(m_adpcm_step);
+	state.save_restore(m_cpu_write_active);
 }
 
 
@@ -566,9 +569,13 @@ uint8_t adpcm_b_channel::peek(uint32_t regnum) const
 {
 	// Observe the next CPU read without consuming dummy reads, advancing RAM,
 	// changing EOS/BRDY or invoking a potentially destructive host read.
-	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() &&
-		m_regs.external() && m_dummy_read == 0)
-		return m_owner.intf().ymfm_external_peek(ACCESS_ADPCM_B, m_curaddress);
+	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() && m_regs.external())
+	{
+		if (m_cpu_write_active)
+			return m_regs.cpudata();
+		if (m_dummy_read == 0)
+			return m_owner.intf().ymfm_external_peek(ACCESS_ADPCM_B, m_curaddress);
+	}
 	return 0;
 }
 
@@ -579,6 +586,11 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 	// register 8 reads over the bus under some conditions
 	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() && m_regs.external())
 	{
+		// A mode change alone does not terminate an unfinished RAM writer.
+		// Until RESET, the CPU sees its last data-buffer byte (Makoto V4).
+		if (m_cpu_write_active)
+			return m_regs.cpudata();
+
 		// two dummy reads are consumed first
 		if (m_dummy_read != 0)
 		{
@@ -590,7 +602,7 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 		else
 		{
 			// read from outside of the chip
-			result = m_owner.intf().ymfm_external_read(ACCESS_ADPCM_B, m_curaddress++);
+			result = m_owner.intf().ymfm_external_read(ACCESS_ADPCM_B, m_curaddress);
 
 			// did we hit the end? if so, signal EOS
 			if (at_end())
@@ -604,9 +616,11 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 				m_status = STATUS_BRDY;
 			}
 
-			// wrap at the limit address
+			// The limit is inclusive: consume its last byte before wrapping.
 			if (at_limit())
 				m_curaddress = 0;
+			else
+				m_curaddress++;
 		}
 	}
 	return result;
@@ -671,19 +685,23 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 				m_dummy_read = 0;
 			}
 
-			// did we hit the end? if so, signal EOS
-			if (at_end())
+			// The end register describes an inclusive chunk. Keep the CPU
+			// address one past its last byte once the transfer has stopped.
+			uint32_t end = (m_regs.end() + 1) << address_shift();
+			if (m_curaddress != end)
 			{
+				m_owner.intf().ymfm_external_write(ACCESS_ADPCM_B, m_curaddress++, value);
+				m_cpu_write_active = true;
+			}
+
+			if (m_curaddress == end)
+			{
+				m_cpu_write_active = false;
 				debug::log_keyon("%s\n", "ADPCM EOS");
 				m_status = STATUS_EOS | STATUS_BRDY;
 			}
-
-			// otherwise, write the data and signal ready
 			else
-			{
-				m_owner.intf().ymfm_external_write(ACCESS_ADPCM_B, m_curaddress++, value);
 				m_status = STATUS_BRDY;
-			}
 		}
 	}
 }
@@ -726,6 +744,7 @@ void adpcm_b_channel::load_start()
 	m_accumulator = 0;
 	m_prev_accum = 0;
 	m_adpcm_step = STEP_MIN;
+	m_cpu_write_active = false;
 }
 
 

@@ -7,6 +7,7 @@
 #include "Schedulable.hh"
 #include "IRQHelper.hh"
 #include "IntegerSetting.hh"
+#include "Ram.hh"
 #include "MSXException.hh"
 #include "SimpleDebuggable.hh"
 #include "serialize.hh"
@@ -67,8 +68,11 @@ public:
 		, contextTime(time)
 		, busyEnd(time)
 		, chip(*this)
+		, sampleRAM(config, "Makoto ADPCM RAM", "YM2608 ADPCM-B sample RAM", 262144)
 		, registers(config.getMotherBoard(), *this)
 	{
+		chip.set_fidelity(ymfm::OPN_FIDELITY_MAX);
+		sampleRAM.clear(0); // Start zeroed; reset preserves these contents.
 		chip.set_channel_output(channelOutput.data());
 		ssgGain = (1.0f / 4.3f) * float(psgVolume.getInt()) / 100.0f;
 		psgVolume.attach(*this);
@@ -204,27 +208,22 @@ private:
 		// Keep its combined output for normal playback. MakotoMix splits
 		// that same signal for channel tools (see makoto-mix-test.cc).
 		if (std::ranges::all_of(buffers, [&](auto* b) { return b == buffers[0]; })) {
-			bool audible = false;
+			uint32_t orOutput = 0;
 			for (unsigned i = 0; i < num; ++i) {
 				ymfm::ym2608::output_data output;
 				chip.generate(&output);
 				float ssg = ssgGain * float(output.data[2]);
 				buffers[0][2 * i]     += float(output.data[0]) + ssg;
 				buffers[0][2 * i + 1] += float(output.data[1]) + ssg;
-				// Once active, no more silence comparisons in this buffer.
-				// Cancellation can conservatively mark a zero sum active.
-				if (!audible) {
-					audible = (output.data[0] | output.data[1]) != 0 ||
-					          (ssgGain != 0.0f && output.data[2] != 0);
-				}
+				orOutput |= uint32_t(output.data[0] | output.data[1] | output.data[2]);
 			}
 			std::ranges::fill(buffers.subspan(1), nullptr);
-			if (!audible) buffers[0] = nullptr;
+			// A muted but active SSG conservatively keeps this buffer active.
+			if (orOutput == 0) buffers[0] = nullptr;
 			return;
 		}
 		MakotoMix mix;
 		std::array<int32_t, 3> lastSSG = {};
-		bool audible = false;
 		for (unsigned i = 0; i < num; ++i) {
 			ymfm::ym2608::output_data output;
 			chip.generate(&output);
@@ -236,23 +235,14 @@ private:
 			}
 			if (changed) {
 				mix.update(channelOutput, ssg.data, output.data, ssgGain);
-				// Only test silence when an input changes, and stop looking
-				// after any audible sample. Opposite voices may cancel in
-				// the sum, so separated buffers require checking the voices.
-				if (!audible) {
-					audible = std::ranges::any_of(mix.voices, [](float v) { return v != 0.0f; });
-				}
 			}
 			for (unsigned c = 0; c < 16; ++c) {
 				buffers[c][2 * i]     += mix.voices[2 * c];
 				buffers[c][2 * i + 1] += mix.voices[2 * c + 1];
 			}
 		}
-		// Whole-chip silence avoids downstream resampling. The core still
-		// runs every sample so envelopes, noise and ADPCM cannot freeze.
-		if (!audible) {
-			std::ranges::fill(buffers, nullptr);
-		}
+		// Channel tools usually inspect active output. Avoid a per-voice
+		// silence scan; the host can sum these buffers directly.
 	}
 
 	struct Registers final : SimpleDebuggable {
@@ -283,7 +273,7 @@ private:
 	EmuTime contextTime;
 	EmuTime busyEnd;
 	ymfm::ym2608 chip;
-	std::array<byte, 262144> sampleRAM = {};
+	Ram sampleRAM;
 	Registers registers;
 };
 
