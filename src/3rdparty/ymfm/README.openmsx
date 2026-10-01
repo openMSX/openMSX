@@ -3,62 +3,37 @@ https://github.com/aaronsgiles/ymfm
 Pinned revision: 81aec25ccbb98f4873a255f7551ac4dadac59b4a
 OPN/SSG/ADPCM core subset. See LICENSE.
 
-Local patches:
-1. Value-initialize fm_operator::m_cache. Normal synthesis fills it in prepare();
-   initialization gives the fields a defined state and addresses cpp:S2107.
-2. Add an optional host-owned YM2608 channel-output cache and an accessor to
-   the last SSG outputs. When requested, FM/ADPCM voices are rendered individually
-   before summing. The original mixed path remains available; patch 8 below
-   removes the aggregate clamp from both paths.
-   No clocks, envelopes, operator calculations or raw core state fields change.
-   The native-stream wrapper clocks raw SSG separately; the old MAX-fidelity
-   comparison path repeats SSG samples for differential tests.
-3. Add explicit YM2608 port peeks, effective register accessors and safe SSG /
-   ADPCM external-peek callbacks for debugger use. Normal read/write semantics
-   and serialized core fields are unchanged. Hosts/SSG overrides without a
-   peek callback return FFh rather than calling a potentially destructive read.
-   Contrib/makoto-peek-test.cc checks values against cloned-core real reads and
-   proves that peeks leave chip state and host side effects untouched.
+Production Makoto uses src/sound/MakotoYM2608.{hh,cc}: an attributed adaptation
+of the YM2608 control layer with direct native FM and SSG output. The vendored
+ym2608 class itself is restored to the pinned upstream source. The former
+patched class and MakotoNativeChip wrapper live in Contrib/makoto-reference/
+for standalone regression tests; they are not linked into the emulator.
 
+Remaining lower-engine patches:
+1. Value-initialize fm_operator::m_cache, giving fields a defined state before
+   the normal synthesis prepare() step.
+2. Safe debugger external-peek callbacks and effective FM/SSG/ADPCM register
+   access. Hosts without a peek callback return FFh instead of invoking a
+   potentially destructive read. A read-only SSG resampler output accessor
+   remains for the preserved differential-test reference.
+3. Inclusive ADPCM-B CPU transfer boundaries: write the final byte of the end
+   chunk and read the final byte of the limit chunk before wrapping. Makoto V5
+   on Sanyo MSX2+ and Panasonic turbo R confirms x1 END=0 writes A1 A2 A3 A4,
+   while LIMIT=0 repeats B1 B2 B3 B4. Playback boundaries are unchanged.
+4. Preserve an unfinished CPU RAM writer across mode changes until explicit
+   ADPCM RESET. A read returns the last written buffer byte, matching physical
+   V4 rows A/B; reset permits normal reads (C/D). Peeks have no side effects.
+   The latch appends one serialized byte. This is a targeted transition fix,
+   not a complete bus-level model. Independent YM2608-LLE experiments reproduced
+   it; no LLE code is included or linked here.
 
-4. Add a debugger register-write helper that uses normal port semantics but
-   restores the CPU address latch afterward. The host synchronizes audio first.
-   Contrib/makoto-register-test.py compares full chip state with equivalent I/O
-   writes, including timers, ADPCM RAM and prescalers. No serialized fields change.
+Contrib/makoto-adpcm-transfer-test.cc covers the RAM corrections.
+Contrib/makoto-owned-core-test.cc compares the new control layer with the
+preserved reference for 1,080,000 samples across all 16 voices and prescalers.
+See doc/internal/makoto.md and the linked fork measurements for scope/limits.
 
-5. Fix inclusive ADPCM-B CPU transfer boundaries: store the last byte of
-   the end chunk, and read the last byte of the limit chunk before wrapping.
-   Confirmed with the Makoto V5 probe on Sanyo MSX2+ and Panasonic turbo R:
-   x1 END=0 stores A1 A2 A3 A4; LIMIT=0 repeats B1 B2 B3 B4.
-   Contrib/makoto-adpcm-transfer-test.cc covers these and software boundary
-   regressions. Playback boundary helpers and serialized fields are unchanged.
-
-6. Track an unfinished CPU RAM writer across mode changes. A CPU read before
-   explicit ADPCM RESET returns the last written buffer byte, matching physical
-   Makoto V4 rows A/B; reset permits normal reads (rows C/D). Peeks obey the same
-   rule without side effects. The latch is appended as one serialized byte;
-   no existing field or audio synthesis calculation is changed.
-   This is a targeted write-to-read transition fix, not a complete bus-level
-   model. The independent YM2608-LLE reference reproduced the stale-buffer
-   transition; its code is not included or linked into this core.
-
-Contrib/makoto-core-test.cc compares both paths, including chip state, for
-360,000 samples covering all 16 voices and all three prescalers. It also pins a
-1133-byte legacy prefix (FNV-1a 4faf7577) plus the new zero latch byte.
-The current YM2608 state is 1134 bytes. This fingerprint is a regression
-check, not a security checksum.
-
-The initial upstream Makoto sound-state version 1 uses the 1134-byte layout.
-Fork-only legacy migration remains in the fork. Future core changes must use
-an explicit version/migration, not silently accept a matching byte count.
-
-7. Rebuild the YM2608 derived sampling configuration after restoring its
-   prescaler. This permits the wrapper to set fidelity only at construction.
-   Contrib/makoto-prescale-restore-test.cc checks continuation at all three
-   prescalers and fidelities; no serialized bytes change.
-
-8. Leave the YM2608 FM/rhythm/ADPCM sum unclipped for openMSX's floating-point
-   mixer. Separate voice buffers now use raw taps directly. Deliberately
-   overdriven material differs from the old 16-bit internal clamp; final host
-   output can still clip. Contrib/makoto-unclipped-mix-test.cc checks both
-   ordinary levels and a coherent six-voice stress signal. No state fields change.
+The fork's Makoto sound-state version 9 reads previous fork states, discarding
+obsolete output caches. The control layer preserves the 1134-byte core layout
+with compatibility padding; versions 1-6 lacked the final CPU-write latch and
+load with it false. Earlier releases cannot load version 9. Upstream has its
+own initial serialization version, without the fork's historical migrations.

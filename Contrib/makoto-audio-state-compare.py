@@ -29,7 +29,7 @@ def step(e, seconds):
         assert time.monotonic() < deadline
 
 def configure(e):
-    e.command("set pause on; set mute off; set volume 50; set Makoto_volume 20; set {Makoto SSG_volume} 20; set [lindex [info vars ?akoto_psg_volume] 0] 50")
+    e.command("set pause on; set mute off; set volume 50; set Makoto_volume 20; if {[llength [info vars ?akoto_psg_volume]]} {set {Makoto SSG_volume} 20; set [lindex [info vars ?akoto_psg_volume] 0] 50} else {set {Makoto SSG_volume} 10}")
 
 for track in (0, 3, 9, 13):
     run = out / f"seed-{track}"

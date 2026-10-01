@@ -41,8 +41,7 @@ def main():
        e.command('set pause on; set mute off; set volume 50')
        if not active:e.command('carta eject')
        if case!='no-makoto':
-        e.command('ext Makoto; set Makoto_volume 20; set [lindex [info vars ?akoto_psg_volume] 0] 50')
-        if e.command('info exists {Makoto SSG_volume}')=='1':e.command('set {Makoto SSG_volume} 20')
+        e.command('ext Makoto; set Makoto_volume 20; if {[llength [info vars ?akoto_psg_volume]]} {set {Makoto SSG_volume} 20; set [lindex [info vars ?akoto_psg_volume] 0] 50} else {set {Makoto SSG_volume} 10}')
        e.command('reset');step(e,15)
        if active:
         e.command(f"debug write memory 0xD200 {track}; debug write memory 0xD201 {songs[track]['default_bank']-1}; keymatrixdown 8 1")

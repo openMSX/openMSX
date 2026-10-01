@@ -166,8 +166,9 @@ def main():
   e.command('set pause on; ext Makoto')
   assert e.command('set Makoto_volume')=='75'
   assert e.command('info exists makoto_master_volume')=='0'
-  assert e.command('set [lindex [info vars ?akoto_psg_volume] 0]')=='50'
-  passed.append('Standard device volume defaults to 75 percent and SSG to 50 percent')
+  assert e.command('info exists {Makoto SSG_volume}') == '1'
+  assert e.command('llength [info vars ?akoto_psg_volume]') == '0'
+  passed.append('Separate FM and SSG device volumes exist; redundant SSG trim is absent')
   write(7,63)
   assert read(0x14)&128 and read(0x16)&128
   step(.0001);assert not(read(0x14)&128 or read(0x16)&128);passed.append('BUSY appears on both status ports and expires')

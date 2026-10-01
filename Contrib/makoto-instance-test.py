@@ -35,13 +35,13 @@ def write(base, reg, value):
 try:
     e.command("set pause on; set first [ext Makoto]; set second [ext Makoto]")
     for name in ("Makoto", "Makoto (1)"):
-        assert e.command("set {" + name + "_psg_volume}") == "50"
+        assert e.command("set {" + name + " SSG_volume}") == "75"
         assert e.command("debug size {" + name + " ADPCM RAM}") == "262144"
         assert e.command("debug size {" + name + " registers}") == "512"
         assert e.command("debug probe read {" + name + ".IRQ}") == "0"
-    e.command("set Makoto_psg_volume 31; set {Makoto (1)_psg_volume} 67")
-    assert e.command("set Makoto_psg_volume") == "31"
-    assert e.command("set {Makoto (1)_psg_volume}") == "67"
+    e.command("set {Makoto SSG_volume} 31; set {Makoto (1) SSG_volume} 67")
+    assert e.command("set {Makoto SSG_volume}") == "31"
+    assert e.command("set {Makoto (1) SSG_volume}") == "67"
     passed.append("Two identical extensions coexist with unique settings, debuggers and IRQ probes")
     e.command("remove_extension $second; remove_extension $first")
     extensions = run / "home/share/extensions"
@@ -81,9 +81,9 @@ try:
     assert e.command("debug probe read {Makoto (1).IRQ}") == "1"
     passed.append("Two-instance state restores both independent devices")
     # Extension names are serialized, and Tcl variables still refer to them.
-    surviving_volume = e.command("set {Makoto (1)_psg_volume}")
+    surviving_volume = e.command("set {Makoto (1) SSG_volume}")
     e.command("remove_extension $first")
-    assert e.command("set {Makoto (1)_psg_volume}") == surviving_volume
+    assert e.command("set {Makoto (1) SSG_volume}") == surviving_volume
     assert e.command("debug read {Makoto (1) ADPCM RAM} 123") == "90"
     assert e.command("debug probe read {Makoto (1).IRQ}") == "1"
     passed.append("Removing one cartridge leaves the other usable")

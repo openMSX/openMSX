@@ -1,3 +1,4 @@
+#include "makoto-reference/ReferenceYM2608.hh"
 // YM2608 debugger access: compare peek values with real reads on a clone,
 // while proving that peeks leave chip state and host side effects untouched.
 // Build with ymfm_opn.cpp, ymfm_ssg.cpp, ymfm_adpcm.cpp (C++17 or newer).
@@ -33,24 +34,24 @@ struct Host : ymfm::ymfm_interface
 	void ymfm_set_timer(uint32_t, int32_t) override { ++effects[3]; }
 	bool ymfm_is_busy() override { return busy; }
 };
-static std::vector<uint8_t> save(ymfm::ym2608& chip)
+static std::vector<uint8_t> save(ymfm::ym2608_reference& chip)
 {
 	std::vector<uint8_t> bytes;
 	ymfm::ymfm_saved_state state(bytes, true); chip.save_restore(state);
 	return bytes;
 }
-static void write(ymfm::ym2608& chip, unsigned reg, uint8_t value)
+static void write(ymfm::ym2608_reference& chip, unsigned reg, uint8_t value)
 {
 	unsigned port = (reg >> 8) * 2;
 	chip.write(port, uint8_t(reg)); chip.write(port + 1, value);
 }
 static unsigned checks = 0;
-static void check(ymfm::ym2608& chip, Host& host)
+static void check(ymfm::ym2608_reference& chip, Host& host)
 {
 	auto bytes = save(chip);
 	auto effects = host.effects;
 	Host other; other.busy = host.busy;
-	ymfm::ym2608 clone(other);
+	ymfm::ym2608_reference clone(other);
 	for (unsigned port = 0; port < 4; ++port)
 	{
 		ymfm::ymfm_saved_state state(bytes, false); clone.save_restore(state);
@@ -66,7 +67,7 @@ static void check(ymfm::ym2608& chip, Host& host)
 }
 int main()
 {
-	Host host; ymfm::ym2608 chip(host); chip.reset();
+	Host host; ymfm::ym2608_reference chip(host); chip.reset();
 	check(chip, host);
 	for (bool busy : {true, false})
 	{
@@ -120,7 +121,7 @@ int main()
 	write(chip, 0x10b, 0xff); write(chip, 0x100, 0xa0);
 	for (unsigned i = 0; i < 100; ++i)
 	{
-		ymfm::ym2608::output_data samples[18]; chip.generate(samples, 18);
+		ymfm::ym2608_reference::output_data samples[18]; chip.generate(samples, 18);
 		check(chip, host);
 	}
 	// No destructive read fallback when the host has no debugger callback.
@@ -128,7 +129,7 @@ int main()
 		unsigned reads = 0;
 		uint8_t ymfm_external_read(ymfm::access_class, uint32_t) override { ++reads; return 0; }
 	} noPeek;
-	ymfm::ym2608 isolated(noPeek); isolated.reset(); isolated.write_address(14);
+	ymfm::ym2608_reference isolated(noPeek); isolated.reset(); isolated.write_address(14);
 	require(isolated.peek(1) == 0xff && noPeek.reads == 0, "Unsafe external read fallback");
 	std::cout << checks << " states: all four ports match real reads, with no chip/host side effects.\n";
 	std::cout << "Effective registers, GPIO, BUSY, ADPCM dummy reads/EOS/wrap/playback passed.\n";

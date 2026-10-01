@@ -1,5 +1,6 @@
+#include "makoto-reference/ReferenceYM2608.hh"
 // Verify raw voice sums, including deliberately overdriven FM output.
-#include "MakotoNativeChip.hh"
+#include "makoto-reference/MakotoNativeChip.hh"
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
