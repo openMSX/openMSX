@@ -8,8 +8,8 @@ uses `Clock<8000000>`; the CPU BUSY interval follows the chip callback.
 ## Audio
 
 The FM/rhythm/ADPCM stream runs at approximately 55.56 kHz stereo and SSG
-at 250 kHz mono. A small YMFM subclass clocks the engines through their protected
-interfaces, bypassing repeated samples in `generate()`. All 16 voices remain
+at 250 kHz mono. The openMSX-owned YM2608 control layer clocks the FM/SSG/ADPCM
+engines directly, without a repeated-sample generation path. All 16 voices remain
 available. Both rates track the chip prescaler; prescalers 2/3 at 8 MHz are
 outside the datasheet's specification and are not hardware-validated here.
 
@@ -21,16 +21,15 @@ it does not establish that all Makoto software is unclipped.
 SSG voices are raw integers converted to float. The old per-sample gain,
 integer 2/3 scaling and remainder redistribution are removed. Fixed normalization
 (including 2/3 to preserve the prior audible balance) is folded into the device
-amplification factor; the configurable trim uses `setSoftwareVolume()`. This
+amplification factor; user levels use standard device-volume controls. This
 is a numerical normalization, not a claim of a physical 2/3 circuit gain. The
 existing 4.3:1 board ratio and mono centre-pan compensation are retained.
 This removes rounding of the old SSG sum, a difference below one old-source LSB.
 
 Whole-buffer OR accumulation skips downstream work on silence while chip clocks
-continue. FM and SSG have separate standard volume controls; the additional
-`Makoto_psg_volume` trim defaults to 50%. Analogue distortion and pot taper are
-not modeled. All names derive from the MSX device ID, so multiple cartridges
-can coexist. The GUI locates the trim separately for each instance.
+continue. FM and SSG have separate standard volume controls. Analogue distortion
+and pot taper are not modeled. All names derive from the MSX device ID, so
+multiple cartridges can coexist.
 
 ## State and debugger
 
@@ -42,7 +41,8 @@ and phases are reconstructed after restoring the core. Preview-fork migrations a
 upstream device.
 
 Sample storage uses `Ram`, exposing `Makoto ADPCM RAM` and using blob/delta
-serialization. Startup retains the integration's existing zero-filled contents;
+serialization. Startup uses zero-filled contents as deterministic emulator policy;
+hardware power-on contents are unknown;
 reset does not clear sample RAM. Pause playback before editing sample RAM.
 `Makoto registers` exposes effective core registers, with side-effect-free peeks.
 Register edits synchronize sound and preserve the program's address latch.
@@ -106,3 +106,31 @@ https://github.com/maxiwamoto/openMSX/blob/codex/makoto-native-streams/doc/makot
 The incremental simplification measured about 6% lower whole-process CPU with
 channel tools. Normal playback changed by about 1%, within observed variation.
 Matched-state 20-second excerpts of four tracks differ by at most one PCM count.
+
+## Owned YM2608 control layer (2026-10-01)
+
+MakotoYM2608 adapts the attributed YMFM control logic into openMSX code while
+retaining its FM, SSG and ADPCM engines. Symmetric FmPart/SsgPart devices own
+the clocks and resamplers. Combined and separated output loops are dispatched
+once; they write host buffers directly, without a retained output cache or
+repeated-sample path. BUSY is passed explicitly to side-effect-free peeks.
+
+The old patched wrapper is confined to Contrib/makoto-reference for differential
+tests. The vendor ym2608 class is restored to its pinned revision; lower-engine
+RAM corrections, cache initialization and debugger helpers remain documented.
+No synthesis algorithm was rewritten. Zero-filled initial RAM is deterministic
+emulator policy; hardware power-on RAM contents remain unknown.
+
+The extra SSG trim is removed. Both streams use standard mixer volumes. To
+retain a previous balance: new SSG volume = old SSG volume * old trim / 100.
+
+The standalone comparison matched 1,080,000 samples covering all 16 voices and
+prescalers 6/3/2. Four matched-state 20-second music excerpts matched exactly
+at equivalent volumes. Five paired Windows runs measured about 7% less whole-
+emulator CPU for music than the preceding native-stream experiment; this is
+not an emulated MSX driver speedup. Silence still advances all chip engines.
+See the fork's doc/makoto-owned-core-experiment.md and results JSON for raw
+measurements, executable hashes and limitations.
+
+This initial upstream state format remains version 1. Fork preview migrations
+and optional external rhythm-ROM replacement remain in the fork.

@@ -1030,10 +1030,6 @@ void ym2608::save_restore(ymfm_saved_state &state)
 	m_ssg_resampler.save_restore(state);
 	m_adpcm_a.save_restore(state);
 	m_adpcm_b.save_restore(state);
-	// Rebuild derived sampling configuration from the restored prescaler.
-	// The FM repeat count and SSG resampler function are not serialized.
-	if (!state.saving())
-		update_prescale(m_fm.clock_prescale());
 }
 
 
@@ -1076,7 +1072,7 @@ uint8_t ym2608::read_data()
 //  register
 //-------------------------------------------------
 
-uint8_t ym2608::status_hi() const
+uint8_t ym2608::read_status_hi()
 {
 	// fetch regular status
 	uint8_t status = m_fm.status() & ~(STATUS_ADPCM_B_EOS | STATUS_ADPCM_B_BRDY | STATUS_ADPCM_B_PLAYING);
@@ -1092,13 +1088,6 @@ uint8_t ym2608::status_hi() const
 
 	// turn off any bits that have been requested to be masked
 	status &= ~(m_flag_control & 0x1f);
-
-	return status;
-}
-
-uint8_t ym2608::read_status_hi()
-{
-	uint8_t status = status_hi();
 
 	// update the status so that IRQs are propagated
 	m_fm.set_reset_status(status, ~status);
@@ -1152,53 +1141,6 @@ uint8_t ym2608::read(uint32_t offset)
 			break;
 	}
 	return result;
-}
-
-
-// Debugger reads deliberately bypass read_status_hi()'s IRQ update and the
-// ADPCM data port's dummy reads, address advancement and flag changes.
-uint8_t ym2608::peek(uint32_t offset)
-{
-	switch (offset & 3)
-	{
-		case 0:
-			return read_status(); // already side-effect-free
-		case 1:
-			if (m_address < 0x10)
-				return m_ssg.peek(m_address);
-			return (m_address == 0xff) ? 1 : 0;
-		case 2:
-			return status_hi() | (m_fm.intf().ymfm_is_busy() ? fm_engine::STATUS_BUSY : 0);
-		case 3:
-			return ((m_address & 0xff) < 0x10) ? m_adpcm_b.peek(m_address & 0x0f) : 0;
-	}
-	return 0;
-}
-
-// openMSX: normal port-write behavior without disturbing a pending CPU write.
-void ym2608::write_register(uint16_t regnum, uint8_t data)
-{
-	uint16_t saved_address = m_address;
-	uint32_t port = (regnum & 0x100) ? 2 : 0;
-	write(port, uint8_t(regnum));
-	write(port + 1, data);
-	m_address = saved_address;
-}
-
-uint8_t ym2608::peek_register(uint16_t regnum) const
-{
-	assert(regnum < 0x200);
-	if (regnum < 0x10)
-		return m_ssg.regs().read(regnum);
-	if (regnum < 0x20)
-		return m_adpcm_a.regs().read(regnum & 0x0f);
-	if (regnum == 0x29)
-		return m_irq_enable;
-	if (regnum >= 0x100 && regnum < 0x110)
-		return m_adpcm_b.regs().read(regnum & 0x0f);
-	if (regnum == 0x110)
-		return m_flag_control;
-	return m_fm.regs().read(regnum);
 }
 
 
@@ -1347,7 +1289,6 @@ void ym2608::write(uint32_t offset, uint8_t data)
 
 void ym2608::generate(output_data *output, uint32_t numsamples)
 {
-	m_channel_output_changed = false;
 	// FM output is just repeated the prescale number of times; note that
 	// 0 is a special 1.5 case
 	if (m_fm_samples_per_output != 0)
@@ -1461,37 +1402,13 @@ void ym2608::clock_fm_and_adpcm()
 	// clock the ADPCM-B engine every cycle
 	m_adpcm_b.clock();
 
-	// openMSX: render each voice once when the host requests channel output.
-	// Keep the original mixed path available for differential testing.
-	if (m_channel_output != nullptr)
-	{
-		m_channel_output_changed = true;
-		m_last_fm.clear();
-		for (unsigned channel = 0; channel < 16; channel++)
-		{
-			fm_engine::output_data voice;
-			voice.clear();
-			if (channel < 6)
-				m_fm.output(voice, 1, 32767, fmmask & (1U << channel));
-			else if (channel == 9)
-				m_adpcm_b.output(voice, 1);
-			else if (channel >= 10)
-				m_adpcm_a.output(voice, 1U << (channel - 10));
-			for (unsigned side = 0; side < 2; side++)
-			{
-				m_channel_output[2 * channel + side] = voice.data[side];
-				m_last_fm.data[side] += voice.data[side];
-			}
-		}
-	}
-	else
-	{
-		// OPNA is 13-bit with no intermediate clipping.
-		m_fm.output(m_last_fm.clear(), 1, 32767, fmmask);
-		m_adpcm_a.output(m_last_fm, 0x3f);
-		m_adpcm_b.output(m_last_fm, 1);
-	}
-	// openMSX mixes floating-point voices; defer clipping to the host output.
+	// update the FM content; OPNA is 13-bit with no intermediate clipping
+	m_fm.output(m_last_fm.clear(), 1, 32767, fmmask);
+
+	// mix in the ADPCM and clamp
+	m_adpcm_a.output(m_last_fm, 0x3f);
+	m_adpcm_b.output(m_last_fm, 1);
+	m_last_fm.clamp16();
 }
 
 

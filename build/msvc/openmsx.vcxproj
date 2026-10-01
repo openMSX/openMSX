@@ -679,6 +679,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\KeyClick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Mixer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXMakoto.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\MakotoYM2608.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\ymfm\ymfm_opn.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\ymfm\ymfm_ssg.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\ymfm\ymfm_adpcm.cc" />

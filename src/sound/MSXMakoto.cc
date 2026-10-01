@@ -1,12 +1,11 @@
 #include "MSXMakoto.hh"
-#include "MakotoNativeChip.hh"
+#include "MakotoYM2608.hh"
 
 #include "DeviceConfig.hh"
 #include "Clock.hh"
 #include "ResampledSoundDevice.hh"
 #include "Schedulable.hh"
 #include "IRQHelper.hh"
-#include "IntegerSetting.hh"
 #include "Ram.hh"
 #include "MSXException.hh"
 #include "SimpleDebuggable.hh"
@@ -24,18 +23,19 @@
 
 namespace openmsx {
 // Cartridge integration is separate from the pinned YMFM core (see README.openmsx).
-class MakotoSound final : public ResampledSoundDevice,
-			  private ymfm::ymfm_interface
+class MakotoSound final : private ymfm::ymfm_interface
 {
 	static constexpr unsigned CLOCK = 8000000;
 
-	class SsgPart final : public ResampledSoundDevice {
+	// Both hardware streams have symmetric ownership and independent clocks.
+	class Part : public ResampledSoundDevice {
 	public:
-		SsgPart(DeviceConfig& config, std::string_view name, MakotoSound& owner_)
-			: ResampledSoundDevice(config.getMotherBoard(), strCat(name, " SSG"), "Makoto SSG", 3, CLOCK / 32, false)
-			, owner(owner_) {}
+		Part(DeviceConfig& config, std::string_view name, static_string_view description,
+		     unsigned channels, unsigned rate, bool stereo)
+			: ResampledSoundDevice(config.getMotherBoard(), name, description, channels, rate, stereo) {}
 		void start(DeviceConfig& config) { registerSound(config); registered = true; }
-		~SsgPart() { if (registered) unregisterSound(); }
+		~Part() { if (registered) unregisterSound(); }
+		void sync(EmuTime time) { updateStream(time); }
 		void restoreClock(EmuTime time) { createResampler(); getEmuClock().reset(time); }
 		void rate(unsigned value) {
 			if (getInputRate() != value) { setInputRate(value); createResampler(); }
@@ -48,33 +48,36 @@ class MakotoSound final : public ResampledSoundDevice,
 			clockInitialized = true;
 		}
 	private:
+		bool registered = false;
+		bool clockInitialized = false;
+	};
+
+	class FmPart final : public Part {
+	public:
+		FmPart(DeviceConfig& config, std::string_view name, MakotoYM2608& chip_)
+			: Part(config, name, "Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, true)
+			, chip(chip_) {}
+	private:
+		void generateChannels(std::span<float*> buffers, unsigned num) override {
+			chip.generateFM(buffers, num);
+		}
+		MakotoYM2608& chip;
+	};
+
+	class SsgPart final : public Part {
+	public:
+		SsgPart(DeviceConfig& config, std::string_view name, MakotoYM2608& chip_)
+			: Part(config, strCat(name, " SSG"), "Makoto SSG", 3, CLOCK / 32, false)
+			, chip(chip_) {}
+	private:
 		float getAmplificationFactorImpl() const override {
-			// Mono centre panning contributes 1/sqrt(2) to each host side.
-			// Preserve the previous YMFM numeric scale and board balance here,
-			// without integer rounding or gain work in the source-sample loop.
+			// Maximum normalization. Standard SSG volume replaces the old trim.
 			return std::numbers::sqrt2_v<float> * (2.0f / 3.0f) / (32768.0f * 4.3f);
 		}
 		void generateChannels(std::span<float*> buffers, unsigned num) override {
-			const bool combined = std::ranges::all_of(buffers, [&](auto* b) { return b == buffers[0]; });
-			uint32_t orOutput = 0;
-			for (unsigned i = 0; i < num; ++i) {
-				const auto s = owner.chip.clockSSG();
-				const auto total = s[0] + s[1] + s[2];
-				if (combined) {
-					buffers[0][i] += float(total);
-					orOutput |= uint32_t(total);
-				} else {
-					for (unsigned c = 0; c < 3; ++c) buffers[c][i] += float(s[c]);
-				}
-			}
-			if (combined) {
-				std::ranges::fill(buffers.subspan(1), nullptr);
-				if (!orOutput) buffers[0] = nullptr;
-			}
+			chip.generateSSG(buffers, num);
 		}
-		MakotoSound& owner;
-		bool registered = false;
-		bool clockInitialized = false;
+		MakotoYM2608& chip;
 	};
 
 	class Timer final : public Schedulable {
@@ -106,13 +109,7 @@ class MakotoSound final : public ResampledSoundDevice,
 
 public:
 	MakotoSound(DeviceConfig& config, std::string_view name, EmuTime time)
-		: ResampledSoundDevice(config.getMotherBoard(), name, "Makoto FM, rhythm and ADPCM", 13,
-				       (CLOCK + 72) / 144,
-				       true)
-		, irq(config.getMotherBoard(), strCat(name, ".IRQ"))
-		, psgVolume(config.getCommandController(), strCat(name, "_psg_volume"),
-			    "Makoto SSG gain relative to its hardware maximum (linear percent)", 50,
-			    0, 100)
+		: irq(config.getMotherBoard(), strCat(name, ".IRQ"))
 		, timers{Timer(config.getScheduler(), *this, 0),
 			 Timer(config.getScheduler(), *this, 1)}
 		, contextTime(time)
@@ -120,22 +117,15 @@ public:
 		, chip(*this)
 		, sampleRAM(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 262144)
 		, registers(config.getMotherBoard(), name, *this)
-		, ssgPart(config, name, *this)
+		, fmPart(config, name, chip)
+		, ssgPart(config, name, chip)
 	{
-		chip.set_fidelity(ymfm::OPN_FIDELITY_MAX);
-		sampleRAM.clear(0); // Start zeroed; reset preserves these contents.
-		chip.set_channel_output(channelOutput.data());
-		psgVolume.attach(*this);
+		sampleRAM.clear(0); // Deterministic emulator policy; hardware power-on contents are unknown.
 		reset(time);
-		registerSound(config);
+		fmPart.start(config);
 		ssgPart.start(config);
-		ssgPart.setSoftwareVolume(float(psgVolume.getInt()) / 100.0f, time);
 	}
-	~MakotoSound()
-	{
-		psgVolume.detach(*this);
-		unregisterSound();
-	}
+
 	void reset(EmuTime time)
 	{
 		updateStream(time);
@@ -144,7 +134,6 @@ public:
 		chip.reset();
 		applyRates();
 		busyEnd = time;
-		channelOutput.fill(0);
 		irq.reset();
 	}
 	byte read(unsigned port, EmuTime time)
@@ -155,12 +144,7 @@ public:
 	}
 	byte peek(unsigned port, EmuTime time)
 	{
-		// BUSY is observed at the requested time without advancing the chip.
-		auto savedTime = contextTime;
-		contextTime = time;
-		auto result = chip.peek(port);
-		contextTime = savedTime;
-		return result;
+		return chip.peek(port, time < busyEnd);
 	}
 	void write(unsigned port, byte value, EmuTime time)
 	{
@@ -180,9 +164,8 @@ public:
 			chip.save_restore(saved);
 		}
 		ar.serialize("core", state, "busyEnd", busyEnd,
-			     "sampleRAM", sampleRAM, "irq", irq, "sampleClock", getEmuClock(),
+			     "sampleRAM", sampleRAM, "irq", irq, "sampleClock", fmPart.getEmuClock(),
 			     "ssgClock", ssgPart.getEmuClock());
-		ar.serialize("channelOutput", channelOutput);
 		if constexpr (Archive::IS_LOADER) {
 			// Reject truncated core state instead of allowing YMFM's zero-fill
 			// fallback.
@@ -193,12 +176,11 @@ public:
 				throw MSXException("Invalid Makoto core state size");
 			ymfm::ymfm_saved_state saved(state, false);
 			chip.save_restore(saved);
-			const auto fmTime = getEmuClock().getTime();
+			const auto fmTime = fmPart.getEmuClock().getTime();
 			const auto ssgTime = ssgPart.getEmuClock().getTime();
 			applyRates();
-			createResampler();
 			ssgPart.restoreClock(ssgTime);
-			getEmuClock().reset(fmTime);
+			fmPart.restoreClock(fmTime);
 			chip.invalidate_caches();
 			contextTime = timers[0].getCurrentTime();
 		}
@@ -242,55 +224,10 @@ private:
 		if (type == ymfm::ACCESS_ADPCM_B)
 			sampleRAM[address & 0x3ffff] = value;
 	}
-	void setOutputRate(unsigned hostSampleRate, double speed) override
-	{
-		const auto previousClock = getEmuClock();
-		ResampledSoundDevice::setOutputRate(hostSampleRate, speed);
-		if (sampleClockInitialized &&
-		    previousClock.getPeriod() == getEmuClock().getPeriod()) {
-			getEmuClock().reset(previousClock.getTime());
-		}
-		sampleClockInitialized = true;
-	}
-	void update(const Setting& setting) noexcept override
-	{
-		if (&setting == &psgVolume) {
-			// Render up to the change with the previous gain.
-			ssgPart.setSoftwareVolume(float(psgVolume.getInt()) / 100.0f, timers[0].getCurrentTime());
-		} else {
-			ResampledSoundDevice::update(setting);
-		}
-	}
-
+	void updateStream(EmuTime time) { fmPart.sync(time); }
 	void applyRates() {
-		if (getInputRate() != chip.fmRate()) {
-			setInputRate(chip.fmRate());
-			createResampler();
-		}
+		fmPart.rate(chip.fmRate());
 		ssgPart.rate(chip.ssgRate());
-	}
-	void generateChannels(std::span<float*> buffers, unsigned num) override
-	{
-		const bool combined = std::ranges::all_of(buffers, [&](auto* b) { return b == buffers[0]; });
-		uint32_t orOutput = 0;
-		for (unsigned i = 0; i < num; ++i) {
-			const auto fm = chip.clockFM();
-			if (combined) {
-				buffers[0][2 * i] += float(fm[0]);
-				buffers[0][2 * i + 1] += float(fm[1]);
-				orOutput |= uint32_t(fm[0] | fm[1]);
-			} else {
-				for (unsigned c = 0; c < 13; ++c) {
-					const unsigned source = c < 6 ? c : c + 3;
-					buffers[c][2 * i] += float(channelOutput[2 * source]);
-					buffers[c][2 * i + 1] += float(channelOutput[2 * source + 1]);
-				}
-			}
-		}
-		if (combined) {
-			std::ranges::fill(buffers.subspan(1), nullptr);
-			if (!orOutput) buffers[0] = nullptr;
-		}
 	}
 
 	struct Registers final : SimpleDebuggable {
@@ -313,19 +250,16 @@ private:
 		}
 		MakotoSound& owner;
 	};
-	std::array<int32_t, 32> channelOutput = {};
-	bool sampleClockInitialized = false;
 	IRQHelper irq;
-	IntegerSetting psgVolume;
 	std::array<Timer, 2> timers;
 	EmuTime contextTime;
 	EmuTime busyEnd;
-	MakotoNativeChip chip;
+	MakotoYM2608 chip;
 	Ram sampleRAM;
 	Registers registers;
+	FmPart fmPart;
 	SsgPart ssgPart;
 };
-
 
 MSXMakoto::MSXMakoto(DeviceConfig& config)
 	: MSXDevice(config)

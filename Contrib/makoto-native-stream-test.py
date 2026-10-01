@@ -43,7 +43,7 @@ def pitch(data,rate):
  return (k+offset)*rate/len(x)
 
 try:
- e.command('set pause on; ext Makoto; set mute off; set volume 50; set Makoto_volume 20; set [lindex [info vars ?akoto_psg_volume] 0] 100')
+ e.command('set pause on; ext Makoto; set mute off; set volume 50; set Makoto_volume 20; if {[llength [info vars ?akoto_psg_volume]]} {set [lindex [info vars ?akoto_psg_volume] 0] 100}')
  native=e.command('info exists {Makoto SSG_volume}')=='1'
  if native:e.command('set {Makoto SSG_volume} 20')
  write(0,128);write(1,0);write(7,0x3e);write(8,15)

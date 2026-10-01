@@ -1,3 +1,4 @@
+#include "makoto-reference/ReferenceYM2608.hh"
 // Standalone regression for the small YMFM channel-output adapter.
 // Build with ymfm_opn.cpp, ymfm_ssg.cpp and ymfm_adpcm.cpp, C++17 or newer.
 #include "ymfm_opn.h"
@@ -15,12 +16,12 @@ struct Interface : ymfm::ymfm_interface {
 static void require(bool value, const char* message) {
  if (!value) { std::cerr << message << '\n'; std::exit(1); }
 }
-static std::vector<uint8_t> state(ymfm::ym2608& chip) {
+static std::vector<uint8_t> state(ymfm::ym2608_reference& chip) {
  std::vector<uint8_t> result;
  ymfm::ymfm_saved_state s(result, true); chip.save_restore(s); return result;
 }
 int main() {
- Interface a, b; ymfm::ym2608 original(a), separated(b);
+ Interface a, b; ymfm::ym2608_reference original(a), separated(b);
  std::array<int32_t, 32> channels{};
  separated.set_channel_output(channels.data());
  original.reset(); separated.reset();
@@ -54,7 +55,7 @@ int main() {
  for (unsigned prescale : {0x2dU,0x2eU,0x2fU}) {
   original.write_address(uint8_t(prescale));separated.write_address(uint8_t(prescale));
   for (unsigned i=0;i<120000;++i) {
-   ymfm::ym2608::output_data x,y;
+   ymfm::ym2608_reference::output_data x,y;
    original.generate(&x);separated.generate(&y);
    for(unsigned o=0;o<3;++o) require(x.data[o]==y.data[o],"Mixed output differs");
    auto& ssg=separated.ssg_output();
