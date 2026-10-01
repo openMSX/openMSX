@@ -164,6 +164,9 @@ def main():
   return ET.tostring(root.find('.//device[@type="Makoto"]/sound'))
  try:
   e.command('set pause on; ext Makoto')
+  # Isolate the CPU IRQ count from BIOS startup and VDP frame/line IRQs.
+  # A wall-clock command poll can otherwise stop during BIOS initialization.
+  e.command('debug write_block memory 0xc100 [binary decode hex {f3c301c1}]; reg PC 0xc100; debug write {VDP regs} 1 [expr {[debug read {VDP regs} 1] & ~0x20}]; debug write {VDP regs} 0 [expr {[debug read {VDP regs} 0] & ~0x10}]')
   assert e.command('set Makoto_volume')=='75'
   assert e.command('info exists makoto_master_volume')=='0'
   assert e.command('info exists {Makoto SSG_volume}') == '1'
