@@ -134,3 +134,17 @@ measurements, executable hashes and limitations.
 
 This initial upstream state format remains version 1. Fork preview migrations
 and optional external rhythm-ROM replacement remain in the fork.
+
+## October 2 review cleanup
+
+The owned control fields use native serialization, with separate fixed-layout
+blobs for the four YMFM engines. Blob lengths are checked by the archive. The
+upstream device has no packed legacy padding. Registration is owned by each
+concrete audio part; failed construction is tested for both parts. The initial
+clock period is zero, making a separate clock-initialized flag redundant.
+SoundDevice::updateStream is exposed through Part::sync and updates all devices.
+
+The OPNA template is explicitly instantiated in its vendor translation unit.
+This fixes optimized GCC/Clang linkage; an isolated Clang link probe reproduced
+the earlier failure and succeeds after the change. Vendor sources now use .cc
+directly. The sound GUI no longer has any Makoto-specific changes.

@@ -32,11 +32,9 @@ Contrib/makoto-owned-core-test.cc compares the new control layer with the
 preserved reference for 1,080,000 samples across all 16 voices and prescalers.
 See doc/internal/makoto.md and the linked fork measurements for scope/limits.
 
-The fork's Makoto sound-state version 9 reads previous fork states, discarding
-obsolete output caches. The control layer preserves the 1134-byte core layout
-with compatibility padding; versions 1-6 lacked the final CPU-write latch and
-load with it false. Earlier releases cannot load version 9. Upstream has its
-own initial serialization version, without the fork's historical migrations.
+New Makoto states use native openMSX control fields and four length-checked
+engine blobs. The fork retains a reader for earlier packed core states; that
+reader is not part of the upstream device. See the device documentation.
 
 Build integration: source files use .cc directly for openMSX discovery. The
 OPNA FM engine is explicitly instantiated in ymfm_opn.cc so callers in other

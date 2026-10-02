@@ -10,6 +10,20 @@ struct Interface : ymfm::ymfm_interface {
        : uint8_t((address * 73 + (address >> 4) * 19) ^ 0x5a);
  }
 };
+template<bool Loading> struct TestArchive {
+ static constexpr bool IS_LOADER = Loading;
+ ymfm::ymfm_saved_state state;
+ explicit TestArchive(std::vector<uint8_t>& bytes) : state(bytes, !Loading) {}
+ void serialize() {}
+ template<typename T, typename... Rest>
+ void serialize(const char*, T& value, Rest&&... rest) {
+  state.save_restore(value);
+  serialize(std::forward<Rest>(rest)...);
+ }
+ void serialize_blob(const char*, std::span<uint8_t> bytes, bool) {
+  for (auto& value : bytes) state.save_restore(value);
+ }
+};
 int main() {
  unsigned samples=0, negative=0;
  for(unsigned prescale : {6U, 3U, 2U}) {
@@ -57,7 +71,7 @@ int main() {
   if(i%fmDiv==0) {
    std::vector<uint8_t> saved;
    const bool checkMixed=(i%1024==0);
-   if(checkMixed) {ymfm::ymfm_saved_state state(saved,true);native.save_restore(state);}
+   if(checkMixed) {TestArchive<false> state(saved);native.serialize(state,1);}
    for(auto& v:voices) v.fill(0);
    native.generateFM(buffers,1);
    fm={};
@@ -70,7 +84,7 @@ int main() {
    }
    if(checkMixed) {
     Interface ci;openmsx::MakotoYM2608 clone(ci);
-    ymfm::ymfm_saved_state state(saved,false);clone.save_restore(state);
+    TestArchive<true> state(saved);clone.serialize(state,1);
     std::array<float,2> v{};std::array<float*,13> out;out.fill(v.data());
     clone.generateFM(out,1);
     if(v[0]!=fm[0] || v[1]!=fm[1]) {std::cerr<<"Combined mismatch\n";return 5;}
