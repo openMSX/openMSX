@@ -33,7 +33,7 @@ class MakotoSound final : private ymfm::ymfm_interface
 	public:
 		Part(DeviceConfig& config, std::string_view name, static_string_view description,
 		     unsigned channels, unsigned rate, bool stereo)
-		    : ResampledSoundDevice(config.getMotherBoard(), name, description, channels, rate, stereo)
+			: ResampledSoundDevice(config.getMotherBoard(), name, description, channels, rate, stereo)
 		{
 		}
 		// Expose SoundDevice::updateStream(), which synchronizes all sound devices.
@@ -66,8 +66,8 @@ class MakotoSound final : private ymfm::ymfm_interface
 	{
 	public:
 		FmPart(DeviceConfig& config, std::string_view name, MakotoYM2608& chip_)
-		    : Part(config, name, "Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, true),
-		      chip(chip_)
+			: Part(config, name, "Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, true)
+			, chip(chip_)
 		{
 			registerSound(config);
 		}
@@ -85,7 +85,8 @@ class MakotoSound final : private ymfm::ymfm_interface
 	{
 	public:
 		SsgPart(DeviceConfig& config, std::string_view name, MakotoYM2608& chip_)
-		    : Part(config, strCat(name, " SSG"), "Makoto SSG", 3, CLOCK / 32, false), chip(chip_)
+			: Part(config, strCat(name, " SSG"), "Makoto SSG", 3, CLOCK / 32, false)
+			, chip(chip_)
 		{
 			registerSound(config);
 		}
@@ -108,7 +109,9 @@ class MakotoSound final : private ymfm::ymfm_interface
 	{
 	public:
 		Timer(Scheduler& scheduler, MakotoSound& owner_, unsigned index_)
-		    : Schedulable(scheduler), owner(owner_), index(index_)
+			: Schedulable(scheduler)
+			, owner(owner_)
+			, index(index_)
 		{
 		}
 
@@ -118,7 +121,7 @@ class MakotoSound final : private ymfm::ymfm_interface
 			cancel();
 			setSyncPoint(time);
 		}
-		template <typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+		template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 		{
 			ar.template serializeBase<Schedulable>(*this);
 		}
@@ -138,12 +141,15 @@ class MakotoSound final : private ymfm::ymfm_interface
 
 public:
 	MakotoSound(DeviceConfig& config, std::string_view name, EmuTime time)
-	    : irq(config.getMotherBoard(), strCat(name, ".IRQ")),
-	      timers{Timer(config.getScheduler(), *this, 0), Timer(config.getScheduler(), *this, 1)},
-	      contextTime(time), busyEnd(time), chip(*this),
-	      sampleRAM(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 262144),
-	      registers(config.getMotherBoard(), name, *this), fmPart(config, name, chip),
-	      ssgPart(config, name, chip)
+		: irq(config.getMotherBoard(), strCat(name, ".IRQ"))
+		, timers{Timer(config.getScheduler(), *this, 0), Timer(config.getScheduler(), *this, 1)}
+		, contextTime(time)
+		, busyEnd(time)
+		, chip(*this)
+		, sampleRAM(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 262144)
+		, registers(config.getMotherBoard(), name, *this)
+		, fmPart(config, name, chip)
+		, ssgPart(config, name, chip)
 	{
 		sampleRAM.clear(0); // Deterministic emulator policy; hardware power-on contents are unknown.
 		reset(time);
@@ -153,8 +159,9 @@ public:
 	{
 		updateStream(time);
 		contextTime = time;
-		for (auto& timer : timers)
+		for (auto& timer : timers) {
 			timer.cancel();
+		}
 		chip.reset();
 		applyRates();
 		busyEnd = time;
@@ -179,9 +186,9 @@ public:
 		if constexpr (!Archive::IS_LOADER) {
 			updateStream(timers[0].getCurrentTime());
 		}
-		ar.serialize("timerA", timers[0], "timerB", timers[1], "chip", chip,
-		             "busyEnd", busyEnd, "sampleRAM", sampleRAM, "irq", irq,
-		             "sampleClock", fmPart.getEmuClock(), "ssgClock", ssgPart.getEmuClock());
+		ar.serialize("timerA", timers[0], "timerB", timers[1], "chip", chip, "busyEnd", busyEnd,
+			     "sampleRAM", sampleRAM, "irq", irq, "sampleClock", fmPart.getEmuClock(),
+			     "ssgClock", ssgPart.getEmuClock());
 		if constexpr (Archive::IS_LOADER) {
 			const auto fmTime = fmPart.getEmuClock().getTime();
 			const auto ssgTime = ssgPart.getEmuClock().getTime();
@@ -196,10 +203,11 @@ public:
 private:
 	void ymfm_set_timer(uint32_t timer, int32_t duration) override
 	{
-		if (duration < 0)
+		if (duration < 0) {
 			timers[timer].cancel();
-		else
+		} else {
 			timers[timer].schedule(contextTime + Clock<CLOCK>::duration(unsigned(duration)));
+		}
 	}
 	void ymfm_set_busy_end(uint32_t duration) override
 	{
@@ -214,14 +222,19 @@ private:
 	}
 	uint8_t ymfm_external_read(ymfm::access_class type, uint32_t address) override
 	{
-		if (type == ymfm::ACCESS_ADPCM_B) return sampleRAM[address & 0x3ffff];
-		if (type == ymfm::ACCESS_ADPCM_A)
+		if (type == ymfm::ACCESS_ADPCM_B) {
+			return sampleRAM[address & 0x3ffff];
+		}
+		if (type == ymfm::ACCESS_ADPCM_A) {
 			return YM2608_ADPCM_ROM[address & 0x1fff];
+		}
 		return 0xff; // SSG GPIO is not attached to the MSX keyboard or joysticks.
 	}
 	void ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t value) override
 	{
-		if (type == ymfm::ACCESS_ADPCM_B) sampleRAM[address & 0x3ffff] = value;
+		if (type == ymfm::ACCESS_ADPCM_B) {
+			sampleRAM[address & 0x3ffff] = value;
+		}
 	}
 	void updateStream(EmuTime time) { fmPart.sync(time); }
 	void applyRates()
@@ -233,9 +246,9 @@ private:
 	struct Registers final : SimpleDebuggable
 	{
 		Registers(MSXMotherBoard& board, std::string_view name, MakotoSound& owner_)
-		    : SimpleDebuggable(board, strCat(name, " registers"), "Effective YM2608 core registers",
-				       512),
-		      owner(owner_)
+			: SimpleDebuggable(board, strCat(name, " registers"), "Effective YM2608 core registers",
+				       512)
+			, owner(owner_)
 		{
 		}
 		byte read(unsigned address) override { return owner.chip.peekRegister(uint16_t(address)); }
@@ -260,7 +273,8 @@ private:
 };
 
 MSXMakoto::MSXMakoto(DeviceConfig& config)
-    : MSXDevice(config), sound(std::make_unique<MakotoSound>(config, getName(), getCurrentTime()))
+	: MSXDevice(config)
+	, sound(std::make_unique<MakotoSound>(config, getName(), getCurrentTime()))
 {
 }
 MSXMakoto::~MSXMakoto() = default;
@@ -280,7 +294,7 @@ void MSXMakoto::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	sound->write(port & 3, value, time);
 }
-template <typename Archive> void MSXMakoto::serialize(Archive& ar, unsigned /*version*/)
+template<typename Archive> void MSXMakoto::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("sound", *sound);

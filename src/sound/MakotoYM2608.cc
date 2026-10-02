@@ -36,7 +36,13 @@ namespace openmsx {
 using namespace ymfm;
 
 MakotoYM2608::MakotoYM2608(ymfm_interface& intf)
-    : address(0), irqEnable(0x1f), flagControl(0x1c), fm(intf), ssg(intf), adpcmA(intf, 0), adpcmB(intf)
+	: address(0)
+	, irqEnable(0x1f)
+	, flagControl(0x1c)
+	, fm(intf)
+	, ssg(intf)
+	, adpcmA(intf, 0)
+	, adpcmB(intf)
 {
 	updatePrescale(fm.clock_prescale());
 }
@@ -213,10 +219,11 @@ void MakotoYM2608::writeAddress(uint8_t data)
 		// 2D-2F: prescaler select
 		if (address == 0x2d) {
 			updatePrescale(6);
-		} else if (address == 0x2e && fm.clock_prescale() == 6)
+		} else if (address == 0x2e && fm.clock_prescale() == 6) {
 			updatePrescale(3);
-		else if (address == 0x2f)
+		} else if (address == 0x2f) {
 			updatePrescale(2);
+		}
 	}
 }
 
@@ -264,9 +271,9 @@ void MakotoYM2608::writeDataHi(uint8_t data)
 		adpcmB.write(address & 0x0f, data);
 	} else if (address == 0x110) {
 		// 110: IRQ flag control
-		if (bitfield(data, 7))
+		if (bitfield(data, 7)) {
 			fm.set_reset_status(0, 0xff);
-		else {
+		} else {
 			flagControl = data;
 			fm.set_irq_mask(irqEnable & ~flagControl & 0x1f);
 		}
@@ -306,7 +313,7 @@ void MakotoYM2608::updatePrescale(uint8_t prescale)
 	ssg.prescale_changed();
 }
 
-template <bool Combined> void MakotoYM2608::generateFMImpl(std::span<float*> buffers, unsigned num)
+template<bool Combined> void MakotoYM2608::generateFMImpl(std::span<float*> buffers, unsigned num)
 {
 	uint32_t orOutput = 0;
 	const uint32_t fmMask = bitfield(irqEnable, 7) ? 0x3f : 0x07;
@@ -329,18 +336,19 @@ template <bool Combined> void MakotoYM2608::generateFMImpl(std::span<float*> buf
 		} else {
 			// Six FM voices, one ADPCM-B voice and six rhythm voices.
 			// Write directly to the host buffers; no channel-output cache.
-			for (unsigned c = 0; c < 13; ++c) {
-				fm_engine::output_data voice;
-				voice.clear();
-				if (c < 6) {
-					fm.output(voice, 1, 32767, fmMask & (1U << c));
-				} else if (c == 6) {
-					adpcmB.output(voice, 1);
-				} else {
-					adpcmA.output(voice, 1U << (c - 7));
-				}
+			fm_engine::output_data voice;
+			for (unsigned c = 0; c < 6; ++c) {
+				fm.output(voice.clear(), 1, 32767, fmMask & (1U << c));
 				buffers[c][2 * i] += float(voice.data[0]);
 				buffers[c][2 * i + 1] += float(voice.data[1]);
+			}
+			adpcmB.output(voice.clear(), 1);
+			buffers[6][2 * i] += float(voice.data[0]);
+			buffers[6][2 * i + 1] += float(voice.data[1]);
+			for (unsigned c = 0; c < 6; ++c) {
+				adpcmA.output(voice.clear(), 1U << c);
+				buffers[c + 7][2 * i] += float(voice.data[0]);
+				buffers[c + 7][2 * i + 1] += float(voice.data[1]);
 			}
 		}
 	}
@@ -362,7 +370,7 @@ void MakotoYM2608::generateFM(std::span<float*> buffers, unsigned num)
 	}
 }
 
-template <bool Combined> void MakotoYM2608::generateSSGImpl(std::span<float*> buffers, unsigned num)
+template<bool Combined> void MakotoYM2608::generateSSGImpl(std::span<float*> buffers, unsigned num)
 {
 	uint32_t orOutput = 0;
 	for (unsigned i = 0; i < num; ++i) {
@@ -374,8 +382,9 @@ template <bool Combined> void MakotoYM2608::generateSSGImpl(std::span<float*> bu
 			buffers[0][i] += float(total);
 			orOutput |= uint32_t(total);
 		} else {
-			for (unsigned c = 0; c < 3; ++c)
+			for (unsigned c = 0; c < 3; ++c) {
 				buffers[c][i] += float(s.data[c]);
+			}
 		}
 	}
 	if constexpr (Combined) {
