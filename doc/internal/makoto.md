@@ -148,3 +148,18 @@ The OPNA template is explicitly instantiated in its vendor translation unit.
 This fixes optimized GCC/Clang linkage; an isolated Clang link probe reproduced
 the earlier failure and succeeds after the change. Vendor sources now use .cc
 directly. The sound GUI no longer has any Makoto-specific changes.
+
+
+Separate-channel rendering now uses independent FM, ADPCM-B and rhythm loops.
+The standalone comparison still matches 1,080,000 samples. Five alternating
+Windows benchmark repetitions showed no convincing speed gain: median music
+CPU seconds were 11.359 before versus 11.203 after, and channel tools were
+12.688 versus 12.813 per 60 emulated seconds. Run variation was larger than the
+change, so this is a clarity improvement rather than a performance claim.
+
+The optional merged-class experiment was also built and tested separately.
+It preserved four 20-second recordings exactly and passed runtime state,
+rewind, timer, RAM, channel and construction-failure tests. Its median host
+cost was essentially unchanged, so it remains on the fork's
+codex/makoto-merged-experiment branch for further discussion. Raw measurements
+are in doc/makoto-review-2026-10-02-results.json on the fork cleanup branch.
