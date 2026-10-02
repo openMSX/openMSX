@@ -134,15 +134,10 @@ void MSXPiDevice::applyJumpers()
 const byte* MSXPiDevice::romByte(uint16_t address) const
 {
 	// The chip's A14 is CPU A15 or CPU A14, as the bank jumper wires it.
-	static constexpr std::array<byte, 0x100> ERASED = [] {
-		std::array<byte, 0x100> a{};
-		a.fill(0xFF);
-		return a;
-	}();
-	if (!romEnabled) return &ERASED[address & 0xFF]; // /CE not connected
+	if (!romEnabled) return unmappedRead.data(); // /CE not connected
 	unsigned a14 = (bank == Bank::A15) ? (address >> 15) & 1 : (address >> 14) & 1;
 	unsigned chip = (a14 << 14) | (address & 0x3FFF);
-	if (chip >= rom->size()) return &ERASED[address & 0xFF]; // 16KB image
+	if (chip >= rom->size()) return unmappedRead.data(); // 16KB image
 	return &(*rom)[chip];
 }
 
