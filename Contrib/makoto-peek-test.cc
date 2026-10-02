@@ -1,7 +1,7 @@
 #include "makoto-reference/ReferenceYM2608.hh"
 // YM2608 debugger access: compare peek values with real reads on a clone,
 // while proving that peeks leave chip state and host side effects untouched.
-// Build with ymfm_opn.cpp, ymfm_ssg.cpp, ymfm_adpcm.cpp (C++17 or newer).
+// Build with ymfm_opn.cc, ymfm_ssg.cc, ymfm_adpcm.cc (C++17 or newer).
 #include "ymfm_opn.h"
 #include <array>
 #include <cstdint>
