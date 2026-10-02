@@ -1,4 +1,4 @@
-// CPU ADPCM-B transfer boundaries. Build with ymfm_adpcm.cpp (C++17+).
+// CPU ADPCM-B transfer boundaries. Build with ymfm_adpcm.cc (C++17+).
 // The x1 END=0 and LIMIT=0 expectations are physical Makoto V5 results
 // from Sanyo MSX2+ and Panasonic turbo R. Other cases are software regressions.
 #include "ymfm_adpcm.h"

@@ -37,3 +37,7 @@ obsolete output caches. The control layer preserves the 1134-byte core layout
 with compatibility padding; versions 1-6 lacked the final CPU-write latch and
 load with it false. Earlier releases cannot load version 9. Upstream has its
 own initial serialization version, without the fork's historical migrations.
+
+Build integration: source files use .cc directly for openMSX discovery. The
+OPNA FM engine is explicitly instantiated in ymfm_opn.cc so callers in other
+translation units link on optimized GCC/Clang builds as well as MSVC.

@@ -1,6 +1,6 @@
 #include "makoto-reference/ReferenceYM2608.hh"
 // Standalone regression for the small YMFM channel-output adapter.
-// Build with ymfm_opn.cpp, ymfm_ssg.cpp and ymfm_adpcm.cpp, C++17 or newer.
+// Build with ymfm_opn.cc, ymfm_ssg.cc and ymfm_adpcm.cc, C++17 or newer.
 #include "ymfm_opn.h"
 #include <array>
 #include <cstdint>

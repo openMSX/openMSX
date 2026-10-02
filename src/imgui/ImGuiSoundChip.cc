@@ -5,12 +5,9 @@
 #include "ImGuiUtils.hh"
 
 #include "MSXMixer.hh"
-#include "MSXCommandController.hh"
-#include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "SoundDevice.hh"
 #include "StringSetting.hh"
-#include "StringOp.hh"
 
 #include <imgui.h>
 
@@ -135,7 +132,6 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 				}
 			});
 		});
-
 	});
 }
 
