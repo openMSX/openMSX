@@ -133,6 +133,9 @@ public:
 	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	enum class Link : uint8_t { DOWN, PROBING, FRAMED, INCOMPATIBLE };
 	struct Offer {
