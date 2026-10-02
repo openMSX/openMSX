@@ -24,7 +24,7 @@
 // I/O ports 0x28 (command, write-only) and 0x29 (data). Same range as the
 // DenYoNet - both are UNAPI Ethernet bridges and don't coexist.
 // Bridge between the MSX and BSD sockets on the host, speaking protocol v2
-// (see unapinet/protocol-v2.md): every reply starts with a status byte.
+// (see network/protocol-v2.md): every reply starts with a status byte.
 
 namespace openmsx {
 

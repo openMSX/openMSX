@@ -14,9 +14,11 @@
 #define CIRCULAR_BUFFER_HH
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdlib>
 #include <iterator>
+#include <ranges>
 #include <utility>
 
 /** Random access iterator for circular_buffer. */
@@ -241,6 +243,16 @@ public:
 		--siz;
 	}
 
+	// Remove the first 'n' elements, like std::string_view::remove_prefix().
+	void remove_prefix(size_t n) {
+		assert(n <= size());
+		for (size_t i = 0; i < n; ++i) {
+			first->~T();
+			increment(first);
+		}
+		siz -= n;
+	}
+
 	void clear() {
 		for (size_t i = 0; i < size(); ++i, increment(first)) {
 			first->~T();
@@ -345,11 +357,19 @@ public:
 		: buf(capacity) {}
 
 	template<typename U>
-	void push_back(U&& u) { checkGrow(); buf.push_back(std::forward<U>(u)); }
+	void push_back(U&& u) { growFor(1); buf.push_back(std::forward<U>(u)); }
 
 	template<typename U>
-	void push_back(std::initializer_list<U> list) {
-		for (auto& e : list) push_back(e);
+	void push_back(std::initializer_list<U> list) { push_back_range(list); }
+
+	// Appends all elements of the given range at once. The buffer is
+	// grown at most once, unlike repeated push_back() calls.
+	template<typename Range>
+	void push_back_range(Range&& range) {
+		growFor(static_cast<size_t>(std::ranges::distance(range)));
+		for (auto&& e : range) {
+			buf.push_back(std::forward<decltype(e)>(e));
+		}
 	}
 
 	T pop_front() {
@@ -375,14 +395,18 @@ public:
 	[[nodiscard]] bool empty() const { return buf.empty(); }
 	void clear() { buf.clear(); }
 
+	// Remove the first 'n' elements, like std::string_view::remove_prefix().
+	void remove_prefix(size_t n) { buf.remove_prefix(n); }
+
 	[[nodiscard]] auto& getBuffer()       { return buf; }
 	[[nodiscard]] auto& getBuffer() const { return buf; }
 
 private:
-	void checkGrow() {
-		if (buf.full()) {
-			buf.set_capacity(std::max(4uz, buf.capacity() * 2));
-		}
+	// Grows the buffer so that (at least) 'extra' more elements fit.
+	void growFor(size_t extra) {
+		size_t needed = size() + extra;
+		if (needed <= buf.capacity()) return;
+		buf.set_capacity(std::max({4uz, buf.capacity() * 2, needed}));
 	}
 
 	circular_buffer<T> buf;

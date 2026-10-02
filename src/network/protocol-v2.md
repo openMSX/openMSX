@@ -453,9 +453,9 @@ behind the scenes. The driver and the device are developed and released
 together - the compatibility notes below rely on that - but only the device
 lives in the openMSX tree.
 
-The C++ implementation is `src/unapinet/UnapiNet.cc`; the byte-exact layouts
+The C++ implementation is `src/network/UnapiNet.cc`; the byte-exact layouts
 of every parameter and result block are the structs in
-`src/unapinet/UnapiNetWire.hh`. Where a struct name appears below, that
+`src/network/UnapiNetWire.hh`. Where a struct name appears below, that
 struct *is* the layout.
 
 Protocol version described here: **v1** (bridge version byte 4, as reported
