@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<!--
+  PicoVerse 2040 MultiROM - Copyright (C) 2026 Cristiano Goncalves (The Retro Hacker)
+  Licensed under the GNU General Public License, version 2 or (at your option) any later version.
+-->
+<msxconfig>
+  <info>
+    <name>PicoVerse 2040 MultiROM</name>
+    <manufacturer>The Retro Hacker</manufacturer>
+    <code/>
+    <release_year>2025</release_year>
+    <description>PicoVerse 2040 cartridge running a MultiROM UF2. The picoverse2040.tcl script replaces this placeholder with the menu of the selected UF2 (setting picoverse2040_uf2).</description>
+    <type>multi-ROM cartridge</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <ROM id="PicoVerse 2040 MultiROM">
+          <rom>
+            <filename>picoverse2040.rom</filename>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
