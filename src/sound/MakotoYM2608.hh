@@ -42,42 +42,70 @@ class MakotoYM2608 final
 	static constexpr uint8_t STATUS_ADPCM_B_BRDY = 0x08;
 	static constexpr uint8_t STATUS_ADPCM_B_PLAYING = 0x20;
 	using fm_engine = ymfm::fm_engine_base<ymfm::opna_registers>;
+
 public:
 	explicit MakotoYM2608(ymfm::ymfm_interface& intf);
 	void reset();
-	// Retain the public 1134-byte state format; unused stream fields are padding.
-	void save_restore(ymfm::ymfm_saved_state& state);
-	void invalidate_caches() { m_fm.invalidate_caches(); }
-	[[nodiscard]] unsigned prescale() const { return m_fm.clock_prescale(); }
+	template <typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("address", address, "irqEnable", irqEnable, "flagControl", flagControl);
+		serializeEngine(ar, "fm", fm);
+		serializeEngine(ar, "ssg", ssg);
+		serializeEngine(ar, "adpcmA", adpcmA);
+		serializeEngine(ar, "adpcmB", adpcmB);
+		if constexpr (Archive::IS_LOADER) {
+			updatePrescale(fm.clock_prescale());
+		}
+	}
+	void invalidateCaches() { fm.invalidate_caches(); }
+	[[nodiscard]] unsigned prescale() const { return fm.clock_prescale(); }
 	[[nodiscard]] unsigned fmRate() const { return (8000000 + 12 * prescale()) / (24 * prescale()); }
-	[[nodiscard]] unsigned ssgRate() const { return 8000000 / (prescale() == 6 ? 32 : prescale() == 3 ? 16 : 8); }
+	[[nodiscard]] unsigned ssgRate() const
+	{
+		return 8000000 / (prescale() == 6 ? 32 : prescale() == 3 ? 16 : 8);
+	}
 	uint8_t read(uint32_t offset);
 	[[nodiscard]] uint8_t peek(uint32_t offset, bool busy) const;
-	[[nodiscard]] uint8_t peek_register(uint16_t regnum) const;
+	[[nodiscard]] uint8_t peekRegister(uint16_t regnum) const;
 	void write(uint32_t offset, uint8_t data);
-	void write_register(uint16_t regnum, uint8_t data);
+	void writeRegister(uint16_t regnum, uint8_t data);
 	void generateFM(std::span<float*> buffers, unsigned num);
 	void generateSSG(std::span<float*> buffers, unsigned num);
+
 private:
-	uint8_t read_status();
-	uint8_t read_status_hi();
-	uint8_t read_data();
-	uint8_t read_data_hi();
-	[[nodiscard]] uint8_t status_hi() const;
-	void write_address(uint8_t data);
-	void write_address_hi(uint8_t data);
-	void write_data(uint8_t data);
-	void write_data_hi(uint8_t data);
-	void update_prescale(uint8_t prescale);
-	template<bool Combined> void generateFMImpl(std::span<float*> buffers, unsigned num);
-	template<bool Combined> void generateSSGImpl(std::span<float*> buffers, unsigned num);
-	uint16_t m_address;
-	uint8_t m_irq_enable;
-	uint8_t m_flag_control;
-	fm_engine m_fm;
-	ymfm::ssg_engine m_ssg;
-	ymfm::adpcm_a_engine m_adpcm_a;
-	ymfm::adpcm_b_engine m_adpcm_b;
+	template <typename Archive, typename Engine>
+	static void serializeEngine(Archive& ar, const char* name, Engine& engine)
+	{
+		// Obtain the pinned engine's exact byte count. The archive's blob reader
+		// rejects a mismatched length instead of YMFM silently zero-filling it.
+		std::vector<uint8_t> data;
+		ymfm::ymfm_saved_state saved(data, true);
+		engine.save_restore(saved);
+		ar.serialize_blob(name, std::span<uint8_t>(data), false);
+		if constexpr (Archive::IS_LOADER) {
+			ymfm::ymfm_saved_state restored(data, false);
+			engine.save_restore(restored);
+		}
+	}
+	uint8_t readStatus();
+	uint8_t readStatusHi();
+	uint8_t readData();
+	uint8_t readDataHi();
+	[[nodiscard]] uint8_t statusHi() const;
+	void writeAddress(uint8_t data);
+	void writeAddressHi(uint8_t data);
+	void writeData(uint8_t data);
+	void writeDataHi(uint8_t data);
+	void updatePrescale(uint8_t prescale);
+	template <bool Combined> void generateFMImpl(std::span<float*> buffers, unsigned num);
+	template <bool Combined> void generateSSGImpl(std::span<float*> buffers, unsigned num);
+	uint16_t address;
+	uint8_t irqEnable;
+	uint8_t flagControl;
+	fm_engine fm;
+	ymfm::ssg_engine ssg;
+	ymfm::adpcm_a_engine adpcmA;
+	ymfm::adpcm_b_engine adpcmB;
 };
 } // namespace openmsx
 #endif
