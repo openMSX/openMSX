@@ -32,9 +32,7 @@ static constexpr auto TRANSFER_TIME = EmuDuration::usec(20);
 MSXPiDevice::MSXPiDevice(DeviceConfig& config)
 	: MSXDevice(config)
 	, activePort(DEFAULT_SERVER_PORT)
-	, rom(config.findChild("rom")
-		? std::make_unique<Rom>(getName() + " ROM", "MSXPi EEPROM", config)
-		: nullptr)
+	, rom(getName() + " ROM", "MSXPi EEPROM", config)
 	, bankSetting(getCommandController(), "msxpirom_bank",
 		"MSXPi bank jumper, as labelled on the PCB: BANK2 (EEPROM A14 = CPU "
 		"A15) puts the lower half (MSX-DOS) at 4000h, BANK1 (EEPROM A14 = CPU "
@@ -51,9 +49,9 @@ MSXPiDevice::MSXPiDevice(DeviceConfig& config)
 {
 	activePort = portSetting.getInt();
 	portSetting.attach(*this);
-	if (rom && rom->size() != 0x4000 && rom->size() != 0x8000) {
+	if (rom.size() != 0x4000 && rom.size() != 0x8000) {
 		throw MSXException("MSXPi EEPROM image must be 16KB or 32KB, got ",
-		                   rom->size(), " bytes");
+		                   rom.size(), " bytes");
 	}
 	bank = bankSetting.getEnum(); // read before the first access
 	romEnabled = sltslSetting.getEnum() == Sltsl::ON;
@@ -123,7 +121,6 @@ void MSXPiDevice::reset(EmuTime /*time*/)
 
 void MSXPiDevice::applyJumpers()
 {
-	if (!rom) return;
 	auto newBank = bankSetting.getEnum();
 	auto newEnabled = sltslSetting.getEnum() == Sltsl::ON;
 	if (newBank == bank && newEnabled == romEnabled) return;
@@ -138,8 +135,8 @@ const byte* MSXPiDevice::romByte(uint16_t address) const
 	if (!romEnabled) return unmappedRead.data(); // /CE not connected
 	unsigned a14 = (bank == Bank::A15) ? (address >> 15) & 1 : (address >> 14) & 1;
 	unsigned chip = (a14 << 14) | (address & 0x3FFF);
-	if (chip >= rom->size()) return unmappedRead.data(); // 16KB image
-	return &(*rom)[chip];
+	if (chip >= rom.size()) return unmappedRead.data(); // 16KB image
+	return &rom[chip];
 }
 
 byte MSXPiDevice::readMem(uint16_t address, EmuTime time)
@@ -149,13 +146,13 @@ byte MSXPiDevice::readMem(uint16_t address, EmuTime time)
 
 byte MSXPiDevice::peekMem(uint16_t address, EmuTime /*time*/) const
 {
-	return rom ? *romByte(address) : 0xFF;
+	return *romByte(address);
 }
 
 const byte* MSXPiDevice::getReadCacheLine(uint16_t start) const
 {
 	// A cache line never crosses a 16KB boundary, so one lookup covers it.
-	return rom ? romByte(start) : MSXDevice::getReadCacheLine(start);
+	return romByte(start);
 }
 
 bool MSXPiDevice::ready() const

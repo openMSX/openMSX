@@ -92,9 +92,9 @@ class DeviceConfig;
   * A server that sends no hello is too old to speak this protocol. It is
   * treated like an absent Pi: READY stays low.
   *
-  * THE ROM (optional)
+  * THE ROM
   *
-  * With a <rom> child the device also serves the board's 32KB EEPROM, wired
+  * The device also serves the board's 32KB EEPROM, wired
   * as on the board (J3 "ROM_SWITCH"): /CE is /SLTSL through the SLTSL
   * jumper, with no address decoding, so the chip answers in every page the
   * device is mapped in; its A14 pin is jumpered to CPU A14 or to CPU A15.
@@ -113,8 +113,8 @@ class DeviceConfig;
   * reset. Map the device over the whole slot (<mem base="0x0000"
   * size="0x10000"/>) to see the mirroring the BIOS sees. A 16KB file is a
   * chip written with 16KB: the upper half reads as erased (FFh). The chip is
-  * not writable here. Without a <rom> child the ROM is left to a separate
-  * <ROM> device, as in older extension files.
+  * not writable here. The <rom> child is required; the board is shipped with
+  * the EEPROM in place, and the SLTSL jumper covers running without it.
   */
 class MSXPiDevice final : public MSXDevice, private Observer<Setting>
 {
@@ -154,7 +154,7 @@ private:
 	void interfaceReset();
 	void waitForPeer(EmuTime time);
 
-	// EEPROM (only with a <rom> child)
+	// EEPROM
 	void applyJumpers();
 	[[nodiscard]] const byte* romByte(uint16_t address) const;
 
@@ -206,7 +206,7 @@ private:
 	std::atomic<bool> shouldStop = false;
 
 	// EEPROM
-	const std::unique_ptr<Rom> rom; // nullptr: no <rom> child
+	const Rom rom;
 	// EEPROM A14 wired to CPU A15 (PCB label BANK2) or CPU A14 (BANK1)
 	enum class Bank : uint8_t { A15, A14 };
 	enum class Sltsl : uint8_t { OFF, ON };  // EEPROM /CE connected to /SLTSL
