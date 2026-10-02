@@ -6,6 +6,7 @@
 #include "MSXMotherBoard.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
+#include "serialize.hh"
 
 #include <algorithm>
 #include <array>
@@ -456,6 +457,32 @@ void MSXPiDevice::readLoop()
 	}
 }
 
+// The state the MSX can observe, which is what a savestate has to carry: the
+// EEPROM jumpers as of the last reset, and the port-level state of the
+// interface. The link to the server is deliberately left out - a socket and a
+// reader thread cannot be restored - so after a load the device reconnects
+// exactly as it does at startup, and a transfer that was in flight is dropped:
+// the protocol's checksum/retry layer recovers from that.
+template<typename Archive>
+void MSXPiDevice::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+
+	auto bankA14 = byte(bank == Bank::A14);
+	ar.serialize("bankA14",    bankA14,
+	             "romEnabled", romEnabled,
+	             "latch",      latch,
+	             "busy",       busy,
+	             "waitMode",   waitMode,
+	             "srValue",    srValue);
+
+	if constexpr (Archive::IS_LOADER) {
+		bank = bankA14 ? Bank::A14 : Bank::A15;
+		bound.reset(); // nobody is clocking a transfer any more
+		invalidateDeviceRCache(); // the ROM may be mapped differently now
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXPiDevice);
 REGISTER_MSXDEVICE(MSXPiDevice, "MSXPiDevice");
 
 } // namespace openmsx
