@@ -198,7 +198,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	: MSXRom(config, std::move(rom_))
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
-	      getCurrentTime())
+	      getCurrentTime(), AY8910::Type::AY8910)
 	, flash(rom, AmdFlashChip::M29W800DB, {}, config)
 {
 	// adjust PSG volume, see details in https://github.com/openMSX/openMSX/issues/1934

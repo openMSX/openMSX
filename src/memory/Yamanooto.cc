@@ -37,7 +37,8 @@ Yamanooto::Yamanooto(DeviceConfig& config, Rom&& rom_)
 	, romBlockDebug(*this)
 	, flash(rom, AmdFlashChip::S29GL064N90TFI04, {}, config)
 	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Compatible)
-	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
+	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config,
+	      getCurrentTime(), AY8910::Type::AY8910)
 {
 	// Tests show that the PSG has higher volume than the scc. See
 	//   https://www.msx.org/forum/msx-talk/openmsx/openmsx-cartridge-type?page=2#comment-470014

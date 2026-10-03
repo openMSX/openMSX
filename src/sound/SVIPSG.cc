@@ -51,7 +51,7 @@ namespace openmsx {
 SVIPSG::SVIPSG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(unsigned(i)); }))
-	, ay8910("PSG", *this, config, getCurrentTime())
+	, ay8910("PSG", *this, config, getCurrentTime(), AY8910::Type::AY8910)
 {
 	reset(getCurrentTime());
 }

@@ -12,10 +12,8 @@
 
 #include "AY8910Periphery.hh"
 #include "DeviceConfig.hh"
-#include "MSXException.hh"
 
 #include "Math.hh"
-#include "StringOp.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -289,20 +287,8 @@ inline void AY8910::NoiseGenerator::advance(unsigned duration)
 
 // Amplitude:
 
-static bool checkAY8910(const DeviceConfig& config)
-{
-	auto type = config.getChildData("type", "ay8910");
-	StringOp::casecmp cmp;
-	if (cmp(type, "ay8910")) {
-		return true;
-	} else if (cmp(type, "ym2149")) {
-		return false;
-	}
-	throw FatalError("Unknown PSG type: ", type);
-}
-
-AY8910::Amplitude::Amplitude(const DeviceConfig& config)
-	: isAY8910(checkAY8910(config))
+AY8910::Amplitude::Amplitude(Type type)
+	: isAY8910(type == Type::AY8910)
 	, envVolTable(isAY8910 ? AY8910EnvelopeTab : YM2149EnvelopeTab)
 {
 	vol[0] = vol[1] = vol[2] = 0.0f;
@@ -474,7 +460,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 // AY8910 main class:
 
 AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
-               const DeviceConfig& config, EmuTime time)
+               const DeviceConfig& config, EmuTime time, Type type)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, NATIVE_FREQ_INT, false)
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
@@ -490,9 +476,9 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	, detuneFrequency(
 		config.getCommandController(), tmpStrCat(getName(), "_detune_frequency"),
 		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
-	, amplitude(config)
+	, amplitude(type)
 	, envelope(amplitude.getEnvVolTable())
-	, isAY8910(checkAY8910(config))
+	, isAY8910(type == Type::AY8910)
 {
 	update(vibratoPercent);
 

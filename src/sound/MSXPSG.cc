@@ -31,6 +31,18 @@ namespace openmsx {
 		"', expected 'jis' or '50on'.");
 }
 
+static AY8910::Type getType(const DeviceConfig& config)
+{
+	auto type = config.getChildData("type", "ay8910");
+	StringOp::casecmp cmp;
+	if (cmp(type, "ay8910")) {
+		return AY8910::Type::AY8910;
+	} else if (cmp(type, "ym2149")) {
+		return AY8910::Type::YM2149;
+	}
+	throw FatalError("Unknown PSG type: ", type);
+}
+
 // MSXDevice
 MSXPSG::MSXPSG(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -42,7 +54,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, keyLayout(getKeyboardLayout(*this))
 	, addressMask(config.getChildDataAsBool("mirrored_registers", false) ? 0x0f : 0xff)
 	, ignorePortDirections(config.getChildDataAsBool("ignorePortDirections", true))
-	, ay8910(getName(), *this, config, getCurrentTime())
+	, ay8910(getName(), *this, config, getCurrentTime(), getType(config))
 {
 	reset(getCurrentTime());
 }

@@ -67,7 +67,7 @@ RomManbow2::RomManbow2(DeviceConfig& config, Rom&& rom_, RomType type)
 	, psg((type == one_of(RomType::MANBOW2_2, RomType::HAMARAJANIGHT))
 		? std::make_unique<AY8910>(
 			getName() + " PSG", DummyAY8910Periphery::instance(),
-			config, getCurrentTime())
+			config, getCurrentTime(), AY8910::Type::AY8910)
 		: nullptr)
 	, flash(rom, getFlashChip(type), getWriteProtectSectors(type), config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
