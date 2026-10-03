@@ -12,7 +12,6 @@
 
 #include "AY8910Periphery.hh"
 #include "DeviceConfig.hh"
-#include "GlobalSettings.hh"
 #include "MSXException.hh"
 
 #include "Math.hh"
@@ -37,9 +36,6 @@ namespace openmsx {
 // that much (clock/16).
 static constexpr float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
 static constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
-
-static constexpr int PORT_A_DIRECTION = 0x40;
-static constexpr int PORT_B_DIRECTION = 0x80;
 
 static constexpr uint8_t AY_AFINE    =  0;
 static constexpr uint8_t AY_ACOARSE  =  1;
@@ -494,12 +490,9 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	, detuneFrequency(
 		config.getCommandController(), tmpStrCat(getName(), "_detune_frequency"),
 		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
-	, directionsCallback(
-		config.getGlobalSettings().getInvalidPsgDirectionsSetting())
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
 	, isAY8910(checkAY8910(config))
-	, ignorePortDirections(config.getChildDataAsBool("ignorePortDirections", true))
 {
 	update(vibratoPercent);
 
@@ -592,15 +585,7 @@ void AY8910::wrtReg(unsigned reg, uint8_t value, EmuTime time)
 {
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
-		if (value & PORT_A_DIRECTION) {
-			directionsCallback.execute();
-		}
-		if (ignorePortDirections)
-		{
-			// portA -> input
-			// portB -> output
-			value = (value & ~PORT_A_DIRECTION) | PORT_B_DIRECTION;
-		}
+		value = periphery.adjustDirectionBits(value);
 	}
 
 	// Note: unused bits are stored as well; they can be read back.

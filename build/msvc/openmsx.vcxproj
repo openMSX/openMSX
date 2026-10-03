@@ -670,7 +670,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputConnector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AY8910.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\AY8910Periphery.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\BlipBuffer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DACSound16S.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DACSound8U.cc" />

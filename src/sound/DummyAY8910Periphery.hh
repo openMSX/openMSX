@@ -14,11 +14,6 @@ public:
 		return oneInstance;
 	}
 
-	[[nodiscard]] byte readA(EmuTime /*time*/) override { return 255; }
-	[[nodiscard]] byte readB(EmuTime /*time*/) override { return 255; }
-	void writeA(byte /*value*/, EmuTime /*time*/) override {}
-	void writeB(byte /*value*/, EmuTime /*time*/) override {}
-
 private:
 	DummyAY8910Periphery() = default;
 	~DummyAY8910Periphery() = default;

@@ -23,20 +23,38 @@ public:
 	  *   On subsequent calls, the time will always be increasing.
 	  * @return the value read; unconnected bits should be 1
 	  */
-	[[nodiscard]] virtual uint8_t readA(EmuTime time);
+	[[nodiscard]] virtual uint8_t readA(EmuTime /*time*/) {
+		return 0xff;
+	}
 
 	/** Similar to readA, but reads port B. */
-	[[nodiscard]] virtual uint8_t readB(EmuTime time);
+	[[nodiscard]] virtual uint8_t readB(EmuTime /*time*/) {
+		return 0xff;
+	}
 
 	/** Writes to the peripheral on port A.
 	  * @param value The value to write.
 	  * @param time The moment in time the value is written.
 	  *   On subsequent calls, the time will always be increasing.
 	  */
-	virtual void writeA(uint8_t value, EmuTime time);
+	virtual void writeA(uint8_t /*value*/, EmuTime /*time*/) {
+		// nothing
+	}
 
 	/** Similar to writeA, but writes port B. */
-	virtual void writeB(uint8_t value, EmuTime time);
+	virtual void writeB(uint8_t /*value*/, EmuTime /*time*/) {
+		// nothing
+	}
+
+	/** Some implementations (e.g. in MSX-engine chips) force certain port
+	  * directions. And/or some want to warn about setting illegal
+	  * (dangerous) port directions.
+	  * This callback allows to check what directions are set, and possibly
+	  * change the direction bits (upper 2 bits).
+	  * Note: Lower 6 bits must always be returned unchanged. */
+	virtual uint8_t adjustDirectionBits(uint8_t reg7) {
+		return reg7; // return unchanged
+	}
 
 protected:
 	AY8910Periphery() = default;

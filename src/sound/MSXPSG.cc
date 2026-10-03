@@ -1,6 +1,7 @@
 #include "MSXPSG.hh"
 
 #include "CassettePort.hh"
+#include "GlobalSettings.hh"
 #include "JoystickPort.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
@@ -36,8 +37,11 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, cassette(getMotherBoard().getCassettePort())
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(unsigned(i)); }))
+	, directionsCallback(
+		config.getGlobalSettings().getInvalidPsgDirectionsSetting())
 	, keyLayout(getKeyboardLayout(*this))
 	, addressMask(config.getChildDataAsBool("mirrored_registers", false) ? 0x0f : 0xff)
+	, ignorePortDirections(config.getChildDataAsBool("ignorePortDirections", true))
 	, ay8910(getName(), *this, config, getCurrentTime())
 {
 	reset(getCurrentTime());
@@ -120,6 +124,20 @@ void MSXPSG::writeB(byte value, EmuTime time)
 		getLedStatus().setLed(LedStatus::KANA, !(value & 0x80));
 	}
 	prev = value;
+}
+
+uint8_t MSXPSG::adjustDirectionBits(uint8_t reg7)
+{
+	if (reg7 & AY8910::PORT_A_DIRECTION) {
+		// portA may not be set as output
+		directionsCallback.execute();
+	}
+	if (ignorePortDirections) {
+		// portA -> input
+		// portB -> output
+		reg7 = (reg7 & ~AY8910::PORT_A_DIRECTION) | AY8910::PORT_B_DIRECTION;
+	}
+	return reg7;
 }
 
 // version 1: initial version

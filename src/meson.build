@@ -377,7 +377,6 @@ sources = files(
     'settings/UserSettings.cc',
     'settings/VideoSourceSetting.cc',
     'sound/AY8910.cc',
-    'sound/AY8910Periphery.cc',
     'sound/AudioInputConnector.cc',
     'sound/AudioInputDevice.cc',
     'sound/BlipBuffer.cc',
