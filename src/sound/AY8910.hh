@@ -28,7 +28,8 @@ public:
 
 public:
 	AY8910(const std::string& name, AY8910Periphery& periphery,
-	       const DeviceConfig& config, EmuTime time, Type type);
+	       const DeviceConfig& config, EmuTime time, Type type,
+	       float frequency = 3579545.0f / 2.0f);
 	~AY8910();
 
 	[[nodiscard]] uint8_t readRegister(unsigned reg, EmuTime time);
@@ -194,6 +195,7 @@ private:
 	Amplitude amplitude;
 	Envelope envelope;
 	std::array<uint8_t, 16> regs;
+	float outputFreq;
 	bool isAY8910;
 	bool doDetune;
 };

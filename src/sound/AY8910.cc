@@ -29,12 +29,6 @@
 
 namespace openmsx {
 
-// The step clock for the tone and noise generators is the chip clock
-// divided by 8; for the envelope generator of the AY-3-8910, it is half
-// that much (clock/16).
-static constexpr float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
-static constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
-
 static constexpr uint8_t AY_AFINE    =  0;
 static constexpr uint8_t AY_ACOARSE  =  1;
 static constexpr uint8_t AY_BFINE    =  2;
@@ -166,7 +160,7 @@ int AY8910::ToneGenerator::getDetune(const AY8910& ay8910)
 	if (float vibPerc = ay8910.vibratoPercent.getFloat();
 	    vibPerc != 0.0f) {
 		auto vibratoPeriod = int(
-			NATIVE_FREQ_FLOAT /
+			ay8910.outputFreq /
 			ay8910.vibratoFrequency.getFloat());
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
@@ -176,7 +170,7 @@ int AY8910::ToneGenerator::getDetune(const AY8910& ay8910)
 	}
 	if (float detunePerc = ay8910.detunePercent.getFloat();
 	    detunePerc != 0.0f) {
-		float detunePeriod = NATIVE_FREQ_FLOAT /
+		float detunePeriod = ay8910.outputFreq /
 			ay8910.detuneFrequency.getFloat();
 		detuneCount += period;
 		float noiseIdx = narrow_cast<float>(detuneCount) / detunePeriod;
@@ -459,9 +453,14 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 
 // AY8910 main class:
 
+// The step clock for the tone and noise generators is the chip clock
+// divided by 8; for the envelope generator of the AY-3-8910, it is half
+// that much (clock/16).
+
 AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
-               const DeviceConfig& config, EmuTime time, Type type)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, NATIVE_FREQ_INT, false)
+               const DeviceConfig& config, EmuTime time, Type type,
+               float clockFreq)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, std::lrint(clockFreq / 8), false)
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
 	, vibratoPercent(
@@ -478,6 +477,7 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
 	, amplitude(type)
 	, envelope(amplitude.getEnvVolTable())
+	, outputFreq(clockFreq / 8)
 	, isAY8910(type == Type::AY8910)
 {
 	update(vibratoPercent);
