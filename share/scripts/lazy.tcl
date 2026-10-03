@@ -44,7 +44,7 @@ register_lazy "_save_debuggable.tcl" {
 	save_to_file}
 register_lazy "_save_msx_screen.tcl" save_msx_screen
 register_lazy "_savestate.tcl" {
-	savestate loadstate delete_savestate list_savestates list_savestates_raw}
+	savestate loadstate loadstate_dev delete_savestate list_savestates list_savestates_raw}
 register_lazy "_scc_toys.tcl" {
 	toggle_scc_editor toggle_psg2scc set_scc_wave toggle_scc_viewer}
 register_lazy "_shuffler.tcl" {shuffler}

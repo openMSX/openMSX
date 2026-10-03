@@ -27,6 +27,13 @@ RomAscii16X::RomAscii16X(DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
+size_t RomAscii16X::refreshFlashFromRom()
+{
+	auto count = flash.refreshUnmodified(rom);
+	invalidateDeviceRCache();
+	return count;
+}
+
 void RomAscii16X::reset(EmuTime /*time*/)
 {
 	ranges::iota(bankRegs, uint16_t(0));
