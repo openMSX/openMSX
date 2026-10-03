@@ -1,0 +1,24 @@
+YM2608 internal rhythm sample reconstruction
+===========================================
+
+Source: ValleyBell/libvgm, emu/cores/fmopn_2608rom.h
+Revision: c8b998b606895990c409a512b86c5509070f9f0d
+https://github.com/ValleyBell/libvgm/blob/c8b998b606895990c409a512b86c5509070f9f0d/emu/cores/fmopn_2608rom.h
+
+The data bytes are copied unchanged; the declaration uses std::array for C++.
+The upstream comment describes reconstruction
+from the chip's output, verified against a real YM2608. It is not a game asset.
+The 8192 data bytes have CRC32 23c9e0d8 and SHA1
+50b6c3e288eaa12ad275d4f323267bb72b0445df. The regression test uses SHA256:
+53afd0fa9c62eda3e2be939e23f3adf48a2af8ad37bb1640261726c5d5adeba8.
+
+License: GPL-2.0-or-later, following the fmopn.c core that includes this table:
+https://github.com/ValleyBell/libvgm/blob/c8b998b606895990c409a512b86c5509070f9f0d/emu/cores/fmopn.c
+That source states "license:GPL-2.0+" and names the copyright holders:
+Jarek Burczynski and Tatsuyuki Satoh (MultiArcadeMachineEmulator development).
+See LICENSE for the GNU General Public License version 2.
+
+This data is kept separate from the BSD-3-Clause YMFM core. Makoto supplies it
+to YMFM through the existing ADPCM-A memory callback. The optional external
+rhythm ROM remains an override, including when restoring older saved machines.
+No YMFM engine code or serialized state layout changes are needed for the table.
