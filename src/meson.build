@@ -392,7 +392,6 @@ sources = files(
     'sound/MSXMoonSound.cc',
     'sound/MSXMakoto.cc',
     '3rdparty/ymfm/ymfm_opn.cc',
-    '3rdparty/ymfm/ymfm_ssg.cc',
     '3rdparty/ymfm/ymfm_adpcm.cc',
     'sound/MSXMusic.cc',
     'sound/MSXOPL3Cartridge.cc',

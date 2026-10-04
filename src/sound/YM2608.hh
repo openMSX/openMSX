@@ -9,6 +9,9 @@
 #include "Ram.hh"
 #include "SimpleDebuggable.hh"
 
+#include "3rdparty/ymfm/ymfm.h"
+#include "3rdparty/ymfm/ymfm_adpcm.h"
+#include "3rdparty/ymfm/ymfm_fm.h"
 #include "3rdparty/ymfm/ymfm_opn.h"
 
 #include <array>
