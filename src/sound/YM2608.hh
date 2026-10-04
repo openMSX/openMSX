@@ -21,9 +21,9 @@ public:
 	YM2608(DeviceConfig& config, std::string_view name, EmuTime time);
 
 	void reset(EmuTime time);
-	uint8_t read(unsigned port, EmuTime time);
-	uint8_t peek(unsigned port, EmuTime time) const;
-	void write(unsigned port, uint8_t value, EmuTime time);
+	uint8_t readPort(unsigned port, EmuTime time);
+	uint8_t peekPort(unsigned port, EmuTime time) const;
+	void writePort(unsigned port, uint8_t value, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -35,13 +35,8 @@ private:
 	uint8_t statusHi() const;
 	uint8_t readDataHi();
 
-	void writeAddress(uint8_t data);
-	void writeData(uint8_t data, EmuTime time);
-	void writeAddressHi(uint8_t data);
-	void writeDataHi(uint8_t data);
-
-	uint8_t peekRegister(uint16_t regnum, EmuTime time) const;
-	void writeRegister(uint16_t regnum, uint8_t data, EmuTime time);
+	void writeRegister(unsigned regnum, uint8_t data, EmuTime time);
+	uint8_t peekRegister(unsigned regnum, EmuTime time) const;
 
 	void updateStream(EmuTime time);
 	void updatePrescale(uint8_t prescale);

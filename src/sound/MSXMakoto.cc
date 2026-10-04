@@ -15,17 +15,17 @@ void MSXMakoto::reset(EmuTime time)
 
 uint8_t MSXMakoto::readIO(uint16_t port, EmuTime time)
 {
-	return ym2608.read(port & 3, time);
+	return ym2608.readPort(port & 3, time);
 }
 
 uint8_t MSXMakoto::peekIO(uint16_t port, EmuTime time) const
 {
-	return ym2608.peek(port & 3, time);
+	return ym2608.peekPort(port & 3, time);
 }
 
 void MSXMakoto::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
-	ym2608.write(port & 3, value, time);
+	ym2608.writePort(port & 3, value, time);
 }
 
 template<typename Archive>

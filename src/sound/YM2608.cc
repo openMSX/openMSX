@@ -45,7 +45,6 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 void YM2608::reset(EmuTime time)
 {
 	updateStream(time);
-	contextTime = time;
 	for (auto& timer : timers) {
 		timer.cancel();
 	}
@@ -75,10 +74,9 @@ void YM2608::reset(EmuTime time)
 	irq.reset();
 }
 
-uint8_t YM2608::read(unsigned port, EmuTime time)
+uint8_t YM2608::readPort(unsigned port, EmuTime time)
 {
 	updateStream(time);
-	contextTime = time;
 
 	switch (port & 3) {
 	case 0: // status port, YM2203 compatible
@@ -92,6 +90,28 @@ uint8_t YM2608::read(unsigned port, EmuTime time)
 	}
 	UNREACHABLE;
 }
+
+uint8_t YM2608::peekPort(unsigned port, EmuTime time) const
+{
+	// Debugger reads deliberately bypass readStatusHi()'s IRQ update and the
+	// ADPCM data port's dummy reads, address advancement and flag changes.
+	auto busy = (time < busyEnd) ? fm_engine::STATUS_BUSY : 0;
+	switch (port & 3) {
+	case 0:
+		return (fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB)) | busy;
+	case 1:
+		if (addressLatch < 0x10) {
+			return ssg.peekRegister(addressLatch, time);
+		}
+		return (addressLatch == 0xff) ? 1 : 0;
+	case 2:
+		return statusHi() | busy;
+	case 3:
+		return ((addressLatch & 0xff) < 0x10) ? adpcmB.peek(addressLatch & 0x0f) : 0;
+	}
+	UNREACHABLE;
+}
+
 
 uint8_t YM2608::readStatus()
 {
@@ -157,105 +177,56 @@ uint8_t YM2608::readDataHi()
 	}
 }
 
-// Debugger reads deliberately bypass readStatusHi()'s IRQ update and the
-// ADPCM data port's dummy reads, address advancement and flag changes.
-uint8_t YM2608::peek(unsigned port, EmuTime time) const
+void YM2608::writePort(unsigned port, uint8_t value, EmuTime time)
 {
-	auto busy = (time < busyEnd) ? fm_engine::STATUS_BUSY : 0;
 	switch (port & 3) {
-	case 0:
-		return (fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB)) | busy;
-	case 1:
-		if (addressLatch < 0x10) {
-			return ssg.peekRegister(addressLatch, time);
+	case 0: // lower address port
+		addressLatch = value;
+		// special case: update the prescale
+		if (0x2d <= addressLatch && addressLatch <= 0x2f) {
+			if (addressLatch == 0x2d) {
+				updatePrescale(6);
+			} else if (addressLatch == 0x2e && fm.clock_prescale() == 6) {
+				updatePrescale(3);
+			} else if (addressLatch == 0x2f) {
+				updatePrescale(2);
+			}
 		}
-		return (addressLatch == 0xff) ? 1 : 0;
-	case 2:
-		return statusHi() | busy;
-	case 3:
-		return ((addressLatch & 0xff) < 0x10) ? adpcmB.peek(addressLatch & 0x0f) : 0;
-	}
-	UNREACHABLE;
-}
-
-void YM2608::write(unsigned port, uint8_t value, EmuTime time)
-{
-	updateStream(time);
-	contextTime = time;
-
-	switch (port & 3) {
-	case 0: // address port
-		writeAddress(value);
-		break;
-	case 1: // data port
-		writeData(value, time);
 		break;
 	case 2: // upper address port
-		writeAddressHi(value);
+		addressLatch = 0x100 | value;
+		break;
+	case 1: // lower data port
+		if (addressLatch & 0x100) break; // ignore if paired with upper address
+		writeRegister(addressLatch, value, time);
 		break;
 	case 3: // upper data port
-		writeDataHi(value);
+		if ((addressLatch & 0x100) == 0) break; // ignore if paired with lower address
+		writeRegister(addressLatch, value, time);
 		break;
 	}
 
 	applyRates();
 }
 
-void YM2608::writeAddress(uint8_t data)
+void YM2608::writeRegister(unsigned regnum, uint8_t data, EmuTime time)
 {
-	// just set the address
-	addressLatch = data;
+	updateStream(time);
 
-	// special case: update the prescale
-	if (0x2d <= addressLatch && addressLatch <= 0x2f) {
-		// 2D-2F: prescaler select
-		if (addressLatch == 0x2d) {
-			updatePrescale(6);
-		} else if (addressLatch == 0x2e && fm.clock_prescale() == 6) {
-			updatePrescale(3);
-		} else if (addressLatch == 0x2f) {
-			updatePrescale(2);
-		}
-	}
-}
-
-void YM2608::writeData(uint8_t data, EmuTime time)
-{
-	if (addressLatch & 0x100) return; // ignore if paired with upper address
-
-	if (addressLatch < 0x10) {
+	if (regnum < 0x10) {
 		// 00-0F: write to SSG
 		ssg.writeRegister(addressLatch & 0x0f, data, time);
-	} else if (addressLatch < 0x20) {
+	} else if (regnum < 0x20) {
 		// 10-1F: write to ADPCM-A
-		adpcmA.write(addressLatch & 0x0f, data);
-	} else if (addressLatch == 0x29) {
+		adpcmA.write(regnum & 0x0f, data);
+	} else if (regnum == 0x29) {
 		// 29: special IRQ mask register
 		irqEnable = data;
 		fm.set_irq_mask(irqEnable & ~flagControl & 0x1f);
-	} else {
-		// 20-28, 2A-FF: write to FM
-		fm.write(addressLatch, data);
-	}
-
-	// mark busy for a bit
-	ymfm_set_busy_end(32 * fm.clock_prescale());
-}
-
-void YM2608::writeAddressHi(uint8_t data)
-{
-	// just set the address
-	addressLatch = 0x100 | data;
-}
-
-void YM2608::writeDataHi(uint8_t data)
-{
-	if ((addressLatch & 0x100) == 0) return; // ignore if paired with lower address
-
-	if (addressLatch < 0x110) {
+	} else if (0x100 <= regnum && regnum < 0x110) {
 		// 100-10F: write to ADPCM-B
-		adpcmB.write(addressLatch & 0x0f, data);
-	} else if (addressLatch == 0x110) {
+		adpcmB.write(regnum & 0x0f, data);
+	} else if (regnum == 0x110) {
 		// 110: IRQ flag control
 		if (data & 0x80) {
 			fm.set_reset_status(0, 0xff);
@@ -264,48 +235,36 @@ void YM2608::writeDataHi(uint8_t data)
 			fm.set_irq_mask(irqEnable & ~flagControl & 0x1f);
 		}
 	} else {
-		// 111-1FF: write to FM
-		fm.write(addressLatch, data);
+		// 20-28, 2A-FF, 111-1FF: write to FM
+		fm.write(regnum, data);
 	}
 
 	// mark busy for a bit
 	ymfm_set_busy_end(32 * fm.clock_prescale());
 }
 
-uint8_t YM2608::peekRegister(uint16_t regnum, EmuTime time) const
+uint8_t YM2608::peekRegister(unsigned regnum, EmuTime time) const
 {
 	assert(regnum < 0x200);
 	if (regnum < 0x10) {
 		return ssg.peekRegister(regnum, time);
-	}
-	if (regnum < 0x20) {
+	} else if (regnum < 0x20) {
 		return adpcmA.regs().read(regnum & 0x0f);
-	}
-	if (regnum == 0x29) {
+	} else if (regnum == 0x29) {
 		return irqEnable;
-	}
-	if (regnum >= 0x100 && regnum < 0x110) {
+	} else if (0x100 <= regnum && regnum < 0x110) {
 		return adpcmB.regs().read(regnum & 0x0f);
-	}
-	if (regnum == 0x110) {
+	} else if (regnum == 0x110) {
 		return flagControl;
+	} else {
+		return fm.regs().read(regnum);
 	}
-	return fm.regs().read(regnum);
-}
-
-void YM2608::writeRegister(uint16_t regnum, uint8_t data, EmuTime time)
-{
-	// normal port-write behavior without disturbing a pending CPU write.
-	uint16_t savedAddress = addressLatch;
-	uint32_t port = (regnum & 0x100) ? 2 : 0;
-	write(port + 0, uint8_t(regnum), time);
-	write(port + 1, data, time);
-	addressLatch = savedAddress;
 }
 
 void YM2608::updateStream(EmuTime time)
 {
 	fmPart.updateStream(time);
+	contextTime = time;
 }
 
 void YM2608::updatePrescale(uint8_t prescale)
@@ -559,7 +518,6 @@ void YM2608::Timer::schedule(EmuTime time)
 void YM2608::Timer::executeUntil(EmuTime time)
 {
 	ym2608.updateStream(time);
-	ym2608.contextTime = time;
 	// YMFM reloads the timer through ymfm_set_timer().
 	ym2608.m_engine->engine_timer_expired(index);
 }
@@ -579,15 +537,12 @@ YM2608::Registers::Registers(MSXMotherBoard& board, std::string_view name_, YM26
 
 uint8_t YM2608::Registers::read(unsigned address, EmuTime time)
 {
-	return ym2608.peekRegister(uint16_t(address), time);
+	return ym2608.peekRegister(address, time);
 }
 
 void YM2608::Registers::write(unsigned address, uint8_t value, EmuTime time)
 {
-	ym2608.updateStream(time);
-	ym2608.contextTime = time;
-	ym2608.writeRegister(uint16_t(address), value, time);
-	ym2608.applyRates();
+	ym2608.writeRegister(address, value, time);
 }
 
 } // namespace openmsx
