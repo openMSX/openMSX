@@ -392,35 +392,19 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 	}
 }
 
-template<typename Archive, typename Engine>
-static void serializeEngine(Archive& ar, const char* name, Engine& engine)
-{
-	// Obtain the pinned engine's exact byte count. The archive's blob reader
-	// rejects a mismatched length instead of YMFM silently zero-filling it.
-	std::vector<uint8_t> data;
-	ymfm::ymfm_saved_state saved(data, true);
-	engine.save_restore(saved);
-	ar.serialize_blob(name, std::span<uint8_t>(data), false);
-	if constexpr (Archive::IS_LOADER) {
-		ymfm::ymfm_saved_state restored(data, false);
-		engine.save_restore(restored);
-	}
-}
-
 template<typename Archive>
 void YM2608::serialize(Archive& ar, unsigned /*version*/)
 {
 	if constexpr (!Archive::IS_LOADER) {
 		updateStream(timers[0].getCurrentTime());
 	}
-	ar.serialize("timerA", timers[0],
-		     "timerB", timers[1]);
-	ar.serialize("address", addressLatch,
-	             "irqEnable", irqEnable,
-	             "flagControl", flagControl);
-	serializeEngine(ar, "fm", fm);
-	serializeEngine(ar, "adpcmA", adpcmA);
-	serializeEngine(ar, "adpcmB", adpcmB);
+	ar.serialize("timers",      timers,
+	             "address",     addressLatch,
+	             "irqEnable",   irqEnable,
+	             "flagControl", flagControl,
+	             "fm",          fm,
+	             "adpcmA",      adpcmA,
+	             "adpcmB",      adpcmB);
 	if constexpr (Archive::IS_LOADER) {
 		updatePrescale(fm.clock_prescale());
 	}

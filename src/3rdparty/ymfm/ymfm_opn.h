@@ -36,6 +36,8 @@
 #include "ymfm.h"
 #include "ymfm_fm.h"
 
+#include <array>
+
 namespace ymfm
 {
 
@@ -134,7 +136,17 @@ public:
 	void reset();
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		if (IsOpnA)
+		{
+			ar.serialize("lfo_counter", m_lfo_counter,
+				"lfo_am", m_lfo_am);
+		}
+		ar.serialize("regdata", m_regdata);
+	}
+
 
 	// map channel number to register offset
 	static constexpr uint32_t channel_offset(uint32_t chnum)
@@ -245,7 +257,7 @@ protected:
 	// internal state
 	uint32_t m_lfo_counter;               // LFO counter
 	uint8_t m_lfo_am;                     // current LFO AM value
-	uint8_t m_regdata[REGISTERS];         // register data
+	std::array<uint8_t, REGISTERS> m_regdata;         // register data
 	uint16_t m_waveform[WAVEFORMS][WAVEFORM_LENGTH]; // waveforms
 };
 

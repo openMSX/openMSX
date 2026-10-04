@@ -71,22 +71,6 @@ void opn_registers_base<IsOpnA>::reset()
 
 
 //-------------------------------------------------
-//  save_restore - save or restore the data
-//-------------------------------------------------
-
-template<bool IsOpnA>
-void opn_registers_base<IsOpnA>::save_restore(ymfm_saved_state &state)
-{
-	if (IsOpnA)
-	{
-		state.save_restore(m_lfo_counter);
-		state.save_restore(m_lfo_am);
-	}
-	state.save_restore(m_regdata);
-}
-
-
-//-------------------------------------------------
 //  operator_map - return an array of operator
 //  indices for each channel; for OPN this is fixed
 //-------------------------------------------------

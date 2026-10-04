@@ -397,71 +397,6 @@ private:
 };
 
 
-// ======================> ymfm_saved_state
-
-// this class contains a managed vector of bytes that is used to save and
-// restore state
-class ymfm_saved_state
-{
-public:
-	// construction
-	ymfm_saved_state(std::vector<uint8_t> &buffer, bool saving) :
-		m_buffer(buffer),
-		m_offset(saving ? -1 : 0)
-	{
-		if (saving)
-			buffer.resize(0);
-	}
-
-	// are we saving or restoring?
-	bool saving() const { return (m_offset < 0); }
-
-	// generic save/restore
-	template<typename DataType>
-	void save_restore(DataType &data)
-	{
-		if (saving())
-			save(data);
-		else
-			restore(data);
-	}
-
-public:
-	// save data to the buffer
-	void save(bool &data) { write(data ? 1 : 0); }
-	void save(int8_t &data) { write(data); }
-	void save(uint8_t &data) { write(data); }
-	void save(int16_t &data) { write(uint8_t(data)).write(data >> 8); }
-	void save(uint16_t &data) { write(uint8_t(data)).write(data >> 8); }
-	void save(int32_t &data) { write(data).write(data >> 8).write(data >> 16).write(data >> 24); }
-	void save(uint32_t &data) { write(data).write(data >> 8).write(data >> 16).write(data >> 24); }
-	void save(envelope_state &data) { write(uint8_t(data)); }
-	template<typename DataType, int Count>
-	void save(DataType (&data)[Count]) { for (uint32_t index = 0; index < Count; index++) save(data[index]); }
-
-	// restore data from the buffer
-	void restore(bool &data) { data = read() ? true : false; }
-	void restore(int8_t &data) { data = read(); }
-	void restore(uint8_t &data) { data = read(); }
-	void restore(int16_t &data) { data = read(); data |= read() << 8; }
-	void restore(uint16_t &data) { data = read(); data |= read() << 8; }
-	void restore(int32_t &data) { data = read(); data |= read() << 8; data |= read() << 16; data |= read() << 24; }
-	void restore(uint32_t &data) { data = read(); data |= read() << 8; data |= read() << 16; data |= read() << 24; }
-	void restore(envelope_state &data) { data = envelope_state(read()); }
-	template<typename DataType, int Count>
-	void restore(DataType (&data)[Count]) { for (uint32_t index = 0; index < Count; index++) restore(data[index]); }
-
-	// internal helper
-	ymfm_saved_state &write(uint8_t data) { m_buffer.push_back(data); return *this; }
-	uint8_t read() { return (m_offset < int32_t(m_buffer.size())) ? m_buffer[m_offset++] : 0; }
-
-	// internal state
-	std::vector<uint8_t> &m_buffer;
-	int32_t m_offset;
-};
-
-
-
 //*********************************************************
 //  INTERFACE CLASSES
 //*********************************************************
@@ -565,6 +500,21 @@ protected:
 	ymfm_engine_callbacks *m_engine;
 };
 
+}
+
+
+#include "serialize_core.hh"
+
+namespace openmsx {
+	static constexpr auto envelopeInfo = std::to_array<enum_string<ymfm::envelope_state>>({
+		{ "DEPRESS", ymfm::EG_DEPRESS },
+		{ "ATTACK",  ymfm::EG_ATTACK },
+		{ "DECAY",   ymfm::EG_DECAY },
+		{ "SUSTAIN", ymfm::EG_SUSTAIN },
+		{ "RELEASE", ymfm::EG_RELEASE },
+		{ "REVERB",  ymfm::EG_REVERB },
+	});
+	SERIALIZE_ENUM(ymfm::envelope_state, envelopeInfo);
 }
 
 #endif // YMFM_H

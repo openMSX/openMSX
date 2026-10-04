@@ -405,22 +405,6 @@ void fm_operator<RegisterType>::reset()
 
 
 //-------------------------------------------------
-//  save_restore - save or restore the data
-//-------------------------------------------------
-
-template<class RegisterType>
-void fm_operator<RegisterType>::save_restore(ymfm_saved_state &state)
-{
-	state.save_restore(m_phase);
-	state.save_restore(m_env_attenuation);
-	state.save_restore(m_env_state);
-	state.save_restore(m_ssg_inverted);
-	state.save_restore(m_key_state);
-	state.save_restore(m_keyon_live);
-}
-
-
-//-------------------------------------------------
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
@@ -817,19 +801,6 @@ void fm_channel<RegisterType>::reset()
 	// reset our data
 	m_feedback[0] = m_feedback[1] = 0;
 	m_feedback_in = 0;
-}
-
-
-//-------------------------------------------------
-//  save_restore - save or restore the data
-//-------------------------------------------------
-
-template<class RegisterType>
-void fm_channel<RegisterType>::save_restore(ymfm_saved_state &state)
-{
-	state.save_restore(m_feedback[0]);
-	state.save_restore(m_feedback[1]);
-	state.save_restore(m_feedback_in);
 }
 
 
@@ -1236,39 +1207,6 @@ void fm_engine_base<RegisterType>::reset()
 	// reset the operators
 	for (auto &op : m_operator)
 		op->reset();
-}
-
-
-//-------------------------------------------------
-//  save_restore - save or restore the data
-//-------------------------------------------------
-
-template<class RegisterType>
-void fm_engine_base<RegisterType>::save_restore(ymfm_saved_state &state)
-{
-	// save our data
-	state.save_restore(m_env_counter);
-	state.save_restore(m_status);
-	state.save_restore(m_clock_prescale);
-	state.save_restore(m_irq_mask);
-	state.save_restore(m_irq_state);
-	state.save_restore(m_timer_running[0]);
-	state.save_restore(m_timer_running[1]);
-	state.save_restore(m_total_clocks);
-
-	// save the register/family data
-	m_regs.save_restore(state);
-
-	// save channel data
-	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		m_channel[chnum]->save_restore(state);
-
-	// save operator data
-	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
-		m_operator[opnum]->save_restore(state);
-
-	// invalidate any caches
-	invalidate_caches();
 }
 
 

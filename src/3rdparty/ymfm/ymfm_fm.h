@@ -33,6 +33,8 @@
 
 #pragma once
 
+#include <array>
+
 #define YMFM_DEBUG_LOG_WAVFILES (0)
 
 namespace ymfm
@@ -172,7 +174,16 @@ public:
 	fm_operator(fm_engine_base<RegisterType> &owner, uint32_t opoffs);
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("phase",           m_phase,
+		             "env_attenuation", m_env_attenuation,
+		             "env_state",       m_env_state,
+		             "ssg_inverted",    m_ssg_inverted,
+		             "key_state",       m_key_state,
+		             "keyon_live",      m_keyon_live);
+	}
 
 	// reset the operator state
 	void reset();
@@ -256,7 +267,12 @@ public:
 	fm_channel(fm_engine_base<RegisterType> &owner, uint32_t choffs);
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("feedback",    m_feedback,
+		             "feedback_in", m_feedback_in);
+	}
 
 	// reset the channel state
 	void reset();
@@ -328,7 +344,7 @@ private:
 
 	// internal state
 	uint32_t m_choffs;                     // channel offset in registers
-	int16_t m_feedback[2];                 // feedback memory for operator 1
+	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
 	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output)
 	std::array<fm_operator<RegisterType> *, 4> m_op; // up to 4 operators
 	RegisterType &m_regs;                  // direct reference to registers
@@ -364,7 +380,27 @@ public:
 	fm_engine_base(ymfm_interface &intf);
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		// save our data
+		ar.serialize("env_counter",    m_env_counter,
+		             "status",         m_status,
+		             "clock_prescale", m_clock_prescale,
+		             "irq_mask",       m_irq_mask,
+		             "irq_state",      m_irq_state,
+		             "timer_running",  m_timer_running,
+		             "total_clocks",   m_total_clocks,
+		             "regs",           m_regs);
+		for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
+			ar.serialize("channel", *m_channel[chnum]);
+		}
+		for (uint32_t opnum = 0; opnum < OPERATORS; ++opnum) {
+			ar.serialize("operator", *m_operator[opnum]);
+		}
+		// invalidate any caches
+		invalidate_caches();
+	}
 
 	// reset the overall state
 	void reset();
@@ -446,13 +482,13 @@ protected:
 	uint8_t m_clock_prescale;        // prescale factor (2/3/6)
 	uint8_t m_irq_mask;              // mask of which bits signal IRQs
 	uint8_t m_irq_state;             // current IRQ state
-	uint8_t m_timer_running[2];      // current timer running state
+	std::array<uint8_t, 2> m_timer_running;      // current timer running state
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
 	uint32_t m_active_channels;      // mask of active channels (computed by prepare)
 	uint32_t m_modified_channels;    // mask of channels that have been modified
 	uint32_t m_prepare_count;        // counter to do periodic prepare sweeps
 	RegisterType m_regs;             // register accessor
-	std::unique_ptr<fm_channel<RegisterType>> m_channel[CHANNELS]; // channel pointers
+	std::array<std::unique_ptr<fm_channel<RegisterType>>, CHANNELS> m_channel; // channel pointers
 	std::unique_ptr<fm_operator<RegisterType>> m_operator[OPERATORS]; // operator pointers
 #if (YMFM_DEBUG_LOG_WAVFILES)
 	mutable ymfm_wavfile<1> m_wavfile[CHANNELS]; // for debugging

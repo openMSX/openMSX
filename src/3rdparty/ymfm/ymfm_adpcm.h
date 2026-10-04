@@ -35,6 +35,8 @@
 
 #include "ymfm.h"
 
+#include <array>
+
 namespace ymfm
 {
 
@@ -81,7 +83,11 @@ public:
 	void reset();
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("regdata", m_regdata);
+	}
 
 	// map channel number to register offset
 	static constexpr uint32_t channel_offset(uint32_t chnum)
@@ -121,7 +127,7 @@ public:
 
 private:
 	// internal state
-	uint8_t m_regdata[REGISTERS];         // register data
+	std::array<uint8_t, REGISTERS> m_regdata;         // register data
 };
 
 
@@ -137,7 +143,16 @@ public:
 	void reset();
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("playing",     m_playing,
+		             "curnibble",   m_curnibble,
+		             "curbyte",     m_curbyte,
+		             "curaddress",  m_curaddress,
+		             "accumulator", m_accumulator,
+		             "step_index",  m_step_index);
+	}
 
 	// signal key on/off
 	void keyonoff(bool on);
@@ -178,7 +193,16 @@ public:
 	void reset();
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("regs", m_regs);
+		for (int chnum = 0; chnum < CHANNELS; ++chnum) {
+			ar.serialize("channel", *m_channel[chnum]);
+		}
+	}
+
+
 
 	// master clocking function
 	uint32_t clock(uint32_t chanmask);
@@ -262,7 +286,11 @@ public:
 	void reset();
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("regdata", m_regdata);
+	}
 
 	// direct read/write access
 	uint8_t read(uint32_t index) const { return m_regdata[index]; }
@@ -293,7 +321,7 @@ public:
 
 private:
 	// internal state
-	uint8_t m_regdata[REGISTERS];         // register data
+	std::array<uint8_t, REGISTERS> m_regdata;         // register data
 };
 
 
@@ -316,7 +344,20 @@ public:
 	void reset();
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("status",           m_status,
+		             "curnibble",        m_curnibble,
+		             "curbyte",          m_curbyte,
+		             "dummy_read",       m_dummy_read,
+		             "position",         m_position,
+		             "curaddress",       m_curaddress,
+		             "accumulator",      m_accumulator,
+		             "prev_accum",       m_prev_accum,
+		             "adpcm_step",       m_adpcm_step,
+		             "cpu_write_active", m_cpu_write_active);
+	}
 
 	// signal key on/off
 	void keyonoff(bool on);
@@ -380,7 +421,12 @@ public:
 	void reset();
 
 	// save/restore
-	void save_restore(ymfm_saved_state &state);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("regs",    m_regs,
+		             "channel", *m_channel);
+	}
 
 	// master clocking function
 	void clock();
