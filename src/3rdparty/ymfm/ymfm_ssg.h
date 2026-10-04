@@ -56,7 +56,7 @@ public:
 
 	// read/write to the SSG registers
 	virtual uint8_t ssg_read(uint32_t regnum) = 0;
-	virtual uint8_t ssg_peek(uint32_t regnum) { return 0xff; }
+	virtual uint8_t ssg_peek(uint32_t /*regnum*/) { return 0xff; }
 	virtual void ssg_write(uint32_t regnum, uint8_t data) = 0;
 
 	// notification when the prescale has changed

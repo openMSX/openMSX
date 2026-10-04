@@ -348,7 +348,7 @@ void opn_registers_base<IsOpnA>::cache_operator_data(uint32_t choffs, uint32_t o
 //-------------------------------------------------
 
 template<bool IsOpnA>
-uint32_t opn_registers_base<IsOpnA>::compute_phase_step(uint32_t choffs, uint32_t opoffs, opdata_cache const &cache, int32_t lfo_raw_pm)
+uint32_t opn_registers_base<IsOpnA>::compute_phase_step(uint32_t choffs, uint32_t /*opoffs*/, opdata_cache const &cache, int32_t lfo_raw_pm)
 {
 	// OPN phase calculation has only a single detune parameter
 	// and uses FNUMs instead of keycodes
@@ -674,7 +674,7 @@ void ssg_resampler<OutputType, FirstOutput, MixTo1>::resample_4_3(OutputType *ou
 //-------------------------------------------------
 
 template<typename OutputType, int FirstOutput, bool MixTo1>
-void ssg_resampler<OutputType, FirstOutput, MixTo1>::resample_nop(OutputType *output, uint32_t numsamples)
+void ssg_resampler<OutputType, FirstOutput, MixTo1>::resample_nop(OutputType */*output*/, uint32_t numsamples)
 {
 	// nothing to do except increment the sample index
 	m_sampindex += numsamples;

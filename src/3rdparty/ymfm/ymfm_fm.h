@@ -129,8 +129,8 @@ public:
 	uint32_t rhythm_enable() const                   { return 0; } // OPL only
 
 	// per-operator register defaults
-	uint32_t op_ssg_eg_enable(uint32_t opoffs) const { return 0; } // OPN(A) only
-	uint32_t op_ssg_eg_mode(uint32_t opoffs) const   { return 0; } // OPN(A) only
+	uint32_t op_ssg_eg_enable(uint32_t /*opoffs*/) const { return 0; } // OPN(A) only
+	uint32_t op_ssg_eg_mode(uint32_t /*opoffs*/) const   { return 0; } // OPN(A) only
 
 protected:
 	// helper to encode four operator numbers into a 32-bit value in the

@@ -1083,7 +1083,7 @@ void fm_channel<RegisterType>::output_4op(output_data &output, uint32_t rshift, 
 //-------------------------------------------------
 
 template<class RegisterType>
-void fm_channel<RegisterType>::output_rhythm_ch6(output_data &output, uint32_t rshift, int32_t clipmax) const
+void fm_channel<RegisterType>::output_rhythm_ch6(output_data &output, uint32_t rshift, int32_t /*clipmax*/) const
 {
 	// AM amount is the same across all operators; compute it once
 	uint32_t am_offset = m_regs.lfo_am_offset(m_choffs);

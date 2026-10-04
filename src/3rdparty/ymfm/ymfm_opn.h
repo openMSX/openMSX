@@ -212,8 +212,8 @@ public:
 	uint32_t ch_output_any(uint32_t choffs) const    { return IsOpnA ? byte(0xb4, 6, 2, choffs) : 1; }
 	uint32_t ch_output_0(uint32_t choffs) const      { return IsOpnA ? byte(0xb4, 7, 1, choffs) : 1; }
 	uint32_t ch_output_1(uint32_t choffs) const      { return IsOpnA ? byte(0xb4, 6, 1, choffs) : 0; }
-	uint32_t ch_output_2(uint32_t choffs) const      { return 0; }
-	uint32_t ch_output_3(uint32_t choffs) const      { return 0; }
+	uint32_t ch_output_2(uint32_t /*choffs*/) const  { return 0; }
+	uint32_t ch_output_3(uint32_t /*choffs*/) const  { return 0; }
 	uint32_t ch_lfo_am_sens(uint32_t choffs) const   { return IsOpnA ? byte(0xb4, 4, 2, choffs) : 0; }
 	uint32_t ch_lfo_pm_sens(uint32_t choffs) const   { return IsOpnA ? byte(0xb4, 0, 3, choffs) : 0; }
 
