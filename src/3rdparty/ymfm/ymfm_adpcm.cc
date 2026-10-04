@@ -105,16 +105,6 @@ void adpcm_a_channel::keyonoff(bool on)
 		m_curbyte = 0;
 		m_accumulator = 0;
 		m_step_index = 0;
-
-		// don't log masked channels
-		if (((debug::GLOBAL_ADPCM_A_CHANNEL_MASK >> m_choffs) & 1) != 0)
-			debug::log_keyon("KeyOn ADPCM-A%d: pan=%d%d start=%04X end=%04X level=%02X\n",
-				m_choffs,
-				m_regs.ch_pan_left(m_choffs),
-				m_regs.ch_pan_right(m_choffs),
-				m_regs.ch_start(m_choffs),
-				m_regs.ch_end(m_choffs),
-				m_regs.ch_instrument_level(m_choffs));
 	}
 }
 
@@ -279,9 +269,6 @@ uint32_t adpcm_a_engine::clock(uint32_t chanmask)
 template<int NumOutputs>
 void adpcm_a_engine::output(ymfm_output<NumOutputs> &output, uint32_t chanmask)
 {
-	// mask out some channels for debug purposes
-	chanmask &= debug::GLOBAL_ADPCM_A_CHANNEL_MASK;
-
 	// compute the output of each channel
 	for (int chnum = 0; chnum < CHANNELS; chnum++)
 		if (bitfield(chanmask, chnum))
@@ -424,7 +411,6 @@ void adpcm_b_channel::clock()
 					m_accumulator = 0;
 					m_prev_accum = 0;
 					m_status = (m_status & ~STATUS_PLAYING) | STATUS_EOS;
-					debug::log_keyon("%s\n", "ADPCM EOS");
 					return;
 				}
 			}
@@ -474,10 +460,6 @@ void adpcm_b_channel::clock()
 template<int NumOutputs>
 void adpcm_b_channel::output(ymfm_output<NumOutputs> &output, uint32_t rshift) const
 {
-	// mask out some channels for debug purposes
-	if ((debug::GLOBAL_ADPCM_B_CHANNEL_MASK & 1) == 0)
-		return;
-
 	// do a linear interpolation between samples
 	int32_t result = (m_prev_accum * int32_t((m_position ^ 0xffff) + 1) + m_accumulator * int32_t(m_position)) >> 16;
 
@@ -539,7 +521,6 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 			if (at_end())
 			{
 				m_status = STATUS_EOS | STATUS_BRDY;
-				debug::log_keyon("%s\n", "ADPCM EOS");
 			}
 			else
 			{
@@ -571,25 +552,6 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 		if (m_regs.execute())
 		{
 			load_start();
-
-			// don't log masked channels
-			if ((debug::GLOBAL_ADPCM_B_CHANNEL_MASK & 1) != 0)
-				debug::log_keyon("KeyOn ADPCM-B: rep=%d spk=%d pan=%d%d dac=%d 8b=%d rom=%d ext=%d rec=%d start=%04X end=%04X pre=%04X dn=%04X lvl=%02X lim=%04X\n",
-					m_regs.repeat(),
-					m_regs.speaker(),
-					m_regs.pan_left(),
-					m_regs.pan_right(),
-					m_regs.dac_enable(),
-					m_regs.dram_8bit(),
-					m_regs.rom_ram(),
-					m_regs.external(),
-					m_regs.record(),
-					m_regs.start(),
-					m_regs.end(),
-					m_regs.prescale(),
-					m_regs.delta_n(),
-					m_regs.level(),
-					m_regs.limit());
 		}
 		else
 			m_status &= ~STATUS_EOS;
@@ -628,7 +590,6 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 			if (m_curaddress == end)
 			{
 				m_cpu_write_active = false;
-				debug::log_keyon("%s\n", "ADPCM EOS");
 				m_status = STATUS_EOS | STATUS_BRDY;
 			}
 			else

@@ -809,16 +809,11 @@ void fm_channel<RegisterType>::reset()
 //-------------------------------------------------
 
 template<class RegisterType>
-void fm_channel<RegisterType>::keyonoff(uint32_t states, keyon_type type, uint32_t chnum)
+void fm_channel<RegisterType>::keyonoff(uint32_t states, keyon_type type, uint32_t /*chnum*/)
 {
 	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
 		if (m_op[opnum] != nullptr)
 			m_op[opnum]->keyonoff(bitfield(states, opnum), type);
-
-	if (debug::LOG_KEYON_EVENTS && ((debug::GLOBAL_FM_CHANNEL_MASK >> chnum) & 1) != 0)
-		for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
-			if (m_op[opnum] != nullptr)
-				debug::log_keyon("%c%s\n", bitfield(states, opnum) ? '+' : '-', m_regs.log_keyon(m_choffs, m_op[opnum]->opoffs()).c_str());
 }
 
 
@@ -855,23 +850,6 @@ void fm_channel<RegisterType>::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
 		if (m_op[opnum] != nullptr)
 			m_op[opnum]->clock(env_counter, lfo_raw_pm);
-
-/*
-useful temporary code for envelope debugging
-if (m_choffs == 0x101)
-{
-	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
-	{
-		auto &op = *m_op[((opnum & 1) << 1) | ((opnum >> 1) & 1)];
-		printf(" %c%03X%c%c ",
-			"PADSRV"[op.debug_eg_state()],
-			op.debug_eg_attenuation(),
-			op.debug_ssg_inverted() ? '-' : '+',
-			m_regs.op_ssg_eg_enable(op.opoffs()) ? '0' + m_regs.op_ssg_eg_mode(op.opoffs()) : ' ');
-	}
-printf(" -- ");
-}
-*/
 }
 
 
@@ -1173,11 +1151,6 @@ fm_engine_base<RegisterType>::fm_engine_base(ymfm_interface &intf) :
 	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
 		m_operator[opnum] = std::make_unique<fm_operator<RegisterType>>(*this, RegisterType::operator_offset(opnum));
 
-#if (YMFM_DEBUG_LOG_WAVFILES)
-	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		m_wavfile[chnum].set_index(chnum);
-#endif
-
 	// do the initial operator assignment
 	assign_operators();
 }
@@ -1268,12 +1241,8 @@ uint32_t fm_engine_base<RegisterType>::clock(uint32_t chanmask)
 template<class RegisterType>
 void fm_engine_base<RegisterType>::output(output_data &output, uint32_t rshift, int32_t clipmax, uint32_t chanmask) const
 {
-	// mask out some channels for debug purposes
-	chanmask &= debug::GLOBAL_FM_CHANNEL_MASK;
-
 	// mask out inactive channels
-	if (!YMFM_DEBUG_LOG_WAVFILES)
-		chanmask &= m_active_channels;
+	chanmask &= m_active_channels;
 
 	// handle the rhythm case, where some of the operators are dedicated
 	// to percussion (this is an OPL-specific feature)
@@ -1291,9 +1260,6 @@ void fm_engine_base<RegisterType>::output(output_data &output, uint32_t rshift, 
 		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 			if (bitfield(chanmask, chnum))
 			{
-#if (YMFM_DEBUG_LOG_WAVFILES)
-				auto reference = output;
-#endif
 				if (chnum == 6)
 					m_channel[chnum]->output_rhythm_ch6(output, rshift, clipmax);
 				else if (chnum == 7)
@@ -1304,9 +1270,6 @@ void fm_engine_base<RegisterType>::output(output_data &output, uint32_t rshift, 
 					m_channel[chnum]->output_4op(output, rshift, clipmax);
 				else
 					m_channel[chnum]->output_2op(output, rshift, clipmax);
-#if (YMFM_DEBUG_LOG_WAVFILES)
-				m_wavfile[chnum].add(output, reference);
-#endif
 			}
 	}
 	else
@@ -1315,16 +1278,10 @@ void fm_engine_base<RegisterType>::output(output_data &output, uint32_t rshift, 
 		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 			if (bitfield(chanmask, chnum))
 			{
-#if (YMFM_DEBUG_LOG_WAVFILES)
-				auto reference = output;
-#endif
 				if (m_channel[chnum]->is4op())
 					m_channel[chnum]->output_4op(output, rshift, clipmax);
 				else
 					m_channel[chnum]->output_2op(output, rshift, clipmax);
-#if (YMFM_DEBUG_LOG_WAVFILES)
-				m_wavfile[chnum].add(output, reference);
-#endif
 			}
 	}
 }
@@ -1337,8 +1294,6 @@ void fm_engine_base<RegisterType>::output(output_data &output, uint32_t rshift, 
 template<class RegisterType>
 void fm_engine_base<RegisterType>::write(uint16_t regnum, uint8_t data)
 {
-	debug::log_fm_write("%03X = %02X\n", regnum, data);
-
 	// special case: writes to the mode register can impact IRQs;
 	// schedule these writes to ensure ordering with timers
 	if (regnum == RegisterType::REG_MODE)
