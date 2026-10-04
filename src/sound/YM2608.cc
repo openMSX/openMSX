@@ -1,0 +1,593 @@
+#include "YM2608.hh"
+
+#include "DummyAY8910Periphery.hh"
+
+#include "DeviceConfig.hh"
+#include "Clock.hh"
+#include "serialize.hh"
+
+#include "3rdparty/ym2608/fmopn_2608rom.h"
+
+#include <algorithm>
+#include <vector>
+
+namespace openmsx {
+
+static constexpr unsigned CLOCK = 8'000'000;
+
+static constexpr uint8_t STATUS_ADPCM_B_EOS = 0x04;
+static constexpr uint8_t STATUS_ADPCM_B_BRDY = 0x08;
+static constexpr uint8_t STATUS_ADPCM_B_PLAYING = 0x20;
+
+YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
+	: irq(config.getMotherBoard(), strCat(name, ".IRQ"))
+	, timers{Timer(config.getScheduler(), *this, 0),
+	         Timer(config.getScheduler(), *this, 1)}
+	, contextTime(time)
+	, busyEnd(time)
+	, fm(*this)
+	, adpcmA(*this, 0)
+	, adpcmB(*this)
+	, sampleRAM(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 0x40000)
+	, registers(config.getMotherBoard(), name, *this)
+	, fmPart(config, name, *this)
+	, ssg(strCat(name, " SSG"), DummyAY8910Periphery::instance(), config, time,
+		AY8910::Type::YM2149, 2'000'000.0f)
+{
+	// Maximum normalization. Standard SSG volume replaces the old trim.
+	ssg.setSoftwareVolume(16382.0f * std::numbers::sqrt2_v<float> * (2.0f / 3.0f) / (32768.0f * 4.3f), time);
+
+	sampleRAM.clear(0); // Deterministic emulator policy; hardware power-on contents are unknown.
+	updatePrescale(fm.clock_prescale());
+	reset(time);
+}
+
+void YM2608::reset(EmuTime time)
+{
+	updateStream(time);
+	contextTime = time;
+	for (auto& timer : timers) {
+		timer.cancel();
+	}
+
+	// reset the engines
+	fm.reset();
+	adpcmA.reset();
+	adpcmB.reset();
+
+	// configure ADPCM percussion sounds; these are present in an embedded ROM
+	adpcmA.set_start_end(0, 0x0000, 0x01bf); // bass drum
+	adpcmA.set_start_end(1, 0x01c0, 0x043f); // snare drum
+	adpcmA.set_start_end(2, 0x0440, 0x1b7f); // top cymbal
+	adpcmA.set_start_end(3, 0x1b80, 0x1cff); // high hat
+	adpcmA.set_start_end(4, 0x1d00, 0x1f7f); // tom tom
+	adpcmA.set_start_end(5, 0x1f80, 0x1fff); // rim shot
+
+	// initialize our special interrupt states, then read the upper status
+	// register, which updates the IRQs
+	irqEnable = 0x1f;
+	flagControl = 0x1c;
+	readStatusHi();
+
+	ssg.reset(time);
+	applyRates();
+	busyEnd = time;
+	irq.reset();
+}
+
+uint8_t YM2608::read(unsigned port, EmuTime time)
+{
+	updateStream(time);
+	contextTime = time;
+
+	switch (port & 3) {
+	case 0: // status port, YM2203 compatible
+		return readStatus();
+	case 1: // data port (only SSG)
+		return readData(time);
+	case 2: // status port, extended
+		return readStatusHi();
+	case 3: // ADPCM-B data
+		return readDataHi();
+	}
+	UNREACHABLE;
+}
+
+uint8_t YM2608::readStatus()
+{
+	uint8_t result = fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB);
+	if (ymfm_is_busy()) {
+		result |= fm_engine::STATUS_BUSY;
+	}
+	return result;
+}
+
+uint8_t YM2608::readData(EmuTime time)
+{
+	if (addressLatch < 0x10) {
+		return ssg.readRegister(addressLatch & 0x0f, time);
+	} else {
+		return addressLatch == 0xff ? 1 : 0;
+	}
+}
+
+uint8_t YM2608::readStatusHi()
+{
+	uint8_t status = statusHi();
+
+	// update the status so that IRQs are propagated
+	fm.set_reset_status(status, ~status);
+
+	// merge in the busy flag
+	if (ymfm_is_busy()) {
+		status |= fm_engine::STATUS_BUSY;
+	}
+	return status;
+}
+
+uint8_t YM2608::statusHi() const
+{
+	// fetch regular status
+	uint8_t status = fm.status() & ~(STATUS_ADPCM_B_EOS | STATUS_ADPCM_B_BRDY | STATUS_ADPCM_B_PLAYING);
+
+	// fetch ADPCM-B status, and merge in the bits
+	uint8_t adpcmStatus = adpcmB.status();
+	if ((adpcmStatus & ymfm::adpcm_b_channel::STATUS_EOS) != 0) {
+		status |= STATUS_ADPCM_B_EOS;
+	}
+	if ((adpcmStatus & ymfm::adpcm_b_channel::STATUS_BRDY) != 0) {
+		status |= STATUS_ADPCM_B_BRDY;
+	}
+	if ((adpcmStatus & ymfm::adpcm_b_channel::STATUS_PLAYING) != 0) {
+		status |= STATUS_ADPCM_B_PLAYING;
+	}
+
+	// turn off any bits that have been requested to be masked
+	status &= ~(flagControl & 0x1f);
+
+	return status;
+}
+
+uint8_t YM2608::readDataHi()
+{
+	if ((addressLatch & 0xff) < 0x10) {
+		return adpcmB.read(addressLatch & 0x0f);
+	} else {
+		return 0;
+	}
+}
+
+// Debugger reads deliberately bypass readStatusHi()'s IRQ update and the
+// ADPCM data port's dummy reads, address advancement and flag changes.
+uint8_t YM2608::peek(unsigned port, EmuTime time) const
+{
+	auto busy = (time < busyEnd) ? fm_engine::STATUS_BUSY : 0;
+	switch (port & 3) {
+	case 0:
+		return (fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB)) | busy;
+	case 1:
+		if (addressLatch < 0x10) {
+			return ssg.peekRegister(addressLatch, time);
+		}
+		return (addressLatch == 0xff) ? 1 : 0;
+	case 2:
+		return statusHi() | busy;
+	case 3:
+		return ((addressLatch & 0xff) < 0x10) ? adpcmB.peek(addressLatch & 0x0f) : 0;
+	}
+	UNREACHABLE;
+}
+
+void YM2608::write(unsigned port, uint8_t value, EmuTime time)
+{
+	updateStream(time);
+	contextTime = time;
+
+	switch (port & 3) {
+	case 0: // address port
+		writeAddress(value);
+		break;
+	case 1: // data port
+		writeData(value, time);
+		break;
+	case 2: // upper address port
+		writeAddressHi(value);
+		break;
+	case 3: // upper data port
+		writeDataHi(value);
+		break;
+	}
+
+	applyRates();
+}
+
+void YM2608::writeAddress(uint8_t data)
+{
+	// just set the address
+	addressLatch = data;
+
+	// special case: update the prescale
+	if (0x2d <= addressLatch && addressLatch <= 0x2f) {
+		// 2D-2F: prescaler select
+		if (addressLatch == 0x2d) {
+			updatePrescale(6);
+		} else if (addressLatch == 0x2e && fm.clock_prescale() == 6) {
+			updatePrescale(3);
+		} else if (addressLatch == 0x2f) {
+			updatePrescale(2);
+		}
+	}
+}
+
+void YM2608::writeData(uint8_t data, EmuTime time)
+{
+	if (addressLatch & 0x100) return; // ignore if paired with upper address
+
+	if (addressLatch < 0x10) {
+		// 00-0F: write to SSG
+		ssg.writeRegister(addressLatch & 0x0f, data, time);
+	} else if (addressLatch < 0x20) {
+		// 10-1F: write to ADPCM-A
+		adpcmA.write(addressLatch & 0x0f, data);
+	} else if (addressLatch == 0x29) {
+		// 29: special IRQ mask register
+		irqEnable = data;
+		fm.set_irq_mask(irqEnable & ~flagControl & 0x1f);
+	} else {
+		// 20-28, 2A-FF: write to FM
+		fm.write(addressLatch, data);
+	}
+
+	// mark busy for a bit
+	ymfm_set_busy_end(32 * fm.clock_prescale());
+}
+
+void YM2608::writeAddressHi(uint8_t data)
+{
+	// just set the address
+	addressLatch = 0x100 | data;
+}
+
+void YM2608::writeDataHi(uint8_t data)
+{
+	if ((addressLatch & 0x100) == 0) return; // ignore if paired with lower address
+
+	if (addressLatch < 0x110) {
+		// 100-10F: write to ADPCM-B
+		adpcmB.write(addressLatch & 0x0f, data);
+	} else if (addressLatch == 0x110) {
+		// 110: IRQ flag control
+		if (data & 0x80) {
+			fm.set_reset_status(0, 0xff);
+		} else {
+			flagControl = data;
+			fm.set_irq_mask(irqEnable & ~flagControl & 0x1f);
+		}
+	} else {
+		// 111-1FF: write to FM
+		fm.write(addressLatch, data);
+	}
+
+	// mark busy for a bit
+	ymfm_set_busy_end(32 * fm.clock_prescale());
+}
+
+uint8_t YM2608::peekRegister(uint16_t regnum, EmuTime time) const
+{
+	assert(regnum < 0x200);
+	if (regnum < 0x10) {
+		return ssg.peekRegister(regnum, time);
+	}
+	if (regnum < 0x20) {
+		return adpcmA.regs().read(regnum & 0x0f);
+	}
+	if (regnum == 0x29) {
+		return irqEnable;
+	}
+	if (regnum >= 0x100 && regnum < 0x110) {
+		return adpcmB.regs().read(regnum & 0x0f);
+	}
+	if (regnum == 0x110) {
+		return flagControl;
+	}
+	return fm.regs().read(regnum);
+}
+
+void YM2608::writeRegister(uint16_t regnum, uint8_t data, EmuTime time)
+{
+	// normal port-write behavior without disturbing a pending CPU write.
+	uint16_t savedAddress = addressLatch;
+	uint32_t port = (regnum & 0x100) ? 2 : 0;
+	write(port + 0, uint8_t(regnum), time);
+	write(port + 1, data, time);
+	addressLatch = savedAddress;
+}
+
+void YM2608::updateStream(EmuTime time)
+{
+	fmPart.updateStream(time);
+}
+
+void YM2608::updatePrescale(uint8_t prescale)
+{
+	fm.set_clock_prescale(prescale);
+	//ssg.prescale_changed();
+}
+
+unsigned YM2608::prescale() const
+{
+	return fm.clock_prescale();
+}
+
+unsigned YM2608::fmRate() const
+{
+	return (CLOCK + 12 * prescale()) / (24 * prescale());
+}
+
+unsigned YM2608::ssgRate() const
+{
+	return CLOCK / (prescale() == 6 ? 32
+	              : prescale() == 3 ? 16
+	                                :  8);
+}
+
+void YM2608::applyRates()
+{
+	fmPart.rate(fmRate());
+	//ssg.rate(ssgRate());
+}
+
+void YM2608::ymfm_set_timer(uint32_t timer, int32_t duration)
+{
+	if (duration < 0) {
+		timers[timer].cancel();
+	} else {
+		timers[timer].schedule(contextTime + Clock<CLOCK>::duration(unsigned(duration)));
+	}
+}
+
+void YM2608::ymfm_set_busy_end(uint32_t duration)
+{
+	busyEnd = contextTime + Clock<CLOCK>::duration(duration);
+}
+
+bool YM2608::ymfm_is_busy()
+{
+	return contextTime < busyEnd;
+}
+
+void YM2608::ymfm_update_irq(bool asserted)
+{
+	irq.set(asserted);
+}
+
+uint8_t YM2608::ymfm_external_peek(ymfm::access_class type, uint32_t address)
+{
+	// Both sample stores are passive memory; GPIO is unconnected.
+	return ymfm_external_read(type, address);
+}
+
+uint8_t YM2608::ymfm_external_read(ymfm::access_class type, uint32_t address)
+{
+	if (type == ymfm::ACCESS_ADPCM_B) {
+		return sampleRAM[address & 0x3ffff];
+	}
+	if (type == ymfm::ACCESS_ADPCM_A) {
+		return YM2608_ADPCM_ROM[address & 0x1fff];
+	}
+	return 0xff; // SSG GPIO is not attached to the MSX keyboard or joysticks.
+}
+
+void YM2608::ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t value)
+{
+	if (type == ymfm::ACCESS_ADPCM_B) {
+		sampleRAM[address & 0x3ffff] = value;
+	}
+}
+
+template<bool Combined>
+void YM2608::generateFM(std::span<float*> buffers, unsigned num)
+{
+	uint32_t orOutput = 0;
+	const uint32_t fmMask = (irqEnable & 0x80) ? 0x3f : 0x07;
+	for (unsigned i = 0; i < num; ++i) {
+		const auto env = fm.clock(fm_engine::ALL_CHANNELS);
+		if ((env & 0x03) == 0) {
+			adpcmA.clock((env & 0x04) ? 0x0f : 0x3f);
+		}
+		adpcmB.clock();
+		if constexpr (Combined) {
+			// No channel tools: render each engine once into a local stereo sum.
+			// This is not retained chip state, and is never internally clipped.
+			fm_engine::output_data mixed;
+			fm.output(mixed.clear(), 1, 32767, fmMask);
+			adpcmB.output(mixed, 1);
+			adpcmA.output(mixed, 0x3f);
+			buffers[0][2 * i + 0] += float(mixed.data[0]);
+			buffers[0][2 * i + 1] += float(mixed.data[1]);
+			orOutput |= uint32_t(mixed.data[0] | mixed.data[1]);
+		} else {
+			// Six FM voices, one ADPCM-B voice and six rhythm voices.
+			// Write directly to the host buffers; no channel-output cache.
+			fm_engine::output_data voice;
+			for (unsigned c = 0; c < 6; ++c) {
+				fm.output(voice.clear(), 1, 32767, fmMask & (1U << c));
+				buffers[c][2 * i + 0] += float(voice.data[0]);
+				buffers[c][2 * i + 1] += float(voice.data[1]);
+			}
+			adpcmB.output(voice.clear(), 1);
+			buffers[6][2 * i + 0] += float(voice.data[0]);
+			buffers[6][2 * i + 1] += float(voice.data[1]);
+			for (unsigned c = 0; c < 6; ++c) {
+				adpcmA.output(voice.clear(), 1U << c);
+				buffers[c + 7][2 * i + 0] += float(voice.data[0]);
+				buffers[c + 7][2 * i + 1] += float(voice.data[1]);
+			}
+		}
+	}
+	if constexpr (Combined) {
+		std::ranges::fill(buffers.subspan(1), nullptr);
+		if (!orOutput) {
+			buffers[0] = nullptr;
+		}
+	}
+}
+
+template<typename Archive, typename Engine>
+static void serializeEngine(Archive& ar, const char* name, Engine& engine)
+{
+	// Obtain the pinned engine's exact byte count. The archive's blob reader
+	// rejects a mismatched length instead of YMFM silently zero-filling it.
+	std::vector<uint8_t> data;
+	ymfm::ymfm_saved_state saved(data, true);
+	engine.save_restore(saved);
+	ar.serialize_blob(name, std::span<uint8_t>(data), false);
+	if constexpr (Archive::IS_LOADER) {
+		ymfm::ymfm_saved_state restored(data, false);
+		engine.save_restore(restored);
+	}
+}
+
+template<typename Archive>
+void YM2608::serialize(Archive& ar, unsigned /*version*/)
+{
+	if constexpr (!Archive::IS_LOADER) {
+		updateStream(timers[0].getCurrentTime());
+	}
+	ar.serialize("timerA", timers[0],
+		     "timerB", timers[1]);
+	ar.serialize("address", addressLatch,
+	             "irqEnable", irqEnable,
+	             "flagControl", flagControl);
+	serializeEngine(ar, "fm", fm);
+	serializeEngine(ar, "adpcmA", adpcmA);
+	serializeEngine(ar, "adpcmB", adpcmB);
+	if constexpr (Archive::IS_LOADER) {
+		updatePrescale(fm.clock_prescale());
+	}
+	ar.serialize("busyEnd", busyEnd,
+	             "sampleRAM", sampleRAM,
+	             "irq", irq,
+	             "sampleClock", fmPart.getEmuClock(),
+	             "ssg", ssg);
+	if constexpr (Archive::IS_LOADER) {
+		const auto fmTime = fmPart.getEmuClock().getTime();
+		//const auto ssgTime = ssg.getEmuClock().getTime();
+		applyRates();
+		fmPart.restoreClock(fmTime);
+		//ssg.restoreClock(ssgTime);
+		fm.invalidate_caches();
+		contextTime = timers[0].getCurrentTime();
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(YM2608);
+
+
+YM2608::FmPart::FmPart(DeviceConfig& config, std::string_view name_, YM2608& chip_)
+	: ResampledSoundDevice(
+		config.getMotherBoard(), name_,
+		"Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, true)
+	, chip(chip_)
+{
+	registerSound(config);
+}
+
+YM2608::FmPart::~FmPart()
+{
+	unregisterSound();
+}
+
+void YM2608::FmPart::updateStream(EmuTime time)
+{
+	SoundDevice::updateStream(time);
+}
+
+void YM2608::FmPart::restoreClock(EmuTime time)
+{
+	createResampler();
+	getEmuClock().reset(time);
+}
+
+void YM2608::FmPart::rate(unsigned value)
+{
+	if (getInputRate() != value) {
+		setInputRate(value);
+		createResampler();
+	}
+}
+
+void YM2608::FmPart::setOutputRate(unsigned rate, double speed)
+{
+	const auto previous = getEmuClock();
+	ResampledSoundDevice::setOutputRate(rate, speed);
+	// A newly constructed clock has period zero, so it cannot match
+	// a real sample period. No separate initialization flag is needed.
+	if (previous.getPeriod() == getEmuClock().getPeriod()) {
+		getEmuClock().reset(previous.getTime());
+	}
+}
+
+void YM2608::FmPart::generateChannels(std::span<float*> buffers, unsigned num)
+{
+	assert(buffers.size() == 13);
+	if (std::ranges::all_of(buffers, [&](auto* b) { return b == buffers[0]; })) {
+		chip.generateFM<true >(buffers, num);
+	} else {
+		chip.generateFM<false>(buffers, num);
+	}
+}
+
+
+YM2608::Timer::Timer(Scheduler& scheduler_, YM2608& ym2608_, uint8_t index_)
+	: Schedulable(scheduler_)
+	, ym2608(ym2608_)
+	, index(index_)
+{
+}
+
+void YM2608::Timer::cancel()
+{
+	removeSyncPoints();
+}
+
+void YM2608::Timer::schedule(EmuTime time)
+{
+	cancel();
+	setSyncPoint(time);
+}
+
+void YM2608::Timer::executeUntil(EmuTime time)
+{
+	ym2608.updateStream(time);
+	ym2608.contextTime = time;
+	// YMFM reloads the timer through ymfm_set_timer().
+	ym2608.m_engine->engine_timer_expired(index);
+}
+
+template<typename Archive>
+void YM2608::Timer::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+}
+
+
+YM2608::Registers::Registers(MSXMotherBoard& board, std::string_view name_, YM2608& ym2608_)
+	: SimpleDebuggable(board, strCat(name_, " registers"), "Effective YM2608 core registers", 512)
+	, ym2608(ym2608_)
+{
+}
+
+uint8_t YM2608::Registers::read(unsigned address, EmuTime time)
+{
+	return ym2608.peekRegister(uint16_t(address), time);
+}
+
+void YM2608::Registers::write(unsigned address, uint8_t value, EmuTime time)
+{
+	ym2608.updateStream(time);
+	ym2608.contextTime = time;
+	ym2608.writeRegister(uint16_t(address), value, time);
+	ym2608.applyRates();
+}
+
+} // namespace openmsx

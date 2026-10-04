@@ -1,27 +1,27 @@
 #ifndef MSXMAKOTO_HH
 #define MSXMAKOTO_HH
 
+#include "YM2608.hh"
+
 #include "MSXDevice.hh"
 
-#include <memory>
-
 namespace openmsx {
-
-class MakotoSound;
 
 class MSXMakoto final : public MSXDevice
 {
 public:
 	explicit MSXMakoto(DeviceConfig& config);
-	~MSXMakoto() override;
+
 	void reset(EmuTime time) override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
-	void writeIO(uint16_t port, byte value, EmuTime time) override;
-	template<typename Archive> void serialize(Archive& ar, unsigned version);
+	uint8_t readIO(uint16_t port, EmuTime time) override;
+	uint8_t peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::unique_ptr<MakotoSound> sound;
+	YM2608 ym2608;
 };
 
 } // namespace openmsx
