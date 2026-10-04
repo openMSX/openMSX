@@ -122,8 +122,8 @@ inline void AY8910::Generator::setPeriod(int value)
 	// important difference when the program is rapidly changing the period to
 	// modulate the sound.
 	// Also, note that period = 0 is the same as period = 1. This is mentioned
-	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
-	// period. In that case, period = 0 is half as period = 1.
+	// in the YM2203 data sheets. The envelope period behaves the same way
+	// (measured on a YM2149; assumed for the AY-3-8910).
 	period = std::max(1, value);
 	count = std::min(count, period - 1);
 }
@@ -344,9 +344,12 @@ inline void AY8910::Envelope::reset()
 
 inline void AY8910::Envelope::setPeriod(int value)
 {
-	// twice as fast as AY8910
-	//  see also Generator::setPeriod()
-	period = std::max(1, 2 * value);
+	// Stored in half-steps: each output sample adds 2, so one index step
+	// takes 'value' samples. Register 0 is the same as register 1.
+	// Measured on a YM2149; assumed for the AY-3-8910. The 16-level AY
+	// envelope comes from repeating levels in the table, not from this
+	// counter.
+	period = 2 * std::max(1, value);
 	count = std::min(count, period - 1);
 }
 
@@ -382,7 +385,11 @@ inline void AY8910::Envelope::setShape(unsigned shape)
 		hold = (shape & 0x01) != 0;
 		alternate = (shape & 0x02) != 0;
 	}
-	count = 0;
+	// The index restarts on the write. The period counter keeps running, so
+	// the next step comes after whatever time is left in the current period.
+	// Measured on YM2149 (Philips NMS8280): rewriting faster than one period
+	// still produces a dip. Assumed the same for AY8910. (ssg_engine and MAME
+	// implement the same behavior).
 	step = 0x1F;
 	holding = false;
 }
@@ -434,7 +441,7 @@ inline void AY8910::Envelope::advance(unsigned duration)
 inline void AY8910::Envelope::doNextEvent()
 {
 	count = 0;
-	doSteps(period == 1 ? 2 : 1);
+	doSteps(1);
 }
 
 inline unsigned AY8910::Envelope::getNextEventTime() const
