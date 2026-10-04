@@ -143,6 +143,7 @@ private:
 
 	std::span<const KeyCodeMsxMapping> keyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
+	bool combinedShiftFlag;
 
 	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos;
 
@@ -325,6 +326,10 @@ private:
 	HostKeyMap hostKeyMap = HostKeyMap::UNKNOWN;
 
 	bool focus = true;
+
+	/** Flag for tracking the combined state (OR) of left and right Shift keys */
+	bool leftShiftPressed= false;
+	bool rightShiftPressed = false;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 5);
 
