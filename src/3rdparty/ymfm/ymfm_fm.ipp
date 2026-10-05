@@ -1234,12 +1234,6 @@ void fm_engine_base::engine_check_interrupts()
 	uint8_t old_state = m_irq_state;
 	m_irq_state = ((m_status & m_irq_mask) != 0);
 
-	// set the IRQ status bit
-	if (m_irq_state)
-		m_status |= STATUS_IRQ;
-	else
-		m_status &= ~STATUS_IRQ;
-
 	// if changed, signal the new state
 	if (old_state != m_irq_state)
 		m_intf.ymfm_update_irq(m_irq_state ? true : false);

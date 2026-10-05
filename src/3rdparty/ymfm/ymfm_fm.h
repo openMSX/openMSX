@@ -163,7 +163,6 @@ public:
 	static constexpr uint8_t STATUS_TIMERA = 0x01;
 	static constexpr uint8_t STATUS_TIMERB = 0x02;
 	static constexpr uint8_t STATUS_BUSY = 0x80;
-	static constexpr uint8_t STATUS_IRQ = 0;
 
 	// constructor
 	opna_registers();
@@ -543,7 +542,6 @@ public:
 	static constexpr uint8_t STATUS_TIMERA = opna_registers::STATUS_TIMERA;
 	static constexpr uint8_t STATUS_TIMERB = opna_registers::STATUS_TIMERB;
 	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
-	static constexpr uint8_t STATUS_IRQ = opna_registers::STATUS_IRQ;
 
 	// expose the correct output class
 	using output_data = ymfm_output<OUTPUTS>;
