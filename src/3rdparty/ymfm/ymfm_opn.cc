@@ -146,34 +146,18 @@ bool opna_registers::write(uint16_t index, uint8_t data, uint32_t &channel, uint
 
 
 //-------------------------------------------------
-//  clock_noise_and_lfo - clock the LFO, handling
-//  clock division, depth, and waveform
-//  computations. OPNA has no noise generation.
+//  clock_lfo - clock the LFO, handling clock
+//  division, depth, and waveform computations.
+//  The caller has checked that it is enabled.
 //-------------------------------------------------
 
-int32_t opna_registers::clock_noise_and_lfo()
+int32_t opna_registers::clock_lfo(uint32_t max_count)
 {
-	// if LFO not enabled, quick exit with 0s
-	if (!lfo_enable())
-	{
-		m_lfo_counter = 0;
-
-		// special case: if LFO is disabled, it basically just keeps the counter
-		// at 0; since position 0 gives an AM value of 0x3f, it is important to reflect
-		// that here; for example, MegaDrive Venom plays some notes with LFO globally
-		// disabled but enabling LFO on the operators, and it expects this added attenutation
-		m_lfo_am = 0x3f;
-		return 0;
-	}
-
-	// this table is based on converting the frequencies in the applications
-	// manual to clock dividers, based on the assumption of a 7-bit LFO value
-	static uint8_t const lfo_max_count[8] = { 109, 78, 72, 68, 63, 45, 9, 6 };
 	uint32_t subcount = uint8_t(m_lfo_counter++);
 
 	// when we cross the divider count, add enough to zero it and cause an
 	// increment at bit 8; the 7-bit value lives from bits 8-14
-	if (subcount >= lfo_max_count[lfo_rate()])
+	if (subcount >= max_count)
 	{
 		// note: to match the published values this should be 0x100 - subcount;
 		// however, tests on the hardware and nuked bear out an off-by-one

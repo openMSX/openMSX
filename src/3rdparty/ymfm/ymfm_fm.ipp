@@ -1001,8 +1001,11 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 	// Registers hold for the whole buffer, the AM shift among them. Without
 	// the LFO walk the AM offset is constant as well, so it is read once too.
 	fm_channel::output_plan plan;
+	uint32_t lfoMaxCount = 0;
 	uint32_t am_shift = 0;
 	uint32_t am_offset = 0;
+	if constexpr (Lfo)
+		lfoMaxCount = regs.lfo_max_count();
 	if constexpr (Write) {
 		plan = channel.make_output_plan();
 		am_shift = regs.lfo_am_shift(channel.choffs());
@@ -1014,7 +1017,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 		env = step_eg_counter<opna_registers::EG_CLOCK_DIVIDER>(env);
 		int32_t pm = 0;
 		if constexpr (Lfo) {
-			pm = regs.clock_noise_and_lfo();
+			pm = regs.clock_lfo(lfoMaxCount);
 			if constexpr (Write)
 				am_offset = regs.lfo_am_offset(am_shift);
 		}
@@ -1052,7 +1055,7 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 	const bool lfoEnabled = m_regs.lfo_enable() != 0;
 	// Disabled LFO is a constant. One update serves every sample of the chunk.
 	if (!lfoEnabled)
-		m_regs.clock_noise_and_lfo();
+		m_regs.hold_disabled_lfo();
 
 	bool lfoWalked = false;
 	for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
@@ -1092,8 +1095,9 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 	m_modified = false;
 	if (lfoEnabled && !lfoWalked) {
 		m_regs.restore_lfo(lfo0);
+		const uint32_t lfoMaxCount = m_regs.lfo_max_count();
 		for (unsigned i = 0; i < num; ++i)
-			m_regs.clock_noise_and_lfo();
+			m_regs.clock_lfo(lfoMaxCount);
 	}
 }
 

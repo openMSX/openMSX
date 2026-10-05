@@ -207,8 +207,26 @@ public:
 	// handle writes to the register array
 	bool write(uint16_t index, uint8_t data, uint32_t &chan, uint32_t &opmask);
 
-	// clock the LFO, returning its PM value
-	int32_t clock_noise_and_lfo();
+	// A disabled LFO holds its counter at 0. Position 0 gives an AM value of
+	// 0x3f, and music depends on that added attenuation: MegaDrive Venom plays
+	// notes with the LFO globally disabled while enabling AM on the operators.
+	void hold_disabled_lfo()
+	{
+		m_lfo_counter = 0;
+		m_lfo_am = 0x3f;
+	}
+
+	// Divider count for the current LFO rate; constant for a whole buffer.
+	uint32_t lfo_max_count() const
+	{
+		// this table is based on converting the frequencies in the applications
+		// manual to clock dividers, based on the assumption of a 7-bit LFO value
+		static constexpr uint8_t s_lfo_max_count[8] = { 109, 78, 72, 68, 63, 45, 9, 6 };
+		return s_lfo_max_count[lfo_rate()];
+	}
+
+	// clock an enabled LFO, returning its PM value
+	int32_t clock_lfo(uint32_t max_count);
 
 	struct lfo_state { uint32_t counter; uint8_t am; };
 	lfo_state save_lfo() const { return {m_lfo_counter, m_lfo_am}; }
