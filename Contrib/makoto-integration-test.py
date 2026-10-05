@@ -117,7 +117,7 @@ for variant, exe in variants:
   e.command("store_machine [machine] "+m.tcl_path(after_peeks))
   import gzip, xml.etree.ElementTree as ET
   def chip_xml(path):
-   return ET.tostring(ET.fromstring(gzip.decompress(path.read_bytes())).find('.//device[@type="Makoto"]/sound'))
+   return ET.tostring(m.sound_node(ET.fromstring(gzip.decompress(path.read_bytes()))))
   assert chip_xml(peek_state)==chip_xml(after_peeks)
   e.command("reg PC "+pc)
   metrics["data_peeks"]="ADPCM dummy reads, next RAM byte, IRQ and complete saved chip state preserved"
@@ -135,7 +135,7 @@ for variant, exe in variants:
   xml=gzip.decompress(saved.read_bytes())
   import re
   assert b"<coreFormat>" not in xml
-  changed,n = re.subn(rb'(<device[^>]*type="Makoto">.*?<sound)(?: [^>]*)?>',
+  changed,n = re.subn(rb'(<device[^>]*type="Makoto">.*?<(?:ym2608|sound))(?: [^>]*)?>',
                       rb'\1 version="999">', xml, flags=re.S)
   assert n == 1
   unsupported.write_bytes(gzip.compress(changed))

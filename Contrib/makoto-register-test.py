@@ -26,7 +26,7 @@ def main():
 
     def save(path):
         e.command('store_machine [machine] ' + m.tcl_path(path))
-        node = ET.fromstring(gzip.decompress(path.read_bytes())).find('.//device[@type="Makoto"]/sound')
+        node = m.sound_node(ET.fromstring(gzip.decompress(path.read_bytes())))
         return ET.tostring(node)
 
     def restore(path):

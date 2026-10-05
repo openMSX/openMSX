@@ -27,7 +27,7 @@ def snapshot(name):
  return path
 
 def sound(path):
- return ET.tostring(ET.fromstring(gzip.decompress(path.read_bytes())).find('.//device[@type="Makoto"]/sound'))
+ return ET.tostring(m.sound_node(ET.fromstring(gzip.decompress(path.read_bytes()))))
 
 def record(label,seconds=1):
  path=out/(label+'.wav');e.command('soundlog start '+m.tcl_path(path));step(seconds);e.command('soundlog stop')

@@ -1,4 +1,4 @@
-// CPU ADPCM-B transfer boundaries. Build with ymfm_adpcm.cc (C++17+).
+// CPU ADPCM-B transfer boundaries. Build with ymfm_adpcm.cc (C++23).
 // The x1 END=0 and LIMIT=0 expectations are physical Makoto V5 results
 // from Sanyo MSX2+ and Panasonic turbo R. Other cases are software regressions.
 #include "ymfm_adpcm.h"
@@ -7,12 +7,44 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <cstring>
+#include <type_traits>
 
 namespace {
 void require(bool ok, const char* message)
 {
     if (!ok) { std::cerr << message << '\n'; std::exit(1); }
 }
+
+// Exercise the engine's native serialize() field traversal without depending
+// on the emulator archive. Full archive/rewind tests run in openMSX separately.
+template<bool Loading> struct TestArchive {
+    static constexpr bool IS_LOADER = Loading;
+    std::vector<uint8_t>& bytes;
+    size_t offset = 0;
+    template<typename T> void value(T& v) {
+        if constexpr (std::is_arithmetic_v<T>) {
+            if constexpr (Loading) {
+                require(offset + sizeof(v) <= bytes.size(), "Short test state");
+                std::memcpy(&v, bytes.data() + offset, sizeof(v));
+                offset += sizeof(v);
+            } else {
+                auto p = reinterpret_cast<const uint8_t*>(&v);
+                bytes.insert(bytes.end(), p, p + sizeof(v));
+            }
+        } else if constexpr (requires { v.serialize(*this, 1); }) {
+            v.serialize(*this, 1);
+        } else {
+            for (auto& element : v) value(element);
+        }
+    }
+    void serialize() {}
+    template<typename T, typename... Rest>
+    void serialize(const char*, T& v, Rest&&... rest) {
+        value(v);
+        serialize(std::forward<Rest>(rest)...);
+    }
+};
 
 struct Memory : ymfm::ymfm_interface {
     std::vector<uint8_t> ram = std::vector<uint8_t>(1 << 21, 0xff);
@@ -44,11 +76,11 @@ void setup(ymfm::adpcm_b_engine& chip, uint8_t mode, uint8_t type,
     chip.write(0x00, mode);
 }
 
-void check_write(unsigned shift, uint8_t type, unsigned fixedShift,
+void check_write(unsigned shift, uint8_t type,
                  unsigned start, unsigned end)
 {
     Memory memory;
-    ymfm::adpcm_b_engine chip(memory, fixedShift);
+    ymfm::adpcm_b_engine chip(memory);
     chip.reset();
     setup(chip, 0x60, type, start, end, 0xffff);
     unsigned first = start << shift;
@@ -71,11 +103,11 @@ void check_write(unsigned shift, uint8_t type, unsigned fixedShift,
         require(chip.read(8) == uint8_t(0xa1 + i), "Readback mismatch");
 }
 
-void check_limit(unsigned shift, uint8_t type, unsigned fixedShift,
+void check_limit(unsigned shift, uint8_t type,
                  unsigned start, unsigned limit)
 {
     Memory memory;
-    ymfm::adpcm_b_engine chip(memory, fixedShift);
+    ymfm::adpcm_b_engine chip(memory);
     chip.reset();
     unsigned size = (limit + 1) << shift;
     for (unsigned i = 0; i < size; ++i) memory.ram[i] = uint8_t(0xb1 + i);
@@ -104,20 +136,21 @@ void check_unfinished_write(uint8_t type, unsigned count)
     memory.reads.clear();
     const uint8_t last = uint8_t(0xc0 + count);
     std::vector<uint8_t> before;
-    ymfm::ymfm_saved_state saving(before, true);
-    chip.save_restore(saving);
+    TestArchive<false> saving{before};
+    chip.serialize(saving, 1);
     require(chip.peek(8) == last, "Peek missed unfinished writer buffer");
     for (unsigned i = 0; i < 10; ++i)
         require(chip.read(8) == last, "Read incorrectly restarted unfinished writer");
     require(memory.reads.empty(), "Stale-buffer read accessed RAM");
     std::vector<uint8_t> after;
-    ymfm::ymfm_saved_state checking(after, true);
-    chip.save_restore(checking);
+    TestArchive<false> checking{after};
+    chip.serialize(checking, 1);
     require(before == after, "Stale-buffer reads/peek changed state");
 
     chip.reset();
-    ymfm::ymfm_saved_state restoring(before, false);
-    chip.save_restore(restoring);
+    TestArchive<true> restoring{before};
+    chip.serialize(restoring, 1);
+    require(restoring.offset == before.size(), "Unconsumed test state");
     require(chip.peek(8) == last && chip.read(8) == last,
             "Save/restore lost unfinished writer state");
     // V4 C/D: explicit RESET before read mode permits ordinary RAM reads.
@@ -135,18 +168,18 @@ int main()
     for (auto type : {uint8_t(0), uint8_t(2)})
         for (unsigned count : {1U, 8U, 17U}) check_unfinished_write(type, count);
     unsigned cases = 0;
-    for (unsigned mode = 0; mode < 4; ++mode) {
-        // x1 RAM, x8 RAM, ROM read addressing, and a fixed-shift core user.
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        // YM2608 x1 RAM, x8 RAM and ROM addressing. The generic fixed-shift
+        // constructor was removed when the vendor subset became OPNA-only.
         unsigned shift = mode == 0 ? 2 : 5;
         uint8_t type = mode == 1 ? 2 : mode == 2 ? 1 : 0;
-        unsigned fixedShift = mode == 3 ? 5 : 0;
         for (unsigned end : {0U, 1U, 5U, 0x101U}) {
             for (unsigned start : {0U, end}) {
                 if (mode != 2) {
-                    check_write(shift, type, fixedShift, start, end);
+                    check_write(shift, type, start, end);
                     ++cases;
                 }
-                check_limit(shift, type, fixedShift, start, end);
+                check_limit(shift, type, start, end);
                 ++cases;
             }
         }

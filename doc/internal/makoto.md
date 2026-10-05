@@ -1,5 +1,10 @@
 # Makoto implementation notes
 
+The main body below records PR #2209 before `makoto-experiment`. The current
+experiment replaces the SSG implementation and the engine state layout.
+See [October 5 validation](../makoto-validation-2026-10-05.md) for current
+architecture differences, runnable tests, measurements and limitations.
+
 `MSXMakoto` integrates YMFM's YM2608 core at ports 14h-17h. The board uses an
 8 MHz oscillator, direct MSX /INT wiring and 256 KiB ADPCM-B RAM in x1 DRAM mode.
 Two independent native schedulables implement the chip timers. Time conversion

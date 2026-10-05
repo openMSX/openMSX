@@ -500,6 +500,25 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	detunePercent .attach(*this);
 }
 
+void AY8910::setClockFrequency(float frequency)
+{
+	outputFreq = frequency / 8;
+	auto rate = unsigned(std::lrint(outputFreq));
+	if (getInputRate() != rate) {
+		setInputRate(rate);
+		createResampler();
+	}
+}
+
+void AY8910::setOutputRate(unsigned rate, double speed)
+{
+	const auto previous = getEmuClock();
+	ResampledSoundDevice::setOutputRate(rate, speed);
+	if (previous.getPeriod() == getEmuClock().getPeriod()) {
+		getEmuClock().reset(previous.getTime());
+	}
+}
+
 AY8910::~AY8910()
 {
 	vibratoPercent.detach(*this);

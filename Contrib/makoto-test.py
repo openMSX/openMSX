@@ -3,6 +3,15 @@ import argparse,base64,gzip,json,os,re,shutil,subprocess,tempfile,time
 from pathlib import Path
 import xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[1]
+
+def sound_node(root):
+    device = root.find('.//device[@type="Makoto"]')
+    assert device is not None, 'Missing Makoto device in state'
+    node = device.find('ym2608')
+    if node is None:
+        node = device.find('sound')
+    assert node is not None, 'Missing Makoto chip state'
+    return node
 def image(marker, size=0x40000):
     data = bytearray([255]) * size
     data[:16] = b'AB\x20\x40' + bytes(12)
@@ -161,7 +170,7 @@ def main():
   path=out/(name+'.oms');e.command('store_machine [machine] '+tcl_path(path));return path
  def core(path):
   root=ET.fromstring(gzip.decompress(path.read_bytes()))
-  return ET.tostring(root.find('.//device[@type="Makoto"]/sound'))
+  return ET.tostring(sound_node(root))
  try:
   e.command('set pause on; ext Makoto')
   # Isolate the CPU IRQ count from BIOS startup and VDP frame/line IRQs.

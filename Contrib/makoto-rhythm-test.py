@@ -73,7 +73,7 @@ def main():
 
     def state(path):
         root = ET.fromstring(gzip.decompress(path.read_bytes()))
-        return ET.tostring(root.find('.//device[@type="Makoto"]/sound'))
+        return ET.tostring(m.sound_node(root))
 
     try:
         e.command("set pause on; ext Makoto; set mute off; set volume 50; set Makoto_volume 20")

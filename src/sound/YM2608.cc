@@ -8,6 +8,8 @@
 
 #include "3rdparty/ym2608/fmopn_2608rom.h"
 
+#include <numbers>
+
 namespace openmsx {
 
 static constexpr unsigned CLOCK = 8'000'000;
@@ -181,6 +183,9 @@ void YM2608::writePort(unsigned port, uint8_t value, EmuTime time)
 		addressLatch = value;
 		// special case: update the prescale
 		if (0x2d <= addressLatch && addressLatch <= 0x2f) {
+			// These address writes change the clocks. Finish the preceding
+			// interval at the old rates before rebuilding either resampler.
+			updateStream(time);
 			if (addressLatch == 0x2d) {
 				updatePrescale(6);
 			} else if (addressLatch == 0x2e && fm.clock_prescale() == 6) {
@@ -212,7 +217,7 @@ void YM2608::writeRegister(unsigned regnum, uint8_t data, EmuTime time)
 
 	if (regnum < 0x10) {
 		// 00-0F: write to SSG
-		ssg.writeRegister(addressLatch & 0x0f, data, time);
+		ssg.writeRegister(regnum, data, time);
 	} else if (regnum < 0x20) {
 		// 10-1F: write to ADPCM-A
 		adpcmA.write(regnum & 0x0f, data);
@@ -267,7 +272,6 @@ void YM2608::updateStream(EmuTime time)
 void YM2608::updatePrescale(uint8_t prescale)
 {
 	fm.set_clock_prescale(prescale);
-	//ssg.prescale_changed();
 }
 
 unsigned YM2608::prescale() const
@@ -290,7 +294,7 @@ unsigned YM2608::ssgRate() const
 void YM2608::applyRates()
 {
 	fmPart.rate(fmRate());
-	//ssg.rate(ssgRate());
+	ssg.setClockFrequency(float(8 * ssgRate()));
 }
 
 void YM2608::ymfm_set_timer(uint32_t timer, int32_t duration)
@@ -381,13 +385,14 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	             "sampleRAM", sampleRAM,
 	             "irq", irq,
 	             "sampleClock", fmPart.getEmuClock(),
+	             "ssgClock", ssg.getEmuClock(),
 	             "ssg", ssg);
 	if constexpr (Archive::IS_LOADER) {
 		const auto fmTime = fmPart.getEmuClock().getTime();
-		//const auto ssgTime = ssg.getEmuClock().getTime();
+		const auto ssgTime = ssg.getEmuClock().getTime();
 		applyRates();
 		fmPart.restoreClock(fmTime);
-		//ssg.restoreClock(ssgTime);
+		ssg.getEmuClock().reset(ssgTime);
 		contextTime = timers[0].getCurrentTime();
 	}
 }
@@ -490,7 +495,13 @@ uint8_t YM2608::Registers::read(unsigned address, EmuTime time)
 
 void YM2608::Registers::write(unsigned address, uint8_t value, EmuTime time)
 {
-	ym2608.writeRegister(address, value, time);
+	// Address selection itself has effects for 2Dh-2Fh. Match a normal
+	// address/data pair, then preserve the running program's selection.
+	auto savedAddress = ym2608.addressLatch;
+	unsigned port = (address & 0x100) ? 2 : 0;
+	ym2608.writePort(port, uint8_t(address), time);
+	ym2608.writePort(port + 1, value, time);
+	ym2608.addressLatch = savedAddress;
 }
 
 } // namespace openmsx

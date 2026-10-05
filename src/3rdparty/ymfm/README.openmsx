@@ -53,9 +53,12 @@ Remaining lower-engine patches:
 
 See doc/internal/makoto.md and the linked fork measurements for scope/limits.
 
-New Makoto states use native openMSX control fields and four length-checked
-engine blobs. The fork retains a reader for earlier packed core states; that
-reader is not part of the upstream device. See the device documentation.
+Experimental Makoto states use native openMSX fields for the control layer
+and engines, fixed-size operator/channel collections, and both stream clocks.
+The fork's reader for earlier packed core states is not part of this device.
+See doc/makoto-validation-2026-10-05.md for the current comparison and runtime
+tests. makoto-owned-core-test.cc now compares the current 13 FM/ADPCM voices
+against a separate checkout of the previous PR; SSG is checked in openMSX.
 
 Build integration: source files use .cc directly for openMSX discovery. The
 OPNA register class lives in ymfm_fm.h, ahead of the FM engine that uses it;
