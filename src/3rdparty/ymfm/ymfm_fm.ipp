@@ -801,8 +801,7 @@ void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 //-------------------------------------------------
 //  s_algorithm_ops - operator routing per algorithm
 //
-//  OPM/OPN offer 8 different connection algorithms for 4 operators,
-//  and OPL3 offers 4 more, which we designate here as 8-11.
+//  OPNA offers 8 connection algorithms for its 4 operators.
 //
 //  The operators are computed in order, with the inputs pulled from
 //  an array of values (opout) that is populated as we go:
@@ -827,7 +826,7 @@ void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 
 #define ALGORITHM(op2in, op3in, op4in, op1out, op2out, op3out) \
 	((op2in) | ((op3in) << 1) | ((op4in) << 4) | ((op1out) << 7) | ((op2out) << 8) | ((op3out) << 9))
-static constexpr uint16_t s_algorithm_ops[8+4] =
+static constexpr uint16_t s_algorithm_ops[8] =
 {
 	ALGORITHM(1,2,3, 0,0,0),    //  0: O1 -> O2 -> O3 -> O4 -> out (O4)
 	ALGORITHM(0,5,3, 0,0,0),    //  1: (O1 + O2) -> O3 -> O4 -> out (O4)
@@ -836,11 +835,7 @@ static constexpr uint16_t s_algorithm_ops[8+4] =
 	ALGORITHM(1,0,3, 0,1,0),    //  4: ((O1 -> O2) + (O3 -> O4)) -> out (O2+O4)
 	ALGORITHM(1,1,1, 0,1,1),    //  5: ((O1 -> O2) + (O1 -> O3) + (O1 -> O4)) -> out (O2+O3+O4)
 	ALGORITHM(1,0,0, 0,1,1),    //  6: ((O1 -> O2) + O3 + O4) -> out (O2+O3+O4)
-	ALGORITHM(0,0,0, 1,1,1),    //  7: (O1 + O2 + O3 + O4) -> out (O1+O2+O3+O4)
-	ALGORITHM(1,2,3, 0,0,0),    //  8: O1 -> O2 -> O3 -> O4 -> out (O4)         [same as 0]
-	ALGORITHM(0,2,3, 1,0,0),    //  9: (O1 + (O2 -> O3 -> O4)) -> out (O1+O4)   [unique]
-	ALGORITHM(1,0,3, 0,1,0),    // 10: ((O1 -> O2) + (O3 -> O4)) -> out (O2+O4) [same as 4]
-	ALGORITHM(0,2,0, 1,0,1)     // 11: (O1 + (O2 -> O3) + O4) -> out (O1+O3+O4) [unique]
+	ALGORITHM(0,0,0, 1,1,1)     //  7: (O1 + O2 + O3 + O4) -> out (O1+O2+O3+O4)
 };
 #undef ALGORITHM
 
