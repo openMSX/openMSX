@@ -702,7 +702,7 @@ void fm_operator::clock_phase(int32_t lfo_raw_pm)
 
 uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 {
-	uint32_t result = m_env_attenuation >> m_cache.eg_shift;
+	uint32_t result = m_env_attenuation;
 
 	// invert if necessary due to SSG-EG
 	if (m_ssg_inverted)
@@ -712,10 +712,10 @@ uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 	if (m_regs.op_lfo_am_enable(m_opoffs))
 		result += am_offset;
 
-	// add in total level and KSL from the cache
+	// add in total level from the cache
 	result += m_cache.total_level;
 
-	// clamp to max, apply shift, and return
+	// clamp to max and return
 	return std::min<uint32_t>(result, 0x3ff);
 }
 
