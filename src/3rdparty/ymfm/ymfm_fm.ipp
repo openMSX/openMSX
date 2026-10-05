@@ -811,19 +811,15 @@ void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 //     6 = O1+O3
 //     7 = O2+O3
 //
-//  The table describes the inputs and outputs of each algorithm as follows:
-//
-//       ---------x use opout[x] as operator 2 input
-//       ------xxx- use opout[x] as operator 3 input
-//       ---xxx---- use opout[x] as operator 4 input
-//       --x------- include opout[1] in final sum
-//       -x-------- include opout[2] in final sum
-//       x--------- include opout[3] in final sum
+//  Each row lists the opout[] index that feeds operators 2, 3 and 4,
+//  and a mask of which of operators 1-3 also go to the output (operator 4
+//  always does).
 //-------------------------------------------------
 
 #define ALGORITHM(op2in, op3in, op4in, op1out, op2out, op3out) \
-	((op2in) | ((op3in) << 1) | ((op4in) << 4) | ((op1out) << 7) | ((op2out) << 8) | ((op3out) << 9))
-static constexpr uint16_t s_algorithm_ops[8] =
+	{ uint8_t(op2in), uint8_t(op3in), uint8_t(op4in), \
+	  uint8_t((op1out) | ((op2out) << 1) | ((op3out) << 2)) }
+static constexpr struct { uint8_t op2in, op3in, op4in, carrier_mask; } s_algorithm_ops[8] =
 {
 	ALGORITHM(1,2,3, 0,0,0),    //  0: O1 -> O2 -> O3 -> O4 -> out (O4)
 	ALGORITHM(0,5,3, 0,0,0),    //  1: (O1 + O2) -> O3 -> O4 -> out (O4)
@@ -845,7 +841,11 @@ static constexpr uint16_t s_algorithm_ops[8] =
 fm_channel::output_plan fm_channel::make_output_plan(const opna_registers &regs) const
 {
 	output_plan plan;
-	plan.algorithm_ops = s_algorithm_ops[regs.ch_algorithm(m_choffs)];
+	auto const& alg = s_algorithm_ops[regs.ch_algorithm(m_choffs)];
+	plan.op2in = alg.op2in;
+	plan.op3in = alg.op3in;
+	plan.op4in = alg.op4in;
+	plan.carrier_mask = alg.carrier_mask;
 	plan.feedback = uint8_t(regs.ch_feedback(m_choffs));
 
 	plan.output_mask = 0;
@@ -877,37 +877,35 @@ int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) cons
 	if (plan.output_mask == 0)
 		return 0;
 
-	uint32_t algorithm_ops = plan.algorithm_ops;
-
 	// populate the opout table
 	int16_t opout[8];
 	opout[0] = 0;
 	opout[1] = op1value;
 
 	// compute the 14-bit volume/value of operator 2
-	opmod = opout[bitfield(algorithm_ops, 0, 1)] >> 1;
+	opmod = opout[plan.op2in] >> 1;
 	opout[2] = m_op[1]->compute_volume(m_op[1]->phase() + opmod, am_offset);
 	opout[5] = opout[1] + opout[2];
 
 	// compute the 14-bit volume/value of operator 3
-	opmod = opout[bitfield(algorithm_ops, 1, 3)] >> 1;
+	opmod = opout[plan.op3in] >> 1;
 	opout[3] = m_op[2]->compute_volume(m_op[2]->phase() + opmod, am_offset);
 	opout[6] = opout[1] + opout[3];
 	opout[7] = opout[2] + opout[3];
 
 	// compute the 14-bit volume/value of operator 4;
 	// all algorithms consume OP4 output at a minimum
-	opmod = opout[bitfield(algorithm_ops, 4, 3)] >> 1;
+	opmod = opout[plan.op4in] >> 1;
 	int32_t result = m_op[3]->compute_volume(m_op[3]->phase() + opmod, am_offset) >> OUTPUT_SHIFT;
 
 	// optionally add OP1, OP2, OP3. compute_volume() cannot exceed the largest
 	// power table entry, 8168, so even four unshifted carriers stay inside the
 	// 16-bit range that the clamp here used to enforce.
-	if (bitfield(algorithm_ops, 7) != 0)
+	if (plan.carrier_mask & 1)
 		result += opout[1] >> OUTPUT_SHIFT;
-	if (bitfield(algorithm_ops, 8) != 0)
+	if (plan.carrier_mask & 2)
 		result += opout[2] >> OUTPUT_SHIFT;
-	if (bitfield(algorithm_ops, 9) != 0)
+	if (plan.carrier_mask & 4)
 		result += opout[3] >> OUTPUT_SHIFT;
 
 	return result;

@@ -488,9 +488,12 @@ public:
 	// current buffer, so these hold for every sample of one generate().
 	struct output_plan
 	{
-		uint16_t algorithm_ops;  // operator routing for the algorithm
-		uint8_t feedback;        // operator 1 self-feedback, 0 means none
-		uint8_t output_mask;     // one bit per output this channel feeds
+		uint8_t op2in;         // opout[] index that modulates operator 2
+		uint8_t op3in;         // opout[] index that modulates operator 3
+		uint8_t op4in;         // opout[] index that modulates operator 4
+		uint8_t carrier_mask;  // bit 0 = op1, bit 1 = op2, bit 2 = op3 in the sum
+		uint8_t feedback;      // operator 1 self-feedback, 0 means none
+		uint8_t output_mask;   // one bit per output this channel feeds
 	};
 
 	// Read those fields once, before the sample loop.
