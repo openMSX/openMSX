@@ -414,6 +414,12 @@ bool fm_operator::prepare()
 	clock_keystate(uint32_t(m_keyon_live != 0));
 	m_keyon_live &= ~(1 << KEYON_CSM);
 
+	// Only an enabled SSG-EG can invert. Turning it off mid-note leaves the
+	// flag set, so it is cleared here, after start_release() has had its look
+	// at the old value.
+	if (!m_cache.ssg_eg_enable)
+		m_ssg_inverted = false;
+
 	// we're active until we're quiet after the release
 	return (m_env_state != EG_RELEASE || m_env_attenuation < EG_QUIET);
 }
@@ -425,11 +431,10 @@ bool fm_operator::prepare()
 
 void fm_operator::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 {
-	// clock the SSG-EG state (OPN/OPNA)
+	// clock the SSG-EG state (OPN/OPNA); prepare() cleared the inversion if
+	// it is disabled
 	if (m_cache.ssg_eg_enable)
 		clock_ssg_eg_state();
-	else
-		m_ssg_inverted = false;
 
 	// clock the envelope if on an envelope cycle; env_counter is a x.2 value
 	if (bitfield(env_counter, 0, 2) == 0)
