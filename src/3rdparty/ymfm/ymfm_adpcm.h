@@ -120,7 +120,7 @@ class adpcm_a_channel
 {
 public:
 	// constructor
-	adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs, uint32_t addrshift);
+	adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs);
 
 	// reset the channel state
 	void reset();
@@ -174,7 +174,6 @@ public:
 private:
 	// internal state
 	uint32_t const m_choffs;              // channel offset
-	uint32_t const m_address_shift;       // address bits shift-left
 	uint32_t m_playing;                   // currently playing?
 	uint32_t m_curnibble;                 // index of the current nibble
 	uint32_t m_curbyte;                   // current byte of data
@@ -194,7 +193,7 @@ public:
 	static constexpr int CHANNELS = adpcm_a_registers::CHANNELS;
 
 	// constructor; the channels point into m_regs, so copying is not safe
-	adpcm_a_engine(ymfm_interface &intf, uint32_t addrshift);
+	adpcm_a_engine(ymfm_interface &intf);
 	adpcm_a_engine(const adpcm_a_engine &) = delete;
 	adpcm_a_engine &operator=(const adpcm_a_engine &) = delete;
 
@@ -337,7 +336,7 @@ public:
 	static constexpr uint8_t STATUS_PLAYING = 0x04;
 
 	// constructor
-	adpcm_b_channel(ymfm_interface &intf, adpcm_b_registers &regs, uint32_t addrshift);
+	adpcm_b_channel(ymfm_interface &intf, adpcm_b_registers &regs);
 
 	// reset the channel state
 	void reset();
@@ -467,7 +466,6 @@ private:
 	bool at_end() const { return (m_curaddress == (((m_regs.end() + 1) << address_shift()) - 1)); }
 
 	// internal state
-	uint32_t const m_address_shift; // address bits shift-left
 	uint32_t m_status;              // currently playing?
 	uint32_t m_curnibble;           // index of the current nibble
 	uint32_t m_curbyte;             // current byte of data
@@ -489,7 +487,7 @@ class adpcm_b_engine
 {
 public:
 	// constructor; the channel points into m_regs, so copying is not safe
-	adpcm_b_engine(ymfm_interface &intf, uint32_t addrshift = 0);
+	adpcm_b_engine(ymfm_interface &intf);
 	adpcm_b_engine(const adpcm_b_engine &) = delete;
 	adpcm_b_engine &operator=(const adpcm_b_engine &) = delete;
 

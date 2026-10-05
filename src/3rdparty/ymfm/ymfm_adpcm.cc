@@ -60,9 +60,8 @@ void adpcm_a_registers::reset()
 //  adpcm_a_channel - constructor
 //-------------------------------------------------
 
-adpcm_a_channel::adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs, uint32_t addrshift) :
+adpcm_a_channel::adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs) :
 	m_choffs(choffs),
-	m_address_shift(addrshift),
 	m_playing(0),
 	m_curnibble(0),
 	m_curbyte(0),
@@ -100,7 +99,7 @@ void adpcm_a_channel::keyonoff(bool on)
 	m_playing = on;
 	if (m_playing)
 	{
-		m_curaddress = m_regs.ch_start(m_choffs) << m_address_shift;
+		m_curaddress = m_regs.ch_start(m_choffs);
 		m_curnibble = 0;
 		m_curbyte = 0;
 		m_accumulator = 0;
@@ -134,7 +133,7 @@ bool adpcm_a_channel::clock()
 		// note also: end address is inclusive, so wait until we are about to fetch
 		// the sample just after the end before stopping; this is needed for nitd's
 		// jump sound, for example
-		uint32_t end = (m_regs.ch_end(m_choffs) + 1) << m_address_shift;
+		uint32_t end = m_regs.ch_end(m_choffs) + 1;
 		if (((m_curaddress ^ end) & 0xfffff) == 0)
 		{
 			m_playing = m_accumulator = 0;
@@ -236,9 +235,9 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan() const
 //  adpcm_a_engine - constructor
 //-------------------------------------------------
 
-adpcm_a_engine::adpcm_a_engine(ymfm_interface &intf, uint32_t addrshift) :
+adpcm_a_engine::adpcm_a_engine(ymfm_interface &intf) :
 	m_channel(generate_array<CHANNELS>([&](size_t chnum) {
-		return adpcm_a_channel(intf, m_regs, uint32_t(chnum), addrshift); }))
+		return adpcm_a_channel(intf, m_regs, uint32_t(chnum)); }))
 {
 }
 
@@ -356,8 +355,7 @@ void adpcm_b_registers::reset()
 //  adpcm_b_channel - constructor
 //-------------------------------------------------
 
-adpcm_b_channel::adpcm_b_channel(ymfm_interface &intf, adpcm_b_registers &regs, uint32_t addrshift) :
-	m_address_shift(addrshift),
+adpcm_b_channel::adpcm_b_channel(ymfm_interface &intf, adpcm_b_registers &regs) :
 	m_status(STATUS_BRDY),
 	m_curnibble(0),
 	m_curbyte(0),
@@ -697,10 +695,6 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 
 uint32_t adpcm_b_channel::address_shift() const
 {
-	// if a constant address shift, just provide that
-	if (m_address_shift != 0)
-		return m_address_shift;
-
 	// if ROM or 8-bit DRAM, shift is 5 bits
 	if (m_regs.rom_ram())
 		return 5;
@@ -740,8 +734,8 @@ void adpcm_b_channel::load_start()
 //  adpcm_b_engine - constructor
 //-------------------------------------------------
 
-adpcm_b_engine::adpcm_b_engine(ymfm_interface &intf, uint32_t addrshift) :
-	m_channel(intf, m_regs, addrshift)
+adpcm_b_engine::adpcm_b_engine(ymfm_interface &intf) :
+	m_channel(intf, m_regs)
 {
 }
 
