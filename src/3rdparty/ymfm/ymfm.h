@@ -288,45 +288,6 @@ enum access_class : uint32_t
 
 
 //*********************************************************
-//  HELPER CLASSES
-//*********************************************************
-
-// ======================> ymfm_output
-
-// struct containing an array of output values
-template<int NumOutputs>
-struct ymfm_output
-{
-	// clear all outputs to 0
-	ymfm_output &clear()
-	{
-		for (uint32_t index = 0; index < NumOutputs; index++)
-			data[index] = 0;
-		return *this;
-	}
-
-	// clamp all outputs to a 16-bit signed value
-	ymfm_output &clamp16()
-	{
-		for (uint32_t index = 0; index < NumOutputs; index++)
-			data[index] = clamp(data[index], -32768, 32767);
-		return *this;
-	}
-
-	// run each output value through the floating-point processor
-	ymfm_output &roundtrip_fp()
-	{
-		for (uint32_t index = 0; index < NumOutputs; index++)
-			data[index] = ymfm::roundtrip_fp(data[index]);
-		return *this;
-	}
-
-	// internal state
-	int32_t data[NumOutputs];
-};
-
-
-//*********************************************************
 //  INTERFACE CLASSES
 //*********************************************************
 

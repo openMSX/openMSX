@@ -850,7 +850,6 @@ fm_channel::output_plan fm_channel::make_output_plan() const
 	output_plan plan;
 	plan.algorithm_ops = s_algorithm_ops[m_regs.ch_algorithm(m_choffs)];
 	plan.feedback = uint8_t(m_regs.ch_feedback(m_choffs));
-	plan.output_any = m_regs.ch_output_any(m_choffs) != 0;
 
 	plan.output_mask = 0;
 	if (m_regs.ch_output_0(m_choffs))
@@ -866,8 +865,7 @@ fm_channel::output_plan fm_channel::make_output_plan() const
 //  the specified algorithm, returning a sum
 //-------------------------------------------------
 
-void fm_channel::output_4op(output_data &output, const output_plan &plan,
-                            uint32_t am_offset) const
+int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) const
 {
 	// all 4 operators should be populated
 	assert(m_op[0] != nullptr);
@@ -883,10 +881,10 @@ void fm_channel::output_4op(output_data &output, const output_plan &plan,
 	// compute the 14-bit volume/value of operator 1 and update the feedback
 	int32_t op1value = m_feedback_in = m_op[0]->compute_volume(m_op[0]->phase() + opmod, am_offset);
 
-	// now that the feedback has been computed, skip the rest if all volumes
-	// are clear; no need to do all this work for nothing
-	if (!plan.output_any)
-		return;
+	// now that the feedback has been computed, skip the rest if this channel
+	// feeds no output; no need to do all this work for nothing
+	if (plan.output_mask == 0)
+		return 0;
 
 	uint32_t algorithm_ops = plan.algorithm_ops;
 
@@ -921,8 +919,7 @@ void fm_channel::output_4op(output_data &output, const output_plan &plan,
 	if (bitfield(algorithm_ops, 9) != 0)
 		result += opout[3] >> OUTPUT_SHIFT;
 
-	// add to the output
-	add_to_output(plan, output, result);
+	return result;
 }
 
 
@@ -1002,10 +999,14 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 	uint32_t lfoMaxCount = 0;
 	uint32_t am_shift = 0;
 	uint32_t am_offset = 0;
+	bool panLeft = false;
+	bool panRight = false;
 	if constexpr (Lfo)
 		lfoMaxCount = regs.lfo_max_count();
 	if constexpr (Write) {
 		plan = channel.make_output_plan();
+		panLeft = (plan.output_mask & 1) != 0;
+		panRight = (plan.output_mask & 2) != 0;
 		am_shift = regs.lfo_am_shift(channel.choffs());
 		if constexpr (!Lfo)
 			am_offset = regs.lfo_am_offset(am_shift);
@@ -1021,12 +1022,12 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 		}
 		channel.clock(env, pm);
 		if constexpr (Write) {
-			ymfm_output<opna_registers::OUTPUTS> voice;
-			voice.clear();
-			channel.output_4op(voice, plan, am_offset);
+			float value = float(channel.output_4op(plan, am_offset));
 			unsigned pos = index * 2;
-			buf[pos + 0] += float(voice.data[0]);
-			buf[pos + 1] += float(voice.data[1]);
+			if (panLeft)
+				buf[pos + 0] += value;
+			if (panRight)
+				buf[pos + 1] += value;
 		}
 	}
 }

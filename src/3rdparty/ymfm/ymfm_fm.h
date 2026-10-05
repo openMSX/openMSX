@@ -272,7 +272,6 @@ public:
 	uint32_t ch_block_freq(uint32_t choffs) const    { return word(0xa4, 0, 6, 0xa0, 0, 8, choffs); }
 	uint32_t ch_feedback(uint32_t choffs) const      { return byte(0xb0, 3, 3, choffs); }
 	uint32_t ch_algorithm(uint32_t choffs) const     { return byte(0xb0, 0, 3, choffs); }
-	uint32_t ch_output_any(uint32_t choffs) const    { return byte(0xb4, 6, 2, choffs); }
 	uint32_t ch_output_0(uint32_t choffs) const      { return byte(0xb4, 7, 1, choffs); }
 	uint32_t ch_output_1(uint32_t choffs) const      { return byte(0xb4, 6, 1, choffs); }
 	uint32_t ch_lfo_am_sens(uint32_t choffs) const   { return byte(0xb4, 4, 2, choffs); }
@@ -430,8 +429,6 @@ private:
 // operators into a final result
 class fm_channel
 {
-	using output_data = ymfm_output<opna_registers::OUTPUTS>;
-
 	// OPNA scales each carrier down by one bit before summing them
 	static constexpr uint32_t OUTPUT_SHIFT = 1;
 
@@ -508,25 +505,16 @@ public:
 		uint16_t algorithm_ops;  // operator routing for the algorithm
 		uint8_t feedback;        // operator 1 self-feedback, 0 means none
 		uint8_t output_mask;     // one bit per output this channel feeds
-		bool output_any;         // any output enabled
 	};
 
 	// Read those fields once, before the sample loop.
 	output_plan make_output_plan() const;
 
-	// 4-operator output handler
-	void output_4op(output_data &output, const output_plan &plan, uint32_t am_offset) const;
+	// 4-operator output handler; the caller routes the result to the outputs
+	// the plan enables
+	int32_t output_4op(const output_plan &plan, uint32_t am_offset) const;
 
 private:
-	// helper to add a value to the left/right outputs the plan enables
-	void add_to_output(const output_plan &plan, output_data &output, int32_t value) const
-	{
-		if (plan.output_mask & 1)
-			output.data[0] += value;
-		if (plan.output_mask & 2)
-			output.data[1] += value;
-	}
-
 	// internal state
 	uint32_t m_choffs;                     // channel offset in registers
 	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
@@ -553,9 +541,6 @@ public:
 	static constexpr uint8_t STATUS_TIMERA = opna_registers::STATUS_TIMERA;
 	static constexpr uint8_t STATUS_TIMERB = opna_registers::STATUS_TIMERB;
 	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
-
-	// expose the correct output class
-	using output_data = ymfm_output<OUTPUTS>;
 
 	// constructor
 	fm_engine_base(ymfm_interface &intf);
