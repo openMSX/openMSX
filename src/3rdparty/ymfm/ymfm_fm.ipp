@@ -949,12 +949,12 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 		m_channel[chnum] = std::make_unique<fm_channel>(m_regs, opna_registers::channel_offset(chnum));
 
-	// create the operators
+	// create the operators and wire them to their channels
 	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
 		m_operator[opnum] = std::make_unique<fm_operator>(m_regs, opna_registers::operator_offset(opnum));
-
-	// do the initial operator assignment
-	assign_operators();
+	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
+		for (uint32_t index = 0; index < 4; index++)
+			m_channel[chnum]->assign(index, m_operator[opna_registers::OPERATOR_MAP[chnum][index]].get());
 }
 
 
@@ -1141,26 +1141,6 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data)
 uint8_t fm_engine_base::status() const
 {
 	return m_status & ~STATUS_BUSY;
-}
-
-
-//-------------------------------------------------
-//  assign_operators - get the current mapping of
-//  operators to channels and assign them all
-//-------------------------------------------------
-
-void fm_engine_base::assign_operators()
-{
-	opna_registers::operator_mapping map;
-	m_regs.operator_map(map);
-
-	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		for (uint32_t index = 0; index < 4; index++)
-		{
-			uint32_t opnum = bitfield(map.chan[chnum], 8 * index, 8);
-			assert(opnum < OPERATORS);
-			m_channel[chnum]->assign(index, m_operator[opnum].get());
-		}
 }
 
 

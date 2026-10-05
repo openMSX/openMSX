@@ -67,33 +67,6 @@ void opna_registers::reset()
 
 
 //-------------------------------------------------
-//  operator_map - return an array of operator
-//  indices for each channel; for OPNA this is fixed
-//-------------------------------------------------
-
-void opna_registers::operator_map(operator_mapping &dest) const
-{
-	// Note that the channel index order is 0,2,1,3, so we bitswap the index.
-	//
-	// This is because the order in the map is:
-	//    carrier 1, carrier 2, modulator 1, modulator 2
-	//
-	// But when wiring up the connections, the more natural order is:
-	//    carrier 1, modulator 1, carrier 2, modulator 2
-	static const operator_mapping s_fixed_map =
-	{ {
-		operator_list(  0,  6,  3,  9 ),  // Channel 0 operators
-		operator_list(  1,  7,  4, 10 ),  // Channel 1 operators
-		operator_list(  2,  8,  5, 11 ),  // Channel 2 operators
-		operator_list( 12, 18, 15, 21 ),  // Channel 3 operators
-		operator_list( 13, 19, 16, 22 ),  // Channel 4 operators
-		operator_list( 14, 20, 17, 23 ),  // Channel 5 operators
-	} };
-	dest = s_fixed_map;
-}
-
-
-//-------------------------------------------------
 //  write - handle writes to the register array
 //-------------------------------------------------
 

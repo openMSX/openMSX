@@ -197,9 +197,20 @@ public:
 		return (opnum % 12) + ((opnum % 12) / 3) + 0x100 * (opnum / 12);
 	}
 
-	// return an array of operator indices for each channel
-	struct operator_mapping { uint32_t chan[CHANNELS]; };
-	void operator_map(operator_mapping &dest) const;
+	// Operator number for each channel's four slots; fixed on OPNA.
+	//
+	// The chip numbers a channel's operators carrier 1, carrier 2, modulator 1,
+	// modulator 2, while wiring up the connections wants carrier 1, modulator 1,
+	// carrier 2, modulator 2, so each row below is listed in that second order.
+	static constexpr uint8_t OPERATOR_MAP[CHANNELS][4] =
+	{
+		{  0,  6,  3,  9 },  // Channel 0 operators
+		{  1,  7,  4, 10 },  // Channel 1 operators
+		{  2,  8,  5, 11 },  // Channel 2 operators
+		{ 12, 18, 15, 21 },  // Channel 3 operators
+		{ 13, 19, 16, 22 },  // Channel 4 operators
+		{ 14, 20, 17, 23 },  // Channel 5 operators
+	};
 
 	// read a register value
 	uint8_t read(uint16_t index) const { return m_regdata[index]; }
@@ -292,13 +303,6 @@ public:
 	uint32_t op_ssg_eg_mode(uint32_t opoffs) const   { return byte(0x90, 0, 3, opoffs); }
 
 protected:
-	// helper to encode four operator numbers into a 32-bit value in the
-	// operator map
-	static constexpr uint32_t operator_list(uint8_t o1 = 0xff, uint8_t o2 = 0xff, uint8_t o3 = 0xff, uint8_t o4 = 0xff)
-	{
-		return o1 | (o2 << 8) | (o3 << 16) | (o4 << 24);
-	}
-
 	// helper to apply KSR to the raw ADSR rate, ignoring ksr if the
 	// raw value is 0, and clamping to 63
 	static constexpr uint32_t effective_rate(uint32_t rawrate, uint32_t ksr)
@@ -620,9 +624,6 @@ public:
 	virtual void engine_mode_write(uint8_t data) override;
 
 protected:
-	// assign the current set of operators to channels
-	void assign_operators();
-
 	// update the state of the given timer
 	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks);
 
