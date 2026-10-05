@@ -197,6 +197,20 @@ public:
 	// prepare prior to clocking
 	bool prepare();
 
+	// Release has reached maximum attenuation. A later key-on restarts phase.
+	bool finished() const
+	{
+		auto state = RegisterType::EG_HAS_REVERB ? EG_REVERB : EG_RELEASE;
+		return m_env_state == state && m_env_attenuation >= 0x3ff;
+	}
+
+	// Same condition prepare() reports, without refreshing the cache or the key.
+	bool audible() const
+	{
+		auto state = RegisterType::EG_HAS_REVERB ? EG_REVERB : EG_RELEASE;
+		return m_env_state != state || m_env_attenuation < EG_QUIET;
+	}
+
 	// master clocking function
 	void clock(uint32_t env_counter, int32_t lfo_raw_pm);
 
@@ -293,6 +307,36 @@ public:
 
 	// prepare prior to clocking
 	bool prepare();
+
+	// Every operator has finished its release.
+	bool finished() const
+	{
+		for (auto* op : m_op)
+			if (op != nullptr && !op->finished())
+				return false;
+		return true;
+	}
+
+	// Any operator would still produce sound.
+	bool audible() const
+	{
+		for (auto* op : m_op)
+			if (op != nullptr && op->audible())
+				return true;
+		return false;
+	}
+
+	// Feedback shift for a skipped mix. After two clocks both slots hold the
+	// last written sample, and further clocks leave them there.
+	void quiesce_feedback(unsigned num)
+	{
+		if (num >= 2) {
+			m_feedback[0] = m_feedback[1] = m_feedback_in;
+		} else if (num == 1) {
+			m_feedback[0] = m_feedback[1];
+			m_feedback[1] = m_feedback_in;
+		}
+	}
 
 	// master clocking function
 	void clock(uint32_t env_counter, int32_t lfo_raw_pm);
@@ -397,20 +441,24 @@ public:
 		for (uint32_t opnum = 0; opnum < OPERATORS; ++opnum) {
 			ar.serialize("operator", *m_operator[opnum]);
 		}
-		// invalidate any caches
-		invalidate_caches();
+		// Operator caches are not saved. The next generate() rebuilds them.
+		m_modified = true;
 	}
 
 	// reset the overall state
 	void reset();
 
-	// master clocking function
-	uint32_t clock(uint32_t chanmask);
+	// Envelope counter before the next generate(). ADPCM-A replays the same
+	// step to decide which samples it clocks.
+	uint32_t envelope_counter() const { return m_env_counter; }
 
-	// One sample of each channel into its own interleaved stereo buffer.
-	// A nullptr entry is skipped. Inactive channels are skipped as well, so
-	// their feedback memory is left unchanged.
-	void output(std::span<float*, CHANNELS> buffers, unsigned sample, uint32_t rshift, int32_t clipmax) const;
+	// Whole buffer, one channel at a time. prepare() runs when a register or
+	// key changed; otherwise the current envelope state is enough. A channel
+	// whose operators have all reached release attenuation 0x3ff is not
+	// clocked. The envelope counter still advances for ADPCM-A. Callers pass
+	// a real buffer per channel. Channels outside chanmask, and channels that
+	// are quiet, are nulled.
+	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift, int32_t clipmax);
 
 	// write to the OPN registers
 	void write(uint16_t regnum, uint8_t data);
@@ -448,17 +496,6 @@ public:
 	RegisterType &regs() { return m_regs; }
 	const RegisterType &regs() const { return m_regs; }
 
-	// invalidate any caches
-	void invalidate_caches() { m_modified_channels = RegisterType::ALL_CHANNELS; }
-
-	// Channels that may contribute to the next output(). A clear bit is silent
-	// until a later modification; a set bit may still be silent. Safe to
-	// sample before clock().
-	uint32_t possibly_active_channels() const
-	{
-		return m_active_channels | m_modified_channels;
-	}
-
 	// simple getters for debugging
 	fm_channel<RegisterType> *debug_channel(uint32_t index) const { return m_channel[index].get(); }
 	fm_operator<RegisterType> *debug_operator(uint32_t index) const { return m_operator[index].get(); }
@@ -489,9 +526,7 @@ protected:
 	uint8_t m_irq_state;             // current IRQ state
 	std::array<uint8_t, 2> m_timer_running;      // current timer running state
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
-	uint32_t m_active_channels;      // mask of active channels (computed by prepare)
-	uint32_t m_modified_channels;    // mask of channels that have been modified
-	uint32_t m_prepare_count;        // counter to do periodic prepare sweeps
+	bool m_modified;                 // register or key changed since the last generate()
 	RegisterType m_regs;             // register accessor
 	std::array<std::unique_ptr<fm_channel<RegisterType>>, CHANNELS> m_channel; // channel pointers
 	std::unique_ptr<fm_operator<RegisterType>> m_operator[OPERATORS]; // operator pointers

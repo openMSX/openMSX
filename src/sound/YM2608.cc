@@ -343,17 +343,6 @@ void YM2608::ymfm_external_write(ymfm::access_class type, uint32_t address, uint
 
 void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 {
-	const uint32_t fmMask = (irqEnable & 0x80) ? 0x3f : 0x07;
-	// A clear bit is silent for this whole buffer. Register writes and CSM
-	// key-on set the modified bit before this runs, and nothing inside the
-	// loop can make a clear channel audible. output() also drops channels
-	// that are set here but quiet, so those samples stay the same.
-	const uint32_t fmAudible = fm.possibly_active_channels() & fmMask;
-	for (unsigned c = 0; c < 6; ++c) {
-		if ((fmAudible & (1U << c)) == 0) {
-			buffers[c] = nullptr;
-		}
-	}
 	if (adpcmB.silent()) {
 		buffers[6] = nullptr;
 	}
@@ -362,16 +351,15 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 			buffers[c + 7] = nullptr;
 		}
 	}
-	for (unsigned i = 0; i < num; ++i) {
-		const auto env = fm.clock(fm_engine::ALL_CHANNELS);
-		if ((env & 0x03) == 0) {
-			adpcmA.clock((env & 0x04) ? 0x0f : 0x3f);
-		}
-		adpcmB.clock();
-		fm.output(buffers.template first<6>(), i, 1, 32767);
-		adpcmB.output(buffers[6], i, 1);
-		adpcmA.output(buffers.subspan(7, 6).template first<6>(), i);
-	}
+	// ADPCM-A replays this counter. generate() advances the engine's copy.
+	const uint32_t env = fm.envelope_counter();
+	// Bit 7 of register 0x29 enables FM channels 3-5. generate() nulls every
+	// channel that is outside this mask or that prepare() finds already quiet.
+	const uint32_t fmMask = (irqEnable & 0x80) ? 0x3f : 0x07;
+	fm.generate(buffers.template first<6>(), num, fmMask, 1, 32767);
+	adpcmB.generate(buffers[6], num, 1);
+	adpcmA.generate<ymfm::opna_registers::EG_CLOCK_DIVIDER>(
+		buffers.subspan(7, 6).template first<6>(), num, env);
 }
 
 template<typename Archive>
@@ -401,7 +389,6 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 		applyRates();
 		fmPart.restoreClock(fmTime);
 		//ssg.restoreClock(ssgTime);
-		fm.invalidate_caches();
 		contextTime = timers[0].getCurrentTime();
 	}
 }

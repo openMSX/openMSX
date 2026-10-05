@@ -165,6 +165,9 @@ public:
 	// next register write. clock() still has to run.
 	bool silent() const;
 
+	// Stopped with a zero accumulator: clock() would only store that zero.
+	bool resting() const { return m_playing == 0 && m_accumulator == 0; }
+
 	// return the computed output value, with panning applied
 	template<int NumOutputs>
 	void output(ymfm_output<NumOutputs> &output) const;
@@ -212,8 +215,11 @@ public:
 	// master clocking function
 	uint32_t clock(uint32_t chanmask);
 
-	// One interleaved stereo sample per channel. A nullptr entry is skipped.
-	void output(std::span<float*, CHANNELS> buffers, unsigned sample);
+	// Whole buffer, one channel at a time. envStart is the FM envelope counter
+	// before this buffer; EgDivider matches the FM engine. A nullptr entry
+	// skips output. A resting channel is not clocked.
+	template<uint32_t EgDivider>
+	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart);
 
 	// True when this channel's output() will add zero until the next register write.
 	bool silent(unsigned chnum) const { return m_channel[chnum]->silent(); }
@@ -369,12 +375,24 @@ public:
 	// signal key on/off
 	void keyonoff(bool on);
 
-	// master clocking function
-	void clock();
+	// One ADPCM-B clock.
+	void clock_1();
+
+	// num clocks. Position steps that do not cross a nibble are applied in
+	// one multiply. Each nibble is consume_nibble(), shared with clock_1().
+	// A channel that is not decoding clears PLAYING once and returns.
+	void clock_n(unsigned num);
 
 	// True when every sample this channel can produce is zero until the
 	// next register write. clock() still has to run.
 	bool silent() const;
+
+	// Not playing, both interpolator ends already zero: clock() does not
+	// change the accumulators or the playing flag.
+	bool resting() const
+	{
+		return (m_status & STATUS_PLAYING) == 0 && m_accumulator == 0 && m_prev_accum == 0;
+	}
 
 	// return the computed output value, with panning applied
 	template<int NumOutputs>
@@ -393,6 +411,10 @@ public:
 private:
 	// helper - return the current address shift
 	uint32_t address_shift() const;
+
+	// One nibble, after the fractional position has already wrapped.
+	// Returns false when playback stops at the end address.
+	bool consume_nibble();
 
 	// load the start address
 	void load_start();
@@ -442,8 +464,9 @@ public:
 	// master clocking function
 	void clock();
 
-	// One interleaved stereo sample. A nullptr buffer is skipped.
-	void output(float* buffer, unsigned sample, uint32_t rshift);
+	// Whole buffer for the single channel. A nullptr buffer skips output.
+	// A resting channel returns without clocking.
+	void generate(float* buffer, unsigned num, uint32_t rshift);
 
 	// True when output() will add zero until the next register write.
 	bool silent() const { return m_channel->silent(); }

@@ -184,6 +184,14 @@ public:
 	// reset the LFO
 	void reset_lfo() { m_lfo_counter = 0; }
 
+	struct lfo_state { uint32_t counter; uint8_t am; };
+	lfo_state save_lfo() const { return {m_lfo_counter, m_lfo_am}; }
+	void restore_lfo(lfo_state state)
+	{
+		m_lfo_counter = state.counter;
+		m_lfo_am = state.am;
+	}
+
 	// return the AM offset from LFO for the given channel
 	uint32_t lfo_am_offset(uint32_t choffs) const;
 

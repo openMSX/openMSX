@@ -26,11 +26,19 @@ Remaining lower-engine patches:
    The latch appends one serialized byte. This is a targeted transition fix,
    not a complete bus-level model. Independent YM2608-LLE experiments reproduced
    it; no LLE code is included or linked here.
-5. `fm_engine_base::possibly_active_channels()` is the active mask ored with
-   the modified mask. Makoto passes one interleaved stereo buffer per FM
-   channel; a nullptr skips that channel for the whole buffer. `output()`
-   still ignores channels `prepare()` has marked inactive, so their feedback
-   memory stays unchanged. `clock()` still advances every operator.
+5. Makoto passes one interleaved stereo buffer per FM channel; a nullptr
+   skips mixing that channel for the whole buffer.
+   `generate()` clocks one channel for the whole buffer before the next.
+   `prepare()` runs at the start of a buffer only after a register write or
+   CSM key-on. A fade during the buffer keeps being mixed until the next
+   `generate()`. A channel that is quiet at that point stays silent: key-on
+   and CSM happen before `generate()`. A channel whose operators are all in
+   release at attenuation 0x3ff is not clocked; an unused chip stays in that
+   state. `generate()` also nulls channels the caller left out of the
+   channel mask (YM2608 register 0x29 bit 7 drops channels 3-5). The
+   envelope counter advances once per chunk for ADPCM-A. The LFO is walked
+   only for a channel that uses it, or once at the end when it is enabled
+   and no channel did. Skipping mix settles feedback in constant time.
 6. `adpcm_b_channel::silent()` is level 0, both pan bits clear, or a channel
    that will not advance with both interpolator accumulators already 0.
    Makoto nulls that buffer for the whole block. `clock()` still runs.

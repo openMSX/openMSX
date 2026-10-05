@@ -284,24 +284,44 @@ uint32_t adpcm_a_engine::clock(uint32_t chanmask)
 
 
 //-------------------------------------------------
-//  output - one interleaved stereo sample per channel
+//  generate - one channel for the whole buffer, then the next
 //-------------------------------------------------
 
-void adpcm_a_engine::output(std::span<float*, CHANNELS> buffers, unsigned sample)
+template<uint32_t EgDivider>
+void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart)
 {
-	const unsigned pos = sample * 2;
-	for (int chnum = 0; chnum < CHANNELS; chnum++)
-	{
-		float* buf = buffers[chnum];
-		if (buf == nullptr)
+	for (int chnum = 0; chnum < CHANNELS; ++chnum) {
+		auto& channel = *m_channel[chnum];
+		if (channel.resting())
 			continue;
-		ymfm_output<2> voice;
-		voice.clear();
-		m_channel[chnum]->output(voice);
-		buf[pos + 0] += float(voice.data[0]);
-		buf[pos + 1] += float(voice.data[1]);
+		float* buf = buffers[chnum];
+		uint32_t env = envStart;
+		// Channels 0-3 clock on every ADPCM tick. Channels 4-5 clock on
+		// every other tick, when envelope bit 2 is clear.
+		const bool low = chnum < 4;
+		if (buf == nullptr) {
+			for (unsigned i = 0; i < num; ++i) {
+				env = step_eg_counter<EgDivider>(env);
+				if ((env & 3) == 0 && (low || (env & 4) == 0))
+					channel.clock();
+			}
+		} else {
+			for (unsigned i = 0; i < num; ++i) {
+				env = step_eg_counter<EgDivider>(env);
+				if ((env & 3) == 0 && (low || (env & 4) == 0))
+					channel.clock();
+				ymfm_output<2> voice;
+				voice.clear();
+				channel.output(voice);
+				unsigned pos = i * 2;
+				buf[pos + 0] += float(voice.data[0]);
+				buf[pos + 1] += float(voice.data[1]);
+			}
+		}
 	}
 }
+
+template void adpcm_a_engine::generate<3>(std::span<float*, adpcm_a_engine::CHANNELS>, unsigned, uint32_t);
 
 
 //-------------------------------------------------
@@ -390,7 +410,7 @@ void adpcm_b_channel::reset()
 //  clock - master clocking function
 //-------------------------------------------------
 
-void adpcm_b_channel::clock()
+void adpcm_b_channel::clock_1()
 {
 	// only process if active and not recording (which we don't support)
 	if (!m_regs.execute() || m_regs.record() || (m_status & STATUS_PLAYING) == 0)
@@ -405,6 +425,16 @@ void adpcm_b_channel::clock()
 	if (position < 0x10000)
 		return;
 
+	consume_nibble();
+}
+
+
+//-------------------------------------------------
+//  consume_nibble - one sample after the position has wrapped
+//-------------------------------------------------
+
+bool adpcm_b_channel::consume_nibble()
+{
 	// if we're about to process nibble 0, fetch sample
 	if (m_curnibble == 0)
 	{
@@ -436,7 +466,7 @@ void adpcm_b_channel::clock()
 					m_accumulator = 0;
 					m_prev_accum = 0;
 					m_status = (m_status & ~STATUS_PLAYING) | STATUS_EOS;
-					return;
+					return false;
 				}
 			}
 
@@ -474,6 +504,46 @@ void adpcm_b_channel::clock()
 	// scale the ADPCM step: 0.9, 0.9, 0.9, 0.9, 1.2, 1.6, 2.0, 2.4
 	static uint8_t const s_step_scale[8] = { 57, 57, 57, 57, 77, 102, 128, 153 };
 	m_adpcm_step = clamp((m_adpcm_step * s_step_scale[bitfield(data, 0, 3)]) / 64, STEP_MIN, STEP_MAX);
+	return true;
+}
+
+
+//-------------------------------------------------
+//  clock_n - several clocks, batching position steps
+//-------------------------------------------------
+
+void adpcm_b_channel::clock_n(unsigned num)
+{
+	if (num == 0)
+		return;
+
+	// Not decoding: clock_1() only clears PLAYING. One store covers the run.
+	if (!m_regs.execute() || m_regs.record() || (m_status & STATUS_PLAYING) == 0) {
+		m_status &= ~STATUS_PLAYING;
+		return;
+	}
+
+	const uint32_t delta = m_regs.delta_n();
+	// Adding zero never reaches the next nibble.
+	if (delta == 0)
+		return;
+
+	while (num != 0) {
+		// Clocks until and including the next 16-bit overflow.
+		uint32_t room = 0x10000u - m_position;
+		uint32_t steps = (room + delta - 1) / delta;
+		if (steps > num) {
+			m_position = uint16_t(uint32_t(m_position) + uint64_t(num) * delta);
+			return;
+		}
+		// The low 16 bits are the position after the overflowing add.
+		m_position = uint16_t(uint32_t(m_position) + uint64_t(steps) * delta);
+		num -= steps;
+		// End-without-repeat stops here. Later clocks would only clear
+		// PLAYING, which consume_nibble() already cleared.
+		if (!consume_nibble())
+			return;
+	}
 }
 
 
@@ -724,24 +794,31 @@ void adpcm_b_engine::reset()
 void adpcm_b_engine::clock()
 {
 	// clock each channel, setting a bit in result if it finished
-	m_channel->clock();
+	m_channel->clock_1();
 }
 
 
 //-------------------------------------------------
-//  output - one interleaved stereo sample
+//  generate - the whole buffer for the single channel
 //-------------------------------------------------
 
-void adpcm_b_engine::output(float* buffer, unsigned sample, uint32_t rshift)
+void adpcm_b_engine::generate(float* buffer, unsigned num, uint32_t rshift)
 {
-	if (buffer == nullptr)
+	if (m_channel->resting())
 		return;
-	ymfm_output<2> voice;
-	voice.clear();
-	m_channel->output(voice, rshift);
-	const unsigned pos = sample * 2;
-	buffer[pos + 0] += float(voice.data[0]);
-	buffer[pos + 1] += float(voice.data[1]);
+	if (buffer == nullptr) {
+		m_channel->clock_n(num);
+	} else {
+		for (unsigned i = 0; i < num; ++i) {
+			m_channel->clock_1();
+			ymfm_output<2> voice;
+			voice.clear();
+			m_channel->output(voice, rshift);
+			unsigned pos = i * 2;
+			buffer[pos + 0] += float(voice.data[0]);
+			buffer[pos + 1] += float(voice.data[1]);
+		}
+	}
 }
 
 

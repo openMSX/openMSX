@@ -1136,9 +1136,7 @@ fm_engine_base<RegisterType>::fm_engine_base(ymfm_interface &intf) :
 	m_irq_state(0),
 	m_timer_running{0,0},
 	m_total_clocks(0),
-	m_active_channels(ALL_CHANNELS),
-	m_modified_channels(ALL_CHANNELS),
-	m_prepare_count(0)
+	m_modified(false)
 {
 	// inform the interface of their engine
 	m_intf.m_engine = this;
@@ -1184,102 +1182,98 @@ void fm_engine_base<RegisterType>::reset()
 
 
 //-------------------------------------------------
-//  clock - iterate over all channels, clocking
-//  them forward one step
+//  synthesize_fm_channel - clock one channel across a stretch of samples
+//  with no prepare() in between. Write selects whether output is mixed.
 //-------------------------------------------------
 
-template<class RegisterType>
-uint32_t fm_engine_base<RegisterType>::clock(uint32_t chanmask)
+template<class RegisterType, bool Write, bool Lfo>
+static void synthesize_fm_channel(fm_channel<RegisterType>& channel, RegisterType& regs,
+                                  float* buf [[maybe_unused]], unsigned num, uint32_t env,
+                                  uint32_t rshift [[maybe_unused]], int32_t clipmax [[maybe_unused]])
 {
-	// update the clock counter
-	m_total_clocks++;
-
-	// if something was modified, prepare
-	// also prepare every 4k samples to catch ending notes
-	if (m_modified_channels != 0 || m_prepare_count++ >= 4096)
-	{
-		// reassign operators to channels if dynamic
-		if (RegisterType::DYNAMIC_OPS)
-			assign_operators();
-
-		// call each channel to prepare
-		m_active_channels = 0;
-		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-			if (bitfield(chanmask, chnum))
-				if (m_channel[chnum]->prepare())
-					m_active_channels |= 1 << chnum;
-
-		// reset the modified channels and prepare count
-		m_modified_channels = m_prepare_count = 0;
+	for (unsigned index = 0; index < num; ++index) {
+		env = step_eg_counter<RegisterType::EG_CLOCK_DIVIDER>(env);
+		int32_t pm = 0;
+		if constexpr (Lfo)
+			pm = regs.clock_noise_and_lfo();
+		channel.clock(env, pm);
+		if constexpr (Write) {
+			ymfm_output<RegisterType::OUTPUTS> voice;
+			voice.clear();
+			channel.output_4op(voice, rshift, clipmax);
+			unsigned pos = index * 2;
+			buf[pos + 0] += float(voice.data[0]);
+			buf[pos + 1] += float(voice.data[1]);
+		}
 	}
-
-	// if the envelope clock divider is 1, just increment by 4;
-	// otherwise, increment by 1 and manually wrap when we reach the divide count
-	if (RegisterType::EG_CLOCK_DIVIDER == 1)
-		m_env_counter += 4;
-	else if (bitfield(++m_env_counter, 0, 2) == RegisterType::EG_CLOCK_DIVIDER)
-		m_env_counter += 4 - RegisterType::EG_CLOCK_DIVIDER;
-
-	// clock the noise generator
-	int32_t lfo_raw_pm = m_regs.clock_noise_and_lfo();
-
-	// now update the state of all the channels and operators
-	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		if (bitfield(chanmask, chnum))
-			m_channel[chnum]->clock(m_env_counter, lfo_raw_pm);
-
-	// return the envelope counter as it is used to clock ADPCM-A
-	return m_env_counter;
 }
 
 
 //-------------------------------------------------
-//  output - one sample into each channel buffer
+//  generate - one channel for the whole buffer, then the next
 //-------------------------------------------------
 
 template<class RegisterType>
-void fm_engine_base<RegisterType>::output(std::span<float*, CHANNELS> buffers, unsigned sample, uint32_t rshift, int32_t clipmax) const
+void fm_engine_base<RegisterType>::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift, int32_t clipmax)
 {
 	static_assert(OUTPUTS == 2);
+	static_assert(!RegisterType::DYNAMIC_OPS);
+	static_assert(RegisterType::OPERATORS / RegisterType::CHANNELS == 4);
 
-	uint32_t phase_select = 0;
-	if (m_regs.rhythm_enable())
-	{
-		assert(m_regs.noise_enable() == 0);
-		uint32_t op13phase = m_operator[13]->phase();
-		uint32_t op17phase = m_operator[17]->phase();
-		phase_select = (bitfield(op13phase, 2) ^ bitfield(op13phase, 7)) | bitfield(op13phase, 3) | (bitfield(op17phase, 5) ^ bitfield(op17phase, 3));
+	// An empty buffer must not consume a pending key-on.
+	if (num == 0)
+		return;
+
+	// Register writes and CSM key-on land before this call. A channel that is
+	// quiet here cannot become active before the next generate(). The envelope
+	// counter advances once per sample for ADPCM-A, even when no channel clocks.
+	const uint32_t env0 = m_env_counter;
+	const auto lfo0 = m_regs.save_lfo();
+	const bool lfoEnabled = m_regs.lfo_enable() != 0;
+	// Disabled LFO is a constant. One update serves every sample of the chunk.
+	if (!lfoEnabled)
+		m_regs.clock_noise_and_lfo();
+
+	bool lfoWalked = false;
+	for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
+		auto& channel = *m_channel[chnum];
+		// prepare() applies a new key and rebuilds the operator cache. With no
+		// register or key change, the envelope state already decides the path.
+		bool audible = m_modified ? channel.prepare() : channel.audible();
+		if (channel.finished()) {
+			buffers[chnum] = nullptr;
+			channel.quiesce_feedback(num);
+			continue;
+		}
+		bool enabled = bitfield(chanmask, chnum) != 0;
+		bool mix = audible && enabled;
+		// Phase modulation matters only while the note is still running. AM is
+		// read only when the channel is mixed.
+		bool walkLfo = lfoEnabled && ((audible && m_regs.ch_lfo_pm_sens(channel.choffs()) != 0)
+			|| (mix && m_regs.ch_lfo_am_sens(channel.choffs()) != 0));
+		if (walkLfo) {
+			m_regs.restore_lfo(lfo0);
+			lfoWalked = true;
+		}
+		if (!mix)
+			buffers[chnum] = nullptr;
+		if (mix && walkLfo)
+			synthesize_fm_channel<RegisterType, true, true>(channel, m_regs, buffers[chnum], num, env0, rshift, clipmax);
+		else if (mix)
+			synthesize_fm_channel<RegisterType, true, false>(channel, m_regs, buffers[chnum], num, env0, rshift, clipmax);
+		else if (walkLfo)
+			synthesize_fm_channel<RegisterType, false, true>(channel, m_regs, nullptr, num, env0, rshift, clipmax);
+		else
+			synthesize_fm_channel<RegisterType, false, false>(channel, m_regs, nullptr, num, env0, rshift, clipmax);
 	}
 
-	const unsigned pos = sample * 2;
-	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-	{
-		float* buf = buffers[chnum];
-		if (buf == nullptr || !bitfield(m_active_channels, chnum))
-			continue;
-
-		output_data voice;
-		voice.clear();
-		if (m_regs.rhythm_enable())
-		{
-			if (chnum == 6)
-				m_channel[chnum]->output_rhythm_ch6(voice, rshift, clipmax);
-			else if (chnum == 7)
-				m_channel[chnum]->output_rhythm_ch7(phase_select, voice, rshift, clipmax);
-			else if (chnum == 8)
-				m_channel[chnum]->output_rhythm_ch8(phase_select, voice, rshift, clipmax);
-			else if (m_channel[chnum]->is4op())
-				m_channel[chnum]->output_4op(voice, rshift, clipmax);
-			else
-				m_channel[chnum]->output_2op(voice, rshift, clipmax);
-		}
-		else if (m_channel[chnum]->is4op())
-			m_channel[chnum]->output_4op(voice, rshift, clipmax);
-		else
-			m_channel[chnum]->output_2op(voice, rshift, clipmax);
-
-		buf[pos + 0] += float(voice.data[0]);
-		buf[pos + 1] += float(voice.data[1]);
+	m_env_counter = advance_eg_counter<RegisterType::EG_CLOCK_DIVIDER>(env0, num);
+	m_total_clocks = uint8_t(m_total_clocks + num);
+	m_modified = false;
+	if (lfoEnabled && !lfoWalked) {
+		m_regs.restore_lfo(lfo0);
+		for (unsigned i = 0; i < num; ++i)
+			m_regs.clock_noise_and_lfo();
 	}
 }
 
@@ -1293,14 +1287,14 @@ void fm_engine_base<RegisterType>::write(uint16_t regnum, uint8_t data)
 {
 	// special case: writes to the mode register can impact IRQs;
 	// schedule these writes to ensure ordering with timers
+	// Consumed by the next generate(): rebuild caches and apply key changes.
+	m_modified = true;
+
 	if (regnum == RegisterType::REG_MODE)
 	{
 		m_intf.ymfm_sync_mode_write(data);
 		return;
 	}
-
-	// for now just mark all channels as modified
-	m_modified_channels = ALL_CHANNELS;
 
 	// most writes are passive, consumed only when needed
 	uint32_t keyon_channel;
@@ -1404,13 +1398,12 @@ void fm_engine_base<RegisterType>::engine_timer_expired(uint32_t tnum)
 		set_reset_status(STATUS_TIMERB, 0);
 
 	// if timer A fired in CSM mode, trigger CSM on all relevant channels
-	if (tnum == 0 && m_regs.csm())
+	if (tnum == 0 && m_regs.csm()) {
+		m_modified = true;
 		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 			if (bitfield(RegisterType::CSM_TRIGGER_MASK, chnum))
-			{
 				m_channel[chnum]->keyonoff(0xf, KEYON_CSM, chnum);
-				m_modified_channels |= 1 << chnum;
-			}
+	}
 
 	// reset
 	m_timer_running[tnum] = false;
@@ -1450,9 +1443,6 @@ void fm_engine_base<RegisterType>::engine_check_interrupts()
 template<class RegisterType>
 void fm_engine_base<RegisterType>::engine_mode_write(uint8_t data)
 {
-	// mark all channels as modified
-	m_modified_channels = ALL_CHANNELS;
-
 	// actually write the mode register now
 	uint32_t dummy1, dummy2;
 	m_regs.write(RegisterType::REG_MODE, data, dummy1, dummy2);
