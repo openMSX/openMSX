@@ -8,9 +8,6 @@
 
 #include "3rdparty/ym2608/fmopn_2608rom.h"
 
-#include <algorithm>
-#include <vector>
-
 namespace openmsx {
 
 static constexpr unsigned CLOCK = 8'000'000;
@@ -344,51 +341,36 @@ void YM2608::ymfm_external_write(ymfm::access_class type, uint32_t address, uint
 	}
 }
 
-template<bool Combined>
 void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 {
-	uint32_t orOutput = 0;
 	const uint32_t fmMask = (irqEnable & 0x80) ? 0x3f : 0x07;
+	// A clear bit is silent for this whole buffer. Register writes and CSM
+	// key-on set the modified bit before this runs, and nothing inside the
+	// loop can make a clear channel audible. output() also drops channels
+	// that are set here but quiet, so those samples stay the same.
+	const uint32_t fmAudible = fm.possibly_active_channels() & fmMask;
+	for (unsigned c = 0; c < 6; ++c) {
+		if ((fmAudible & (1U << c)) == 0) {
+			buffers[c] = nullptr;
+		}
+	}
+	if (adpcmB.silent()) {
+		buffers[6] = nullptr;
+	}
+	for (unsigned c = 0; c < 6; ++c) {
+		if (adpcmA.silent(c)) {
+			buffers[c + 7] = nullptr;
+		}
+	}
 	for (unsigned i = 0; i < num; ++i) {
 		const auto env = fm.clock(fm_engine::ALL_CHANNELS);
 		if ((env & 0x03) == 0) {
 			adpcmA.clock((env & 0x04) ? 0x0f : 0x3f);
 		}
 		adpcmB.clock();
-		if constexpr (Combined) {
-			// No channel tools: render each engine once into a local stereo sum.
-			// This is not retained chip state, and is never internally clipped.
-			fm_engine::output_data mixed;
-			fm.output(mixed.clear(), 1, 32767, fmMask);
-			adpcmB.output(mixed, 1);
-			adpcmA.output(mixed, 0x3f);
-			buffers[0][2 * i + 0] += float(mixed.data[0]);
-			buffers[0][2 * i + 1] += float(mixed.data[1]);
-			orOutput |= uint32_t(mixed.data[0] | mixed.data[1]);
-		} else {
-			// Six FM voices, one ADPCM-B voice and six rhythm voices.
-			// Write directly to the host buffers; no channel-output cache.
-			fm_engine::output_data voice;
-			for (unsigned c = 0; c < 6; ++c) {
-				fm.output(voice.clear(), 1, 32767, fmMask & (1U << c));
-				buffers[c][2 * i + 0] += float(voice.data[0]);
-				buffers[c][2 * i + 1] += float(voice.data[1]);
-			}
-			adpcmB.output(voice.clear(), 1);
-			buffers[6][2 * i + 0] += float(voice.data[0]);
-			buffers[6][2 * i + 1] += float(voice.data[1]);
-			for (unsigned c = 0; c < 6; ++c) {
-				adpcmA.output(voice.clear(), 1U << c);
-				buffers[c + 7][2 * i + 0] += float(voice.data[0]);
-				buffers[c + 7][2 * i + 1] += float(voice.data[1]);
-			}
-		}
-	}
-	if constexpr (Combined) {
-		std::ranges::fill(buffers.subspan(1), nullptr);
-		if (!orOutput) {
-			buffers[0] = nullptr;
-		}
+		fm.output(buffers.template first<6>(), i, 1, 32767);
+		adpcmB.output(buffers[6], i, 1);
+		adpcmA.output(buffers.subspan(7, 6).template first<6>(), i);
 	}
 }
 
@@ -473,11 +455,7 @@ void YM2608::FmPart::setOutputRate(unsigned rate, double speed)
 void YM2608::FmPart::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	assert(buffers.size() == 13);
-	if (std::ranges::all_of(buffers, [&](auto* b) { return b == buffers[0]; })) {
-		chip.generateFM<true >(buffers, num);
-	} else {
-		chip.generateFM<false>(buffers, num);
-	}
+	chip.generateFM(buffers, num);
 }
 
 
@@ -503,7 +481,7 @@ void YM2608::Timer::executeUntil(EmuTime time)
 {
 	ym2608.updateStream(time);
 	// YMFM reloads the timer through ymfm_set_timer().
-	ym2608.m_engine->engine_timer_expired(index);
+	ym2608.fm.engine_timer_expired(index);
 }
 
 template<typename Archive>

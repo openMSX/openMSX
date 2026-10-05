@@ -58,7 +58,6 @@ private:
 	uint8_t ymfm_external_read(ymfm::access_class type, uint32_t address) override;
 	void ymfm_external_write(ymfm::access_class type, uint32_t address, uint8_t value) override;
 
-	template<bool Combined>
 	void generateFM(std::span<float*> buffers, unsigned num);
 
 private:

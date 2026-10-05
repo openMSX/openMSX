@@ -1234,55 +1234,52 @@ uint32_t fm_engine_base<RegisterType>::clock(uint32_t chanmask)
 
 
 //-------------------------------------------------
-//  output - compute a sum over the relevant
-//  channels
+//  output - one sample into each channel buffer
 //-------------------------------------------------
 
 template<class RegisterType>
-void fm_engine_base<RegisterType>::output(output_data &output, uint32_t rshift, int32_t clipmax, uint32_t chanmask) const
+void fm_engine_base<RegisterType>::output(std::span<float*, CHANNELS> buffers, unsigned sample, uint32_t rshift, int32_t clipmax) const
 {
-	// mask out inactive channels
-	chanmask &= m_active_channels;
+	static_assert(OUTPUTS == 2);
 
-	// handle the rhythm case, where some of the operators are dedicated
-	// to percussion (this is an OPL-specific feature)
+	uint32_t phase_select = 0;
 	if (m_regs.rhythm_enable())
 	{
-		// we don't support the OPM noise channel here; ensure it is off
 		assert(m_regs.noise_enable() == 0);
-
-		// precompute the operator 13+17 phase selection value
 		uint32_t op13phase = m_operator[13]->phase();
 		uint32_t op17phase = m_operator[17]->phase();
-		uint32_t phase_select = (bitfield(op13phase, 2) ^ bitfield(op13phase, 7)) | bitfield(op13phase, 3) | (bitfield(op17phase, 5) ^ bitfield(op17phase, 3));
-
-		// sum over all the desired channels
-		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-			if (bitfield(chanmask, chnum))
-			{
-				if (chnum == 6)
-					m_channel[chnum]->output_rhythm_ch6(output, rshift, clipmax);
-				else if (chnum == 7)
-					m_channel[chnum]->output_rhythm_ch7(phase_select, output, rshift, clipmax);
-				else if (chnum == 8)
-					m_channel[chnum]->output_rhythm_ch8(phase_select, output, rshift, clipmax);
-				else if (m_channel[chnum]->is4op())
-					m_channel[chnum]->output_4op(output, rshift, clipmax);
-				else
-					m_channel[chnum]->output_2op(output, rshift, clipmax);
-			}
+		phase_select = (bitfield(op13phase, 2) ^ bitfield(op13phase, 7)) | bitfield(op13phase, 3) | (bitfield(op17phase, 5) ^ bitfield(op17phase, 3));
 	}
-	else
+
+	const unsigned pos = sample * 2;
+	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 	{
-		// sum over all the desired channels
-		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-			if (bitfield(chanmask, chnum))
-			{
-				if (m_channel[chnum]->is4op())
-					m_channel[chnum]->output_4op(output, rshift, clipmax);
-				else
-					m_channel[chnum]->output_2op(output, rshift, clipmax);
-			}
+		float* buf = buffers[chnum];
+		if (buf == nullptr || !bitfield(m_active_channels, chnum))
+			continue;
+
+		output_data voice;
+		voice.clear();
+		if (m_regs.rhythm_enable())
+		{
+			if (chnum == 6)
+				m_channel[chnum]->output_rhythm_ch6(voice, rshift, clipmax);
+			else if (chnum == 7)
+				m_channel[chnum]->output_rhythm_ch7(phase_select, voice, rshift, clipmax);
+			else if (chnum == 8)
+				m_channel[chnum]->output_rhythm_ch8(phase_select, voice, rshift, clipmax);
+			else if (m_channel[chnum]->is4op())
+				m_channel[chnum]->output_4op(voice, rshift, clipmax);
+			else
+				m_channel[chnum]->output_2op(voice, rshift, clipmax);
+		}
+		else if (m_channel[chnum]->is4op())
+			m_channel[chnum]->output_4op(voice, rshift, clipmax);
+		else
+			m_channel[chnum]->output_2op(voice, rshift, clipmax);
+
+		buf[pos + 0] += float(voice.data[0]);
+		buf[pos + 1] += float(voice.data[1]);
 	}
 }
 

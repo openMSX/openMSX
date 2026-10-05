@@ -34,6 +34,7 @@
 #pragma once
 
 #include <array>
+#include <span>
 
 namespace ymfm
 {
@@ -406,8 +407,10 @@ public:
 	// master clocking function
 	uint32_t clock(uint32_t chanmask);
 
-	// compute sum of channel outputs
-	void output(output_data &output, uint32_t rshift, int32_t clipmax, uint32_t chanmask) const;
+	// One sample of each channel into its own interleaved stereo buffer.
+	// A nullptr entry is skipped. Inactive channels are skipped as well, so
+	// their feedback memory is left unchanged.
+	void output(std::span<float*, CHANNELS> buffers, unsigned sample, uint32_t rshift, int32_t clipmax) const;
 
 	// write to the OPN registers
 	void write(uint16_t regnum, uint8_t data);
@@ -447,6 +450,14 @@ public:
 
 	// invalidate any caches
 	void invalidate_caches() { m_modified_channels = RegisterType::ALL_CHANNELS; }
+
+	// Channels that may contribute to the next output(). A clear bit is silent
+	// until a later modification; a set bit may still be silent. Safe to
+	// sample before clock().
+	uint32_t possibly_active_channels() const
+	{
+		return m_active_channels | m_modified_channels;
+	}
 
 	// simple getters for debugging
 	fm_channel<RegisterType> *debug_channel(uint32_t index) const { return m_channel[index].get(); }

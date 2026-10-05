@@ -180,6 +180,27 @@ bool adpcm_a_channel::clock()
 
 
 //-------------------------------------------------
+//  silent - output stays zero until a register write
+//-------------------------------------------------
+
+bool adpcm_a_channel::silent() const
+{
+	// A stopped channel forces the accumulator to 0 on the next clock that
+	// includes it. Until that clock, output() still emits the held value.
+	// Key-on only happens from a register write.
+	if (m_playing == 0 && m_accumulator == 0)
+		return true;
+
+	// Instrument level, total level and pan are registers. clock() does
+	// not change them, and a write ends the current buffer first.
+	int vol = (m_regs.ch_instrument_level(m_choffs) ^ 0x1f) + (m_regs.total_level() ^ 0x3f);
+	if (vol >= 63)
+		return true;
+	return m_regs.ch_pan_left(m_choffs) == 0 && m_regs.ch_pan_right(m_choffs) == 0;
+}
+
+
+//-------------------------------------------------
 //  output - return the computed output value, with
 //  panning applied
 //-------------------------------------------------
@@ -263,20 +284,24 @@ uint32_t adpcm_a_engine::clock(uint32_t chanmask)
 
 
 //-------------------------------------------------
-//  update - master update function
+//  output - one interleaved stereo sample per channel
 //-------------------------------------------------
 
-template<int NumOutputs>
-void adpcm_a_engine::output(ymfm_output<NumOutputs> &output, uint32_t chanmask)
+void adpcm_a_engine::output(std::span<float*, CHANNELS> buffers, unsigned sample)
 {
-	// compute the output of each channel
+	const unsigned pos = sample * 2;
 	for (int chnum = 0; chnum < CHANNELS; chnum++)
-		if (bitfield(chanmask, chnum))
-			m_channel[chnum]->output(output);
+	{
+		float* buf = buffers[chnum];
+		if (buf == nullptr)
+			continue;
+		ymfm_output<2> voice;
+		voice.clear();
+		m_channel[chnum]->output(voice);
+		buf[pos + 0] += float(voice.data[0]);
+		buf[pos + 1] += float(voice.data[1]);
+	}
 }
-
-template void adpcm_a_engine::output<1>(ymfm_output<1> &output, uint32_t chanmask);
-template void adpcm_a_engine::output<2>(ymfm_output<2> &output, uint32_t chanmask);
 
 
 //-------------------------------------------------
@@ -449,6 +474,27 @@ void adpcm_b_channel::clock()
 	// scale the ADPCM step: 0.9, 0.9, 0.9, 0.9, 1.2, 1.6, 2.0, 2.4
 	static uint8_t const s_step_scale[8] = { 57, 57, 57, 57, 77, 102, 128, 153 };
 	m_adpcm_step = clamp((m_adpcm_step * s_step_scale[bitfield(data, 0, 3)]) / 64, STEP_MIN, STEP_MAX);
+}
+
+
+//-------------------------------------------------
+//  silent - output stays zero until a register write
+//-------------------------------------------------
+
+bool adpcm_b_channel::silent() const
+{
+	// Not advancing: clock() returns before it touches the accumulators.
+	// Playback itself starts only from a register write. A held sample is
+	// silent only when both ends of the interpolator are already zero.
+	if ((!m_regs.execute() || m_regs.record() || (m_status & STATUS_PLAYING) == 0)
+	    && m_accumulator == 0 && m_prev_accum == 0)
+		return true;
+
+	// Level and pan are registers. clock() does not change them, and a
+	// write ends the current buffer first.
+	if (m_regs.level() == 0)
+		return true;
+	return m_regs.pan_left() == 0 && m_regs.pan_right() == 0;
 }
 
 
@@ -683,18 +729,20 @@ void adpcm_b_engine::clock()
 
 
 //-------------------------------------------------
-//  output - master output function
+//  output - one interleaved stereo sample
 //-------------------------------------------------
 
-template<int NumOutputs>
-void adpcm_b_engine::output(ymfm_output<NumOutputs> &output, uint32_t rshift)
+void adpcm_b_engine::output(float* buffer, unsigned sample, uint32_t rshift)
 {
-	// compute the output of each channel
-	m_channel->output(output, rshift);
+	if (buffer == nullptr)
+		return;
+	ymfm_output<2> voice;
+	voice.clear();
+	m_channel->output(voice, rshift);
+	const unsigned pos = sample * 2;
+	buffer[pos + 0] += float(voice.data[0]);
+	buffer[pos + 1] += float(voice.data[1]);
 }
-
-template void adpcm_b_engine::output<1>(ymfm_output<1> &output, uint32_t rshift);
-template void adpcm_b_engine::output<2>(ymfm_output<2> &output, uint32_t rshift);
 
 
 //-------------------------------------------------

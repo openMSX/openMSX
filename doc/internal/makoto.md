@@ -111,9 +111,11 @@ Matched-state 20-second excerpts of four tracks differ by at most one PCM count.
 
 MakotoYM2608 adapts the attributed YMFM control logic into openMSX code while
 retaining its FM, SSG and ADPCM engines. Symmetric FmPart/SsgPart devices own
-the clocks and resamplers. Combined and separated output loops are dispatched
-once; they write host buffers directly, without a retained output cache or
-repeated-sample path. BUSY is passed explicitly to side-effect-free peeks.
+the clocks and resamplers. One output loop writes host buffers directly.
+A channel that is silent for the whole buffer has its pointer cleared, which
+is also how separate and shared destinations are summed. There is no retained
+output cache or repeated-sample path. BUSY is passed explicitly to
+side-effect-free peeks.
 
 The old patched wrapper is confined to Contrib/makoto-reference for differential
 tests. The vendor ym2608 class is restored to its pinned revision; lower-engine

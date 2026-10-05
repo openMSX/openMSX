@@ -36,6 +36,7 @@
 #include "ymfm.h"
 
 #include <array>
+#include <span>
 
 namespace ymfm
 {
@@ -160,6 +161,10 @@ public:
 	// master clockingfunction
 	bool clock();
 
+	// True when every sample this channel can produce is zero until the
+	// next register write. clock() still has to run.
+	bool silent() const;
+
 	// return the computed output value, with panning applied
 	template<int NumOutputs>
 	void output(ymfm_output<NumOutputs> &output) const;
@@ -207,9 +212,11 @@ public:
 	// master clocking function
 	uint32_t clock(uint32_t chanmask);
 
-	// compute sum of channel outputs
-	template<int NumOutputs>
-	void output(ymfm_output<NumOutputs> &output, uint32_t chanmask);
+	// One interleaved stereo sample per channel. A nullptr entry is skipped.
+	void output(std::span<float*, CHANNELS> buffers, unsigned sample);
+
+	// True when this channel's output() will add zero until the next register write.
+	bool silent(unsigned chnum) const { return m_channel[chnum]->silent(); }
 
 	// write to the ADPCM-A registers
 	void write(uint32_t regnum, uint8_t data);
@@ -365,6 +372,10 @@ public:
 	// master clocking function
 	void clock();
 
+	// True when every sample this channel can produce is zero until the
+	// next register write. clock() still has to run.
+	bool silent() const;
+
 	// return the computed output value, with panning applied
 	template<int NumOutputs>
 	void output(ymfm_output<NumOutputs> &output, uint32_t rshift) const;
@@ -431,9 +442,11 @@ public:
 	// master clocking function
 	void clock();
 
-	// compute sum of channel outputs
-	template<int NumOutputs>
-	void output(ymfm_output<NumOutputs> &output, uint32_t rshift);
+	// One interleaved stereo sample. A nullptr buffer is skipped.
+	void output(float* buffer, unsigned sample, uint32_t rshift);
+
+	// True when output() will add zero until the next register write.
+	bool silent() const { return m_channel->silent(); }
 
 	// read from the ADPCM-B registers
 	uint32_t read(uint32_t regnum) { return m_channel->read(regnum); }
