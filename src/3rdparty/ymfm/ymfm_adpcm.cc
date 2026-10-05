@@ -528,17 +528,27 @@ void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan &p
 	else
 		m_status &= ~STATUS_PLAYING;
 
-	for (unsigned i = 0; i < num; ++i) {
+	auto tick = [&] {
 		// End-without-repeat zeroes both interpolator ends, so the rest of
 		// the run holds that zero.
 		if (delta != 0 && !advance(delta))
 			delta = 0;
-		float value = float(sample(plan));
-		unsigned pos = i * 2;
-		if (pan_left)
+		return float(sample(plan));
+	};
+
+	if (pan_left && pan_right) {
+		for (unsigned i = 0; i < num; ++i) {
+			float value = tick();
+			unsigned pos = i * 2;
 			buffer[pos + 0] += value;
-		if (pan_right)
 			buffer[pos + 1] += value;
+		}
+	} else if (pan_left) {
+		for (unsigned i = 0; i < num; ++i)
+			buffer[i * 2] += tick();
+	} else {
+		for (unsigned i = 0; i < num; ++i)
+			buffer[i * 2 + 1] += tick();
 	}
 }
 

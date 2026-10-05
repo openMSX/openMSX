@@ -1004,7 +1004,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 			am_offset = regs.lfo_am_offset(am_shift);
 	}
 
-	for (unsigned index = 0; index < num; ++index) {
+	auto tick = [&] {
 		env = step_eg_counter(env);
 		int32_t pm = 0;
 		if constexpr (Lfo) {
@@ -1013,13 +1013,36 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 				am_offset = regs.lfo_am_offset(am_shift);
 		}
 		channel.clock(env, pm);
-		if constexpr (Write) {
+	};
+
+	if constexpr (!Write) {
+		for (unsigned index = 0; index < num; ++index)
+			tick();
+		return;
+	}
+
+	if (panLeft && panRight) {
+		for (unsigned index = 0; index < num; ++index) {
+			tick();
 			float value = float(channel.output_4op(plan, am_offset));
 			unsigned pos = index * 2;
-			if (panLeft)
-				buf[pos + 0] += value;
-			if (panRight)
-				buf[pos + 1] += value;
+			buf[pos + 0] += value;
+			buf[pos + 1] += value;
+		}
+	} else if (panLeft) {
+		for (unsigned index = 0; index < num; ++index) {
+			tick();
+			buf[index * 2] += float(channel.output_4op(plan, am_offset));
+		}
+	} else if (panRight) {
+		for (unsigned index = 0; index < num; ++index) {
+			tick();
+			buf[index * 2 + 1] += float(channel.output_4op(plan, am_offset));
+		}
+	} else {
+		for (unsigned index = 0; index < num; ++index) {
+			tick();
+			channel.output_4op(plan, am_offset);
 		}
 	}
 }
