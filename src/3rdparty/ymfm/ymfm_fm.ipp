@@ -732,11 +732,11 @@ uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 //  fm_channel - constructor
 //-------------------------------------------------
 
-fm_channel::fm_channel(uint32_t choffs) :
+fm_channel::fm_channel(uint32_t choffs, std::array<fm_operator *, 4> ops) :
 	m_choffs(choffs),
 	m_feedback{ 0, 0 },
 	m_feedback_in(0),
-	m_op{ nullptr, nullptr, nullptr, nullptr }
+	m_op(ops)
 {
 }
 
@@ -932,18 +932,17 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 	m_timer_running{0,0},
 	m_total_clocks(0),
 	m_modified(false),
-	m_channel(generate_array<CHANNELS>([](size_t chnum) {
-		return fm_channel(opna_registers::channel_offset(uint32_t(chnum))); })),
 	m_operator(generate_array<OPERATORS>([](size_t opnum) {
-		return fm_operator(opna_registers::operator_offset(uint32_t(opnum))); }))
+		return fm_operator(opna_registers::operator_offset(uint32_t(opnum))); })),
+	m_channel(generate_array<CHANNELS>([this](size_t chnum) {
+		auto const& map = opna_registers::OPERATOR_MAP[chnum];
+		return fm_channel(opna_registers::channel_offset(uint32_t(chnum)),
+			std::array<fm_operator *, 4>{
+				&m_operator[map[0]], &m_operator[map[1]],
+				&m_operator[map[2]], &m_operator[map[3]] }); }))
 {
 	// inform the interface of their engine
 	m_intf.m_engine = this;
-
-	// wire the operators to their channels
-	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		for (uint32_t index = 0; index < 4; index++)
-			m_channel[chnum].assign(index, &m_operator[opna_registers::OPERATOR_MAP[chnum][index]]);
 }
 
 

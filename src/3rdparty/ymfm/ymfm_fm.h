@@ -428,8 +428,8 @@ class fm_channel
 	static constexpr uint32_t OUTPUT_SHIFT = 1;
 
 public:
-	// constructor
-	explicit fm_channel(uint32_t choffs);
+	// constructor; the four operators are already constructed
+	fm_channel(uint32_t choffs, std::array<fm_operator *, 4> ops);
 
 	// save/restore
 	template<typename Archive>
@@ -444,14 +444,6 @@ public:
 
 	// return the channel offset
 	uint32_t choffs() const { return m_choffs; }
-
-	// assign operators
-	void assign(uint32_t index, fm_operator *op)
-	{
-		assert(index < m_op.size());
-		assert(op != nullptr);
-		m_op[index] = op;
-	}
 
 	// signal key on/off to our operators
 	void keyonoff(uint32_t states, keyon_type type);
@@ -628,8 +620,8 @@ private:
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
 	bool m_modified;                 // register or key changed since the last generate()
 	opna_registers m_regs;           // register accessor
-	std::array<fm_channel, CHANNELS> m_channel;     // the six channels
-	std::array<fm_operator, OPERATORS> m_operator;  // the channels point into this
+	std::array<fm_operator, OPERATORS> m_operator;  // the 24 operators
+	std::array<fm_channel, CHANNELS> m_channel;     // the channels point into m_operator
 };
 
 }
