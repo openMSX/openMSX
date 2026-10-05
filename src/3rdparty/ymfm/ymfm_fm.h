@@ -543,13 +543,9 @@ public:
 		             "irq_state",      m_irq_state,
 		             "timer_running",  m_timer_running,
 		             "total_clocks",   m_total_clocks,
-		             "regs",           m_regs);
-		for (uint32_t opnum = 0; opnum < OPERATORS; ++opnum) {
-			ar.serialize("operator", m_operator[opnum]);
-		}
-		for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
-			ar.serialize("channel", m_channel[chnum]);
-		}
+		             "regs",           m_regs,
+		             "operators",      m_operator,
+		             "channels",       m_channel);
 		// Operator caches are not saved. The next generate() rebuilds them.
 		m_modified = true;
 	}

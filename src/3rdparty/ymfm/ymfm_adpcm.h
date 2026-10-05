@@ -192,10 +192,8 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/)
 	{
-		ar.serialize("regs", m_regs);
-		for (int chnum = 0; chnum < CHANNELS; ++chnum) {
-			ar.serialize("channel", m_channel[chnum]);
-		}
+		ar.serialize("regs",     m_regs,
+		             "channels", m_channel);
 	}
 
 
