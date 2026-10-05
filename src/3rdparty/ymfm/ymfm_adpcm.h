@@ -382,26 +382,25 @@ public:
 	struct output_plan
 	{
 		uint32_t level;    // linear volume
-		uint8_t shift;     // total downshift, the caller's rshift included
 		uint8_t pan_mask;  // one bit per output this channel feeds
 	};
 
 	// Read those fields once, before the sample loop. An empty pan mask means
 	// this channel adds nothing.
-	output_plan make_output_plan(uint32_t rshift) const
+	output_plan make_output_plan() const
 	{
-		return {m_regs.level(), uint8_t(8 + rshift), pan_mask()};
+		return {m_regs.level(), pan_mask()};
 	}
 
 	// Interpolated and scaled sample for the current position, which every
-	// clock advances.
+	// clock advances. OPNA's extra output bit is folded into the 9-bit shift.
 	int32_t sample(const output_plan &plan) const
 	{
 		// do a linear interpolation between samples
 		int32_t result = m_prev_accum + int32_t((int64_t(m_accumulator - m_prev_accum) * int32_t(m_position)) >> 16);
 
 		// apply volume (level) in a linear fashion and reduce
-		return (result * int32_t(plan.level)) >> plan.shift;
+		return (result * int32_t(plan.level)) >> 9;
 	}
 
 	// num clocks with output, interleaved stereo. Reads the decode state and
@@ -504,7 +503,7 @@ public:
 
 	// Whole buffer for the single channel. A nullptr buffer skips output.
 	// A resting channel returns without clocking.
-	void generate(float* buffer, unsigned num, uint32_t rshift);
+	void generate(float* buffer, unsigned num);
 
 	// True when output() will add zero until the next register write.
 	bool silent() const { return m_channel.silent(); }

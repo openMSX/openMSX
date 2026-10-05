@@ -756,13 +756,13 @@ void adpcm_b_engine::reset()
 //  generate - the whole buffer for the single channel
 //-------------------------------------------------
 
-void adpcm_b_engine::generate(float* buffer, unsigned num, uint32_t rshift)
+void adpcm_b_engine::generate(float* buffer, unsigned num)
 {
 	if (m_channel.resting())
 		return;
 	// Level and pan are registers, so they are read once per buffer. An empty
 	// pan mask means this channel adds nothing.
-	const auto plan = m_channel.make_output_plan(rshift);
+	const auto plan = m_channel.make_output_plan();
 	if (buffer == nullptr || plan.pan_mask == 0)
 		m_channel.clock_n(num);
 	else
