@@ -998,14 +998,16 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
                                   float* buf [[maybe_unused]], unsigned num, uint32_t env,
                                   uint32_t rshift [[maybe_unused]], int32_t clipmax [[maybe_unused]])
 {
-	// Registers hold for the whole buffer. Without the LFO walk the AM offset
-	// is constant as well, so it is read once too.
+	// Registers hold for the whole buffer, the AM shift among them. Without
+	// the LFO walk the AM offset is constant as well, so it is read once too.
 	fm_channel::output_plan plan;
+	uint32_t am_shift = 0;
 	uint32_t am_offset = 0;
 	if constexpr (Write) {
 		plan = channel.make_output_plan();
+		am_shift = regs.lfo_am_shift(channel.choffs());
 		if constexpr (!Lfo)
-			am_offset = regs.lfo_am_offset(channel.choffs());
+			am_offset = regs.lfo_am_offset(am_shift);
 	}
 
 	for (unsigned index = 0; index < num; ++index) {
@@ -1014,7 +1016,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 		if constexpr (Lfo) {
 			pm = regs.clock_noise_and_lfo();
 			if constexpr (Write)
-				am_offset = regs.lfo_am_offset(channel.choffs());
+				am_offset = regs.lfo_am_offset(am_shift);
 		}
 		channel.clock(env, pm);
 		if constexpr (Write) {

@@ -218,8 +218,16 @@ public:
 		m_lfo_am = state.am;
 	}
 
-	// return the AM offset from LFO for the given channel
-	uint32_t lfo_am_offset(uint32_t choffs) const;
+	// AM shift for a channel's sensitivity; constant for a whole buffer
+	uint32_t lfo_am_shift(uint32_t choffs) const
+	{
+		// shift value for AM sensitivity is [7, 3, 1, 0],
+		// mapping to values of [0, 1.4, 5.9, and 11.8dB]
+		return (1 << (ch_lfo_am_sens(choffs) ^ 3)) - 1;
+	}
+
+	// return the AM offset from LFO for that shift
+	uint32_t lfo_am_offset(uint32_t am_shift) const;
 
 	// caching helpers
 	void cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache &cache);

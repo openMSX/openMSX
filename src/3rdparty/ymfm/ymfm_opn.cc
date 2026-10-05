@@ -202,15 +202,11 @@ int32_t opna_registers::clock_noise_and_lfo()
 
 //-------------------------------------------------
 //  lfo_am_offset - return the AM offset from LFO
-//  for the given channel
+//  for the given shift
 //-------------------------------------------------
 
-uint32_t opna_registers::lfo_am_offset(uint32_t choffs) const
+uint32_t opna_registers::lfo_am_offset(uint32_t am_shift) const
 {
-	// shift value for AM sensitivity is [7, 3, 1, 0],
-	// mapping to values of [0, 1.4, 5.9, and 11.8dB]
-	uint32_t am_shift = (1 << (ch_lfo_am_sens(choffs) ^ 3)) - 1;
-
 	// QUESTION: max sensitivity should give 11.8dB range, but this value
 	// is directly added to an x.8 attenuation value, which will only give
 	// 126/256 or ~4.9dB range -- what am I missing? The calculation below
