@@ -81,58 +81,6 @@ struct opdata_cache
 };
 
 
-// ======================> fm_registers_base
-
-// base class for family-specific register classes; this provides a few
-// constants, common defaults, and helpers, but mostly each derived class is
-// responsible for defining all commonly-called methods
-class fm_registers_base
-{
-public:
-	// this is the size of a full sin waveform
-	static constexpr uint32_t WAVEFORM_LENGTH = 0x400;
-
-	//
-	// the following constants need to be defined per family:
-	//          uint32_t OUTPUTS: The number of outputs exposed (1-4)
-	//         uint32_t CHANNELS: The number of channels on the chip
-	//        uint32_t OPERATORS: The number of operators on the chip
-	//        uint32_t REGISTERS: The number of 8-bit registers allocated
-	// uint32_t DEFAULT_PRESCALE: The starting clock prescale
-	// uint32_t EG_CLOCK_DIVIDER: The clock divider of the envelope generator
-	// uint32_t CSM_TRIGGER_MASK: Mask of channels to trigger in CSM mode
-	//         uint32_t REG_MODE: The address of the "mode" register controlling timers
-	//     uint8_t STATUS_TIMERA: Status bit to set when timer A fires
-	//     uint8_t STATUS_TIMERB: Status bit to set when tiemr B fires
-	//       uint8_t STATUS_BUSY: Status bit to set when the chip is busy
-	//        uint8_t STATUS_IRQ: Status bit to set when an IRQ is signalled
-	//
-	// system-wide register defaults
-	uint32_t status_mask() const                     { return 0; } // OPL only
-	uint32_t irq_reset() const                       { return 0; } // OPL only
-
-	// per-operator register defaults
-	uint32_t op_ssg_eg_enable(uint32_t /*opoffs*/) const { return 0; } // OPN(A) only
-	uint32_t op_ssg_eg_mode(uint32_t /*opoffs*/) const   { return 0; } // OPN(A) only
-
-protected:
-	// helper to encode four operator numbers into a 32-bit value in the
-	// operator maps for each register class
-	static constexpr uint32_t operator_list(uint8_t o1 = 0xff, uint8_t o2 = 0xff, uint8_t o3 = 0xff, uint8_t o4 = 0xff)
-	{
-		return o1 | (o2 << 8) | (o3 << 16) | (o4 << 24);
-	}
-
-	// helper to apply KSR to the raw ADSR rate, ignoring ksr if the
-	// raw value is 0, and clamping to 63
-	static constexpr uint32_t effective_rate(uint32_t rawrate, uint32_t ksr)
-	{
-		return (rawrate == 0) ? 0 : std::min<uint32_t>(rawrate + ksr, 63);
-	}
-};
-
-
-
 //*********************************************************
 //  REGISTER CLASSES
 //*********************************************************
@@ -199,10 +147,11 @@ protected:
 //        BC-BF --xxxxxx Latched frequency number upper bits (from AC-AF)
 //
 
-class opna_registers : public fm_registers_base
+class opna_registers
 {
 public:
 	// constants
+	static constexpr uint32_t WAVEFORM_LENGTH = 0x400;  // size of a full sin waveform
 	static constexpr uint32_t OUTPUTS = 2;
 	static constexpr uint32_t CHANNELS = 6;
 	static constexpr uint32_t OPERATORS = CHANNELS * 4;
@@ -316,6 +265,20 @@ public:
 	uint32_t op_ssg_eg_mode(uint32_t opoffs) const   { return byte(0x90, 0, 3, opoffs); }
 
 protected:
+	// helper to encode four operator numbers into a 32-bit value in the
+	// operator map
+	static constexpr uint32_t operator_list(uint8_t o1 = 0xff, uint8_t o2 = 0xff, uint8_t o3 = 0xff, uint8_t o4 = 0xff)
+	{
+		return o1 | (o2 << 8) | (o3 << 16) | (o4 << 24);
+	}
+
+	// helper to apply KSR to the raw ADSR rate, ignoring ksr if the
+	// raw value is 0, and clamping to 63
+	static constexpr uint32_t effective_rate(uint32_t rawrate, uint32_t ksr)
+	{
+		return (rawrate == 0) ? 0 : std::min<uint32_t>(rawrate + ksr, 63);
+	}
+
 	// return a bitfield extracted from a byte
 	uint32_t byte(uint32_t offset, uint32_t start, uint32_t count, uint32_t extra_offset = 0) const
 	{
@@ -637,7 +600,7 @@ public:
 	{
 		m_status = (m_status | set) & ~(reset | STATUS_BUSY);
 		m_intf.ymfm_sync_check_interrupts();
-		return m_status & ~m_regs.status_mask();
+		return m_status;
 	}
 
 	// set the IRQ mask

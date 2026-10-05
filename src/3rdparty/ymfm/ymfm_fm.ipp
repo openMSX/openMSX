@@ -1141,7 +1141,7 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data)
 
 uint8_t fm_engine_base::status() const
 {
-	return m_status & ~STATUS_BUSY & ~m_regs.status_mask();
+	return m_status & ~STATUS_BUSY;
 }
 
 
@@ -1232,7 +1232,7 @@ void fm_engine_base::engine_check_interrupts()
 {
 	// update the state
 	uint8_t old_state = m_irq_state;
-	m_irq_state = ((m_status & m_irq_mask & ~m_regs.status_mask()) != 0);
+	m_irq_state = ((m_status & m_irq_mask) != 0);
 
 	// set the IRQ status bit
 	if (m_irq_state)
@@ -1257,27 +1257,19 @@ void fm_engine_base::engine_mode_write(uint8_t data)
 	uint32_t dummy1, dummy2;
 	m_regs.write(opna_registers::REG_MODE, data, dummy1, dummy2);
 
-	// reset IRQ status -- when written, all other bits are ignored
-	// QUESTION: should this maybe just reset the IRQ bit and not all the bits?
-	//   That is, check_interrupts would only set, this would only clear?
-	if (m_regs.irq_reset())
-		set_reset_status(0, 0x78);
-	else
-	{
-		// reset timer status
-		uint8_t reset_mask = 0;
-		if (m_regs.reset_timer_b())
-			reset_mask |= opna_registers::STATUS_TIMERB;
-		if (m_regs.reset_timer_a())
-			reset_mask |= opna_registers::STATUS_TIMERA;
-		set_reset_status(0, reset_mask);
+	// reset timer status
+	uint8_t reset_mask = 0;
+	if (m_regs.reset_timer_b())
+		reset_mask |= opna_registers::STATUS_TIMERB;
+	if (m_regs.reset_timer_a())
+		reset_mask |= opna_registers::STATUS_TIMERA;
+	set_reset_status(0, reset_mask);
 
-		// load timers; note that timer B gets a small negative adjustment because
-		// the *16 multiplier is free-running, so the first tick of the clock
-		// is a bit shorter
-		update_timer(1, m_regs.load_timer_b(), -(m_total_clocks & 15));
-		update_timer(0, m_regs.load_timer_a(), 0);
-	}
+	// load timers; note that timer B gets a small negative adjustment because
+	// the *16 multiplier is free-running, so the first tick of the clock
+	// is a bit shorter
+	update_timer(1, m_regs.load_timer_b(), -(m_total_clocks & 15));
+	update_timer(0, m_regs.load_timer_a(), 0);
 }
 
 }
