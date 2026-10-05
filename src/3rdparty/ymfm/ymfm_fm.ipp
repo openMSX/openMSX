@@ -370,7 +370,7 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 //  fm_operator - constructor
 //-------------------------------------------------
 
-fm_operator::fm_operator(fm_engine_base &owner, uint32_t opoffs) :
+fm_operator::fm_operator(opna_registers &regs, uint32_t opoffs) :
 	m_choffs(0),
 	m_opoffs(opoffs),
 	m_phase(0),
@@ -380,8 +380,7 @@ fm_operator::fm_operator(fm_engine_base &owner, uint32_t opoffs) :
 	m_key_state(0),
 	m_keyon_live(0),
 	m_cache{},
-	m_regs(owner.regs()),
-	m_owner(owner)
+	m_regs(regs)
 {
 }
 
@@ -730,13 +729,12 @@ uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 //  fm_channel - constructor
 //-------------------------------------------------
 
-fm_channel::fm_channel(fm_engine_base &owner, uint32_t choffs) :
+fm_channel::fm_channel(opna_registers &regs, uint32_t choffs) :
 	m_choffs(choffs),
 	m_feedback{ 0, 0 },
 	m_feedback_in(0),
 	m_op{ nullptr, nullptr, nullptr, nullptr },
-	m_regs(owner.regs()),
-	m_owner(owner)
+	m_regs(regs)
 {
 }
 
@@ -957,11 +955,11 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 
 	// create the channels
 	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		m_channel[chnum] = std::make_unique<fm_channel>(*this, opna_registers::channel_offset(chnum));
+		m_channel[chnum] = std::make_unique<fm_channel>(m_regs, opna_registers::channel_offset(chnum));
 
 	// create the operators
 	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
-		m_operator[opnum] = std::make_unique<fm_operator>(*this, opna_registers::operator_offset(opnum));
+		m_operator[opnum] = std::make_unique<fm_operator>(m_regs, opna_registers::operator_offset(opnum));
 
 	// do the initial operator assignment
 	assign_operators();

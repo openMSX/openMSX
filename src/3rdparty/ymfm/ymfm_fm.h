@@ -303,9 +303,6 @@ protected:
 //  CORE ENGINE CLASSES
 //*********************************************************
 
-// forward declarations
-class fm_engine_base;
-
 // ======================> fm_operator
 
 // fm_operator represents an FM operator (or "slot" in FM parlance), which
@@ -317,7 +314,7 @@ class fm_operator
 
 public:
 	// constructor
-	fm_operator(fm_engine_base &owner, uint32_t opoffs);
+	fm_operator(opna_registers &regs, uint32_t opoffs);
 
 	// save/restore
 	template<typename Archive>
@@ -368,15 +365,6 @@ public:
 	// key state control
 	void keyonoff(uint32_t on, keyon_type type);
 
-	// return a reference to our registers
-	opna_registers &regs() const { return m_regs; }
-
-	// simple getters for debugging
-	envelope_state debug_eg_state() const { return m_env_state; }
-	uint16_t debug_eg_attenuation() const { return m_env_attenuation; }
-	uint8_t debug_ssg_inverted() const { return m_ssg_inverted; }
-	opdata_cache &debug_cache() { return m_cache; }
-
 private:
 	// start the attack phase
 	void start_attack(bool is_restart = false);
@@ -401,10 +389,9 @@ private:
 	envelope_state m_env_state;            // current envelope state
 	uint8_t m_ssg_inverted;                // non-zero if the output should be inverted (bit 0)
 	uint8_t m_key_state;                   // current key state: on or off (bit 0)
-	uint8_t m_keyon_live;                  // live key on state (bit 0 = direct, bit 1 = rhythm, bit 2 = CSM)
+	uint8_t m_keyon_live;                  // live key on state (bit 0 = direct, bit 2 = CSM)
 	opdata_cache m_cache;                  // cached values for performance
 	opna_registers &m_regs;                // direct reference to registers
-	fm_engine_base &m_owner;               // reference to the owning engine
 };
 
 
@@ -418,7 +405,7 @@ class fm_channel
 
 public:
 	// constructor
-	fm_channel(fm_engine_base &owner, uint32_t choffs);
+	fm_channel(opna_registers &regs, uint32_t choffs);
 
 	// save/restore
 	template<typename Archive>
@@ -499,12 +486,6 @@ public:
 	void output_4op(output_data &output, const output_plan &plan, uint32_t am_offset,
 	                uint32_t rshift, int32_t clipmax) const;
 
-	// return a reference to our registers
-	opna_registers &regs() const { return m_regs; }
-
-	// simple getters for debugging
-	fm_operator *debug_operator(uint32_t index) const { return m_op[index]; }
-
 private:
 	// helper to add a value to the left/right outputs the plan enables
 	void add_to_output(const output_plan &plan, output_data &output, int32_t value) const
@@ -521,7 +502,6 @@ private:
 	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output)
 	std::array<fm_operator *, 4> m_op;     // up to 4 operators
 	opna_registers &m_regs;                // direct reference to registers
-	fm_engine_base &m_owner;               // reference to the owning engine
 };
 
 
@@ -616,18 +596,10 @@ public:
 		return baseclock / (m_clock_prescale * OPERATORS);
 	}
 
-	// return the owning device
-	ymfm_interface &intf() const { return m_intf; }
-
 	// return a reference to our registers
 	opna_registers &regs() { return m_regs; }
 	const opna_registers &regs() const { return m_regs; }
 
-	// simple getters for debugging
-	fm_channel *debug_channel(uint32_t index) const { return m_channel[index].get(); }
-	fm_operator *debug_operator(uint32_t index) const { return m_operator[index].get(); }
-
-public:
 	// timer callback; called by the interface when a timer fires
 	virtual void engine_timer_expired(uint32_t tnum) override;
 
