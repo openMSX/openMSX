@@ -105,17 +105,6 @@ public:
 	//       uint8_t STATUS_BUSY: Status bit to set when the chip is busy
 	//        uint8_t STATUS_IRQ: Status bit to set when an IRQ is signalled
 	//
-	// the following constants are uncommon:
-	//          bool DYNAMIC_OPS: True if ops/channel can be changed at runtime (OPL3+)
-	//       bool EG_HAS_DEPRESS: True if the chip has a DP ("depress"?) envelope stage (OPLL)
-	//        bool EG_HAS_REVERB: True if the chip has a faux reverb envelope stage (OPQ/OPZ)
-	//           bool EG_HAS_SSG: True if the chip has SSG envelope support (OPN)
-	//
-	static constexpr bool DYNAMIC_OPS = false;
-	static constexpr bool EG_HAS_DEPRESS = false;
-	static constexpr bool EG_HAS_REVERB = false;
-	static constexpr bool EG_HAS_SSG = false;
-
 	// system-wide register defaults
 	uint32_t status_mask() const                     { return 0; } // OPL only
 	uint32_t irq_reset() const                       { return 0; } // OPL only
@@ -191,15 +180,13 @@ public:
 	// Release has reached maximum attenuation. A later key-on restarts phase.
 	bool finished() const
 	{
-		auto state = RegisterType::EG_HAS_REVERB ? EG_REVERB : EG_RELEASE;
-		return m_env_state == state && m_env_attenuation >= 0x3ff;
+		return m_env_state == EG_RELEASE && m_env_attenuation >= 0x3ff;
 	}
 
 	// Same condition prepare() reports, without refreshing the cache or the key.
 	bool audible() const
 	{
-		auto state = RegisterType::EG_HAS_REVERB ? EG_REVERB : EG_RELEASE;
-		return m_env_state != state || m_env_attenuation < EG_QUIET;
+		return m_env_state != EG_RELEASE || m_env_attenuation < EG_QUIET;
 	}
 
 	// master clocking function

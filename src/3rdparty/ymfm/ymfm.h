@@ -264,16 +264,15 @@ inline int16_t roundtrip_fp(int32_t value)
 //  HELPER CLASSES
 //*********************************************************
 
-// various envelope states
+// various envelope states; value 0 was the OPLL depress state, so the
+// numbering starts at 1 and still indexes opdata_cache::eg_rate directly
 enum envelope_state : uint32_t
 {
-	EG_DEPRESS = 0,		// OPLL only; set EG_HAS_DEPRESS to enable
 	EG_ATTACK = 1,
 	EG_DECAY = 2,
 	EG_SUSTAIN = 3,
 	EG_RELEASE = 4,
-	EG_REVERB = 5,		// OPQ/OPZ only; set EG_HAS_REVERB to enable
-	EG_STATES = 6
+	EG_STATES = 5
 };
 
 // external I/O access classes
@@ -437,12 +436,10 @@ protected:
 
 namespace openmsx {
 	static constexpr auto envelopeInfo = std::to_array<enum_string<ymfm::envelope_state>>({
-		{ "DEPRESS", ymfm::EG_DEPRESS },
 		{ "ATTACK",  ymfm::EG_ATTACK },
 		{ "DECAY",   ymfm::EG_DECAY },
 		{ "SUSTAIN", ymfm::EG_SUSTAIN },
 		{ "RELEASE", ymfm::EG_RELEASE },
-		{ "REVERB",  ymfm::EG_REVERB },
 	});
 	SERIALIZE_ENUM(ymfm::envelope_state, envelopeInfo);
 }

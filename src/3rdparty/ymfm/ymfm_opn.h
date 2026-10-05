@@ -118,7 +118,6 @@ public:
 	static constexpr uint32_t REG_MODE = 0x27;
 	static constexpr uint32_t DEFAULT_PRESCALE = 6;
 	static constexpr uint32_t EG_CLOCK_DIVIDER = 3;
-	static constexpr bool EG_HAS_SSG = true;
 	static constexpr uint32_t CSM_TRIGGER_MASK = 1 << 2;
 	static constexpr uint8_t STATUS_TIMERA = 0x01;
 	static constexpr uint8_t STATUS_TIMERB = 0x02;

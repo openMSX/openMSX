@@ -419,7 +419,7 @@ bool fm_operator<RegisterType>::prepare()
 	m_keyon_live &= ~(1 << KEYON_CSM);
 
 	// we're active until we're quiet after the release
-	return (m_env_state != (RegisterType::EG_HAS_REVERB ? EG_REVERB : EG_RELEASE) || m_env_attenuation < EG_QUIET);
+	return (m_env_state != EG_RELEASE || m_env_attenuation < EG_QUIET);
 }
 
 
@@ -503,7 +503,7 @@ void fm_operator<RegisterType>::start_attack(bool is_restart)
 	// generally not inverted at start, except if SSG-EG is enabled and
 	// one of the inverted modes is specified; leave this alone on a
 	// restart, as it is managed by the clock_ssg_eg_state() code
-	if (RegisterType::EG_HAS_SSG && !is_restart)
+	if (!is_restart)
 		m_ssg_inverted = m_regs.op_ssg_eg_enable(m_opoffs) & bitfield(m_regs.op_ssg_eg_mode(m_opoffs), 2);
 
 	// reset the phase when we start an attack due to a key on
@@ -533,7 +533,7 @@ void fm_operator<RegisterType>::start_release()
 
 	// if attenuation if inverted due to SSG-EG, snap the inverted attenuation
 	// as the starting point
-	if (RegisterType::EG_HAS_SSG && m_ssg_inverted)
+	if (m_ssg_inverted)
 	{
 		m_env_attenuation = (0x200 - m_env_attenuation) & 0x3ff;
 		m_ssg_inverted = false;
@@ -558,14 +558,7 @@ void fm_operator<RegisterType>::clock_keystate(uint32_t keystate)
 
 		// if the key has turned on, start the attack
 		if (keystate != 0)
-		{
-			// OPLL has a DP ("depress"?) state to bring the volume
-			// down before starting the attack
-			if (RegisterType::EG_HAS_DEPRESS && m_env_attenuation < 0x200)
-				m_env_state = EG_DEPRESS;
-			else
-				start_attack();
-		}
+			start_attack();
 
 		// otherwise, start the release
 		else
@@ -692,14 +685,6 @@ void fm_operator<RegisterType>::clock_envelope(uint32_t env_counter)
 		// clamp the final attenuation
 		if (m_env_attenuation >= 0x400)
 			m_env_attenuation = 0x3ff;
-
-		// transition from depress to attack
-		if (RegisterType::EG_HAS_DEPRESS && m_env_state == EG_DEPRESS && m_env_attenuation >= 0x200)
-			start_attack();
-
-		// transition from release to reverb, should switch at -18dB
-		if (RegisterType::EG_HAS_REVERB && m_env_state == EG_RELEASE && m_env_attenuation >= 0xc0)
-			m_env_state = EG_REVERB;
 	}
 }
 
@@ -734,7 +719,7 @@ uint32_t fm_operator<RegisterType>::envelope_attenuation(uint32_t am_offset) con
 	uint32_t result = m_env_attenuation >> m_cache.eg_shift;
 
 	// invert if necessary due to SSG-EG
-	if (RegisterType::EG_HAS_SSG && m_ssg_inverted)
+	if (m_ssg_inverted)
 		result = (0x200 - result) & 0x3ff;
 
 	// add in LFO AM modulation
@@ -1084,7 +1069,6 @@ template<class RegisterType>
 void fm_engine_base<RegisterType>::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift, int32_t clipmax)
 {
 	static_assert(OUTPUTS == 2);
-	static_assert(!RegisterType::DYNAMIC_OPS);
 	static_assert(RegisterType::OPERATORS / RegisterType::CHANNELS == 4);
 
 	// An empty buffer must not consume a pending key-on.
