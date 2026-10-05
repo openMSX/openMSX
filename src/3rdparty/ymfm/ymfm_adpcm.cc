@@ -112,13 +112,13 @@ void adpcm_a_channel::keyonoff(bool on)
 //  clock - master clocking function
 //-------------------------------------------------
 
-bool adpcm_a_channel::clock()
+void adpcm_a_channel::clock()
 {
 	// if not playing, just output 0
 	if (m_playing == 0)
 	{
 		m_accumulator = 0;
-		return false;
+		return;
 	}
 
 	// if we're about to read nibble 0, fetch the data
@@ -137,7 +137,7 @@ bool adpcm_a_channel::clock()
 		if (((m_curaddress ^ end) & 0xfffff) == 0)
 		{
 			m_playing = m_accumulator = 0;
-			return true;
+			return;
 		}
 
 		m_curbyte = m_intf.ymfm_external_read(ACCESS_ADPCM_A, m_curaddress++);
@@ -173,8 +173,6 @@ bool adpcm_a_channel::clock()
 	// adjust ADPCM step
 	static int8_t const s_step_inc[8] = { -1, -1, -1, -1, 2, 5, 7, 9 };
 	m_step_index = clamp(m_step_index + s_step_inc[bitfield(data, 0, 3)], 0, 48);
-
-	return false;
 }
 
 

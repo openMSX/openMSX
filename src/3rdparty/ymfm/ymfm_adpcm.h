@@ -141,7 +141,7 @@ public:
 	void keyonoff(bool on);
 
 	// master clockingfunction
-	bool clock();
+	void clock();
 
 	// True when every sample this channel can produce is zero until the
 	// next register write. clock() still has to run.
