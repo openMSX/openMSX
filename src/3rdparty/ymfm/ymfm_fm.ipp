@@ -865,12 +865,6 @@ fm_channel::output_plan fm_channel::make_output_plan(const opna_registers &regs)
 
 int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) const
 {
-	// all 4 operators are populated
-	assert(m_op[0] != nullptr);
-	assert(m_op[1] != nullptr);
-	assert(m_op[2] != nullptr);
-	assert(m_op[3] != nullptr);
-
 	// operator 1 has optional self-feedback
 	int32_t opmod = 0;
 	if (plan.feedback != 0)
@@ -1037,7 +1031,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 
 void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask)
 {
-	static_assert(OUTPUTS == 2);
+	static_assert(opna_registers::OUTPUTS == 2);
 	static_assert(opna_registers::OPERATORS / opna_registers::CHANNELS == 4);
 
 	// An empty buffer must not consume a pending key-on.

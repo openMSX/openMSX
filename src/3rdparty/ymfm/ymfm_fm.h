@@ -309,7 +309,7 @@ public:
 	uint32_t op_ssg_eg_enable(uint32_t opoffs) const { return byte(0x90, 3, 1, opoffs); }
 	uint32_t op_ssg_eg_mode(uint32_t opoffs) const   { return byte(0x90, 0, 3, opoffs); }
 
-protected:
+private:
 	// helper to apply KSR to the raw ADSR rate, ignoring ksr if the
 	// raw value is 0, and clamping to 63
 	static constexpr uint32_t effective_rate(uint32_t rawrate, uint32_t ksr)
@@ -534,7 +534,6 @@ class fm_engine_base : public ymfm_engine_callbacks
 {
 public:
 	// expose some constants from the registers
-	static constexpr uint32_t OUTPUTS = opna_registers::OUTPUTS;
 	static constexpr uint32_t CHANNELS = opna_registers::CHANNELS;
 	static constexpr uint32_t OPERATORS = opna_registers::OPERATORS;
 
@@ -622,7 +621,7 @@ public:
 	// mode register write; called by the interface after synchronization
 	virtual void engine_mode_write(uint8_t data) override;
 
-protected:
+private:
 	// update the state of the given timer
 	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks);
 
