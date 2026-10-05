@@ -42,6 +42,7 @@ Remaining lower-engine patches:
 6. `adpcm_b_channel::silent()` is level 0, both pan bits clear, or a channel
    that will not advance with both interpolator accumulators already 0.
    Makoto nulls that buffer for the whole block. `clock()` still runs.
+   Level and pan are read once per buffer.
 7. `adpcm_a_channel::silent()` is the volume early-out (combined level at
    least 63), both pan bits clear, or a stopped channel whose accumulator
    is already 0. A stopped channel can still emit its held accumulator until

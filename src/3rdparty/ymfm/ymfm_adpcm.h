@@ -411,9 +411,33 @@ public:
 		return (m_status & STATUS_PLAYING) == 0 && m_accumulator == 0 && m_prev_accum == 0;
 	}
 
-	// return the computed output value, with panning applied
-	template<int NumOutputs>
-	void output(ymfm_output<NumOutputs> &output, uint32_t rshift) const;
+	// Register fields that the scaling reads, plus the caller's shift. A
+	// register write ends the current buffer, so these hold for every sample
+	// of one generate().
+	struct output_plan
+	{
+		uint32_t level;    // linear volume
+		uint8_t shift;     // total downshift, the caller's rshift included
+		uint8_t pan_mask;  // one bit per output this channel feeds
+	};
+
+	// Read those fields once, before the sample loop. An empty pan mask means
+	// this channel adds nothing.
+	output_plan make_output_plan(uint32_t rshift) const
+	{
+		return {m_regs.level(), uint8_t(8 + rshift), pan_mask()};
+	}
+
+	// Interpolated and scaled sample for the current position, which every
+	// clock advances.
+	int32_t sample(const output_plan &plan) const
+	{
+		// do a linear interpolation between samples
+		int32_t result = (m_prev_accum * int32_t((m_position ^ 0xffff) + 1) + m_accumulator * int32_t(m_position)) >> 16;
+
+		// apply volume (level) in a linear fashion and reduce
+		return (result * int32_t(plan.level)) >> plan.shift;
+	}
 
 	// return the status register
 	uint8_t status() const { return m_status; }
@@ -426,6 +450,19 @@ public:
 	void write(uint32_t regnum, uint8_t value);
 
 private:
+	// One bit per output this channel feeds, empty when it adds nothing.
+	uint8_t pan_mask() const
+	{
+		if (m_regs.level() == 0)
+			return 0;
+		uint8_t mask = 0;
+		if (m_regs.pan_left())
+			mask |= 1;
+		if (m_regs.pan_right())
+			mask |= 2;
+		return mask;
+	}
+
 	// helper - return the current address shift
 	uint32_t address_shift() const;
 

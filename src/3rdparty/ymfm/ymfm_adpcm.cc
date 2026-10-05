@@ -572,31 +572,7 @@ bool adpcm_b_channel::silent() const
 
 	// Level and pan are registers. clock() does not change them, and a
 	// write ends the current buffer first.
-	if (m_regs.level() == 0)
-		return true;
-	return m_regs.pan_left() == 0 && m_regs.pan_right() == 0;
-}
-
-
-//-------------------------------------------------
-//  output - return the computed output value, with
-//  panning applied
-//-------------------------------------------------
-
-template<int NumOutputs>
-void adpcm_b_channel::output(ymfm_output<NumOutputs> &output, uint32_t rshift) const
-{
-	// do a linear interpolation between samples
-	int32_t result = (m_prev_accum * int32_t((m_position ^ 0xffff) + 1) + m_accumulator * int32_t(m_position)) >> 16;
-
-	// apply volume (level) in a linear fashion and reduce
-	result = (result * int32_t(m_regs.level())) >> (8 + rshift);
-
-	// apply to left/right
-	if (NumOutputs == 1 || m_regs.pan_left())
-		output.data[0] += result;
-	if (NumOutputs > 1 && m_regs.pan_right())
-		output.data[1] += result;
+	return pan_mask() == 0;
 }
 
 
@@ -816,17 +792,22 @@ void adpcm_b_engine::generate(float* buffer, unsigned num, uint32_t rshift)
 {
 	if (m_channel->resting())
 		return;
-	if (buffer == nullptr) {
+	// Level and pan are registers, so they are read once per buffer. An empty
+	// pan mask means this channel adds nothing.
+	const auto plan = m_channel->make_output_plan(rshift);
+	if (buffer == nullptr || plan.pan_mask == 0) {
 		m_channel->clock_n(num);
 	} else {
+		const bool pan_left = (plan.pan_mask & 1) != 0;
+		const bool pan_right = (plan.pan_mask & 2) != 0;
 		for (unsigned i = 0; i < num; ++i) {
 			m_channel->clock_1();
-			ymfm_output<2> voice;
-			voice.clear();
-			m_channel->output(voice, rshift);
+			float value = float(m_channel->sample(plan));
 			unsigned pos = i * 2;
-			buffer[pos + 0] += float(voice.data[0]);
-			buffer[pos + 1] += float(voice.data[1]);
+			if (pan_left)
+				buffer[pos + 0] += value;
+			if (pan_right)
+				buffer[pos + 1] += value;
 		}
 	}
 }
