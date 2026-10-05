@@ -864,11 +864,10 @@ fm_channel::output_plan fm_channel::make_output_plan() const
 //-------------------------------------------------
 //  output_4op - combine 4 operators according to
 //  the specified algorithm, returning a sum
-//  according to the rshift parameter
 //-------------------------------------------------
 
 void fm_channel::output_4op(output_data &output, const output_plan &plan,
-                            uint32_t am_offset, uint32_t rshift) const
+                            uint32_t am_offset) const
 {
 	// all 4 operators should be populated
 	assert(m_op[0] != nullptr);
@@ -910,17 +909,17 @@ void fm_channel::output_4op(output_data &output, const output_plan &plan,
 	// compute the 14-bit volume/value of operator 4;
 	// all algorithms consume OP4 output at a minimum
 	opmod = opout[bitfield(algorithm_ops, 4, 3)] >> 1;
-	int32_t result = m_op[3]->compute_volume(m_op[3]->phase() + opmod, am_offset) >> rshift;
+	int32_t result = m_op[3]->compute_volume(m_op[3]->phase() + opmod, am_offset) >> OUTPUT_SHIFT;
 
 	// optionally add OP1, OP2, OP3. compute_volume() cannot exceed the largest
 	// power table entry, 8168, so even four unshifted carriers stay inside the
 	// 16-bit range that the clamp here used to enforce.
 	if (bitfield(algorithm_ops, 7) != 0)
-		result += opout[1] >> rshift;
+		result += opout[1] >> OUTPUT_SHIFT;
 	if (bitfield(algorithm_ops, 8) != 0)
-		result += opout[2] >> rshift;
+		result += opout[2] >> OUTPUT_SHIFT;
 	if (bitfield(algorithm_ops, 9) != 0)
-		result += opout[3] >> rshift;
+		result += opout[3] >> OUTPUT_SHIFT;
 
 	// add to the output
 	add_to_output(plan, output, result);
@@ -995,8 +994,7 @@ void fm_engine_base::reset()
 
 template<bool Write, bool Lfo>
 static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
-                                  float* buf [[maybe_unused]], unsigned num, uint32_t env,
-                                  uint32_t rshift [[maybe_unused]])
+                                  float* buf [[maybe_unused]], unsigned num, uint32_t env)
 {
 	// Registers hold for the whole buffer, the AM shift among them. Without
 	// the LFO walk the AM offset is constant as well, so it is read once too.
@@ -1025,7 +1023,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 		if constexpr (Write) {
 			ymfm_output<opna_registers::OUTPUTS> voice;
 			voice.clear();
-			channel.output_4op(voice, plan, am_offset, rshift);
+			channel.output_4op(voice, plan, am_offset);
 			unsigned pos = index * 2;
 			buf[pos + 0] += float(voice.data[0]);
 			buf[pos + 1] += float(voice.data[1]);
@@ -1038,7 +1036,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 //  generate - one channel for the whole buffer, then the next
 //-------------------------------------------------
 
-void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift)
+void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask)
 {
 	static_assert(OUTPUTS == 2);
 	static_assert(opna_registers::OPERATORS / opna_registers::CHANNELS == 4);
@@ -1081,13 +1079,13 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 		if (!mix)
 			buffers[chnum] = nullptr;
 		if (mix && walkLfo)
-			synthesize_fm_channel<true, true>(channel, m_regs, buffers[chnum], num, env0, rshift);
+			synthesize_fm_channel<true, true>(channel, m_regs, buffers[chnum], num, env0);
 		else if (mix)
-			synthesize_fm_channel<true, false>(channel, m_regs, buffers[chnum], num, env0, rshift);
+			synthesize_fm_channel<true, false>(channel, m_regs, buffers[chnum], num, env0);
 		else if (walkLfo)
-			synthesize_fm_channel<false, true>(channel, m_regs, nullptr, num, env0, rshift);
+			synthesize_fm_channel<false, true>(channel, m_regs, nullptr, num, env0);
 		else
-			synthesize_fm_channel<false, false>(channel, m_regs, nullptr, num, env0, rshift);
+			synthesize_fm_channel<false, false>(channel, m_regs, nullptr, num, env0);
 	}
 
 	m_env_counter = advance_eg_counter<opna_registers::EG_CLOCK_DIVIDER>(env0, num);

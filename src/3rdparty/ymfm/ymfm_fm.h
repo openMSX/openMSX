@@ -432,6 +432,9 @@ class fm_channel
 {
 	using output_data = ymfm_output<opna_registers::OUTPUTS>;
 
+	// OPNA scales each carrier down by one bit before summing them
+	static constexpr uint32_t OUTPUT_SHIFT = 1;
+
 public:
 	// constructor
 	fm_channel(opna_registers &regs, uint32_t choffs);
@@ -512,8 +515,7 @@ public:
 	output_plan make_output_plan() const;
 
 	// 4-operator output handler
-	void output_4op(output_data &output, const output_plan &plan, uint32_t am_offset,
-	                uint32_t rshift) const;
+	void output_4op(output_data &output, const output_plan &plan, uint32_t am_offset) const;
 
 private:
 	// helper to add a value to the left/right outputs the plan enables
@@ -594,7 +596,7 @@ public:
 	// clocked. The envelope counter still advances for ADPCM-A. Callers pass
 	// a real buffer per channel. Channels outside chanmask, and channels that
 	// are quiet, are nulled.
-	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift);
+	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask);
 
 	// write to the OPN registers
 	void write(uint16_t regnum, uint8_t data);
