@@ -865,7 +865,7 @@ fm_channel::output_plan fm_channel::make_output_plan(const opna_registers &regs)
 
 int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) const
 {
-	// all 4 operators should be populated
+	// all 4 operators are populated
 	assert(m_op[0] != nullptr);
 	assert(m_op[1] != nullptr);
 	assert(m_op[2] != nullptr);
@@ -1187,12 +1187,11 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum)
 	else if (tnum == 1 && m_regs.enable_timer_b())
 		set_reset_status(STATUS_TIMERB, 0);
 
-	// if timer A fired in CSM mode, trigger CSM on all relevant channels
+	// if timer A fired in CSM mode, trigger CSM on channel 2, the only
+	// channel OPNA keys from this timer
 	if (tnum == 0 && m_regs.csm()) {
 		m_modified = true;
-		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-			if (bitfield(opna_registers::CSM_TRIGGER_MASK, chnum))
-				m_channel[chnum].keyonoff(0xf, KEYON_CSM);
+		m_channel[2].keyonoff(0xf, KEYON_CSM);
 	}
 
 	// reset
