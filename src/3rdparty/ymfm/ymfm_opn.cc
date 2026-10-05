@@ -293,6 +293,11 @@ void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdat
 	cache.eg_rate[EG_DECAY] = effective_rate(op_decay_rate(opoffs) * 2, ksrval);
 	cache.eg_rate[EG_SUSTAIN] = effective_rate(op_sustain_rate(opoffs) * 2, ksrval);
 	cache.eg_rate[EG_RELEASE] = effective_rate(op_release_rate(opoffs) * 4 + 2, ksrval);
+
+	// SSG-EG shape and the LFO AM enable, read per sample otherwise
+	cache.ssg_eg_mode = uint8_t(op_ssg_eg_mode(opoffs));
+	cache.ssg_eg_enable = op_ssg_eg_enable(opoffs) != 0;
+	cache.lfo_am_enable = op_lfo_am_enable(opoffs) != 0;
 }
 
 
