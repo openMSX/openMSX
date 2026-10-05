@@ -92,11 +92,11 @@ constexpr uint32_t advance_eg_counter(uint32_t counter, uint32_t steps)
 	if constexpr (Divider == 1) {
 		return counter + steps * 4;
 	} else if constexpr (Divider == 3) {
+		// the counter skips every value whose low two bits are 3, so it
+		// always rests on 0, 1 or 2
 		uint32_t low = counter & 3;
-		uint32_t extra = (low == 0) ? steps / 3
-		               : (low == 1) ? (steps + 1) / 3
-		                            : (steps + 2) / 3;
-		return counter + steps + extra;
+		assert(low < 3);
+		return counter + steps + (steps + low) / 3;
 	} else {
 		for (uint32_t i = 0; i < steps; ++i)
 			counter = step_eg_counter<Divider>(counter);
