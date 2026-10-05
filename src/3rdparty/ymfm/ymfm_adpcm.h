@@ -75,7 +75,6 @@ public:
 	static constexpr uint32_t OUTPUTS = 2;
 	static constexpr uint32_t CHANNELS = 6;
 	static constexpr uint32_t REGISTERS = 0x30;
-	static constexpr uint32_t ALL_CHANNELS = (1 << CHANNELS) - 1;
 
 	// constructor
 	adpcm_a_registers() { }
@@ -102,10 +101,7 @@ public:
 	void write(uint32_t index, uint8_t data) { m_regdata[index] = data; }
 
 	// system-wide registers
-	uint32_t dump() const                               { return bitfield(m_regdata[0x00], 7); }
-	uint32_t dump_mask() const                          { return bitfield(m_regdata[0x00], 0, 6); }
 	uint32_t total_level() const                        { return bitfield(m_regdata[0x01], 0, 6); }
-	uint32_t test() const                               { return m_regdata[0x02]; }
 
 	// per-channel registers
 	uint32_t ch_pan_left(uint32_t choffs) const         { return bitfield(m_regdata[choffs + 0x08], 7); }
@@ -327,23 +323,17 @@ public:
 	uint32_t record() const           { return bitfield(m_regdata[0x00], 6); }
 	uint32_t external() const         { return bitfield(m_regdata[0x00], 5); }
 	uint32_t repeat() const           { return bitfield(m_regdata[0x00], 4); }
-	uint32_t speaker() const          { return bitfield(m_regdata[0x00], 3); }
 	uint32_t resetflag() const        { return bitfield(m_regdata[0x00], 0); }
 	uint32_t pan_left() const         { return bitfield(m_regdata[0x01], 7); }
 	uint32_t pan_right() const        { return bitfield(m_regdata[0x01], 6); }
-	uint32_t start_conversion() const { return bitfield(m_regdata[0x01], 3); }
-	uint32_t dac_enable() const       { return bitfield(m_regdata[0x01], 2); }
 	uint32_t dram_8bit() const        { return bitfield(m_regdata[0x01], 1); }
 	uint32_t rom_ram() const          { return bitfield(m_regdata[0x01], 0); }
 	uint32_t start() const            { return m_regdata[0x02] | (m_regdata[0x03] << 8); }
 	uint32_t end() const              { return m_regdata[0x04] | (m_regdata[0x05] << 8); }
-	uint32_t prescale() const         { return m_regdata[0x06] | (bitfield(m_regdata[0x07], 0, 3) << 8); }
 	uint32_t cpudata() const          { return m_regdata[0x08]; }
 	uint32_t delta_n() const          { return m_regdata[0x09] | (m_regdata[0x0a] << 8); }
 	uint32_t level() const            { return m_regdata[0x0b]; }
 	uint32_t limit() const            { return m_regdata[0x0c] | (m_regdata[0x0d] << 8); }
-	uint32_t dac() const              { return m_regdata[0x0e]; }
-	uint32_t pcm() const              { return m_regdata[0x0f]; }
 
 private:
 	// internal state

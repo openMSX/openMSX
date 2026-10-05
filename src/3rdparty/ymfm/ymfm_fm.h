@@ -606,12 +606,6 @@ public:
 	// set prescale factor (2/3/6)
 	void set_clock_prescale(uint32_t prescale) { m_clock_prescale = prescale; }
 
-	// compute sample rate
-	uint32_t sample_rate(uint32_t baseclock) const
-	{
-		return baseclock / (m_clock_prescale * OPERATORS);
-	}
-
 	// return a reference to our registers
 	opna_registers &regs() { return m_regs; }
 	const opna_registers &regs() const { return m_regs; }
