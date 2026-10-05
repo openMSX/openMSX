@@ -945,8 +945,6 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 				&m_operator[map[0]], &m_operator[map[1]],
 				&m_operator[map[2]], &m_operator[map[3]] }); }))
 {
-	// inform the interface of their engine
-	m_intf.m_engine = this;
 }
 
 
@@ -1131,7 +1129,7 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data)
 
 	if (regnum == opna_registers::REG_MODE)
 	{
-		m_intf.ymfm_sync_mode_write(data);
+		mode_write(data);
 		return;
 	}
 
@@ -1224,7 +1222,7 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum)
 //  for interrupts
 //-------------------------------------------------
 
-void fm_engine_base::engine_check_interrupts()
+void fm_engine_base::check_interrupts()
 {
 	// update the state
 	uint8_t old_state = m_irq_state;
@@ -1232,16 +1230,15 @@ void fm_engine_base::engine_check_interrupts()
 
 	// if changed, signal the new state
 	if (old_state != m_irq_state)
-		m_intf.ymfm_update_irq(m_irq_state ? true : false);
+		m_intf.ymfm_update_irq(m_irq_state != 0);
 }
 
 
 //-------------------------------------------------
-//  engine_mode_write - handle a mode register write
-//  via timer callback
+//  mode_write - handle a mode register write
 //-------------------------------------------------
 
-void fm_engine_base::engine_mode_write(uint8_t data)
+void fm_engine_base::mode_write(uint8_t data)
 {
 	// actually write the mode register now
 	uint32_t dummy1, dummy2;

@@ -48,10 +48,11 @@ private:
 	[[nodiscard]] unsigned ssgRate() const;
 	void applyRates();
 
+	void setBusyEnd(uint32_t clocks);
+	[[nodiscard]] bool isBusy() const;
+
 	// ymfm_interface
 	void ymfm_set_timer(uint32_t timer, int32_t duration) override;
-	void ymfm_set_busy_end(uint32_t duration) override;
-	bool ymfm_is_busy() override;
 	void ymfm_update_irq(bool asserted) override;
 	uint8_t ymfm_external_peek(ymfm::access_class type, uint32_t address) override;
 	uint8_t ymfm_external_read(ymfm::access_class type, uint32_t address) override;

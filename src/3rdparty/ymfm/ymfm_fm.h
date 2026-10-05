@@ -515,7 +515,7 @@ private:
 // fm_engine_base represents a set of operators and channels which together
 // form a Yamaha FM core; chips that implement other engines (ADPCM, wavetable,
 // etc) take this output and combine it with the others externally
-class fm_engine_base : public ymfm_engine_callbacks
+class fm_engine_base
 {
 public:
 	// expose some constants from the registers
@@ -580,12 +580,12 @@ public:
 	uint8_t set_reset_status(uint8_t set, uint8_t reset)
 	{
 		m_status = (m_status | set) & ~(reset | STATUS_BUSY);
-		m_intf.ymfm_sync_check_interrupts();
+		check_interrupts();
 		return m_status;
 	}
 
 	// set the IRQ mask
-	void set_irq_mask(uint8_t mask) { m_irq_mask = mask; m_intf.ymfm_sync_check_interrupts(); }
+	void set_irq_mask(uint8_t mask) { m_irq_mask = mask; check_interrupts(); }
 
 	// return the current clock prescale
 	uint32_t clock_prescale() const { return m_clock_prescale; }
@@ -597,16 +597,13 @@ public:
 	opna_registers &regs() { return m_regs; }
 	const opna_registers &regs() const { return m_regs; }
 
-	// timer callback; called by the interface when a timer fires
-	virtual void engine_timer_expired(uint32_t tnum) override;
-
-	// check interrupts; called by the interface after synchronization
-	virtual void engine_check_interrupts() override;
-
-	// mode register write; called by the interface after synchronization
-	virtual void engine_mode_write(uint8_t data) override;
+	// called by the host when a timer fires
+	void engine_timer_expired(uint32_t tnum);
 
 private:
+	void check_interrupts();
+	void mode_write(uint8_t data);
+
 	// update the state of the given timer
 	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks);
 

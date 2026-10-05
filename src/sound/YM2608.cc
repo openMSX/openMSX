@@ -113,7 +113,7 @@ uint8_t YM2608::peekPort(unsigned port, EmuTime time) const
 uint8_t YM2608::readStatus()
 {
 	uint8_t result = fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB);
-	if (ymfm_is_busy()) {
+	if (isBusy()) {
 		result |= fm_engine::STATUS_BUSY;
 	}
 	return result;
@@ -136,7 +136,7 @@ uint8_t YM2608::readStatusHi()
 	fm.set_reset_status(status, ~status);
 
 	// merge in the busy flag
-	if (ymfm_is_busy()) {
+	if (isBusy()) {
 		status |= fm_engine::STATUS_BUSY;
 	}
 	return status;
@@ -237,7 +237,7 @@ void YM2608::writeRegister(unsigned regnum, uint8_t data, EmuTime time)
 	}
 
 	// mark busy for a bit
-	ymfm_set_busy_end(32 * fm.clock_prescale());
+	setBusyEnd(32 * fm.clock_prescale());
 }
 
 uint8_t YM2608::peekRegister(unsigned regnum, EmuTime time) const
@@ -302,12 +302,12 @@ void YM2608::ymfm_set_timer(uint32_t timer, int32_t duration)
 	}
 }
 
-void YM2608::ymfm_set_busy_end(uint32_t duration)
+void YM2608::setBusyEnd(uint32_t clocks)
 {
-	busyEnd = contextTime + Clock<CLOCK>::duration(duration);
+	busyEnd = contextTime + Clock<CLOCK>::duration(clocks);
 }
 
-bool YM2608::ymfm_is_busy()
+bool YM2608::isBusy() const
 {
 	return contextTime < busyEnd;
 }
