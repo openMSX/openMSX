@@ -427,9 +427,9 @@ public:
 	void assign(uint32_t index, fm_operator *op)
 	{
 		assert(index < m_op.size());
+		assert(op != nullptr);
 		m_op[index] = op;
-		if (op != nullptr)
-			op->set_choffs(m_choffs);
+		op->set_choffs(m_choffs);
 	}
 
 	// signal key on/off to our operators
@@ -442,7 +442,7 @@ public:
 	bool finished() const
 	{
 		for (auto* op : m_op)
-			if (op != nullptr && !op->finished())
+			if (!op->finished())
 				return false;
 		return true;
 	}
@@ -451,7 +451,7 @@ public:
 	bool audible() const
 	{
 		for (auto* op : m_op)
-			if (op != nullptr && op->audible())
+			if (op->audible())
 				return true;
 		return false;
 	}
@@ -502,7 +502,7 @@ private:
 	uint32_t m_choffs;                     // channel offset in registers
 	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
 	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output)
-	std::array<fm_operator *, 4> m_op;     // up to 4 operators
+	std::array<fm_operator *, 4> m_op;     // the four operators of this channel
 	opna_registers &m_regs;                // direct reference to registers
 };
 

@@ -758,8 +758,7 @@ void fm_channel::reset()
 void fm_channel::keyonoff(uint32_t states, keyon_type type, uint32_t /*chnum*/)
 {
 	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
-		if (m_op[opnum] != nullptr)
-			m_op[opnum]->keyonoff(bitfield(states, opnum), type);
+		m_op[opnum]->keyonoff(bitfield(states, opnum), type);
 }
 
 
@@ -769,15 +768,13 @@ void fm_channel::keyonoff(uint32_t states, keyon_type type, uint32_t /*chnum*/)
 
 bool fm_channel::prepare()
 {
-	uint32_t active_mask = 0;
+	// prepare all operators and determine if any of them is active
+	bool active = false;
+	for (auto* op : m_op)
+		if (op->prepare())
+			active = true;
 
-	// prepare all operators and determine if they are active
-	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
-		if (m_op[opnum] != nullptr)
-			if (m_op[opnum]->prepare())
-				active_mask |= 1 << opnum;
-
-	return (active_mask != 0);
+	return active;
 }
 
 
@@ -791,9 +788,8 @@ void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 	m_feedback[0] = m_feedback[1];
 	m_feedback[1] = m_feedback_in;
 
-	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
-		if (m_op[opnum] != nullptr)
-			m_op[opnum]->clock(env_counter, lfo_raw_pm);
+	for (auto* op : m_op)
+		op->clock(env_counter, lfo_raw_pm);
 }
 
 
@@ -1157,7 +1153,8 @@ void fm_engine_base::assign_operators()
 		for (uint32_t index = 0; index < 4; index++)
 		{
 			uint32_t opnum = bitfield(map.chan[chnum], 8 * index, 8);
-			m_channel[chnum]->assign(index, (opnum == 0xff) ? nullptr : m_operator[opnum].get());
+			assert(opnum < OPERATORS);
+			m_channel[chnum]->assign(index, m_operator[opnum].get());
 		}
 }
 
