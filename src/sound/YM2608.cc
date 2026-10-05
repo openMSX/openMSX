@@ -356,7 +356,7 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 	// Bit 7 of register 0x29 enables FM channels 3-5. generate() nulls every
 	// channel that is outside this mask or that prepare() finds already quiet.
 	const uint32_t fmMask = (irqEnable & 0x80) ? 0x3f : 0x07;
-	fm.generate(buffers.template first<6>(), num, fmMask, 1, 32767);
+	fm.generate(buffers.template first<6>(), num, fmMask, 1);
 	adpcmB.generate(buffers[6], num, 1);
 	adpcmA.generate<ymfm::opna_registers::EG_CLOCK_DIVIDER>(
 		buffers.subspan(7, 6).template first<6>(), num, env);

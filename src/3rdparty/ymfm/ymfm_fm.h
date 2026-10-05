@@ -513,7 +513,7 @@ public:
 
 	// 4-operator output handler
 	void output_4op(output_data &output, const output_plan &plan, uint32_t am_offset,
-	                uint32_t rshift, int32_t clipmax) const;
+	                uint32_t rshift) const;
 
 private:
 	// helper to add a value to the left/right outputs the plan enables
@@ -594,7 +594,7 @@ public:
 	// clocked. The envelope counter still advances for ADPCM-A. Callers pass
 	// a real buffer per channel. Channels outside chanmask, and channels that
 	// are quiet, are nulled.
-	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift, int32_t clipmax);
+	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift);
 
 	// write to the OPN registers
 	void write(uint16_t regnum, uint8_t data);
