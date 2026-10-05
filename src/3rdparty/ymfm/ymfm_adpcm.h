@@ -230,9 +230,8 @@ public:
 
 
 	// Whole buffer, one channel at a time. envStart is the FM envelope counter
-	// before this buffer; EgDivider matches the FM engine. A nullptr entry
-	// skips output. A resting channel is not clocked.
-	template<uint32_t EgDivider>
+	// before this buffer, and this walks the same grid. A nullptr entry skips
+	// output. A resting channel is not clocked.
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart);
 
 	// True when this channel's output() will add zero until the next register write.

@@ -264,7 +264,6 @@ void adpcm_a_engine::reset()
 //  generate - one channel for the whole buffer, then the next
 //-------------------------------------------------
 
-template<uint32_t EgDivider>
 void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart)
 {
 	for (int chnum = 0; chnum < CHANNELS; ++chnum) {
@@ -281,7 +280,7 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 		const bool low = chnum < 4;
 		if (buf == nullptr) {
 			for (unsigned i = 0; i < num; ++i) {
-				env = step_eg_counter<EgDivider>(env);
+				env = step_eg_counter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0))
 					channel.clock();
 			}
@@ -300,7 +299,7 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 			};
 			rescale();
 			for (unsigned i = 0; i < num; ++i) {
-				env = step_eg_counter<EgDivider>(env);
+				env = step_eg_counter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
 					channel.clock();
 					rescale();
@@ -312,8 +311,6 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 		}
 	}
 }
-
-template void adpcm_a_engine::generate<3>(std::span<float*, adpcm_a_engine::CHANNELS>, unsigned, uint32_t);
 
 
 //-------------------------------------------------

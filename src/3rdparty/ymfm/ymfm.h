@@ -65,43 +65,24 @@ inline uint32_t bitfield(uint32_t value, int start, int length = 1)
 	return (value >> start) & ((1 << length) - 1);
 }
 
-// Envelope counter step shared by the FM engine and the ADPCM-A clock grid.
-// Divider is a chip constant: 1 advances by 4; any other divider increments
-// and, when the low two bits equal the divider, adds the extra wrap that
-// the FM sample step used to apply inline.
-template<uint32_t Divider>
+// Envelope counter shared by the FM engine and the ADPCM-A clock grid. OPNA
+// divides the envelope by 3, which this counter models by skipping every value
+// whose low two bits are 3, so those bits cycle 0, 1, 2.
 constexpr uint32_t step_eg_counter(uint32_t counter)
 {
-	if constexpr (Divider == 1) {
-		return counter + 4;
-	} else {
+	++counter;
+	if ((counter & 3) == 3)
 		++counter;
-		if ((counter & 3) == Divider)
-			counter += 4 - Divider;
-		return counter;
-	}
+	return counter;
 }
 
-// Advance the same counter by steps samples. Divider 3 is the OPNA grid:
-// the low two bits cycle 0,1,2 and every third step adds one extra.
-template<uint32_t Divider>
+// Advance the same counter by steps samples in closed form. The low two bits
+// never hold 3, so a zero step count adds nothing.
 constexpr uint32_t advance_eg_counter(uint32_t counter, uint32_t steps)
 {
-	if (steps == 0)
-		return counter;
-	if constexpr (Divider == 1) {
-		return counter + steps * 4;
-	} else if constexpr (Divider == 3) {
-		// the counter skips every value whose low two bits are 3, so it
-		// always rests on 0, 1 or 2
-		uint32_t low = counter & 3;
-		assert(low < 3);
-		return counter + steps + (steps + low) / 3;
-	} else {
-		for (uint32_t i = 0; i < steps; ++i)
-			counter = step_eg_counter<Divider>(counter);
-		return counter;
-	}
+	uint32_t low = counter & 3;
+	assert(low < 3);
+	return counter + steps + (steps + low) / 3;
 }
 
 

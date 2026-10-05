@@ -358,8 +358,7 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 	const uint32_t fmMask = (irqEnable & 0x80) ? 0x3f : 0x07;
 	fm.generate(buffers.template first<6>(), num, fmMask);
 	adpcmB.generate(buffers[6], num, 1);
-	adpcmA.generate<ymfm::opna_registers::EG_CLOCK_DIVIDER>(
-		buffers.subspan(7, 6).template first<6>(), num, env);
+	adpcmA.generate(buffers.subspan(7, 6).template first<6>(), num, env);
 }
 
 template<typename Archive>

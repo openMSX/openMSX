@@ -1013,7 +1013,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 	}
 
 	for (unsigned index = 0; index < num; ++index) {
-		env = step_eg_counter<opna_registers::EG_CLOCK_DIVIDER>(env);
+		env = step_eg_counter(env);
 		int32_t pm = 0;
 		if constexpr (Lfo) {
 			pm = regs.clock_lfo(lfoMaxCount);
@@ -1089,7 +1089,7 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 			synthesize_fm_channel<false, false>(channel, m_regs, nullptr, num, env0);
 	}
 
-	m_env_counter = advance_eg_counter<opna_registers::EG_CLOCK_DIVIDER>(env0, num);
+	m_env_counter = advance_eg_counter(env0, num);
 	m_total_clocks = uint8_t(m_total_clocks + num);
 	m_modified = false;
 	if (lfoEnabled && !lfoWalked) {
