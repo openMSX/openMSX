@@ -760,7 +760,7 @@ void fm_channel::reset()
 //  keyonoff - signal key on/off to our operators
 //-------------------------------------------------
 
-void fm_channel::keyonoff(uint32_t states, keyon_type type, uint32_t /*chnum*/)
+void fm_channel::keyonoff(uint32_t states, keyon_type type)
 {
 	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
 		m_op[opnum]->keyonoff(bitfield(states, opnum), type);
@@ -1127,7 +1127,7 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data)
 		if (keyon_channel < CHANNELS)
 		{
 			// normal channel on/off
-			m_channel[keyon_channel]->keyonoff(keyon_opmask, KEYON_NORMAL, keyon_channel);
+			m_channel[keyon_channel]->keyonoff(keyon_opmask, KEYON_NORMAL);
 		}
 	}
 }
@@ -1194,7 +1194,7 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum)
 		m_modified = true;
 		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 			if (bitfield(opna_registers::CSM_TRIGGER_MASK, chnum))
-				m_channel[chnum]->keyonoff(0xf, KEYON_CSM, chnum);
+				m_channel[chnum]->keyonoff(0xf, KEYON_CSM);
 	}
 
 	// reset

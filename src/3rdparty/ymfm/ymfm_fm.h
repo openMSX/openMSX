@@ -464,7 +464,7 @@ public:
 	}
 
 	// signal key on/off to our operators
-	void keyonoff(uint32_t states, keyon_type type, uint32_t chnum);
+	void keyonoff(uint32_t states, keyon_type type);
 
 	// prepare prior to clocking
 	bool prepare();
