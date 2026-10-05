@@ -364,10 +364,6 @@ public:
 	// reset the operator state
 	void reset();
 
-	// return the operator/channel offset
-	uint32_t opoffs() const { return m_opoffs; }
-	uint32_t choffs() const { return m_choffs; }
-
 	// set the current channel
 	void set_choffs(uint32_t choffs) { m_choffs = choffs; }
 
