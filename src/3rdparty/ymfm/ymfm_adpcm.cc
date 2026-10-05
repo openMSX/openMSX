@@ -417,29 +417,6 @@ void adpcm_b_channel::reset()
 
 
 //-------------------------------------------------
-//  clock - master clocking function
-//-------------------------------------------------
-
-void adpcm_b_channel::clock_1()
-{
-	// only process if active and not recording (which we don't support)
-	if (!m_regs.execute() || m_regs.record() || (m_status & STATUS_PLAYING) == 0)
-	{
-		m_status &= ~STATUS_PLAYING;
-		return;
-	}
-
-	// otherwise, advance the step
-	uint32_t position = m_position + m_regs.delta_n();
-	m_position = uint16_t(position);
-	if (position < 0x10000)
-		return;
-
-	consume_nibble();
-}
-
-
-//-------------------------------------------------
 //  consume_nibble - one sample after the position has wrapped
 //-------------------------------------------------
 
@@ -527,8 +504,8 @@ void adpcm_b_channel::clock_n(unsigned num)
 	if (num == 0)
 		return;
 
-	// Not decoding: clock_1() only clears PLAYING. One store covers the run.
-	if (!m_regs.execute() || m_regs.record() || (m_status & STATUS_PLAYING) == 0) {
+	// Not decoding: a clock only clears PLAYING. One store covers the run.
+	if (!decoding()) {
 		m_status &= ~STATUS_PLAYING;
 		return;
 	}
@@ -558,16 +535,51 @@ void adpcm_b_channel::clock_n(unsigned num)
 
 
 //-------------------------------------------------
+//  generate - num clocks with output
+//-------------------------------------------------
+
+void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan &plan)
+{
+	if (num == 0)
+		return;
+
+	const bool pan_left = (plan.pan_mask & 1) != 0;
+	const bool pan_right = (plan.pan_mask & 2) != 0;
+
+	// The decode state and delta-N are registers, so they are read once.
+	// Without decoding the position never moves, and neither does it without
+	// a step, so in both cases the held sample repeats for the whole run.
+	uint32_t delta = 0;
+	if (decoding())
+		delta = m_regs.delta_n();
+	else
+		m_status &= ~STATUS_PLAYING;
+
+	for (unsigned i = 0; i < num; ++i) {
+		// End-without-repeat zeroes both interpolator ends, so the rest of
+		// the run holds that zero.
+		if (delta != 0 && !advance(delta))
+			delta = 0;
+		float value = float(sample(plan));
+		unsigned pos = i * 2;
+		if (pan_left)
+			buffer[pos + 0] += value;
+		if (pan_right)
+			buffer[pos + 1] += value;
+	}
+}
+
+
+//-------------------------------------------------
 //  silent - output stays zero until a register write
 //-------------------------------------------------
 
 bool adpcm_b_channel::silent() const
 {
-	// Not advancing: clock() returns before it touches the accumulators.
+	// Not advancing: a clock returns before it touches the accumulators.
 	// Playback itself starts only from a register write. A held sample is
 	// silent only when both ends of the interpolator are already zero.
-	if ((!m_regs.execute() || m_regs.record() || (m_status & STATUS_PLAYING) == 0)
-	    && m_accumulator == 0 && m_prev_accum == 0)
+	if (!decoding() && m_accumulator == 0 && m_prev_accum == 0)
 		return true;
 
 	// Level and pan are registers. clock() does not change them, and a
@@ -774,17 +786,6 @@ void adpcm_b_engine::reset()
 
 
 //-------------------------------------------------
-//  clock - master clocking function
-//-------------------------------------------------
-
-void adpcm_b_engine::clock()
-{
-	// clock each channel, setting a bit in result if it finished
-	m_channel->clock_1();
-}
-
-
-//-------------------------------------------------
 //  generate - the whole buffer for the single channel
 //-------------------------------------------------
 
@@ -795,21 +796,10 @@ void adpcm_b_engine::generate(float* buffer, unsigned num, uint32_t rshift)
 	// Level and pan are registers, so they are read once per buffer. An empty
 	// pan mask means this channel adds nothing.
 	const auto plan = m_channel->make_output_plan(rshift);
-	if (buffer == nullptr || plan.pan_mask == 0) {
+	if (buffer == nullptr || plan.pan_mask == 0)
 		m_channel->clock_n(num);
-	} else {
-		const bool pan_left = (plan.pan_mask & 1) != 0;
-		const bool pan_right = (plan.pan_mask & 2) != 0;
-		for (unsigned i = 0; i < num; ++i) {
-			m_channel->clock_1();
-			float value = float(m_channel->sample(plan));
-			unsigned pos = i * 2;
-			if (pan_left)
-				buffer[pos + 0] += value;
-			if (pan_right)
-				buffer[pos + 1] += value;
-		}
-	}
+	else
+		m_channel->generate(buffer, num, plan);
 }
 
 

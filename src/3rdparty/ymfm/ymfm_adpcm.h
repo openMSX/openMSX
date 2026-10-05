@@ -392,11 +392,8 @@ public:
 	// signal key on/off
 	void keyonoff(bool on);
 
-	// One ADPCM-B clock.
-	void clock_1();
-
 	// num clocks. Position steps that do not cross a nibble are applied in
-	// one multiply. Each nibble is consume_nibble(), shared with clock_1().
+	// one multiply. Each nibble is consume_nibble(), shared with generate().
 	// A channel that is not decoding clears PLAYING once and returns.
 	void clock_n(unsigned num);
 
@@ -439,6 +436,10 @@ public:
 		return (result * int32_t(plan.level)) >> plan.shift;
 	}
 
+	// num clocks with output, interleaved stereo. Reads the decode state and
+	// the position step once, like clock_n() does.
+	void generate(float* buffer, unsigned num, const output_plan &plan);
+
 	// return the status register
 	uint8_t status() const { return m_status; }
 
@@ -450,6 +451,23 @@ public:
 	void write(uint32_t regnum, uint8_t value);
 
 private:
+	// Register state that lets a clock advance the position.
+	bool decoding() const
+	{
+		return m_regs.execute() && !m_regs.record() && (m_status & STATUS_PLAYING) != 0;
+	}
+
+	// One clock with the buffer's position step, after decoding() held.
+	// False when playback stopped at the end address.
+	bool advance(uint32_t delta)
+	{
+		uint32_t position = m_position + delta;
+		m_position = uint16_t(position);
+		if (position < 0x10000)
+			return true;
+		return consume_nibble();
+	}
+
 	// One bit per output this channel feeds, empty when it adds nothing.
 	uint8_t pan_mask() const
 	{
@@ -514,9 +532,6 @@ public:
 		ar.serialize("regs",    m_regs,
 		             "channel", *m_channel);
 	}
-
-	// master clocking function
-	void clock();
 
 	// Whole buffer for the single channel. A nullptr buffer skips output.
 	// A resting channel returns without clocking.
