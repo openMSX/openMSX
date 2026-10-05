@@ -317,8 +317,8 @@ private:
 
 class adpcm_b_channel
 {
-	static constexpr int32_t STEP_MIN = 127;
-	static constexpr int32_t STEP_MAX = 24576;
+	static constexpr int16_t STEP_MIN = 127;
+	static constexpr int16_t STEP_MAX = 24576;
 
 public:
 	static constexpr uint8_t STATUS_EOS = 0x01;
@@ -463,7 +463,7 @@ private:
 	uint32_t m_curaddress;          // current address
 	int16_t m_accumulator;          // accumulator
 	int16_t m_prev_accum;           // previous accumulator (for linear interp)
-	int32_t m_adpcm_step;           // next forecast
+	int16_t m_adpcm_step;           // next forecast (STEP_MIN..STEP_MAX)
 	bool m_cpu_write_active;        // unfinished CPU RAM write sequence
 	adpcm_b_registers &m_regs;      // reference to registers
 	ymfm_interface &m_intf;         // memory reads and writes

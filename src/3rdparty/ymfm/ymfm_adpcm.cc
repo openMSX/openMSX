@@ -464,7 +464,8 @@ bool adpcm_b_channel::consume_nibble()
 
 	// scale the ADPCM step: 0.9, 0.9, 0.9, 0.9, 1.2, 1.6, 2.0, 2.4
 	static uint8_t const s_step_scale[8] = { 57, 57, 57, 57, 77, 102, 128, 153 };
-	m_adpcm_step = std::clamp((m_adpcm_step * s_step_scale[bitfield(data, 0, 3)]) / 64, STEP_MIN, STEP_MAX);
+	m_adpcm_step = int16_t(std::clamp(int(m_adpcm_step) * s_step_scale[bitfield(data, 0, 3)] / 64,
+	                                  int(STEP_MIN), int(STEP_MAX)));
 	return true;
 }
 

@@ -806,7 +806,7 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 	m_clock_prescale(opna_registers::DEFAULT_PRESCALE),
 	m_irq_mask(STATUS_TIMERA | STATUS_TIMERB),
 	m_irq_state(0),
-	m_timer_running{0,0},
+	m_timer_running{false, false},
 	m_total_clocks(0),
 	m_modified(false),
 	m_operator(generate_array<OPERATORS>([](size_t opnum) {
@@ -1049,14 +1049,14 @@ void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_
 
 		// reset it
 		m_intf.ymfm_set_timer(tnum, period * OPERATORS * m_clock_prescale);
-		m_timer_running[tnum] = 1;
+		m_timer_running[tnum] = true;
 	}
 
 	// if the timer is not live, ensure it is not enabled
 	else if (!enable)
 	{
 		m_intf.ymfm_set_timer(tnum, -1);
-		m_timer_running[tnum] = 0;
+		m_timer_running[tnum] = false;
 	}
 }
 

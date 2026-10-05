@@ -72,11 +72,11 @@ struct opdata_cache
 	static constexpr uint32_t PHASE_STEP_DYNAMIC = 1;
 
 	uint32_t phase_step;              // phase step, or PHASE_STEP_DYNAMIC if PM is active
-	uint32_t total_level;             // total level * 8
-	uint32_t block_freq;              // raw block frequency value (used to compute phase_step)
-	int32_t detune;                   // detuning value (used to compute phase_step)
-	uint32_t multiple;                // multiple value (x.1, used to compute phase_step)
-	uint32_t eg_sustain;              // sustain level, shifted up to envelope values
+	uint16_t total_level;             // total level * 8
+	uint16_t block_freq;              // raw block frequency value (used to compute phase_step)
+	uint16_t eg_sustain;              // sustain level, shifted up to envelope values
+	int8_t detune;                    // detuning value (used to compute phase_step)
+	uint8_t multiple;                 // multiple value (x.1, used to compute phase_step)
 	uint8_t eg_rate[EG_STATES];       // envelope rate, including KSR
 	uint8_t lfo_pm_sens;              // LFO PM sensitivity (0-7)
 	uint8_t ssg_eg_mode;              // SSG-EG envelope shape (0-7)
@@ -613,7 +613,7 @@ private:
 	uint8_t m_clock_prescale;        // prescale factor (2/3/6)
 	uint8_t m_irq_mask;              // mask of which bits signal IRQs
 	uint8_t m_irq_state;             // current IRQ state
-	std::array<uint8_t, 2> m_timer_running;      // current timer running state
+	std::array<bool, 2> m_timer_running;         // current timer running state
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
 	bool m_modified;                 // register or key changed since the last generate()
 	opna_registers m_regs;           // register accessor

@@ -82,7 +82,7 @@ constexpr uint32_t advance_eg_counter(uint32_t counter, uint32_t steps)
 
 // various envelope states; value 0 was the OPLL depress state, so the
 // numbering starts at 1 and still indexes opdata_cache::eg_rate directly
-enum envelope_state : uint32_t
+enum envelope_state : uint8_t
 {
 	EG_ATTACK = 1,
 	EG_DECAY = 2,
@@ -92,7 +92,7 @@ enum envelope_state : uint32_t
 };
 
 // external I/O access classes; OPNA reaches memory for its two ADPCM engines
-enum access_class : uint32_t
+enum access_class : uint8_t
 {
 	ACCESS_ADPCM_A,
 	ACCESS_ADPCM_B
