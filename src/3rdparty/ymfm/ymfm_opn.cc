@@ -272,10 +272,13 @@ void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdat
 	if (cache.multiple == 0)
 		cache.multiple = 1;
 
+	// LFO PM sensitivity, read per sample otherwise
+	cache.lfo_pm_sens = uint8_t(ch_lfo_pm_sens(choffs));
+
 	// phase step, or PHASE_STEP_DYNAMIC if PM is active; this depends on
 	// block_freq, detune, and multiple, so compute it after we've done those
-	if (lfo_enable() == 0 || ch_lfo_pm_sens(choffs) == 0)
-		cache.phase_step = compute_phase_step(choffs, opoffs, cache, 0);
+	if (lfo_enable() == 0 || cache.lfo_pm_sens == 0)
+		cache.phase_step = compute_phase_step(cache, 0);
 	else
 		cache.phase_step = opdata_cache::PHASE_STEP_DYNAMIC;
 
@@ -305,7 +308,7 @@ void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdat
 //  compute_phase_step - compute the phase step
 //-------------------------------------------------
 
-uint32_t opna_registers::compute_phase_step(uint32_t choffs, uint32_t /*opoffs*/, opdata_cache const &cache, int32_t lfo_raw_pm)
+uint32_t opna_registers::compute_phase_step(opdata_cache const &cache, int32_t lfo_raw_pm)
 {
 	// OPN phase calculation has only a single detune parameter
 	// and uses FNUMs instead of keycodes
@@ -314,12 +317,11 @@ uint32_t opna_registers::compute_phase_step(uint32_t choffs, uint32_t /*opoffs*/
 	uint32_t fnum = bitfield(cache.block_freq, 0, 11) << 1;
 
 	// if there's a non-zero PM sensitivity, compute the adjustment
-	uint32_t pm_sensitivity = ch_lfo_pm_sens(choffs);
-	if (pm_sensitivity != 0)
+	if (cache.lfo_pm_sens != 0)
 	{
 		// apply the phase adjustment based on the upper 7 bits
 		// of FNUM and the PM depth parameters
-		fnum += opn_lfo_pm_phase_adjustment(bitfield(cache.block_freq, 4, 7), pm_sensitivity, lfo_raw_pm);
+		fnum += opn_lfo_pm_phase_adjustment(bitfield(cache.block_freq, 4, 7), cache.lfo_pm_sens, lfo_raw_pm);
 
 		// keep fnum to 12 bits
 		fnum &= 0xfff;

@@ -77,6 +77,7 @@ struct opdata_cache
 	uint32_t multiple;                // multiple value (x.1, used to compute phase_step)
 	uint32_t eg_sustain;              // sustain level, shifted up to envelope values
 	uint8_t eg_rate[EG_STATES];       // envelope rate, including KSR
+	uint8_t lfo_pm_sens;              // LFO PM sensitivity (0-7)
 	uint8_t ssg_eg_mode;              // SSG-EG envelope shape (0-7)
 	bool ssg_eg_enable;               // true if SSG-EG drives the envelope
 	bool lfo_am_enable;               // true if the operator follows the LFO AM offset
@@ -224,7 +225,7 @@ public:
 	void cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache &cache);
 
 	// compute the phase step, given a PM value
-	uint32_t compute_phase_step(uint32_t choffs, uint32_t opoffs, opdata_cache const &cache, int32_t lfo_raw_pm);
+	static uint32_t compute_phase_step(opdata_cache const &cache, int32_t lfo_raw_pm);
 
 	// system-wide registers
 	uint32_t lfo_enable() const                 { return byte(0x22, 3, 1); }
