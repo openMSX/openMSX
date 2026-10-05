@@ -229,9 +229,6 @@ public:
 
 
 
-	// master clocking function
-	uint32_t clock(uint32_t chanmask);
-
 	// Whole buffer, one channel at a time. envStart is the FM envelope counter
 	// before this buffer; EgDivider matches the FM engine. A nullptr entry
 	// skips output. A resting channel is not clocked.

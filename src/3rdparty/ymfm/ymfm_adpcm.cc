@@ -261,24 +261,6 @@ void adpcm_a_engine::reset()
 
 
 //-------------------------------------------------
-//  clock - master clocking function
-//-------------------------------------------------
-
-uint32_t adpcm_a_engine::clock(uint32_t chanmask)
-{
-	// clock each channel, setting a bit in result if it finished
-	uint32_t result = 0;
-	for (int chnum = 0; chnum < CHANNELS; chnum++)
-		if (bitfield(chanmask, chnum))
-			if (m_channel[chnum]->clock())
-				result |= 1 << chnum;
-
-	// return the bitmask of completed samples
-	return result;
-}
-
-
-//-------------------------------------------------
 //  generate - one channel for the whole buffer, then the next
 //-------------------------------------------------
 
