@@ -172,7 +172,7 @@ void adpcm_a_channel::clock()
 
 	// adjust ADPCM step
 	static int8_t const s_step_inc[8] = { -1, -1, -1, -1, 2, 5, 7, 9 };
-	m_step_index = clamp(m_step_index + s_step_inc[bitfield(data, 0, 3)], 0, 48);
+	m_step_index = std::clamp(m_step_index + s_step_inc[bitfield(data, 0, 3)], 0, 48);
 }
 
 
@@ -459,11 +459,11 @@ bool adpcm_b_channel::consume_nibble()
 		delta = -delta;
 
 	// add and clamp to 16 bits
-	m_accumulator = clamp(m_accumulator + delta, -32768, 32767);
+	m_accumulator = std::clamp(m_accumulator + delta, -32768, 32767);
 
 	// scale the ADPCM step: 0.9, 0.9, 0.9, 0.9, 1.2, 1.6, 2.0, 2.4
 	static uint8_t const s_step_scale[8] = { 57, 57, 57, 57, 77, 102, 128, 153 };
-	m_adpcm_step = clamp((m_adpcm_step * s_step_scale[bitfield(data, 0, 3)]) / 64, STEP_MIN, STEP_MAX);
+	m_adpcm_step = std::clamp((m_adpcm_step * s_step_scale[bitfield(data, 0, 3)]) / 64, STEP_MIN, STEP_MAX);
 	return true;
 }
 

@@ -35,7 +35,6 @@
 
 #include <cassert>
 #include <cstdint>
-#include <algorithm>
 #include <array>
 
 namespace ymfm
@@ -74,21 +73,6 @@ constexpr uint32_t advance_eg_counter(uint32_t counter, uint32_t steps)
 	uint32_t low = counter & 3;
 	assert(low < 3);
 	return counter + steps + (steps + low) / 3;
-}
-
-
-//-------------------------------------------------
-//  clamp - clamp between the minimum and maximum
-//  values provided
-//-------------------------------------------------
-
-inline int32_t clamp(int32_t value, int32_t minval, int32_t maxval)
-{
-	if (value < minval)
-		return minval;
-	if (value > maxval)
-		return maxval;
-	return value;
 }
 
 
