@@ -43,15 +43,6 @@
 namespace ymfm
 {
 
-//*********************************************************
-//  INTERFACE CLASSES
-//*********************************************************
-
-// forward declarations
-class adpcm_a_engine;
-class adpcm_b_engine;
-
-
 // ======================> adpcm_a_registers
 
 //
@@ -136,7 +127,7 @@ class adpcm_a_channel
 {
 public:
 	// constructor
-	adpcm_a_channel(adpcm_a_engine &owner, uint32_t choffs, uint32_t addrshift);
+	adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs, uint32_t addrshift);
 
 	// reset the channel state
 	void reset();
@@ -198,7 +189,7 @@ private:
 	int32_t m_accumulator;                // accumulator
 	int32_t m_step_index;                 // index in the stepping table
 	adpcm_a_registers &m_regs;            // reference to registers
-	adpcm_a_engine &m_owner;              // reference to our owner
+	ymfm_interface &m_intf;               // memory reads
 };
 
 
@@ -209,7 +200,7 @@ class adpcm_a_engine
 public:
 	static constexpr int CHANNELS = adpcm_a_registers::CHANNELS;
 
-	// constructor; the channels point back at us, so copying is not safe
+	// constructor; the channels point into m_regs, so copying is not safe
 	adpcm_a_engine(ymfm_interface &intf, uint32_t addrshift);
 	adpcm_a_engine(const adpcm_a_engine &) = delete;
 	adpcm_a_engine &operator=(const adpcm_a_engine &) = delete;
@@ -248,16 +239,12 @@ public:
 		m_regs.write_end(choffs, end);
 	}
 
-	// return a reference to our interface
-	ymfm_interface &intf() { return m_intf; }
-
 	// return a reference to our registers
 	adpcm_a_registers &regs() { return m_regs; }
 	const adpcm_a_registers &regs() const { return m_regs; }
 
 private:
 	// internal state
-	ymfm_interface &m_intf;                            // reference to the interface
 	adpcm_a_registers m_regs;                          // registers
 	std::array<adpcm_a_channel, CHANNELS> m_channel;   // the six channels
 };
@@ -358,7 +345,7 @@ public:
 	static constexpr uint8_t STATUS_PLAYING = 0x04;
 
 	// constructor
-	adpcm_b_channel(adpcm_b_engine &owner, uint32_t addrshift);
+	adpcm_b_channel(ymfm_interface &intf, adpcm_b_registers &regs, uint32_t addrshift);
 
 	// reset the channel state
 	void reset();
@@ -500,7 +487,7 @@ private:
 	int32_t m_adpcm_step;           // next forecast
 	bool m_cpu_write_active;       // unfinished CPU RAM write sequence
 	adpcm_b_registers &m_regs;      // reference to registers
-	adpcm_b_engine &m_owner;        // reference to our owner
+	ymfm_interface &m_intf;         // memory reads and writes
 };
 
 
@@ -509,7 +496,7 @@ private:
 class adpcm_b_engine
 {
 public:
-	// constructor; the channel points back at us, so copying is not safe
+	// constructor; the channel points into m_regs, so copying is not safe
 	adpcm_b_engine(ymfm_interface &intf, uint32_t addrshift = 0);
 	adpcm_b_engine(const adpcm_b_engine &) = delete;
 	adpcm_b_engine &operator=(const adpcm_b_engine &) = delete;
@@ -542,16 +529,12 @@ public:
 	// status
 	uint8_t status() const { return m_channel.status(); }
 
-	// return a reference to our interface
-	ymfm_interface &intf() { return m_intf; }
-
 	// return a reference to our registers
 	adpcm_b_registers &regs() { return m_regs; }
 	const adpcm_b_registers &regs() const { return m_regs; }
 
 private:
 	// internal state
-	ymfm_interface &m_intf;      // reference to our interface
 	adpcm_b_registers m_regs;    // registers
 	adpcm_b_channel m_channel;   // the one channel
 };

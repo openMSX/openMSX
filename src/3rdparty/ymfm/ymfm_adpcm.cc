@@ -60,7 +60,7 @@ void adpcm_a_registers::reset()
 //  adpcm_a_channel - constructor
 //-------------------------------------------------
 
-adpcm_a_channel::adpcm_a_channel(adpcm_a_engine &owner, uint32_t choffs, uint32_t addrshift) :
+adpcm_a_channel::adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs, uint32_t addrshift) :
 	m_choffs(choffs),
 	m_address_shift(addrshift),
 	m_playing(0),
@@ -69,8 +69,8 @@ adpcm_a_channel::adpcm_a_channel(adpcm_a_engine &owner, uint32_t choffs, uint32_
 	m_curaddress(0),
 	m_accumulator(0),
 	m_step_index(0),
-	m_regs(owner.regs()),
-	m_owner(owner)
+	m_regs(regs),
+	m_intf(intf)
 {
 }
 
@@ -141,7 +141,7 @@ bool adpcm_a_channel::clock()
 			return true;
 		}
 
-		m_curbyte = m_owner.intf().ymfm_external_read(ACCESS_ADPCM_A, m_curaddress++);
+		m_curbyte = m_intf.ymfm_external_read(ACCESS_ADPCM_A, m_curaddress++);
 		data = m_curbyte >> 4;
 		m_curnibble = 1;
 	}
@@ -237,9 +237,8 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan() const
 //-------------------------------------------------
 
 adpcm_a_engine::adpcm_a_engine(ymfm_interface &intf, uint32_t addrshift) :
-	m_intf(intf),
 	m_channel(generate_array<CHANNELS>([&](size_t chnum) {
-		return adpcm_a_channel(*this, uint32_t(chnum), addrshift); }))
+		return adpcm_a_channel(intf, m_regs, uint32_t(chnum), addrshift); }))
 {
 }
 
@@ -357,7 +356,7 @@ void adpcm_b_registers::reset()
 //  adpcm_b_channel - constructor
 //-------------------------------------------------
 
-adpcm_b_channel::adpcm_b_channel(adpcm_b_engine &owner, uint32_t addrshift) :
+adpcm_b_channel::adpcm_b_channel(ymfm_interface &intf, adpcm_b_registers &regs, uint32_t addrshift) :
 	m_address_shift(addrshift),
 	m_status(STATUS_BRDY),
 	m_curnibble(0),
@@ -369,8 +368,8 @@ adpcm_b_channel::adpcm_b_channel(adpcm_b_engine &owner, uint32_t addrshift) :
 	m_prev_accum(0),
 	m_adpcm_step(STEP_MIN),
 	m_cpu_write_active(false),
-	m_regs(owner.regs()),
-	m_owner(owner)
+	m_regs(regs),
+	m_intf(intf)
 {
 }
 
@@ -405,7 +404,7 @@ bool adpcm_b_channel::consume_nibble()
 	{
 		// playing from RAM/ROM
 		if (m_regs.external())
-			m_curbyte = m_owner.intf().ymfm_external_read(ACCESS_ADPCM_B, m_curaddress);
+			m_curbyte = m_intf.ymfm_external_read(ACCESS_ADPCM_B, m_curaddress);
 	}
 
 	// extract the nibble from our current byte
@@ -579,7 +578,7 @@ uint8_t adpcm_b_channel::peek(uint32_t regnum) const
 		if (m_cpu_write_active)
 			return m_regs.cpudata();
 		if (m_dummy_read == 0)
-			return m_owner.intf().ymfm_external_peek(ACCESS_ADPCM_B, m_curaddress);
+			return m_intf.ymfm_external_peek(ACCESS_ADPCM_B, m_curaddress);
 	}
 	return 0;
 }
@@ -607,7 +606,7 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 		else
 		{
 			// read from outside of the chip
-			result = m_owner.intf().ymfm_external_read(ACCESS_ADPCM_B, m_curaddress);
+			result = m_intf.ymfm_external_read(ACCESS_ADPCM_B, m_curaddress);
 
 			// did we hit the end? if so, signal EOS
 			if (at_end())
@@ -675,7 +674,7 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 			uint32_t end = (m_regs.end() + 1) << address_shift();
 			if (m_curaddress != end)
 			{
-				m_owner.intf().ymfm_external_write(ACCESS_ADPCM_B, m_curaddress++, value);
+				m_intf.ymfm_external_write(ACCESS_ADPCM_B, m_curaddress++, value);
 				m_cpu_write_active = true;
 			}
 
@@ -742,8 +741,7 @@ void adpcm_b_channel::load_start()
 //-------------------------------------------------
 
 adpcm_b_engine::adpcm_b_engine(ymfm_interface &intf, uint32_t addrshift) :
-	m_intf(intf),
-	m_channel(*this, addrshift)
+	m_channel(intf, m_regs, addrshift)
 {
 }
 
