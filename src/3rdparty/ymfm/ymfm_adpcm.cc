@@ -61,15 +61,15 @@ void adpcm_a_registers::reset()
 //-------------------------------------------------
 
 adpcm_a_channel::adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs) :
-	m_choffs(uint8_t(choffs)),
-	m_playing(false),
-	m_curnibble(0),
-	m_curbyte(0),
+	m_regs(regs),
+	m_intf(intf),
 	m_curaddress(0),
 	m_accumulator(0),
 	m_step_index(0),
-	m_regs(regs),
-	m_intf(intf)
+	m_choffs(uint8_t(choffs)),
+	m_playing(false),
+	m_curnibble(0),
+	m_curbyte(0)
 {
 }
 
@@ -355,18 +355,18 @@ void adpcm_b_registers::reset()
 //-------------------------------------------------
 
 adpcm_b_channel::adpcm_b_channel(ymfm_interface &intf, adpcm_b_registers &regs) :
+	m_regs(regs),
+	m_intf(intf),
+	m_curaddress(0),
+	m_position(0),
+	m_accumulator(0),
+	m_prev_accum(0),
+	m_adpcm_step(STEP_MIN),
 	m_status(STATUS_BRDY),
 	m_curnibble(0),
 	m_curbyte(0),
 	m_dummy_read(0),
-	m_position(0),
-	m_curaddress(0),
-	m_accumulator(0),
-	m_prev_accum(0),
-	m_adpcm_step(STEP_MIN),
-	m_cpu_write_active(false),
-	m_regs(regs),
-	m_intf(intf)
+	m_cpu_write_active(false)
 {
 }
 

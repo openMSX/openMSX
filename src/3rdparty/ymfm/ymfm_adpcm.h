@@ -117,12 +117,12 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/)
 	{
-		ar.serialize("playing",     m_playing,
-		             "curnibble",   m_curnibble,
-		             "curbyte",     m_curbyte,
-		             "curaddress",  m_curaddress,
+		ar.serialize("curaddress",  m_curaddress,
 		             "accumulator", m_accumulator,
-		             "step_index",  m_step_index);
+		             "step_index",  m_step_index,
+		             "playing",     m_playing,
+		             "curnibble",   m_curnibble,
+		             "curbyte",     m_curbyte);
 	}
 
 	// signal key on/off
@@ -161,15 +161,15 @@ public:
 
 private:
 	// internal state
+	adpcm_a_registers &m_regs;            // reference to registers
+	ymfm_interface &m_intf;               // memory reads
+	uint32_t m_curaddress;                // current address
+	int16_t m_accumulator;                // 12-bit accumulator
+	int8_t m_step_index;                  // index in the stepping table (0-48)
 	uint8_t const m_choffs;               // channel offset
 	bool m_playing;                       // currently playing?
 	uint8_t m_curnibble;                  // index of the current nibble
 	uint8_t m_curbyte;                    // current byte of data
-	uint32_t m_curaddress;                // current address
-	int16_t m_accumulator;                // 12-bit accumulator
-	int8_t m_step_index;                  // index in the stepping table (0-48)
-	adpcm_a_registers &m_regs;            // reference to registers
-	ymfm_interface &m_intf;               // memory reads
 };
 
 
@@ -335,15 +335,15 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/)
 	{
-		ar.serialize("status",           m_status,
-		             "curnibble",        m_curnibble,
-		             "curbyte",          m_curbyte,
-		             "dummy_read",       m_dummy_read,
+		ar.serialize("curaddress",       m_curaddress,
 		             "position",         m_position,
-		             "curaddress",       m_curaddress,
 		             "accumulator",      m_accumulator,
 		             "prev_accum",       m_prev_accum,
 		             "adpcm_step",       m_adpcm_step,
+		             "status",           m_status,
+		             "curnibble",        m_curnibble,
+		             "curbyte",          m_curbyte,
+		             "dummy_read",       m_dummy_read,
 		             "cpu_write_active", m_cpu_write_active);
 	}
 
@@ -455,18 +455,18 @@ private:
 	bool at_end() const { return (m_curaddress == (((m_regs.end() + 1) << address_shift()) - 1)); }
 
 	// internal state
+	adpcm_b_registers &m_regs;      // reference to registers
+	ymfm_interface &m_intf;         // memory reads and writes
+	uint32_t m_curaddress;          // current address
+	uint16_t m_position;            // current fractional position
+	int16_t m_accumulator;          // accumulator
+	int16_t m_prev_accum;           // previous accumulator (for linear interp)
+	int16_t m_adpcm_step;           // next forecast (STEP_MIN..STEP_MAX)
 	uint8_t m_status;               // EOS / BRDY / PLAYING
 	uint8_t m_curnibble;            // index of the current nibble
 	uint8_t m_curbyte;              // current byte of data
 	uint8_t m_dummy_read;           // dummy read tracker
-	uint16_t m_position;            // current fractional position
-	uint32_t m_curaddress;          // current address
-	int16_t m_accumulator;          // accumulator
-	int16_t m_prev_accum;           // previous accumulator (for linear interp)
-	int16_t m_adpcm_step;           // next forecast (STEP_MIN..STEP_MAX)
 	bool m_cpu_write_active;        // unfinished CPU RAM write sequence
-	adpcm_b_registers &m_regs;      // reference to registers
-	ymfm_interface &m_intf;         // memory reads and writes
 };
 
 

@@ -250,8 +250,8 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 //-------------------------------------------------
 
 fm_operator::fm_operator(uint32_t opoffs) :
-	m_opoffs(uint16_t(opoffs)),
 	m_phase(0),
+	m_opoffs(uint16_t(opoffs)),
 	m_env_attenuation(0x3ff),
 	m_env_state(EG_RELEASE),
 	m_ssg_inverted(false),

@@ -404,8 +404,8 @@ private:
 	uint32_t envelope_attenuation(uint32_t am_offset) const;
 
 	// internal state
-	uint16_t m_opoffs;                     // operator offset in registers
 	uint32_t m_phase;                      // current phase value (10.10 format)
+	uint16_t m_opoffs;                     // operator offset in registers
 	uint16_t m_env_attenuation;            // computed envelope attenuation (4.6 format)
 	envelope_state m_env_state;            // current envelope state
 	bool m_ssg_inverted;                   // true if the output should be inverted
@@ -544,11 +544,11 @@ public:
 		             "timer_running",  m_timer_running,
 		             "total_clocks",   m_total_clocks,
 		             "regs",           m_regs);
-		for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
-			ar.serialize("channel", m_channel[chnum]);
-		}
 		for (uint32_t opnum = 0; opnum < OPERATORS; ++opnum) {
 			ar.serialize("operator", m_operator[opnum]);
+		}
+		for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
+			ar.serialize("channel", m_channel[chnum]);
 		}
 		// Operator caches are not saved. The next generate() rebuilds them.
 		m_modified = true;
