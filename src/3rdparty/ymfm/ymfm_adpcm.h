@@ -168,9 +168,21 @@ public:
 	// Stopped with a zero accumulator: clock() would only store that zero.
 	bool resting() const { return m_playing == 0 && m_accumulator == 0; }
 
+	// Register fields that output() reads. A register write ends the current
+	// buffer, so these hold for every sample of one generate().
+	struct output_plan
+	{
+		int8_t mul;        // volume multiplier
+		uint8_t shift;     // volume shift, accumulator downshift included
+		uint8_t pan_mask;  // one bit per output this channel feeds
+	};
+
+	// Read those fields once, before the sample loop. An empty pan mask means
+	// this channel adds nothing.
+	output_plan make_output_plan() const;
+
 	// return the computed output value, with panning applied
-	template<int NumOutputs>
-	void output(ymfm_output<NumOutputs> &output) const;
+	void output(ymfm_output<2> &output, const output_plan &plan) const;
 
 private:
 	// internal state

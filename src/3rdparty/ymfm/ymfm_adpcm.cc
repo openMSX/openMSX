@@ -193,10 +193,37 @@ bool adpcm_a_channel::silent() const
 
 	// Instrument level, total level and pan are registers. clock() does
 	// not change them, and a write ends the current buffer first.
+	return make_output_plan().pan_mask == 0;
+}
+
+
+//-------------------------------------------------
+//  make_output_plan - read the register fields
+//  that hold for the whole buffer
+//-------------------------------------------------
+
+adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan() const
+{
+	output_plan plan;
+
+	// volume combines instrument and total levels
 	int vol = (m_regs.ch_instrument_level(m_choffs) ^ 0x1f) + (m_regs.total_level() ^ 0x3f);
-	if (vol >= 63)
-		return true;
-	return m_regs.ch_pan_left(m_choffs) == 0 && m_regs.ch_pan_right(m_choffs) == 0;
+
+	// convert into a shift and a multiplier
+	// QUESTION: verify this from other sources
+	plan.mul = 15 - (vol & 7);
+	plan.shift = 4 + 1 + (vol >> 3);
+
+	// a maximum combined volume adds nothing, and neither does a closed pan
+	plan.pan_mask = 0;
+	if (vol < 63)
+	{
+		if (m_regs.ch_pan_left(m_choffs))
+			plan.pan_mask |= 1;
+		if (m_regs.ch_pan_right(m_choffs))
+			plan.pan_mask |= 2;
+	}
+	return plan;
 }
 
 
@@ -205,29 +232,16 @@ bool adpcm_a_channel::silent() const
 //  panning applied
 //-------------------------------------------------
 
-template<int NumOutputs>
-void adpcm_a_channel::output(ymfm_output<NumOutputs> &output) const
+void adpcm_a_channel::output(ymfm_output<2> &output, const output_plan &plan) const
 {
-	// volume combines instrument and total levels
-	int vol = (m_regs.ch_instrument_level(m_choffs) ^ 0x1f) + (m_regs.total_level() ^ 0x3f);
-
-	// if combined is maximum, don't add to outputs
-	if (vol >= 63)
-		return;
-
-	// convert into a shift and a multiplier
-	// QUESTION: verify this from other sources
-	int8_t mul = 15 - (vol & 7);
-	uint8_t shift = 4 + 1 + (vol >> 3);
-
 	// m_accumulator is a 12-bit value; shift up to sign-extend;
 	// the downshift is incorporated into 'shift'
-	int16_t value = ((int16_t(m_accumulator << 4) * mul) >> shift) & ~3;
+	int16_t value = ((int16_t(m_accumulator << 4) * plan.mul) >> plan.shift) & ~3;
 
 	// apply to left/right as appropriate
-	if (NumOutputs == 1 || m_regs.ch_pan_left(m_choffs))
+	if (plan.pan_mask & 1)
 		output.data[0] += value;
-	if (NumOutputs > 1 && m_regs.ch_pan_right(m_choffs))
+	if (plan.pan_mask & 2)
 		output.data[1] += value;
 }
 
@@ -294,7 +308,10 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 		auto& channel = *m_channel[chnum];
 		if (channel.resting())
 			continue;
-		float* buf = buffers[chnum];
+		// Volume and pan are registers, so they are read once per buffer.
+		// An empty pan mask means this channel adds nothing.
+		const auto plan = channel.make_output_plan();
+		float* buf = (plan.pan_mask != 0) ? buffers[chnum] : nullptr;
 		uint32_t env = envStart;
 		// Channels 0-3 clock on every ADPCM tick. Channels 4-5 clock on
 		// every other tick, when envelope bit 2 is clear.
@@ -312,7 +329,7 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 					channel.clock();
 				ymfm_output<2> voice;
 				voice.clear();
-				channel.output(voice);
+				channel.output(voice, plan);
 				unsigned pos = i * 2;
 				buf[pos + 0] += float(voice.data[0]);
 				buf[pos + 1] += float(voice.data[1]);
