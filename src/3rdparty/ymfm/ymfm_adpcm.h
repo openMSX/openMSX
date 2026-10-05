@@ -96,18 +96,6 @@ public:
 	uint32_t ch_start(uint32_t choffs) const            { return m_regdata[choffs + 0x10] | (m_regdata[choffs + 0x18] << 8); }
 	uint32_t ch_end(uint32_t choffs) const              { return m_regdata[choffs + 0x20] | (m_regdata[choffs + 0x28] << 8); }
 
-	// per-channel writes
-	void write_start(uint32_t choffs, uint32_t address)
-	{
-		write(choffs + 0x10, address);
-		write(choffs + 0x18, address >> 8);
-	}
-	void write_end(uint32_t choffs, uint32_t address)
-	{
-		write(choffs + 0x20, address);
-		write(choffs + 0x28, address >> 8);
-	}
-
 private:
 	// internal state
 	std::array<uint8_t, REGISTERS> m_regdata;         // register data
@@ -150,7 +138,7 @@ public:
 	// Stopped with a zero accumulator: clock() would only store that zero.
 	bool resting() const { return m_playing == 0 && m_accumulator == 0; }
 
-	// Register fields that output() reads. A register write ends the current
+	// Register fields that sample() reads. A register write ends the current
 	// buffer, so these hold for every sample of one generate().
 	struct output_plan
 	{
@@ -217,7 +205,7 @@ public:
 	// output. A resting channel is not clocked.
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart);
 
-	// True when this channel's output() will add zero until the next register write.
+	// True when this channel adds zero until the next register write.
 	bool silent(unsigned chnum) const { return m_channel[chnum].silent(); }
 
 	// write to the ADPCM-A registers
@@ -226,8 +214,10 @@ public:
 	// set the start/end address for a channel (for hardcoded YM2608 percussion)
 	void set_start_end(uint8_t chnum, uint16_t start, uint16_t end)
 	{
-		m_regs.write_start(chnum, start);
-		m_regs.write_end(chnum, end);
+		m_regs.write(chnum + 0x10, uint8_t(start));
+		m_regs.write(chnum + 0x18, uint8_t(start >> 8));
+		m_regs.write(chnum + 0x20, uint8_t(end));
+		m_regs.write(chnum + 0x28, uint8_t(end >> 8));
 	}
 
 	// return a reference to our registers
@@ -505,7 +495,7 @@ public:
 	// A resting channel returns without clocking.
 	void generate(float* buffer, unsigned num);
 
-	// True when output() will add zero until the next register write.
+	// True when this channel adds zero until the next register write.
 	bool silent() const { return m_channel.silent(); }
 
 	// read from the ADPCM-B registers

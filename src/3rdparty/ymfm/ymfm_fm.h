@@ -156,7 +156,6 @@ class opna_registers
 public:
 	// constants
 	static constexpr uint32_t WAVEFORM_LENGTH = 0x400;  // size of a full sin waveform
-	static constexpr uint32_t OUTPUTS = 2;
 	static constexpr uint32_t CHANNELS = 6;
 	static constexpr uint32_t OPERATORS = CHANNELS * 4;
 	static constexpr uint32_t REGISTERS = 0x200;
@@ -579,7 +578,7 @@ public:
 	// set/reset bits in the status register, updating the IRQ status
 	uint8_t set_reset_status(uint8_t set, uint8_t reset)
 	{
-		m_status = (m_status | set) & ~(reset | STATUS_BUSY);
+		m_status = (m_status | set) & ~reset;
 		check_interrupts();
 		return m_status;
 	}

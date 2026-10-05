@@ -925,7 +925,6 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 
 void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask)
 {
-	static_assert(opna_registers::OUTPUTS == 2);
 	static_assert(opna_registers::OPERATORS / opna_registers::CHANNELS == 4);
 
 	// An empty buffer must not consume a pending key-on.
@@ -1028,7 +1027,7 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data)
 
 uint8_t fm_engine_base::status() const
 {
-	return m_status & ~STATUS_BUSY;
+	return m_status;
 }
 
 

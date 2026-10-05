@@ -183,7 +183,7 @@ void adpcm_a_channel::clock()
 bool adpcm_a_channel::silent() const
 {
 	// A stopped channel forces the accumulator to 0 on the next clock that
-	// includes it. Until that clock, output() still emits the held value.
+	// includes it. Until that clock, sample() still emits the held value.
 	// Key-on only happens from a register write.
 	if (m_playing == 0 && m_accumulator == 0)
 		return true;
