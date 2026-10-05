@@ -370,8 +370,8 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 //  fm_operator - constructor
 //-------------------------------------------------
 
-fm_operator::fm_operator(uint32_t opoffs) :
-	m_choffs(0),
+fm_operator::fm_operator(uint32_t choffs, uint32_t opoffs) :
+	m_choffs(choffs),
 	m_opoffs(opoffs),
 	m_phase(0),
 	m_env_attenuation(0x3ff),
@@ -942,7 +942,9 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 	m_channel(generate_array<CHANNELS>([](size_t chnum) {
 		return fm_channel(opna_registers::channel_offset(uint32_t(chnum))); })),
 	m_operator(generate_array<OPERATORS>([](size_t opnum) {
-		return fm_operator(opna_registers::operator_offset(uint32_t(opnum))); }))
+		uint32_t o = uint32_t(opnum);
+		return fm_operator(opna_registers::channel_offset(opna_registers::operator_channel(o)),
+		                   opna_registers::operator_offset(o)); }))
 {
 	// inform the interface of their engine
 	m_intf.m_engine = this;

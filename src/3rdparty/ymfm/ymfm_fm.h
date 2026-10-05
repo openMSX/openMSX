@@ -213,6 +213,13 @@ public:
 		{ 14, 20, 17, 23 },  // Channel 5 operators
 	};
 
+	// Channel that owns a given operator number; inverse of OPERATOR_MAP.
+	static constexpr uint32_t operator_channel(uint32_t opnum)
+	{
+		assert(opnum < OPERATORS);
+		return (opnum / 12) * 3 + (opnum % 3);
+	}
+
 	// read a register value
 	uint8_t read(uint16_t index) const { return m_regdata[index]; }
 
@@ -347,7 +354,7 @@ class fm_operator
 
 public:
 	// constructor
-	explicit fm_operator(uint32_t opoffs);
+	explicit fm_operator(uint32_t choffs, uint32_t opoffs);
 
 	// save/restore
 	template<typename Archive>
@@ -363,9 +370,6 @@ public:
 
 	// reset the operator state
 	void reset();
-
-	// set the current channel
-	void set_choffs(uint32_t choffs) { m_choffs = choffs; }
 
 	// prepare prior to clocking; the registers are read only here
 	bool prepare(opna_registers &regs);
@@ -456,7 +460,6 @@ public:
 		assert(index < m_op.size());
 		assert(op != nullptr);
 		m_op[index] = op;
-		op->set_choffs(m_choffs);
 	}
 
 	// signal key on/off to our operators
