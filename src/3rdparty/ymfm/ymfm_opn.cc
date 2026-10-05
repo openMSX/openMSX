@@ -335,10 +335,4 @@ uint32_t opna_registers::compute_phase_step(uint32_t choffs, uint32_t /*opoffs*/
 	return (phase_step * cache.multiple) >> 1;
 }
 
-
-// openMSX uses the OPNA engine from a separate translation unit. Emit its
-// public template methods explicitly; optimized builds may inline every
-// call made by the chip wrappers in this file.
-template class fm_engine_base<opna_registers>;
-
 }

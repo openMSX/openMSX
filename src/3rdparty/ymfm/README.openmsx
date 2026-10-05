@@ -59,6 +59,7 @@ reader is not part of the upstream device. See the device documentation.
 
 Build integration: source files use .cc directly for openMSX discovery. The
 OPNA register class lives in ymfm_fm.h, ahead of the FM engine that uses it;
-upstream's ymfm_opn.h is gone. The OPNA FM engine is explicitly instantiated
-in ymfm_opn.cc so callers in other
-translation units link on optimized GCC/Clang builds as well as MSVC.
+upstream's ymfm_opn.h is gone. The FM engine classes name that register class
+directly, so they carry no template parameter. ymfm_opn.cc includes
+ymfm_fm.ipp, which puts the engine and the register accessors it calls in one
+translation unit.

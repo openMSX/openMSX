@@ -358,7 +358,7 @@ public:
 class ymfm_interface
 {
 	// the engine is our friend
-	template<typename RegisterType> friend class fm_engine_base;
+	friend class fm_engine_base;
 
 public:
 	virtual ~ymfm_interface() = default;

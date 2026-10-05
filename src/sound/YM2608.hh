@@ -110,7 +110,7 @@ private:
 	uint8_t irqEnable = 0x1f;
 	uint8_t flagControl = 0x1c;
 
-	using fm_engine = ymfm::fm_engine_base<ymfm::opna_registers>;
+	using fm_engine = ymfm::fm_engine_base;
 	fm_engine fm;
 	ymfm::adpcm_a_engine adpcmA;
 	ymfm::adpcm_b_engine adpcmB;

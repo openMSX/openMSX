@@ -298,8 +298,6 @@ public:
 	uint32_t ch_output_any(uint32_t choffs) const    { return byte(0xb4, 6, 2, choffs); }
 	uint32_t ch_output_0(uint32_t choffs) const      { return byte(0xb4, 7, 1, choffs); }
 	uint32_t ch_output_1(uint32_t choffs) const      { return byte(0xb4, 6, 1, choffs); }
-	uint32_t ch_output_2(uint32_t /*choffs*/) const  { return 0; }
-	uint32_t ch_output_3(uint32_t /*choffs*/) const  { return 0; }
 	uint32_t ch_lfo_am_sens(uint32_t choffs) const   { return byte(0xb4, 4, 2, choffs); }
 	uint32_t ch_lfo_pm_sens(uint32_t choffs) const   { return byte(0xb4, 0, 3, choffs); }
 
@@ -344,13 +342,12 @@ protected:
 //*********************************************************
 
 // forward declarations
-template<class RegisterType> class fm_engine_base;
+class fm_engine_base;
 
 // ======================> fm_operator
 
 // fm_operator represents an FM operator (or "slot" in FM parlance), which
 // produces an output sine wave modulated by an envelope
-template<class RegisterType>
 class fm_operator
 {
 	// "quiet" value, used to optimize when we can skip doing work
@@ -358,7 +355,7 @@ class fm_operator
 
 public:
 	// constructor
-	fm_operator(fm_engine_base<RegisterType> &owner, uint32_t opoffs);
+	fm_operator(fm_engine_base &owner, uint32_t opoffs);
 
 	// save/restore
 	template<typename Archive>
@@ -410,7 +407,7 @@ public:
 	void keyonoff(uint32_t on, keyon_type type);
 
 	// return a reference to our registers
-	RegisterType &regs() const { return m_regs; }
+	opna_registers &regs() const { return m_regs; }
 
 	// simple getters for debugging
 	envelope_state debug_eg_state() const { return m_env_state; }
@@ -444,8 +441,8 @@ private:
 	uint8_t m_key_state;                   // current key state: on or off (bit 0)
 	uint8_t m_keyon_live;                  // live key on state (bit 0 = direct, bit 1 = rhythm, bit 2 = CSM)
 	opdata_cache m_cache;                  // cached values for performance
-	RegisterType &m_regs;                  // direct reference to registers
-	fm_engine_base<RegisterType> &m_owner; // reference to the owning engine
+	opna_registers &m_regs;                // direct reference to registers
+	fm_engine_base &m_owner;               // reference to the owning engine
 };
 
 
@@ -453,14 +450,13 @@ private:
 
 // fm_channel represents an FM channel which combines the output of 2 or 4
 // operators into a final result
-template<class RegisterType>
 class fm_channel
 {
-	using output_data = ymfm_output<RegisterType::OUTPUTS>;
+	using output_data = ymfm_output<opna_registers::OUTPUTS>;
 
 public:
 	// constructor
-	fm_channel(fm_engine_base<RegisterType> &owner, uint32_t choffs);
+	fm_channel(fm_engine_base &owner, uint32_t choffs);
 
 	// save/restore
 	template<typename Archive>
@@ -477,7 +473,7 @@ public:
 	uint32_t choffs() const { return m_choffs; }
 
 	// assign operators
-	void assign(uint32_t index, fm_operator<RegisterType> *op)
+	void assign(uint32_t index, fm_operator *op)
 	{
 		assert(index < m_op.size());
 		m_op[index] = op;
@@ -542,57 +538,28 @@ public:
 	                uint32_t rshift, int32_t clipmax) const;
 
 	// return a reference to our registers
-	RegisterType &regs() const { return m_regs; }
+	opna_registers &regs() const { return m_regs; }
 
 	// simple getters for debugging
-	fm_operator<RegisterType> *debug_operator(uint32_t index) const { return m_op[index]; }
+	fm_operator *debug_operator(uint32_t index) const { return m_op[index]; }
 
 private:
-	// helper to add values to the outputs based on channel enables
-	void add_to_output(uint32_t choffs, output_data &output, int32_t value) const
-	{
-		// create these constants to appease overzealous compilers checking array
-		// bounds in unreachable code (looking at you, clang)
-		constexpr int out0_index = 0;
-		constexpr int out1_index = 1 % RegisterType::OUTPUTS;
-		constexpr int out2_index = 2 % RegisterType::OUTPUTS;
-		constexpr int out3_index = 3 % RegisterType::OUTPUTS;
-
-		if (RegisterType::OUTPUTS == 1 || m_regs.ch_output_0(choffs))
-			output.data[out0_index] += value;
-		if (RegisterType::OUTPUTS >= 2 && m_regs.ch_output_1(choffs))
-			output.data[out1_index] += value;
-		if (RegisterType::OUTPUTS >= 3 && m_regs.ch_output_2(choffs))
-			output.data[out2_index] += value;
-		if (RegisterType::OUTPUTS >= 4 && m_regs.ch_output_3(choffs))
-			output.data[out3_index] += value;
-	}
-
-	// same, with the enables already read into a plan
+	// helper to add a value to the left/right outputs the plan enables
 	void add_to_output(const output_plan &plan, output_data &output, int32_t value) const
 	{
-		constexpr int out0_index = 0;
-		constexpr int out1_index = 1 % RegisterType::OUTPUTS;
-		constexpr int out2_index = 2 % RegisterType::OUTPUTS;
-		constexpr int out3_index = 3 % RegisterType::OUTPUTS;
-
 		if (plan.output_mask & 1)
-			output.data[out0_index] += value;
-		if (RegisterType::OUTPUTS >= 2 && (plan.output_mask & 2))
-			output.data[out1_index] += value;
-		if (RegisterType::OUTPUTS >= 3 && (plan.output_mask & 4))
-			output.data[out2_index] += value;
-		if (RegisterType::OUTPUTS >= 4 && (plan.output_mask & 8))
-			output.data[out3_index] += value;
+			output.data[0] += value;
+		if (plan.output_mask & 2)
+			output.data[1] += value;
 	}
 
 	// internal state
 	uint32_t m_choffs;                     // channel offset in registers
 	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
 	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output)
-	std::array<fm_operator<RegisterType> *, 4> m_op; // up to 4 operators
-	RegisterType &m_regs;                  // direct reference to registers
-	fm_engine_base<RegisterType> &m_owner; // reference to the owning engine
+	std::array<fm_operator *, 4> m_op;     // up to 4 operators
+	opna_registers &m_regs;                // direct reference to registers
+	fm_engine_base &m_owner;               // reference to the owning engine
 };
 
 
@@ -601,20 +568,19 @@ private:
 // fm_engine_base represents a set of operators and channels which together
 // form a Yamaha FM core; chips that implement other engines (ADPCM, wavetable,
 // etc) take this output and combine it with the others externally
-template<class RegisterType>
 class fm_engine_base : public ymfm_engine_callbacks
 {
 public:
 	// expose some constants from the registers
-	static constexpr uint32_t OUTPUTS = RegisterType::OUTPUTS;
-	static constexpr uint32_t CHANNELS = RegisterType::CHANNELS;
-	static constexpr uint32_t OPERATORS = RegisterType::OPERATORS;
+	static constexpr uint32_t OUTPUTS = opna_registers::OUTPUTS;
+	static constexpr uint32_t CHANNELS = opna_registers::CHANNELS;
+	static constexpr uint32_t OPERATORS = opna_registers::OPERATORS;
 
 	// also expose status flags for consumers that inject additional bits
-	static constexpr uint8_t STATUS_TIMERA = RegisterType::STATUS_TIMERA;
-	static constexpr uint8_t STATUS_TIMERB = RegisterType::STATUS_TIMERB;
-	static constexpr uint8_t STATUS_BUSY = RegisterType::STATUS_BUSY;
-	static constexpr uint8_t STATUS_IRQ = RegisterType::STATUS_IRQ;
+	static constexpr uint8_t STATUS_TIMERA = opna_registers::STATUS_TIMERA;
+	static constexpr uint8_t STATUS_TIMERB = opna_registers::STATUS_TIMERB;
+	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
+	static constexpr uint8_t STATUS_IRQ = opna_registers::STATUS_IRQ;
 
 	// expose the correct output class
 	using output_data = ymfm_output<OUTPUTS>;
@@ -693,12 +659,12 @@ public:
 	ymfm_interface &intf() const { return m_intf; }
 
 	// return a reference to our registers
-	RegisterType &regs() { return m_regs; }
-	const RegisterType &regs() const { return m_regs; }
+	opna_registers &regs() { return m_regs; }
+	const opna_registers &regs() const { return m_regs; }
 
 	// simple getters for debugging
-	fm_channel<RegisterType> *debug_channel(uint32_t index) const { return m_channel[index].get(); }
-	fm_operator<RegisterType> *debug_operator(uint32_t index) const { return m_operator[index].get(); }
+	fm_channel *debug_channel(uint32_t index) const { return m_channel[index].get(); }
+	fm_operator *debug_operator(uint32_t index) const { return m_operator[index].get(); }
 
 public:
 	// timer callback; called by the interface when a timer fires
@@ -727,9 +693,9 @@ protected:
 	std::array<uint8_t, 2> m_timer_running;      // current timer running state
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
 	bool m_modified;                 // register or key changed since the last generate()
-	RegisterType m_regs;             // register accessor
-	std::array<std::unique_ptr<fm_channel<RegisterType>>, CHANNELS> m_channel; // channel pointers
-	std::unique_ptr<fm_operator<RegisterType>> m_operator[OPERATORS]; // operator pointers
+	opna_registers m_regs;           // register accessor
+	std::array<std::unique_ptr<fm_channel>, CHANNELS> m_channel; // channel pointers
+	std::unique_ptr<fm_operator> m_operator[OPERATORS];          // operator pointers
 };
 
 }

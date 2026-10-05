@@ -370,8 +370,7 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 //  fm_operator - constructor
 //-------------------------------------------------
 
-template<class RegisterType>
-fm_operator<RegisterType>::fm_operator(fm_engine_base<RegisterType> &owner, uint32_t opoffs) :
+fm_operator::fm_operator(fm_engine_base &owner, uint32_t opoffs) :
 	m_choffs(0),
 	m_opoffs(opoffs),
 	m_phase(0),
@@ -391,8 +390,7 @@ fm_operator<RegisterType>::fm_operator(fm_engine_base<RegisterType> &owner, uint
 //  reset - reset the channel state
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::reset()
+void fm_operator::reset()
 {
 	// reset our data
 	m_phase = 0;
@@ -408,8 +406,7 @@ void fm_operator<RegisterType>::reset()
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-template<class RegisterType>
-bool fm_operator<RegisterType>::prepare()
+bool fm_operator::prepare()
 {
 	// cache the data
 	m_regs.cache_operator_data(m_choffs, m_opoffs, m_cache);
@@ -427,8 +424,7 @@ bool fm_operator<RegisterType>::prepare()
 //  clock - master clocking function
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::clock(uint32_t env_counter, int32_t lfo_raw_pm)
+void fm_operator::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 {
 	// clock the SSG-EG state (OPN/OPNA)
 	if (m_regs.op_ssg_eg_enable(m_opoffs))
@@ -451,8 +447,7 @@ void fm_operator<RegisterType>::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 //  modulation and an AM LFO offset
 //-------------------------------------------------
 
-template<class RegisterType>
-int32_t fm_operator<RegisterType>::compute_volume(uint32_t phase, uint32_t am_offset) const
+int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 {
 	// the low 10 bits of phase represents a full 2*PI period over
 	// the full sin wave
@@ -462,7 +457,7 @@ int32_t fm_operator<RegisterType>::compute_volume(uint32_t phase, uint32_t am_of
 		return 0;
 
 	// get the absolute value of the sin, as attenuation, as a 4.8 fixed point value
-	uint32_t sin_attenuation = m_cache.waveform[phase & (RegisterType::WAVEFORM_LENGTH - 1)];
+	uint32_t sin_attenuation = m_cache.waveform[phase & (opna_registers::WAVEFORM_LENGTH - 1)];
 
 	// get the attenuation from the evelope generator as a 4.6 value, shifted up to 4.8
 	uint32_t env_attenuation = envelope_attenuation(am_offset) << 2;
@@ -479,8 +474,7 @@ int32_t fm_operator<RegisterType>::compute_volume(uint32_t phase, uint32_t am_of
 //  keyonoff - signal a key on/off event
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::keyonoff(uint32_t on, keyon_type type)
+void fm_operator::keyonoff(uint32_t on, keyon_type type)
 {
 	m_keyon_live = (m_keyon_live & ~(1 << int(type))) | (bitfield(on, 0) << int(type));
 }
@@ -492,8 +486,7 @@ void fm_operator<RegisterType>::keyonoff(uint32_t on, keyon_type type)
 //  is complete and restarts
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::start_attack(bool is_restart)
+void fm_operator::start_attack(bool is_restart)
 {
 	// don't change anything if already in attack state
 	if (m_env_state == EG_ATTACK)
@@ -523,8 +516,7 @@ void fm_operator<RegisterType>::start_attack(bool is_restart)
 //  called when a keyoff happens
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::start_release()
+void fm_operator::start_release()
 {
 	// don't change anything if already in release state
 	if (m_env_state >= EG_RELEASE)
@@ -546,8 +538,7 @@ void fm_operator<RegisterType>::start_release()
 //  the incoming keystate
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::clock_keystate(uint32_t keystate)
+void fm_operator::clock_keystate(uint32_t keystate)
 {
 	assert(keystate == 0 || keystate == 1);
 
@@ -572,8 +563,7 @@ void fm_operator<RegisterType>::clock_keystate(uint32_t keystate)
 //  should only be called if SSG-EG is enabled
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::clock_ssg_eg_state()
+void fm_operator::clock_ssg_eg_state()
 {
 	// work only happens once the attenuation crosses above 0x200
 	if (!bitfield(m_env_attenuation, 9))
@@ -628,8 +618,7 @@ void fm_operator<RegisterType>::clock_ssg_eg_state()
 //  according to the given count
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::clock_envelope(uint32_t env_counter)
+void fm_operator::clock_envelope(uint32_t env_counter)
 {
 	// handle attack->decay transitions
 	if (m_env_state == EG_ATTACK && m_env_attenuation == 0)
@@ -695,8 +684,7 @@ void fm_operator<RegisterType>::clock_envelope(uint32_t env_counter)
 //  against the Nuked phase generator
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_operator<RegisterType>::clock_phase(int32_t lfo_raw_pm)
+void fm_operator::clock_phase(int32_t lfo_raw_pm)
 {
 	// read from the cache, or recalculate if PM active
 	uint32_t phase_step = m_cache.phase_step;
@@ -713,8 +701,7 @@ void fm_operator<RegisterType>::clock_phase(int32_t lfo_raw_pm)
 //  attenuation of the envelope
 //-------------------------------------------------
 
-template<class RegisterType>
-uint32_t fm_operator<RegisterType>::envelope_attenuation(uint32_t am_offset) const
+uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 {
 	uint32_t result = m_env_attenuation >> m_cache.eg_shift;
 
@@ -743,8 +730,7 @@ uint32_t fm_operator<RegisterType>::envelope_attenuation(uint32_t am_offset) con
 //  fm_channel - constructor
 //-------------------------------------------------
 
-template<class RegisterType>
-fm_channel<RegisterType>::fm_channel(fm_engine_base<RegisterType> &owner, uint32_t choffs) :
+fm_channel::fm_channel(fm_engine_base &owner, uint32_t choffs) :
 	m_choffs(choffs),
 	m_feedback{ 0, 0 },
 	m_feedback_in(0),
@@ -759,8 +745,7 @@ fm_channel<RegisterType>::fm_channel(fm_engine_base<RegisterType> &owner, uint32
 //  reset - reset the channel state
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_channel<RegisterType>::reset()
+void fm_channel::reset()
 {
 	// reset our data
 	m_feedback[0] = m_feedback[1] = 0;
@@ -772,8 +757,7 @@ void fm_channel<RegisterType>::reset()
 //  keyonoff - signal key on/off to our operators
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_channel<RegisterType>::keyonoff(uint32_t states, keyon_type type, uint32_t /*chnum*/)
+void fm_channel::keyonoff(uint32_t states, keyon_type type, uint32_t /*chnum*/)
 {
 	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
 		if (m_op[opnum] != nullptr)
@@ -785,8 +769,7 @@ void fm_channel<RegisterType>::keyonoff(uint32_t states, keyon_type type, uint32
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-template<class RegisterType>
-bool fm_channel<RegisterType>::prepare()
+bool fm_channel::prepare()
 {
 	uint32_t active_mask = 0;
 
@@ -804,8 +787,7 @@ bool fm_channel<RegisterType>::prepare()
 //  clock - master clock of all operators
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_channel<RegisterType>::clock(uint32_t env_counter, int32_t lfo_raw_pm)
+void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 {
 	// clock the feedback through
 	m_feedback[0] = m_feedback[1];
@@ -869,8 +851,7 @@ static constexpr uint16_t s_algorithm_ops[8+4] =
 //  hold for the whole buffer
 //-------------------------------------------------
 
-template<class RegisterType>
-typename fm_channel<RegisterType>::output_plan fm_channel<RegisterType>::make_output_plan() const
+fm_channel::output_plan fm_channel::make_output_plan() const
 {
 	output_plan plan;
 	plan.algorithm_ops = s_algorithm_ops[m_regs.ch_algorithm(m_choffs)];
@@ -878,14 +859,10 @@ typename fm_channel<RegisterType>::output_plan fm_channel<RegisterType>::make_ou
 	plan.output_any = m_regs.ch_output_any(m_choffs) != 0;
 
 	plan.output_mask = 0;
-	if (RegisterType::OUTPUTS == 1 || m_regs.ch_output_0(m_choffs))
+	if (m_regs.ch_output_0(m_choffs))
 		plan.output_mask |= 1;
-	if (RegisterType::OUTPUTS >= 2 && m_regs.ch_output_1(m_choffs))
+	if (m_regs.ch_output_1(m_choffs))
 		plan.output_mask |= 2;
-	if (RegisterType::OUTPUTS >= 3 && m_regs.ch_output_2(m_choffs))
-		plan.output_mask |= 4;
-	if (RegisterType::OUTPUTS >= 4 && m_regs.ch_output_3(m_choffs))
-		plan.output_mask |= 8;
 	return plan;
 }
 
@@ -897,9 +874,8 @@ typename fm_channel<RegisterType>::output_plan fm_channel<RegisterType>::make_ou
 //  which vary between different implementations
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_channel<RegisterType>::output_4op(output_data &output, const output_plan &plan,
-                                          uint32_t am_offset, uint32_t rshift, int32_t clipmax) const
+void fm_channel::output_4op(output_data &output, const output_plan &plan,
+                            uint32_t am_offset, uint32_t rshift, int32_t clipmax) const
 {
 	// all 4 operators should be populated
 	assert(m_op[0] != nullptr);
@@ -965,12 +941,11 @@ void fm_channel<RegisterType>::output_4op(output_data &output, const output_plan
 //  fm_engine_base - constructor
 //-------------------------------------------------
 
-template<class RegisterType>
-fm_engine_base<RegisterType>::fm_engine_base(ymfm_interface &intf) :
+fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 	m_intf(intf),
 	m_env_counter(0),
 	m_status(0),
-	m_clock_prescale(RegisterType::DEFAULT_PRESCALE),
+	m_clock_prescale(opna_registers::DEFAULT_PRESCALE),
 	m_irq_mask(STATUS_TIMERA | STATUS_TIMERB),
 	m_irq_state(0),
 	m_timer_running{0,0},
@@ -982,11 +957,11 @@ fm_engine_base<RegisterType>::fm_engine_base(ymfm_interface &intf) :
 
 	// create the channels
 	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		m_channel[chnum] = std::make_unique<fm_channel<RegisterType>>(*this, RegisterType::channel_offset(chnum));
+		m_channel[chnum] = std::make_unique<fm_channel>(*this, opna_registers::channel_offset(chnum));
 
 	// create the operators
 	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
-		m_operator[opnum] = std::make_unique<fm_operator<RegisterType>>(*this, RegisterType::operator_offset(opnum));
+		m_operator[opnum] = std::make_unique<fm_operator>(*this, opna_registers::operator_offset(opnum));
 
 	// do the initial operator assignment
 	assign_operators();
@@ -997,8 +972,7 @@ fm_engine_base<RegisterType>::fm_engine_base(ymfm_interface &intf) :
 //  reset - reset the overall state
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::reset()
+void fm_engine_base::reset()
 {
 	// reset all status bits
 	set_reset_status(0, 0xff);
@@ -1008,7 +982,7 @@ void fm_engine_base<RegisterType>::reset()
 
 	// explicitly write to the mode register since it has side-effects
 	// QUESTION: old cores initialize this to 0x30 -- who is right?
-	write(RegisterType::REG_MODE, 0);
+	write(opna_registers::REG_MODE, 0);
 
 	// reset the channels
 	for (auto &chan : m_channel)
@@ -1025,14 +999,14 @@ void fm_engine_base<RegisterType>::reset()
 //  with no prepare() in between. Write selects whether output is mixed.
 //-------------------------------------------------
 
-template<class RegisterType, bool Write, bool Lfo>
-static void synthesize_fm_channel(fm_channel<RegisterType>& channel, RegisterType& regs,
+template<bool Write, bool Lfo>
+static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
                                   float* buf [[maybe_unused]], unsigned num, uint32_t env,
                                   uint32_t rshift [[maybe_unused]], int32_t clipmax [[maybe_unused]])
 {
 	// Registers hold for the whole buffer. Without the LFO walk the AM offset
 	// is constant as well, so it is read once too.
-	typename fm_channel<RegisterType>::output_plan plan;
+	fm_channel::output_plan plan;
 	uint32_t am_offset = 0;
 	if constexpr (Write) {
 		plan = channel.make_output_plan();
@@ -1041,7 +1015,7 @@ static void synthesize_fm_channel(fm_channel<RegisterType>& channel, RegisterTyp
 	}
 
 	for (unsigned index = 0; index < num; ++index) {
-		env = step_eg_counter<RegisterType::EG_CLOCK_DIVIDER>(env);
+		env = step_eg_counter<opna_registers::EG_CLOCK_DIVIDER>(env);
 		int32_t pm = 0;
 		if constexpr (Lfo) {
 			pm = regs.clock_noise_and_lfo();
@@ -1050,7 +1024,7 @@ static void synthesize_fm_channel(fm_channel<RegisterType>& channel, RegisterTyp
 		}
 		channel.clock(env, pm);
 		if constexpr (Write) {
-			ymfm_output<RegisterType::OUTPUTS> voice;
+			ymfm_output<opna_registers::OUTPUTS> voice;
 			voice.clear();
 			channel.output_4op(voice, plan, am_offset, rshift, clipmax);
 			unsigned pos = index * 2;
@@ -1065,11 +1039,10 @@ static void synthesize_fm_channel(fm_channel<RegisterType>& channel, RegisterTyp
 //  generate - one channel for the whole buffer, then the next
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift, int32_t clipmax)
+void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask, uint32_t rshift, int32_t clipmax)
 {
 	static_assert(OUTPUTS == 2);
-	static_assert(RegisterType::OPERATORS / RegisterType::CHANNELS == 4);
+	static_assert(opna_registers::OPERATORS / opna_registers::CHANNELS == 4);
 
 	// An empty buffer must not consume a pending key-on.
 	if (num == 0)
@@ -1109,16 +1082,16 @@ void fm_engine_base<RegisterType>::generate(std::span<float*, CHANNELS> buffers,
 		if (!mix)
 			buffers[chnum] = nullptr;
 		if (mix && walkLfo)
-			synthesize_fm_channel<RegisterType, true, true>(channel, m_regs, buffers[chnum], num, env0, rshift, clipmax);
+			synthesize_fm_channel<true, true>(channel, m_regs, buffers[chnum], num, env0, rshift, clipmax);
 		else if (mix)
-			synthesize_fm_channel<RegisterType, true, false>(channel, m_regs, buffers[chnum], num, env0, rshift, clipmax);
+			synthesize_fm_channel<true, false>(channel, m_regs, buffers[chnum], num, env0, rshift, clipmax);
 		else if (walkLfo)
-			synthesize_fm_channel<RegisterType, false, true>(channel, m_regs, nullptr, num, env0, rshift, clipmax);
+			synthesize_fm_channel<false, true>(channel, m_regs, nullptr, num, env0, rshift, clipmax);
 		else
-			synthesize_fm_channel<RegisterType, false, false>(channel, m_regs, nullptr, num, env0, rshift, clipmax);
+			synthesize_fm_channel<false, false>(channel, m_regs, nullptr, num, env0, rshift, clipmax);
 	}
 
-	m_env_counter = advance_eg_counter<RegisterType::EG_CLOCK_DIVIDER>(env0, num);
+	m_env_counter = advance_eg_counter<opna_registers::EG_CLOCK_DIVIDER>(env0, num);
 	m_total_clocks = uint8_t(m_total_clocks + num);
 	m_modified = false;
 	if (lfoEnabled && !lfoWalked) {
@@ -1133,15 +1106,14 @@ void fm_engine_base<RegisterType>::generate(std::span<float*, CHANNELS> buffers,
 //  write - handle writes to the OPN registers
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::write(uint16_t regnum, uint8_t data)
+void fm_engine_base::write(uint16_t regnum, uint8_t data)
 {
 	// special case: writes to the mode register can impact IRQs;
 	// schedule these writes to ensure ordering with timers
 	// Consumed by the next generate(): rebuild caches and apply key changes.
 	m_modified = true;
 
-	if (regnum == RegisterType::REG_MODE)
+	if (regnum == opna_registers::REG_MODE)
 	{
 		m_intf.ymfm_sync_mode_write(data);
 		return;
@@ -1167,8 +1139,7 @@ void fm_engine_base<RegisterType>::write(uint16_t regnum, uint8_t data)
 //  status flags
 //-------------------------------------------------
 
-template<class RegisterType>
-uint8_t fm_engine_base<RegisterType>::status() const
+uint8_t fm_engine_base::status() const
 {
 	return m_status & ~STATUS_BUSY & ~m_regs.status_mask();
 }
@@ -1179,10 +1150,9 @@ uint8_t fm_engine_base<RegisterType>::status() const
 //  operators to channels and assign them all
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::assign_operators()
+void fm_engine_base::assign_operators()
 {
-	typename RegisterType::operator_mapping map;
+	opna_registers::operator_mapping map;
 	m_regs.operator_map(map);
 
 	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
@@ -1199,8 +1169,7 @@ void fm_engine_base<RegisterType>::assign_operators()
 //  timer
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks)
+void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks)
 {
 	// if the timer is live, but not currently enabled, set the timer
 	if (enable && !m_timer_running[tnum])
@@ -1230,8 +1199,7 @@ void fm_engine_base<RegisterType>::update_timer(uint32_t tnum, uint32_t enable, 
 //  status and possibly IRQs
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::engine_timer_expired(uint32_t tnum)
+void fm_engine_base::engine_timer_expired(uint32_t tnum)
 {
 	assert(tnum == 0 || tnum == 1);
 
@@ -1245,7 +1213,7 @@ void fm_engine_base<RegisterType>::engine_timer_expired(uint32_t tnum)
 	if (tnum == 0 && m_regs.csm()) {
 		m_modified = true;
 		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-			if (bitfield(RegisterType::CSM_TRIGGER_MASK, chnum))
+			if (bitfield(opna_registers::CSM_TRIGGER_MASK, chnum))
 				m_channel[chnum]->keyonoff(0xf, KEYON_CSM, chnum);
 	}
 
@@ -1260,8 +1228,7 @@ void fm_engine_base<RegisterType>::engine_timer_expired(uint32_t tnum)
 //  for interrupts
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::engine_check_interrupts()
+void fm_engine_base::engine_check_interrupts()
 {
 	// update the state
 	uint8_t old_state = m_irq_state;
@@ -1284,12 +1251,11 @@ void fm_engine_base<RegisterType>::engine_check_interrupts()
 //  via timer callback
 //-------------------------------------------------
 
-template<class RegisterType>
-void fm_engine_base<RegisterType>::engine_mode_write(uint8_t data)
+void fm_engine_base::engine_mode_write(uint8_t data)
 {
 	// actually write the mode register now
 	uint32_t dummy1, dummy2;
-	m_regs.write(RegisterType::REG_MODE, data, dummy1, dummy2);
+	m_regs.write(opna_registers::REG_MODE, data, dummy1, dummy2);
 
 	// reset IRQ status -- when written, all other bits are ignored
 	// QUESTION: should this maybe just reset the IRQ bit and not all the bits?
@@ -1301,9 +1267,9 @@ void fm_engine_base<RegisterType>::engine_mode_write(uint8_t data)
 		// reset timer status
 		uint8_t reset_mask = 0;
 		if (m_regs.reset_timer_b())
-			reset_mask |= RegisterType::STATUS_TIMERB;
+			reset_mask |= opna_registers::STATUS_TIMERB;
 		if (m_regs.reset_timer_a())
-			reset_mask |= RegisterType::STATUS_TIMERA;
+			reset_mask |= opna_registers::STATUS_TIMERA;
 		set_reset_status(0, reset_mask);
 
 		// load timers; note that timer B gets a small negative adjustment because
