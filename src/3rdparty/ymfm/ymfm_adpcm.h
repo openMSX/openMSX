@@ -399,7 +399,7 @@ public:
 	int32_t sample(const output_plan &plan) const
 	{
 		// do a linear interpolation between samples
-		int32_t result = (m_prev_accum * int32_t((m_position ^ 0xffff) + 1) + m_accumulator * int32_t(m_position)) >> 16;
+		int32_t result = m_prev_accum + int32_t((int64_t(m_accumulator - m_prev_accum) * int32_t(m_position)) >> 16);
 
 		// apply volume (level) in a linear fashion and reduce
 		return (result * int32_t(plan.level)) >> plan.shift;
