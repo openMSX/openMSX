@@ -43,11 +43,11 @@ namespace ymfm
 //  attenuation value, in 4.8 fixed point format
 //-------------------------------------------------
 
-inline uint32_t abs_sin_attenuation(uint32_t input)
+constexpr uint32_t abs_sin_attenuation(uint32_t input)
 {
 	// the values here are stored as 4.8 logarithmic values for 1/4 phase
 	// this matches the internal format of the OPN chip, extracted from the die
-	static uint16_t const s_sin_table[256] =
+	static constexpr uint16_t s_sin_table[256] =
 	{
 		0x859,0x6c3,0x607,0x58b,0x52e,0x4e4,0x4a6,0x471,0x443,0x41a,0x3f5,0x3d3,0x3b5,0x398,0x37e,0x365,
 		0x34e,0x339,0x324,0x311,0x2ff,0x2ed,0x2dc,0x2cd,0x2bd,0x2af,0x2a0,0x293,0x286,0x279,0x26d,0x261,
@@ -75,6 +75,12 @@ inline uint32_t abs_sin_attenuation(uint32_t input)
 	// return the value from the table
 	return s_sin_table[input & 0xff];
 }
+
+// 10-bit phase, sign in bit 15. Built once from abs_sin_attenuation().
+static constexpr auto s_waveform = generate_array<opna_registers::WAVEFORM_LENGTH>([](size_t index) {
+	uint32_t i = uint32_t(index);
+	return uint16_t(abs_sin_attenuation(i) | (bitfield(i, 9) << 15));
+});
 
 
 //-------------------------------------------------
@@ -459,7 +465,7 @@ int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 		return 0;
 
 	// get the absolute value of the sin, as attenuation, as a 4.8 fixed point value
-	uint32_t sin_attenuation = m_cache.waveform[phase & (opna_registers::WAVEFORM_LENGTH - 1)];
+	uint32_t sin_attenuation = s_waveform[phase & (opna_registers::WAVEFORM_LENGTH - 1)];
 
 	// get the attenuation from the evelope generator as a 4.6 value, shifted up to 4.8
 	uint32_t env_attenuation = envelope_attenuation(am_offset) << 2;

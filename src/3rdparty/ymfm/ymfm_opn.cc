@@ -46,9 +46,6 @@ opna_registers::opna_registers() :
 	m_lfo_counter(0),
 	m_lfo_am(0)
 {
-	// create the waveform
-	for (uint32_t index = 0; index < WAVEFORM_LENGTH; index++)
-		m_waveform[index] = abs_sin_attenuation(index) | (bitfield(index, 9) << 15);
 }
 
 
@@ -182,9 +179,6 @@ uint32_t opna_registers::lfo_am_offset(uint32_t am_shift) const
 
 void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache &cache)
 {
-	// set up the easy stuff
-	cache.waveform = m_waveform.data();
-
 	// get frequency from the channel
 	uint32_t block_freq = cache.block_freq = ch_block_freq(choffs);
 

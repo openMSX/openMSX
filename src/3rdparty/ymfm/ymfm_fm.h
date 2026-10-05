@@ -71,7 +71,6 @@ struct opdata_cache
 	// in the case of PM LFO changes
 	static constexpr uint32_t PHASE_STEP_DYNAMIC = 1;
 
-	uint16_t const *waveform;         // base of sine table
 	uint32_t phase_step;              // phase step, or PHASE_STEP_DYNAMIC if PM is active
 	uint32_t total_level;             // total level * 8
 	uint32_t block_freq;              // raw block frequency value (used to compute phase_step)
@@ -326,7 +325,6 @@ private:
 	uint32_t m_lfo_counter;               // LFO counter
 	uint8_t m_lfo_am;                     // current LFO AM value
 	std::array<uint8_t, REGISTERS> m_regdata;    // register data
-	std::array<uint16_t, WAVEFORM_LENGTH> m_waveform; // the single waveform
 };
 
 

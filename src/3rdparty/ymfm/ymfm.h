@@ -51,7 +51,7 @@ namespace ymfm
 //  'length' bits
 //-------------------------------------------------
 
-inline uint32_t bitfield(uint32_t value, int start, int length = 1)
+constexpr uint32_t bitfield(uint32_t value, int start, int length = 1)
 {
 	return (value >> start) & ((1 << length) - 1);
 }
