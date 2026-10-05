@@ -341,9 +341,24 @@ public:
 	// master clocking function
 	void clock(uint32_t env_counter, int32_t lfo_raw_pm);
 
+	// Register fields that output_4op() reads. A register write ends the
+	// current buffer, so these hold for every sample of one generate().
+	struct output_plan
+	{
+		uint16_t algorithm_ops;  // operator routing for the algorithm
+		uint8_t feedback;        // operator 1 self-feedback, 0 means none
+		uint8_t output_mask;     // one bit per output this channel feeds
+		bool output_any;         // any output enabled
+		bool noise;              // OPM noise replaces operator 4
+	};
+
+	// Read those fields once, before the sample loop.
+	output_plan make_output_plan() const;
+
 	// specific 2-operator and 4-operator output handlers
 	void output_2op(output_data &output, uint32_t rshift, int32_t clipmax) const;
-	void output_4op(output_data &output, uint32_t rshift, int32_t clipmax) const;
+	void output_4op(output_data &output, const output_plan &plan, uint32_t am_offset,
+	                uint32_t rshift, int32_t clipmax) const;
 
 	// compute the special OPL rhythm channel outputs
 	void output_rhythm_ch6(output_data &output, uint32_t rshift, int32_t clipmax) const;
@@ -382,6 +397,24 @@ private:
 		if (RegisterType::OUTPUTS >= 3 && m_regs.ch_output_2(choffs))
 			output.data[out2_index] += value;
 		if (RegisterType::OUTPUTS >= 4 && m_regs.ch_output_3(choffs))
+			output.data[out3_index] += value;
+	}
+
+	// same, with the enables already read into a plan
+	void add_to_output(const output_plan &plan, output_data &output, int32_t value) const
+	{
+		constexpr int out0_index = 0;
+		constexpr int out1_index = 1 % RegisterType::OUTPUTS;
+		constexpr int out2_index = 2 % RegisterType::OUTPUTS;
+		constexpr int out3_index = 3 % RegisterType::OUTPUTS;
+
+		if (plan.output_mask & 1)
+			output.data[out0_index] += value;
+		if (RegisterType::OUTPUTS >= 2 && (plan.output_mask & 2))
+			output.data[out1_index] += value;
+		if (RegisterType::OUTPUTS >= 3 && (plan.output_mask & 4))
+			output.data[out2_index] += value;
+		if (RegisterType::OUTPUTS >= 4 && (plan.output_mask & 8))
 			output.data[out3_index] += value;
 	}
 

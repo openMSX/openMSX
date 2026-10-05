@@ -909,6 +909,80 @@ void fm_channel<RegisterType>::output_2op(output_data &output, uint32_t rshift, 
 
 
 //-------------------------------------------------
+//  s_algorithm_ops - operator routing per algorithm
+//
+//  OPM/OPN offer 8 different connection algorithms for 4 operators,
+//  and OPL3 offers 4 more, which we designate here as 8-11.
+//
+//  The operators are computed in order, with the inputs pulled from
+//  an array of values (opout) that is populated as we go:
+//     0 = 0
+//     1 = O1
+//     2 = O2
+//     3 = O3
+//     4 = (O4)
+//     5 = O1+O2
+//     6 = O1+O3
+//     7 = O2+O3
+//
+//  The table describes the inputs and outputs of each algorithm as follows:
+//
+//       ---------x use opout[x] as operator 2 input
+//       ------xxx- use opout[x] as operator 3 input
+//       ---xxx---- use opout[x] as operator 4 input
+//       --x------- include opout[1] in final sum
+//       -x-------- include opout[2] in final sum
+//       x--------- include opout[3] in final sum
+//-------------------------------------------------
+
+#define ALGORITHM(op2in, op3in, op4in, op1out, op2out, op3out) \
+	((op2in) | ((op3in) << 1) | ((op4in) << 4) | ((op1out) << 7) | ((op2out) << 8) | ((op3out) << 9))
+static constexpr uint16_t s_algorithm_ops[8+4] =
+{
+	ALGORITHM(1,2,3, 0,0,0),    //  0: O1 -> O2 -> O3 -> O4 -> out (O4)
+	ALGORITHM(0,5,3, 0,0,0),    //  1: (O1 + O2) -> O3 -> O4 -> out (O4)
+	ALGORITHM(0,2,6, 0,0,0),    //  2: (O1 + (O2 -> O3)) -> O4 -> out (O4)
+	ALGORITHM(1,0,7, 0,0,0),    //  3: ((O1 -> O2) + O3) -> O4 -> out (O4)
+	ALGORITHM(1,0,3, 0,1,0),    //  4: ((O1 -> O2) + (O3 -> O4)) -> out (O2+O4)
+	ALGORITHM(1,1,1, 0,1,1),    //  5: ((O1 -> O2) + (O1 -> O3) + (O1 -> O4)) -> out (O2+O3+O4)
+	ALGORITHM(1,0,0, 0,1,1),    //  6: ((O1 -> O2) + O3 + O4) -> out (O2+O3+O4)
+	ALGORITHM(0,0,0, 1,1,1),    //  7: (O1 + O2 + O3 + O4) -> out (O1+O2+O3+O4)
+	ALGORITHM(1,2,3, 0,0,0),    //  8: O1 -> O2 -> O3 -> O4 -> out (O4)         [same as 0]
+	ALGORITHM(0,2,3, 1,0,0),    //  9: (O1 + (O2 -> O3 -> O4)) -> out (O1+O4)   [unique]
+	ALGORITHM(1,0,3, 0,1,0),    // 10: ((O1 -> O2) + (O3 -> O4)) -> out (O2+O4) [same as 4]
+	ALGORITHM(0,2,0, 1,0,1)     // 11: (O1 + (O2 -> O3) + O4) -> out (O1+O3+O4) [unique]
+};
+#undef ALGORITHM
+
+
+//-------------------------------------------------
+//  make_output_plan - read the register fields that
+//  hold for the whole buffer
+//-------------------------------------------------
+
+template<class RegisterType>
+typename fm_channel<RegisterType>::output_plan fm_channel<RegisterType>::make_output_plan() const
+{
+	output_plan plan;
+	plan.algorithm_ops = s_algorithm_ops[m_regs.ch_algorithm(m_choffs)];
+	plan.feedback = uint8_t(m_regs.ch_feedback(m_choffs));
+	plan.output_any = m_regs.ch_output_any(m_choffs) != 0;
+	plan.noise = m_regs.noise_enable() != 0 && m_choffs == 7;
+
+	plan.output_mask = 0;
+	if (RegisterType::OUTPUTS == 1 || m_regs.ch_output_0(m_choffs))
+		plan.output_mask |= 1;
+	if (RegisterType::OUTPUTS >= 2 && m_regs.ch_output_1(m_choffs))
+		plan.output_mask |= 2;
+	if (RegisterType::OUTPUTS >= 3 && m_regs.ch_output_2(m_choffs))
+		plan.output_mask |= 4;
+	if (RegisterType::OUTPUTS >= 4 && m_regs.ch_output_3(m_choffs))
+		plan.output_mask |= 8;
+	return plan;
+}
+
+
+//-------------------------------------------------
 //  output_4op - combine 4 operators according to
 //  the specified algorithm, returning a sum
 //  according to the rshift and clipmax parameters,
@@ -916,7 +990,8 @@ void fm_channel<RegisterType>::output_2op(output_data &output, uint32_t rshift, 
 //-------------------------------------------------
 
 template<class RegisterType>
-void fm_channel<RegisterType>::output_4op(output_data &output, uint32_t rshift, int32_t clipmax) const
+void fm_channel<RegisterType>::output_4op(output_data &output, const output_plan &plan,
+                                          uint32_t am_offset, uint32_t rshift, int32_t clipmax) const
 {
 	// all 4 operators should be populated
 	assert(m_op[0] != nullptr);
@@ -924,64 +999,20 @@ void fm_channel<RegisterType>::output_4op(output_data &output, uint32_t rshift, 
 	assert(m_op[2] != nullptr);
 	assert(m_op[3] != nullptr);
 
-	// AM amount is the same across all operators; compute it once
-	uint32_t am_offset = m_regs.lfo_am_offset(m_choffs);
-
 	// operator 1 has optional self-feedback
 	int32_t opmod = 0;
-	uint32_t feedback = m_regs.ch_feedback(m_choffs);
-	if (feedback != 0)
-		opmod = (m_feedback[0] + m_feedback[1]) >> (10 - feedback);
+	if (plan.feedback != 0)
+		opmod = (m_feedback[0] + m_feedback[1]) >> (10 - plan.feedback);
 
 	// compute the 14-bit volume/value of operator 1 and update the feedback
 	int32_t op1value = m_feedback_in = m_op[0]->compute_volume(m_op[0]->phase() + opmod, am_offset);
 
 	// now that the feedback has been computed, skip the rest if all volumes
 	// are clear; no need to do all this work for nothing
-	if (m_regs.ch_output_any(m_choffs) == 0)
+	if (!plan.output_any)
 		return;
 
-	// OPM/OPN offer 8 different connection algorithms for 4 operators,
-	// and OPL3 offers 4 more, which we designate here as 8-11.
-	//
-	// The operators are computed in order, with the inputs pulled from
-	// an array of values (opout) that is populated as we go:
-	//    0 = 0
-	//    1 = O1
-	//    2 = O2
-	//    3 = O3
-	//    4 = (O4)
-	//    5 = O1+O2
-	//    6 = O1+O3
-	//    7 = O2+O3
-	//
-	// The s_algorithm_ops table describes the inputs and outputs of each
-	// algorithm as follows:
-	//
-	//      ---------x use opout[x] as operator 2 input
-	//      ------xxx- use opout[x] as operator 3 input
-	//      ---xxx---- use opout[x] as operator 4 input
-	//      --x------- include opout[1] in final sum
-	//      -x-------- include opout[2] in final sum
-	//      x--------- include opout[3] in final sum
-	#define ALGORITHM(op2in, op3in, op4in, op1out, op2out, op3out) \
-		((op2in) | ((op3in) << 1) | ((op4in) << 4) | ((op1out) << 7) | ((op2out) << 8) | ((op3out) << 9))
-	static uint16_t const s_algorithm_ops[8+4] =
-	{
-		ALGORITHM(1,2,3, 0,0,0),    //  0: O1 -> O2 -> O3 -> O4 -> out (O4)
-		ALGORITHM(0,5,3, 0,0,0),    //  1: (O1 + O2) -> O3 -> O4 -> out (O4)
-		ALGORITHM(0,2,6, 0,0,0),    //  2: (O1 + (O2 -> O3)) -> O4 -> out (O4)
-		ALGORITHM(1,0,7, 0,0,0),    //  3: ((O1 -> O2) + O3) -> O4 -> out (O4)
-		ALGORITHM(1,0,3, 0,1,0),    //  4: ((O1 -> O2) + (O3 -> O4)) -> out (O2+O4)
-		ALGORITHM(1,1,1, 0,1,1),    //  5: ((O1 -> O2) + (O1 -> O3) + (O1 -> O4)) -> out (O2+O3+O4)
-		ALGORITHM(1,0,0, 0,1,1),    //  6: ((O1 -> O2) + O3 + O4) -> out (O2+O3+O4)
-		ALGORITHM(0,0,0, 1,1,1),    //  7: (O1 + O2 + O3 + O4) -> out (O1+O2+O3+O4)
-		ALGORITHM(1,2,3, 0,0,0),    //  8: O1 -> O2 -> O3 -> O4 -> out (O4)         [same as 0]
-		ALGORITHM(0,2,3, 1,0,0),    //  9: (O1 + (O2 -> O3 -> O4)) -> out (O1+O4)   [unique]
-		ALGORITHM(1,0,3, 0,1,0),    // 10: ((O1 -> O2) + (O3 -> O4)) -> out (O2+O4) [same as 4]
-		ALGORITHM(0,2,0, 1,0,1)     // 11: (O1 + (O2 -> O3) + O4) -> out (O1+O3+O4) [unique]
-	};
-	uint32_t algorithm_ops = s_algorithm_ops[m_regs.ch_algorithm(m_choffs)];
+	uint32_t algorithm_ops = plan.algorithm_ops;
 
 	// populate the opout table
 	int16_t opout[8];
@@ -1002,7 +1033,7 @@ void fm_channel<RegisterType>::output_4op(output_data &output, uint32_t rshift, 
 	// compute the 14-bit volume/value of operator 4; this could be a noise
 	// value on the OPM; all algorithms consume OP4 output at a minimum
 	int32_t result;
-	if (m_regs.noise_enable() && m_choffs == 7)
+	if (plan.noise)
 		result = m_op[3]->compute_noise_volume(am_offset);
 	else
 	{
@@ -1021,7 +1052,7 @@ void fm_channel<RegisterType>::output_4op(output_data &output, uint32_t rshift, 
 		result = clamp(result + (opout[3] >> rshift), clipmin, clipmax);
 
 	// add to the output
-	add_to_output(m_choffs, output, result);
+	add_to_output(plan, output, result);
 }
 
 
@@ -1191,16 +1222,29 @@ static void synthesize_fm_channel(fm_channel<RegisterType>& channel, RegisterTyp
                                   float* buf [[maybe_unused]], unsigned num, uint32_t env,
                                   uint32_t rshift [[maybe_unused]], int32_t clipmax [[maybe_unused]])
 {
+	// Registers hold for the whole buffer. Without the LFO walk the AM offset
+	// is constant as well, so it is read once too.
+	typename fm_channel<RegisterType>::output_plan plan;
+	uint32_t am_offset = 0;
+	if constexpr (Write) {
+		plan = channel.make_output_plan();
+		if constexpr (!Lfo)
+			am_offset = regs.lfo_am_offset(channel.choffs());
+	}
+
 	for (unsigned index = 0; index < num; ++index) {
 		env = step_eg_counter<RegisterType::EG_CLOCK_DIVIDER>(env);
 		int32_t pm = 0;
-		if constexpr (Lfo)
+		if constexpr (Lfo) {
 			pm = regs.clock_noise_and_lfo();
+			if constexpr (Write)
+				am_offset = regs.lfo_am_offset(channel.choffs());
+		}
 		channel.clock(env, pm);
 		if constexpr (Write) {
 			ymfm_output<RegisterType::OUTPUTS> voice;
 			voice.clear();
-			channel.output_4op(voice, rshift, clipmax);
+			channel.output_4op(voice, plan, am_offset, rshift, clipmax);
 			unsigned pos = index * 2;
 			buf[pos + 0] += float(voice.data[0]);
 			buf[pos + 1] += float(voice.data[1]);
