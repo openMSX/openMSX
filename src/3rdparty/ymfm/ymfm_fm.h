@@ -43,11 +43,11 @@ namespace ymfm
 //  GLOBAL ENUMERATORS
 //*********************************************************
 
-// three different keyon sources; actual keyon is an OR over all of these
+// keyon sources; actual keyon is an OR over all of these. Bit 1 was the OPL
+// rhythm source, which this build does not have.
 enum keyon_type : uint32_t
 {
 	KEYON_NORMAL = 0,
-	KEYON_RHYTHM = 1,
 	KEYON_CSM = 2
 };
 
@@ -87,9 +87,6 @@ struct opdata_cache
 class fm_registers_base
 {
 public:
-	// this value is returned from the write() function for rhythm channels
-	static constexpr uint32_t RHYTHM_CHANNEL = 0xff;
-
 	// this is the size of a full sin waveform
 	static constexpr uint32_t WAVEFORM_LENGTH = 0x400;
 
@@ -126,8 +123,6 @@ public:
 	// system-wide register defaults
 	uint32_t status_mask() const                     { return 0; } // OPL only
 	uint32_t irq_reset() const                       { return 0; } // OPL only
-	uint32_t noise_enable() const                    { return 0; } // OPM only
-	uint32_t rhythm_enable() const                   { return 0; } // OPL only
 
 	// per-operator register defaults
 	uint32_t op_ssg_eg_enable(uint32_t /*opoffs*/) const { return 0; } // OPN(A) only
@@ -219,9 +214,6 @@ public:
 
 	// compute operator volume
 	int32_t compute_volume(uint32_t phase, uint32_t am_offset) const;
-
-	// compute volume for the OPM noise channel
-	int32_t compute_noise_volume(uint32_t am_offset) const;
 
 	// key state control
 	void keyonoff(uint32_t on, keyon_type type);
@@ -349,29 +341,14 @@ public:
 		uint8_t feedback;        // operator 1 self-feedback, 0 means none
 		uint8_t output_mask;     // one bit per output this channel feeds
 		bool output_any;         // any output enabled
-		bool noise;              // OPM noise replaces operator 4
 	};
 
 	// Read those fields once, before the sample loop.
 	output_plan make_output_plan() const;
 
-	// specific 2-operator and 4-operator output handlers
-	void output_2op(output_data &output, uint32_t rshift, int32_t clipmax) const;
+	// 4-operator output handler
 	void output_4op(output_data &output, const output_plan &plan, uint32_t am_offset,
 	                uint32_t rshift, int32_t clipmax) const;
-
-	// compute the special OPL rhythm channel outputs
-	void output_rhythm_ch6(output_data &output, uint32_t rshift, int32_t clipmax) const;
-	void output_rhythm_ch7(uint32_t phase_select, output_data &output, uint32_t rshift, int32_t clipmax) const;
-	void output_rhythm_ch8(uint32_t phase_select, output_data &output, uint32_t rshift, int32_t clipmax) const;
-
-	// are we a 4-operator channel or a 2-operator one?
-	bool is4op() const
-	{
-		if (RegisterType::DYNAMIC_OPS)
-			return (m_op[2] != nullptr);
-		return (RegisterType::OPERATORS / RegisterType::CHANNELS == 4);
-	}
 
 	// return a reference to our registers
 	RegisterType &regs() const { return m_regs; }

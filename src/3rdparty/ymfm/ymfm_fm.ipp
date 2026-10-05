@@ -476,27 +476,6 @@ int32_t fm_operator<RegisterType>::compute_volume(uint32_t phase, uint32_t am_of
 
 
 //-------------------------------------------------
-//  compute_noise_volume - compute the 14-bit
-//  signed noise volume of this operator, given a
-//  noise input value and an AM offset
-//-------------------------------------------------
-
-template<class RegisterType>
-int32_t fm_operator<RegisterType>::compute_noise_volume(uint32_t am_offset) const
-{
-	// application manual says the logarithmic transform is not applied here, so we
-	// just use the raw envelope attenuation, inverted (since 0 attenuation should be
-	// maximum), and shift it up from a 10-bit value to an 11-bit value
-	int32_t result = (envelope_attenuation(am_offset) ^ 0x3ff) << 1;
-
-	// QUESTION: is AM applied still?
-
-	// negate based on the noise state
-	return bitfield(m_regs.noise_state(), 0) ? -result : result;
-}
-
-
-//-------------------------------------------------
 //  keyonoff - signal a key on/off event
 //-------------------------------------------------
 
@@ -854,61 +833,6 @@ void fm_channel<RegisterType>::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 
 
 //-------------------------------------------------
-//  output_2op - combine 4 operators according to
-//  the specified algorithm, returning a sum
-//  according to the rshift and clipmax parameters,
-//  which vary between different implementations
-//-------------------------------------------------
-
-template<class RegisterType>
-void fm_channel<RegisterType>::output_2op(output_data &output, uint32_t rshift, int32_t clipmax) const
-{
-	// The first 2 operators should be populated
-	assert(m_op[0] != nullptr);
-	assert(m_op[1] != nullptr);
-
-	// AM amount is the same across all operators; compute it once
-	uint32_t am_offset = m_regs.lfo_am_offset(m_choffs);
-
-	// operator 1 has optional self-feedback
-	int32_t opmod = 0;
-	uint32_t feedback = m_regs.ch_feedback(m_choffs);
-	if (feedback != 0)
-		opmod = (m_feedback[0] + m_feedback[1]) >> (10 - feedback);
-
-	// compute the 14-bit volume/value of operator 1 and update the feedback
-	int32_t op1value = m_feedback_in = m_op[0]->compute_volume(m_op[0]->phase() + opmod, am_offset);
-
-	// now that the feedback has been computed, skip the rest if all volumes
-	// are clear; no need to do all this work for nothing
-	if (m_regs.ch_output_any(m_choffs) == 0)
-		return;
-
-	// Algorithms for two-operator case:
-	//    0: O1 -> O2 -> out
-	//    1: (O1 + O2) -> out
-	int32_t result;
-	if (bitfield(m_regs.ch_algorithm(m_choffs), 0) == 0)
-	{
-		// some OPL chips use the previous sample for modulation instead of
-		// the current sample
-		opmod = (RegisterType::MODULATOR_DELAY ? m_feedback[1] : op1value) >> 1;
-		result = m_op[1]->compute_volume(m_op[1]->phase() + opmod, am_offset) >> rshift;
-	}
-	else
-	{
-		result = (RegisterType::MODULATOR_DELAY ? m_feedback[1] : op1value) >> rshift;
-		result += m_op[1]->compute_volume(m_op[1]->phase(), am_offset) >> rshift;
-		int32_t clipmin = -clipmax - 1;
-		result = clamp(result, clipmin, clipmax);
-	}
-
-	// add to the output
-	add_to_output(m_choffs, output, result);
-}
-
-
-//-------------------------------------------------
 //  s_algorithm_ops - operator routing per algorithm
 //
 //  OPM/OPN offer 8 different connection algorithms for 4 operators,
@@ -967,7 +891,6 @@ typename fm_channel<RegisterType>::output_plan fm_channel<RegisterType>::make_ou
 	plan.algorithm_ops = s_algorithm_ops[m_regs.ch_algorithm(m_choffs)];
 	plan.feedback = uint8_t(m_regs.ch_feedback(m_choffs));
 	plan.output_any = m_regs.ch_output_any(m_choffs) != 0;
-	plan.noise = m_regs.noise_enable() != 0 && m_choffs == 7;
 
 	plan.output_mask = 0;
 	if (RegisterType::OUTPUTS == 1 || m_regs.ch_output_0(m_choffs))
@@ -1030,17 +953,10 @@ void fm_channel<RegisterType>::output_4op(output_data &output, const output_plan
 	opout[6] = opout[1] + opout[3];
 	opout[7] = opout[2] + opout[3];
 
-	// compute the 14-bit volume/value of operator 4; this could be a noise
-	// value on the OPM; all algorithms consume OP4 output at a minimum
-	int32_t result;
-	if (plan.noise)
-		result = m_op[3]->compute_noise_volume(am_offset);
-	else
-	{
-		opmod = opout[bitfield(algorithm_ops, 4, 3)] >> 1;
-		result = m_op[3]->compute_volume(m_op[3]->phase() + opmod, am_offset);
-	}
-	result >>= rshift;
+	// compute the 14-bit volume/value of operator 4;
+	// all algorithms consume OP4 output at a minimum
+	opmod = opout[bitfield(algorithm_ops, 4, 3)] >> 1;
+	int32_t result = m_op[3]->compute_volume(m_op[3]->phase() + opmod, am_offset) >> rshift;
 
 	// optionally add OP1, OP2, OP3
 	int32_t clipmin = -clipmax - 1;
@@ -1054,99 +970,6 @@ void fm_channel<RegisterType>::output_4op(output_data &output, const output_plan
 	// add to the output
 	add_to_output(plan, output, result);
 }
-
-
-//-------------------------------------------------
-//  output_rhythm_ch6 - special case output
-//  computation for OPL channel 6 in rhythm mode,
-//  which outputs a Bass Drum instrument
-//-------------------------------------------------
-
-template<class RegisterType>
-void fm_channel<RegisterType>::output_rhythm_ch6(output_data &output, uint32_t rshift, int32_t /*clipmax*/) const
-{
-	// AM amount is the same across all operators; compute it once
-	uint32_t am_offset = m_regs.lfo_am_offset(m_choffs);
-
-	// Bass Drum: this uses operators 12 and 15 (i.e., channel 6)
-	// in an almost-normal way, except that if the algorithm is 1,
-	// the first operator is ignored instead of added in
-
-	// operator 1 has optional self-feedback
-	int32_t opmod = 0;
-	uint32_t feedback = m_regs.ch_feedback(m_choffs);
-	if (feedback != 0)
-		opmod = (m_feedback[0] + m_feedback[1]) >> (10 - feedback);
-
-	// compute the 14-bit volume/value of operator 1 and update the feedback
-	int32_t opout1 = m_feedback_in = m_op[0]->compute_volume(m_op[0]->phase() + opmod, am_offset);
-
-	// compute the 14-bit volume/value of operator 2, which is the result
-	opmod = bitfield(m_regs.ch_algorithm(m_choffs), 0) ? 0 : (opout1 >> 1);
-	int32_t result = m_op[1]->compute_volume(m_op[1]->phase() + opmod, am_offset) >> rshift;
-
-	// add to the output
-	add_to_output(m_choffs, output, result * 2);
-}
-
-
-//-------------------------------------------------
-//  output_rhythm_ch7 - special case output
-//  computation for OPL channel 7 in rhythm mode,
-//  which outputs High Hat and Snare Drum
-//  instruments
-//-------------------------------------------------
-
-template<class RegisterType>
-void fm_channel<RegisterType>::output_rhythm_ch7(uint32_t phase_select, output_data &output, uint32_t rshift, int32_t clipmax) const
-{
-	// AM amount is the same across all operators; compute it once
-	uint32_t am_offset = m_regs.lfo_am_offset(m_choffs);
-	uint32_t noise_state = bitfield(m_regs.noise_state(), 0);
-
-	// High Hat: this uses the envelope from operator 13 (channel 7),
-	// and a combination of noise and the operator 13/17 phase select
-	// to compute the phase
-	uint32_t phase = (phase_select << 9) | (0xd0 >> (2 * (noise_state ^ phase_select)));
-	int32_t result = m_op[0]->compute_volume(phase, am_offset) >> rshift;
-
-	// Snare Drum: this uses the envelope from operator 16 (channel 7),
-	// and a combination of noise and operator 13 phase to pick a phase
-	uint32_t op13phase = m_op[0]->phase();
-	phase = (0x100 << bitfield(op13phase, 8)) ^ (noise_state << 8);
-	result += m_op[1]->compute_volume(phase, am_offset) >> rshift;
-	result = clamp(result, -clipmax - 1, clipmax);
-
-	// add to the output
-	add_to_output(m_choffs, output, result * 2);
-}
-
-
-//-------------------------------------------------
-//  output_rhythm_ch8 - special case output
-//  computation for OPL channel 8 in rhythm mode,
-//  which outputs Tom Tom and Top Cymbal instruments
-//-------------------------------------------------
-
-template<class RegisterType>
-void fm_channel<RegisterType>::output_rhythm_ch8(uint32_t phase_select, output_data &output, uint32_t rshift, int32_t clipmax) const
-{
-	// AM amount is the same across all operators; compute it once
-	uint32_t am_offset = m_regs.lfo_am_offset(m_choffs);
-
-	// Tom Tom: this is just a single operator processed normally
-	int32_t result = m_op[0]->compute_volume(m_op[0]->phase(), am_offset) >> rshift;
-
-	// Top Cymbal: this uses the envelope from operator 17 (channel 8),
-	// and the operator 13/17 phase select to compute the phase
-	uint32_t phase = 0x100 | (phase_select << 9);
-	result += m_op[1]->compute_volume(phase, am_offset) >> rshift;
-	result = clamp(result, -clipmax - 1, clipmax);
-
-	// add to the output
-	add_to_output(m_choffs, output, result * 2);
-}
-
 
 
 //*********************************************************
@@ -1350,13 +1173,6 @@ void fm_engine_base<RegisterType>::write(uint16_t regnum, uint8_t data)
 		{
 			// normal channel on/off
 			m_channel[keyon_channel]->keyonoff(keyon_opmask, KEYON_NORMAL, keyon_channel);
-		}
-		else if (CHANNELS >= 9 && keyon_channel == RegisterType::RHYTHM_CHANNEL)
-		{
-			// special case for the OPL rhythm channels
-			m_channel[6]->keyonoff(bitfield(keyon_opmask, 4) ? 3 : 0, KEYON_RHYTHM, 6);
-			m_channel[7]->keyonoff(bitfield(keyon_opmask, 0) | (bitfield(keyon_opmask, 3) << 1), KEYON_RHYTHM, 7);
-			m_channel[8]->keyonoff(bitfield(keyon_opmask, 2) | (bitfield(keyon_opmask, 1) << 1), KEYON_RHYTHM, 8);
 		}
 	}
 }

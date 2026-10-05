@@ -195,9 +195,6 @@ public:
 	// return the AM offset from LFO for the given channel
 	uint32_t lfo_am_offset(uint32_t choffs) const;
 
-	// return LFO/noise states
-	uint32_t noise_state() const { return 0; }
-
 	// caching helpers
 	void cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache &cache);
 
