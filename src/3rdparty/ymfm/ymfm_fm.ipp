@@ -1063,7 +1063,9 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 			m_regs.restore_lfo(lfo0);
 			lfoWalked = true;
 		}
-		if (!mix)
+		// Closed pan still clocks and updates operator-1 feedback, but adds
+		// nothing, so the mixer can skip the buffer.
+		if (!mix || (m_regs.ch_output_0(channel.choffs()) == 0 && m_regs.ch_output_1(channel.choffs()) == 0))
 			buffers[chnum] = nullptr;
 		if (mix && walkLfo)
 			synthesize_fm_channel<true, true>(channel, m_regs, buffers[chnum], num, env0);
