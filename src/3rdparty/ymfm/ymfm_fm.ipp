@@ -370,7 +370,7 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 //  fm_operator - constructor
 //-------------------------------------------------
 
-fm_operator::fm_operator(opna_registers &regs, uint32_t opoffs) :
+fm_operator::fm_operator(uint32_t opoffs) :
 	m_choffs(0),
 	m_opoffs(opoffs),
 	m_phase(0),
@@ -379,8 +379,7 @@ fm_operator::fm_operator(opna_registers &regs, uint32_t opoffs) :
 	m_ssg_inverted(false),
 	m_key_state(0),
 	m_keyon_live(0),
-	m_cache{},
-	m_regs(regs)
+	m_cache{}
 {
 }
 
@@ -405,10 +404,10 @@ void fm_operator::reset()
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-bool fm_operator::prepare()
+bool fm_operator::prepare(opna_registers &regs)
 {
 	// cache the data
-	m_regs.cache_operator_data(m_choffs, m_opoffs, m_cache);
+	regs.cache_operator_data(m_choffs, m_opoffs, m_cache);
 
 	// clock the key state
 	clock_keystate(uint32_t(m_keyon_live != 0));
@@ -776,7 +775,7 @@ bool fm_channel::prepare()
 	// prepare all operators and determine if any of them is active
 	bool active = false;
 	for (auto* op : m_op)
-		if (op->prepare())
+		if (op->prepare(m_regs))
 			active = true;
 
 	return active;
@@ -951,7 +950,7 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 
 	// create the operators and wire them to their channels
 	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
-		m_operator[opnum] = std::make_unique<fm_operator>(m_regs, opna_registers::operator_offset(opnum));
+		m_operator[opnum] = std::make_unique<fm_operator>(opna_registers::operator_offset(opnum));
 	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 		for (uint32_t index = 0; index < 4; index++)
 			m_channel[chnum]->assign(index, m_operator[opna_registers::OPERATOR_MAP[chnum][index]].get());

@@ -346,7 +346,7 @@ class fm_operator
 
 public:
 	// constructor
-	fm_operator(opna_registers &regs, uint32_t opoffs);
+	explicit fm_operator(uint32_t opoffs);
 
 	// save/restore
 	template<typename Archive>
@@ -370,8 +370,8 @@ public:
 	// set the current channel
 	void set_choffs(uint32_t choffs) { m_choffs = choffs; }
 
-	// prepare prior to clocking
-	bool prepare();
+	// prepare prior to clocking; the registers are read only here
+	bool prepare(opna_registers &regs);
 
 	// Release has reached maximum attenuation. A later key-on restarts phase.
 	bool finished() const
@@ -423,7 +423,6 @@ private:
 	uint8_t m_key_state;                   // current key state: on or off (bit 0)
 	uint8_t m_keyon_live;                  // live key on state (bit 0 = direct, bit 2 = CSM)
 	opdata_cache m_cache;                  // cached values for performance
-	opna_registers &m_regs;                // direct reference to registers
 };
 
 
