@@ -733,12 +733,11 @@ uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 //  fm_channel - constructor
 //-------------------------------------------------
 
-fm_channel::fm_channel(opna_registers &regs, uint32_t choffs) :
+fm_channel::fm_channel(uint32_t choffs) :
 	m_choffs(choffs),
 	m_feedback{ 0, 0 },
 	m_feedback_in(0),
-	m_op{ nullptr, nullptr, nullptr, nullptr },
-	m_regs(regs)
+	m_op{ nullptr, nullptr, nullptr, nullptr }
 {
 }
 
@@ -770,12 +769,12 @@ void fm_channel::keyonoff(uint32_t states, keyon_type type)
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-bool fm_channel::prepare()
+bool fm_channel::prepare(opna_registers &regs)
 {
 	// prepare all operators and determine if any of them is active
 	bool active = false;
 	for (auto* op : m_op)
-		if (op->prepare(m_regs))
+		if (op->prepare(regs))
 			active = true;
 
 	return active;
@@ -844,16 +843,16 @@ static constexpr uint16_t s_algorithm_ops[8] =
 //  hold for the whole buffer
 //-------------------------------------------------
 
-fm_channel::output_plan fm_channel::make_output_plan() const
+fm_channel::output_plan fm_channel::make_output_plan(const opna_registers &regs) const
 {
 	output_plan plan;
-	plan.algorithm_ops = s_algorithm_ops[m_regs.ch_algorithm(m_choffs)];
-	plan.feedback = uint8_t(m_regs.ch_feedback(m_choffs));
+	plan.algorithm_ops = s_algorithm_ops[regs.ch_algorithm(m_choffs)];
+	plan.feedback = uint8_t(regs.ch_feedback(m_choffs));
 
 	plan.output_mask = 0;
-	if (m_regs.ch_output_0(m_choffs))
+	if (regs.ch_output_0(m_choffs))
 		plan.output_mask |= 1;
-	if (m_regs.ch_output_1(m_choffs))
+	if (regs.ch_output_1(m_choffs))
 		plan.output_mask |= 2;
 	return plan;
 }
@@ -946,7 +945,7 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 
 	// create the channels
 	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		m_channel[chnum] = std::make_unique<fm_channel>(m_regs, opna_registers::channel_offset(chnum));
+		m_channel[chnum] = std::make_unique<fm_channel>(opna_registers::channel_offset(chnum));
 
 	// create the operators and wire them to their channels
 	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
@@ -1003,7 +1002,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 	if constexpr (Lfo)
 		lfoMaxCount = regs.lfo_max_count();
 	if constexpr (Write) {
-		plan = channel.make_output_plan();
+		plan = channel.make_output_plan(regs);
 		panLeft = (plan.output_mask & 1) != 0;
 		panRight = (plan.output_mask & 2) != 0;
 		am_shift = regs.lfo_am_shift(channel.choffs());
@@ -1060,7 +1059,7 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 		auto& channel = *m_channel[chnum];
 		// prepare() applies a new key and rebuilds the operator cache. With no
 		// register or key change, the envelope state already decides the path.
-		bool audible = m_modified ? channel.prepare() : channel.audible();
+		bool audible = m_modified ? channel.prepare(m_regs) : channel.audible();
 		if (channel.finished()) {
 			buffers[chnum] = nullptr;
 			channel.quiesce_feedback(num);

@@ -437,7 +437,7 @@ class fm_channel
 
 public:
 	// constructor
-	fm_channel(opna_registers &regs, uint32_t choffs);
+	explicit fm_channel(uint32_t choffs);
 
 	// save/restore
 	template<typename Archive>
@@ -465,8 +465,8 @@ public:
 	// signal key on/off to our operators
 	void keyonoff(uint32_t states, keyon_type type);
 
-	// prepare prior to clocking
-	bool prepare();
+	// prepare prior to clocking; the registers are read only here
+	bool prepare(opna_registers &regs);
 
 	// Every operator has finished its release.
 	bool finished() const
@@ -511,7 +511,7 @@ public:
 	};
 
 	// Read those fields once, before the sample loop.
-	output_plan make_output_plan() const;
+	output_plan make_output_plan(const opna_registers &regs) const;
 
 	// 4-operator output handler; the caller routes the result to the outputs
 	// the plan enables
@@ -523,7 +523,6 @@ private:
 	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
 	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output)
 	std::array<fm_operator *, 4> m_op;     // the four operators of this channel
-	opna_registers &m_regs;                // direct reference to registers
 };
 
 
