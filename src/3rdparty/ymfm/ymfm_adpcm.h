@@ -65,7 +65,6 @@ class adpcm_a_registers
 {
 public:
 	// constants
-	static constexpr uint32_t OUTPUTS = 2;
 	static constexpr uint32_t CHANNELS = 6;
 	static constexpr uint32_t REGISTERS = 0x30;
 
@@ -82,12 +81,6 @@ public:
 		ar.serialize("regdata", m_regdata);
 	}
 
-	// map channel number to register offset
-	static constexpr uint32_t channel_offset(uint32_t chnum)
-	{
-		assert(chnum < CHANNELS);
-		return chnum;
-	}
 
 	// direct read/write access
 	uint8_t read(uint32_t index) const { return m_regdata[index]; }
@@ -234,9 +227,8 @@ public:
 	// set the start/end address for a channel (for hardcoded YM2608 percussion)
 	void set_start_end(uint8_t chnum, uint16_t start, uint16_t end)
 	{
-		uint32_t choffs = adpcm_a_registers::channel_offset(chnum);
-		m_regs.write_start(choffs, start);
-		m_regs.write_end(choffs, end);
+		m_regs.write_start(chnum, start);
+		m_regs.write_end(chnum, end);
 	}
 
 	// return a reference to our registers
