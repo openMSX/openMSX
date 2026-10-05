@@ -61,8 +61,8 @@ void adpcm_a_registers::reset()
 //-------------------------------------------------
 
 adpcm_a_channel::adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, uint32_t choffs) :
-	m_choffs(choffs),
-	m_playing(0),
+	m_choffs(uint8_t(choffs)),
+	m_playing(false),
 	m_curnibble(0),
 	m_curbyte(0),
 	m_curaddress(0),
@@ -80,7 +80,7 @@ adpcm_a_channel::adpcm_a_channel(ymfm_interface &intf, adpcm_a_registers &regs, 
 
 void adpcm_a_channel::reset()
 {
-	m_playing = 0;
+	m_playing = false;
 	m_curnibble = 0;
 	m_curbyte = 0;
 	m_curaddress = 0;
@@ -115,7 +115,7 @@ void adpcm_a_channel::keyonoff(bool on)
 void adpcm_a_channel::clock()
 {
 	// if not playing, just output 0
-	if (m_playing == 0)
+	if (!m_playing)
 	{
 		m_accumulator = 0;
 		return;
@@ -136,7 +136,8 @@ void adpcm_a_channel::clock()
 		uint32_t end = m_regs.ch_end(m_choffs) + 1;
 		if (((m_curaddress ^ end) & 0xfffff) == 0)
 		{
-			m_playing = m_accumulator = 0;
+			m_playing = false;
+			m_accumulator = 0;
 			return;
 		}
 
@@ -168,11 +169,11 @@ void adpcm_a_channel::clock()
 		delta = -delta;
 
 	// the 12-bit accumulator wraps on the ym2610 and ym2608 (like the msm5205)
-	m_accumulator = (m_accumulator + delta) & 0xfff;
+	m_accumulator = int16_t((m_accumulator + delta) & 0xfff);
 
 	// adjust ADPCM step
 	static int8_t const s_step_inc[8] = { -1, -1, -1, -1, 2, 5, 7, 9 };
-	m_step_index = std::clamp(m_step_index + s_step_inc[bitfield(data, 0, 3)], 0, 48);
+	m_step_index = int8_t(std::clamp(m_step_index + s_step_inc[bitfield(data, 0, 3)], 0, 48));
 }
 
 
@@ -185,7 +186,7 @@ bool adpcm_a_channel::silent() const
 	// A stopped channel forces the accumulator to 0 on the next clock that
 	// includes it. Until that clock, sample() still emits the held value.
 	// Key-on only happens from a register write.
-	if (m_playing == 0 && m_accumulator == 0)
+	if (!m_playing && m_accumulator == 0)
 		return true;
 
 	// Instrument level, total level and pan are registers. clock() does
@@ -459,7 +460,7 @@ bool adpcm_b_channel::consume_nibble()
 		delta = -delta;
 
 	// add and clamp to 16 bits
-	m_accumulator = std::clamp(m_accumulator + delta, -32768, 32767);
+	m_accumulator = int16_t(std::clamp(int(m_accumulator) + delta, -32768, 32767));
 
 	// scale the ADPCM step: 0.9, 0.9, 0.9, 0.9, 1.2, 1.6, 2.0, 2.4
 	static uint8_t const s_step_scale[8] = { 57, 57, 57, 57, 77, 102, 128, 153 };

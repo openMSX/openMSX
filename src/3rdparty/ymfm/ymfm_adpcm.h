@@ -136,7 +136,7 @@ public:
 	bool silent() const;
 
 	// Stopped with a zero accumulator: clock() would only store that zero.
-	bool resting() const { return m_playing == 0 && m_accumulator == 0; }
+	bool resting() const { return !m_playing && m_accumulator == 0; }
 
 	// Register fields that sample() reads. A register write ends the current
 	// buffer, so these hold for every sample of one generate().
@@ -161,13 +161,13 @@ public:
 
 private:
 	// internal state
-	uint32_t const m_choffs;              // channel offset
-	uint32_t m_playing;                   // currently playing?
-	uint32_t m_curnibble;                 // index of the current nibble
-	uint32_t m_curbyte;                   // current byte of data
+	uint8_t const m_choffs;               // channel offset
+	bool m_playing;                       // currently playing?
+	uint8_t m_curnibble;                  // index of the current nibble
+	uint8_t m_curbyte;                    // current byte of data
 	uint32_t m_curaddress;                // current address
-	int32_t m_accumulator;                // accumulator
-	int32_t m_step_index;                 // index in the stepping table
+	int16_t m_accumulator;                // 12-bit accumulator
+	int8_t m_step_index;                  // index in the stepping table (0-48)
 	adpcm_a_registers &m_regs;            // reference to registers
 	ymfm_interface &m_intf;               // memory reads
 };
@@ -455,16 +455,16 @@ private:
 	bool at_end() const { return (m_curaddress == (((m_regs.end() + 1) << address_shift()) - 1)); }
 
 	// internal state
-	uint32_t m_status;              // currently playing?
-	uint32_t m_curnibble;           // index of the current nibble
-	uint32_t m_curbyte;             // current byte of data
-	uint32_t m_dummy_read;          // dummy read tracker
-	uint32_t m_position;            // current fractional position
+	uint8_t m_status;               // EOS / BRDY / PLAYING
+	uint8_t m_curnibble;            // index of the current nibble
+	uint8_t m_curbyte;              // current byte of data
+	uint8_t m_dummy_read;           // dummy read tracker
+	uint16_t m_position;            // current fractional position
 	uint32_t m_curaddress;          // current address
-	int32_t m_accumulator;          // accumulator
-	int32_t m_prev_accum;           // previous accumulator (for linear interp)
+	int16_t m_accumulator;          // accumulator
+	int16_t m_prev_accum;           // previous accumulator (for linear interp)
 	int32_t m_adpcm_step;           // next forecast
-	bool m_cpu_write_active;       // unfinished CPU RAM write sequence
+	bool m_cpu_write_active;        // unfinished CPU RAM write sequence
 	adpcm_b_registers &m_regs;      // reference to registers
 	ymfm_interface &m_intf;         // memory reads and writes
 };
