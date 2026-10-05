@@ -404,12 +404,12 @@ private:
 	uint32_t envelope_attenuation(uint32_t am_offset) const;
 
 	// internal state
-	uint32_t m_opoffs;                     // operator offset in registers
+	uint16_t m_opoffs;                     // operator offset in registers
 	uint32_t m_phase;                      // current phase value (10.10 format)
 	uint16_t m_env_attenuation;            // computed envelope attenuation (4.6 format)
 	envelope_state m_env_state;            // current envelope state
-	uint8_t m_ssg_inverted;                // non-zero if the output should be inverted (bit 0)
-	uint8_t m_key_state;                   // current key state: on or off (bit 0)
+	bool m_ssg_inverted;                   // true if the output should be inverted
+	bool m_key_state;                      // current key state
 	uint8_t m_keyon_live;                  // live key on state (bit 0 = direct, bit 2 = CSM)
 	opdata_cache m_cache;                  // cached values for performance
 };
@@ -502,7 +502,7 @@ public:
 
 private:
 	// internal state
-	uint32_t m_choffs;                     // channel offset in registers
+	uint16_t m_choffs;                     // channel offset in registers
 	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
 	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output)
 	std::array<fm_operator *, 4> m_op;     // the four operators of this channel

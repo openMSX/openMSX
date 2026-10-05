@@ -250,12 +250,12 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 //-------------------------------------------------
 
 fm_operator::fm_operator(uint32_t opoffs) :
-	m_opoffs(opoffs),
+	m_opoffs(uint16_t(opoffs)),
 	m_phase(0),
 	m_env_attenuation(0x3ff),
 	m_env_state(EG_RELEASE),
 	m_ssg_inverted(false),
-	m_key_state(0),
+	m_key_state(false),
 	m_keyon_live(0),
 	m_cache{}
 {
@@ -272,8 +272,8 @@ void fm_operator::reset()
 	m_phase = 0;
 	m_env_attenuation = 0x3ff;
 	m_env_state = EG_RELEASE;
-	m_ssg_inverted = 0;
-	m_key_state = 0;
+	m_ssg_inverted = false;
+	m_key_state = false;
 	m_keyon_live = 0;
 }
 
@@ -424,9 +424,9 @@ void fm_operator::clock_keystate(uint32_t keystate)
 	assert(keystate == 0 || keystate == 1);
 
 	// has the key changed?
-	if ((keystate ^ m_key_state) != 0)
+	if (bool(keystate) != m_key_state)
 	{
-		m_key_state = keystate;
+		m_key_state = bool(keystate);
 
 		// if the key has turned on, start the attack
 		if (keystate != 0)
@@ -612,7 +612,7 @@ uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 //-------------------------------------------------
 
 fm_channel::fm_channel(uint32_t choffs, std::array<fm_operator *, 4> ops) :
-	m_choffs(choffs),
+	m_choffs(uint16_t(choffs)),
 	m_feedback{ 0, 0 },
 	m_feedback_in(0),
 	m_op(ops)
