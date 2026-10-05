@@ -46,7 +46,8 @@ Remaining lower-engine patches:
    least 63), both pan bits clear, or a stopped channel whose accumulator
    is already 0. A stopped channel can still emit its held accumulator until
    the next clock that includes it. Makoto nulls each silent rhythm buffer
-   for the whole block. `clock()` still runs.
+   for the whole block. `clock()` still runs. Volume and pan are read once
+   per buffer, and the scaled sample is recomputed on a clock tick.
 
 Contrib/makoto-adpcm-transfer-test.cc covers the RAM corrections.
 Contrib/makoto-owned-core-test.cc compares the new control layer with the

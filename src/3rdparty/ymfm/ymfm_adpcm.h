@@ -181,8 +181,13 @@ public:
 	// this channel adds nothing.
 	output_plan make_output_plan() const;
 
-	// return the computed output value, with panning applied
-	void output(ymfm_output<2> &output, const output_plan &plan) const;
+	// Scaled sample for the current accumulator, which only clock() changes.
+	int16_t sample(const output_plan &plan) const
+	{
+		// m_accumulator is a 12-bit value; shift up to sign-extend;
+		// the downshift is incorporated into the plan's shift
+		return int16_t(((int16_t(m_accumulator << 4) * plan.mul) >> plan.shift) & ~3);
+	}
 
 private:
 	// internal state

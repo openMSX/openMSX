@@ -227,25 +227,6 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan() const
 }
 
 
-//-------------------------------------------------
-//  output - return the computed output value, with
-//  panning applied
-//-------------------------------------------------
-
-void adpcm_a_channel::output(ymfm_output<2> &output, const output_plan &plan) const
-{
-	// m_accumulator is a 12-bit value; shift up to sign-extend;
-	// the downshift is incorporated into 'shift'
-	int16_t value = ((int16_t(m_accumulator << 4) * plan.mul) >> plan.shift) & ~3;
-
-	// apply to left/right as appropriate
-	if (plan.pan_mask & 1)
-		output.data[0] += value;
-	if (plan.pan_mask & 2)
-		output.data[1] += value;
-}
-
-
 
 //*********************************************************
 // ADPCM "A" ENGINE
@@ -323,16 +304,28 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 					channel.clock();
 			}
 		} else {
+			// Only clock() changes the accumulator, so the scaled sample is
+			// recomputed there instead of once per sample. A closed pan side
+			// keeps adding zero.
+			const bool pan_left = (plan.pan_mask & 1) != 0;
+			const bool pan_right = (plan.pan_mask & 2) != 0;
+			float left = 0.0f;
+			float right = 0.0f;
+			auto rescale = [&] {
+				float value = float(channel.sample(plan));
+				left = pan_left ? value : 0.0f;
+				right = pan_right ? value : 0.0f;
+			};
+			rescale();
 			for (unsigned i = 0; i < num; ++i) {
 				env = step_eg_counter<EgDivider>(env);
-				if ((env & 3) == 0 && (low || (env & 4) == 0))
+				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
 					channel.clock();
-				ymfm_output<2> voice;
-				voice.clear();
-				channel.output(voice, plan);
+					rescale();
+				}
 				unsigned pos = i * 2;
-				buf[pos + 0] += float(voice.data[0]);
-				buf[pos + 1] += float(voice.data[1]);
+				buf[pos + 0] += left;
+				buf[pos + 1] += right;
 			}
 		}
 	}
