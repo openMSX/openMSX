@@ -370,8 +370,7 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 //  fm_operator - constructor
 //-------------------------------------------------
 
-fm_operator::fm_operator(uint32_t choffs, uint32_t opoffs) :
-	m_choffs(choffs),
+fm_operator::fm_operator(uint32_t opoffs) :
 	m_opoffs(opoffs),
 	m_phase(0),
 	m_env_attenuation(0x3ff),
@@ -404,10 +403,10 @@ void fm_operator::reset()
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-bool fm_operator::prepare(opna_registers &regs)
+bool fm_operator::prepare(opna_registers &regs, uint32_t choffs)
 {
 	// cache the data
-	regs.cache_operator_data(m_choffs, m_opoffs, m_cache);
+	regs.cache_operator_data(choffs, m_opoffs, m_cache);
 
 	// clock the key state
 	clock_keystate(uint32_t(m_keyon_live != 0));
@@ -774,7 +773,7 @@ bool fm_channel::prepare(opna_registers &regs)
 	// prepare all operators and determine if any of them is active
 	bool active = false;
 	for (auto* op : m_op)
-		if (op->prepare(regs))
+		if (op->prepare(regs, m_choffs))
 			active = true;
 
 	return active;
@@ -936,9 +935,7 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 	m_channel(generate_array<CHANNELS>([](size_t chnum) {
 		return fm_channel(opna_registers::channel_offset(uint32_t(chnum))); })),
 	m_operator(generate_array<OPERATORS>([](size_t opnum) {
-		uint32_t o = uint32_t(opnum);
-		return fm_operator(opna_registers::channel_offset(opna_registers::operator_channel(o)),
-		                   opna_registers::operator_offset(o)); }))
+		return fm_operator(opna_registers::operator_offset(uint32_t(opnum))); }))
 {
 	// inform the interface of their engine
 	m_intf.m_engine = this;

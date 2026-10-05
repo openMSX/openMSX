@@ -212,13 +212,6 @@ public:
 		{ 14, 20, 17, 23 },  // Channel 5 operators
 	};
 
-	// Channel that owns a given operator number; inverse of OPERATOR_MAP.
-	static constexpr uint32_t operator_channel(uint32_t opnum)
-	{
-		assert(opnum < OPERATORS);
-		return (opnum / 12) * 3 + (opnum % 3);
-	}
-
 	// read a register value
 	uint8_t read(uint16_t index) const { return m_regdata[index]; }
 
@@ -353,7 +346,7 @@ class fm_operator
 
 public:
 	// constructor
-	explicit fm_operator(uint32_t choffs, uint32_t opoffs);
+	explicit fm_operator(uint32_t opoffs);
 
 	// save/restore
 	template<typename Archive>
@@ -371,7 +364,7 @@ public:
 	void reset();
 
 	// prepare prior to clocking; the registers are read only here
-	bool prepare(opna_registers &regs);
+	bool prepare(opna_registers &regs, uint32_t choffs);
 
 	// Release has reached maximum attenuation. A later key-on restarts phase.
 	bool finished() const
@@ -414,7 +407,6 @@ private:
 	uint32_t envelope_attenuation(uint32_t am_offset) const;
 
 	// internal state
-	uint32_t m_choffs;                     // channel offset in registers
 	uint32_t m_opoffs;                     // operator offset in registers
 	uint32_t m_phase;                      // current phase value (10.10 format)
 	uint16_t m_env_attenuation;            // computed envelope attenuation (4.6 format)
