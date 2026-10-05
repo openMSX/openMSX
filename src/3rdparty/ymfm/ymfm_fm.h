@@ -94,9 +94,7 @@ public:
 	// the following constants need to be defined per family:
 	//          uint32_t OUTPUTS: The number of outputs exposed (1-4)
 	//         uint32_t CHANNELS: The number of channels on the chip
-	//     uint32_t ALL_CHANNELS: A bitmask of all channels
 	//        uint32_t OPERATORS: The number of operators on the chip
-	//        uint32_t WAVEFORMS: The number of waveforms offered
 	//        uint32_t REGISTERS: The number of 8-bit registers allocated
 	// uint32_t DEFAULT_PRESCALE: The starting clock prescale
 	// uint32_t EG_CLOCK_DIVIDER: The clock divider of the envelope generator
@@ -112,13 +110,11 @@ public:
 	//       bool EG_HAS_DEPRESS: True if the chip has a DP ("depress"?) envelope stage (OPLL)
 	//        bool EG_HAS_REVERB: True if the chip has a faux reverb envelope stage (OPQ/OPZ)
 	//           bool EG_HAS_SSG: True if the chip has SSG envelope support (OPN)
-	//      bool MODULATOR_DELAY: True if the modulator is delayed by 1 sample (OPL pre-OPL3)
 	//
 	static constexpr bool DYNAMIC_OPS = false;
 	static constexpr bool EG_HAS_DEPRESS = false;
 	static constexpr bool EG_HAS_REVERB = false;
 	static constexpr bool EG_HAS_SSG = false;
-	static constexpr bool MODULATOR_DELAY = false;
 
 	// system-wide register defaults
 	uint32_t status_mask() const                     { return 0; } // OPL only
@@ -417,7 +413,6 @@ public:
 	// expose some constants from the registers
 	static constexpr uint32_t OUTPUTS = RegisterType::OUTPUTS;
 	static constexpr uint32_t CHANNELS = RegisterType::CHANNELS;
-	static constexpr uint32_t ALL_CHANNELS = RegisterType::ALL_CHANNELS;
 	static constexpr uint32_t OPERATORS = RegisterType::OPERATORS;
 
 	// also expose status flags for consumers that inject additional bits
