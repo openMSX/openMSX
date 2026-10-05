@@ -938,21 +938,19 @@ fm_engine_base::fm_engine_base(ymfm_interface &intf) :
 	m_irq_state(0),
 	m_timer_running{0,0},
 	m_total_clocks(0),
-	m_modified(false)
+	m_modified(false),
+	m_channel(generate_array<CHANNELS>([](size_t chnum) {
+		return fm_channel(opna_registers::channel_offset(uint32_t(chnum))); })),
+	m_operator(generate_array<OPERATORS>([](size_t opnum) {
+		return fm_operator(opna_registers::operator_offset(uint32_t(opnum))); }))
 {
 	// inform the interface of their engine
 	m_intf.m_engine = this;
 
-	// create the channels
-	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
-		m_channel[chnum] = std::make_unique<fm_channel>(opna_registers::channel_offset(chnum));
-
-	// create the operators and wire them to their channels
-	for (uint32_t opnum = 0; opnum < OPERATORS; opnum++)
-		m_operator[opnum] = std::make_unique<fm_operator>(opna_registers::operator_offset(opnum));
+	// wire the operators to their channels
 	for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 		for (uint32_t index = 0; index < 4; index++)
-			m_channel[chnum]->assign(index, m_operator[opna_registers::OPERATOR_MAP[chnum][index]].get());
+			m_channel[chnum].assign(index, &m_operator[opna_registers::OPERATOR_MAP[chnum][index]]);
 }
 
 
@@ -974,11 +972,11 @@ void fm_engine_base::reset()
 
 	// reset the channels
 	for (auto &chan : m_channel)
-		chan->reset();
+		chan.reset();
 
 	// reset the operators
 	for (auto &op : m_operator)
-		op->reset();
+		op.reset();
 }
 
 
@@ -1056,7 +1054,7 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 
 	bool lfoWalked = false;
 	for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
-		auto& channel = *m_channel[chnum];
+		auto& channel = m_channel[chnum];
 		// prepare() applies a new key and rebuilds the operator cache. With no
 		// register or key change, the envelope state already decides the path.
 		bool audible = m_modified ? channel.prepare(m_regs) : channel.audible();
@@ -1125,7 +1123,7 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data)
 		if (keyon_channel < CHANNELS)
 		{
 			// normal channel on/off
-			m_channel[keyon_channel]->keyonoff(keyon_opmask, KEYON_NORMAL);
+			m_channel[keyon_channel].keyonoff(keyon_opmask, KEYON_NORMAL);
 		}
 	}
 }
@@ -1192,7 +1190,7 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum)
 		m_modified = true;
 		for (uint32_t chnum = 0; chnum < CHANNELS; chnum++)
 			if (bitfield(opna_registers::CSM_TRIGGER_MASK, chnum))
-				m_channel[chnum]->keyonoff(0xf, KEYON_CSM);
+				m_channel[chnum].keyonoff(0xf, KEYON_CSM);
 	}
 
 	// reset

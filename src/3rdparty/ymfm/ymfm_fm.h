@@ -35,8 +35,9 @@
 
 #include "ymfm.h"
 
+#include "stl.hh"
+
 #include <array>
-#include <memory>
 #include <span>
 
 namespace ymfm
@@ -544,8 +545,10 @@ public:
 	static constexpr uint8_t STATUS_TIMERB = opna_registers::STATUS_TIMERB;
 	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
 
-	// constructor
+	// constructor; the channels point into m_operator, so copying is not safe
 	fm_engine_base(ymfm_interface &intf);
+	fm_engine_base(const fm_engine_base &) = delete;
+	fm_engine_base &operator=(const fm_engine_base &) = delete;
 
 	// save/restore
 	template<typename Archive>
@@ -561,10 +564,10 @@ public:
 		             "total_clocks",   m_total_clocks,
 		             "regs",           m_regs);
 		for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
-			ar.serialize("channel", *m_channel[chnum]);
+			ar.serialize("channel", m_channel[chnum]);
 		}
 		for (uint32_t opnum = 0; opnum < OPERATORS; ++opnum) {
-			ar.serialize("operator", *m_operator[opnum]);
+			ar.serialize("operator", m_operator[opnum]);
 		}
 		// Operator caches are not saved. The next generate() rebuilds them.
 		m_modified = true;
@@ -636,8 +639,8 @@ protected:
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
 	bool m_modified;                 // register or key changed since the last generate()
 	opna_registers m_regs;           // register accessor
-	std::array<std::unique_ptr<fm_channel>, CHANNELS> m_channel; // channel pointers
-	std::unique_ptr<fm_operator> m_operator[OPERATORS];          // operator pointers
+	std::array<fm_channel, CHANNELS> m_channel;     // the six channels
+	std::array<fm_operator, OPERATORS> m_operator;  // the channels point into this
 };
 
 }
