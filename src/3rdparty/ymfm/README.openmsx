@@ -1,21 +1,22 @@
 YMFM by Aaron Giles and contributors (BSD-3-Clause).
 https://github.com/aaronsgiles/ymfm
 Pinned revision: 81aec25ccbb98f4873a255f7551ac4dadac59b4a
-OPN/SSG/ADPCM core subset. See LICENSE.
+OPNA FM and ADPCM engine subset. See LICENSE.
 
-Production Makoto uses src/sound/MakotoYM2608.{hh,cc}: an attributed adaptation
-of the YM2608 control layer with direct native FM and SSG output. The vendored
-ym2608 class itself is restored to the pinned upstream source. The former
-patched class and MakotoNativeChip wrapper live in Contrib/makoto-reference/
-for standalone regression tests; they are not linked into the emulator.
+Production Makoto uses src/sound/YM2608.{hh,cc}: an attributed adaptation of the
+YM2608 control layer that drives the vendored engines and writes float output
+directly. That control layer is the only chip-level class; upstream's own
+ym2608 class and its SSG engine are not vendored. Contrib/makoto-reference/
+holds the earlier patched class and the MakotoNativeChip wrapper for standalone
+regression tests; they target an earlier engine API, are not linked into the
+emulator, and no longer build.
 
 Remaining lower-engine patches:
 1. Value-initialize fm_operator::m_cache, giving fields a defined state before
    the normal synthesis prepare() step.
-2. Safe debugger external-peek callbacks and effective FM/SSG/ADPCM register
+2. Safe debugger external-peek callbacks and effective FM/ADPCM register
    access. Hosts without a peek callback return FFh instead of invoking a
-   potentially destructive read. A read-only SSG resampler output accessor
-   remains for the preserved differential-test reference.
+   potentially destructive read.
 3. Inclusive ADPCM-B CPU transfer boundaries: write the final byte of the end
    chunk and read the final byte of the limit chunk before wrapping. Makoto V5
    on Sanyo MSX2+ and Panasonic turbo R confirms x1 END=0 writes A1 A2 A3 A4,
@@ -50,9 +51,6 @@ Remaining lower-engine patches:
    for the whole block. `clock()` still runs. Volume and pan are read once
    per buffer, and the scaled sample is recomputed on a clock tick.
 
-Contrib/makoto-adpcm-transfer-test.cc covers the RAM corrections.
-Contrib/makoto-owned-core-test.cc compares the new control layer with the
-preserved reference for 1,080,000 samples across all 16 voices and prescalers.
 See doc/internal/makoto.md and the linked fork measurements for scope/limits.
 
 New Makoto states use native openMSX control fields and four length-checked
@@ -64,4 +62,6 @@ OPNA register class lives in ymfm_fm.h, ahead of the FM engine that uses it;
 upstream's ymfm_opn.h is gone. The FM engine classes name that register class
 directly, so they carry no template parameter. ymfm_opn.cc includes
 ymfm_fm.ipp, which puts the engine and the register accessors it calls in one
-translation unit.
+translation unit. The engine classes hold their channels and operators by
+value, and a channel reads registers only in the two calls that run once per
+buffer.
