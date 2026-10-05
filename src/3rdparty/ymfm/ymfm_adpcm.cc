@@ -237,11 +237,10 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan() const
 //-------------------------------------------------
 
 adpcm_a_engine::adpcm_a_engine(ymfm_interface &intf, uint32_t addrshift) :
-	m_intf(intf)
+	m_intf(intf),
+	m_channel(generate_array<CHANNELS>([&](size_t chnum) {
+		return adpcm_a_channel(*this, uint32_t(chnum), addrshift); }))
 {
-	// create the channels
-	for (int chnum = 0; chnum < CHANNELS; chnum++)
-		m_channel[chnum] = std::make_unique<adpcm_a_channel>(*this, chnum, addrshift);
 }
 
 
@@ -256,7 +255,7 @@ void adpcm_a_engine::reset()
 
 	// reset each channel
 	for (auto &chan : m_channel)
-		chan->reset();
+		chan.reset();
 }
 
 
@@ -267,7 +266,7 @@ void adpcm_a_engine::reset()
 void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart)
 {
 	for (int chnum = 0; chnum < CHANNELS; ++chnum) {
-		auto& channel = *m_channel[chnum];
+		auto& channel = m_channel[chnum];
 		if (channel.resting())
 			continue;
 		// Volume and pan are registers, so they are read once per buffer.
@@ -327,7 +326,7 @@ void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 	if (regnum == 0x00)
 		for (int chnum = 0; chnum < CHANNELS; chnum++)
 			if (bitfield(data, chnum))
-				m_channel[chnum]->keyonoff(bitfield(~data, 7));
+				m_channel[chnum].keyonoff(bitfield(~data, 7));
 }
 
 
@@ -743,10 +742,9 @@ void adpcm_b_channel::load_start()
 //-------------------------------------------------
 
 adpcm_b_engine::adpcm_b_engine(ymfm_interface &intf, uint32_t addrshift) :
-	m_intf(intf)
+	m_intf(intf),
+	m_channel(*this, addrshift)
 {
-	// create the channel (only one supported for now, but leaving possibilities open)
-	m_channel = std::make_unique<adpcm_b_channel>(*this, addrshift);
 }
 
 
@@ -760,7 +758,7 @@ void adpcm_b_engine::reset()
 	m_regs.reset();
 
 	// reset each channel
-	m_channel->reset();
+	m_channel.reset();
 }
 
 
@@ -770,15 +768,15 @@ void adpcm_b_engine::reset()
 
 void adpcm_b_engine::generate(float* buffer, unsigned num, uint32_t rshift)
 {
-	if (m_channel->resting())
+	if (m_channel.resting())
 		return;
 	// Level and pan are registers, so they are read once per buffer. An empty
 	// pan mask means this channel adds nothing.
-	const auto plan = m_channel->make_output_plan(rshift);
+	const auto plan = m_channel.make_output_plan(rshift);
 	if (buffer == nullptr || plan.pan_mask == 0)
-		m_channel->clock_n(num);
+		m_channel.clock_n(num);
 	else
-		m_channel->generate(buffer, num, plan);
+		m_channel.generate(buffer, num, plan);
 }
 
 
@@ -793,7 +791,7 @@ void adpcm_b_engine::write(uint32_t regnum, uint8_t data)
 	m_regs.write(regnum, data);
 
 	// let the channel handle any special writes
-	m_channel->write(regnum, data);
+	m_channel.write(regnum, data);
 }
 
 }

@@ -35,6 +35,8 @@
 
 #include "ymfm.h"
 
+#include "stl.hh"
+
 #include <array>
 #include <span>
 
@@ -207,8 +209,10 @@ class adpcm_a_engine
 public:
 	static constexpr int CHANNELS = adpcm_a_registers::CHANNELS;
 
-	// constructor
+	// constructor; the channels point back at us, so copying is not safe
 	adpcm_a_engine(ymfm_interface &intf, uint32_t addrshift);
+	adpcm_a_engine(const adpcm_a_engine &) = delete;
+	adpcm_a_engine &operator=(const adpcm_a_engine &) = delete;
 
 	// reset our status
 	void reset();
@@ -219,7 +223,7 @@ public:
 	{
 		ar.serialize("regs", m_regs);
 		for (int chnum = 0; chnum < CHANNELS; ++chnum) {
-			ar.serialize("channel", *m_channel[chnum]);
+			ar.serialize("channel", m_channel[chnum]);
 		}
 	}
 
@@ -231,7 +235,7 @@ public:
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart);
 
 	// True when this channel's output() will add zero until the next register write.
-	bool silent(unsigned chnum) const { return m_channel[chnum]->silent(); }
+	bool silent(unsigned chnum) const { return m_channel[chnum].silent(); }
 
 	// write to the ADPCM-A registers
 	void write(uint32_t regnum, uint8_t data);
@@ -253,9 +257,9 @@ public:
 
 private:
 	// internal state
-	ymfm_interface &m_intf;                                 // reference to the interface
-	std::unique_ptr<adpcm_a_channel> m_channel[CHANNELS]; // array of channels
-	adpcm_a_registers m_regs;                             // registers
+	ymfm_interface &m_intf;                            // reference to the interface
+	adpcm_a_registers m_regs;                          // registers
+	std::array<adpcm_a_channel, CHANNELS> m_channel;   // the six channels
 };
 
 
@@ -505,8 +509,10 @@ private:
 class adpcm_b_engine
 {
 public:
-	// constructor
+	// constructor; the channel points back at us, so copying is not safe
 	adpcm_b_engine(ymfm_interface &intf, uint32_t addrshift = 0);
+	adpcm_b_engine(const adpcm_b_engine &) = delete;
+	adpcm_b_engine &operator=(const adpcm_b_engine &) = delete;
 
 	// reset our status
 	void reset();
@@ -516,7 +522,7 @@ public:
 	void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.serialize("regs",    m_regs,
-		             "channel", *m_channel);
+		             "channel", m_channel);
 	}
 
 	// Whole buffer for the single channel. A nullptr buffer skips output.
@@ -524,17 +530,17 @@ public:
 	void generate(float* buffer, unsigned num, uint32_t rshift);
 
 	// True when output() will add zero until the next register write.
-	bool silent() const { return m_channel->silent(); }
+	bool silent() const { return m_channel.silent(); }
 
 	// read from the ADPCM-B registers
-	uint32_t read(uint32_t regnum) { return m_channel->read(regnum); }
-	uint8_t peek(uint32_t regnum) const { return m_channel->peek(regnum); }
+	uint32_t read(uint32_t regnum) { return m_channel.read(regnum); }
+	uint8_t peek(uint32_t regnum) const { return m_channel.peek(regnum); }
 
 	// write to the ADPCM-B registers
 	void write(uint32_t regnum, uint8_t data);
 
 	// status
-	uint8_t status() const { return m_channel->status(); }
+	uint8_t status() const { return m_channel.status(); }
 
 	// return a reference to our interface
 	ymfm_interface &intf() { return m_intf; }
@@ -545,9 +551,9 @@ public:
 
 private:
 	// internal state
-	ymfm_interface &m_intf;                     // reference to our interface
-	std::unique_ptr<adpcm_b_channel> m_channel; // channel pointer
-	adpcm_b_registers m_regs;                   // registers
+	ymfm_interface &m_intf;      // reference to our interface
+	adpcm_b_registers m_regs;    // registers
+	adpcm_b_channel m_channel;   // the one channel
 };
 
 }
