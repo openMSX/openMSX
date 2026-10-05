@@ -48,9 +48,6 @@ private:
 	[[nodiscard]] unsigned ssgRate() const;
 	void applyRates();
 
-	void setBusyEnd(uint32_t clocks);
-	[[nodiscard]] bool isBusy() const;
-
 	// ymfm_interface
 	void ymfm_set_timer(uint32_t timer, int32_t duration) override;
 	void ymfm_update_irq(bool asserted) override;
@@ -61,6 +58,9 @@ private:
 	void generateFM(std::span<float*> buffers, unsigned num);
 
 private:
+	void setBusyEnd(uint32_t clocks);
+	[[nodiscard]] bool isBusy() const;
+
 	class FmPart final : public ResampledSoundDevice {
 	public:
 		FmPart(DeviceConfig& config, std::string_view name, YM2608& chip);

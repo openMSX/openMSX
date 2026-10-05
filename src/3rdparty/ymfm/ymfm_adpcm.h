@@ -393,8 +393,8 @@ public:
 		return (result * int32_t(plan.level)) >> 9;
 	}
 
-	// num clocks with output, interleaved stereo. Reads the decode state and
-	// the position step once, like clock_n() does.
+	// num clocks into an interleaved stereo buffer. Reads the decode state
+	// and the position step once, like clock_n() does.
 	void generate(float* buffer, unsigned num, const output_plan &plan);
 
 	// return the status register

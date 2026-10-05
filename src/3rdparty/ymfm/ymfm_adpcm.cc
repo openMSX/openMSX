@@ -114,7 +114,7 @@ void adpcm_a_channel::keyonoff(bool on)
 
 void adpcm_a_channel::clock()
 {
-	// if not playing, just output 0
+	// if not playing, hold a zero sample
 	if (!m_playing)
 	{
 		m_accumulator = 0;

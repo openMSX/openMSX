@@ -504,7 +504,7 @@ private:
 	// internal state
 	uint16_t m_choffs;                     // channel offset in registers
 	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
-	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output)
+	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output_4op)
 	std::array<fm_operator *, 4> m_op;     // the four operators of this channel
 };
 
