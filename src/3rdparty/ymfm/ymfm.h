@@ -33,19 +33,10 @@
 
 #pragma once
 
-#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
- #define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include <cassert>
 #include <cstdint>
-#include <cstdio>
-#include <cstring>
 #include <algorithm>
 #include <array>
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace ymfm
 {
@@ -116,14 +107,11 @@ enum envelope_state : uint32_t
 	EG_STATES = 5
 };
 
-// external I/O access classes
+// external I/O access classes; OPNA reaches memory for its two ADPCM engines
 enum access_class : uint32_t
 {
-	ACCESS_IO = 0,
 	ACCESS_ADPCM_A,
-	ACCESS_ADPCM_B,
-	ACCESS_PCM,
-	ACCESS_CLASSES
+	ACCESS_ADPCM_B
 };
 
 

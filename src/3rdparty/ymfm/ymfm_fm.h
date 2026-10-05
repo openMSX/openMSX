@@ -36,6 +36,7 @@
 #include "ymfm.h"
 
 #include <array>
+#include <memory>
 #include <span>
 
 namespace ymfm
