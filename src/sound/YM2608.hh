@@ -13,7 +13,6 @@
 #include "Ram.hh"
 #include "SimpleDebuggable.hh"
 #include "serialize_core.hh"
-#include "stl.hh"
 
 #include <algorithm>
 #include <array>
@@ -175,15 +174,10 @@ class opna_registers
 {
 public:
 	// constants
-	static constexpr uint32_t WAVEFORM_LENGTH = 0x400;  // size of a full sin waveform
 	static constexpr unsigned CHANNELS = 6;
 	static constexpr unsigned OPERATORS = CHANNELS * 4;
 	static constexpr uint32_t REGISTERS = 0x200;
 	static constexpr uint32_t REG_MODE = 0x27;
-	static constexpr uint32_t DEFAULT_PRESCALE = 6;
-	static constexpr uint8_t STATUS_TIMERA = 0x01;
-	static constexpr uint8_t STATUS_TIMERB = 0x02;
-	static constexpr uint8_t STATUS_BUSY = 0x80;
 
 	// constructor
 	opna_registers();
@@ -531,14 +525,10 @@ private:
 class fm_engine
 {
 public:
-	// expose some constants from the registers
 	static constexpr unsigned CHANNELS = opna_registers::CHANNELS;
 	static constexpr unsigned OPERATORS = opna_registers::OPERATORS;
-
-	// also expose status flags for consumers that inject additional bits
-	static constexpr uint8_t STATUS_TIMERA = opna_registers::STATUS_TIMERA;
-	static constexpr uint8_t STATUS_TIMERB = opna_registers::STATUS_TIMERB;
-	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
+	static constexpr uint8_t STATUS_TIMERA = 0x01;
+	static constexpr uint8_t STATUS_TIMERB = 0x02;
 
 	// constructor; each channel owns four operators
 	fm_engine(MSXMotherBoard& motherboard, std::string_view name);

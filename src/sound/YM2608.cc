@@ -6,6 +6,7 @@
 #include "Clock.hh"
 #include "outer.hh"
 #include "serialize.hh"
+#include "stl.hh"
 
 #include "3rdparty/ym2608/fmopn_2608rom.h"
 
@@ -16,6 +17,7 @@ namespace openmsx {
 
 static constexpr unsigned CLOCK = 8'000'000;
 
+static constexpr uint8_t STATUS_BUSY = 0x80;
 static constexpr uint8_t STATUS_ADPCM_B_EOS = 0x04;
 static constexpr uint8_t STATUS_ADPCM_B_BRDY = 0x08;
 static constexpr uint8_t STATUS_ADPCM_B_PLAYING = 0x20;
@@ -85,7 +87,7 @@ uint8_t YM2608::peekPort(unsigned port, EmuTime time) const
 {
 	// Debugger reads deliberately bypass readStatusHi()'s IRQ update and the
 	// ADPCM data port's dummy reads, address advancement and flag changes.
-	auto busy = (time < busyEnd) ? fm_engine::STATUS_BUSY : 0;
+	auto busy = (time < busyEnd) ? STATUS_BUSY : 0;
 	switch (port & 3) {
 	case 0:
 		return (fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB)) | busy;
@@ -107,7 +109,7 @@ uint8_t YM2608::readStatus(EmuTime time)
 {
 	uint8_t result = fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB);
 	if (isBusy(time)) {
-		result |= fm_engine::STATUS_BUSY;
+		result |= STATUS_BUSY;
 	}
 	return result;
 }
@@ -130,7 +132,7 @@ uint8_t YM2608::readStatusHi(EmuTime time)
 
 	// merge in the busy flag
 	if (isBusy(time)) {
-		status |= fm_engine::STATUS_BUSY;
+		status |= STATUS_BUSY;
 	}
 	return status;
 }
@@ -443,7 +445,8 @@ constexpr unsigned abs_sin_attenuation(unsigned input)
 }
 
 // 10-bit phase, sign in bit 15. Built once from abs_sin_attenuation().
-static constexpr auto s_waveform = generate_array<opna_registers::WAVEFORM_LENGTH>([](size_t index) {
+static constexpr unsigned WAVEFORM_LENGTH = 0x400;
+static constexpr auto s_waveform = generate_array<WAVEFORM_LENGTH>([](size_t index) {
 	unsigned i = unsigned(index);
 	return uint16_t(abs_sin_attenuation(i) | (bitfield(i, 9) << 15));
 });
@@ -688,7 +691,7 @@ int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 	if (m_env_attenuation > EG_QUIET) return 0;
 
 	// get the absolute value of the sin, as attenuation, as a 4.8 fixed point value
-	uint32_t sin_attenuation = s_waveform[phase & (opna_registers::WAVEFORM_LENGTH - 1)];
+	uint32_t sin_attenuation = s_waveform[phase & (WAVEFORM_LENGTH - 1)];
 
 	// get the attenuation from the evelope generator as a 4.6 value, shifted up to 4.8
 	uint32_t env_attenuation = envelope_attenuation(am_offset) << 2;
@@ -1145,6 +1148,8 @@ int32_t fm_channel::output_4op(const output_plan& plan, uint32_t am_offset)
 //  FM ENGINE
 //*********************************************************
 
+static constexpr uint8_t DEFAULT_PRESCALE = 6;
+
 //-------------------------------------------------
 //  fm_engine - constructor
 //-------------------------------------------------
@@ -1155,7 +1160,7 @@ fm_engine::fm_engine(MSXMotherBoard& motherboard, std::string_view name) :
 	       Timer(motherboard.getScheduler(), 1)},
 	m_env_counter(0),
 	m_status(0),
-	m_clock_prescale(opna_registers::DEFAULT_PRESCALE),
+	m_clock_prescale(DEFAULT_PRESCALE),
 	m_irq_mask(STATUS_TIMERA | STATUS_TIMERB),
 	m_timer_running{false, false},
 	m_total_clocks(0),
@@ -1275,7 +1280,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 
 void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask)
 {
-	static_assert(opna_registers::OPERATORS / opna_registers::CHANNELS == 4);
+	static_assert(OPERATORS / CHANNELS == 4);
 
 	// An empty buffer must not consume a pending key-on.
 	if (num == 0) return;
@@ -1292,7 +1297,7 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 	}
 
 	bool lfoWalked = false;
-	for (unsigned chnum = 0; chnum < CHANNELS; ++chnum) {
+	for (unsigned chnum = 0; chnum < m_channel.size(); ++chnum) {
 		auto& channel = m_channel[chnum];
 		// prepare() applies a new key and rebuilds the operator cache. With no
 		// register or key change, the envelope state already decides the path.
@@ -1363,7 +1368,7 @@ void fm_engine::write(uint16_t regnum, uint8_t data, EmuTime time)
 	unsigned keyon_opmask;
 	if (m_regs.write(regnum, data, keyon_channel, keyon_opmask)) {
 		// handle writes to the keyon register(s)
-		if (keyon_channel < CHANNELS) {
+		if (keyon_channel < m_channel.size()) {
 			// normal channel on/off
 			m_channel[keyon_channel].keyonoff(keyon_opmask, KEYON_NORMAL);
 		}
@@ -1482,10 +1487,10 @@ void fm_engine::mode_write(uint8_t data, EmuTime time)
 	// reset timer status
 	uint8_t reset_mask = 0;
 	if (m_regs.reset_timer_b()) {
-		reset_mask |= opna_registers::STATUS_TIMERB;
+		reset_mask |= STATUS_TIMERB;
 	}
 	if (m_regs.reset_timer_a()) {
-		reset_mask |= opna_registers::STATUS_TIMERA;
+		reset_mask |= STATUS_TIMERA;
 	}
 	set_reset_status(0, reset_mask);
 
@@ -1972,7 +1977,7 @@ void adpcm_a_engine::reset()
 
 void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart)
 {
-	for (unsigned chnum = 0; chnum < CHANNELS; ++chnum) {
+	for (unsigned chnum = 0; chnum < m_channel.size(); ++chnum) {
 		auto& channel = m_channel[chnum];
 		if (channel.resting()) continue;
 		// Volume and pan are registers, so they are read once per buffer.
@@ -2031,7 +2036,7 @@ void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 
 	// actively handle writes to the control register
 	if (regnum == 0x00) {
-		for (unsigned chnum = 0; chnum < CHANNELS; chnum++) {
+		for (unsigned chnum = 0; chnum < m_channel.size(); chnum++) {
 			if (bitfield(data, chnum)) {
 				m_channel[chnum].keyonoff(bitfield(~data, 7) != 0, chnum);
 			}
