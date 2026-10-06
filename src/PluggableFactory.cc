@@ -3,6 +3,7 @@
 #include "JoyHandle.hh"
 #include "ArkanoidPad.hh"
 #include "CircuitDesignerRDDongle.hh"
+#include "Gunstick.hh"
 #include "InputEventGenerator.hh"
 #include "JoyMega.hh"
 #include "JoyTap.hh"
@@ -71,6 +72,9 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<Touchpad>(
 		msxEventDistributor, stateChangeDistributor,
 		display, commandController));
+	controller.registerPluggable(std::make_unique<Gunstick>(
+		motherBoard, msxEventDistributor, stateChangeDistributor,
+		display));
 	controller.registerPluggable(std::make_unique<JoyTap>(
 		controller, "joytap"));
 	controller.registerPluggable(std::make_unique<NinjaTap>(

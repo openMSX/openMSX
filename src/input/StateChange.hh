@@ -5,8 +5,10 @@
 #include "TclObject.hh"
 
 #include "dynarray.hh"
+#include "gl_vec.hh"
 #include "serialize_meta.hh"
 
+#include <optional>
 #include <variant>
 #include <vector>
 
@@ -340,6 +342,43 @@ private:
 };
 
 
+class GunstickState final : public StateChangeBase
+{
+public:
+	GunstickState() = default; // for serialize
+	GunstickState(EmuTime time_, std::optional<gl::ivec2> aim_, bool trigger_)
+		: StateChangeBase(time_)
+		, aim(aim_), trigger(trigger_) {}
+
+	[[nodiscard]] auto getAim()     const { return aim; }
+	[[nodiscard]] auto getTrigger() const { return trigger; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChangeBase>(*this);
+		serializeAim(ar, aim);
+		ar.serialize("trigger", trigger);
+	}
+
+	/** Also used by the Gunstick itself. Stored as RawFrame coordinates,
+	  * -1 means "not on the screen". */
+	template<typename Archive>
+	static void serializeAim(Archive& ar, std::optional<gl::ivec2>& aim_)
+	{
+		int x = aim_ ? aim_->x : -1;
+		int y = aim_ ? aim_->y : -1;
+		ar.serialize("x", x,
+		             "y", y);
+		if constexpr (Archive::IS_LOADER) {
+			aim_ = (x >= 0) ? std::optional(gl::ivec2(x, y)) : std::nullopt;
+		}
+	}
+private:
+	std::optional<gl::ivec2> aim; // nullopt when not aiming at the screen
+	bool trigger = false;
+};
+
+
 class MouseState final : public StateChangeBase
 {
 public:
@@ -402,7 +441,8 @@ using StateChange = std::variant<
 	TouchpadState,
 	MouseState,
 	JoyMegaState,
-	JoyHandleState
+	JoyHandleState,
+	GunstickState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -426,7 +466,8 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"TouchpadState",       index<TouchpadState>      },
 		{"MouseState",          index<MouseState>         },
 		{"JoyMegaState",        index<JoyMegaState>       },
-		{"JoyHandleState",      index<JoyHandleState>     }
+		{"JoyHandleState",      index<JoyHandleState>     },
+		{"GunstickState",       index<GunstickState>      }
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;
