@@ -513,12 +513,12 @@ public:
 
 	// 4-operator output handler; the caller routes the result to the outputs
 	// the plan enables
-	int32_t output_4op(const output_plan& plan, uint32_t am_offset) const;
+	int32_t output_4op(const output_plan& plan, uint32_t am_offset);
 
 private:
 	// internal state
 	std::array<int16_t, 2> m_feedback{};   // feedback memory for operator 1
-	mutable int16_t m_feedback_in = 0;     // next input value for op 1 feedback (set in output_4op)
+	int16_t m_feedback_in = 0;             // next input value for op 1 feedback (set in output_4op)
 	std::array<fm_operator, 4> m_op;
 };
 

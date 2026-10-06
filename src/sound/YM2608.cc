@@ -1088,7 +1088,7 @@ fm_channel::output_plan fm_channel::make_output_plan(const opna_registers& regs,
 //  the specified algorithm, returning a sum
 //-------------------------------------------------
 
-int32_t fm_channel::output_4op(const output_plan& plan, uint32_t am_offset) const
+int32_t fm_channel::output_4op(const output_plan& plan, uint32_t am_offset)
 {
 	// operator 1 has optional self-feedback
 	int32_t opmod = 0;
