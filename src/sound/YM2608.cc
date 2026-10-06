@@ -68,7 +68,7 @@ void YM2608::reset(EmuTime time)
 	readStatusHi();
 
 	ssg.reset(time);
-	applyRates();
+	applyRates(time);
 	busyEnd = time;
 	irq.reset();
 }
@@ -208,7 +208,7 @@ void YM2608::writePort(unsigned port, uint8_t value, EmuTime time)
 		break;
 	}
 
-	applyRates();
+	applyRates(time);
 }
 
 void YM2608::writeRegister(unsigned regnum, uint8_t data, EmuTime time)
@@ -291,10 +291,10 @@ unsigned YM2608::ssgRate() const
 	                                :  8);
 }
 
-void YM2608::applyRates()
+void YM2608::applyRates(EmuTime time)
 {
 	fmPart.rate(fmRate());
-	ssg.setClockFrequency(float(8 * ssgRate()));
+	ssg.setClockFrequency(float(8 * ssgRate()), time);
 }
 
 void YM2608::ymfm_set_timer(uint32_t timer, int32_t duration)
@@ -390,7 +390,7 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		const auto fmTime = fmPart.getEmuClock().getTime();
 		const auto ssgTime = ssg.getEmuClock().getTime();
-		applyRates();
+		applyRates(timers[0].getCurrentTime());
 		fmPart.restoreClock(fmTime);
 		ssg.getEmuClock().reset(ssgTime);
 		contextTime = timers[0].getCurrentTime();

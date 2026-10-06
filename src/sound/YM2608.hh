@@ -46,7 +46,7 @@ private:
 	[[nodiscard]] unsigned prescale() const;
 	[[nodiscard]] unsigned fmRate() const;
 	[[nodiscard]] unsigned ssgRate() const;
-	void applyRates();
+	void applyRates(EmuTime time);
 
 	// ymfm_interface
 	void ymfm_set_timer(uint32_t timer, int32_t duration) override;

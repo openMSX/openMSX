@@ -36,9 +36,7 @@ public:
 	[[nodiscard]] uint8_t peekRegister(unsigned reg, EmuTime time) const;
 	void writeRegister(unsigned reg, uint8_t value, EmuTime time);
 	void reset(EmuTime time);
-	// The caller must synchronize sound before changing the clock. Restore
-	// callers can rebuild the derived rate without generating pending sound.
-	void setClockFrequency(float frequency);
+	void setClockFrequency(float frequency, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
