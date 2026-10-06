@@ -636,7 +636,7 @@ bool fm_operator::prepare(opna_registers& regs, uint32_t choffs, uint32_t opoffs
 	regs.cache_operator_data(choffs, opoffs, m_cache);
 
 	// clock the key state
-	clock_keystate(uint32_t(m_keyon_live != 0));
+	clock_keystate(m_keyon_live != 0);
 	m_keyon_live &= ~(1 << KEYON_CSM);
 
 	// Only an enabled SSG-EG can invert. Turning it off mid-note leaves the
@@ -705,9 +705,9 @@ int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 //  keyonoff - signal a key on/off event
 //-------------------------------------------------
 
-void fm_operator::keyonoff(uint32_t on, keyon_type type)
+void fm_operator::keyonoff(bool on, keyon_type type)
 {
-	m_keyon_live = (m_keyon_live & ~(1 << int(type))) | (bitfield(on, 0) << int(type));
+	m_keyon_live = (m_keyon_live & ~(1 << int(type))) | (uint8_t(on) << int(type));
 }
 
 
@@ -769,16 +769,14 @@ void fm_operator::start_release()
 //  the incoming keystate
 //-------------------------------------------------
 
-void fm_operator::clock_keystate(uint32_t keystate)
+void fm_operator::clock_keystate(bool keystate)
 {
-	assert(keystate == 0 || keystate == 1);
-
 	// has the key changed?
-	if (bool(keystate) != m_key_state) {
-		m_key_state = bool(keystate);
+	if (keystate != m_key_state) {
+		m_key_state = keystate;
 
 		// if the key has turned on, start the attack
-		if (keystate != 0) {
+		if (keystate) {
 			start_attack();
 		} else {
 			// otherwise, start the release
@@ -979,7 +977,7 @@ void fm_channel::reset()
 void fm_channel::keyonoff(uint32_t states, keyon_type type)
 {
 	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++) {
-		m_op[opnum].keyonoff(bitfield(states, opnum), type);
+		m_op[opnum].keyonoff(bitfield(states, opnum) != 0, type);
 	}
 }
 
@@ -1287,7 +1285,7 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 	// counter advances once per sample for ADPCM-A, even when no channel clocks.
 	const uint32_t env0 = m_env_counter;
 	const auto lfo0 = m_regs.save_lfo();
-	const bool lfoEnabled = m_regs.lfo_enable() != 0;
+	const bool lfoEnabled = m_regs.lfo_enable();
 	// Disabled LFO is a constant. One update serves every sample of the chunk.
 	if (!lfoEnabled) {
 		m_regs.hold_disabled_lfo();
@@ -1317,7 +1315,7 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 		}
 		// Closed pan still clocks and updates operator-1 feedback, but adds
 		// nothing, so the mixer can skip the buffer.
-		if (!mix || (m_regs.ch_output_0(choffs) == 0 && m_regs.ch_output_1(choffs) == 0)) {
+		if (!mix || (!m_regs.ch_output_0(choffs) && !m_regs.ch_output_1(choffs))) {
 			buffers[chnum] = nullptr;
 		}
 		if (mix && walkLfo) {
@@ -1389,7 +1387,7 @@ uint8_t fm_engine::status() const
 //  timer
 //-------------------------------------------------
 
-void fm_engine::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks, EmuTime time)
+void fm_engine::update_timer(uint32_t tnum, bool enable, int32_t delta_clocks, EmuTime time)
 {
 	// if the timer is live, but not currently enabled, set the timer
 	if (enable && !m_timer_running[tnum]) {
@@ -1456,7 +1454,7 @@ void fm_engine::engine_timer_expired(uint32_t tnum, EmuTime time)
 
 	// reset
 	m_timer_running[tnum] = false;
-	update_timer(tnum, 1, 0, time);
+	update_timer(tnum, true, 0, time);
 }
 
 
@@ -1685,7 +1683,7 @@ void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdat
 
 	// phase step, or PHASE_STEP_DYNAMIC if PM is active; this depends on
 	// block_freq, detune, and multiple, so compute it after we've done those
-	if (lfo_enable() == 0 || cache.lfo_pm_sens == 0) {
+	if (!lfo_enable() || cache.lfo_pm_sens == 0) {
 		cache.phase_step = compute_phase_step(cache, 0);
 	} else {
 		cache.phase_step = opdata_cache::PHASE_STEP_DYNAMIC;
@@ -1708,8 +1706,8 @@ void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdat
 
 	// SSG-EG shape and the LFO AM enable, read per sample otherwise
 	cache.ssg_eg_mode = uint8_t(op_ssg_eg_mode(opoffs));
-	cache.ssg_eg_enable = op_ssg_eg_enable(opoffs) != 0;
-	cache.lfo_am_enable = op_lfo_am_enable(opoffs) != 0;
+	cache.ssg_eg_enable = op_ssg_eg_enable(opoffs);
+	cache.lfo_am_enable = op_lfo_am_enable(opoffs);
 }
 
 
@@ -2035,7 +2033,7 @@ void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 	if (regnum == 0x00) {
 		for (int chnum = 0; chnum < CHANNELS; chnum++) {
 			if (bitfield(data, chnum)) {
-				m_channel[chnum].keyonoff(bitfield(~data, 7), uint32_t(chnum));
+				m_channel[chnum].keyonoff(bitfield(~data, 7) != 0, uint32_t(chnum));
 			}
 		}
 	}

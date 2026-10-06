@@ -283,26 +283,26 @@ public:
 	static uint32_t compute_phase_step(const opdata_cache& cache, int32_t lfo_raw_pm);
 
 	// system-wide registers
-	uint32_t lfo_enable() const                 { return byte(0x22, 3, 1); }
-	uint32_t lfo_rate() const                   { return byte(0x22, 0, 3); }
-	uint32_t timer_a_value() const              { return word(0x24, 0, 8, 0x25, 0, 2); }
-	uint32_t timer_b_value() const              { return byte(0x26, 0, 8); }
-	uint32_t csm() const                        { return (byte(0x27, 6, 2) == 2); }
-	uint32_t multi_freq() const                 { return (byte(0x27, 6, 2) != 0); }
-	uint32_t reset_timer_b() const              { return byte(0x27, 5, 1); }
-	uint32_t reset_timer_a() const              { return byte(0x27, 4, 1); }
-	uint32_t enable_timer_b() const             { return byte(0x27, 3, 1); }
-	uint32_t enable_timer_a() const             { return byte(0x27, 2, 1); }
-	uint32_t load_timer_b() const               { return byte(0x27, 1, 1); }
-	uint32_t load_timer_a() const               { return byte(0x27, 0, 1); }
-	uint32_t multi_block_freq(uint32_t num) const    { return word(0xac, 0, 6, 0xa8, 0, 8, num); }
+	bool lfo_enable() const                       { return byte(0x22, 3, 1) != 0; }
+	uint32_t lfo_rate() const                     { return byte(0x22, 0, 3); }
+	uint32_t timer_a_value() const                { return word(0x24, 0, 8, 0x25, 0, 2); }
+	uint32_t timer_b_value() const                { return byte(0x26, 0, 8); }
+	bool csm() const                              { return byte(0x27, 6, 2) == 2; }
+	bool multi_freq() const                       { return byte(0x27, 6, 2) != 0; }
+	bool reset_timer_b() const                    { return byte(0x27, 5, 1) != 0; }
+	bool reset_timer_a() const                    { return byte(0x27, 4, 1) != 0; }
+	bool enable_timer_b() const                   { return byte(0x27, 3, 1) != 0; }
+	bool enable_timer_a() const                   { return byte(0x27, 2, 1) != 0; }
+	bool load_timer_b() const                     { return byte(0x27, 1, 1) != 0; }
+	bool load_timer_a() const                     { return byte(0x27, 0, 1) != 0; }
+	uint32_t multi_block_freq(uint32_t num) const { return word(0xac, 0, 6, 0xa8, 0, 8, num); }
 
 	// per-channel registers
 	uint32_t ch_block_freq(uint32_t choffs) const    { return word(0xa4, 0, 6, 0xa0, 0, 8, choffs); }
 	uint32_t ch_feedback(uint32_t choffs) const      { return byte(0xb0, 3, 3, choffs); }
 	uint32_t ch_algorithm(uint32_t choffs) const     { return byte(0xb0, 0, 3, choffs); }
-	uint32_t ch_output_0(uint32_t choffs) const      { return byte(0xb4, 7, 1, choffs); }
-	uint32_t ch_output_1(uint32_t choffs) const      { return byte(0xb4, 6, 1, choffs); }
+	bool ch_output_0(uint32_t choffs) const          { return byte(0xb4, 7, 1, choffs) != 0; }
+	bool ch_output_1(uint32_t choffs) const          { return byte(0xb4, 6, 1, choffs) != 0; }
 	uint32_t ch_lfo_am_sens(uint32_t choffs) const   { return byte(0xb4, 4, 2, choffs); }
 	uint32_t ch_lfo_pm_sens(uint32_t choffs) const   { return byte(0xb4, 0, 3, choffs); }
 
@@ -313,11 +313,11 @@ public:
 	uint32_t op_ksr(uint32_t opoffs) const           { return byte(0x50, 6, 2, opoffs); }
 	uint32_t op_attack_rate(uint32_t opoffs) const   { return byte(0x50, 0, 5, opoffs); }
 	uint32_t op_decay_rate(uint32_t opoffs) const    { return byte(0x60, 0, 5, opoffs); }
-	uint32_t op_lfo_am_enable(uint32_t opoffs) const { return byte(0x60, 7, 1, opoffs); }
+	bool op_lfo_am_enable(uint32_t opoffs) const     { return byte(0x60, 7, 1, opoffs) != 0; }
 	uint32_t op_sustain_rate(uint32_t opoffs) const  { return byte(0x70, 0, 5, opoffs); }
 	uint32_t op_sustain_level(uint32_t opoffs) const { return byte(0x80, 4, 4, opoffs); }
 	uint32_t op_release_rate(uint32_t opoffs) const  { return byte(0x80, 0, 4, opoffs); }
-	uint32_t op_ssg_eg_enable(uint32_t opoffs) const { return byte(0x90, 3, 1, opoffs); }
+	bool op_ssg_eg_enable(uint32_t opoffs) const     { return byte(0x90, 3, 1, opoffs) != 0; }
 	uint32_t op_ssg_eg_mode(uint32_t opoffs) const   { return byte(0x90, 0, 3, opoffs); }
 
 private:
@@ -404,7 +404,7 @@ public:
 	int32_t compute_volume(uint32_t phase, uint32_t am_offset) const;
 
 	// key state control
-	void keyonoff(uint32_t on, keyon_type type);
+	void keyonoff(bool on, keyon_type type);
 
 private:
 	// start the attack phase
@@ -414,7 +414,7 @@ private:
 	void start_release();
 
 	// clock phases
-	void clock_keystate(uint32_t keystate);
+	void clock_keystate(bool keystate);
 	void clock_ssg_eg_state();
 	void clock_envelope(uint32_t env_counter);
 	void clock_phase(int32_t lfo_raw_pm);
@@ -635,7 +635,7 @@ private:
 	void engine_timer_expired(uint32_t tnum, EmuTime time);
 	void check_interrupts();
 	void mode_write(uint8_t data, EmuTime time);
-	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks, EmuTime time);
+	void update_timer(uint32_t which, bool enable, int32_t delta_clocks, EmuTime time);
 	void scheduleTimer(uint32_t timer, int32_t duration, EmuTime time);
 
 	// internal state
@@ -699,8 +699,8 @@ public:
 	uint32_t total_level() const                        { return bitfield(m_regdata[0x01], 0, 6); }
 
 	// per-channel registers
-	uint32_t ch_pan_left(uint32_t choffs) const         { return bitfield(m_regdata[choffs + 0x08], 7); }
-	uint32_t ch_pan_right(uint32_t choffs) const        { return bitfield(m_regdata[choffs + 0x08], 6); }
+	bool ch_pan_left(uint32_t choffs) const             { return bitfield(m_regdata[choffs + 0x08], 7) != 0; }
+	bool ch_pan_right(uint32_t choffs) const            { return bitfield(m_regdata[choffs + 0x08], 6) != 0; }
 	uint32_t ch_instrument_level(uint32_t choffs) const { return bitfield(m_regdata[choffs + 0x08], 0, 5); }
 	uint32_t ch_start(uint32_t choffs) const            { return m_regdata[choffs + 0x10] | (m_regdata[choffs + 0x18] << 8); }
 	uint32_t ch_end(uint32_t choffs) const              { return m_regdata[choffs + 0x20] | (m_regdata[choffs + 0x28] << 8); }
@@ -894,21 +894,21 @@ public:
 	void write(uint32_t index, uint8_t data) { m_regdata[index] = data; }
 
 	// system-wide registers
-	uint32_t execute() const          { return bitfield(m_regdata[0x00], 7); }
-	uint32_t record() const           { return bitfield(m_regdata[0x00], 6); }
-	uint32_t external() const         { return bitfield(m_regdata[0x00], 5); }
-	uint32_t repeat() const           { return bitfield(m_regdata[0x00], 4); }
-	uint32_t resetflag() const        { return bitfield(m_regdata[0x00], 0); }
-	uint32_t pan_left() const         { return bitfield(m_regdata[0x01], 7); }
-	uint32_t pan_right() const        { return bitfield(m_regdata[0x01], 6); }
-	uint32_t dram_8bit() const        { return bitfield(m_regdata[0x01], 1); }
-	uint32_t rom_ram() const          { return bitfield(m_regdata[0x01], 0); }
-	uint32_t start() const            { return m_regdata[0x02] | (m_regdata[0x03] << 8); }
-	uint32_t end() const              { return m_regdata[0x04] | (m_regdata[0x05] << 8); }
-	uint32_t cpudata() const          { return m_regdata[0x08]; }
-	uint32_t delta_n() const          { return m_regdata[0x09] | (m_regdata[0x0a] << 8); }
-	uint32_t level() const            { return m_regdata[0x0b]; }
-	uint32_t limit() const            { return m_regdata[0x0c] | (m_regdata[0x0d] << 8); }
+	bool execute() const          { return bitfield(m_regdata[0x00], 7) != 0; }
+	bool record() const           { return bitfield(m_regdata[0x00], 6) != 0; }
+	bool external() const         { return bitfield(m_regdata[0x00], 5) != 0; }
+	bool repeat() const           { return bitfield(m_regdata[0x00], 4) != 0; }
+	bool resetflag() const        { return bitfield(m_regdata[0x00], 0) != 0; }
+	bool pan_left() const         { return bitfield(m_regdata[0x01], 7) != 0; }
+	bool pan_right() const        { return bitfield(m_regdata[0x01], 6) != 0; }
+	bool dram_8bit() const        { return bitfield(m_regdata[0x01], 1) != 0; }
+	bool rom_ram() const          { return bitfield(m_regdata[0x01], 0) != 0; }
+	uint32_t start() const        { return m_regdata[0x02] | (m_regdata[0x03] << 8); }
+	uint32_t end() const          { return m_regdata[0x04] | (m_regdata[0x05] << 8); }
+	uint32_t cpudata() const      { return m_regdata[0x08]; }
+	uint32_t delta_n() const      { return m_regdata[0x09] | (m_regdata[0x0a] << 8); }
+	uint32_t level() const        { return m_regdata[0x0b]; }
+	uint32_t limit() const        { return m_regdata[0x0c] | (m_regdata[0x0d] << 8); }
 
 private:
 	// internal state
