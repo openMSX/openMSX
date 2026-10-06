@@ -434,8 +434,9 @@ constexpr uint32_t abs_sin_attenuation(uint32_t input)
 
 	// if the top bit is set, we're in the second half of the curve
 	// which is a mirror image, so invert the index
-	if (bitfield(input, 8))
+	if (bitfield(input, 8)) {
 		input = ~input;
+	}
 
 	// return the value from the table
 	return s_sin_table[input & 0xff];
@@ -596,8 +597,9 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 
 	// compute the adjustment
 	int32_t adjust = (fnum_bits >> bitfield(shifts, 0, 4)) + (fnum_bits >> bitfield(shifts, 4, 4));
-	if (pm_sensitivity > 5)
+	if (pm_sensitivity > 5) {
 		adjust <<= pm_sensitivity - 5;
+	}
 	adjust >>= 2;
 
 	// every 16 cycles it inverts sign
@@ -628,7 +630,7 @@ void fm_operator::reset()
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-bool fm_operator::prepare(opna_registers &regs, uint32_t choffs, uint32_t opoffs)
+bool fm_operator::prepare(opna_registers& regs, uint32_t choffs, uint32_t opoffs)
 {
 	// cache the data
 	regs.cache_operator_data(choffs, opoffs, m_cache);
@@ -640,8 +642,9 @@ bool fm_operator::prepare(opna_registers &regs, uint32_t choffs, uint32_t opoffs
 	// Only an enabled SSG-EG can invert. Turning it off mid-note leaves the
 	// flag set, so it is cleared here, after start_release() has had its look
 	// at the old value.
-	if (!m_cache.ssg_eg_enable)
+	if (!m_cache.ssg_eg_enable) {
 		m_ssg_inverted = false;
+	}
 
 	// we're active until we're quiet after the release
 	return (m_env_state != EG_RELEASE || m_env_attenuation < EG_QUIET);
@@ -656,12 +659,14 @@ void fm_operator::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 {
 	// clock the SSG-EG state (OPN/OPNA); prepare() cleared the inversion if
 	// it is disabled
-	if (m_cache.ssg_eg_enable)
+	if (m_cache.ssg_eg_enable) {
 		clock_ssg_eg_state();
+	}
 
 	// clock the envelope if on an envelope cycle; env_counter is a x.2 value
-	if (bitfield(env_counter, 0, 2) == 0)
+	if (bitfield(env_counter, 0, 2) == 0) {
 		clock_envelope(env_counter >> 2);
+	}
 
 	// clock the phase
 	clock_phase(lfo_raw_pm);
@@ -680,8 +685,7 @@ int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 	// the full sin wave
 
 	// early out if the envelope is effectively off
-	if (m_env_attenuation > EG_QUIET)
-		return 0;
+	if (m_env_attenuation > EG_QUIET) return 0;
 
 	// get the absolute value of the sin, as attenuation, as a 4.8 fixed point value
 	uint32_t sin_attenuation = s_waveform[phase & (opna_registers::WAVEFORM_LENGTH - 1)];
@@ -716,25 +720,27 @@ void fm_operator::keyonoff(uint32_t on, keyon_type type)
 void fm_operator::start_attack(bool is_restart)
 {
 	// don't change anything if already in attack state
-	if (m_env_state == EG_ATTACK)
-		return;
+	if (m_env_state == EG_ATTACK) return;
 	m_env_state = EG_ATTACK;
 
 	// generally not inverted at start, except if SSG-EG is enabled and
 	// one of the inverted modes is specified; leave this alone on a
 	// restart, as it is managed by the clock_ssg_eg_state() code
-	if (!is_restart)
+	if (!is_restart) {
 		m_ssg_inverted = m_cache.ssg_eg_enable && bitfield(m_cache.ssg_eg_mode, 2);
+	}
 
 	// reset the phase when we start an attack due to a key on
 	// (but not when due to an SSG-EG restart except in certain cases
 	// managed directly by the SSG-EG code)
-	if (!is_restart)
+	if (!is_restart) {
 		m_phase = 0;
+	}
 
 	// if the attack rate >= 62 then immediately go to max attenuation
-	if (m_cache.eg_rate[EG_ATTACK] >= 62)
+	if (m_cache.eg_rate[EG_ATTACK] >= 62) {
 		m_env_attenuation = 0;
+	}
 }
 
 
@@ -746,14 +752,12 @@ void fm_operator::start_attack(bool is_restart)
 void fm_operator::start_release()
 {
 	// don't change anything if already in release state
-	if (m_env_state >= EG_RELEASE)
-		return;
+	if (m_env_state >= EG_RELEASE) return;
 	m_env_state = EG_RELEASE;
 
 	// if attenuation if inverted due to SSG-EG, snap the inverted attenuation
 	// as the starting point
-	if (m_ssg_inverted)
-	{
+	if (m_ssg_inverted) {
 		m_env_attenuation = (0x200 - m_env_attenuation) & 0x3ff;
 		m_ssg_inverted = false;
 	}
@@ -770,17 +774,16 @@ void fm_operator::clock_keystate(uint32_t keystate)
 	assert(keystate == 0 || keystate == 1);
 
 	// has the key changed?
-	if (bool(keystate) != m_key_state)
-	{
+	if (bool(keystate) != m_key_state) {
 		m_key_state = bool(keystate);
 
 		// if the key has turned on, start the attack
-		if (keystate != 0)
+		if (keystate != 0) {
 			start_attack();
-
-		// otherwise, start the release
-		else
+		} else {
+			// otherwise, start the release
 			start_release();
+		}
 	}
 }
 
@@ -793,8 +796,7 @@ void fm_operator::clock_keystate(uint32_t keystate)
 void fm_operator::clock_ssg_eg_state()
 {
 	// work only happens once the attenuation crosses above 0x200
-	if (!bitfield(m_env_attenuation, 9))
-		return;
+	if (!bitfield(m_env_attenuation, 9)) return;
 
 	// 8 SSG-EG modes:
 	//    000: repeat normally
@@ -808,35 +810,35 @@ void fm_operator::clock_ssg_eg_state()
 	uint32_t mode = m_cache.ssg_eg_mode;
 
 	// hold modes (1/3/5/7)
-	if (bitfield(mode, 0))
-	{
+	if (bitfield(mode, 0)) {
 		// set the inverted flag to the end state (0 for modes 1/7, 1 for modes 3/5)
 		m_ssg_inverted = bitfield(mode, 2) ^ bitfield(mode, 1);
 
 		// if holding, force the attenuation to the expected value once we're
 		// past the attack phase
-		if (m_env_state != EG_ATTACK)
+		if (m_env_state != EG_ATTACK) {
 			m_env_attenuation = m_ssg_inverted ? 0x200 : 0x3ff;
-	}
-
-	// continuous modes (0/2/4/6)
-	else
-	{
+		}
+	} else {
+		// continuous modes (0/2/4/6)
 		// toggle invert in alternating mode (even in attack state)
 		m_ssg_inverted ^= bitfield(mode, 1);
 
 		// restart attack if in decay/sustain states
-		if (m_env_state == EG_DECAY || m_env_state == EG_SUSTAIN)
+		if (m_env_state == EG_DECAY || m_env_state == EG_SUSTAIN) {
 			start_attack(true);
+		}
 
 		// phase is reset to 0 in modes 0/4
-		if (bitfield(mode, 1) == 0)
+		if (bitfield(mode, 1) == 0) {
 			m_phase = 0;
+		}
 	}
 
 	// in all modes, once we hit release state, attenuation is forced to maximum
-	if (m_env_state == EG_RELEASE)
+	if (m_env_state == EG_RELEASE) {
 		m_env_attenuation = 0x3ff;
+	}
 }
 
 
@@ -848,16 +850,18 @@ void fm_operator::clock_ssg_eg_state()
 void fm_operator::clock_envelope(uint32_t env_counter)
 {
 	// handle attack->decay transitions
-	if (m_env_state == EG_ATTACK && m_env_attenuation == 0)
+	if (m_env_state == EG_ATTACK && m_env_attenuation == 0) {
 		m_env_state = EG_DECAY;
+	}
 
 	// handle decay->sustain transitions; it is important to do this immediately
 	// after the attack->decay transition above in the event that the sustain level
 	// is set to 0 (in which case we will skip right to sustain without doing any
 	// decay); as an example where this can be heard, check the cymbals sound
 	// in channel 0 of shinobi's test mode sound #5
-	if (m_env_state == EG_DECAY && m_env_attenuation >= m_cache.eg_sustain)
+	if (m_env_state == EG_DECAY && m_env_attenuation >= m_cache.eg_sustain) {
 		m_env_state = EG_SUSTAIN;
+	}
 
 	// fetch the appropriate 6-bit rate value from the cache
 	uint32_t rate = m_cache.eg_rate[m_env_state];
@@ -869,38 +873,35 @@ void fm_operator::clock_envelope(uint32_t env_counter)
 	env_counter <<= rate_shift;
 
 	// see if the fractional part is 0; if not, it's not time to clock
-	if (bitfield(env_counter, 0, 11) != 0)
-		return;
+	if (bitfield(env_counter, 0, 11) != 0) return;
 
 	// determine the increment based on the non-fractional part of env_counter
 	uint32_t relevant_bits = bitfield(env_counter, (rate_shift <= 11) ? 11 : rate_shift, 3);
 	uint32_t increment = attenuation_increment(rate, relevant_bits);
 
 	// attack is the only one that increases
-	if (m_env_state == EG_ATTACK)
-	{
+	if (m_env_state == EG_ATTACK) {
 		// glitch means that attack rates of 62/63 don't increment if
 		// changed after the initial key on (where they are handled
 		// specially); nukeykt confirms this happens on OPM, OPN, OPL/OPLL
 		// at least so assuming it is true for everyone
-		if (rate < 62)
+		if (rate < 62) {
 			m_env_attenuation += (~m_env_attenuation * increment) >> 4;
-	}
-
-	// all other cases are similar
-	else
-	{
+		}
+	} else {
+		// all other cases are similar
 		// non-SSG-EG cases just apply the increment
-		if (!m_cache.ssg_eg_enable)
+		if (!m_cache.ssg_eg_enable) {
 			m_env_attenuation += increment;
-
-		// SSG-EG only applies if less than mid-point, and then at 4x
-		else if (m_env_attenuation < 0x200)
+		} else if (m_env_attenuation < 0x200) {
+			// SSG-EG only applies if less than mid-point, and then at 4x
 			m_env_attenuation += 4 * increment;
+		}
 
 		// clamp the final attenuation
-		if (m_env_attenuation >= 0x400)
+		if (m_env_attenuation >= 0x400) {
 			m_env_attenuation = 0x3ff;
+		}
 	}
 }
 
@@ -915,8 +916,9 @@ void fm_operator::clock_phase(int32_t lfo_raw_pm)
 {
 	// read from the cache, or recalculate if PM active
 	uint32_t phase_step = m_cache.phase_step;
-	if (phase_step == opdata_cache::PHASE_STEP_DYNAMIC)
+	if (phase_step == opdata_cache::PHASE_STEP_DYNAMIC) {
 		phase_step = opna_registers::compute_phase_step(m_cache, lfo_raw_pm);
+	}
 
 	// finally apply the step to the current phase value
 	m_phase += phase_step;
@@ -933,12 +935,14 @@ uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 	uint32_t result = m_env_attenuation;
 
 	// invert if necessary due to SSG-EG
-	if (m_ssg_inverted)
+	if (m_ssg_inverted) {
 		result = (0x200 - result) & 0x3ff;
+	}
 
 	// add in LFO AM modulation
-	if (m_cache.lfo_am_enable)
+	if (m_cache.lfo_am_enable) {
 		result += am_offset;
+	}
 
 	// add in total level from the cache
 	result += m_cache.total_level;
@@ -962,8 +966,9 @@ void fm_channel::reset()
 	// reset our data
 	m_feedback[0] = m_feedback[1] = 0;
 	m_feedback_in = 0;
-	for (auto& op : m_op)
+	for (auto& op : m_op) {
 		op.reset();
+	}
 }
 
 
@@ -973,8 +978,9 @@ void fm_channel::reset()
 
 void fm_channel::keyonoff(uint32_t states, keyon_type type)
 {
-	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++)
+	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++) {
 		m_op[opnum].keyonoff(bitfield(states, opnum), type);
+	}
 }
 
 
@@ -982,15 +988,17 @@ void fm_channel::keyonoff(uint32_t states, keyon_type type)
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-bool fm_channel::prepare(opna_registers &regs, uint32_t chnum)
+bool fm_channel::prepare(opna_registers& regs, uint32_t chnum)
 {
 	// prepare all operators and determine if any of them is active
 	bool active = false;
 	const uint32_t choffs = opna_registers::channel_offset(chnum);
 	auto const& map = opna_registers::OPERATOR_MAP[chnum];
-	for (uint32_t slot = 0; slot < 4; slot++)
-		if (m_op[slot].prepare(regs, choffs, opna_registers::operator_offset(map[slot])))
+	for (uint32_t slot = 0; slot < 4; slot++) {
+		if (m_op[slot].prepare(regs, choffs, opna_registers::operator_offset(map[slot]))) {
 			active = true;
+		}
+	}
 
 	return active;
 }
@@ -1006,8 +1014,9 @@ void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 	m_feedback[0] = m_feedback[1];
 	m_feedback[1] = m_feedback_in;
 
-	for (auto& op : m_op)
+	for (auto& op : m_op) {
 		op.clock(env_counter, lfo_raw_pm);
+	}
 }
 
 
@@ -1054,7 +1063,7 @@ static constexpr struct { uint8_t op2in, op3in, op4in, carrier_mask; } s_algorit
 //  hold for the whole buffer
 //-------------------------------------------------
 
-fm_channel::output_plan fm_channel::make_output_plan(const opna_registers &regs, uint32_t chnum) const
+fm_channel::output_plan fm_channel::make_output_plan(const opna_registers& regs, uint32_t chnum) const
 {
 	output_plan plan;
 	const uint32_t choffs = opna_registers::channel_offset(chnum);
@@ -1066,10 +1075,12 @@ fm_channel::output_plan fm_channel::make_output_plan(const opna_registers &regs,
 	plan.feedback = uint8_t(regs.ch_feedback(choffs));
 
 	plan.output_mask = 0;
-	if (regs.ch_output_0(choffs))
+	if (regs.ch_output_0(choffs)) {
 		plan.output_mask |= 1;
-	if (regs.ch_output_1(choffs))
+	}
+	if (regs.ch_output_1(choffs)) {
 		plan.output_mask |= 2;
+	}
 	return plan;
 }
 
@@ -1079,20 +1090,20 @@ fm_channel::output_plan fm_channel::make_output_plan(const opna_registers &regs,
 //  the specified algorithm, returning a sum
 //-------------------------------------------------
 
-int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) const
+int32_t fm_channel::output_4op(const output_plan& plan, uint32_t am_offset) const
 {
 	// operator 1 has optional self-feedback
 	int32_t opmod = 0;
-	if (plan.feedback != 0)
+	if (plan.feedback != 0) {
 		opmod = (m_feedback[0] + m_feedback[1]) >> (10 - plan.feedback);
+	}
 
 	// compute the 14-bit volume/value of operator 1 and update the feedback
 	int32_t op1value = m_feedback_in = m_op[0].compute_volume(m_op[0].phase() + opmod, am_offset);
 
 	// now that the feedback has been computed, skip the rest if this channel
 	// feeds no output; no need to do all this work for nothing
-	if (plan.output_mask == 0)
-		return 0;
+	if (plan.output_mask == 0) return 0;
 
 	// populate the opout table
 	int16_t opout[8];
@@ -1118,12 +1129,15 @@ int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) cons
 	// optionally add OP1, OP2, OP3. compute_volume() cannot exceed the largest
 	// power table entry, 8168, so even four unshifted carriers stay inside the
 	// 16-bit range that the clamp here used to enforce.
-	if (plan.carrier_mask & 1)
+	if (plan.carrier_mask & 1) {
 		result += opout[1] >> OUTPUT_SHIFT;
-	if (plan.carrier_mask & 2)
+	}
+	if (plan.carrier_mask & 2) {
 		result += opout[2] >> OUTPUT_SHIFT;
-	if (plan.carrier_mask & 4)
+	}
+	if (plan.carrier_mask & 4) {
 		result += opout[3] >> OUTPUT_SHIFT;
+	}
 
 	return result;
 }
@@ -1174,8 +1188,9 @@ void fm_engine::reset(EmuTime time)
 	write(opna_registers::REG_MODE, 0, time);
 
 	// reset the channels
-	for (auto &chan : m_channel)
+	for (auto& chan : m_channel) {
 		chan.reset();
+	}
 }
 
 
@@ -1197,15 +1212,17 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 	uint32_t am_offset = 0;
 	bool panLeft = false;
 	bool panRight = false;
-	if constexpr (Lfo)
+	if constexpr (Lfo) {
 		lfoMaxCount = regs.lfo_max_count();
+	}
 	if constexpr (Write) {
 		plan = channel.make_output_plan(regs, chnum);
 		panLeft = (plan.output_mask & 1) != 0;
 		panRight = (plan.output_mask & 2) != 0;
 		am_shift = regs.lfo_am_shift(opna_registers::channel_offset(chnum));
-		if constexpr (!Lfo)
+		if constexpr (!Lfo) {
 			am_offset = regs.lfo_am_offset(am_shift);
+		}
 	}
 
 	auto tick = [&] {
@@ -1213,15 +1230,17 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 		int32_t pm = 0;
 		if constexpr (Lfo) {
 			pm = regs.clock_lfo(lfoMaxCount);
-			if constexpr (Write)
+			if constexpr (Write) {
 				am_offset = regs.lfo_am_offset(am_shift);
+			}
 		}
 		channel.clock(env, pm);
 	};
 
 	if constexpr (!Write) {
-		for (unsigned index = 0; index < num; ++index)
+		for (unsigned index = 0; index < num; ++index) {
 			tick();
+		}
 		return;
 	}
 
@@ -1261,8 +1280,7 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 	static_assert(opna_registers::OPERATORS / opna_registers::CHANNELS == 4);
 
 	// An empty buffer must not consume a pending key-on.
-	if (num == 0)
-		return;
+	if (num == 0) return;
 
 	// Register writes and CSM key-on land before this call. A channel that is
 	// quiet here cannot become active before the next generate(). The envelope
@@ -1271,8 +1289,9 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 	const auto lfo0 = m_regs.save_lfo();
 	const bool lfoEnabled = m_regs.lfo_enable() != 0;
 	// Disabled LFO is a constant. One update serves every sample of the chunk.
-	if (!lfoEnabled)
+	if (!lfoEnabled) {
 		m_regs.hold_disabled_lfo();
+	}
 
 	bool lfoWalked = false;
 	for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
@@ -1298,16 +1317,18 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 		}
 		// Closed pan still clocks and updates operator-1 feedback, but adds
 		// nothing, so the mixer can skip the buffer.
-		if (!mix || (m_regs.ch_output_0(choffs) == 0 && m_regs.ch_output_1(choffs) == 0))
+		if (!mix || (m_regs.ch_output_0(choffs) == 0 && m_regs.ch_output_1(choffs) == 0)) {
 			buffers[chnum] = nullptr;
-		if (mix && walkLfo)
+		}
+		if (mix && walkLfo) {
 			synthesize_fm_channel<true, true>(channel, m_regs, buffers[chnum], num, env0, chnum);
-		else if (mix)
+		} else if (mix) {
 			synthesize_fm_channel<true, false>(channel, m_regs, buffers[chnum], num, env0, chnum);
-		else if (walkLfo)
+		} else if (walkLfo) {
 			synthesize_fm_channel<false, true>(channel, m_regs, nullptr, num, env0, chnum);
-		else
+		} else {
 			synthesize_fm_channel<false, false>(channel, m_regs, nullptr, num, env0, chnum);
+		}
 	}
 
 	m_env_counter = advance_eg_counter(env0, num);
@@ -1316,8 +1337,9 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 	if (lfoEnabled && !lfoWalked) {
 		m_regs.restore_lfo(lfo0);
 		const uint32_t lfoMaxCount = m_regs.lfo_max_count();
-		for (unsigned i = 0; i < num; ++i)
+		for (unsigned i = 0; i < num; ++i) {
 			m_regs.clock_lfo(lfoMaxCount);
+		}
 	}
 }
 
@@ -1333,8 +1355,7 @@ void fm_engine::write(uint16_t regnum, uint8_t data, EmuTime time)
 	// Consumed by the next generate(): rebuild caches and apply key changes.
 	m_modified = true;
 
-	if (regnum == opna_registers::REG_MODE)
-	{
+	if (regnum == opna_registers::REG_MODE) {
 		mode_write(data, time);
 		return;
 	}
@@ -1342,11 +1363,9 @@ void fm_engine::write(uint16_t regnum, uint8_t data, EmuTime time)
 	// most writes are passive, consumed only when needed
 	uint32_t keyon_channel;
 	uint32_t keyon_opmask;
-	if (m_regs.write(regnum, data, keyon_channel, keyon_opmask))
-	{
+	if (m_regs.write(regnum, data, keyon_channel, keyon_opmask)) {
 		// handle writes to the keyon register(s)
-		if (keyon_channel < CHANNELS)
-		{
+		if (keyon_channel < CHANNELS) {
 			// normal channel on/off
 			m_channel[keyon_channel].keyonoff(keyon_opmask, KEYON_NORMAL);
 		}
@@ -1373,8 +1392,7 @@ uint8_t fm_engine::status() const
 void fm_engine::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks, EmuTime time)
 {
 	// if the timer is live, but not currently enabled, set the timer
-	if (enable && !m_timer_running[tnum])
-	{
+	if (enable && !m_timer_running[tnum]) {
 		// period comes from the registers, and is different for each
 		uint32_t period = (tnum == 0) ? (1024 - m_regs.timer_a_value()) : 16 * (256 - m_regs.timer_b_value());
 
@@ -1384,11 +1402,8 @@ void fm_engine::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clock
 		// reset it
 		scheduleTimer(tnum, period * OPERATORS * m_clock_prescale, time);
 		m_timer_running[tnum] = true;
-	}
-
-	// if the timer is not live, ensure it is not enabled
-	else if (!enable)
-	{
+	} else if (!enable) {
+		// if the timer is not live, ensure it is not enabled
 		scheduleTimer(tnum, -1, time);
 		m_timer_running[tnum] = false;
 	}
@@ -1425,10 +1440,11 @@ void fm_engine::engine_timer_expired(uint32_t tnum, EmuTime time)
 	assert(tnum == 0 || tnum == 1);
 
 	// update status
-	if (tnum == 0 && m_regs.enable_timer_a())
+	if (tnum == 0 && m_regs.enable_timer_a()) {
 		set_reset_status(STATUS_TIMERA, 0);
-	else if (tnum == 1 && m_regs.enable_timer_b())
+	} else if (tnum == 1 && m_regs.enable_timer_b()) {
 		set_reset_status(STATUS_TIMERB, 0);
+	}
 
 	// Timer A overflow in CSM mode keys channel 2. Flush the mixer first so
 	// samples before this instant still use the old key state.
@@ -1467,10 +1483,12 @@ void fm_engine::mode_write(uint8_t data, EmuTime time)
 
 	// reset timer status
 	uint8_t reset_mask = 0;
-	if (m_regs.reset_timer_b())
+	if (m_regs.reset_timer_b()) {
 		reset_mask |= opna_registers::STATUS_TIMERB;
-	if (m_regs.reset_timer_a())
+	}
+	if (m_regs.reset_timer_a()) {
 		reset_mask |= opna_registers::STATUS_TIMERA;
+	}
 	set_reset_status(0, reset_mask);
 
 	// load timers; note that timer B gets a small negative adjustment because
@@ -1516,33 +1534,27 @@ void opna_registers::reset()
 //  write - handle writes to the register array
 //-------------------------------------------------
 
-bool opna_registers::write(uint16_t index, uint8_t data, uint32_t &channel, uint32_t &opmask)
+bool opna_registers::write(uint16_t index, uint8_t data, uint32_t& channel, uint32_t& opmask)
 {
 	assert(index < REGISTERS);
 
 	// writes in the 0xa0-af/0x1a0-af region are handled as latched pairs
 	// borrow unused registers 0xb8-bf as temporary holding locations
-	if ((index & 0xf0) == 0xa0)
-	{
-		if (bitfield(index, 0, 2) == 3)
-			return false;
+	if ((index & 0xf0) == 0xa0) {
+		if (bitfield(index, 0, 2) == 3) return false;
 
 		uint32_t latchindex = 0xb8 | bitfield(index, 3);
 
 		// writes to the upper half just latch (only low 6 bits matter)
-		if (bitfield(index, 2))
+		if (bitfield(index, 2)) {
 			m_regdata[latchindex] = data & 0x3f;
-
-		// writes to the lower half also apply said latch
-		else
-		{
+		} else {
+			// writes to the lower half also apply said latch
 			m_regdata[index] = data;
 			m_regdata[index | 4] = m_regdata[latchindex];
 		}
 		return false;
-	}
-	else if ((index & 0xf8) == 0xb8)
-	{
+	} else if ((index & 0xf8) == 0xb8) {
 		// registers 0xb8-0xbf are used internally
 		return false;
 	}
@@ -1551,11 +1563,9 @@ bool opna_registers::write(uint16_t index, uint8_t data, uint32_t &channel, uint
 	m_regdata[index] = data;
 
 	// handle writes to the key on index
-	if (index == 0x28)
-	{
+	if (index == 0x28) {
 		channel = bitfield(data, 0, 2);
-		if (channel == 3)
-			return false;
+		if (channel == 3) return false;
 		channel += bitfield(data, 2, 1) * 3;
 		opmask = bitfield(data, 4, 4);
 		return true;
@@ -1576,8 +1586,7 @@ int32_t opna_registers::clock_lfo(uint32_t max_count)
 
 	// when we cross the divider count, add enough to zero it and cause an
 	// increment at bit 8; the 7-bit value lives from bits 8-14
-	if (subcount >= max_count)
-	{
+	if (subcount >= max_count) {
 		// note: to match the published values this should be 0x100 - subcount;
 		// however, tests on the hardware and nuked bear out an off-by-one
 		// error exists that causes the max LFO rate to be faster than published
@@ -1588,15 +1597,17 @@ int32_t opna_registers::clock_lfo(uint32_t max_count)
 	m_lfo_am = bitfield(m_lfo_counter, 8, 6);
 
 	// first half of the AM period (bit 6 == 0) is inverted
-	if (bitfield(m_lfo_counter, 8+6) == 0)
+	if (bitfield(m_lfo_counter, 8+6) == 0) {
 		m_lfo_am ^= 0x3f;
+	}
 
 	// PM value is 5 bits, starting at bit 10; grab the low 3 directly
 	int32_t pm = bitfield(m_lfo_counter, 10, 3);
 
 	// PM is reflected based on bit 3
-	if (bitfield(m_lfo_counter, 10+3))
+	if (bitfield(m_lfo_counter, 10+3)) {
 		pm ^= 7;
+	}
 
 	// PM is negated based on bit 4
 	return bitfield(m_lfo_counter, 10+4) ? -pm : pm;
@@ -1626,21 +1637,21 @@ uint32_t opna_registers::lfo_am_offset(uint32_t am_shift) const
 //  with prefetched data
 //-------------------------------------------------
 
-void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache &cache)
+void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache& cache)
 {
 	// get frequency from the channel
 	uint32_t block_freq = cache.block_freq = ch_block_freq(choffs);
 
 	// if multi-frequency mode is enabled and this is channel 2,
 	// fetch one of the special frequencies
-	if (multi_freq() && choffs == 2)
-	{
-		if (opoffs == 2)
+	if (multi_freq() && choffs == 2) {
+		if (opoffs == 2) {
 			block_freq = cache.block_freq = multi_block_freq(1);
-		else if (opoffs == 10)
+		} else if (opoffs == 10) {
 			block_freq = cache.block_freq = multi_block_freq(2);
-		else if (opoffs == 6)
+		} else if (opoffs == 6) {
 			block_freq = cache.block_freq = multi_block_freq(0);
+		}
 	}
 
 	// compute the keycode: block_freq is:
@@ -1665,18 +1676,20 @@ void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdat
 
 	// multiple value, as an x.1 value (0 means 0.5)
 	cache.multiple = op_multiple(opoffs) * 2;
-	if (cache.multiple == 0)
+	if (cache.multiple == 0) {
 		cache.multiple = 1;
+	}
 
 	// LFO PM sensitivity, read per sample otherwise
 	cache.lfo_pm_sens = uint8_t(ch_lfo_pm_sens(choffs));
 
 	// phase step, or PHASE_STEP_DYNAMIC if PM is active; this depends on
 	// block_freq, detune, and multiple, so compute it after we've done those
-	if (lfo_enable() == 0 || cache.lfo_pm_sens == 0)
+	if (lfo_enable() == 0 || cache.lfo_pm_sens == 0) {
 		cache.phase_step = compute_phase_step(cache, 0);
-	else
+	} else {
 		cache.phase_step = opdata_cache::PHASE_STEP_DYNAMIC;
+	}
 
 	// total level, scaled by 8
 	cache.total_level = op_total_level(opoffs) << 3;
@@ -1704,7 +1717,7 @@ void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdat
 //  compute_phase_step - compute the phase step
 //-------------------------------------------------
 
-uint32_t opna_registers::compute_phase_step(opdata_cache const &cache, int32_t lfo_raw_pm)
+uint32_t opna_registers::compute_phase_step(const opdata_cache& cache, int32_t lfo_raw_pm)
 {
 	// OPN phase calculation has only a single detune parameter
 	// and uses FNUMs instead of keycodes
@@ -1713,8 +1726,7 @@ uint32_t opna_registers::compute_phase_step(opdata_cache const &cache, int32_t l
 	uint32_t fnum = bitfield(cache.block_freq, 0, 11) << 1;
 
 	// if there's a non-zero PM sensitivity, compute the adjustment
-	if (cache.lfo_pm_sens != 0)
-	{
+	if (cache.lfo_pm_sens != 0) {
 		// apply the phase adjustment based on the upper 7 bits
 		// of FNUM and the PM depth parameters
 		fnum += opn_lfo_pm_phase_adjustment(bitfield(cache.block_freq, 4, 7), cache.lfo_pm_sens, lfo_raw_pm);
@@ -1802,8 +1814,7 @@ void adpcm_a_channel::keyonoff(bool on, uint32_t chnum)
 {
 	// QUESTION: repeated key ons restart the sample?
 	m_playing = on;
-	if (m_playing)
-	{
+	if (m_playing) {
 		m_curaddress = m_regs.ch_start(chnum);
 		m_curnibble = 0;
 		m_curbyte = 0;
@@ -1820,16 +1831,14 @@ void adpcm_a_channel::keyonoff(bool on, uint32_t chnum)
 void adpcm_a_channel::clock(uint32_t chnum)
 {
 	// if not playing, hold a zero sample
-	if (!m_playing)
-	{
+	if (!m_playing) {
 		m_accumulator = 0;
 		return;
 	}
 
 	// if we're about to read nibble 0, fetch the data
 	uint8_t data;
-	if (m_curnibble == 0)
-	{
+	if (m_curnibble == 0) {
 		// stop when we hit the end address; apparently only low 20 bits are used for
 		// comparison on the YM2610: this affects sample playback in some games, for
 		// example twinspri character select screen music will skip some samples if
@@ -1839,8 +1848,7 @@ void adpcm_a_channel::clock(uint32_t chnum)
 		// the sample just after the end before stopping; this is needed for nitd's
 		// jump sound, for example
 		uint32_t end = m_regs.ch_end(chnum) + 1;
-		if (((m_curaddress ^ end) & 0xfffff) == 0)
-		{
+		if (((m_curaddress ^ end) & 0xfffff) == 0) {
 			m_playing = false;
 			m_accumulator = 0;
 			return;
@@ -1849,11 +1857,8 @@ void adpcm_a_channel::clock(uint32_t chnum)
 		m_curbyte = YM2608_ADPCM_ROM[m_curaddress++ & 0x1fff];
 		data = m_curbyte >> 4;
 		m_curnibble = 1;
-	}
-
-	// otherwise just extract from the previosuly-fetched byte
-	else
-	{
+	} else {
+		// otherwise just extract from the previosuly-fetched byte
 		data = m_curbyte & 0xf;
 		m_curnibble = 0;
 	}
@@ -1870,8 +1875,9 @@ void adpcm_a_channel::clock(uint32_t chnum)
 		876, 963, 1060, 1166, 1282, 1411, 1552
 	};
 	int32_t delta = (2 * bitfield(data, 0, 3) + 1) * s_steps[m_step_index] / 8;
-	if (bitfield(data, 3))
+	if (bitfield(data, 3)) {
 		delta = -delta;
+	}
 
 	// the 12-bit accumulator wraps on the ym2610 and ym2608 (like the msm5205)
 	m_accumulator = int16_t((m_accumulator + delta) & 0xfff);
@@ -1891,8 +1897,7 @@ bool adpcm_a_channel::silent(uint32_t chnum) const
 	// A stopped channel forces the accumulator to 0 on the next clock that
 	// includes it. Until that clock, sample() still emits the held value.
 	// Key-on only happens from a register write.
-	if (!m_playing && m_accumulator == 0)
-		return true;
+	if (!m_playing && m_accumulator == 0) return true;
 
 	// Instrument level, total level and pan are registers. clock() does
 	// not change them, and a write ends the current buffer first.
@@ -1919,12 +1924,13 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(uint32_t chnum) c
 
 	// a maximum combined volume adds nothing, and neither does a closed pan
 	plan.pan_mask = 0;
-	if (vol < 63)
-	{
-		if (m_regs.ch_pan_left(chnum))
+	if (vol < 63) {
+		if (m_regs.ch_pan_left(chnum)) {
 			plan.pan_mask |= 1;
-		if (m_regs.ch_pan_right(chnum))
+		}
+		if (m_regs.ch_pan_right(chnum)) {
 			plan.pan_mask |= 2;
+		}
 	}
 	return plan;
 }
@@ -1956,8 +1962,9 @@ void adpcm_a_engine::reset()
 	m_regs.reset();
 
 	// reset each channel
-	for (auto &chan : m_channel)
+	for (auto& chan : m_channel) {
 		chan.reset();
+	}
 }
 
 
@@ -1969,8 +1976,7 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 {
 	for (int chnum = 0; chnum < CHANNELS; ++chnum) {
 		auto& channel = m_channel[chnum];
-		if (channel.resting())
-			continue;
+		if (channel.resting()) continue;
 		// Volume and pan are registers, so they are read once per buffer.
 		// An empty pan mask means this channel adds nothing.
 		const auto plan = channel.make_output_plan(uint32_t(chnum));
@@ -1982,8 +1988,9 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 		if (buf == nullptr) {
 			for (unsigned i = 0; i < num; ++i) {
 				env = step_eg_counter(env);
-				if ((env & 3) == 0 && (low || (env & 4) == 0))
+				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
 					channel.clock(uint32_t(chnum));
+				}
 			}
 		} else {
 			// Only clock() changes the accumulator, so the scaled sample is
@@ -2025,10 +2032,13 @@ void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 	m_regs.write(regnum, data);
 
 	// actively handle writes to the control register
-	if (regnum == 0x00)
-		for (int chnum = 0; chnum < CHANNELS; chnum++)
-			if (bitfield(data, chnum))
+	if (regnum == 0x00) {
+		for (int chnum = 0; chnum < CHANNELS; chnum++) {
+			if (bitfield(data, chnum)) {
 				m_channel[chnum].keyonoff(bitfield(~data, 7), uint32_t(chnum));
+			}
+		}
+	}
 }
 
 
@@ -2102,11 +2112,11 @@ void adpcm_b_channel::reset()
 bool adpcm_b_channel::consume_nibble()
 {
 	// if we're about to process nibble 0, fetch sample
-	if (m_curnibble == 0)
-	{
+	if (m_curnibble == 0) {
 		// playing from RAM/ROM
-		if (m_regs.external())
+		if (m_regs.external()) {
 			m_curbyte = ram[m_curaddress & 0x3ffff];
+		}
 	}
 
 	// extract the nibble from our current byte
@@ -2114,43 +2124,31 @@ bool adpcm_b_channel::consume_nibble()
 	m_curnibble ^= 1;
 
 	// we just processed the last nibble
-	if (m_curnibble == 0)
-	{
+	if (m_curnibble == 0) {
 		// if playing from RAM/ROM, check the end/limit address or advance
-		if (m_regs.external())
-		{
+		if (m_regs.external()) {
 			// handle the sample end, either repeating or stopping
-			if (at_end())
-			{
+			if (at_end()) {
 				// if repeating, go back to the start
-				if (m_regs.repeat())
+				if (m_regs.repeat()) {
 					load_start();
-
-				// otherwise, done; set the EOS bit
-				else
-				{
+				} else {
+					// otherwise, done; set the EOS bit
 					m_accumulator = 0;
 					m_prev_accum = 0;
 					m_status = (m_status & ~STATUS_PLAYING) | STATUS_EOS;
 					return false;
 				}
-			}
-
-			// wrap at the limit address
-			else if (at_limit())
+			} else if (at_limit()) {
+				// wrap at the limit address
 				m_curaddress = 0;
-
-			// otherwise, advance the current address
-			else
-			{
+			} else {
+				// otherwise, advance the current address
 				m_curaddress++;
 				m_curaddress &= 0xffffff;
 			}
-		}
-
-		// if CPU-driven, copy the next byte and request more
-		else
-		{
+		} else {
+			// if CPU-driven, copy the next byte and request more
 			m_curbyte = m_regs.cpudata();
 			m_status |= STATUS_BRDY;
 		}
@@ -2161,8 +2159,9 @@ bool adpcm_b_channel::consume_nibble()
 
 	// forecast to next forecast: 1/8, 3/8, 5/8, 7/8, 9/8, 11/8, 13/8, 15/8
 	int32_t delta = (2 * bitfield(data, 0, 3) + 1) * m_adpcm_step / 8;
-	if (bitfield(data, 3))
+	if (bitfield(data, 3)) {
 		delta = -delta;
+	}
 
 	// add and clamp to 16 bits
 	m_accumulator = int16_t(std::clamp(int(m_accumulator) + delta, -32768, 32767));
@@ -2181,8 +2180,7 @@ bool adpcm_b_channel::consume_nibble()
 
 void adpcm_b_channel::clock_n(unsigned num)
 {
-	if (num == 0)
-		return;
+	if (num == 0) return;
 
 	// Not decoding: a clock only clears PLAYING. One store covers the run.
 	if (!decoding()) {
@@ -2192,8 +2190,7 @@ void adpcm_b_channel::clock_n(unsigned num)
 
 	const uint32_t delta = m_regs.delta_n();
 	// Adding zero never reaches the next nibble.
-	if (delta == 0)
-		return;
+	if (delta == 0) return;
 
 	while (num != 0) {
 		// Clocks until and including the next 16-bit overflow.
@@ -2208,8 +2205,7 @@ void adpcm_b_channel::clock_n(unsigned num)
 		num -= steps;
 		// End-without-repeat stops here. Later clocks would only clear
 		// PLAYING, which consume_nibble() already cleared.
-		if (!consume_nibble())
-			return;
+		if (!consume_nibble()) return;
 	}
 }
 
@@ -2218,10 +2214,9 @@ void adpcm_b_channel::clock_n(unsigned num)
 //  generate - num clocks with output
 //-------------------------------------------------
 
-void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan &plan)
+void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan& plan)
 {
-	if (num == 0)
-		return;
+	if (num == 0) return;
 
 	const bool pan_left = (plan.pan_mask & 1) != 0;
 	const bool pan_right = (plan.pan_mask & 2) != 0;
@@ -2230,16 +2225,18 @@ void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan &p
 	// Without decoding the position never moves, and neither does it without
 	// a step, so in both cases the held sample repeats for the whole run.
 	uint32_t delta = 0;
-	if (decoding())
+	if (decoding()) {
 		delta = m_regs.delta_n();
-	else
+	} else {
 		m_status &= ~STATUS_PLAYING;
+	}
 
 	auto tick = [&] {
 		// End-without-repeat zeroes both interpolator ends, so the rest of
 		// the run holds that zero.
-		if (delta != 0 && !advance(delta))
+		if (delta != 0 && !advance(delta)) {
 			delta = 0;
+		}
 		return float(sample(plan));
 	};
 
@@ -2251,11 +2248,13 @@ void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan &p
 			buffer[pos + 1] += value;
 		}
 	} else if (pan_left) {
-		for (unsigned i = 0; i < num; ++i)
+		for (unsigned i = 0; i < num; ++i) {
 			buffer[i * 2] += tick();
+		}
 	} else {
-		for (unsigned i = 0; i < num; ++i)
+		for (unsigned i = 0; i < num; ++i) {
 			buffer[i * 2 + 1] += tick();
+		}
 	}
 }
 
@@ -2269,8 +2268,7 @@ bool adpcm_b_channel::silent() const
 	// Not advancing: a clock returns before it touches the accumulators.
 	// Playback itself starts only from a register write. A held sample is
 	// silent only when both ends of the interpolator are already zero.
-	if (!decoding() && m_accumulator == 0 && m_prev_accum == 0)
-		return true;
+	if (!decoding() && m_accumulator == 0 && m_prev_accum == 0) return true;
 
 	// Level and pan are registers. clock() does not change them, and a
 	// write ends the current buffer first.
@@ -2286,12 +2284,9 @@ uint8_t adpcm_b_channel::peek(uint32_t regnum) const
 {
 	// Observe the next CPU read without consuming dummy reads, advancing RAM,
 	// changing EOS/BRDY or invoking a potentially destructive host read.
-	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() && m_regs.external())
-	{
-		if (m_cpu_write_active)
-			return m_regs.cpudata();
-		if (m_dummy_read == 0)
-			return ram[m_curaddress & 0x3ffff];
+	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() && m_regs.external()) {
+		if (m_cpu_write_active) return m_regs.cpudata();
+		if (m_dummy_read == 0) return ram[m_curaddress & 0x3ffff];
 	}
 	return 0;
 }
@@ -2301,42 +2296,34 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 	uint8_t result = 0;
 
 	// register 8 reads over the bus under some conditions
-	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() && m_regs.external())
-	{
+	if (regnum == 0x08 && !m_regs.execute() && !m_regs.record() && m_regs.external()) {
 		// A mode change alone does not terminate an unfinished RAM writer.
 		// Until RESET, the CPU sees its last data-buffer byte (Makoto V4).
-		if (m_cpu_write_active)
-			return m_regs.cpudata();
+		if (m_cpu_write_active) return m_regs.cpudata();
 
 		// two dummy reads are consumed first
-		if (m_dummy_read != 0)
-		{
+		if (m_dummy_read != 0) {
 			load_start();
 			m_dummy_read--;
-		}
-
-		// read the data
-		else
-		{
+		} else {
+			// read the data
 			// read from outside of the chip
 			result = ram[m_curaddress & 0x3ffff];
 
 			// did we hit the end? if so, signal EOS
-			if (at_end())
-			{
+			if (at_end()) {
 				m_status = STATUS_EOS | STATUS_BRDY;
-			}
-			else
-			{
+			} else {
 				// signal ready
 				m_status = STATUS_BRDY;
 			}
 
 			// The limit is inclusive: consume its last byte before wrapping.
-			if (at_limit())
+			if (at_limit()) {
 				m_curaddress = 0;
-			else
+			} else {
 				m_curaddress++;
+			}
 		}
 	}
 	return result;
@@ -2351,33 +2338,27 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 {
 	// register 0 can do a reset; also use writes here to reset the
 	// dummy read counter
-	if (regnum == 0x00)
-	{
-		if (m_regs.execute())
-		{
+	if (regnum == 0x00) {
+		if (m_regs.execute()) {
 			load_start();
-		}
-		else
+		} else {
 			m_status &= ~STATUS_EOS;
-		if (m_regs.resetflag())
+		}
+		if (m_regs.resetflag()) {
 			reset();
-		if (m_regs.external())
+		}
+		if (m_regs.external()) {
 			m_dummy_read = 2;
-	}
-
-	// register 8 writes over the bus under some conditions
-	else if (regnum == 0x08)
-	{
+		}
+	} else if (regnum == 0x08) {
+		// register 8 writes over the bus under some conditions
 		// if writing from the CPU during execute, clear the ready flag
-		if (m_regs.execute() && !m_regs.record() && !m_regs.external())
+		if (m_regs.execute() && !m_regs.record() && !m_regs.external()) {
 			m_status &= ~STATUS_BRDY;
-
-		// if writing during "record", pass through as data
-		else if (!m_regs.execute() && m_regs.record() && m_regs.external())
-		{
+		} else if (!m_regs.execute() && m_regs.record() && m_regs.external()) {
+			// if writing during "record", pass through as data
 			// clear out dummy reads and set start address
-			if (m_dummy_read != 0)
-			{
+			if (m_dummy_read != 0) {
 				load_start();
 				m_dummy_read = 0;
 			}
@@ -2385,19 +2366,17 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 			// The end register describes an inclusive chunk. Keep the CPU
 			// address one past its last byte once the transfer has stopped.
 			uint32_t end = (m_regs.end() + 1) << address_shift();
-			if (m_curaddress != end)
-			{
+			if (m_curaddress != end) {
 				ram[m_curaddress++ & 0x3ffff] = value;
 				m_cpu_write_active = true;
 			}
 
-			if (m_curaddress == end)
-			{
+			if (m_curaddress == end) {
 				m_cpu_write_active = false;
 				m_status = STATUS_EOS | STATUS_BRDY;
-			}
-			else
+			} else {
 				m_status = STATUS_BRDY;
+			}
 		}
 	}
 }
@@ -2411,10 +2390,8 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 uint32_t adpcm_b_channel::address_shift() const
 {
 	// if ROM or 8-bit DRAM, shift is 5 bits
-	if (m_regs.rom_ram())
-		return 5;
-	if (m_regs.dram_8bit())
-		return 5;
+	if (m_regs.rom_ram()) return 5;
+	if (m_regs.dram_8bit()) return 5;
 
 	// otherwise, shift is 2 bits
 	return 2;
@@ -2477,15 +2454,15 @@ void adpcm_b_engine::reset()
 
 void adpcm_b_engine::generate(float* buffer, unsigned num)
 {
-	if (m_channel.resting())
-		return;
+	if (m_channel.resting()) return;
 	// Level and pan are registers, so they are read once per buffer. An empty
 	// pan mask means this channel adds nothing.
 	const auto plan = m_channel.make_output_plan();
-	if (buffer == nullptr || plan.pan_mask == 0)
+	if (buffer == nullptr || plan.pan_mask == 0) {
 		m_channel.clock_n(num);
-	else
+	} else {
 		m_channel.generate(buffer, num, plan);
+	}
 }
 
 

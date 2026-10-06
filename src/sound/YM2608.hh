@@ -35,8 +35,9 @@ constexpr uint32_t bitfield(uint32_t value, int start, int length = 1)
 constexpr uint32_t step_eg_counter(uint32_t counter)
 {
 	++counter;
-	if ((counter & 3) == 3)
+	if ((counter & 3) == 3) {
 		++counter;
+	}
 	return counter;
 }
 
@@ -233,7 +234,7 @@ public:
 	uint8_t read(uint16_t index) const { return m_regdata[index]; }
 
 	// handle writes to the register array
-	bool write(uint16_t index, uint8_t data, uint32_t &chan, uint32_t &opmask);
+	bool write(uint16_t index, uint8_t data, uint32_t& chan, uint32_t& opmask);
 
 	// A disabled LFO holds its counter at 0. Position 0 gives an AM value of
 	// 0x3f, and music depends on that added attenuation: MegaDrive Venom plays
@@ -276,10 +277,10 @@ public:
 	uint32_t lfo_am_offset(uint32_t am_shift) const;
 
 	// caching helpers
-	void cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache &cache);
+	void cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache& cache);
 
 	// compute the phase step, given a PM value
-	static uint32_t compute_phase_step(opdata_cache const &cache, int32_t lfo_raw_pm);
+	static uint32_t compute_phase_step(const opdata_cache& cache, int32_t lfo_raw_pm);
 
 	// system-wide registers
 	uint32_t lfo_enable() const                 { return byte(0x22, 3, 1); }
@@ -379,7 +380,7 @@ public:
 	void reset();
 
 	// prepare prior to clocking; the registers are read only here
-	bool prepare(opna_registers &regs, uint32_t choffs, uint32_t opoffs);
+	bool prepare(opna_registers& regs, uint32_t choffs, uint32_t opoffs);
 
 	// Release has reached maximum attenuation. A later key-on restarts phase.
 	bool finished() const
@@ -460,23 +461,23 @@ public:
 	void keyonoff(uint32_t states, keyon_type type);
 
 	// prepare prior to clocking; the registers are read only here
-	bool prepare(opna_registers &regs, uint32_t chnum);
+	bool prepare(opna_registers& regs, uint32_t chnum);
 
 	// Every operator has finished its release.
 	bool finished() const
 	{
-		for (auto& op : m_op)
-			if (!op.finished())
-				return false;
+		for (auto& op : m_op) {
+			if (!op.finished()) return false;
+		}
 		return true;
 	}
 
 	// Any operator would still produce sound.
 	bool audible() const
 	{
-		for (auto& op : m_op)
-			if (op.audible())
-				return true;
+		for (auto& op : m_op) {
+			if (op.audible()) return true;
+		}
 		return false;
 	}
 
@@ -508,11 +509,11 @@ public:
 	};
 
 	// Read those fields once, before the sample loop.
-	output_plan make_output_plan(const opna_registers &regs, uint32_t chnum) const;
+	output_plan make_output_plan(const opna_registers& regs, uint32_t chnum) const;
 
 	// 4-operator output handler; the caller routes the result to the outputs
 	// the plan enables
-	int32_t output_4op(const output_plan &plan, uint32_t am_offset) const;
+	int32_t output_4op(const output_plan& plan, uint32_t am_offset) const;
 
 private:
 	// internal state
@@ -542,7 +543,7 @@ public:
 	// constructor; each channel owns four operators
 	fm_engine(MSXMotherBoard& motherboard, std::string_view name);
 	fm_engine(const fm_engine &) = delete;
-	fm_engine &operator=(const fm_engine &) = delete;
+	fm_engine& operator=(const fm_engine&) = delete;
 
 	// save/restore
 	template<typename Archive>
@@ -604,8 +605,8 @@ public:
 	[[nodiscard]] EmuTime getCurrentTime() const { return timers[0].getCurrentTime(); }
 
 	// return a reference to our registers
-	opna_registers &regs() { return m_regs; }
-	const opna_registers &regs() const { return m_regs; }
+	opna_registers& regs() { return m_regs; }
+	const opna_registers& regs() const { return m_regs; }
 
 private:
 	class Timer final : public Schedulable {
@@ -760,7 +761,7 @@ public:
 	output_plan make_output_plan(uint32_t chnum) const;
 
 	// Scaled sample for the current accumulator, which only clock() changes.
-	int16_t sample(const output_plan &plan) const
+	int16_t sample(const output_plan& plan) const
 	{
 		// m_accumulator is a 12-bit value; shift up to sign-extend;
 		// the downshift is incorporated into the plan's shift
@@ -789,7 +790,7 @@ public:
 	// constructor; the channels point into m_regs, so copying is not safe
 	adpcm_a_engine();
 	adpcm_a_engine(const adpcm_a_engine &) = delete;
-	adpcm_a_engine &operator=(const adpcm_a_engine &) = delete;
+	adpcm_a_engine& operator=(const adpcm_a_engine&) = delete;
 
 	// reset our status
 	void reset();
@@ -823,8 +824,8 @@ public:
 	}
 
 	// return a reference to our registers
-	adpcm_a_registers &regs() { return m_regs; }
-	const adpcm_a_registers &regs() const { return m_regs; }
+	adpcm_a_registers& regs() { return m_regs; }
+	const adpcm_a_registers& regs() const { return m_regs; }
 
 private:
 	// internal state
@@ -986,7 +987,7 @@ public:
 
 	// Interpolated and scaled sample for the current position, which every
 	// clock advances. OPNA's extra output bit is folded into the 9-bit shift.
-	int32_t sample(const output_plan &plan) const
+	int32_t sample(const output_plan& plan) const
 	{
 		// do a linear interpolation between samples
 		int32_t result = m_prev_accum + int32_t((int64_t(m_accumulator - m_prev_accum) * int32_t(m_position)) >> 16);
@@ -997,7 +998,7 @@ public:
 
 	// num clocks into an interleaved stereo buffer. Reads the decode state
 	// and the position step once, like clock_n() does.
-	void generate(float* buffer, unsigned num, const output_plan &plan);
+	void generate(float* buffer, unsigned num, const output_plan& plan);
 
 	// return the status register
 	uint8_t status() const { return m_status; }
@@ -1022,21 +1023,21 @@ private:
 	{
 		uint32_t position = m_position + delta;
 		m_position = uint16_t(position);
-		if (position < 0x10000)
-			return true;
+		if (position < 0x10000) return true;
 		return consume_nibble();
 	}
 
 	// One bit per output this channel feeds, empty when it adds nothing.
 	uint8_t pan_mask() const
 	{
-		if (m_regs.level() == 0)
-			return 0;
+		if (m_regs.level() == 0) return 0;
 		uint8_t mask = 0;
-		if (m_regs.pan_left())
+		if (m_regs.pan_left()) {
 			mask |= 1;
-		if (m_regs.pan_right())
+		}
+		if (m_regs.pan_right()) {
 			mask |= 2;
+		}
 		return mask;
 	}
 
@@ -1080,7 +1081,7 @@ public:
 	// constructor; the channel points into m_regs, so copying is not safe
 	adpcm_b_engine(const DeviceConfig& config, std::string_view name);
 	adpcm_b_engine(const adpcm_b_engine &) = delete;
-	adpcm_b_engine &operator=(const adpcm_b_engine &) = delete;
+	adpcm_b_engine& operator=(const adpcm_b_engine&) = delete;
 
 	// reset our status
 	void reset();
@@ -1112,8 +1113,8 @@ public:
 	uint8_t status() const { return m_channel.status(); }
 
 	// return a reference to our registers
-	adpcm_b_registers &regs() { return m_regs; }
-	const adpcm_b_registers &regs() const { return m_regs; }
+	adpcm_b_registers& regs() { return m_regs; }
+	const adpcm_b_registers& regs() const { return m_regs; }
 
 private:
 	// internal state
