@@ -377,17 +377,14 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	             "flagControl", flagControl,
 	             "fm",          fm,
 	             "adpcmA",      adpcmA,
-	             "adpcmB",      adpcmB);
+	             "adpcmB",      adpcmB,
+	             "busyEnd",     busyEnd,
+	             "sampleRAM",   sampleRAM,
+	             "irq",         irq,
+	             "ssg",         ssg);
 	if constexpr (Archive::IS_LOADER) {
-		updatePrescale(fm.clock_prescale());
-	}
-	ar.serialize("busyEnd", busyEnd,
-	             "sampleRAM", sampleRAM,
-	             "irq", irq,
-	             "ssg", ssg);
-	if constexpr (Archive::IS_LOADER) {
-		applyRates(timers[0].getCurrentTime());
 		contextTime = timers[0].getCurrentTime();
+		applyRates(contextTime);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2608);
