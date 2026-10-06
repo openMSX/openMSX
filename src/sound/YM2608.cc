@@ -4,6 +4,7 @@
 
 #include "DeviceConfig.hh"
 #include "Clock.hh"
+#include "outer.hh"
 #include "serialize.hh"
 
 #include "3rdparty/ym2608/fmopn_2608rom.h"
@@ -21,10 +22,10 @@ static constexpr uint8_t STATUS_ADPCM_B_PLAYING = 0x20;
 
 YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	: busyEnd(time)
-	, fm(*this, config.getMotherBoard(), name)
+	, fm(config.getMotherBoard(), name)
 	, adpcmB(config, name)
-	, registers(config.getMotherBoard(), name, *this)
-	, fmPart(config, name, *this)
+	, registers(config.getMotherBoard(), name)
+	, fmPart(config, name)
 	, ssg(strCat(name, " SSG"), DummyAY8910Periphery::instance(), config, time,
 		AY8910::Type::YM2149, 2'000'000.0f)
 {
@@ -337,11 +338,10 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(YM2608);
 
 
-YM2608::FmPart::FmPart(DeviceConfig& config, std::string_view name_, YM2608& chip_)
+YM2608::FmPart::FmPart(DeviceConfig& config, std::string_view name_)
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name_,
 		"Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, true)
-	, chip(chip_)
 {
 	registerSound(config);
 }
@@ -367,25 +367,25 @@ void YM2608::FmPart::rate(unsigned value)
 void YM2608::FmPart::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	assert(buffers.size() == 13);
-	chip.generateFM(buffers, num);
+	OUTER(YM2608, fmPart).generateFM(buffers, num);
 }
 
 
-YM2608::Registers::Registers(MSXMotherBoard& board, std::string_view name_, YM2608& ym2608_)
+YM2608::Registers::Registers(MSXMotherBoard& board, std::string_view name_)
 	: SimpleDebuggable(board, strCat(name_, " registers"), "Effective YM2608 core registers", 512)
-	, ym2608(ym2608_)
 {
 }
 
 uint8_t YM2608::Registers::read(unsigned address, EmuTime time)
 {
-	return ym2608.peekRegister(address, time);
+	return OUTER(YM2608, registers).peekRegister(address, time);
 }
 
 void YM2608::Registers::write(unsigned address, uint8_t value, EmuTime time)
 {
 	// Address selection itself has effects for 2Dh-2Fh. Match a normal
 	// address/data pair, then preserve the running program's selection.
+	auto& ym2608 = OUTER(YM2608, registers);
 	auto savedAddress = ym2608.addressLatch;
 	unsigned port = (address & 0x100) ? 2 : 0;
 	ym2608.writePort(port, uint8_t(address), time);
@@ -1164,12 +1164,10 @@ int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) cons
 //  fm_engine - constructor
 //-------------------------------------------------
 
-fm_engine::fm_engine(YM2608& ym2608, MSXMotherBoard& motherboard,
-                               std::string_view name) :
-	chip(ym2608),
+fm_engine::fm_engine(MSXMotherBoard& motherboard, std::string_view name) :
 	irq(motherboard, strCat(name, ".IRQ")),
-	timers{Timer(motherboard.getScheduler(), *this, 0),
-	       Timer(motherboard.getScheduler(), *this, 1)},
+	timers{Timer(motherboard.getScheduler(), 0),
+	       Timer(motherboard.getScheduler(), 1)},
 	m_env_counter(0),
 	m_status(0),
 	m_clock_prescale(opna_registers::DEFAULT_PRESCALE),
@@ -1442,34 +1440,22 @@ void fm_engine::scheduleTimer(uint32_t timer, int32_t duration, EmuTime time)
 	}
 }
 
-fm_engine::Timer::Timer(Scheduler& scheduler_, fm_engine& engine_, uint8_t index_)
+fm_engine::Timer::Timer(Scheduler& scheduler_, uint8_t index_)
 	: Schedulable(scheduler_)
-	, engine(engine_)
 	, index(index_)
 {
 }
 
-void fm_engine::Timer::cancel()
-{
-	removeSyncPoints();
-}
-
-void fm_engine::Timer::schedule(EmuTime time)
-{
-	cancel();
-	setSyncPoint(time);
-}
-
 void fm_engine::Timer::executeUntil(EmuTime time)
 {
+	// Same as OUTER(fm_engine, timers), plus one element when this is timers[1].
+	auto addr = std::bit_cast<uintptr_t>(this) - offsetof(fm_engine, timers);
+	if (index == 1) {
+		addr -= sizeof(Timer);
+	}
+	auto& engine = *std::bit_cast<fm_engine*>(addr);
 	engine.engine_timer_expired(index, time);
 }
-
-
-//-------------------------------------------------
-//  engine_timer_expired - timer has expired - signal
-//  status and possibly IRQs
-//-------------------------------------------------
 
 void fm_engine::engine_timer_expired(uint32_t tnum, EmuTime time)
 {
@@ -1484,7 +1470,7 @@ void fm_engine::engine_timer_expired(uint32_t tnum, EmuTime time)
 	// Timer A overflow in CSM mode keys channel 2. Flush the mixer first so
 	// samples before this instant still use the old key state.
 	if (tnum == 0 && m_regs.csm()) {
-		chip.updateStream(time);
+		OUTER(YM2608, fm).updateStream(time);
 		m_modified = true;
 		m_channel[2].keyonoff(0xf, KEYON_CSM);
 	}

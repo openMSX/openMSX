@@ -546,7 +546,7 @@ public:
 	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
 
 	// constructor; the channels point into m_operator, so copying is not safe
-	fm_engine(YM2608& chip, MSXMotherBoard& motherboard, std::string_view name);
+	fm_engine(MSXMotherBoard& motherboard, std::string_view name);
 	fm_engine(const fm_engine &) = delete;
 	fm_engine &operator=(const fm_engine &) = delete;
 
@@ -617,9 +617,13 @@ public:
 private:
 	class Timer final : public Schedulable {
 	public:
-		Timer(Scheduler& scheduler_, fm_engine& engine, uint8_t index);
-		void cancel();
-		void schedule(EmuTime time);
+		Timer(Scheduler& scheduler_, uint8_t index);
+		void cancel() { removeSyncPoints(); }
+		void schedule(EmuTime time)
+		{
+			cancel();
+			setSyncPoint(time);
+		}
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned /*version*/)
@@ -631,7 +635,6 @@ private:
 		void executeUntil(EmuTime time) override;
 
 	private:
-		fm_engine& engine;
 		uint8_t index;
 	};
 
@@ -642,7 +645,6 @@ private:
 	void scheduleTimer(uint32_t timer, int32_t duration, EmuTime time);
 
 	// internal state
-	YM2608& chip;          // CSM mixer flush
 	IRQHelper irq;
 	std::array<Timer, 2> timers;
 	uint32_t m_env_counter;          // envelope counter; low 2 bits are sub-counter
@@ -1172,7 +1174,7 @@ private:
 
 	class FmPart final : public ResampledSoundDevice {
 	public:
-		FmPart(DeviceConfig& config, std::string_view name, YM2608& chip);
+		FmPart(DeviceConfig& config, std::string_view name);
 		~FmPart();
 
 		void updateStream(EmuTime time); // expose SoundDevice::updateStream()
@@ -1180,18 +1182,12 @@ private:
 
 	private:
 		void generateChannels(std::span<float*> buffers, unsigned num) override;
-
-	private:
-		YM2608& chip;
 	};
 
 	struct Registers final : SimpleDebuggable {
-		Registers(MSXMotherBoard& board, std::string_view name, YM2608& ym2608);
+		Registers(MSXMotherBoard& board, std::string_view name);
 		uint8_t read(unsigned address, EmuTime time) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
-
-	private:
-		YM2608& ym2608;
 	};
 
 	EmuTime busyEnd;
