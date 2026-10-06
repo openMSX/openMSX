@@ -26,9 +26,7 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	, contextTime(time)
 	, busyEnd(time)
 	, fm(*this)
-	, adpcmA(*this)
-	, adpcmB(*this)
-	, sampleRAM(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 0x40000)
+	, adpcmB(config, name)
 	, registers(config.getMotherBoard(), name, *this)
 	, fmPart(config, name, *this)
 	, ssg(strCat(name, " SSG"), DummyAY8910Periphery::instance(), config, time,
@@ -37,7 +35,6 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	// Maximum normalization. Standard SSG volume replaces the old trim.
 	ssg.setSoftwareVolume(16382.0f * std::numbers::sqrt2_v<float> * (2.0f / 3.0f) / (32768.0f * 4.3f), time);
 
-	sampleRAM.clear(0); // Deterministic emulator policy; hardware power-on contents are unknown.
 	updatePrescale(fm.clock_prescale());
 	reset(time);
 }
@@ -322,21 +319,6 @@ void YM2608::setIrq(bool asserted)
 	irq.set(asserted);
 }
 
-uint8_t YM2608::readRhythmRom(uint32_t address) const
-{
-	return YM2608_ADPCM_ROM[address & 0x1fff];
-}
-
-uint8_t YM2608::readSampleRam(uint32_t address) const
-{
-	return sampleRAM[address & 0x3ffff];
-}
-
-void YM2608::writeSampleRam(uint32_t address, uint8_t value)
-{
-	sampleRAM[address & 0x3ffff] = value;
-}
-
 void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 {
 	if (adpcmB.silent()) {
@@ -371,7 +353,6 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	             "adpcmA",      adpcmA,
 	             "adpcmB",      adpcmB,
 	             "busyEnd",     busyEnd,
-	             "sampleRAM",   sampleRAM,
 	             "irq",         irq,
 	             "ssg",         ssg);
 	if constexpr (Archive::IS_LOADER) {
@@ -1860,9 +1841,8 @@ void adpcm_a_registers::reset()
 //  adpcm_a_channel - constructor
 //-------------------------------------------------
 
-adpcm_a_channel::adpcm_a_channel(YM2608& ym2608, adpcm_a_registers &regs, uint32_t choffs) :
+adpcm_a_channel::adpcm_a_channel(adpcm_a_registers& regs, uint32_t choffs) :
 	m_regs(regs),
-	chip(ym2608),
 	m_curaddress(0),
 	m_accumulator(0),
 	m_step_index(0),
@@ -1941,7 +1921,7 @@ void adpcm_a_channel::clock()
 			return;
 		}
 
-		m_curbyte = chip.readRhythmRom(m_curaddress++);
+		m_curbyte = YM2608_ADPCM_ROM[m_curaddress++ & 0x1fff];
 		data = m_curbyte >> 4;
 		m_curnibble = 1;
 	}
@@ -2034,9 +2014,9 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan() const
 //  adpcm_a_engine - constructor
 //-------------------------------------------------
 
-adpcm_a_engine::adpcm_a_engine(YM2608& ym2608) :
+adpcm_a_engine::adpcm_a_engine() :
 	m_channel(generate_array<CHANNELS>([&](size_t chnum) {
-		return adpcm_a_channel(ym2608, m_regs, uint32_t(chnum)); }))
+		return adpcm_a_channel(m_regs, uint32_t(chnum)); }))
 {
 }
 
@@ -2154,9 +2134,9 @@ void adpcm_b_registers::reset()
 //  adpcm_b_channel - constructor
 //-------------------------------------------------
 
-adpcm_b_channel::adpcm_b_channel(YM2608& ym2608, adpcm_b_registers &regs) :
+adpcm_b_channel::adpcm_b_channel(Ram& ram_, adpcm_b_registers& regs) :
 	m_regs(regs),
-	chip(ym2608),
+	ram(ram_),
 	m_curaddress(0),
 	m_position(0),
 	m_accumulator(0),
@@ -2201,7 +2181,7 @@ bool adpcm_b_channel::consume_nibble()
 	{
 		// playing from RAM/ROM
 		if (m_regs.external())
-			m_curbyte = chip.readSampleRam(m_curaddress);
+			m_curbyte = ram[m_curaddress & 0x3ffff];
 	}
 
 	// extract the nibble from our current byte
@@ -2386,7 +2366,7 @@ uint8_t adpcm_b_channel::peek(uint32_t regnum) const
 		if (m_cpu_write_active)
 			return m_regs.cpudata();
 		if (m_dummy_read == 0)
-			return chip.readSampleRam(m_curaddress);
+			return ram[m_curaddress & 0x3ffff];
 	}
 	return 0;
 }
@@ -2414,7 +2394,7 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 		else
 		{
 			// read from outside of the chip
-			result = chip.readSampleRam(m_curaddress);
+			result = ram[m_curaddress & 0x3ffff];
 
 			// did we hit the end? if so, signal EOS
 			if (at_end())
@@ -2482,7 +2462,7 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 			uint32_t end = (m_regs.end() + 1) << address_shift();
 			if (m_curaddress != end)
 			{
-				chip.writeSampleRam(m_curaddress++, value);
+				ram[m_curaddress++ & 0x3ffff] = value;
 				m_cpu_write_active = true;
 			}
 
@@ -2544,9 +2524,11 @@ void adpcm_b_channel::load_start()
 //  adpcm_b_engine - constructor
 //-------------------------------------------------
 
-adpcm_b_engine::adpcm_b_engine(YM2608& ym2608) :
-	m_channel(ym2608, m_regs)
+adpcm_b_engine::adpcm_b_engine(const DeviceConfig& config, std::string_view name) :
+	ram(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 0x40000),
+	m_channel(ram, m_regs)
 {
+	ram.clear(0); // Deterministic emulator policy; hardware power-on contents are unknown.
 }
 
 

@@ -20,6 +20,7 @@
 #include <cassert>
 #include <cstdint>
 #include <span>
+#include <string_view>
 
 namespace openmsx {
 
@@ -700,7 +701,7 @@ class adpcm_a_channel
 {
 public:
 	// constructor
-	adpcm_a_channel(YM2608& chip, adpcm_a_registers &regs, uint32_t choffs);
+	adpcm_a_channel(adpcm_a_registers& regs, uint32_t choffs);
 
 	// reset the channel state
 	void reset();
@@ -753,8 +754,7 @@ public:
 
 private:
 	// internal state
-	adpcm_a_registers &m_regs;            // reference to registers
-	YM2608& chip;               // memory reads
+	adpcm_a_registers& m_regs;            // reference to registers
 	uint32_t m_curaddress;                // current address
 	int16_t m_accumulator;                // 12-bit accumulator
 	int8_t m_step_index;                  // index in the stepping table (0-48)
@@ -773,7 +773,7 @@ public:
 	static constexpr int CHANNELS = adpcm_a_registers::CHANNELS;
 
 	// constructor; the channels point into m_regs, so copying is not safe
-	adpcm_a_engine(YM2608& chip);
+	adpcm_a_engine();
 	adpcm_a_engine(const adpcm_a_engine &) = delete;
 	adpcm_a_engine &operator=(const adpcm_a_engine &) = delete;
 
@@ -916,7 +916,7 @@ public:
 	static constexpr uint8_t STATUS_PLAYING = 0x04;
 
 	// constructor
-	adpcm_b_channel(YM2608& chip, adpcm_b_registers &regs);
+	adpcm_b_channel(Ram& ram, adpcm_b_registers& regs);
 
 	// reset the channel state
 	void reset();
@@ -1045,8 +1045,8 @@ private:
 	bool at_end() const { return (m_curaddress == (((m_regs.end() + 1) << address_shift()) - 1)); }
 
 	// internal state
-	adpcm_b_registers &m_regs;      // reference to registers
-	YM2608& chip;         // memory reads and writes
+	adpcm_b_registers& m_regs;      // reference to registers
+	Ram& ram;
 	uint32_t m_curaddress;          // current address
 	uint16_t m_position;            // current fractional position
 	int16_t m_accumulator;          // accumulator
@@ -1066,7 +1066,7 @@ class adpcm_b_engine
 {
 public:
 	// constructor; the channel points into m_regs, so copying is not safe
-	adpcm_b_engine(YM2608& chip);
+	adpcm_b_engine(const DeviceConfig& config, std::string_view name);
 	adpcm_b_engine(const adpcm_b_engine &) = delete;
 	adpcm_b_engine &operator=(const adpcm_b_engine &) = delete;
 
@@ -1077,8 +1077,9 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/)
 	{
-		ar.serialize("regs",    m_regs,
-		             "channel", m_channel);
+		ar.serialize("regs",      m_regs,
+		             "channel",   m_channel,
+		             "sampleRAM", ram);
 	}
 
 	// Whole buffer for the single channel. A nullptr buffer skips output.
@@ -1104,8 +1105,9 @@ public:
 
 private:
 	// internal state
-	adpcm_b_registers m_regs;    // registers
-	adpcm_b_channel m_channel;   // the one channel
+	adpcm_b_registers m_regs;
+	Ram ram;
+	adpcm_b_channel m_channel;
 };
 
 class YM2608 final
@@ -1142,13 +1144,8 @@ private:
 	void generateFM(std::span<float*> buffers, unsigned num);
 
 	friend class fm_engine_base;
-	friend class adpcm_a_channel;
-	friend class adpcm_b_channel;
 	void scheduleTimer(uint32_t timer, int32_t duration);
 	void setIrq(bool asserted);
-	[[nodiscard]] uint8_t readRhythmRom(uint32_t address) const;
-	[[nodiscard]] uint8_t readSampleRam(uint32_t address) const;
-	void writeSampleRam(uint32_t address, uint8_t value);
 
 private:
 	void setBusyEnd(uint32_t clocks);
@@ -1207,7 +1204,6 @@ private:
 	adpcm_a_engine adpcmA;
 	adpcm_b_engine adpcmB;
 
-	Ram sampleRAM;
 	Registers registers;
 	FmPart fmPart;
 	AY8910 ssg; // ym2149
