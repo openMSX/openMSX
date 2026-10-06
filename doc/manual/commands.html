@@ -3253,10 +3253,13 @@ current MSX model can be:</p>
 
   <p>Enabled by default. When an MSX mouse is connected to the active machine,
   clicking its display captures mouse movement and hides the host pointer.
-  Middle-click releases it. The capture click is not sent
-  to the MSX. While released, mouse input is reserved for the GUI and the host
-  pointer stays visible, even with <code>pointer_hide_delay</code> set to zero.
-  This policy takes precedence over <code>grabinput</code> and full-screen
+  Middle-click releases it without pasting. The capture click is not sent
+  to the MSX. While released, middle-click inside the MSX display retains its
+  existing binding (clipboard paste by default); other mouse input stays with
+  the GUI. The host pointer stays visible while released and hidden while
+  captured, regardless of <code>pointer_hide_delay</code>.
+  Window focus alone does not capture the mouse. This policy takes precedence
+  over <code>grabinput</code> and full-screen
   mouse grabbing for the connected MSX mouse.</p>
   <p>Use <code>set auto_mouse_capture off</code> to restore the previous behavior,
   or toggle <span class="menu-reference">Settings &rarr; Input &rarr; Capture MSX

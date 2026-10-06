@@ -29,10 +29,15 @@ That mode checks focus-event handling, but does **not** validate native OS
 focus transitions. Neither mode is a substitute for checking physical
 mouse motion, cursor appearance, or multi-monitor behavior manually.
 
-Fifteen groups cover released pointer visibility, menu interaction, consumed
+Sixteen groups cover released pointer visibility, menu interaction, consumed
 activation clicks, movement routing, middle-click release, no default Ctrl+F10
 release, held and delayed button cleanup, an optional user binding, console/debugger and
 pause/focus release, legacy mode, undocked menu/status bar, fullscreen,
 `escape_grab`, machine switching, and mouse unplugging. Each run writes its
 command log and passed groups below `derived/mouse-capture-*`. It creates its
 own user profile and leaves existing profiles untouched.
+
+The clipboard group exercises the existing middle-click binding and real
+`type_clipboard` procedure with a test clipboard provider and typing sink.
+It checks release without paste, paste while released, GUI hit-testing, and
+custom middle-click bindings, without reading or changing the host clipboard.

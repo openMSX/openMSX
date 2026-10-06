@@ -136,7 +136,9 @@ private:
 
 	void updateParts();
 	void updateMouseCapture();
-	[[nodiscard]] bool handleMouseCapture(const SDL_Event& event);
+	// If capture decides routing: true consumes, false forwards to MSX hotkeys.
+	// Otherwise use normal ImGui routing.
+	[[nodiscard]] std::optional<bool> handleMouseCapture(const SDL_Event& event);
 
 private:
 	Reactor& reactor;

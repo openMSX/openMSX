@@ -194,6 +194,47 @@ def run(exe, synthetic_focus=False):
         e.key(27)  # A submenu may have opened under the injected cursor.
         passed.append('A menu click opens the real GUI menu and never captures or reaches the MSX')
 
+        assert 'type_clipboard' in e.command('bind "mouse button2 down"')
+        # Exercise the real default binding and type_clipboard procedure without
+        # reading the host clipboard or typing into the running C-BIOS machine.
+        e.command('set saved_type_proc $default_type_proc; set paste_count 0; '
+                  'proc ::type::get_clipboard_text {} {return "capture\\npaste"}; '
+                  'proc ::capture_test_type {text} {incr ::paste_count; set ::paste_text $text}; '
+                  'set default_type_proc ::capture_test_type')
+        try:
+            e.capture()
+            e.click(2)
+            e.assert_state('released', 0, 1)
+            assert e.command('set paste_count') == '0'  # Release must not paste.
+            e.click(2)
+            e.assert_state('released', 0, 1)
+            assert e.command('set paste_count') == '1'
+            assert e.command('set paste_text') == 'capture\rpaste'
+
+            # A menu click must not paste, even with stale hover coordinates.
+            e.click(2, x=50, y=10)
+            assert e.command('set paste_count') == '1'
+            e.test('hover 50 10')
+            e.settle()
+            e.click(2)  # Actual event is on the display, despite menu hover.
+            assert e.command('set paste_count') == '2'
+
+            # Keep user bindings working instead of hardcoding type_clipboard.
+            e.command('set custom_middle 0; bind -msx "mouse button2 down" {incr ::custom_middle}')
+            e.click(2)
+            assert e.command('set custom_middle') == '1'
+            assert e.command('set paste_count') == '2'
+            e.command('set pause on')
+            e.click(2)
+            e.assert_state('released', 0, 1)
+            assert e.command('set custom_middle') == '2'
+            e.command('set pause off')
+        finally:
+            e.command('bind -msx "mouse button2 down" type_clipboard; '
+                      'set default_type_proc $saved_type_proc; '
+                      'rename ::type::get_clipboard_text {}; rename ::capture_test_type {}')
+        passed.append('Middle-click releases without pasting; released display clicks retain clipboard and custom bindings, not menu clicks')
+
         e.test('reset')
         e.test('motion 20 10 300 240')
         e.settle()
