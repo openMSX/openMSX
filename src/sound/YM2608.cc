@@ -22,6 +22,34 @@ static constexpr uint8_t STATUS_ADPCM_B_EOS = 0x04;
 static constexpr uint8_t STATUS_ADPCM_B_BRDY = 0x08;
 static constexpr uint8_t STATUS_ADPCM_B_PLAYING = 0x20;
 
+// Envelope counter shared by the FM engine and the ADPCM-A clock grid. OPNA
+// divides the envelope by 3, which this counter models by skipping every value
+// whose low two bits are 3, so those bits cycle 0, 1, 2.
+constexpr uint32_t step_eg_counter(uint32_t counter)
+{
+	++counter;
+	if ((counter & 3) == 3) {
+		++counter;
+	}
+	return counter;
+}
+
+// Advance the same counter by steps samples in closed form. The low two bits
+// never hold 3, so a zero step count adds nothing.
+constexpr uint32_t advance_eg_counter(uint32_t counter, uint32_t steps)
+{
+	uint32_t low = counter & 3;
+	assert(low < 3);
+	return counter + steps + (steps + low) / 3;
+}
+
+// Apply KSR to the raw ADSR rate, ignoring ksr if the raw value is 0, and
+// clamping to 63.
+constexpr uint32_t effective_rate(uint32_t rawrate, uint32_t ksr)
+{
+	return (rawrate == 0) ? 0 : std::min<uint32_t>(rawrate + ksr, 63);
+}
+
 YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	: busyEnd(time)
 	, fm(config.getMotherBoard(), name)
@@ -337,7 +365,6 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 		applyRates(fm.getCurrentTime());
 	}
 }
-INSTANTIATE_SERIALIZE_METHODS(YM2608);
 
 
 YM2608::FmPart::FmPart(DeviceConfig& config, std::string_view name_)
@@ -620,6 +647,18 @@ bool fm_operator::prepare(opna_registers& regs, unsigned choffs, unsigned opoffs
 }
 
 
+bool fm_operator::finished() const
+{
+	return m_env_state == EG_RELEASE && m_env_attenuation >= 0x3ff;
+}
+
+
+bool fm_operator::audible() const
+{
+	return m_env_state != EG_RELEASE || m_env_attenuation < EG_QUIET;
+}
+
+
 void fm_operator::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 {
 	// clock the SSG-EG state (OPN/OPNA); prepare() cleared the inversion if
@@ -897,6 +936,35 @@ void fm_channel::keyonoff(uint32_t states, keyon_type type)
 }
 
 
+bool fm_channel::finished() const
+{
+	for (auto& op : m_op) {
+		if (!op.finished()) return false;
+	}
+	return true;
+}
+
+
+bool fm_channel::audible() const
+{
+	for (auto& op : m_op) {
+		if (op.audible()) return true;
+	}
+	return false;
+}
+
+
+void fm_channel::quiesce_feedback(unsigned num)
+{
+	if (num >= 2) {
+		m_feedback[0] = m_feedback[1] = m_feedback_in;
+	} else if (num == 1) {
+		m_feedback[0] = m_feedback[1];
+		m_feedback[1] = m_feedback_in;
+	}
+}
+
+
 bool fm_channel::prepare(opna_registers& regs, unsigned chnum)
 {
 	// prepare all operators and determine if any of them is active
@@ -1052,6 +1120,14 @@ fm_engine::fm_engine(MSXMotherBoard& motherboard, std::string_view name) :
 	m_total_clocks(0),
 	m_modified(false)
 {
+}
+
+
+uint8_t fm_engine::set_reset_status(uint8_t set, uint8_t reset)
+{
+	m_status = (m_status | set) & ~reset;
+	check_interrupts();
+	return m_status;
 }
 
 
@@ -1368,6 +1444,43 @@ opna_registers::opna_registers() :
 }
 
 
+void opna_registers::hold_disabled_lfo()
+{
+	m_lfo_counter = 0;
+	m_lfo_am = 0x3f;
+}
+
+
+uint32_t opna_registers::lfo_max_count() const
+{
+	// this table is based on converting the frequencies in the applications
+	// manual to clock dividers, based on the assumption of a 7-bit LFO value
+	static constexpr uint8_t s_lfo_max_count[8] = { 109, 78, 72, 68, 63, 45, 9, 6 };
+	return s_lfo_max_count[lfo_rate()];
+}
+
+
+opna_registers::lfo_state opna_registers::save_lfo() const
+{
+	return {m_lfo_counter, m_lfo_am};
+}
+
+
+void opna_registers::restore_lfo(lfo_state state)
+{
+	m_lfo_counter = state.counter;
+	m_lfo_am = state.am;
+}
+
+
+uint32_t opna_registers::lfo_am_shift(unsigned choffs) const
+{
+	// shift value for AM sensitivity is [7, 3, 1, 0],
+	// mapping to values of [0, 1.4, 5.9, and 11.8dB]
+	return (1 << (ch_lfo_am_sens(choffs) ^ 3)) - 1;
+}
+
+
 void opna_registers::reset()
 {
 	std::fill_n(&m_regdata[0], REGISTERS, 0);
@@ -1620,6 +1733,20 @@ void adpcm_a_channel::reset()
 }
 
 
+bool adpcm_a_channel::resting() const
+{
+	return !m_playing && m_accumulator == 0;
+}
+
+
+int16_t adpcm_a_channel::sample(const output_plan& plan) const
+{
+	// m_accumulator is a 12-bit value; shift up to sign-extend;
+	// the downshift is incorporated into the plan's shift
+	return int16_t(((int16_t(m_accumulator << 4) * plan.mul) >> plan.shift) & ~3);
+}
+
+
 void adpcm_a_channel::keyonoff(bool on, unsigned chnum)
 {
 	// QUESTION: repeated key ons restart the sample?
@@ -1822,6 +1949,15 @@ void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 }
 
 
+void adpcm_a_engine::set_start_end(unsigned chnum, uint16_t start, uint16_t end)
+{
+	m_regs.write(chnum + 0x10, uint8_t(start));
+	m_regs.write(chnum + 0x18, uint8_t(start >> 8));
+	m_regs.write(chnum + 0x20, uint8_t(end));
+	m_regs.write(chnum + 0x28, uint8_t(end >> 8));
+}
+
+
 //*********************************************************
 // ADPCM "B" REGISTERS
 //*********************************************************
@@ -1868,6 +2004,69 @@ void adpcm_b_channel::reset()
 	m_prev_accum = 0;
 	m_adpcm_step = STEP_MIN;
 	m_cpu_write_active = false;
+}
+
+
+bool adpcm_b_channel::resting() const
+{
+	return (m_status & STATUS_PLAYING) == 0 && m_accumulator == 0 && m_prev_accum == 0;
+}
+
+
+adpcm_b_channel::output_plan adpcm_b_channel::make_output_plan() const
+{
+	return {m_regs.level(), pan_mask()};
+}
+
+
+int32_t adpcm_b_channel::sample(const output_plan& plan) const
+{
+	// do a linear interpolation between samples
+	int32_t result = m_prev_accum + int32_t((int64_t(m_accumulator - m_prev_accum) * int32_t(m_position)) >> 16);
+
+	// apply volume (level) in a linear fashion and reduce
+	return (result * int32_t(plan.level)) >> 9;
+}
+
+
+bool adpcm_b_channel::decoding() const
+{
+	return m_regs.execute() && !m_regs.record() && (m_status & STATUS_PLAYING) != 0;
+}
+
+
+bool adpcm_b_channel::advance(uint32_t delta)
+{
+	uint32_t position = m_position + delta;
+	m_position = uint16_t(position);
+	if (position < 0x10000) return true;
+	return consume_nibble();
+}
+
+
+uint8_t adpcm_b_channel::pan_mask() const
+{
+	if (m_regs.level() == 0) return 0;
+	uint8_t mask = 0;
+	if (m_regs.pan_left()) {
+		mask |= 1;
+	}
+	if (m_regs.pan_right()) {
+		mask |= 2;
+	}
+	return mask;
+}
+
+
+bool adpcm_b_channel::at_limit() const
+{
+	return (m_curaddress == (((m_regs.limit() + 1) << address_shift()) - 1));
+}
+
+
+bool adpcm_b_channel::at_end() const
+{
+	return (m_curaddress == (((m_regs.end() + 1) << address_shift()) - 1));
 }
 
 
@@ -2198,5 +2397,119 @@ void adpcm_b_engine::write(uint32_t regnum, uint8_t data)
 	// let the channel handle any special writes
 	m_channel.write(regnum, data);
 }
+
+
+template<typename Archive>
+void opna_registers::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("lfo_counter", m_lfo_counter,
+	             "lfo_am",      m_lfo_am,
+	             "regdata",     m_regdata);
+}
+
+template<typename Archive>
+void fm_operator::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("phase",           m_phase,
+	             "env_attenuation", m_env_attenuation,
+	             "env_state",       m_env_state,
+	             "ssg_inverted",    m_ssg_inverted,
+	             "key_state",       m_key_state,
+	             "keyon_live",      m_keyon_live);
+}
+
+template<typename Archive>
+void fm_channel::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("feedback",    m_feedback,
+	             "feedback_in", m_feedback_in,
+	             "operators",   m_op);
+}
+
+template<typename Archive>
+void fm_engine::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("env_counter",    m_env_counter,
+	             "status",         m_status,
+	             "clock_prescale", m_clock_prescale,
+	             "irq_mask",       m_irq_mask,
+	             "timer_running",  m_timer_running,
+	             "total_clocks",   m_total_clocks,
+	             "regs",           m_regs,
+	             "channels",       m_channel,
+	             "irq",            irq,
+	             "timers",         timers);
+	// Operator caches are not saved. The next generate() rebuilds them.
+	m_modified = true;
+}
+
+template<typename Archive>
+void fm_engine::Timer::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+}
+
+template<typename Archive>
+void adpcm_a_registers::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("regdata", m_regdata);
+}
+
+template<typename Archive>
+void adpcm_a_channel::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("curaddress",  m_curaddress,
+	             "accumulator", m_accumulator,
+	             "step_index",  m_step_index,
+	             "playing",     m_playing,
+	             "curnibble",   m_curnibble,
+	             "curbyte",     m_curbyte);
+}
+
+template<typename Archive>
+void adpcm_a_engine::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("regs",     m_regs,
+	             "channels", m_channel);
+}
+
+template<typename Archive>
+void adpcm_b_registers::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("regdata", m_regdata);
+}
+
+template<typename Archive>
+void adpcm_b_channel::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("curaddress",       m_curaddress,
+	             "position",         m_position,
+	             "accumulator",      m_accumulator,
+	             "prev_accum",       m_prev_accum,
+	             "adpcm_step",       m_adpcm_step,
+	             "status",           m_status,
+	             "curnibble",        m_curnibble,
+	             "curbyte",          m_curbyte,
+	             "dummy_read",       m_dummy_read,
+	             "cpu_write_active", m_cpu_write_active);
+}
+
+template<typename Archive>
+void adpcm_b_engine::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("regs",      m_regs,
+	             "channel",   m_channel,
+	             "sampleRAM", ram);
+}
+
+static constexpr auto envelopeInfo = std::to_array<enum_string<envelope_state>>({
+	{ "ATTACK",  EG_ATTACK },
+	{ "DECAY",   EG_DECAY },
+	{ "SUSTAIN", EG_SUSTAIN },
+	{ "RELEASE", EG_RELEASE },
+});
+SERIALIZE_ENUM(envelope_state, envelopeInfo);
+
+INSTANTIATE_SERIALIZE_METHODS(YM2608);
 
 } // namespace openmsx

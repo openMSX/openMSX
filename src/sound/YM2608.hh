@@ -12,9 +12,7 @@
 #include "IRQHelper.hh"
 #include "Ram.hh"
 #include "SimpleDebuggable.hh"
-#include "serialize_core.hh"
 
-#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstdint>
@@ -26,27 +24,6 @@ namespace openmsx {
 constexpr uint32_t bitfield(uint32_t value, int start, int length = 1)
 {
 	return (value >> start) & ((1 << length) - 1);
-}
-
-// Envelope counter shared by the FM engine and the ADPCM-A clock grid. OPNA
-// divides the envelope by 3, which this counter models by skipping every value
-// whose low two bits are 3, so those bits cycle 0, 1, 2.
-constexpr uint32_t step_eg_counter(uint32_t counter)
-{
-	++counter;
-	if ((counter & 3) == 3) {
-		++counter;
-	}
-	return counter;
-}
-
-// Advance the same counter by steps samples in closed form. The low two bits
-// never hold 3, so a zero step count adds nothing.
-constexpr uint32_t advance_eg_counter(uint32_t counter, uint32_t steps)
-{
-	uint32_t low = counter & 3;
-	assert(low < 3);
-	return counter + steps + (steps + low) / 3;
 }
 
 // various envelope states; value 0 was the OPLL depress state, so the
@@ -187,13 +164,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("lfo_counter", m_lfo_counter,
-			         "lfo_am", m_lfo_am,
-		             "regdata", m_regdata);
-	}
-
+	void serialize(Archive& ar, unsigned version);
 
 	// map channel number to register offset
 	static constexpr unsigned channel_offset(unsigned chnum)
@@ -233,39 +204,20 @@ public:
 	// A disabled LFO holds its counter at 0. Position 0 gives an AM value of
 	// 0x3f, and music depends on that added attenuation: MegaDrive Venom plays
 	// notes with the LFO globally disabled while enabling AM on the operators.
-	void hold_disabled_lfo()
-	{
-		m_lfo_counter = 0;
-		m_lfo_am = 0x3f;
-	}
+	void hold_disabled_lfo();
 
 	// Divider count for the current LFO rate; constant for a whole buffer.
-	uint32_t lfo_max_count() const
-	{
-		// this table is based on converting the frequencies in the applications
-		// manual to clock dividers, based on the assumption of a 7-bit LFO value
-		static constexpr uint8_t s_lfo_max_count[8] = { 109, 78, 72, 68, 63, 45, 9, 6 };
-		return s_lfo_max_count[lfo_rate()];
-	}
+	uint32_t lfo_max_count() const;
 
 	// clock an enabled LFO, returning its PM value
 	int32_t clock_lfo(uint32_t max_count);
 
 	struct lfo_state { uint32_t counter; uint8_t am; };
-	lfo_state save_lfo() const { return {m_lfo_counter, m_lfo_am}; }
-	void restore_lfo(lfo_state state)
-	{
-		m_lfo_counter = state.counter;
-		m_lfo_am = state.am;
-	}
+	lfo_state save_lfo() const;
+	void restore_lfo(lfo_state state);
 
 	// AM shift for a channel's sensitivity; constant for a whole buffer
-	uint32_t lfo_am_shift(unsigned choffs) const
-	{
-		// shift value for AM sensitivity is [7, 3, 1, 0],
-		// mapping to values of [0, 1.4, 5.9, and 11.8dB]
-		return (1 << (ch_lfo_am_sens(choffs) ^ 3)) - 1;
-	}
+	uint32_t lfo_am_shift(unsigned choffs) const;
 
 	// return the AM offset from LFO for that shift
 	uint32_t lfo_am_offset(uint32_t am_shift) const;
@@ -315,13 +267,6 @@ public:
 	uint32_t op_ssg_eg_mode(unsigned opoffs) const   { return byte(0x90, 0, 3, opoffs); }
 
 private:
-	// helper to apply KSR to the raw ADSR rate, ignoring ksr if the
-	// raw value is 0, and clamping to 63
-	static constexpr uint32_t effective_rate(uint32_t rawrate, uint32_t ksr)
-	{
-		return (rawrate == 0) ? 0 : std::min<uint32_t>(rawrate + ksr, 63);
-	}
-
 	// return a bitfield extracted from a byte
 	uint32_t byte(uint32_t offset, uint32_t start, uint32_t count, uint32_t extra_offset = 0) const
 	{
@@ -360,15 +305,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("phase",           m_phase,
-		             "env_attenuation", m_env_attenuation,
-		             "env_state",       m_env_state,
-		             "ssg_inverted",    m_ssg_inverted,
-		             "key_state",       m_key_state,
-		             "keyon_live",      m_keyon_live);
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// reset the operator state
 	void reset();
@@ -377,16 +314,10 @@ public:
 	bool prepare(opna_registers& regs, unsigned choffs, unsigned opoffs);
 
 	// Release has reached maximum attenuation. A later key-on restarts phase.
-	bool finished() const
-	{
-		return m_env_state == EG_RELEASE && m_env_attenuation >= 0x3ff;
-	}
+	bool finished() const;
 
 	// Same condition prepare() reports, without refreshing the cache or the key.
-	bool audible() const
-	{
-		return m_env_state != EG_RELEASE || m_env_attenuation < EG_QUIET;
-	}
+	bool audible() const;
 
 	// master clocking function
 	void clock(uint32_t env_counter, int32_t lfo_raw_pm);
@@ -441,12 +372,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("feedback",    m_feedback,
-		             "feedback_in", m_feedback_in,
-		             "operators",   m_op);
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// reset the channel state
 	void reset();
@@ -458,34 +384,14 @@ public:
 	bool prepare(opna_registers& regs, unsigned chnum);
 
 	// Every operator has finished its release.
-	bool finished() const
-	{
-		for (auto& op : m_op) {
-			if (!op.finished()) return false;
-		}
-		return true;
-	}
+	bool finished() const;
 
 	// Any operator would still produce sound.
-	bool audible() const
-	{
-		for (auto& op : m_op) {
-			if (op.audible()) return true;
-		}
-		return false;
-	}
+	bool audible() const;
 
 	// Feedback shift for a skipped mix. After two clocks both slots hold the
 	// last written sample, and further clocks leave them there.
-	void quiesce_feedback(unsigned num)
-	{
-		if (num >= 2) {
-			m_feedback[0] = m_feedback[1] = m_feedback_in;
-		} else if (num == 1) {
-			m_feedback[0] = m_feedback[1];
-			m_feedback[1] = m_feedback_in;
-		}
-	}
+	void quiesce_feedback(unsigned num);
 
 	// master clocking function
 	void clock(uint32_t env_counter, int32_t lfo_raw_pm);
@@ -537,22 +443,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		// save our data
-		ar.serialize("env_counter",    m_env_counter,
-		             "status",         m_status,
-		             "clock_prescale", m_clock_prescale,
-		             "irq_mask",       m_irq_mask,
-		             "timer_running",  m_timer_running,
-		             "total_clocks",   m_total_clocks,
-		             "regs",           m_regs,
-		             "channels",       m_channel,
-		             "irq",            irq,
-		             "timers",         timers);
-		// Operator caches are not saved. The next generate() rebuilds them.
-		m_modified = true;
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// reset the overall state
 	void reset(EmuTime time);
@@ -576,12 +467,7 @@ public:
 	uint8_t status() const;
 
 	// set/reset bits in the status register, updating the IRQ status
-	uint8_t set_reset_status(uint8_t set, uint8_t reset)
-	{
-		m_status = (m_status | set) & ~reset;
-		check_interrupts();
-		return m_status;
-	}
+	uint8_t set_reset_status(uint8_t set, uint8_t reset);
 
 	// set the IRQ mask
 	void set_irq_mask(uint8_t mask) { m_irq_mask = mask; check_interrupts(); }
@@ -610,10 +496,7 @@ private:
 		}
 
 		template<typename Archive>
-		void serialize(Archive& ar, unsigned /*version*/)
-		{
-			ar.template serializeBase<Schedulable>(*this);
-		}
+		void serialize(Archive& ar, unsigned version);
 
 	private:
 		void executeUntil(EmuTime time) override;
@@ -675,11 +558,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("regdata", m_regdata);
-	}
-
+	void serialize(Archive& ar, unsigned version);
 
 	// direct read/write access
 	uint8_t read(uint32_t index) const { return m_regdata[index]; }
@@ -714,15 +593,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("curaddress",  m_curaddress,
-		             "accumulator", m_accumulator,
-		             "step_index",  m_step_index,
-		             "playing",     m_playing,
-		             "curnibble",   m_curnibble,
-		             "curbyte",     m_curbyte);
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// signal key on/off
 	void keyonoff(bool on, unsigned chnum);
@@ -735,7 +606,7 @@ public:
 	bool silent(unsigned chnum) const;
 
 	// Stopped with a zero accumulator: clock() would only store that zero.
-	bool resting() const { return !m_playing && m_accumulator == 0; }
+	bool resting() const;
 
 	// Register fields that sample() reads. A register write ends the current
 	// buffer, so these hold for every sample of one generate().
@@ -751,12 +622,7 @@ public:
 	output_plan make_output_plan(unsigned chnum) const;
 
 	// Scaled sample for the current accumulator, which only clock() changes.
-	int16_t sample(const output_plan& plan) const
-	{
-		// m_accumulator is a 12-bit value; shift up to sign-extend;
-		// the downshift is incorporated into the plan's shift
-		return int16_t(((int16_t(m_accumulator << 4) * plan.mul) >> plan.shift) & ~3);
-	}
+	int16_t sample(const output_plan& plan) const;
 
 private:
 	// internal state
@@ -787,11 +653,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("regs",     m_regs,
-		             "channels", m_channel);
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// Whole buffer, one channel at a time. envStart is the FM envelope counter
 	// before this buffer, and this walks the same grid. A nullptr entry skips
@@ -805,13 +667,7 @@ public:
 	void write(uint32_t regnum, uint8_t data);
 
 	// set the start/end address for a channel (for hardcoded YM2608 percussion)
-	void set_start_end(unsigned chnum, uint16_t start, uint16_t end)
-	{
-		m_regs.write(chnum + 0x10, uint8_t(start));
-		m_regs.write(chnum + 0x18, uint8_t(start >> 8));
-		m_regs.write(chnum + 0x20, uint8_t(end));
-		m_regs.write(chnum + 0x28, uint8_t(end >> 8));
-	}
+	void set_start_end(unsigned chnum, uint16_t start, uint16_t end);
 
 	// return a reference to our registers
 	adpcm_a_registers& regs() { return m_regs; }
@@ -874,10 +730,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("regdata", m_regdata);
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// direct read/write access
 	uint8_t read(uint32_t index) const { return m_regdata[index]; }
@@ -926,19 +779,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("curaddress",       m_curaddress,
-		             "position",         m_position,
-		             "accumulator",      m_accumulator,
-		             "prev_accum",       m_prev_accum,
-		             "adpcm_step",       m_adpcm_step,
-		             "status",           m_status,
-		             "curnibble",        m_curnibble,
-		             "curbyte",          m_curbyte,
-		             "dummy_read",       m_dummy_read,
-		             "cpu_write_active", m_cpu_write_active);
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// signal key on/off
 	void keyonoff(bool on);
@@ -954,10 +795,7 @@ public:
 
 	// Not playing, both interpolator ends already zero: clock() does not
 	// change the accumulators or the playing flag.
-	bool resting() const
-	{
-		return (m_status & STATUS_PLAYING) == 0 && m_accumulator == 0 && m_prev_accum == 0;
-	}
+	bool resting() const;
 
 	// Register fields that the scaling reads, plus the caller's shift. A
 	// register write ends the current buffer, so these hold for every sample
@@ -970,21 +808,11 @@ public:
 
 	// Read those fields once, before the sample loop. An empty pan mask means
 	// this channel adds nothing.
-	output_plan make_output_plan() const
-	{
-		return {m_regs.level(), pan_mask()};
-	}
+	output_plan make_output_plan() const;
 
 	// Interpolated and scaled sample for the current position, which every
 	// clock advances. OPNA's extra output bit is folded into the 9-bit shift.
-	int32_t sample(const output_plan& plan) const
-	{
-		// do a linear interpolation between samples
-		int32_t result = m_prev_accum + int32_t((int64_t(m_accumulator - m_prev_accum) * int32_t(m_position)) >> 16);
-
-		// apply volume (level) in a linear fashion and reduce
-		return (result * int32_t(plan.level)) >> 9;
-	}
+	int32_t sample(const output_plan& plan) const;
 
 	// num clocks into an interleaved stereo buffer. Reads the decode state
 	// and the position step once, like clock_n() does.
@@ -1002,34 +830,14 @@ public:
 
 private:
 	// Register state that lets a clock advance the position.
-	bool decoding() const
-	{
-		return m_regs.execute() && !m_regs.record() && (m_status & STATUS_PLAYING) != 0;
-	}
+	bool decoding() const;
 
 	// One clock with the buffer's position step, after decoding() held.
 	// False when playback stopped at the end address.
-	bool advance(uint32_t delta)
-	{
-		uint32_t position = m_position + delta;
-		m_position = uint16_t(position);
-		if (position < 0x10000) return true;
-		return consume_nibble();
-	}
+	bool advance(uint32_t delta);
 
 	// One bit per output this channel feeds, empty when it adds nothing.
-	uint8_t pan_mask() const
-	{
-		if (m_regs.level() == 0) return 0;
-		uint8_t mask = 0;
-		if (m_regs.pan_left()) {
-			mask |= 1;
-		}
-		if (m_regs.pan_right()) {
-			mask |= 2;
-		}
-		return mask;
-	}
+	uint8_t pan_mask() const;
 
 	// helper - return the current address shift
 	uint32_t address_shift() const;
@@ -1042,10 +850,10 @@ private:
 	void load_start();
 
 	// limit checker; stops at the last byte of the chunk described by address_shift()
-	bool at_limit() const { return (m_curaddress == (((m_regs.limit() + 1) << address_shift()) - 1)); }
+	bool at_limit() const;
 
 	// end checker; stops at the last byte of the chunk described by address_shift()
-	bool at_end() const { return (m_curaddress == (((m_regs.end() + 1) << address_shift()) - 1)); }
+	bool at_end() const;
 
 	// internal state
 	adpcm_b_registers& m_regs;      // reference to registers
@@ -1078,12 +886,7 @@ public:
 
 	// save/restore
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.serialize("regs",      m_regs,
-		             "channel",   m_channel,
-		             "sampleRAM", ram);
-	}
+	void serialize(Archive& ar, unsigned version);
 
 	// Whole buffer for the single channel. A nullptr buffer skips output.
 	// A resting channel returns without clocking.
@@ -1184,14 +987,6 @@ private:
 	FmPart fmPart;
 	AY8910 ssg; // ym2149
 };
-
-static constexpr auto envelopeInfo = std::to_array<enum_string<envelope_state>>({
-	{ "ATTACK",  EG_ATTACK },
-	{ "DECAY",   EG_DECAY },
-	{ "SUSTAIN", EG_SUSTAIN },
-	{ "RELEASE", EG_RELEASE },
-});
-SERIALIZE_ENUM(envelope_state, envelopeInfo);
 
 } // namespace openmsx
 
