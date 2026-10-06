@@ -362,11 +362,20 @@ void SDLRasterizer::precalcPalette()
 void SDLRasterizer::precalcColorIndex0(DisplayMode mode,
 		bool transparency, const RawFrame* superimposing, uint8_t bgColorIndex)
 {
-	// Graphic7 mode doesn't use transparency.
-	if (mode.getByte() == DisplayMode::GRAPHIC7) {
-		transparency = false;
-	} else {
+	if (mode.getByte() != DisplayMode::GRAPHIC7) {
 		bgColorIndex &= 0x0f;
+	}
+	// Graphic7 mode doesn't use transparency, also not for YAE pixels on
+	// top of it (palette color 0 in SCREEN 10 stays opaque with TP=0).
+	if (mode.getBase() == DisplayMode::GRAPHIC7) {
+		transparency = false;
+	}
+	// Text1, Text2 and Multicolor ignore the TP bit: color 0 is always
+	// transparent. Measured on a real V9958 (FS-A1ST), see:
+	//   https://github.com/openMSX/openMSX/issues/2218
+	if (mode.isTextMode() ||
+	    mode.getBase() == one_of(DisplayMode::MULTICOLOR, DisplayMode::MULTIQ)) {
+		transparency = true;
 	}
 
 	int tpIndex = transparency ? bgColorIndex : 0;
