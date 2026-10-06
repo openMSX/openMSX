@@ -41,8 +41,8 @@ multiple cartridges can coexist.
 The initial upstream sound-state version is 1. Use native versioning if the
 pinned YMFM state layout later changes; do not infer compatibility from size
 alone. Loading validates the core blob length. Loader and saver field order is
-identical for in-memory rewind. FM and SSG clocks are both serialized; rates
-and phases are reconstructed after restoring the core. Preview-fork migrations are not part of this
+identical for in-memory rewind. FM and SSG mixer rates are reconstructed from
+the restored prescaler. Preview-fork migrations are not part of this
 upstream device.
 
 Sample storage uses `Ram`, exposing `Makoto ADPCM RAM` and using blob/delta

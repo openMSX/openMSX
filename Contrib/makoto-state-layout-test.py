@@ -29,7 +29,7 @@ try:
  root=ET.fromstring(gzip.decompress(current.read_bytes()))
  node=m.sound_node(root)
  assert node.tag=='ym2608' and node.find('core') is None and node.find('chip') is None
- for tag in ('timers','fm','adpcmA','adpcmB','ssg','sampleRAM','sampleClock','ssgClock'):
+ for tag in ('timers','fm','adpcmA','adpcmB','ssg','sampleRAM'):
   assert node.find(tag) is not None,tag
  sizes={'fm/operators':24,'fm/channels':6,'adpcmA/channels':6}
  for path,size in sizes.items():
@@ -42,7 +42,7 @@ try:
   failed=e.command('catch {restore_machine '+m.tcl_path(bad)+'} message')
   assert failed=='1',(path,e.command('set message'))
   passed.append(path+': native serializer rejects truncated fixed-size collection')
- passed.append('Native control/engine fields and both stream clocks are present; packed core blobs are absent')
+ passed.append('Native control/engine fields are present; packed core blobs are absent')
 finally:e.close()
 report={'passed':passed,'collection_sizes':sizes}
 (out/'results.json').write_text(json.dumps(report,indent=2))

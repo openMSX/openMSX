@@ -67,7 +67,6 @@ private:
 		~FmPart();
 
 		void updateStream(EmuTime time); // expose SoundDevice::updateStream()
-		void restoreClock(EmuTime time);
 		void rate(unsigned value);
 
 	private:

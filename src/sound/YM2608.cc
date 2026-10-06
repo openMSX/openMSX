@@ -384,15 +384,9 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("busyEnd", busyEnd,
 	             "sampleRAM", sampleRAM,
 	             "irq", irq,
-	             "sampleClock", fmPart.getEmuClock(),
-	             "ssgClock", ssg.getEmuClock(),
 	             "ssg", ssg);
 	if constexpr (Archive::IS_LOADER) {
-		const auto fmTime = fmPart.getEmuClock().getTime();
-		const auto ssgTime = ssg.getEmuClock().getTime();
 		applyRates(timers[0].getCurrentTime());
-		fmPart.restoreClock(fmTime);
-		ssg.getEmuClock().reset(ssgTime);
 		contextTime = timers[0].getCurrentTime();
 	}
 }
@@ -416,12 +410,6 @@ YM2608::FmPart::~FmPart()
 void YM2608::FmPart::updateStream(EmuTime time)
 {
 	SoundDevice::updateStream(time);
-}
-
-void YM2608::FmPart::restoreClock(EmuTime time)
-{
-	createResampler();
-	getEmuClock().reset(time);
 }
 
 void YM2608::FmPart::rate(unsigned value)
