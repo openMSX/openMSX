@@ -20,9 +20,7 @@ static constexpr uint8_t STATUS_ADPCM_B_BRDY = 0x08;
 static constexpr uint8_t STATUS_ADPCM_B_PLAYING = 0x20;
 
 YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
-	: timers{Timer(config.getScheduler(), *this, 0),
-	         Timer(config.getScheduler(), *this, 1)}
-	, busyEnd(time)
+	: busyEnd(time)
 	, fm(*this, config.getMotherBoard(), name)
 	, adpcmB(config, name)
 	, registers(config.getMotherBoard(), name, *this)
@@ -40,9 +38,6 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 void YM2608::reset(EmuTime time)
 {
 	updateStream(time);
-	for (auto& timer : timers) {
-		timer.cancel();
-	}
 
 	// reset the engines
 	fm.reset(time);
@@ -291,15 +286,6 @@ void YM2608::applyRates(EmuTime time)
 	ssg.setClockFrequency(float(8 * ssgRate()), time);
 }
 
-void YM2608::scheduleTimer(uint32_t timer, int32_t duration, EmuTime time)
-{
-	if (duration < 0) {
-		timers[timer].cancel();
-	} else {
-		timers[timer].schedule(time + Clock<CLOCK>::duration(unsigned(duration)));
-	}
-}
-
 void YM2608::setBusyEnd(EmuTime time, uint32_t clocks)
 {
 	busyEnd = time + Clock<CLOCK>::duration(clocks);
@@ -334,10 +320,9 @@ template<typename Archive>
 void YM2608::serialize(Archive& ar, unsigned /*version*/)
 {
 	if constexpr (!Archive::IS_LOADER) {
-		updateStream(timers[0].getCurrentTime());
+		updateStream(fm.getCurrentTime());
 	}
-	ar.serialize("timers",      timers,
-	             "address",     addressLatch,
+	ar.serialize("address",     addressLatch,
 	             "irqEnable",   irqEnable,
 	             "flagControl", flagControl,
 	             "fm",          fm,
@@ -346,7 +331,7 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	             "busyEnd",     busyEnd,
 	             "ssg",         ssg);
 	if constexpr (Archive::IS_LOADER) {
-		applyRates(timers[0].getCurrentTime());
+		applyRates(fm.getCurrentTime());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2608);
@@ -383,38 +368,6 @@ void YM2608::FmPart::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	assert(buffers.size() == 13);
 	chip.generateFM(buffers, num);
-}
-
-
-YM2608::Timer::Timer(Scheduler& scheduler_, YM2608& ym2608_, uint8_t index_)
-	: Schedulable(scheduler_)
-	, ym2608(ym2608_)
-	, index(index_)
-{
-}
-
-void YM2608::Timer::cancel()
-{
-	removeSyncPoints();
-}
-
-void YM2608::Timer::schedule(EmuTime time)
-{
-	cancel();
-	setSyncPoint(time);
-}
-
-void YM2608::Timer::executeUntil(EmuTime time)
-{
-	ym2608.updateStream(time);
-	// The FM engine reloads the timer through scheduleTimer().
-	ym2608.fm.engine_timer_expired(index, time);
-}
-
-template<typename Archive>
-void YM2608::Timer::serialize(Archive& ar, unsigned /*version*/)
-{
-	ar.template serializeBase<Schedulable>(*this);
 }
 
 
@@ -1215,6 +1168,8 @@ fm_engine_base::fm_engine_base(YM2608& ym2608, MSXMotherBoard& motherboard,
                                std::string_view name) :
 	chip(ym2608),
 	irq(motherboard, strCat(name, ".IRQ")),
+	timers{Timer(motherboard.getScheduler(), *this, 0),
+	       Timer(motherboard.getScheduler(), *this, 1)},
 	m_env_counter(0),
 	m_status(0),
 	m_clock_prescale(opna_registers::DEFAULT_PRESCALE),
@@ -1240,6 +1195,10 @@ fm_engine_base::fm_engine_base(YM2608& ym2608, MSXMotherBoard& motherboard,
 
 void fm_engine_base::reset(EmuTime time)
 {
+	for (auto& timer : timers) {
+		timer.cancel();
+	}
+
 	// reset all status bits
 	set_reset_status(0, 0xff);
 	irq.reset();
@@ -1462,16 +1421,48 @@ void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_
 		period += delta_clocks;
 
 		// reset it
-		chip.scheduleTimer(tnum, period * OPERATORS * m_clock_prescale, time);
+		scheduleTimer(tnum, period * OPERATORS * m_clock_prescale, time);
 		m_timer_running[tnum] = true;
 	}
 
 	// if the timer is not live, ensure it is not enabled
 	else if (!enable)
 	{
-		chip.scheduleTimer(tnum, -1, time);
+		scheduleTimer(tnum, -1, time);
 		m_timer_running[tnum] = false;
 	}
+}
+
+void fm_engine_base::scheduleTimer(uint32_t timer, int32_t duration, EmuTime time)
+{
+	if (duration < 0) {
+		timers[timer].cancel();
+	} else {
+		timers[timer].schedule(time + Clock<CLOCK>::duration(unsigned(duration)));
+	}
+}
+
+fm_engine_base::Timer::Timer(Scheduler& scheduler_, fm_engine_base& engine_, uint8_t index_)
+	: Schedulable(scheduler_)
+	, engine(engine_)
+	, index(index_)
+{
+}
+
+void fm_engine_base::Timer::cancel()
+{
+	removeSyncPoints();
+}
+
+void fm_engine_base::Timer::schedule(EmuTime time)
+{
+	cancel();
+	setSyncPoint(time);
+}
+
+void fm_engine_base::Timer::executeUntil(EmuTime time)
+{
+	engine.engine_timer_expired(index, time);
 }
 
 
@@ -1490,9 +1481,10 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum, EmuTime time)
 	else if (tnum == 1 && m_regs.enable_timer_b())
 		set_reset_status(STATUS_TIMERB, 0);
 
-	// if timer A fired in CSM mode, trigger CSM on channel 2, the only
-	// channel OPNA keys from this timer
+	// Timer A overflow in CSM mode keys channel 2. Flush the mixer first so
+	// samples before this instant still use the old key state.
 	if (tnum == 0 && m_regs.csm()) {
+		chip.updateStream(time);
 		m_modified = true;
 		m_channel[2].keyonoff(0xf, KEYON_CSM);
 	}

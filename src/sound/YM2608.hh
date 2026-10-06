@@ -564,7 +564,8 @@ public:
 		             "regs",           m_regs,
 		             "operators",      m_operator,
 		             "channels",       m_channel,
-		             "irq",            irq);
+		             "irq",            irq,
+		             "timers",         timers);
 		// Operator caches are not saved. The next generate() rebuilds them.
 		m_modified = true;
 	}
@@ -607,22 +608,43 @@ public:
 	// set prescale factor (2/3/6)
 	void set_clock_prescale(uint32_t prescale) { m_clock_prescale = prescale; }
 
+	[[nodiscard]] EmuTime getCurrentTime() const { return timers[0].getCurrentTime(); }
+
 	// return a reference to our registers
 	opna_registers &regs() { return m_regs; }
 	const opna_registers &regs() const { return m_regs; }
 
-	// called by the host when a timer fires
-	void engine_timer_expired(uint32_t tnum, EmuTime time);
-
 private:
+	class Timer final : public Schedulable {
+	public:
+		Timer(Scheduler& scheduler_, fm_engine_base& engine, uint8_t index);
+		void cancel();
+		void schedule(EmuTime time);
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned /*version*/)
+		{
+			ar.template serializeBase<Schedulable>(*this);
+		}
+
+	private:
+		void executeUntil(EmuTime time) override;
+
+	private:
+		fm_engine_base& engine;
+		uint8_t index;
+	};
+
+	void engine_timer_expired(uint32_t tnum, EmuTime time);
 	void check_interrupts();
 	void mode_write(uint8_t data, EmuTime time);
-
 	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks, EmuTime time);
+	void scheduleTimer(uint32_t timer, int32_t duration, EmuTime time);
 
 	// internal state
-	YM2608& chip;          // timers
+	YM2608& chip;          // CSM mixer flush
 	IRQHelper irq;
+	std::array<Timer, 2> timers;
 	uint32_t m_env_counter;          // envelope counter; low 2 bits are sub-counter
 	uint8_t m_status;                // current status register
 	uint8_t m_clock_prescale;        // prescale factor (2/3/6)
@@ -1143,7 +1165,6 @@ private:
 	void generateFM(std::span<float*> buffers, unsigned num);
 
 	friend class fm_engine_base;
-	void scheduleTimer(uint32_t timer, int32_t duration, EmuTime time);
 
 private:
 	void setBusyEnd(EmuTime time, uint32_t clocks);
@@ -1164,21 +1185,6 @@ private:
 		YM2608& chip;
 	};
 
-	class Timer final : public Schedulable {
-	public:
-		Timer(Scheduler& scheduler, YM2608& ym2608, uint8_t index);
-		void cancel();
-		void schedule(EmuTime time);
-		template<typename Archive> void serialize(Archive& ar, unsigned version);
-
-	private:
-		void executeUntil(EmuTime time) override;
-
-	private:
-		YM2608& ym2608;
-		uint8_t index;
-	};
-
 	struct Registers final : SimpleDebuggable {
 		Registers(MSXMotherBoard& board, std::string_view name, YM2608& ym2608);
 		uint8_t read(unsigned address, EmuTime time) override;
@@ -1188,7 +1194,6 @@ private:
 		YM2608& ym2608;
 	};
 
-	std::array<Timer, 2> timers;
 	EmuTime busyEnd;
 
 	uint16_t addressLatch = 0;
