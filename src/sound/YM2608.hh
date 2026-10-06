@@ -570,7 +570,7 @@ public:
 	}
 
 	// reset the overall state
-	void reset();
+	void reset(EmuTime time);
 
 	// Envelope counter before the next generate(). ADPCM-A replays the same
 	// step to decide which samples it clocks.
@@ -585,7 +585,7 @@ public:
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask);
 
 	// write to the OPN registers
-	void write(uint16_t regnum, uint8_t data);
+	void write(uint16_t regnum, uint8_t data, EmuTime time);
 
 	// return the current status
 	uint8_t status() const;
@@ -612,14 +612,13 @@ public:
 	const opna_registers &regs() const { return m_regs; }
 
 	// called by the host when a timer fires
-	void engine_timer_expired(uint32_t tnum);
+	void engine_timer_expired(uint32_t tnum, EmuTime time);
 
 private:
 	void check_interrupts();
-	void mode_write(uint8_t data);
+	void mode_write(uint8_t data, EmuTime time);
 
-	// update the state of the given timer
-	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks);
+	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks, EmuTime time);
 
 	// internal state
 	YM2608& chip;          // reference to the system interface
@@ -1124,9 +1123,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	uint8_t readStatus();
+	uint8_t readStatus(EmuTime time);
 	uint8_t readData(EmuTime time);
-	uint8_t readStatusHi();
+	uint8_t readStatusHi(EmuTime time);
 	uint8_t statusHi() const;
 	uint8_t readDataHi();
 
@@ -1144,12 +1143,12 @@ private:
 	void generateFM(std::span<float*> buffers, unsigned num);
 
 	friend class fm_engine_base;
-	void scheduleTimer(uint32_t timer, int32_t duration);
+	void scheduleTimer(uint32_t timer, int32_t duration, EmuTime time);
 	void setIrq(bool asserted);
 
 private:
-	void setBusyEnd(uint32_t clocks);
-	[[nodiscard]] bool isBusy() const;
+	void setBusyEnd(EmuTime time, uint32_t clocks);
+	[[nodiscard]] bool isBusy(EmuTime time) const;
 
 	class FmPart final : public ResampledSoundDevice {
 	public:
@@ -1192,7 +1191,6 @@ private:
 
 	IRQHelper irq;
 	std::array<Timer, 2> timers;
-	EmuTime contextTime;
 	EmuTime busyEnd;
 
 	uint16_t addressLatch = 0;

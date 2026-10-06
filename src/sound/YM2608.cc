@@ -23,7 +23,6 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	: irq(config.getMotherBoard(), strCat(name, ".IRQ"))
 	, timers{Timer(config.getScheduler(), *this, 0),
 	         Timer(config.getScheduler(), *this, 1)}
-	, contextTime(time)
 	, busyEnd(time)
 	, fm(*this)
 	, adpcmB(config, name)
@@ -47,7 +46,7 @@ void YM2608::reset(EmuTime time)
 	}
 
 	// reset the engines
-	fm.reset();
+	fm.reset(time);
 	adpcmA.reset();
 	adpcmB.reset();
 
@@ -63,7 +62,7 @@ void YM2608::reset(EmuTime time)
 	// register, which updates the IRQs
 	irqEnable = 0x1f;
 	flagControl = 0x1c;
-	readStatusHi();
+	readStatusHi(time);
 
 	ssg.reset(time);
 	applyRates(time);
@@ -77,11 +76,11 @@ uint8_t YM2608::readPort(unsigned port, EmuTime time)
 
 	switch (port & 3) {
 	case 0: // status port, YM2203 compatible
-		return readStatus();
+		return readStatus(time);
 	case 1: // data port (only SSG)
 		return readData(time);
 	case 2: // status port, extended
-		return readStatusHi();
+		return readStatusHi(time);
 	case 3: // ADPCM-B data
 		return readDataHi();
 	}
@@ -110,10 +109,10 @@ uint8_t YM2608::peekPort(unsigned port, EmuTime time) const
 }
 
 
-uint8_t YM2608::readStatus()
+uint8_t YM2608::readStatus(EmuTime time)
 {
 	uint8_t result = fm.status() & (fm_engine::STATUS_TIMERA | fm_engine::STATUS_TIMERB);
-	if (isBusy()) {
+	if (isBusy(time)) {
 		result |= fm_engine::STATUS_BUSY;
 	}
 	return result;
@@ -128,7 +127,7 @@ uint8_t YM2608::readData(EmuTime time)
 	}
 }
 
-uint8_t YM2608::readStatusHi()
+uint8_t YM2608::readStatusHi(EmuTime time)
 {
 	uint8_t status = statusHi();
 
@@ -136,7 +135,7 @@ uint8_t YM2608::readStatusHi()
 	fm.set_reset_status(status, ~status);
 
 	// merge in the busy flag
-	if (isBusy()) {
+	if (isBusy(time)) {
 		status |= fm_engine::STATUS_BUSY;
 	}
 	return status;
@@ -236,11 +235,11 @@ void YM2608::writeRegister(unsigned regnum, uint8_t data, EmuTime time)
 		}
 	} else {
 		// 20-28, 2A-FF, 111-1FF: write to FM
-		fm.write(regnum, data);
+		fm.write(regnum, data, time);
 	}
 
 	// mark busy for a bit
-	setBusyEnd(32 * fm.clock_prescale());
+	setBusyEnd(time, 32 * fm.clock_prescale());
 }
 
 uint8_t YM2608::peekRegister(unsigned regnum, EmuTime time) const
@@ -264,7 +263,6 @@ uint8_t YM2608::peekRegister(unsigned regnum, EmuTime time) const
 void YM2608::updateStream(EmuTime time)
 {
 	fmPart.updateStream(time);
-	contextTime = time;
 }
 
 void YM2608::updatePrescale(uint8_t prescale)
@@ -295,23 +293,23 @@ void YM2608::applyRates(EmuTime time)
 	ssg.setClockFrequency(float(8 * ssgRate()), time);
 }
 
-void YM2608::scheduleTimer(uint32_t timer, int32_t duration)
+void YM2608::scheduleTimer(uint32_t timer, int32_t duration, EmuTime time)
 {
 	if (duration < 0) {
 		timers[timer].cancel();
 	} else {
-		timers[timer].schedule(contextTime + Clock<CLOCK>::duration(unsigned(duration)));
+		timers[timer].schedule(time + Clock<CLOCK>::duration(unsigned(duration)));
 	}
 }
 
-void YM2608::setBusyEnd(uint32_t clocks)
+void YM2608::setBusyEnd(EmuTime time, uint32_t clocks)
 {
-	busyEnd = contextTime + Clock<CLOCK>::duration(clocks);
+	busyEnd = time + Clock<CLOCK>::duration(clocks);
 }
 
-bool YM2608::isBusy() const
+bool YM2608::isBusy(EmuTime time) const
 {
-	return contextTime < busyEnd;
+	return time < busyEnd;
 }
 
 void YM2608::setIrq(bool asserted)
@@ -356,8 +354,7 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	             "irq",         irq,
 	             "ssg",         ssg);
 	if constexpr (Archive::IS_LOADER) {
-		contextTime = timers[0].getCurrentTime();
-		applyRates(contextTime);
+		applyRates(timers[0].getCurrentTime());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2608);
@@ -419,7 +416,7 @@ void YM2608::Timer::executeUntil(EmuTime time)
 {
 	ym2608.updateStream(time);
 	// The FM engine reloads the timer through scheduleTimer().
-	ym2608.fm.engine_timer_expired(index);
+	ym2608.fm.engine_timer_expired(index, time);
 }
 
 template<typename Archive>
@@ -1248,7 +1245,7 @@ fm_engine_base::fm_engine_base(YM2608& ym2608) :
 //  reset - reset the overall state
 //-------------------------------------------------
 
-void fm_engine_base::reset()
+void fm_engine_base::reset(EmuTime time)
 {
 	// reset all status bits
 	set_reset_status(0, 0xff);
@@ -1258,7 +1255,7 @@ void fm_engine_base::reset()
 
 	// explicitly write to the mode register since it has side-effects
 	// QUESTION: old cores initialize this to 0x30 -- who is right?
-	write(opna_registers::REG_MODE, 0);
+	write(opna_registers::REG_MODE, 0, time);
 
 	// reset the channels
 	for (auto &chan : m_channel)
@@ -1415,7 +1412,7 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 //  write - handle writes to the OPN registers
 //-------------------------------------------------
 
-void fm_engine_base::write(uint16_t regnum, uint8_t data)
+void fm_engine_base::write(uint16_t regnum, uint8_t data, EmuTime time)
 {
 	// special case: writes to the mode register can impact IRQs;
 	// schedule these writes to ensure ordering with timers
@@ -1424,7 +1421,7 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data)
 
 	if (regnum == opna_registers::REG_MODE)
 	{
-		mode_write(data);
+		mode_write(data, time);
 		return;
 	}
 
@@ -1459,7 +1456,7 @@ uint8_t fm_engine_base::status() const
 //  timer
 //-------------------------------------------------
 
-void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks)
+void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks, EmuTime time)
 {
 	// if the timer is live, but not currently enabled, set the timer
 	if (enable && !m_timer_running[tnum])
@@ -1471,14 +1468,14 @@ void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_
 		period += delta_clocks;
 
 		// reset it
-		chip.scheduleTimer(tnum, period * OPERATORS * m_clock_prescale);
+		chip.scheduleTimer(tnum, period * OPERATORS * m_clock_prescale, time);
 		m_timer_running[tnum] = true;
 	}
 
 	// if the timer is not live, ensure it is not enabled
 	else if (!enable)
 	{
-		chip.scheduleTimer(tnum, -1);
+		chip.scheduleTimer(tnum, -1, time);
 		m_timer_running[tnum] = false;
 	}
 }
@@ -1489,7 +1486,7 @@ void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_
 //  status and possibly IRQs
 //-------------------------------------------------
 
-void fm_engine_base::engine_timer_expired(uint32_t tnum)
+void fm_engine_base::engine_timer_expired(uint32_t tnum, EmuTime time)
 {
 	assert(tnum == 0 || tnum == 1);
 
@@ -1508,7 +1505,7 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum)
 
 	// reset
 	m_timer_running[tnum] = false;
-	update_timer(tnum, 1, 0);
+	update_timer(tnum, 1, 0, time);
 }
 
 
@@ -1533,7 +1530,7 @@ void fm_engine_base::check_interrupts()
 //  mode_write - handle a mode register write
 //-------------------------------------------------
 
-void fm_engine_base::mode_write(uint8_t data)
+void fm_engine_base::mode_write(uint8_t data, EmuTime time)
 {
 	// actually write the mode register now
 	uint32_t dummy1, dummy2;
@@ -1550,8 +1547,8 @@ void fm_engine_base::mode_write(uint8_t data)
 	// load timers; note that timer B gets a small negative adjustment because
 	// the *16 multiplier is free-running, so the first tick of the clock
 	// is a bit shorter
-	update_timer(1, m_regs.load_timer_b(), -(m_total_clocks & 15));
-	update_timer(0, m_regs.load_timer_a(), 0);
+	update_timer(1, m_regs.load_timer_b(), -(m_total_clocks & 15), time);
+	update_timer(0, m_regs.load_timer_a(), 0, time);
 }
 
 
