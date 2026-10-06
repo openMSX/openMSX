@@ -1157,14 +1157,14 @@ int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) cons
 
 
 //*********************************************************
-//  FM ENGINE BASE
+//  FM ENGINE
 //*********************************************************
 
 //-------------------------------------------------
-//  fm_engine_base - constructor
+//  fm_engine - constructor
 //-------------------------------------------------
 
-fm_engine_base::fm_engine_base(YM2608& ym2608, MSXMotherBoard& motherboard,
+fm_engine::fm_engine(YM2608& ym2608, MSXMotherBoard& motherboard,
                                std::string_view name) :
 	chip(ym2608),
 	irq(motherboard, strCat(name, ".IRQ")),
@@ -1193,7 +1193,7 @@ fm_engine_base::fm_engine_base(YM2608& ym2608, MSXMotherBoard& motherboard,
 //  reset - reset the overall state
 //-------------------------------------------------
 
-void fm_engine_base::reset(EmuTime time)
+void fm_engine::reset(EmuTime time)
 {
 	for (auto& timer : timers) {
 		timer.cancel();
@@ -1296,7 +1296,7 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 //  generate - one channel for the whole buffer, then the next
 //-------------------------------------------------
 
-void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask)
+void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask)
 {
 	static_assert(opna_registers::OPERATORS / opna_registers::CHANNELS == 4);
 
@@ -1365,7 +1365,7 @@ void fm_engine_base::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 //  write - handle writes to the OPN registers
 //-------------------------------------------------
 
-void fm_engine_base::write(uint16_t regnum, uint8_t data, EmuTime time)
+void fm_engine::write(uint16_t regnum, uint8_t data, EmuTime time)
 {
 	// special case: writes to the mode register can impact IRQs;
 	// schedule these writes to ensure ordering with timers
@@ -1398,7 +1398,7 @@ void fm_engine_base::write(uint16_t regnum, uint8_t data, EmuTime time)
 //  status flags
 //-------------------------------------------------
 
-uint8_t fm_engine_base::status() const
+uint8_t fm_engine::status() const
 {
 	return m_status;
 }
@@ -1409,7 +1409,7 @@ uint8_t fm_engine_base::status() const
 //  timer
 //-------------------------------------------------
 
-void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks, EmuTime time)
+void fm_engine::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_clocks, EmuTime time)
 {
 	// if the timer is live, but not currently enabled, set the timer
 	if (enable && !m_timer_running[tnum])
@@ -1433,7 +1433,7 @@ void fm_engine_base::update_timer(uint32_t tnum, uint32_t enable, int32_t delta_
 	}
 }
 
-void fm_engine_base::scheduleTimer(uint32_t timer, int32_t duration, EmuTime time)
+void fm_engine::scheduleTimer(uint32_t timer, int32_t duration, EmuTime time)
 {
 	if (duration < 0) {
 		timers[timer].cancel();
@@ -1442,25 +1442,25 @@ void fm_engine_base::scheduleTimer(uint32_t timer, int32_t duration, EmuTime tim
 	}
 }
 
-fm_engine_base::Timer::Timer(Scheduler& scheduler_, fm_engine_base& engine_, uint8_t index_)
+fm_engine::Timer::Timer(Scheduler& scheduler_, fm_engine& engine_, uint8_t index_)
 	: Schedulable(scheduler_)
 	, engine(engine_)
 	, index(index_)
 {
 }
 
-void fm_engine_base::Timer::cancel()
+void fm_engine::Timer::cancel()
 {
 	removeSyncPoints();
 }
 
-void fm_engine_base::Timer::schedule(EmuTime time)
+void fm_engine::Timer::schedule(EmuTime time)
 {
 	cancel();
 	setSyncPoint(time);
 }
 
-void fm_engine_base::Timer::executeUntil(EmuTime time)
+void fm_engine::Timer::executeUntil(EmuTime time)
 {
 	engine.engine_timer_expired(index, time);
 }
@@ -1471,7 +1471,7 @@ void fm_engine_base::Timer::executeUntil(EmuTime time)
 //  status and possibly IRQs
 //-------------------------------------------------
 
-void fm_engine_base::engine_timer_expired(uint32_t tnum, EmuTime time)
+void fm_engine::engine_timer_expired(uint32_t tnum, EmuTime time)
 {
 	assert(tnum == 0 || tnum == 1);
 
@@ -1500,7 +1500,7 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum, EmuTime time)
 //  for interrupts
 //-------------------------------------------------
 
-void fm_engine_base::check_interrupts()
+void fm_engine::check_interrupts()
 {
 	irq.set((m_status & m_irq_mask) != 0);
 }
@@ -1510,7 +1510,7 @@ void fm_engine_base::check_interrupts()
 //  mode_write - handle a mode register write
 //-------------------------------------------------
 
-void fm_engine_base::mode_write(uint8_t data, EmuTime time)
+void fm_engine::mode_write(uint8_t data, EmuTime time)
 {
 	// actually write the mode register now
 	uint32_t dummy1, dummy2;

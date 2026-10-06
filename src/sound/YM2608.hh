@@ -528,12 +528,12 @@ private:
 };
 
 
-// ======================> fm_engine_base
+// ======================> fm_engine
 
-// fm_engine_base represents a set of operators and channels which together
+// fm_engine represents a set of operators and channels which together
 // form a Yamaha FM core; chips that implement other engines (ADPCM, wavetable,
 // etc) take this output and combine it with the others externally
-class fm_engine_base
+class fm_engine
 {
 public:
 	// expose some constants from the registers
@@ -546,9 +546,9 @@ public:
 	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
 
 	// constructor; the channels point into m_operator, so copying is not safe
-	fm_engine_base(YM2608& chip, MSXMotherBoard& motherboard, std::string_view name);
-	fm_engine_base(const fm_engine_base &) = delete;
-	fm_engine_base &operator=(const fm_engine_base &) = delete;
+	fm_engine(YM2608& chip, MSXMotherBoard& motherboard, std::string_view name);
+	fm_engine(const fm_engine &) = delete;
+	fm_engine &operator=(const fm_engine &) = delete;
 
 	// save/restore
 	template<typename Archive>
@@ -617,7 +617,7 @@ public:
 private:
 	class Timer final : public Schedulable {
 	public:
-		Timer(Scheduler& scheduler_, fm_engine_base& engine, uint8_t index);
+		Timer(Scheduler& scheduler_, fm_engine& engine, uint8_t index);
 		void cancel();
 		void schedule(EmuTime time);
 
@@ -631,7 +631,7 @@ private:
 		void executeUntil(EmuTime time) override;
 
 	private:
-		fm_engine_base& engine;
+		fm_engine& engine;
 		uint8_t index;
 	};
 
@@ -1164,7 +1164,7 @@ private:
 
 	void generateFM(std::span<float*> buffers, unsigned num);
 
-	friend class fm_engine_base;
+	friend class fm_engine;
 
 private:
 	void setBusyEnd(EmuTime time, uint32_t clocks);
@@ -1200,7 +1200,6 @@ private:
 	uint8_t irqEnable = 0x1f;
 	uint8_t flagControl = 0x1c;
 
-	using fm_engine = fm_engine_base;
 	fm_engine fm;
 	adpcm_a_engine adpcmA;
 	adpcm_b_engine adpcmB;
