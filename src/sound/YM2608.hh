@@ -546,7 +546,7 @@ public:
 	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
 
 	// constructor; the channels point into m_operator, so copying is not safe
-	fm_engine_base(YM2608& chip);
+	fm_engine_base(YM2608& chip, MSXMotherBoard& motherboard, std::string_view name);
 	fm_engine_base(const fm_engine_base &) = delete;
 	fm_engine_base &operator=(const fm_engine_base &) = delete;
 
@@ -559,12 +559,12 @@ public:
 		             "status",         m_status,
 		             "clock_prescale", m_clock_prescale,
 		             "irq_mask",       m_irq_mask,
-		             "irq_state",      m_irq_state,
 		             "timer_running",  m_timer_running,
 		             "total_clocks",   m_total_clocks,
 		             "regs",           m_regs,
 		             "operators",      m_operator,
-		             "channels",       m_channel);
+		             "channels",       m_channel,
+		             "irq",            irq);
 		// Operator caches are not saved. The next generate() rebuilds them.
 		m_modified = true;
 	}
@@ -621,12 +621,12 @@ private:
 	void update_timer(uint32_t which, uint32_t enable, int32_t delta_clocks, EmuTime time);
 
 	// internal state
-	YM2608& chip;          // reference to the system interface
+	YM2608& chip;          // timers
+	IRQHelper irq;
 	uint32_t m_env_counter;          // envelope counter; low 2 bits are sub-counter
 	uint8_t m_status;                // current status register
 	uint8_t m_clock_prescale;        // prescale factor (2/3/6)
 	uint8_t m_irq_mask;              // mask of which bits signal IRQs
-	uint8_t m_irq_state;             // current IRQ state
 	std::array<bool, 2> m_timer_running;         // current timer running state
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
 	bool m_modified;                 // register or key changed since the last generate()
@@ -1144,7 +1144,6 @@ private:
 
 	friend class fm_engine_base;
 	void scheduleTimer(uint32_t timer, int32_t duration, EmuTime time);
-	void setIrq(bool asserted);
 
 private:
 	void setBusyEnd(EmuTime time, uint32_t clocks);
@@ -1189,7 +1188,6 @@ private:
 		YM2608& ym2608;
 	};
 
-	IRQHelper irq;
 	std::array<Timer, 2> timers;
 	EmuTime busyEnd;
 

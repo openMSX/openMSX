@@ -20,11 +20,10 @@ static constexpr uint8_t STATUS_ADPCM_B_BRDY = 0x08;
 static constexpr uint8_t STATUS_ADPCM_B_PLAYING = 0x20;
 
 YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
-	: irq(config.getMotherBoard(), strCat(name, ".IRQ"))
-	, timers{Timer(config.getScheduler(), *this, 0),
+	: timers{Timer(config.getScheduler(), *this, 0),
 	         Timer(config.getScheduler(), *this, 1)}
 	, busyEnd(time)
-	, fm(*this)
+	, fm(*this, config.getMotherBoard(), name)
 	, adpcmB(config, name)
 	, registers(config.getMotherBoard(), name, *this)
 	, fmPart(config, name, *this)
@@ -67,7 +66,6 @@ void YM2608::reset(EmuTime time)
 	ssg.reset(time);
 	applyRates(time);
 	busyEnd = time;
-	irq.reset();
 }
 
 uint8_t YM2608::readPort(unsigned port, EmuTime time)
@@ -312,11 +310,6 @@ bool YM2608::isBusy(EmuTime time) const
 	return time < busyEnd;
 }
 
-void YM2608::setIrq(bool asserted)
-{
-	irq.set(asserted);
-}
-
 void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 {
 	if (adpcmB.silent()) {
@@ -351,7 +344,6 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	             "adpcmA",      adpcmA,
 	             "adpcmB",      adpcmB,
 	             "busyEnd",     busyEnd,
-	             "irq",         irq,
 	             "ssg",         ssg);
 	if constexpr (Archive::IS_LOADER) {
 		applyRates(timers[0].getCurrentTime());
@@ -1219,13 +1211,14 @@ int32_t fm_channel::output_4op(const output_plan &plan, uint32_t am_offset) cons
 //  fm_engine_base - constructor
 //-------------------------------------------------
 
-fm_engine_base::fm_engine_base(YM2608& ym2608) :
+fm_engine_base::fm_engine_base(YM2608& ym2608, MSXMotherBoard& motherboard,
+                               std::string_view name) :
 	chip(ym2608),
+	irq(motherboard, strCat(name, ".IRQ")),
 	m_env_counter(0),
 	m_status(0),
 	m_clock_prescale(opna_registers::DEFAULT_PRESCALE),
 	m_irq_mask(STATUS_TIMERA | STATUS_TIMERB),
-	m_irq_state(0),
 	m_timer_running{false, false},
 	m_total_clocks(0),
 	m_modified(false),
@@ -1249,6 +1242,7 @@ void fm_engine_base::reset(EmuTime time)
 {
 	// reset all status bits
 	set_reset_status(0, 0xff);
+	irq.reset();
 
 	// register type-specific initialization
 	m_regs.reset();
@@ -1516,13 +1510,7 @@ void fm_engine_base::engine_timer_expired(uint32_t tnum, EmuTime time)
 
 void fm_engine_base::check_interrupts()
 {
-	// update the state
-	uint8_t old_state = m_irq_state;
-	m_irq_state = ((m_status & m_irq_mask) != 0);
-
-	// if changed, signal the new state
-	if (old_state != m_irq_state)
-		chip.setIrq(m_irq_state != 0);
+	irq.set((m_status & m_irq_mask) != 0);
 }
 
 

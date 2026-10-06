@@ -32,6 +32,7 @@ try:
  for tag in ('timers','fm','adpcmA','adpcmB','ssg'):
   assert node.find(tag) is not None,tag
  assert node.find('adpcmB/sampleRAM') is not None
+ assert node.find('fm/irq') is not None
  sizes={'fm/operators':24,'fm/channels':6,'adpcmA/channels':6}
  for path,size in sizes.items():
   assert len(node.find(path))==size,(path,len(node.find(path)))
