@@ -18,6 +18,10 @@
 
 #include "imgui.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
 #include <memory>
 
 #include "components.hh"
@@ -144,14 +148,86 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 	return screen.get();
 }
 
-void SDLVideoSystem::showCursor(bool show)
+void SDLVideoSystem::showCursor(Cursor cursor)
 {
-	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
-	if (show) {
+	if (cursor == Cursor::CROSSHAIR) {
+		SDL_SetCursor(getCrosshairCursor());
+	} else if (crosshairCursor) {
+		SDL_SetCursor(SDL_GetDefaultCursor());
+		crosshairCursor.reset();
+	}
+	SDL_ShowCursor((cursor == Cursor::HIDDEN) ? SDL_DISABLE : SDL_ENABLE);
+	// Only let ImGui change the shape of the normal cursor.
+	if (cursor == Cursor::NORMAL) {
 		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
 	} else {
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	}
+}
+
+void SDLVideoSystem::updateCursor()
+{
+	screen->updateCursor();
+}
+
+SDL_Cursor* SDLVideoSystem::getCrosshairCursor()
+{
+	// The crosshair is 16 MSX pixels wide, so it scales with the window.
+	int size = std::clamp(int(16.0f * screen->getMsxPixelSize().x), 24, 128) & ~1;
+	if (crosshairCursor && (crosshairSize == size)) return crosshairCursor.get();
+
+	// Red ring and cross with a black outline, so it's visible on both dark
+	// and bright backgrounds, and a white hot spot. The shape is designed
+	// for a 32x32 cursor and scaled by 's'.
+	static constexpr float RING_RADIUS = 9.0f;
+	static constexpr float ARM_START = 4.0f;
+	static constexpr float ARM_END = 14.0f;
+	static constexpr uint32_t CLEAR = 0x00000000; // ARGB
+	static constexpr uint32_t RED         = 0xFFFF2020;
+	static constexpr uint32_t BLACK       = 0xFF000000;
+	static constexpr uint32_t WHITE       = 0xFFFFFFFF;
+	float s = float(size) / 32.0f;
+	int c = size / 2;
+	int half = int(s * 0.5f); // half the line thickness
+	int outline = std::max(1, int(s + 0.5f));
+	auto inShape = [&](int x, int y) {
+		int dx = x - c, dy = y - c;
+		float d = std::sqrt(float(dx * dx + dy * dy));
+		bool ring = (d >= RING_RADIUS * s) && (d <= RING_RADIUS * s + float(2 * half + 1));
+		int arm = std::max(std::abs(dx), std::abs(dy));
+		bool cross = ((std::abs(dx) <= half) || (std::abs(dy) <= half)) &&
+		             (arm >= int(ARM_START * s)) && (arm <= int(ARM_END * s));
+		return ring || cross;
+	};
+	auto nearShape = [&](int x, int y) {
+		for (int oy = -outline; oy <= outline; ++oy) {
+			for (int ox = -outline; ox <= outline; ++ox) {
+				if (inShape(x + ox, y + oy)) return true;
+			}
+		}
+		return false;
+	};
+
+	SDLSurfacePtr surf(SDL_CreateRGBSurfaceWithFormat(
+		0, size, size, 32, SDL_PIXELFORMAT_ARGB8888));
+	auto* pixels = static_cast<uint32_t*>(surf->pixels);
+	int pitch = surf->pitch / 4;
+	for (int y = 0; y < size; ++y) {
+		for (int x = 0; x < size; ++x) {
+			bool hotSpot = (std::abs(x - c) <= half) && (std::abs(y - c) <= half);
+			pixels[y * pitch + x] = hotSpot       ? WHITE
+			                      : inShape(x, y)   ? RED
+			                      : nearShape(x, y) ? BLACK
+			                                        : CLEAR;
+		}
+	}
+	crosshairCursor.reset(SDL_CreateColorCursor(surf.get(), c, c));
+	if (!crosshairCursor) {
+		// Not every platform supports color cursors.
+		crosshairCursor.reset(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR));
+	}
+	crosshairSize = size;
+	return crosshairCursor.get();
 }
 
 bool SDLVideoSystem::getCursorEnabled()

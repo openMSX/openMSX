@@ -166,6 +166,12 @@ struct SDLFreeFormat {
 using SDLAllocFormatPtr = std::unique_ptr<SDL_PixelFormat, SDLFreeFormat>;
 
 
+struct SDLFreeCursor {
+	void operator()(SDL_Cursor* c) const { SDL_FreeCursor(c); }
+};
+using SDLCursorPtr = std::unique_ptr<SDL_Cursor, SDLFreeCursor>;
+
+
 template<Uint32 FLAGS>
 class SDLSubSystemInitializer
 {

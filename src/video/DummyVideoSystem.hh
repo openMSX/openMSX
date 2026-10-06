@@ -21,7 +21,8 @@ public:
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() override;
 	[[nodiscard]] std::optional<gl::vec2> getMsxPixelSize() override;
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
-	void showCursor(bool show) override;
+	void showCursor(Cursor cursor) override;
+	void updateCursor() override;
 	[[nodiscard]] bool getCursorEnabled() override;
 	[[nodiscard]] std::string getClipboardText() override;
 	void setClipboardText(zstring_view text) override;

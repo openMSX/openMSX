@@ -6,6 +6,7 @@
 
 #include "components.hh"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -78,7 +79,14 @@ public:
 
 	/** TODO */
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
-	virtual void showCursor(bool show) = 0;
+	enum class Cursor : uint8_t {
+		HIDDEN,
+		NORMAL,
+		CROSSHAIR, // e.g. the aim point of a light gun
+	};
+	virtual void showCursor(Cursor cursor) = 0;
+	/** Re-evaluate which cursor to show, see Display::requestCrosshairCursor(). */
+	virtual void updateCursor() = 0;
 	[[nodiscard]] virtual bool getCursorEnabled() = 0;
 	[[nodiscard]] virtual std::string getClipboardText() = 0;
 	virtual void setClipboardText(zstring_view text) = 0;
