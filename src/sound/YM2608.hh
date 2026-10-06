@@ -361,8 +361,7 @@ class fm_operator
 	static constexpr uint32_t EG_QUIET = 0x380;
 
 public:
-	// constructor
-	explicit fm_operator(uint32_t opoffs);
+	fm_operator() = default;
 
 	// save/restore
 	template<typename Archive>
@@ -380,7 +379,7 @@ public:
 	void reset();
 
 	// prepare prior to clocking; the registers are read only here
-	bool prepare(opna_registers &regs, uint32_t choffs);
+	bool prepare(opna_registers &regs, uint32_t choffs, uint32_t opoffs);
 
 	// Release has reached maximum attenuation. A later key-on restarts phase.
 	bool finished() const
@@ -423,14 +422,13 @@ private:
 	uint32_t envelope_attenuation(uint32_t am_offset) const;
 
 	// internal state
-	uint32_t m_phase;                      // current phase value (10.10 format)
-	uint16_t m_opoffs;                     // operator offset in registers
-	uint16_t m_env_attenuation;            // computed envelope attenuation (4.6 format)
-	envelope_state m_env_state;            // current envelope state
-	bool m_ssg_inverted;                   // true if the output should be inverted
-	bool m_key_state;                      // current key state
-	uint8_t m_keyon_live;                  // live key on state (bit 0 = direct, bit 2 = CSM)
-	opdata_cache m_cache;                  // cached values for performance
+	uint32_t m_phase = 0;                  // current phase value (10.10 format)
+	uint16_t m_env_attenuation = 0x3ff;    // computed envelope attenuation (4.6 format)
+	envelope_state m_env_state = EG_RELEASE; // current envelope state
+	bool m_ssg_inverted = false;           // true if the output should be inverted
+	bool m_key_state = false;              // current key state
+	uint8_t m_keyon_live = 0;              // live key on state (bit 0 = direct, bit 2 = CSM)
+	opdata_cache m_cache{};                // cached values for performance
 };
 
 
@@ -444,34 +442,31 @@ class fm_channel
 	static constexpr uint32_t OUTPUT_SHIFT = 1;
 
 public:
-	// constructor; the four operators are already constructed
-	fm_channel(uint32_t choffs, std::array<fm_operator *, 4> ops);
+	explicit fm_channel() = default;
 
 	// save/restore
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.serialize("feedback",    m_feedback,
-		             "feedback_in", m_feedback_in);
+		             "feedback_in", m_feedback_in,
+		             "operators",   m_op);
 	}
 
 	// reset the channel state
 	void reset();
 
-	// return the channel offset
-	uint32_t choffs() const { return m_choffs; }
-
 	// signal key on/off to our operators
 	void keyonoff(uint32_t states, keyon_type type);
 
 	// prepare prior to clocking; the registers are read only here
-	bool prepare(opna_registers &regs);
+	bool prepare(opna_registers &regs, uint32_t chnum);
 
 	// Every operator has finished its release.
 	bool finished() const
 	{
-		for (auto* op : m_op)
-			if (!op->finished())
+		for (auto& op : m_op)
+			if (!op.finished())
 				return false;
 		return true;
 	}
@@ -479,8 +474,8 @@ public:
 	// Any operator would still produce sound.
 	bool audible() const
 	{
-		for (auto* op : m_op)
-			if (op->audible())
+		for (auto& op : m_op)
+			if (op.audible())
 				return true;
 		return false;
 	}
@@ -513,7 +508,7 @@ public:
 	};
 
 	// Read those fields once, before the sample loop.
-	output_plan make_output_plan(const opna_registers &regs) const;
+	output_plan make_output_plan(const opna_registers &regs, uint32_t chnum) const;
 
 	// 4-operator output handler; the caller routes the result to the outputs
 	// the plan enables
@@ -521,10 +516,9 @@ public:
 
 private:
 	// internal state
-	uint16_t m_choffs;                     // channel offset in registers
-	std::array<int16_t, 2> m_feedback;     // feedback memory for operator 1
-	mutable int16_t m_feedback_in;         // next input value for op 1 feedback (set in output_4op)
-	std::array<fm_operator *, 4> m_op;     // the four operators of this channel
+	std::array<int16_t, 2> m_feedback{};   // feedback memory for operator 1
+	mutable int16_t m_feedback_in = 0;     // next input value for op 1 feedback (set in output_4op)
+	std::array<fm_operator, 4> m_op;
 };
 
 
@@ -545,7 +539,7 @@ public:
 	static constexpr uint8_t STATUS_TIMERB = opna_registers::STATUS_TIMERB;
 	static constexpr uint8_t STATUS_BUSY = opna_registers::STATUS_BUSY;
 
-	// constructor; the channels point into m_operator, so copying is not safe
+	// constructor; each channel owns four operators
 	fm_engine(MSXMotherBoard& motherboard, std::string_view name);
 	fm_engine(const fm_engine &) = delete;
 	fm_engine &operator=(const fm_engine &) = delete;
@@ -562,7 +556,6 @@ public:
 		             "timer_running",  m_timer_running,
 		             "total_clocks",   m_total_clocks,
 		             "regs",           m_regs,
-		             "operators",      m_operator,
 		             "channels",       m_channel,
 		             "irq",            irq,
 		             "timers",         timers);
@@ -655,8 +648,7 @@ private:
 	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
 	bool m_modified;                 // register or key changed since the last generate()
 	opna_registers m_regs;           // register accessor
-	std::array<fm_operator, OPERATORS> m_operator;  // the 24 operators
-	std::array<fm_channel, CHANNELS> m_channel;     // the channels point into m_operator
+	std::array<fm_channel, CHANNELS> m_channel;
 };
 
 // ======================> adpcm_a_registers
@@ -724,7 +716,7 @@ class adpcm_a_channel
 {
 public:
 	// constructor
-	adpcm_a_channel(adpcm_a_registers& regs, uint32_t choffs);
+	adpcm_a_channel(adpcm_a_registers& regs);
 
 	// reset the channel state
 	void reset();
@@ -742,14 +734,14 @@ public:
 	}
 
 	// signal key on/off
-	void keyonoff(bool on);
+	void keyonoff(bool on, uint32_t chnum);
 
 	// master clockingfunction
-	void clock();
+	void clock(uint32_t chnum);
 
 	// True when every sample this channel can produce is zero until the
 	// next register write. clock() still has to run.
-	bool silent() const;
+	bool silent(uint32_t chnum) const;
 
 	// Stopped with a zero accumulator: clock() would only store that zero.
 	bool resting() const { return !m_playing && m_accumulator == 0; }
@@ -765,7 +757,7 @@ public:
 
 	// Read those fields once, before the sample loop. An empty pan mask means
 	// this channel adds nothing.
-	output_plan make_output_plan() const;
+	output_plan make_output_plan(uint32_t chnum) const;
 
 	// Scaled sample for the current accumulator, which only clock() changes.
 	int16_t sample(const output_plan &plan) const
@@ -781,7 +773,6 @@ private:
 	uint32_t m_curaddress;                // current address
 	int16_t m_accumulator;                // 12-bit accumulator
 	int8_t m_step_index;                  // index in the stepping table (0-48)
-	uint8_t const m_choffs;               // channel offset
 	bool m_playing;                       // currently playing?
 	uint8_t m_curnibble;                  // index of the current nibble
 	uint8_t m_curbyte;                    // current byte of data
@@ -811,15 +802,13 @@ public:
 		             "channels", m_channel);
 	}
 
-
-
 	// Whole buffer, one channel at a time. envStart is the FM envelope counter
 	// before this buffer, and this walks the same grid. A nullptr entry skips
 	// output. A resting channel is not clocked.
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart);
 
 	// True when this channel adds zero until the next register write.
-	bool silent(unsigned chnum) const { return m_channel[chnum].silent(); }
+	bool silent(unsigned chnum) const { return m_channel[chnum].silent(chnum); }
 
 	// write to the ADPCM-A registers
 	void write(uint32_t regnum, uint8_t data);

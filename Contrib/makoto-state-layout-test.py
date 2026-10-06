@@ -34,7 +34,8 @@ try:
  assert node.find('adpcmB/sampleRAM') is not None
  assert node.find('fm/irq') is not None
  assert node.find('fm/timers') is not None
- sizes={'fm/operators':24,'fm/channels':6,'adpcmA/channels':6}
+ assert node.find('fm/operators') is None
+ sizes={'fm/channels':6,'fm/channels/item/operators':4,'adpcmA/channels':6}
  for path,size in sizes.items():
   assert len(node.find(path))==size,(path,len(node.find(path)))
   broken=copy.deepcopy(root)
