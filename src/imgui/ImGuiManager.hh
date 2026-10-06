@@ -135,6 +135,8 @@ private:
 	void iniWriteAll(ImGuiTextBuffer& buf);
 
 	void updateParts();
+	void updateMouseCapture();
+	[[nodiscard]] bool handleMouseCapture(const SDL_Event& event);
 
 private:
 	Reactor& reactor;
@@ -215,6 +217,8 @@ private:
 	bool handleDropped = false;
 	bool openInsertedInfo = false;
 	bool guiActive = false;
+	unsigned suppressedMouseButtons = 0;
+	float mouseCaptureHint = 0.0f;
 
 	EmuTime prevBoardTime = EmuTime::zero();
 	float speedDrawTimeOut = 0.0f;

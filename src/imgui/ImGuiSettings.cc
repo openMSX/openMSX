@@ -357,6 +357,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 			ImGui::MenuItem("Configure MSX joysticks", nullptr, &showConfigureJoystick);
+			auto& input = reactor.getInputEventGenerator();
+			Checkbox(hotKey, "Capture MSX mouse on click", input.getAutoMouseCapture());
+			simpleToolTip("When an MSX mouse is connected, click the MSX display to capture it. Middle-click or the release_mouse hotkey (Ctrl+F10 by default) releases it for menus and other windows.");
 			auto& grabInputSetting = reactor.getInputEventGenerator().getGrabInput();
 			bool grabInput = grabInputSetting.getBoolean();
 			if (auto shortCut = getShortCutForCommand(hotKey, "toggle grabinput");

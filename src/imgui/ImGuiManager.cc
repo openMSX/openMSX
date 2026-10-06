@@ -42,6 +42,11 @@
 #include "FileOperations.hh"
 #include "FilePool.hh"
 #include "HardwareConfig.hh"
+#include "GlobalSettings.hh"
+#include "InputEventGenerator.hh"
+#include "MSXMotherBoard.hh"
+#include "Pluggable.hh"
+#include "PluggingController.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
 #include "RomDatabase.hh"
@@ -386,6 +391,77 @@ void ImGuiManager::printError(std::string_view message)
 	getCliComm().printError(message);
 }
 
+void ImGuiManager::updateMouseCapture()
+{
+	auto& input = reactor.getInputEventGenerator();
+	auto* board = reactor.getMotherBoard();
+	auto* mouse = board ? board->getPluggingController().findPluggable("mouse") : nullptr;
+	input.setMouseCaptureMode(input.getAutoMouseCapture().getBoolean() && mouse && mouse->isPluggedIn());
+	if (reactor.getGlobalSettings().getPauseSetting().getBoolean()) input.releaseMouse();
+	auto& io = ImGui::GetIO();
+	if (input.isMouseCaptured()) {
+		io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+	} else {
+		io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+	}
+}
+
+bool ImGuiManager::handleMouseCapture(const SDL_Event& event)
+{
+	auto& input = reactor.getInputEventGenerator();
+	bool buttonEvent = event.type == one_of(SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP);
+	unsigned buttonMask = (buttonEvent && event.button.button > 0 && event.button.button <= 32)
+		? 1u << (event.button.button - 1) : 0;
+	if (suppressedMouseButtons & buttonMask) {
+		if (event.type == SDL_MOUSEBUTTONUP) suppressedMouseButtons &= ~buttonMask;
+		return true;
+	}
+	if (!input.isMouseCaptureMode()) return false;
+
+	if (input.isMouseCaptured()) {
+		if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_MIDDLE) {
+			suppressedMouseButtons |= buttonMask;
+			input.releaseMouse();
+			updateMouseCapture();
+			return true;
+		}
+		return false; // forward directly to the MSX, without feeding ImGui
+	}
+
+	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT &&
+	    WindowEvent::isMainWindow(event.button.windowID) &&
+	    !reactor.getGlobalSettings().getPauseSetting().getBoolean()) {
+		// Hit-test this event's coordinates, not the previous frame's hover or
+		// WantCaptureMouse flag. A fast click after leaving a menu must work,
+		// and a fast click ON a menu must never capture the MSX mouse.
+		auto* viewport = ImGui::GetMainViewport();
+		ImVec2 pos(viewport->Pos.x + float(event.button.x), viewport->Pos.y + float(event.button.y));
+		ImGuiWindow* hovered = nullptr;
+		ImGuiWindow* under = nullptr;
+		auto& context = *ImGui::GetCurrentContext();
+		// MouseViewport also belongs to the previous frame. The event identifies
+		// the main window even when arriving directly from a detached tool.
+		auto* previousViewport = std::exchange(context.MouseViewport, static_cast<ImGuiViewportP*>(viewport));
+		ImGui::FindHoveredWindowEx(pos, true, &hovered, &under);
+		context.MouseViewport = previousViewport;
+		auto* display = ImGui::FindWindowByName("MSX Display Area");
+		if (display && hovered == display && display->InnerRect.Contains(pos) &&
+		    ImGui::IsWindowContentHoverable(display) && !ImGui::GetCurrentContext()->MovingWindow) {
+			suppressedMouseButtons |= buttonMask;
+			ImGui::SetWindowFocus("MSX Display Area");
+			if (input.captureMouse()) {
+				ImGui::GetIO().ClearInputMouse();
+				mouseCaptureHint = 3.0f;
+				updateMouseCapture();
+			} else {
+				printError("Could not capture mouse: ", SDL_GetError());
+			}
+			return true; // consume both halves of the activating click
+		}
+	}
+	return false;
+}
+
 bool ImGuiManager::signalEvent(const Event& event)
 {
 	if (const auto* evt = get_event_if<SdlEvent>(event)) {
@@ -395,7 +471,20 @@ bool ImGuiManager::signalEvent(const Event& event)
 			return false;
 		}
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
+		updateMouseCapture();
+		bool mouseEvent = sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
+		                                        SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP);
+		auto& input = reactor.getInputEventGenerator();
+		if (mouseEvent) {
+			auto windowId = sdlEvent.type == SDL_MOUSEMOTION ? sdlEvent.motion.windowID
+			              : sdlEvent.type == SDL_MOUSEWHEEL ? sdlEvent.wheel.windowID
+			                                                 : sdlEvent.button.windowID;
+			if (!WindowEvent::isMainWindow(windowId)) input.releaseMouse();
+			if (handleMouseCapture(sdlEvent)) return true;
+			if (input.isMouseCaptured()) return false;
+		}
 		ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+		if (mouseEvent && input.isMouseCaptureMode()) return true;
 		if ((io.WantCaptureMouse &&
 		     sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
 		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
@@ -486,6 +575,7 @@ static std::vector<std::string> getSlots(MSXMotherBoard* motherBoard)
 
 void ImGuiManager::preNewFrame()
 {
+	updateMouseCapture();
 	if (!loadIniFile.empty()) {
 		ImGui::LoadIniSettingsFromDisk(loadIniFile.c_str());
 		loadIniFile.clear();
@@ -526,6 +616,25 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 			part->showMenu(motherBoard);
 		}
 	};
+	auto& input = reactor.getInputEventGenerator();
+	// A tool opened by keyboard may take focus during part->paint(). Use the
+	// current focus (not the display focus sampled at the start of the frame).
+	auto* focused = ImGui::GetCurrentContext()->NavWindow;
+	auto* display = ImGui::FindWindowByName("MSX Display Area");
+	bool toolFocused = focused && focused != display && !(focused->Flags & ImGuiWindowFlags_NoInputs);
+	if (input.isMouseCaptured() && (toolFocused || ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId))) {
+		input.releaseMouse();
+		updateMouseCapture();
+	}
+	bool active = !input.isMouseCaptured() &&
+		((!msxDisplayAreaFocused && (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
+		                             ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))) ||
+		 hoverMenuBar());
+	// Also update this state when the menu bar is undocked.
+	if (active != guiActive) {
+		guiActive = active;
+		reactor.getEventDistributor().distributeEvent(ImGuiActiveEvent(active));
+	}
 	if (mainMenuBarUndocked) {
 		im::Window("openMSX main menu", &mainMenuBarUndocked, ImGuiWindowFlags_MenuBar, [&]{
 			im::MenuBar([&]{
@@ -537,15 +646,6 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 			});
 		});
 	} else {
-		bool imGuiActive = !msxDisplayAreaFocused &&
-		                  (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
-		                   ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow));
-		bool active = imGuiActive || hoverMenuBar();
-		if (active != guiActive) {
-			guiActive = active;
-			auto& eventDistributor = reactor.getEventDistributor();
-			eventDistributor.distributeEvent(ImGuiActiveEvent(active));
-		}
 		menuAlpha = [&] {
 			if (!menuFade) return 1.0f;
 			auto target = active ? 1.0f : 0.0f;
@@ -564,6 +664,19 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 	}
 
 	if (statusBarVisible) drawStatusBar(motherBoard);
+	if (input.isMouseCaptured() && mouseCaptureHint > 0.0f) {
+		mouseCaptureHint -= ImGui::GetIO().DeltaTime;
+		auto* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(viewport->Pos.x + viewport->Size.x * 0.5f,
+		                            viewport->Pos.y + viewport->Size.y - 35.0f), ImGuiCond_Always, ImVec2(0.5f, 1.0f));
+		ImGui::SetNextWindowBgAlpha(0.8f);
+		im::Window("##mouse-capture-hint", nullptr,
+			ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+			ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav |
+			ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoSavedSettings, [] {
+				ImGui::TextUnformatted("Mouse captured - middle-click to release");
+			});
+	}
 
 	// drag and drop  (move this to ImGuiMedia ?)
 	auto insert2 = [&](std::string_view displayName, const TclObject& cmd) {
