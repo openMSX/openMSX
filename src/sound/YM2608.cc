@@ -408,7 +408,7 @@ void YM2608::Registers::write(unsigned address, uint8_t value, EmuTime time)
 //  attenuation value, in 4.8 fixed point format
 //-------------------------------------------------
 
-constexpr uint32_t abs_sin_attenuation(uint32_t input)
+constexpr unsigned abs_sin_attenuation(unsigned input)
 {
 	// the values here are stored as 4.8 logarithmic values for 1/4 phase
 	// this matches the internal format of the OPN chip, extracted from the die
@@ -444,7 +444,7 @@ constexpr uint32_t abs_sin_attenuation(uint32_t input)
 
 // 10-bit phase, sign in bit 15. Built once from abs_sin_attenuation().
 static constexpr auto s_waveform = generate_array<opna_registers::WAVEFORM_LENGTH>([](size_t index) {
-	uint32_t i = uint32_t(index);
+	unsigned i = unsigned(index);
 	return uint16_t(abs_sin_attenuation(i) | (bitfield(i, 9) << 15));
 });
 
@@ -630,7 +630,7 @@ void fm_operator::reset()
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-bool fm_operator::prepare(opna_registers& regs, uint32_t choffs, uint32_t opoffs)
+bool fm_operator::prepare(opna_registers& regs, unsigned choffs, unsigned opoffs)
 {
 	// cache the data
 	regs.cache_operator_data(choffs, opoffs, m_cache);
@@ -707,7 +707,7 @@ int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 
 void fm_operator::keyonoff(bool on, keyon_type type)
 {
-	m_keyon_live = (m_keyon_live & ~(1 << int(type))) | (uint8_t(on) << int(type));
+	m_keyon_live = (m_keyon_live & ~(1 << type)) | (uint8_t(on) << type);
 }
 
 
@@ -976,7 +976,7 @@ void fm_channel::reset()
 
 void fm_channel::keyonoff(uint32_t states, keyon_type type)
 {
-	for (uint32_t opnum = 0; opnum < m_op.size(); opnum++) {
+	for (unsigned opnum = 0; opnum < m_op.size(); opnum++) {
 		m_op[opnum].keyonoff(bitfield(states, opnum) != 0, type);
 	}
 }
@@ -986,13 +986,13 @@ void fm_channel::keyonoff(uint32_t states, keyon_type type)
 //  prepare - prepare for clocking
 //-------------------------------------------------
 
-bool fm_channel::prepare(opna_registers& regs, uint32_t chnum)
+bool fm_channel::prepare(opna_registers& regs, unsigned chnum)
 {
 	// prepare all operators and determine if any of them is active
 	bool active = false;
-	const uint32_t choffs = opna_registers::channel_offset(chnum);
+	const unsigned choffs = opna_registers::channel_offset(chnum);
 	auto const& map = opna_registers::OPERATOR_MAP[chnum];
-	for (uint32_t slot = 0; slot < 4; slot++) {
+	for (unsigned slot = 0; slot < 4; slot++) {
 		if (m_op[slot].prepare(regs, choffs, opna_registers::operator_offset(map[slot]))) {
 			active = true;
 		}
@@ -1061,10 +1061,10 @@ static constexpr struct { uint8_t op2in, op3in, op4in, carrier_mask; } s_algorit
 //  hold for the whole buffer
 //-------------------------------------------------
 
-fm_channel::output_plan fm_channel::make_output_plan(const opna_registers& regs, uint32_t chnum) const
+fm_channel::output_plan fm_channel::make_output_plan(const opna_registers& regs, unsigned chnum) const
 {
 	output_plan plan;
-	const uint32_t choffs = opna_registers::channel_offset(chnum);
+	const unsigned choffs = opna_registers::channel_offset(chnum);
 	auto const& alg = s_algorithm_ops[regs.ch_algorithm(choffs)];
 	plan.op2in = alg.op2in;
 	plan.op3in = alg.op3in;
@@ -1200,7 +1200,7 @@ void fm_engine::reset(EmuTime time)
 template<bool Write, bool Lfo>
 static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
                                   float* buf [[maybe_unused]], unsigned num, uint32_t env,
-                                  uint32_t chnum)
+                                  unsigned chnum)
 {
 	// Registers hold for the whole buffer, the AM shift among them. Without
 	// the LFO walk the AM offset is constant as well, so it is read once too.
@@ -1292,7 +1292,7 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 	}
 
 	bool lfoWalked = false;
-	for (uint32_t chnum = 0; chnum < CHANNELS; ++chnum) {
+	for (unsigned chnum = 0; chnum < CHANNELS; ++chnum) {
 		auto& channel = m_channel[chnum];
 		// prepare() applies a new key and rebuilds the operator cache. With no
 		// register or key change, the envelope state already decides the path.
@@ -1306,7 +1306,7 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 		bool mix = audible && enabled;
 		// Phase modulation matters only while the note is still running. AM is
 		// read only when the channel is mixed.
-		const uint32_t choffs = opna_registers::channel_offset(chnum);
+		const unsigned choffs = opna_registers::channel_offset(chnum);
 		bool walkLfo = lfoEnabled && ((audible && m_regs.ch_lfo_pm_sens(choffs) != 0)
 			|| (mix && m_regs.ch_lfo_am_sens(choffs) != 0));
 		if (walkLfo) {
@@ -1359,8 +1359,8 @@ void fm_engine::write(uint16_t regnum, uint8_t data, EmuTime time)
 	}
 
 	// most writes are passive, consumed only when needed
-	uint32_t keyon_channel;
-	uint32_t keyon_opmask;
+	unsigned keyon_channel;
+	unsigned keyon_opmask;
 	if (m_regs.write(regnum, data, keyon_channel, keyon_opmask)) {
 		// handle writes to the keyon register(s)
 		if (keyon_channel < CHANNELS) {
@@ -1387,7 +1387,7 @@ uint8_t fm_engine::status() const
 //  timer
 //-------------------------------------------------
 
-void fm_engine::update_timer(uint32_t tnum, bool enable, int32_t delta_clocks, EmuTime time)
+void fm_engine::update_timer(unsigned tnum, bool enable, int32_t delta_clocks, EmuTime time)
 {
 	// if the timer is live, but not currently enabled, set the timer
 	if (enable && !m_timer_running[tnum]) {
@@ -1407,7 +1407,7 @@ void fm_engine::update_timer(uint32_t tnum, bool enable, int32_t delta_clocks, E
 	}
 }
 
-void fm_engine::scheduleTimer(uint32_t timer, int32_t duration, EmuTime time)
+void fm_engine::scheduleTimer(unsigned timer, int32_t duration, EmuTime time)
 {
 	if (duration < 0) {
 		timers[timer].cancel();
@@ -1433,7 +1433,7 @@ void fm_engine::Timer::executeUntil(EmuTime time)
 	engine.engine_timer_expired(index, time);
 }
 
-void fm_engine::engine_timer_expired(uint32_t tnum, EmuTime time)
+void fm_engine::engine_timer_expired(unsigned tnum, EmuTime time)
 {
 	assert(tnum == 0 || tnum == 1);
 
@@ -1532,7 +1532,7 @@ void opna_registers::reset()
 //  write - handle writes to the register array
 //-------------------------------------------------
 
-bool opna_registers::write(uint16_t index, uint8_t data, uint32_t& channel, uint32_t& opmask)
+bool opna_registers::write(uint16_t index, uint8_t data, unsigned& channel, unsigned& opmask)
 {
 	assert(index < REGISTERS);
 
@@ -1635,7 +1635,7 @@ uint32_t opna_registers::lfo_am_offset(uint32_t am_shift) const
 //  with prefetched data
 //-------------------------------------------------
 
-void opna_registers::cache_operator_data(uint32_t choffs, uint32_t opoffs, opdata_cache& cache)
+void opna_registers::cache_operator_data(unsigned choffs, unsigned opoffs, opdata_cache& cache)
 {
 	// get frequency from the channel
 	uint32_t block_freq = cache.block_freq = ch_block_freq(choffs);
@@ -1808,7 +1808,7 @@ void adpcm_a_channel::reset()
 //  keyonoff - signal key on/off
 //-------------------------------------------------
 
-void adpcm_a_channel::keyonoff(bool on, uint32_t chnum)
+void adpcm_a_channel::keyonoff(bool on, unsigned chnum)
 {
 	// QUESTION: repeated key ons restart the sample?
 	m_playing = on;
@@ -1826,7 +1826,7 @@ void adpcm_a_channel::keyonoff(bool on, uint32_t chnum)
 //  clock - master clocking function
 //-------------------------------------------------
 
-void adpcm_a_channel::clock(uint32_t chnum)
+void adpcm_a_channel::clock(unsigned chnum)
 {
 	// if not playing, hold a zero sample
 	if (!m_playing) {
@@ -1890,7 +1890,7 @@ void adpcm_a_channel::clock(uint32_t chnum)
 //  silent - output stays zero until a register write
 //-------------------------------------------------
 
-bool adpcm_a_channel::silent(uint32_t chnum) const
+bool adpcm_a_channel::silent(unsigned chnum) const
 {
 	// A stopped channel forces the accumulator to 0 on the next clock that
 	// includes it. Until that clock, sample() still emits the held value.
@@ -1908,7 +1908,7 @@ bool adpcm_a_channel::silent(uint32_t chnum) const
 //  that hold for the whole buffer
 //-------------------------------------------------
 
-adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(uint32_t chnum) const
+adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(unsigned chnum) const
 {
 	output_plan plan;
 
@@ -1972,12 +1972,12 @@ void adpcm_a_engine::reset()
 
 void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart)
 {
-	for (int chnum = 0; chnum < CHANNELS; ++chnum) {
+	for (unsigned chnum = 0; chnum < CHANNELS; ++chnum) {
 		auto& channel = m_channel[chnum];
 		if (channel.resting()) continue;
 		// Volume and pan are registers, so they are read once per buffer.
 		// An empty pan mask means this channel adds nothing.
-		const auto plan = channel.make_output_plan(uint32_t(chnum));
+		const auto plan = channel.make_output_plan(chnum);
 		float* buf = (plan.pan_mask != 0) ? buffers[chnum] : nullptr;
 		uint32_t env = envStart;
 		// Channels 0-3 clock on every ADPCM tick. Channels 4-5 clock on
@@ -1987,7 +1987,7 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 			for (unsigned i = 0; i < num; ++i) {
 				env = step_eg_counter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
-					channel.clock(uint32_t(chnum));
+					channel.clock(chnum);
 				}
 			}
 		} else {
@@ -2007,7 +2007,7 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 			for (unsigned i = 0; i < num; ++i) {
 				env = step_eg_counter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
-					channel.clock(uint32_t(chnum));
+					channel.clock(chnum);
 					rescale();
 				}
 				unsigned pos = i * 2;
@@ -2031,9 +2031,9 @@ void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 
 	// actively handle writes to the control register
 	if (regnum == 0x00) {
-		for (int chnum = 0; chnum < CHANNELS; chnum++) {
+		for (unsigned chnum = 0; chnum < CHANNELS; chnum++) {
 			if (bitfield(data, chnum)) {
-				m_channel[chnum].keyonoff(bitfield(~data, 7) != 0, uint32_t(chnum));
+				m_channel[chnum].keyonoff(bitfield(~data, 7) != 0, chnum);
 			}
 		}
 	}
