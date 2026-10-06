@@ -69,7 +69,6 @@ private:
 		void updateStream(EmuTime time); // expose SoundDevice::updateStream()
 		void restoreClock(EmuTime time);
 		void rate(unsigned value);
-		void setOutputRate(unsigned rate, double speed) override;
 
 	private:
 		void generateChannels(std::span<float*> buffers, unsigned num) override;

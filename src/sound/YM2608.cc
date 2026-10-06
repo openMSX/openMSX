@@ -432,17 +432,6 @@ void YM2608::FmPart::rate(unsigned value)
 	}
 }
 
-void YM2608::FmPart::setOutputRate(unsigned rate, double speed)
-{
-	const auto previous = getEmuClock();
-	ResampledSoundDevice::setOutputRate(rate, speed);
-	// A newly constructed clock has period zero, so it cannot match
-	// a real sample period. No separate initialization flag is needed.
-	if (previous.getPeriod() == getEmuClock().getPeriod()) {
-		getEmuClock().reset(previous.getTime());
-	}
-}
-
 void YM2608::FmPart::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	assert(buffers.size() == 13);

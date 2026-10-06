@@ -636,15 +636,26 @@ void MSXMixer::reschedule2()
 
 void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 {
-	// TODO old code checked that values did actually change,
-	//      investigate if this optimization is worth it
+	const bool rateChanged = newSampleRate != hostSampleRate;
+	const bool fragmentChanged = newFragmentSize != fragmentSize;
+	const auto hostPeriod = EmuDuration::sec(getEffectiveSpeed() / double(newSampleRate));
+	const bool speedChanged = prevTime.getPeriod() != hostPeriod;
+
 	hostSampleRate = newSampleRate;
 	fragmentSize = newFragmentSize;
 
+	if (!rateChanged && !fragmentChanged && !speedChanged) {
+		return;
+	}
+
 	reInit(); // must come before call to setOutputRate()
 
-	for (auto& info : infos) {
-		info.device->setOutputRate(newSampleRate, speedManager.getSpeed());
+	// Fragment size only changes mixer scheduling. Devices care about host
+	// rate and speed (the chip period is speed/inputRate).
+	if (rateChanged || speedChanged) {
+		for (auto& info : infos) {
+			info.device->setOutputRate(newSampleRate, speedManager.getSpeed());
+		}
 	}
 }
 

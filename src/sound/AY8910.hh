@@ -44,8 +44,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setOutputRate(unsigned rate, double speed) override;
-
 	class Generator {
 	public:
 		void setPeriod(int value);

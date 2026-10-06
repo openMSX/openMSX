@@ -60,8 +60,12 @@ void ResampledSoundDevice::createResampler()
 	const DynamicClock& hostClock = getHostSampleClock();
 	EmuDuration outputPeriod = hostClock.getPeriod();
 	EmuDuration inputPeriod = EmuDuration::sec(getEffectiveSpeed() / double(getInputRate()));
-	emuClock.reset(hostClock.getTime());
-	emuClock.setPeriod(inputPeriod);
+	// Chip sample period is speed/inputRate. Host rate and resample type do
+	// not change it, so keep the last chip-sample time in those cases.
+	if (emuClock.getPeriod() != inputPeriod) {
+		emuClock.reset(hostClock.getTime());
+		emuClock.setPeriod(inputPeriod);
+	}
 
 	if (outputPeriod == inputPeriod) {
 		algo = std::make_unique<ResampleTrivial>(*this);

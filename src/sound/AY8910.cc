@@ -510,15 +510,6 @@ void AY8910::setClockFrequency(float frequency)
 	}
 }
 
-void AY8910::setOutputRate(unsigned rate, double speed)
-{
-	const auto previous = getEmuClock();
-	ResampledSoundDevice::setOutputRate(rate, speed);
-	if (previous.getPeriod() == getEmuClock().getPeriod()) {
-		getEmuClock().reset(previous.getTime());
-	}
-}
-
 AY8910::~AY8910()
 {
 	vibratoPercent.detach(*this);
