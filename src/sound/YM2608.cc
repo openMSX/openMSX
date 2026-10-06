@@ -402,13 +402,8 @@ void YM2608::Registers::write(unsigned address, uint8_t value, EmuTime time)
 //  GLOBAL TABLE LOOKUPS
 //*********************************************************
 
-//-------------------------------------------------
-//  abs_sin_attenuation - given a sin (phase) input
-//  where the range 0-2*PI is mapped onto 10 bits,
-//  return the absolute value of sin(input),
-//  logarithmically-adjusted and treated as an
-//  attenuation value, in 4.8 fixed point format
-//-------------------------------------------------
+// Absolute value of sin(input) as log attenuation in 4.8 fixed point.
+// The input maps a full 0-2*PI onto 10 bits.
 
 constexpr unsigned abs_sin_attenuation(unsigned input)
 {
@@ -452,11 +447,7 @@ static constexpr auto s_waveform = generate_array<WAVEFORM_LENGTH>([](size_t ind
 });
 
 
-//-------------------------------------------------
-//  attenuation_to_volume - given a 5.8 fixed point
-//  logarithmic attenuation value, return a 13-bit
-//  linear volume
-//-------------------------------------------------
+// Convert 5.8 log attenuation to 13-bit linear volume.
 
 inline uint32_t attenuation_to_volume(uint32_t input)
 {
@@ -509,13 +500,8 @@ inline uint32_t attenuation_to_volume(uint32_t input)
 }
 
 
-//-------------------------------------------------
-//  attenuation_increment - given a 6-bit ADSR
-//  rate value and a 3-bit stepping index,
-//  return a 4-bit increment to the attenutaion
-//  for this step (or for the attack case, the
-//  fractional scale factor to decrease by)
-//-------------------------------------------------
+// 6-bit ADSR rate and 3-bit step index to a 4-bit envelope increment
+// (for attack, a fractional scale factor to decrease by).
 
 inline uint32_t attenuation_increment(uint32_t rate, uint32_t index)
 {
@@ -542,14 +528,8 @@ inline uint32_t attenuation_increment(uint32_t rate, uint32_t index)
 }
 
 
-//-------------------------------------------------
-//  detune_adjustment - given a 5-bit key code
-//  value and a 3-bit detune parameter, return a
-//  6-bit signed phase displacement; this table
-//  has been verified against Nuked's equations,
-//  but the equations are rather complicated, so
-//  we'll keep the simplicity of the table
-//-------------------------------------------------
+// 5-bit key code and 3-bit detune to a 6-bit signed phase displacement.
+// Table kept instead of Nuked's equations, which it has been checked against.
 
 inline int32_t detune_adjustment(uint32_t detune, uint32_t keycode)
 {
@@ -569,13 +549,8 @@ inline int32_t detune_adjustment(uint32_t detune, uint32_t keycode)
 }
 
 
-//-------------------------------------------------
-//  opn_lfo_pm_phase_adjustment - given the 7 most
-//  significant frequency number bits, plus a 3-bit
-//  PM depth value and a signed 5-bit raw PM value,
-//  return a signed PM adjustment to the frequency;
-//  algorithm written to match Nuked behavior
-//-------------------------------------------------
+// Signed PM frequency adjustment from the top 7 F-number bits, 3-bit PM depth,
+// and signed 5-bit raw PM. Written to match Nuked.
 
 inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensitivity, int32_t lfo_raw_pm)
 {
@@ -610,14 +585,9 @@ inline int32_t opn_lfo_pm_phase_adjustment(uint32_t fnum_bits, uint32_t pm_sensi
 }
 
 
-
 //*********************************************************
 //  FM OPERATOR
 //*********************************************************
-
-//-------------------------------------------------
-//  reset - reset the operator state
-//-------------------------------------------------
 
 void fm_operator::reset()
 {
@@ -628,10 +598,6 @@ void fm_operator::reset()
 	m_key_state = false;
 	m_keyon_live = 0;
 }
-
-//-------------------------------------------------
-//  prepare - prepare for clocking
-//-------------------------------------------------
 
 bool fm_operator::prepare(opna_registers& regs, unsigned choffs, unsigned opoffs)
 {
@@ -654,10 +620,6 @@ bool fm_operator::prepare(opna_registers& regs, unsigned choffs, unsigned opoffs
 }
 
 
-//-------------------------------------------------
-//  clock - master clocking function
-//-------------------------------------------------
-
 void fm_operator::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 {
 	// clock the SSG-EG state (OPN/OPNA); prepare() cleared the inversion if
@@ -675,12 +637,6 @@ void fm_operator::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 	clock_phase(lfo_raw_pm);
 }
 
-
-//-------------------------------------------------
-//  compute_volume - compute the 14-bit signed
-//  volume of this operator, given a phase
-//  modulation and an AM LFO offset
-//-------------------------------------------------
 
 int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 {
@@ -704,21 +660,13 @@ int32_t fm_operator::compute_volume(uint32_t phase, uint32_t am_offset) const
 }
 
 
-//-------------------------------------------------
-//  keyonoff - signal a key on/off event
-//-------------------------------------------------
-
 void fm_operator::keyonoff(bool on, keyon_type type)
 {
 	m_keyon_live = (m_keyon_live & ~(1 << type)) | (uint8_t(on) << type);
 }
 
 
-//-------------------------------------------------
-//  start_attack - start the attack phase; called
-//  when a keyon happens or when an SSG-EG cycle
-//  is complete and restarts
-//-------------------------------------------------
+// Also used when an SSG-EG cycle restarts.
 
 void fm_operator::start_attack(bool is_restart)
 {
@@ -747,11 +695,6 @@ void fm_operator::start_attack(bool is_restart)
 }
 
 
-//-------------------------------------------------
-//  start_release - start the release phase;
-//  called when a keyoff happens
-//-------------------------------------------------
-
 void fm_operator::start_release()
 {
 	// don't change anything if already in release state
@@ -766,11 +709,6 @@ void fm_operator::start_release()
 	}
 }
 
-
-//-------------------------------------------------
-//  clock_keystate - clock the keystate to match
-//  the incoming keystate
-//-------------------------------------------------
 
 void fm_operator::clock_keystate(bool keystate)
 {
@@ -789,10 +727,7 @@ void fm_operator::clock_keystate(bool keystate)
 }
 
 
-//-------------------------------------------------
-//  clock_ssg_eg_state - clock the SSG-EG state;
-//  should only be called if SSG-EG is enabled
-//-------------------------------------------------
+// Call only when SSG-EG is enabled.
 
 void fm_operator::clock_ssg_eg_state()
 {
@@ -842,11 +777,6 @@ void fm_operator::clock_ssg_eg_state()
 	}
 }
 
-
-//-------------------------------------------------
-//  clock_envelope - clock the envelope state
-//  according to the given count
-//-------------------------------------------------
 
 void fm_operator::clock_envelope(uint32_t env_counter)
 {
@@ -907,11 +837,7 @@ void fm_operator::clock_envelope(uint32_t env_counter)
 }
 
 
-//-------------------------------------------------
-//  clock_phase - clock the 10.10 phase value; the
-//  OPN version of the logic has been verified
-//  against the Nuked phase generator
-//-------------------------------------------------
+// 10.10 phase; OPN logic verified against Nuked.
 
 void fm_operator::clock_phase(int32_t lfo_raw_pm)
 {
@@ -925,11 +851,6 @@ void fm_operator::clock_phase(int32_t lfo_raw_pm)
 	m_phase += phase_step;
 }
 
-
-//-------------------------------------------------
-//  envelope_attenuation - return the effective
-//  attenuation of the envelope
-//-------------------------------------------------
 
 uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 {
@@ -953,14 +874,9 @@ uint32_t fm_operator::envelope_attenuation(uint32_t am_offset) const
 }
 
 
-
 //*********************************************************
 //  FM CHANNEL
 //*********************************************************
-
-//-------------------------------------------------
-//  reset - reset the channel state
-//-------------------------------------------------
 
 void fm_channel::reset()
 {
@@ -973,10 +889,6 @@ void fm_channel::reset()
 }
 
 
-//-------------------------------------------------
-//  keyonoff - signal key on/off to our operators
-//-------------------------------------------------
-
 void fm_channel::keyonoff(uint32_t states, keyon_type type)
 {
 	for (unsigned opnum = 0; opnum < m_op.size(); opnum++) {
@@ -984,10 +896,6 @@ void fm_channel::keyonoff(uint32_t states, keyon_type type)
 	}
 }
 
-
-//-------------------------------------------------
-//  prepare - prepare for clocking
-//-------------------------------------------------
 
 bool fm_channel::prepare(opna_registers& regs, unsigned chnum)
 {
@@ -1005,10 +913,6 @@ bool fm_channel::prepare(opna_registers& regs, unsigned chnum)
 }
 
 
-//-------------------------------------------------
-//  clock - master clock of all operators
-//-------------------------------------------------
-
 void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 {
 	// clock the feedback through
@@ -1021,26 +925,22 @@ void fm_channel::clock(uint32_t env_counter, int32_t lfo_raw_pm)
 }
 
 
-//-------------------------------------------------
-//  s_algorithm_ops - operator routing per algorithm
+// OPNA offers 8 connection algorithms for its 4 operators.
 //
-//  OPNA offers 8 connection algorithms for its 4 operators.
+// The operators are computed in order, with the inputs pulled from
+// an array of values (opout) that is populated as we go:
+//    0 = 0
+//    1 = O1
+//    2 = O2
+//    3 = O3
+//    4 = (O4)
+//    5 = O1+O2
+//    6 = O1+O3
+//    7 = O2+O3
 //
-//  The operators are computed in order, with the inputs pulled from
-//  an array of values (opout) that is populated as we go:
-//     0 = 0
-//     1 = O1
-//     2 = O2
-//     3 = O3
-//     4 = (O4)
-//     5 = O1+O2
-//     6 = O1+O3
-//     7 = O2+O3
-//
-//  Each row lists the opout[] index that feeds operators 2, 3 and 4,
-//  and a mask of which of operators 1-3 also go to the output (operator 4
-//  always does).
-//-------------------------------------------------
+// Each row lists the opout[] index that feeds operators 2, 3 and 4,
+// and a mask of which of operators 1-3 also go to the output (operator 4
+// always does).
 
 #define ALGORITHM(op2in, op3in, op4in, op1out, op2out, op3out) \
 	{ uint8_t(op2in), uint8_t(op3in), uint8_t(op4in), \
@@ -1058,11 +958,6 @@ static constexpr struct { uint8_t op2in, op3in, op4in, carrier_mask; } s_algorit
 };
 #undef ALGORITHM
 
-
-//-------------------------------------------------
-//  make_output_plan - read the register fields that
-//  hold for the whole buffer
-//-------------------------------------------------
 
 fm_channel::output_plan fm_channel::make_output_plan(const opna_registers& regs, unsigned chnum) const
 {
@@ -1085,11 +980,6 @@ fm_channel::output_plan fm_channel::make_output_plan(const opna_registers& regs,
 	return plan;
 }
 
-
-//-------------------------------------------------
-//  output_4op - combine 4 operators according to
-//  the specified algorithm, returning a sum
-//-------------------------------------------------
 
 int32_t fm_channel::output_4op(const output_plan& plan, uint32_t am_offset)
 {
@@ -1150,10 +1040,6 @@ int32_t fm_channel::output_4op(const output_plan& plan, uint32_t am_offset)
 
 static constexpr uint8_t DEFAULT_PRESCALE = 6;
 
-//-------------------------------------------------
-//  fm_engine - constructor
-//-------------------------------------------------
-
 fm_engine::fm_engine(MSXMotherBoard& motherboard, std::string_view name) :
 	irq(motherboard, strCat(name, ".IRQ")),
 	timers{Timer(motherboard.getScheduler(), 0),
@@ -1168,10 +1054,6 @@ fm_engine::fm_engine(MSXMotherBoard& motherboard, std::string_view name) :
 {
 }
 
-
-//-------------------------------------------------
-//  reset - reset the overall state
-//-------------------------------------------------
 
 void fm_engine::reset(EmuTime time)
 {
@@ -1197,10 +1079,8 @@ void fm_engine::reset(EmuTime time)
 }
 
 
-//-------------------------------------------------
-//  synthesize_fm_channel - clock one channel across a stretch of samples
-//  with no prepare() in between. Write selects whether output is mixed.
-//-------------------------------------------------
+// Clock one channel across a stretch of samples with no prepare() in between.
+// Write selects whether output is mixed.
 
 template<bool Write, bool Lfo>
 static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
@@ -1274,10 +1154,6 @@ static void synthesize_fm_channel(fm_channel& channel, opna_registers& regs,
 }
 
 
-//-------------------------------------------------
-//  generate - one channel for the whole buffer, then the next
-//-------------------------------------------------
-
 void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanmask)
 {
 	static_assert(OPERATORS / CHANNELS == 4);
@@ -1347,10 +1223,6 @@ void fm_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint
 }
 
 
-//-------------------------------------------------
-//  write - handle writes to the OPN registers
-//-------------------------------------------------
-
 void fm_engine::write(uint16_t regnum, uint8_t data, EmuTime time)
 {
 	// special case: writes to the mode register can impact IRQs;
@@ -1376,21 +1248,11 @@ void fm_engine::write(uint16_t regnum, uint8_t data, EmuTime time)
 }
 
 
-//-------------------------------------------------
-//  status - return the current state of the
-//  status flags
-//-------------------------------------------------
-
 uint8_t fm_engine::status() const
 {
 	return m_status;
 }
 
-
-//-------------------------------------------------
-//  update_timer - update the state of the given
-//  timer
-//-------------------------------------------------
 
 void fm_engine::update_timer(unsigned tnum, bool enable, int32_t delta_clocks, EmuTime time)
 {
@@ -1463,20 +1325,11 @@ void fm_engine::engine_timer_expired(unsigned tnum, EmuTime time)
 }
 
 
-//-------------------------------------------------
-//  check_interrupts - check the interrupt sources
-//  for interrupts
-//-------------------------------------------------
-
 void fm_engine::check_interrupts()
 {
 	irq.set((m_status & m_irq_mask) != 0);
 }
 
-
-//-------------------------------------------------
-//  mode_write - handle a mode register write
-//-------------------------------------------------
 
 void fm_engine::mode_write(uint8_t data, EmuTime time)
 {
@@ -1508,20 +1361,12 @@ void fm_engine::mode_write(uint8_t data, EmuTime time)
 //  OPNA REGISTERS
 //*********************************************************
 
-//-------------------------------------------------
-//  opna_registers - constructor
-//-------------------------------------------------
-
 opna_registers::opna_registers() :
 	m_lfo_counter(0),
 	m_lfo_am(0)
 {
 }
 
-
-//-------------------------------------------------
-//  reset - reset to initial state
-//-------------------------------------------------
 
 void opna_registers::reset()
 {
@@ -1532,10 +1377,6 @@ void opna_registers::reset()
 	m_regdata[0x1b4] = m_regdata[0x1b5] = m_regdata[0x1b6] = 0xc0;
 }
 
-
-//-------------------------------------------------
-//  write - handle writes to the register array
-//-------------------------------------------------
 
 bool opna_registers::write(uint16_t index, uint8_t data, unsigned& channel, unsigned& opmask)
 {
@@ -1577,11 +1418,7 @@ bool opna_registers::write(uint16_t index, uint8_t data, unsigned& channel, unsi
 }
 
 
-//-------------------------------------------------
-//  clock_lfo - clock the LFO, handling clock
-//  division, depth, and waveform computations.
-//  The caller has checked that it is enabled.
-//-------------------------------------------------
+// Caller has checked that LFO is enabled.
 
 int32_t opna_registers::clock_lfo(uint32_t max_count)
 {
@@ -1617,11 +1454,6 @@ int32_t opna_registers::clock_lfo(uint32_t max_count)
 }
 
 
-//-------------------------------------------------
-//  lfo_am_offset - return the AM offset from LFO
-//  for the given shift
-//-------------------------------------------------
-
 uint32_t opna_registers::lfo_am_offset(uint32_t am_shift) const
 {
 	// QUESTION: max sensitivity should give 11.8dB range, but this value
@@ -1634,11 +1466,6 @@ uint32_t opna_registers::lfo_am_offset(uint32_t am_shift) const
 	return (m_lfo_am << 1) >> am_shift;
 }
 
-
-//-------------------------------------------------
-//  cache_operator_data - fill the operator cache
-//  with prefetched data
-//-------------------------------------------------
 
 void opna_registers::cache_operator_data(unsigned choffs, unsigned opoffs, opdata_cache& cache)
 {
@@ -1716,10 +1543,6 @@ void opna_registers::cache_operator_data(unsigned choffs, unsigned opoffs, opdat
 }
 
 
-//-------------------------------------------------
-//  compute_phase_step - compute the phase step
-//-------------------------------------------------
-
 uint32_t opna_registers::compute_phase_step(const opdata_cache& cache, int32_t lfo_raw_pm)
 {
 	// OPN phase calculation has only a single detune parameter
@@ -1759,10 +1582,6 @@ uint32_t opna_registers::compute_phase_step(const opdata_cache& cache, int32_t l
 // ADPCM "A" REGISTERS
 //*********************************************************
 
-//-------------------------------------------------
-//  reset - reset the register state
-//-------------------------------------------------
-
 void adpcm_a_registers::reset()
 {
 	std::fill_n(&m_regdata[0], REGISTERS, 0);
@@ -1778,10 +1597,6 @@ void adpcm_a_registers::reset()
 // ADPCM "A" CHANNEL
 //*********************************************************
 
-//-------------------------------------------------
-//  adpcm_a_channel - constructor
-//-------------------------------------------------
-
 adpcm_a_channel::adpcm_a_channel(adpcm_a_registers& regs) :
 	m_regs(regs),
 	m_curaddress(0),
@@ -1794,10 +1609,6 @@ adpcm_a_channel::adpcm_a_channel(adpcm_a_registers& regs) :
 }
 
 
-//-------------------------------------------------
-//  reset - reset the channel state
-//-------------------------------------------------
-
 void adpcm_a_channel::reset()
 {
 	m_playing = false;
@@ -1808,10 +1619,6 @@ void adpcm_a_channel::reset()
 	m_step_index = 0;
 }
 
-
-//-------------------------------------------------
-//  keyonoff - signal key on/off
-//-------------------------------------------------
 
 void adpcm_a_channel::keyonoff(bool on, unsigned chnum)
 {
@@ -1826,10 +1633,6 @@ void adpcm_a_channel::keyonoff(bool on, unsigned chnum)
 	}
 }
 
-
-//-------------------------------------------------
-//  clock - master clocking function
-//-------------------------------------------------
 
 void adpcm_a_channel::clock(unsigned chnum)
 {
@@ -1891,10 +1694,6 @@ void adpcm_a_channel::clock(unsigned chnum)
 }
 
 
-//-------------------------------------------------
-//  silent - output stays zero until a register write
-//-------------------------------------------------
-
 bool adpcm_a_channel::silent(unsigned chnum) const
 {
 	// A stopped channel forces the accumulator to 0 on the next clock that
@@ -1907,11 +1706,6 @@ bool adpcm_a_channel::silent(unsigned chnum) const
 	return make_output_plan(chnum).pan_mask == 0;
 }
 
-
-//-------------------------------------------------
-//  make_output_plan - read the register fields
-//  that hold for the whole buffer
-//-------------------------------------------------
 
 adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(unsigned chnum) const
 {
@@ -1939,14 +1733,9 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(unsigned chnum) c
 }
 
 
-
 //*********************************************************
 // ADPCM "A" ENGINE
 //*********************************************************
-
-//-------------------------------------------------
-//  adpcm_a_engine - constructor
-//-------------------------------------------------
 
 adpcm_a_engine::adpcm_a_engine() :
 	m_channel(generate_array<CHANNELS>([&](size_t /*chnum*/) {
@@ -1954,10 +1743,6 @@ adpcm_a_engine::adpcm_a_engine() :
 {
 }
 
-
-//-------------------------------------------------
-//  reset - reset the engine state
-//-------------------------------------------------
 
 void adpcm_a_engine::reset()
 {
@@ -1970,10 +1755,6 @@ void adpcm_a_engine::reset()
 	}
 }
 
-
-//-------------------------------------------------
-//  generate - one channel for the whole buffer, then the next
-//-------------------------------------------------
 
 void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart)
 {
@@ -2024,10 +1805,6 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 }
 
 
-//-------------------------------------------------
-//  write - handle writes to the ADPCM-A registers
-//-------------------------------------------------
-
 void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 {
 	// store the raw value to the register array;
@@ -2045,14 +1822,9 @@ void adpcm_a_engine::write(uint32_t regnum, uint8_t data)
 }
 
 
-
 //*********************************************************
 // ADPCM "B" REGISTERS
 //*********************************************************
-
-//-------------------------------------------------
-//  reset - reset the register state
-//-------------------------------------------------
 
 void adpcm_b_registers::reset()
 {
@@ -2063,14 +1835,9 @@ void adpcm_b_registers::reset()
 }
 
 
-
 //*********************************************************
 // ADPCM "B" CHANNEL
 //*********************************************************
-
-//-------------------------------------------------
-//  adpcm_b_channel - constructor
-//-------------------------------------------------
 
 adpcm_b_channel::adpcm_b_channel(Ram& ram_, adpcm_b_registers& regs) :
 	m_regs(regs),
@@ -2089,10 +1856,6 @@ adpcm_b_channel::adpcm_b_channel(Ram& ram_, adpcm_b_registers& regs) :
 }
 
 
-//-------------------------------------------------
-//  reset - reset the channel state
-//-------------------------------------------------
-
 void adpcm_b_channel::reset()
 {
 	m_status = STATUS_BRDY;
@@ -2108,9 +1871,7 @@ void adpcm_b_channel::reset()
 }
 
 
-//-------------------------------------------------
-//  consume_nibble - one sample after the position has wrapped
-//-------------------------------------------------
+// One sample after the fractional position has wrapped.
 
 bool adpcm_b_channel::consume_nibble()
 {
@@ -2177,9 +1938,7 @@ bool adpcm_b_channel::consume_nibble()
 }
 
 
-//-------------------------------------------------
-//  clock_n - several clocks, batching position steps
-//-------------------------------------------------
+// Several clocks, batching position steps.
 
 void adpcm_b_channel::clock_n(unsigned num)
 {
@@ -2212,10 +1971,6 @@ void adpcm_b_channel::clock_n(unsigned num)
 	}
 }
 
-
-//-------------------------------------------------
-//  generate - num clocks with output
-//-------------------------------------------------
 
 void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan& plan)
 {
@@ -2262,10 +2017,6 @@ void adpcm_b_channel::generate(float* buffer, unsigned num, const output_plan& p
 }
 
 
-//-------------------------------------------------
-//  silent - output stays zero until a register write
-//-------------------------------------------------
-
 bool adpcm_b_channel::silent() const
 {
 	// Not advancing: a clock returns before it touches the accumulators.
@@ -2278,10 +2029,6 @@ bool adpcm_b_channel::silent() const
 	return pan_mask() == 0;
 }
 
-
-//-------------------------------------------------
-//  read - handle special register reads
-//-------------------------------------------------
 
 uint8_t adpcm_b_channel::peek(uint32_t regnum) const
 {
@@ -2333,10 +2080,6 @@ uint8_t adpcm_b_channel::read(uint32_t regnum)
 }
 
 
-//-------------------------------------------------
-//  write - handle special register writes
-//-------------------------------------------------
-
 void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 {
 	// register 0 can do a reset; also use writes here to reset the
@@ -2385,11 +2128,6 @@ void adpcm_b_channel::write(uint32_t regnum, uint8_t value)
 }
 
 
-//-------------------------------------------------
-//  address_shift - compute the current address
-//  shift amount based on register settings
-//-------------------------------------------------
-
 uint32_t adpcm_b_channel::address_shift() const
 {
 	// if ROM or 8-bit DRAM, shift is 5 bits
@@ -2400,11 +2138,6 @@ uint32_t adpcm_b_channel::address_shift() const
 	return 2;
 }
 
-
-//-------------------------------------------------
-//  load_start - load the start address and
-//  initialize the state
-//-------------------------------------------------
 
 void adpcm_b_channel::load_start()
 {
@@ -2420,14 +2153,9 @@ void adpcm_b_channel::load_start()
 }
 
 
-
 //*********************************************************
 // ADPCM "B" ENGINE
 //*********************************************************
-
-//-------------------------------------------------
-//  adpcm_b_engine - constructor
-//-------------------------------------------------
 
 adpcm_b_engine::adpcm_b_engine(const DeviceConfig& config, std::string_view name) :
 	ram(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 0x40000),
@@ -2436,10 +2164,6 @@ adpcm_b_engine::adpcm_b_engine(const DeviceConfig& config, std::string_view name
 	ram.clear(0); // Deterministic emulator policy; hardware power-on contents are unknown.
 }
 
-
-//-------------------------------------------------
-//  reset - reset the engine state
-//-------------------------------------------------
 
 void adpcm_b_engine::reset()
 {
@@ -2450,10 +2174,6 @@ void adpcm_b_engine::reset()
 	m_channel.reset();
 }
 
-
-//-------------------------------------------------
-//  generate - the whole buffer for the single channel
-//-------------------------------------------------
 
 void adpcm_b_engine::generate(float* buffer, unsigned num)
 {
@@ -2468,10 +2188,6 @@ void adpcm_b_engine::generate(float* buffer, unsigned num)
 	}
 }
 
-
-//-------------------------------------------------
-//  write - handle writes to the ADPCM-B registers
-//-------------------------------------------------
 
 void adpcm_b_engine::write(uint32_t regnum, uint8_t data)
 {

@@ -394,7 +394,7 @@ public:
 	// return the current phase value
 	uint32_t phase() const { return m_phase >> 10; }
 
-	// compute operator volume
+	// 14-bit signed volume, given phase modulation and an AM LFO offset
 	int32_t compute_volume(uint32_t phase, uint32_t am_offset) const;
 
 	// key state control
