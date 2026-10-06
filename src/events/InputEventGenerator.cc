@@ -3,7 +3,6 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "EventDelay.hh"
-#include "CommandException.hh"
 #include "FileOperations.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
@@ -29,22 +28,17 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		"This setting controls if openMSX takes over mouse and keyboard input",
 		false, Setting::Save::NO)
 	, autoMouseCapture(commandController, "auto_mouse_capture",
-		"Capture a connected MSX mouse on click; middle-click or release_mouse releases it", true)
+		"Capture a connected MSX mouse on click; middle-click releases it", true)
 	, mouseCaptureState(commandController, "mouse_capture",
 		"Current mouse capture state: disabled, released or captured", TclObject("disabled"))
-	, releaseMouseCmd(commandController)
 	, escapeGrabCmd(commandController)
 {
 	eventDistributor.registerEventListener(EventType::WINDOW, *this);
-	eventDistributor.registerEventListener(EventType::BREAK, *this);
-	eventDistributor.registerEventListener(EventType::MACHINE_LOADED, *this);
 }
 
 InputEventGenerator::~InputEventGenerator()
 {
 	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
-	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
-	eventDistributor.unregisterEventListener(EventType::MACHINE_LOADED, *this);
 }
 
 void InputEventGenerator::wait()
@@ -515,10 +509,6 @@ void InputEventGenerator::releaseMouse()
 
 bool InputEventGenerator::signalEvent(const Event& event)
 {
-	if (getType(event) == one_of(EventType::BREAK, EventType::MACHINE_LOADED)) {
-		releaseMouse();
-		return false;
-	}
 	std::visit(overloaded{
 		[&](const WindowEvent& e) {
 			const auto& evt = e.getSdlWindowEvent();
@@ -566,24 +556,6 @@ void InputEventGenerator::setGrabInput(bool grab) const
 		SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
 	}
 }
-
-InputEventGenerator::ReleaseMouseCmd::ReleaseMouseCmd(CommandController& controller)
-	: Command(controller, "release_mouse")
-{
-}
-
-void InputEventGenerator::ReleaseMouseCmd::execute(
-	std::span<const TclObject> tokens, TclObject& /*result*/)
-{
-	if (tokens.size() != 1) throw CommandException("Usage: release_mouse");
-	OUTER(InputEventGenerator, releaseMouseCmd).releaseMouse();
-}
-
-std::string InputEventGenerator::ReleaseMouseCmd::help(std::span<const TclObject> /*tokens*/) const
-{
-	return "Release the captured MSX mouse. Click in the MSX display to capture it again.";
-}
-
 
 // class EscapeGrabCmd
 

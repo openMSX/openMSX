@@ -56,7 +56,6 @@
         <li><a class="internal" href="#psg_profile">psg_profile</a></li>
         <li><a class="internal" href="#record">record</a></li>
         <li><a class="internal" href="#record_channels">record_channels</a></li>
-        <li><a class="internal" href="#release_mouse">release_mouse</a></li>
         <li><a class="internal" href="#remove_extension">remove_extension</a></li>
         <li><a class="internal" href="#reset">reset</a></li>
         <li><a class="internal" href="#reverse">reverse</a></li>
@@ -1079,9 +1078,11 @@
 
   <h3><a id="escape_grab">escape_grab</a></h3>
 
-  <p>With automatic MSX mouse capture active, this acts like
-  <a class="internal" href="#release_mouse">release_mouse</a>: the mouse stays
+  <p>With automatic MSX mouse capture active, this releases the mouse. It stays
   released until you click in the MSX display again, including in full-screen mode.</p>
+  <p>Middle-click releases capture without a keyboard shortcut. To assign an
+  optional shortcut, use for example <code>bind "keyb CTRL+F8" escape_grab</code>.
+  Modifier keys such as CTRL also reach the MSX and can interrupt replays.</p>
 
   <p>Otherwise, it only has effect in windowed mode and when the <code><a class="internal" href="#grabinput">grabinput</a></code> setting is active. Temporarily release the input grab.
   After the openMSX window has lost and regained the focus, the grab is again effective.</p>
@@ -1994,16 +1995,6 @@ current MSX model can be:</p>
     <code>record_channels stop SCC 3,5</code><br />
     <code>record_channels list</code>
   </div>
-
-  <h3><a id="release_mouse">release_mouse</a></h3>
-
-  <p>Release automatic MSX mouse capture and show the host pointer for menus
-  and other windows. Click inside the MSX display to capture again. The default
-  keyboard shortcut is <kbd>Ctrl+F10</kbd>; middle-click also releases capture.
-  This command has no effect if the mouse is already released.</p>
-  <p>To add another shortcut, use for example
-  <code>bind "keyb CTRL+F8" release_mouse</code>. See also
-  <a class="internal" href="#auto_mouse_capture">auto_mouse_capture</a>.</p>
 
 <h3><a id="remove_extension">remove_extension</a></h3>
 
@@ -3262,7 +3253,7 @@ current MSX model can be:</p>
 
   <p>Enabled by default. When an MSX mouse is connected to the active machine,
   clicking its display captures mouse movement and hides the host pointer.
-  Middle-click or <kbd>Ctrl+F10</kbd> releases it. The capture click is not sent
+  Middle-click releases it. The capture click is not sent
   to the MSX. While released, mouse input is reserved for the GUI and the host
   pointer stays visible, even with <code>pointer_hide_delay</code> set to zero.
   This policy takes precedence over <code>grabinput</code> and full-screen

@@ -1451,7 +1451,6 @@ default key mapping.
   <tr> <td>PageDown</td>         <td>PageDown</td>   <td>Go 1 second forward in time, using the <a class="external" href="commands.html#reverse">reverse</a> feature</td> </tr>
   <tr> <td>F9</td>         <td>Cmd+T (Fastforward)</td>   <td>Toggle <a class="external" href="commands.html#fastforward">fastforward</a> mode (normal vs fastforward speed)</td> </tr>
   <tr> <td>F10</td>        <td>Cmd+L (consoLe)</td>    <td>Toggle <a class="external" href="commands.html#console">console</a> display</td> </tr>
-  <tr> <td>CTRL+F10</td>   <td>CTRL+F10</td>           <td><a class="external" href="commands.html#release_mouse">Release mouse capture</a></td> </tr>
   <tr> <td>F11 or ALT+Enter</td> <td>Cmd+F (Full)</td> <td>Toggle <a class="external" href="commands.html#fullscreen">full screen</a> mode</td> </tr>
   <tr> <td>F12</td>        <td>Cmd+U (mUte)</td>       <td>Toggle <a class="external" href="commands.html#mute">audio mute</a></td> </tr>
   <tr> <td>ALT+F7</td>     <td>Cmd+R (Restore)</td>    <td>Quick <a class="external" href="commands.html#savestate">loadstate</a> (from 'quicksave' slot)</td> </tr>
@@ -1583,7 +1582,7 @@ mouse; it does not click inside the MSX program.
 </p>
 
 <p>
-Middle-click or press <kbd>Ctrl+F10</kbd> to release the mouse. The host pointer
+Middle-click to release the mouse. The host pointer
 reappears, letting you use openMSX menus and other windows. Click the MSX display
 to capture again. Merely moving over a menu, status bar, or screen edge does
 not release capture. This works in windowed and full-screen modes. Opening the
@@ -1592,9 +1591,9 @@ also releases the mouse.
 </p>
 
 <p>
-The release shortcut can be changed with <code>bind</code>, for example
-<code>bind "keyb CTRL+F8" release_mouse</code>. See
-<a class="external" href="commands.html#release_mouse">release_mouse</a>.
+No keyboard shortcut is assigned by default. An optional shortcut can be
+assigned to the existing
+<a class="external" href="commands.html#escape_grab">escape_grab</a> command.
 To restore the previous mouse behavior, disable <span class="menu-reference">
 Main menu bar &rarr; Settings &rarr; Input &rarr; Capture MSX mouse on click</span>
 or use <code>set auto_mouse_capture off</code>. In that mode the existing

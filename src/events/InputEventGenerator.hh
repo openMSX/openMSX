@@ -77,12 +77,6 @@ private:
 	bool mouseCaptureMode = false;
 	bool mouseCaptured = false;
 
-	struct ReleaseMouseCmd final : Command {
-		explicit ReleaseMouseCmd(CommandController& commandController);
-		void execute(std::span<const TclObject> tokens, TclObject& result) override;
-		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
-	} releaseMouseCmd;
-
 	struct EscapeGrabCmd final : Command {
 		explicit EscapeGrabCmd(CommandController& commandController);
 		void execute(std::span<const TclObject> tokens, TclObject& result) override;

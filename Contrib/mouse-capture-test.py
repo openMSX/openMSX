@@ -230,16 +230,18 @@ def run(exe, synthetic_focus=False):
 
         e.capture()
         e.key(1073741891, 192)  # SDL F10, KMOD_CTRL
+        e.assert_state('captured', 1, 0)
+        e.click(2)
         e.assert_state('released', 0, 1)
         e.test('motion 3 4 300 240')
         e.assert_state('released', 0, 1)
-        passed.append('Ctrl+F10 releases; movement alone does not recapture')
+        passed.append('No default Ctrl+F10 release; middle-click releases without hover recapture')
 
-        e.command('bind "keyb CTRL+F8" release_mouse')
+        e.command('bind "keyb CTRL+F8" escape_grab')
         e.capture()
         e.key(1073741889, 192)
         e.assert_state('released', 0, 1)
-        passed.append('Release shortcut is rebindable')
+        passed.append('An optional user binding can release capture through escape_grab')
 
         e.capture()
         e.key(1073741891)  # F10 opens console

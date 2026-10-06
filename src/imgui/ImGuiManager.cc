@@ -397,7 +397,6 @@ void ImGuiManager::updateMouseCapture()
 	auto* board = reactor.getMotherBoard();
 	auto* mouse = board ? board->getPluggingController().findPluggable("mouse") : nullptr;
 	input.setMouseCaptureMode(input.getAutoMouseCapture().getBoolean() && mouse && mouse->isPluggedIn());
-	if (reactor.getGlobalSettings().getPauseSetting().getBoolean()) input.releaseMouse();
 	auto& io = ImGui::GetIO();
 	if (input.isMouseCaptured()) {
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
@@ -525,6 +524,7 @@ bool ImGuiManager::signalEvent(const Event& event)
 			// (For now) this triggers the same behavior as BREAK: scroll debugger to PC
 			[[fallthrough]];
 		case BREAK:
+			reactor.getInputEventGenerator().releaseMouse();
 			debugger->signalBreak();
 			break;
 		case CONTINUE:

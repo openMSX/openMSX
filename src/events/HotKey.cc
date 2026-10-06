@@ -85,7 +85,6 @@ HotKey::Listener::~Listener()
 void HotKey::initDefaultBindings()
 {
 	// TODO move to Tcl script?
-	bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F10, KMOD_CTRL), "release_mouse"));
 
 	if constexpr (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
