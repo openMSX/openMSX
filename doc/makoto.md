@@ -5,8 +5,8 @@ six FM voices, three SSG voices, six internal rhythm sounds and ADPCM-B playback
 with 256 KiB sample RAM. No additional rhythm-ROM file is required.
 
 Use the **Makoto** volume for FM, rhythm and ADPCM, and **Makoto SSG** for
-SSG. Both use standard mixer volume sliders; no additional trim is required.
-All 16 voices support individual muting and recording (13 in Makoto, 3 in SSG).
+SSG. Both use standard mixer volume sliders. All 16 voices support individual
+muting and recording (13 in Makoto, 3 in SSG).
 
 The debugger exposes **Makoto registers** and **Makoto ADPCM RAM**. Pause playback
 before editing sample memory. Normal openMSX save states and rewind are supported.
@@ -17,7 +17,7 @@ conflict with the Music Module at 14h. This emulation uses the cartridge's fixed
 
 Makoto remains optional: it consumes host CPU even when silent. Analogue
 amplifier distortion, headphone-load response and the physical pot taper are not
-calibrated. Implementation and regression details are in
+modeled. Implementation notes are in
 [the developer notes](internal/makoto.md).
 
 ## Multiple cartridges
@@ -26,12 +26,4 @@ Device, setting, IRQ and debugger names follow the extension's XML device ID.
 A second Makoto is named `Makoto (1)`, for example
 `{Makoto (1) SSG_volume}`, `{Makoto (1) registers}` and `{Makoto (1).IRQ}`.
 Each cartridge retains its own RAM, timers and state. Real Makoto uses 14h-17h;
-a copied test configuration can map another instance to a different aligned range.
-
-### Standard mixer controls
-
-Makoto now exposes FM/rhythm/ADPCM and SSG as separate standard sound devices.
-The extra Makoto_psg_volume setting is removed. For the previous 75/75/50
-listening balance, use Makoto_volume 75 and {Makoto SSG_volume} 38. More generally,
-new SSG volume = old SSG volume * old trim / 100. This is a user-adjustable
-listening balance; generic mixer defaults remain 75 per device.
+a copied configuration can map another instance to a different aligned range.

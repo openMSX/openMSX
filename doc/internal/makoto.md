@@ -12,14 +12,13 @@ now openMSX-owned code specialized for this device. SSG uses the existing
 ## Audio
 
 FM/rhythm/ADPCM run as one stereo resampled device; SSG is a separate mono
-device. Rates follow the chip prescaler (`8 MHz / (24 × prescale)` for FM,
-with the usual SSG divider). Prescalers 2/3 at 8 MHz are outside the datasheet
-range and are not hardware-validated here.
+device. Sample rates follow the chip prescaler (default 6 → about 55.6 kHz FM
+and 250 kHz SSG). Prescale values 2 and 3 are accepted as on the chip but are
+outside the usual datasheet operating point at 8 MHz.
 
 FM/rhythm/ADPCM enter the floating-point mixer without an internal 16-bit clip;
-final host clipping remains. SSG uses standard device volume (no extra trim).
-Analogue distortion and pot taper are not modeled. Device names derive from the
-MSX device ID so multiple cartridges can coexist.
+final host clipping remains. Analogue distortion and pot taper are not modeled.
+Device names derive from the MSX device ID so multiple cartridges can coexist.
 
 ## State and debugger
 
