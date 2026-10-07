@@ -14,7 +14,7 @@
       <io base="0x14" num="4"/>
       <!-- FM/ADPCM and SSG have separate standard device-volume controls. -->
       <sound>
-        <volume>12000</volume>
+        <volume>24000</volume>
       </sound>
     </Makoto>
   </devices>
