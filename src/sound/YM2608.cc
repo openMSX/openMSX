@@ -576,6 +576,16 @@ void FmChannel::clock(uint32_t envCounter, int32_t lfoRawPm)
 	}
 }
 
+bool FmChannel::hasCsmKeyOn() const
+{
+	return std::ranges::any_of(ops, &FmOperator::hasCsmKeyOn);
+}
+
+bool FmChannel::csmPendingRelease() const
+{
+	return std::ranges::any_of(ops, &FmOperator::csmPendingRelease);
+}
+
 void FmChannel::endCsmPulse()
 {
 	for (auto& op : ops) {
@@ -756,7 +766,6 @@ static void synthesizeFmChannel(FmChannel& channel, OpnaRegisters& regs,
 		}
 	}
 
-	bool endCsm = true;
 	auto tick = [&] {
 		env = stepEgCounter(env);
 		int32_t pm = 0;
@@ -767,12 +776,6 @@ static void synthesizeFmChannel(FmChannel& channel, OpnaRegisters& regs,
 			}
 		}
 		channel.clock(env, pm);
-		// CSM is a one-sample key-on. Release after that sample so a skipped
-		// prepare() on later buffers cannot leave the operators stuck on.
-		if (endCsm) {
-			channel.endCsmPulse();
-			endCsm = false;
-		}
 	};
 
 	if constexpr (!WRITE) {
@@ -816,6 +819,19 @@ void FmEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint3
 	// An empty buffer must not consume a pending key-on.
 	if (num == 0) return;
 
+	// CSM is a one-sample pulse. prepare() applies it for the whole buffer, so
+	// when a CSM key is still pending, synthesize one sample, release, then the
+	// rest. Hot path (!modified) never looks at CSM.
+	if (modified && num > 1 && channels[2].hasCsmKeyOn()) [[unlikely]] {
+		generate(buffers, 1, chanMask);
+		std::array<float*, CHANNELS> rest{};
+		for (unsigned chNum = 0; chNum < CHANNELS; ++chNum) {
+			rest[chNum] = buffers[chNum] ? buffers[chNum] + 2 : nullptr;
+		}
+		generate(rest, num - 1, chanMask);
+		return;
+	}
+
 	// Register writes and CSM key-on land before this call. A channel that is
 	// quiet here cannot become active before the next generate(). The envelope
 	// counter advances once per sample for ADPCM-A, even when no channel clocks.
@@ -835,9 +851,6 @@ void FmEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint3
 		bool audible = modified ? channel.prepare(registers, chNum) : channel.audible();
 		if (channel.finished()) {
 			buffers[chNum] = nullptr;
-			// prepare() may have consumed CSM even on a channel that is already
-			// silent at max release attenuation; still clear the one-shot.
-			channel.endCsmPulse();
 			channel.quiesceFeedback(num);
 			continue;
 		}
@@ -866,6 +879,12 @@ void FmEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint3
 		} else {
 			synthesizeFmChannel<false, false>(channel, registers, nullptr, num, env0, chNum);
 		}
+	}
+
+	// prepare() cleared the CSM bit but left keyState on. End the pulse now so
+	// a later prepare-skip cannot stick the note. Only channel 2 receives CSM.
+	if (modified && channels[2].csmPendingRelease()) [[unlikely]] {
+		channels[2].endCsmPulse();
 	}
 
 	envCounter = advanceEgCounter(env0, num);
@@ -932,15 +951,20 @@ void FmEngine::updateTimer(unsigned tNum, bool enable, int32_t deltaClocks, EmuT
 void FmEngine::setClockPrescale(uint32_t value, EmuTime time)
 {
 	if (value == prescale) return;
+	const uint32_t oldPrescale = prescale;
 	prescale = value;
-	// Wall-clock deadlines were computed with the old factor. Restart any
-	// running timer for a full period at the new rate (remaining ticks are
-	// not tracked separately).
+	// Timers count FM ticks; each tick is OPERATORS * prescale master clocks.
+	// Keep the remaining FM tick count and rescale the wall-clock deadline.
 	for (unsigned tNum = 0; tNum < timers.size(); ++tNum) {
 		if (!timerRunning[tNum]) continue;
-		timerRunning[tNum] = false;
-		bool load = (tNum == 0) ? registers.loadTimerA() : registers.loadTimerB();
-		updateTimer(tNum, load, 0, time);
+		auto deadline = timers[tNum].isPending();
+		assert(deadline);
+		if (!deadline || *deadline <= time) continue;
+		EmuDuration remaining = (*deadline - time) * value / oldPrescale;
+		if (remaining == EmuDuration(uint64_t(0))) {
+			remaining = EmuDuration(uint64_t(1));
+		}
+		timers[tNum].schedule(time + remaining);
 	}
 }
 

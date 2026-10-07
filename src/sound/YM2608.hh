@@ -289,8 +289,15 @@ public:
 	// key state control
 	void keyOnOff(bool on, KeyOnType type);
 
-	// After prepare() consumes a CSM pulse, keyState is on while keyOnLive is
-	// clear. Release after the first sample so prepare-skip cannot stick the note.
+	[[nodiscard]] bool hasCsmKeyOn() const {
+		return (keyOnLive & (1 << std::to_underlying(KeyOnType::CSM))) != 0;
+	}
+
+	// After prepare() consumes a CSM-only pulse: key on, keyOnLive clear.
+	[[nodiscard]] bool csmPendingRelease() const {
+		return keyState && keyOnLive == 0;
+	}
+
 	void endCsmPulse();
 
 private:
@@ -348,6 +355,8 @@ public:
 	// master clocking function
 	void clock(uint32_t envCounter, int32_t lfoRawPm);
 
+	[[nodiscard]] bool hasCsmKeyOn() const;
+	[[nodiscard]] bool csmPendingRelease() const;
 	void endCsmPulse();
 
 	// Register fields that output4Op() reads. A register write ends the
@@ -418,7 +427,7 @@ public:
 	// return the current clock prescale
 	[[nodiscard]] uint32_t clockPrescale() const { return prescale; }
 
-	// set prescale factor (2/3/6); restarts any live timers at the new rate
+	// set prescale factor (2/3/6); scales remaining time on live timers
 	void setClockPrescale(uint32_t value, EmuTime time);
 
 	[[nodiscard]] EmuTime getCurrentTime() const { return timers[0].getCurrentTime(); }
