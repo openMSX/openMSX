@@ -289,6 +289,10 @@ public:
 	// key state control
 	void keyOnOff(bool on, KeyOnType type);
 
+	// After prepare() consumes a CSM pulse, keyState is on while keyOnLive is
+	// clear. Release after the first sample so prepare-skip cannot stick the note.
+	void endCsmPulse();
+
 private:
 	void startAttack(bool isRestart = false);
 	void startRelease();
@@ -343,6 +347,8 @@ public:
 
 	// master clocking function
 	void clock(uint32_t envCounter, int32_t lfoRawPm);
+
+	void endCsmPulse();
 
 	// Register fields that output4Op() reads. A register write ends the
 	// current buffer, so these hold for every sample of one generate().
@@ -412,8 +418,8 @@ public:
 	// return the current clock prescale
 	[[nodiscard]] uint32_t clockPrescale() const { return prescale; }
 
-	// set prescale factor (2/3/6)
-	void setClockPrescale(uint32_t value) { prescale = value; }
+	// set prescale factor (2/3/6); restarts any live timers at the new rate
+	void setClockPrescale(uint32_t value, EmuTime time);
 
 	[[nodiscard]] EmuTime getCurrentTime() const { return timers[0].getCurrentTime(); }
 
@@ -805,6 +811,7 @@ private:
 	[[nodiscard]] uint8_t readStatusHi(EmuTime time);
 	[[nodiscard]] uint8_t statusHi() const;
 	[[nodiscard]] uint8_t readDataHi();
+	void syncAdpcmBStatus();
 
 	void writeRegister(unsigned regNum, uint8_t data, EmuTime time);
 	[[nodiscard]] uint8_t peekRegister(unsigned regNum, EmuTime time) const;

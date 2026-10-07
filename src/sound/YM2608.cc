@@ -305,6 +305,15 @@ void FmOperator::keyOnOff(bool on, KeyOnType type)
 	keyOnLive = uint8_t((keyOnLive & ~(1u << bit)) | (uint8_t(on) << bit));
 }
 
+void FmOperator::endCsmPulse()
+{
+	// prepare() applied CSM then cleared that bit. A normal key still set in
+	// keyOnLive must stay on; CSM-only leaves keyState set with keyOnLive clear.
+	if (keyState && keyOnLive == 0) {
+		clockKeystate(false);
+	}
+}
+
 // Also used when an SSG-EG cycle restarts.
 void FmOperator::startAttack(bool isRestart)
 {
@@ -567,6 +576,13 @@ void FmChannel::clock(uint32_t envCounter, int32_t lfoRawPm)
 	}
 }
 
+void FmChannel::endCsmPulse()
+{
+	for (auto& op : ops) {
+		op.endCsmPulse();
+	}
+}
+
 // OPNA offers 8 connection algorithms for its 4 operators.
 //
 // The operators are computed in order, with the inputs pulled from
@@ -740,6 +756,7 @@ static void synthesizeFmChannel(FmChannel& channel, OpnaRegisters& regs,
 		}
 	}
 
+	bool endCsm = true;
 	auto tick = [&] {
 		env = stepEgCounter(env);
 		int32_t pm = 0;
@@ -750,6 +767,12 @@ static void synthesizeFmChannel(FmChannel& channel, OpnaRegisters& regs,
 			}
 		}
 		channel.clock(env, pm);
+		// CSM is a one-sample key-on. Release after that sample so a skipped
+		// prepare() on later buffers cannot leave the operators stuck on.
+		if (endCsm) {
+			channel.endCsmPulse();
+			endCsm = false;
+		}
 	};
 
 	if constexpr (!WRITE) {
@@ -812,6 +835,9 @@ void FmEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint3
 		bool audible = modified ? channel.prepare(registers, chNum) : channel.audible();
 		if (channel.finished()) {
 			buffers[chNum] = nullptr;
+			// prepare() may have consumed CSM even on a channel that is already
+			// silent at max release attenuation; still clear the one-shot.
+			channel.endCsmPulse();
 			channel.quiesceFeedback(num);
 			continue;
 		}
@@ -900,6 +926,21 @@ void FmEngine::updateTimer(unsigned tNum, bool enable, int32_t deltaClocks, EmuT
 		// if the timer is not live, ensure it is not enabled
 		scheduleTimer(tNum, -1, time);
 		timerRunning[tNum] = false;
+	}
+}
+
+void FmEngine::setClockPrescale(uint32_t value, EmuTime time)
+{
+	if (value == prescale) return;
+	prescale = value;
+	// Wall-clock deadlines were computed with the old factor. Restart any
+	// running timer for a full period at the new rate (remaining ticks are
+	// not tracked separately).
+	for (unsigned tNum = 0; tNum < timers.size(); ++tNum) {
+		if (!timerRunning[tNum]) continue;
+		timerRunning[tNum] = false;
+		bool load = (tNum == 0) ? registers.loadTimerA() : registers.loadTimerB();
+		updateTimer(tNum, load, 0, time);
 	}
 }
 
@@ -1965,6 +2006,9 @@ void YM2608::reset(EmuTime time)
 	adpcmA.reset();
 	adpcmB.reset();
 
+	// fm.reset() does not restore clock divider or IRQ mask (same as ymfm).
+	fm.setClockPrescale(6, time);
+
 	// configure ADPCM percussion sounds; these are present in an embedded ROM
 	adpcmA.setStartEnd(0, 0x0000, 0x01bf); // bass drum
 	adpcmA.setStartEnd(1, 0x01c0, 0x043f); // snare drum
@@ -1977,6 +2021,7 @@ void YM2608::reset(EmuTime time)
 	// register, which updates the IRQs
 	irqEnable = 0x1f;
 	flagControl = 0x1c;
+	fm.setIrqMask(irqEnable & ~flagControl & 0x1f);
 	(void)readStatusHi(time);
 
 	ssg.reset(time);
@@ -2046,9 +2091,7 @@ uint8_t YM2608::readData(EmuTime time)
 uint8_t YM2608::readStatusHi(EmuTime time)
 {
 	uint8_t status = statusHi();
-
-	// update the status so that IRQs are propagated
-	fm.setResetStatus(status, ~status);
+	syncAdpcmBStatus();
 
 	if (isBusy(time)) {
 		status |= STATUS_BUSY;
@@ -2079,10 +2122,20 @@ uint8_t YM2608::statusHi() const
 	return status;
 }
 
+void YM2608::syncAdpcmBStatus()
+{
+	// ymfm only pushed ADPCM flags into the IRQ line when status-hi was read.
+	// Raise or clear them whenever the ADPCM-B engine may have changed them.
+	uint8_t status = statusHi();
+	fm.setResetStatus(status, ~status);
+}
+
 uint8_t YM2608::readDataHi()
 {
 	if ((addressLatch & 0xff) < 0x10) {
-		return adpcmB.read(addressLatch & 0x0f);
+		uint8_t result = adpcmB.read(addressLatch & 0x0f);
+		syncAdpcmBStatus();
+		return result;
 	} else {
 		return 0;
 	}
@@ -2099,11 +2152,11 @@ void YM2608::writePort(unsigned port, uint8_t value, EmuTime time)
 			// interval at the old rates before rebuilding either resampler.
 			updateStream(time);
 			if (addressLatch == 0x2d) {
-				fm.setClockPrescale(6);
+				fm.setClockPrescale(6, time);
 			} else if (addressLatch == 0x2e && fm.clockPrescale() == 6) {
-				fm.setClockPrescale(3);
+				fm.setClockPrescale(3, time);
 			} else if (addressLatch == 0x2f) {
-				fm.setClockPrescale(2);
+				fm.setClockPrescale(2, time);
 			}
 		}
 		break;
@@ -2142,6 +2195,7 @@ void YM2608::writeRegister(unsigned regNum, uint8_t data, EmuTime time)
 	} else if (0x100 <= regNum && regNum < 0x110) {
 		// 100-10F: write to ADPCM-B
 		adpcmB.writeReg(regNum & 0x0f, data);
+		syncAdpcmBStatus();
 	} else if (regNum == 0x110) {
 		// 110: IRQ flag control
 		if (data & 0x80) {
@@ -2216,6 +2270,7 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 	fm.generate(buffers.first<6>(), num, fmMask);
 	adpcmB.generate(buffers[6], num);
 	adpcmA.generate(buffers.subspan(7, 6).first<6>(), num, env);
+	syncAdpcmBStatus();
 }
 
 
