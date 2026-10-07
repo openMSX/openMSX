@@ -38,6 +38,8 @@ public:
 	[[nodiscard]] std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) override;
 	[[nodiscard]] std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
 		V9990& vdp) override;
+	[[nodiscard]] std::unique_ptr<SMSVDPRasterizer> createSMSVDPRasterizer(
+		SMSVDP& vdp) override;
 #if COMPONENT_LASERDISC
 	std::unique_ptr<LDRasterizer> createLDRasterizer(
 		LaserdiscPlayer& ld) override;

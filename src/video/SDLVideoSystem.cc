@@ -5,6 +5,8 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "SDLRasterizer.hh"
+#include "SMSVDP.hh"
+#include "SMSVDPSDLRasterizer.hh"
 #include "V9990.hh"
 #include "V9990SDLRasterizer.hh"
 #include "VDP.hh"
@@ -87,6 +89,17 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 		std::make_unique<PostProcessor>(
 			motherBoard, display, *screen,
 			videoSource, 1280, 240, true));
+}
+
+std::unique_ptr<SMSVDPRasterizer> SDLVideoSystem::createSMSVDPRasterizer(
+	SMSVDP& vdp)
+{
+	assert(display.getRenderer() == RenderSettings::RendererID::SDLGL_PP);
+	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
+	return std::make_unique<SMSVDPSDLRasterizer>(
+		std::make_unique<PostProcessor>(
+			motherBoard, display, *screen,
+			"Franky", 320, 240, false));
 }
 
 #if COMPONENT_LASERDISC

@@ -1305,6 +1305,24 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\Franky.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDP.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPCore.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPDummyRenderer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPPixelRenderer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPSDLRasterizer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
@@ -3035,6 +3053,30 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\Franky.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDP.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPCore.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPDummyRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPPixelRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPRasterizer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPSDLRasterizer.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990.hh">
