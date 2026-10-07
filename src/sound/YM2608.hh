@@ -509,19 +509,17 @@ private:
 class adpcm_a_channel
 {
 public:
-	adpcm_a_channel(adpcm_a_registers& regs);
-
 	void reset();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	void keyOnOff(bool on, unsigned chNum);
-	void clock(unsigned chNum);
+	void keyOnOff(bool on, uint32_t start);
+	void clock(uint32_t end);
 
 	// True when every sample this channel can produce is zero until the
 	// next register write. clock() still has to run.
-	[[nodiscard]] bool silent(unsigned chNum) const;
+	[[nodiscard]] bool silent(const adpcm_a_registers& regs, unsigned chNum) const;
 
 	// Stopped with a zero accumulator: clock() would only store that zero.
 	[[nodiscard]] bool resting() const;
@@ -537,13 +535,12 @@ public:
 
 	// Read those fields once, before the sample loop. An empty pan mask means
 	// this channel adds nothing.
-	[[nodiscard]] output_plan make_output_plan(unsigned chNum) const;
+	[[nodiscard]] output_plan make_output_plan(const adpcm_a_registers& regs, unsigned chNum) const;
 
 	// Scaled sample for the current accumulator, which only clock() changes.
 	[[nodiscard]] int16_t sample(const output_plan& plan) const;
 
 private:
-	adpcm_a_registers& registers; // reference to registers
 	uint32_t curaddress = 0; // current address
 	int16_t accumulator = 0; // 12-bit accumulator
 	int8_t step_index = 0;   // index in the stepping table (0-48)
@@ -558,8 +555,6 @@ class adpcm_a_engine
 public:
 	static constexpr unsigned CHANNELS = adpcm_a_registers::CHANNELS;
 
-	adpcm_a_engine();
-
 	void reset();
 
 	template<typename Archive>
@@ -571,7 +566,7 @@ public:
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart);
 
 	// True when this channel adds zero until the next register write.
-	[[nodiscard]] bool silent(unsigned chNum) const { return channels[chNum].silent(chNum); }
+	[[nodiscard]] bool silent(unsigned chNum) const { return channels[chNum].silent(registers, chNum); }
 
 	void writeReg(uint32_t regNum, uint8_t data);
 

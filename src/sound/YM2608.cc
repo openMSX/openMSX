@@ -1227,11 +1227,6 @@ void adpcm_a_registers::reset()
 }
 
 
-adpcm_a_channel::adpcm_a_channel(adpcm_a_registers& regs)
-	: registers(regs)
-{
-}
-
 void adpcm_a_channel::reset()
 {
 	playing = false;
@@ -1254,12 +1249,12 @@ int16_t adpcm_a_channel::sample(const output_plan& plan) const
 	return int16_t(((int16_t(accumulator << 4) * plan.mul) >> plan.shift) & ~3);
 }
 
-void adpcm_a_channel::keyOnOff(bool on, unsigned chNum)
+void adpcm_a_channel::keyOnOff(bool on, uint32_t start)
 {
 	// QUESTION: repeated key ons restart the sample?
 	playing = on;
 	if (playing) {
-		curaddress = registers.ch_start(chNum);
+		curaddress = start;
 		curnibble = 0;
 		curbyte = 0;
 		accumulator = 0;
@@ -1267,7 +1262,7 @@ void adpcm_a_channel::keyOnOff(bool on, unsigned chNum)
 	}
 }
 
-void adpcm_a_channel::clock(unsigned chNum)
+void adpcm_a_channel::clock(uint32_t end)
 {
 	// if not playing, hold a zero sample
 	if (!playing) {
@@ -1286,8 +1281,8 @@ void adpcm_a_channel::clock(unsigned chNum)
 		// note also: end address is inclusive, so wait until we are about to fetch
 		// the sample just after the end before stopping; this is needed for nitd's
 		// jump sound, for example
-		uint32_t end = registers.ch_end(chNum) + 1;
-		if (((curaddress ^ end) & 0xfffff) == 0) {
+		uint32_t endAddr = end + 1;
+		if (((curaddress ^ endAddr) & 0xfffff) == 0) {
 			playing = false;
 			accumulator = 0;
 			return;
@@ -1325,7 +1320,7 @@ void adpcm_a_channel::clock(unsigned chNum)
 	step_index = int8_t(std::clamp(step_index + s_step_inc[bitfield(data, 0, 3)], 0, 48));
 }
 
-bool adpcm_a_channel::silent(unsigned chNum) const
+bool adpcm_a_channel::silent(const adpcm_a_registers& regs, unsigned chNum) const
 {
 	// A stopped channel forces the accumulator to 0 on the next clock that
 	// includes it. Until that clock, sample() still emits the held value.
@@ -1334,15 +1329,16 @@ bool adpcm_a_channel::silent(unsigned chNum) const
 
 	// Instrument level, total level and pan are registers. clock() does
 	// not change them, and a write ends the current buffer first.
-	return make_output_plan(chNum).pan_mask == 0;
+	return make_output_plan(regs, chNum).pan_mask == 0;
 }
 
-adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(unsigned chNum) const
+adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(
+	const adpcm_a_registers& regs, unsigned chNum) const
 {
 	output_plan plan;
 
 	// volume combines instrument and total levels
-	int vol = (registers.ch_instrument_level(chNum) ^ 0x1f) + (registers.total_level() ^ 0x3f);
+	int vol = (regs.ch_instrument_level(chNum) ^ 0x1f) + (regs.total_level() ^ 0x3f);
 
 	// convert into a shift and a multiplier
 	// QUESTION: verify this from other sources
@@ -1352,21 +1348,16 @@ adpcm_a_channel::output_plan adpcm_a_channel::make_output_plan(unsigned chNum) c
 	// a maximum combined volume adds nothing, and neither does a closed pan
 	plan.pan_mask = 0;
 	if (vol < 63) {
-		if (registers.ch_pan_left(chNum)) {
+		if (regs.ch_pan_left(chNum)) {
 			plan.pan_mask |= 1;
 		}
-		if (registers.ch_pan_right(chNum)) {
+		if (regs.ch_pan_right(chNum)) {
 			plan.pan_mask |= 2;
 		}
 	}
 	return plan;
 }
 
-
-adpcm_a_engine::adpcm_a_engine()
-	: channels(generate_array<CHANNELS>([&](size_t /*chNum*/) { return adpcm_a_channel(registers); }))
-{
-}
 
 void adpcm_a_engine::reset()
 {
@@ -1384,17 +1375,18 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 		if (channel.resting()) continue;
 		// Volume and pan are registers, so they are read once per buffer.
 		// An empty pan mask means this channel adds nothing.
-		const auto plan = channel.make_output_plan(chNum);
+		const auto plan = channel.make_output_plan(registers, chNum);
 		float* buf = (plan.pan_mask != 0) ? buffers[chNum] : nullptr;
 		uint32_t env = envStart;
 		// Channels 0-3 clock on every ADPCM tick. Channels 4-5 clock on
 		// every other tick, when envelope bit 2 is clear.
 		const bool low = chNum < 4;
+		const uint32_t end = registers.ch_end(chNum);
 		if (buf == nullptr) {
 			for (unsigned i = 0; i < num; ++i) {
 				env = step_eg_counter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
-					channel.clock(chNum);
+					channel.clock(end);
 				}
 			}
 		} else {
@@ -1414,7 +1406,7 @@ void adpcm_a_engine::generate(std::span<float*, CHANNELS> buffers, unsigned num,
 			for (unsigned i = 0; i < num; ++i) {
 				env = step_eg_counter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
-					channel.clock(chNum);
+					channel.clock(end);
 					rescale();
 				}
 				unsigned pos = i * 2;
@@ -1435,7 +1427,7 @@ void adpcm_a_engine::writeReg(uint32_t regNum, uint8_t data)
 	if (regNum == 0x00) {
 		for (unsigned chNum = 0; chNum < channels.size(); ++chNum) {
 			if (bitfield(data, chNum)) {
-				channels[chNum].keyOnOff(bitfield(~data, 7) != 0, chNum);
+				channels[chNum].keyOnOff(bitfield(~data, 7) != 0, registers.ch_start(chNum));
 			}
 		}
 	}
