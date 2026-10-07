@@ -20,8 +20,9 @@
 #include <string_view>
 
 namespace openmsx {
+namespace ym2608 {
 
-constexpr uint32_t bitfield(uint32_t value, int start, int length = 1)
+[[nodiscard]] constexpr uint32_t bitfield(uint32_t value, int start, int length = 1)
 {
 	return (value >> start) & ((1 << length) - 1);
 }
@@ -137,14 +138,14 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// map channel number to register offset
-	static constexpr unsigned channel_offset(unsigned chNum)
+	[[nodiscard]] static constexpr unsigned channel_offset(unsigned chNum)
 	{
 		assert(chNum < CHANNELS);
 		return (chNum % 3) + 0x100 * (chNum / 3);
 	}
 
 	// map operator number to register offset
-	static constexpr unsigned operator_offset(unsigned opNum)
+	[[nodiscard]] static constexpr unsigned operator_offset(unsigned opNum)
 	{
 		assert(opNum < OPERATORS);
 		return (opNum % 12) + ((opNum % 12) / 3) + 0x100 * (opNum / 12);
@@ -166,7 +167,7 @@ public:
 	};
 
 	// read a register value
-	[[nodiscard]] uint8_t read(uint16_t index) const { return m_regData[index]; }
+	[[nodiscard]] uint8_t read(uint16_t index) const { return regData[index]; }
 
 	// handle writes to the register array
 	bool write(uint16_t index, uint8_t data, unsigned& chan, unsigned& opMask);
@@ -196,7 +197,7 @@ public:
 	void cache_operator_data(unsigned chOffs, unsigned opOffs, opdata_cache& cache);
 
 	// compute the phase step, given a PM value
-	static uint32_t compute_phase_step(const opdata_cache& cache, int32_t lfo_raw_pm);
+	[[nodiscard]] static uint32_t compute_phase_step(const opdata_cache& cache, int32_t lfo_raw_pm);
 
 	// system-wide registers
 	[[nodiscard]] bool lfo_enable() const                       { return byte(0x22, 3, 1) != 0; }
@@ -240,7 +241,7 @@ private:
 	// return a bitfield extracted from a byte
 	[[nodiscard]] uint32_t byte(uint32_t offset, uint32_t start, uint32_t count, uint32_t extra_offset = 0) const
 	{
-		return bitfield(m_regData[offset + extra_offset], start, count);
+		return bitfield(regData[offset + extra_offset], start, count);
 	}
 
 	// return a bitfield extracted from a pair of bytes, MSBs listed first
@@ -249,9 +250,9 @@ private:
 		return (byte(offset1, start1, count1, extra_offset) << count2) | byte(offset2, start2, count2, extra_offset);
 	}
 
-	uint32_t m_lfo_counter = 0;               // LFO counter
-	uint8_t m_lfo_am = 0;                     // current LFO AM value
-	std::array<uint8_t, REGISTERS> m_regData; // register data
+	uint32_t lfo_counter = 0;               // LFO counter
+	uint8_t lfo_am = 0;                     // current LFO AM value
+	std::array<uint8_t, REGISTERS> regData; // register data
 };
 
 
@@ -269,7 +270,7 @@ public:
 	void reset();
 
 	// prepare prior to clocking; the registers are read only here
-	bool prepare(opna_registers& regs, unsigned chOffs, unsigned opOffs);
+	[[nodiscard]] bool prepare(opna_registers& regs, unsigned chOffs, unsigned opOffs);
 
 	// Release has reached maximum attenuation. A later key-on restarts phase.
 	[[nodiscard]] bool finished() const;
@@ -281,7 +282,7 @@ public:
 	void clock(uint32_t env_counter, int32_t lfo_raw_pm);
 
 	// return the current phase value
-	[[nodiscard]] uint32_t phase() const { return m_phase >> 10; }
+	[[nodiscard]] uint32_t phase() const { return phaseAcc >> 10; }
 
 	// 14-bit signed volume, given phase modulation and an AM LFO offset
 	[[nodiscard]] int32_t compute_volume(uint32_t phase, uint32_t am_offset) const;
@@ -302,13 +303,13 @@ private:
 	[[nodiscard]] uint32_t envelope_attenuation(uint32_t am_offset) const;
 
 private:
-	uint32_t m_phase = 0;                    // current phase value (10.10 format)
-	uint16_t m_env_attenuation = 0x3ff;      // computed envelope attenuation (4.6 format)
-	envelope_state m_env_state = EG_RELEASE; // current envelope state
-	bool m_ssg_inverted = false;             // true if the output should be inverted
-	bool m_key_state = false;                // current key state
-	uint8_t m_keyon_live = 0;                // live key on state (bit 0 = direct, bit 2 = CSM)
-	opdata_cache m_cache{};                  // cached values for performance
+	uint32_t phaseAcc = 0;                    // current phase value (10.10 format)
+	uint16_t env_attenuation = 0x3ff;      // computed envelope attenuation (4.6 format)
+	envelope_state env_state = EG_RELEASE; // current envelope state
+	bool ssg_inverted = false;             // true if the output should be inverted
+	bool key_state = false;                // current key state
+	uint8_t keyon_live = 0;                // live key on state (bit 0 = direct, bit 1 = CSM)
+	opdata_cache cache{};                  // cached values for performance
 };
 
 
@@ -329,7 +330,7 @@ public:
 	void keyOnOff(uint32_t states, keyon_type type);
 
 	// prepare prior to clocking; the registers are read only here
-	bool prepare(opna_registers& regs, unsigned chNum);
+	[[nodiscard]] bool prepare(opna_registers& regs, unsigned chNum);
 
 	// Every operator has finished its release.
 	[[nodiscard]] bool finished() const;
@@ -364,9 +365,9 @@ public:
 	int32_t output_4op(const output_plan& plan, uint32_t am_offset);
 
 private:
-	std::array<int16_t, 2> m_feedback{};   // feedback memory for operator 1
-	int16_t m_feedback_in = 0;             // next input value for op 1 feedback (set in output_4op)
-	std::array<fm_operator, 4> m_op;
+	std::array<int16_t, 2> feedback{};   // feedback memory for operator 1
+	int16_t feedback_in = 0;             // next input value for op 1 feedback (set in output_4op)
+	std::array<fm_operator, 4> ops;
 };
 
 
@@ -390,7 +391,7 @@ public:
 
 	// Envelope counter before the next generate(). ADPCM-A replays the same
 	// step to decide which samples it clocks.
-	[[nodiscard]] uint32_t envelope_counter() const { return m_env_counter; }
+	[[nodiscard]] uint32_t envelope_counter() const { return env_counter; }
 
 	// Whole buffer, one channel at a time. prepare() runs when a register or
 	// key changed; otherwise the current envelope state is enough. A channel
@@ -400,28 +401,24 @@ public:
 	// are quiet, are nulled.
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanMask);
 
-	// write to the OPN registers
-	void write(uint16_t regNum, uint8_t data, EmuTime time);
-
-	// return the current status
-	uint8_t status() const;
+	void writeReg(uint16_t regNum, uint8_t data, EmuTime time);
+	[[nodiscard]] uint8_t status() const;
 
 	// set/reset bits in the status register, updating the IRQ status
 	uint8_t set_reset_status(uint8_t set, uint8_t reset);
 
 	// set the IRQ mask
-	void set_irq_mask(uint8_t mask) { m_irq_mask = mask; check_interrupts(); }
+	void set_irq_mask(uint8_t mask) { irq_mask = mask; check_interrupts(); }
 
 	// return the current clock prescale
-	[[nodiscard]] uint32_t clock_prescale() const { return m_clock_prescale; }
+	[[nodiscard]] uint32_t clock_prescale() const { return clockPrescale; }
 
 	// set prescale factor (2/3/6)
-	void set_clock_prescale(uint32_t prescale) { m_clock_prescale = prescale; }
+	void set_clock_prescale(uint32_t prescale) { clockPrescale = prescale; }
 
 	[[nodiscard]] EmuTime getCurrentTime() const { return timers[0].getCurrentTime(); }
 
-	[[nodiscard]]       auto& regs()       { return m_regs; }
-	[[nodiscard]] const auto& regs() const { return m_regs; }
+	[[nodiscard]] uint8_t readReg(uint16_t index) const { return registers.read(index); }
 
 private:
 	class Timer final : public Schedulable {
@@ -453,15 +450,15 @@ private:
 private:
 	IRQHelper irq;
 	std::array<Timer, 2> timers;
-	uint32_t m_env_counter;          // envelope counter; low 2 bits are sub-counter
-	uint8_t m_status;                // current status register
-	uint8_t m_clock_prescale;        // prescale factor (2/3/6)
-	uint8_t m_irq_mask;              // mask of which bits signal IRQs
-	std::array<bool, 2> m_timer_running;         // current timer running state
-	uint8_t m_total_clocks;          // low 8 bits of the total number of clocks processed
-	bool m_modified;                 // register or key changed since the last generate()
-	opna_registers m_regs;           // register accessor
-	std::array<fm_channel, CHANNELS> m_channel;
+	uint32_t env_counter = 0;              // envelope counter; low 2 bits are sub-counter
+	uint8_t statusReg = 0;                 // current status register
+	uint8_t clockPrescale = 6;             // prescale factor (2/3/6)
+	uint8_t irq_mask = STATUS_TIMER_A | STATUS_TIMER_B;
+	std::array<bool, 2> timer_running{};   // current timer running state
+	uint8_t total_clocks = 0;              // low 8 bits of the total number of clocks processed
+	bool modified = false;                 // register or key changed since the last generate()
+	opna_registers registers;              // register accessor
+	std::array<fm_channel, CHANNELS> channels;
 };
 
 
@@ -491,21 +488,21 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	[[nodiscard]] uint8_t read(uint32_t index) const { return m_regdata[index]; }
-	void write(uint32_t index, uint8_t data) { m_regdata[index] = data; }
+	[[nodiscard]] uint8_t read(uint32_t index) const { return regData[index]; }
+	void write(uint32_t index, uint8_t data) { regData[index] = data; }
 
 	// system-wide registers
-	[[nodiscard]] uint32_t total_level() const                        { return bitfield(m_regdata[0x01], 0, 6); }
+	[[nodiscard]] uint32_t total_level() const                        { return bitfield(regData[0x01], 0, 6); }
 
 	// per-channel registers
-	[[nodiscard]] bool ch_pan_left(unsigned chOffs) const             { return bitfield(m_regdata[chOffs + 0x08], 7) != 0; }
-	[[nodiscard]] bool ch_pan_right(unsigned chOffs) const            { return bitfield(m_regdata[chOffs + 0x08], 6) != 0; }
-	[[nodiscard]] uint32_t ch_instrument_level(unsigned chOffs) const { return bitfield(m_regdata[chOffs + 0x08], 0, 5); }
-	[[nodiscard]] uint32_t ch_start(unsigned chOffs) const            { return m_regdata[chOffs + 0x10] | (m_regdata[chOffs + 0x18] << 8); }
-	[[nodiscard]] uint32_t ch_end(unsigned chOffs) const              { return m_regdata[chOffs + 0x20] | (m_regdata[chOffs + 0x28] << 8); }
+	[[nodiscard]] bool ch_pan_left(unsigned chOffs) const             { return bitfield(regData[chOffs + 0x08], 7) != 0; }
+	[[nodiscard]] bool ch_pan_right(unsigned chOffs) const            { return bitfield(regData[chOffs + 0x08], 6) != 0; }
+	[[nodiscard]] uint32_t ch_instrument_level(unsigned chOffs) const { return bitfield(regData[chOffs + 0x08], 0, 5); }
+	[[nodiscard]] uint32_t ch_start(unsigned chOffs) const            { return regData[chOffs + 0x10] | (regData[chOffs + 0x18] << 8); }
+	[[nodiscard]] uint32_t ch_end(unsigned chOffs) const              { return regData[chOffs + 0x20] | (regData[chOffs + 0x28] << 8); }
 
 private:
-	std::array<uint8_t, REGISTERS> m_regdata;
+	std::array<uint8_t, REGISTERS> regData;
 };
 
 
@@ -546,13 +543,13 @@ public:
 	[[nodiscard]] int16_t sample(const output_plan& plan) const;
 
 private:
-	adpcm_a_registers& m_regs; // reference to registers
-	uint32_t m_curaddress = 0; // current address
-	int16_t m_accumulator = 0; // 12-bit accumulator
-	int8_t m_step_index = 0;   // index in the stepping table (0-48)
-	bool m_playing = false;    // currently playing?
-	uint8_t m_curnibble = 0;   // index of the current nibble
-	uint8_t m_curbyte = 0;     // current byte of data
+	adpcm_a_registers& registers; // reference to registers
+	uint32_t curaddress = 0; // current address
+	int16_t accumulator = 0; // 12-bit accumulator
+	int8_t step_index = 0;   // index in the stepping table (0-48)
+	bool playing = false;    // currently playing?
+	uint8_t curnibble = 0;   // index of the current nibble
+	uint8_t curbyte = 0;     // current byte of data
 };
 
 
@@ -574,20 +571,18 @@ public:
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t envStart);
 
 	// True when this channel adds zero until the next register write.
-	[[nodiscard]] bool silent(unsigned chNum) const { return m_channel[chNum].silent(chNum); }
+	[[nodiscard]] bool silent(unsigned chNum) const { return channels[chNum].silent(chNum); }
 
-	// write to the ADPCM-A registers
-	void write(uint32_t regNum, uint8_t data);
+	void writeReg(uint32_t regNum, uint8_t data);
 
 	// set the start/end address for a channel (for hardcoded YM2608 percussion)
 	void set_start_end(unsigned chNum, uint16_t start, uint16_t end);
 
-	[[nodiscard]]       auto& regs()       { return m_regs; }
-	[[nodiscard]] const auto& regs() const { return m_regs; }
+	[[nodiscard]] uint8_t readReg(uint32_t index) const { return registers.read(index); }
 
 private:
-	adpcm_a_registers m_regs;
-	std::array<adpcm_a_channel, CHANNELS> m_channel;
+	adpcm_a_registers registers;
+	std::array<adpcm_a_channel, CHANNELS> channels;
 };
 
 
@@ -635,28 +630,28 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// direct read/write access
-	[[nodiscard]] uint8_t read(uint32_t index) const { return m_regdata[index]; }
-	void write(uint32_t index, uint8_t data) { m_regdata[index] = data; }
+	[[nodiscard]] uint8_t read(uint32_t index) const { return regData[index]; }
+	void write(uint32_t index, uint8_t data) { regData[index] = data; }
 
 	// system-wide registers
-	[[nodiscard]] bool execute() const     { return bitfield(m_regdata[0x00], 7) != 0; }
-	[[nodiscard]] bool record() const      { return bitfield(m_regdata[0x00], 6) != 0; }
-	[[nodiscard]] bool external() const    { return bitfield(m_regdata[0x00], 5) != 0; }
-	[[nodiscard]] bool repeat() const      { return bitfield(m_regdata[0x00], 4) != 0; }
-	[[nodiscard]] bool resetflag() const   { return bitfield(m_regdata[0x00], 0) != 0; }
-	[[nodiscard]] bool pan_left() const    { return bitfield(m_regdata[0x01], 7) != 0; }
-	[[nodiscard]] bool pan_right() const   { return bitfield(m_regdata[0x01], 6) != 0; }
-	[[nodiscard]] bool dram_8bit() const   { return bitfield(m_regdata[0x01], 1) != 0; }
-	[[nodiscard]] bool rom_ram() const     { return bitfield(m_regdata[0x01], 0) != 0; }
-	[[nodiscard]] uint32_t start() const   { return m_regdata[0x02] | (m_regdata[0x03] << 8); }
-	[[nodiscard]] uint32_t end() const     { return m_regdata[0x04] | (m_regdata[0x05] << 8); }
-	[[nodiscard]] uint32_t cpudata() const { return m_regdata[0x08]; }
-	[[nodiscard]] uint32_t delta_n() const { return m_regdata[0x09] | (m_regdata[0x0a] << 8); }
-	[[nodiscard]] uint32_t level() const   { return m_regdata[0x0b]; }
-	[[nodiscard]] uint32_t limit() const   { return m_regdata[0x0c] | (m_regdata[0x0d] << 8); }
+	[[nodiscard]] bool execute() const     { return bitfield(regData[0x00], 7) != 0; }
+	[[nodiscard]] bool record() const      { return bitfield(regData[0x00], 6) != 0; }
+	[[nodiscard]] bool external() const    { return bitfield(regData[0x00], 5) != 0; }
+	[[nodiscard]] bool repeat() const      { return bitfield(regData[0x00], 4) != 0; }
+	[[nodiscard]] bool resetflag() const   { return bitfield(regData[0x00], 0) != 0; }
+	[[nodiscard]] bool pan_left() const    { return bitfield(regData[0x01], 7) != 0; }
+	[[nodiscard]] bool pan_right() const   { return bitfield(regData[0x01], 6) != 0; }
+	[[nodiscard]] bool dram_8bit() const   { return bitfield(regData[0x01], 1) != 0; }
+	[[nodiscard]] bool rom_ram() const     { return bitfield(regData[0x01], 0) != 0; }
+	[[nodiscard]] uint32_t start() const   { return regData[0x02] | (regData[0x03] << 8); }
+	[[nodiscard]] uint32_t end() const     { return regData[0x04] | (regData[0x05] << 8); }
+	[[nodiscard]] uint32_t cpudata() const { return regData[0x08]; }
+	[[nodiscard]] uint32_t delta_n() const { return regData[0x09] | (regData[0x0a] << 8); }
+	[[nodiscard]] uint32_t level() const   { return regData[0x0b]; }
+	[[nodiscard]] uint32_t limit() const   { return regData[0x0c] | (regData[0x0d] << 8); }
 
 private:
-	std::array<uint8_t, REGISTERS> m_regdata;
+	std::array<uint8_t, REGISTERS> regData;
 };
 
 
@@ -714,7 +709,7 @@ public:
 	void generate(float* buffer, unsigned num, const output_plan& plan);
 
 	// return the status register
-	[[nodiscard]] uint8_t status() const { return m_status; }
+	[[nodiscard]] uint8_t status() const { return statusReg; }
 
 	// handle special register reads
 	[[nodiscard]] uint8_t read(uint32_t regNum);
@@ -729,7 +724,7 @@ private:
 
 	// One clock with the buffer's position step, after decoding() held.
 	// False when playback stopped at the end address.
-	bool advance(uint32_t delta);
+	[[nodiscard]] bool advance(uint32_t delta);
 
 	// One bit per output this channel feeds, empty when it adds nothing.
 	[[nodiscard]] uint8_t pan_mask() const;
@@ -751,18 +746,18 @@ private:
 	[[nodiscard]] bool at_end() const;
 
 private:
-	adpcm_b_registers& m_regs; // reference to registers
+	adpcm_b_registers& registers; // reference to registers
 	Ram& ram;
-	uint32_t m_curaddress = 0;       // current address
-	uint16_t m_position = 0;         // current fractional position
-	int16_t m_accumulator = 0;       // accumulator
-	int16_t m_prev_accum = 0;        // previous accumulator (for linear interp)
-	int16_t m_adpcm_step = STEP_MIN; // next forecast (STEP_MIN..STEP_MAX)
-	uint8_t m_status = STATUS_BRDY;  // EOS / BRDY / PLAYING
-	uint8_t m_curnibble = 0;         // index of the current nibble
-	uint8_t m_curbyte = 0;           // current byte of data
-	uint8_t m_dummy_read = 0;        // dummy read tracker
-	bool m_cpu_write_active = false; // unfinished CPU RAM write sequence
+	uint32_t curaddress = 0;       // current address
+	uint16_t position = 0;         // current fractional position
+	int16_t accumulator = 0;       // accumulator
+	int16_t prev_accum = 0;        // previous accumulator (for linear interp)
+	int16_t adpcm_step = STEP_MIN; // next forecast (STEP_MIN..STEP_MAX)
+	uint8_t statusReg = STATUS_BRDY;  // EOS / BRDY / PLAYING
+	uint8_t curnibble = 0;         // index of the current nibble
+	uint8_t curbyte = 0;           // current byte of data
+	uint8_t dummy_read = 0;        // dummy read tracker
+	bool cpu_write_active = false; // unfinished CPU RAM write sequence
 };
 
 
@@ -781,64 +776,57 @@ public:
 	void generate(float* buffer, unsigned num);
 
 	// True when this channel adds zero until the next register write.
-	[[nodiscard]] bool silent() const { return m_channel.silent(); }
+	[[nodiscard]] bool silent() const { return channel.silent(); }
 
-	// read from the ADPCM-B registers
-	[[nodiscard]] uint8_t read(uint32_t regNum) { return m_channel.read(regNum); }
-	[[nodiscard]] uint8_t peek(uint32_t regNum) const { return m_channel.peek(regNum); }
+	// read from the ADPCM-B data port (may advance address / update status)
+	[[nodiscard]] uint8_t read(uint32_t regNum) { return channel.read(regNum); }
+	[[nodiscard]] uint8_t peek(uint32_t regNum) const { return channel.peek(regNum); }
 
-	// write to the ADPCM-B registers
-	void write(uint32_t regNum, uint8_t data);
+	void writeReg(uint32_t regNum, uint8_t data);
 
-	// status
-	[[nodiscard]] uint8_t status() const { return m_channel.status(); }
-
-	[[nodiscard]]       auto& regs()       { return m_regs; }
-	[[nodiscard]] const auto& regs() const { return m_regs; }
+	[[nodiscard]] uint8_t status() const { return channel.status(); }
+	[[nodiscard]] uint8_t readReg(uint32_t index) const { return registers.read(index); }
 
 private:
-	adpcm_b_registers m_regs;
+	adpcm_b_registers registers;
 	Ram ram;
-	adpcm_b_channel m_channel;
+	adpcm_b_channel channel;
 };
 
-class YM2608 final
+} // namespace ym2608
+
+class YM2608
 {
 public:
 	YM2608(DeviceConfig& config, std::string_view name, EmuTime time);
 
 	void reset(EmuTime time);
-	uint8_t readPort(unsigned port, EmuTime time);
-	uint8_t peekPort(unsigned port, EmuTime time) const;
+	[[nodiscard]] uint8_t readPort(unsigned port, EmuTime time);
+	[[nodiscard]] uint8_t peekPort(unsigned port, EmuTime time) const;
 	void writePort(unsigned port, uint8_t value, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	uint8_t readStatus(EmuTime time);
-	uint8_t readData(EmuTime time);
-	uint8_t readStatusHi(EmuTime time);
-	uint8_t statusHi() const;
-	uint8_t readDataHi();
+	[[nodiscard]] uint8_t readStatus(EmuTime time);
+	[[nodiscard]] uint8_t readData(EmuTime time);
+	[[nodiscard]] uint8_t readStatusHi(EmuTime time);
+	[[nodiscard]] uint8_t statusHi() const;
+	[[nodiscard]] uint8_t readDataHi();
 
 	void writeRegister(unsigned regNum, uint8_t data, EmuTime time);
-	uint8_t peekRegister(unsigned regNum, EmuTime time) const;
+	[[nodiscard]] uint8_t peekRegister(unsigned regNum, EmuTime time) const;
 
 	void updateStream(EmuTime time);
 	void updatePrescale(uint8_t prescale);
-
-	[[nodiscard]] unsigned prescale() const;
-	[[nodiscard]] unsigned fmRate() const;
-	[[nodiscard]] unsigned ssgRate() const;
 	void applyRates(EmuTime time);
 
 	void generateFM(std::span<float*> buffers, unsigned num);
 
-	friend class fm_engine;
+	friend class ym2608::fm_engine;
 
 private:
-	void setBusyEnd(EmuTime time, uint32_t clocks);
 	[[nodiscard]] bool isBusy(EmuTime time) const;
 
 	class FmPart final : public ResampledSoundDevice {
@@ -865,9 +853,9 @@ private:
 	uint8_t irqEnable = 0x1f;
 	uint8_t flagControl = 0x1c;
 
-	fm_engine fm;
-	adpcm_a_engine adpcmA;
-	adpcm_b_engine adpcmB;
+	ym2608::fm_engine fm;
+	ym2608::adpcm_a_engine adpcmA;
+	ym2608::adpcm_b_engine adpcmB;
 
 	Registers registers;
 	FmPart fmPart;
