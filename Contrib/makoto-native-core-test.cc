@@ -1,12 +1,12 @@
 #include "makoto-reference/ReferenceYM2608.hh"
 // Differential test at native chip clock edges, before host resampling.
 #include "makoto-reference/MakotoNativeChip.hh"
-#include "3rdparty/ym2608/fmopn_2608rom.h"
+#include "sound/YM2608AdpcmRom.hh"
 #include <iostream>
 #include <cstdlib>
 struct Interface : ymfm::ymfm_interface {
  uint8_t ymfm_external_read(ymfm::access_class type, uint32_t address) override {
-  return type == ymfm::ACCESS_ADPCM_A ? YM2608_ADPCM_ROM[address & 8191]
+  return type == ymfm::ACCESS_ADPCM_A ? openmsx::YM2608_ADPCM_ROM[address & 8191]
        : uint8_t((address * 73 + (address >> 4) * 19) ^ 0x5a);
  }
 };

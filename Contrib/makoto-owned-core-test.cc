@@ -7,7 +7,7 @@
 #include "ymfm_fm.h"
 #include "ymfm_adpcm.h"
 #endif
-#include "3rdparty/ym2608/fmopn_2608rom.h"
+#include "sound/YM2608AdpcmRom.hh"
 #include <array>
 #include <algorithm>
 #include <cstdint>
@@ -20,7 +20,7 @@ struct Interface : ymfm::ymfm_interface {
     void timer() { m_engine->engine_timer_expired(0); }
 #endif
     uint8_t ymfm_external_read(ymfm::access_class type, uint32_t address) override {
-        return type == ymfm::ACCESS_ADPCM_A ? YM2608_ADPCM_ROM[address & 8191]
+        return type == ymfm::ACCESS_ADPCM_A ? openmsx::YM2608_ADPCM_ROM[address & 8191]
             : uint8_t((address * 73 + (address >> 4) * 19) ^ 0x5a);
     }
 };

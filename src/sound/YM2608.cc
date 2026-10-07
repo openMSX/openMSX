@@ -9,7 +9,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 
-#include "3rdparty/ym2608/fmopn_2608rom.h"
+#include "YM2608AdpcmRom.hh"
 
 #include <algorithm>
 #include <numbers>

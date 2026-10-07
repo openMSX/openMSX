@@ -52,10 +52,10 @@ reset does not clear sample RAM. Pause playback before editing sample RAM.
 `Makoto registers` exposes effective core registers, with side-effect-free peeks.
 Register edits synchronize sound and preserve the program's address latch.
 
-The six rhythm samples are fixed chip-internal data reconstructed by libvgm.
-Their separate license and provenance are in `src/3rdparty/ym2608/README.openmsx`.
-The BSD YMFM core and local adapter changes are documented separately in
-`src/3rdparty/ymfm/README.openmsx`.
+The six rhythm samples are fixed chip-internal data in `src/sound/YM2608AdpcmRom.hh`
+(reconstructed by libvgm from the MAME fmopn core; GPL-2.0-or-later). The FM and
+ADPCM engines in `src/sound/YM2608.{hh,cc}` started as YMFM by Aaron Giles
+(BSD-3-Clause); the BSD notice is at the top of `YM2608.hh`.
 
 ## Validation
 

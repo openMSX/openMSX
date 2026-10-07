@@ -25,8 +25,9 @@ def main():
     parser.add_argument("--firmware-dir", type=Path, required=True)
     args = parser.parse_args()
     out = Path(tempfile.mkdtemp(prefix="makoto-rhythm-", dir=ROOT / "derived"))
-    source = (ROOT / "src/3rdparty/ym2608/fmopn_2608rom.h").read_text()
+    source = (ROOT / "src/sound/YM2608AdpcmRom.hh").read_text()
     source = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
+    source = source[source.index("YM2608_ADPCM_ROM"):]
     source = source[source.index("{") + 1:source.index("}")]
     data = bytes(int(x, 16) for x in re.findall(r"0x([0-9a-fA-F]+)", source))
     assert len(data) == 8192

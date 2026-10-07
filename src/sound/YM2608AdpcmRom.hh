@@ -1,12 +1,22 @@
-/*
-    This data is derived from the chip's output - internal ROM can't be read.
-    It was verified, using real YM2608, that this ADPCM stream produces 100% correct output signal.
-*/
+#ifndef YM2608ADPCMROM_HH
+#define YM2608ADPCMROM_HH
+
+// Internal YM2608 ADPCM-A rhythm samples. The chip ROM is not readable; this
+// table was reconstructed from the chip's output and verified against a real
+// YM2608 (ValleyBell/libvgm fmopn_2608rom.h, from the MAME fmopn core).
+//
+// Copyright (C) Jarek Burczynski, Tatsuyuki Satoh
+// Licensed under the GNU General Public License version 2 or later; see
+// doc/GPL.txt.
+//
+// 8192 bytes; CRC32 23c9e0d8, SHA1 50b6c3e288eaa12ad275d4f323267bb72b0445df.
 
 #include <array>
 #include <cstdint>
 
-static constexpr std::array<uint8_t, 0x2000> YM2608_ADPCM_ROM = {
+namespace openmsx {
+
+inline constexpr std::array<uint8_t, 0x2000> YM2608_ADPCM_ROM = {
 
 /* Source: 01BD.ROM */
 /* Length: 448 / 0x000001C0 */
@@ -544,3 +554,7 @@ static constexpr std::array<uint8_t, 0x2000> YM2608_ADPCM_ROM = {
 0x1C,0x00,0xB2,0x48,0xB9,0x94,0xA3,0x19,0x4F,0x19,0xB2,0x32,0x90,0xBA,0x01,0xE6,
 0x91,0x80,0xC1,0xA4,0x2A,0x08,0xA1,0xB1,0x25,0xD2,0x88,0x99,0x21,0x80,0x88,0x80,
 };
+
+} // namespace openmsx
+
+#endif

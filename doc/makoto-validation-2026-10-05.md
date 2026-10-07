@@ -184,10 +184,10 @@ For source comparison, obtain the reference revision in a separate checkout.
 Build the same current `Contrib/makoto-owned-core-test.cc` twice with C++23:
 
 - Reference: define `MAKOTO_REFERENCE`; include reference `src`, `src/sound`
-  and `src/3rdparty/ymfm`; compile reference `MakotoYM2608.cc`, `ymfm_opn.cc`,
+  and a preserved YMFM tree; compile reference `MakotoYM2608.cc`, `ymfm_opn.cc`,
   `ymfm_adpcm.cc` and `ymfm_ssg.cc`.
-- Candidate: include current `src`, `src/utils` and `src/3rdparty/ymfm`;
-  compile current `ymfm_opn.cc` and `ymfm_adpcm.cc`.
+- Candidate: include current `src` and `src/utils`; compile current
+  `src/sound/YM2608.cc` (engines folded out of YMFM).
 - Run `python Contrib/makoto-engine-compare.py --reference OLD_RENDERER
   --candidate NEW_RENDERER`.
 

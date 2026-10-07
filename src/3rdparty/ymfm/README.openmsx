@@ -1,4 +1,0 @@
-YMFM by Aaron Giles (BSD-3-Clause): see LICENSE.
-
-The OPNA engines now live in src/sound/YM2608.{hh,cc}. This directory
-only retains the original license text.
