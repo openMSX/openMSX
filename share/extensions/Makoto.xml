@@ -1,18 +1,21 @@
 <?xml version="1.0"?>
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
- <info>
-  <name>Makoto (experimental)</name>
-  <manufacturer>SuperSoniqs / Electric River Hardware</manufacturer>
-  <code>Makoto</code><release_year>2024</release_year>
-  <description>YM2608 OPNA with FM, SSG, internal rhythm sounds and 256 KiB ADPCM sample RAM.</description>
-  <type>sound expansion</type>
- </info>
- <devices>
-  <Makoto id="Makoto">
-   <io base="0x14" num="4"/>
-   <!-- FM/ADPCM and SSG have separate standard device-volume controls. -->
-   <sound><volume>12000</volume></sound>
-  </Makoto>
- </devices>
+  <info>
+    <name>Makoto (experimental)</name>
+    <manufacturer>SuperSoniqs / Electric River Hardware</manufacturer>
+    <code>Makoto</code>
+    <release_year>2024</release_year>
+    <description>YM2608 OPNA with FM, SSG, internal rhythm sounds and 256 KiB ADPCM sample RAM.</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <Makoto id="Makoto">
+      <io base="0x14" num="4"/>
+      <!-- FM/ADPCM and SSG have separate standard device-volume controls. -->
+      <sound>
+        <volume>12000</volume>
+      </sound>
+    </Makoto>
+  </devices>
 </msxconfig>
