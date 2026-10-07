@@ -2,10 +2,13 @@
 #include "GunstickSensor.hh"
 
 #include <cstdint>
+#include <optional>
 
+using namespace openmsx;
 using namespace openmsx::gunstick;
 using gl::ivec2;
 using gl::vec2;
+using gl::vec4;
 
 static constexpr uint32_t BLACK = 0xFF000000;
 static constexpr uint32_t WHITE = 0xFFFFFFFF;
@@ -137,6 +140,16 @@ TEST_CASE("Gunstick: Duck Hunt, pixels not yet drawn are ignored")
 	CHECK(duckHuntLitSamples(ivec2(104, 104)) > 0); // on the duck: hit
 }
 
+// Host mouse position -> RawFrame pixel, for a flat picture.
+static std::optional<ivec2> mouseToFrame(
+	vec2 mouse, vec2 msxPixelSize, vec2 viewOffset, vec2 viewSize,
+	float hStretch, bool fullStretch)
+{
+	return viewToFrame(mouseToView(mouse, msxPixelSize, viewOffset, viewSize,
+	                               hStretch, fullStretch),
+	                   hStretch);
+}
+
 TEST_CASE("Gunstick: mouseToFrame")
 {
 	SECTION("window, scale factor 2, horizontal_stretch 320") {
@@ -177,5 +190,41 @@ TEST_CASE("Gunstick: mouseToFrame")
 		auto p = mouseToFrame(vec2(0, 0), pixel, vec2(240, 0), vec2(1440, 1080), 320.0f, true);
 		REQUIRE(p);
 		CHECK(*p == ivec2(0, 0));
+	}
+}
+
+TEST_CASE("Gunstick: viewToFrame3D")
+{
+	// Draw the middle of some RawFrame pixels on the curved surface, the way
+	// PostProcessor does, and map that position back.
+	auto mvp = monitor3d::mvpMatrix();
+	auto draw = [&](ivec2 pixel, float hStretch) {
+		vec2 tex((float(pixel.x) + 0.5f) / FRAME_WIDTH,
+		         1.0f - (float(pixel.y) + 0.5f) / FRAME_HEIGHT);
+		// inverse of monitor3d::texCoord()
+		float s = hStretch / FRAME_WIDTH;
+		float b = (FRAME_WIDTH - hStretch) / (2.0f * FRAME_WIDTH);
+		vec2 xy((tex.x - b) / s * 2.0f - 1.0f, tex.y * 2.0f - 1.0f);
+		vec4 clip = mvp * vec4(xy, vec2(monitor3d::surfaceZ(xy), 1.0f));
+		vec2 ndc = vec2(clip) / clip.w;
+		return vec2((ndc.x + 1.0f) * 0.5f * hStretch,
+		            (1.0f - ndc.y) * 0.5f * FRAME_HEIGHT);
+	};
+	for (float hStretch : {320.0f, 280.0f}) {
+		for (ivec2 pixel : {ivec2(160, 120), ivec2(25, 0), ivec2(294, 239),
+		                    ivec2(30, 200), ivec2(250, 10)}) {
+			auto p = viewToFrame3D(draw(pixel, hStretch), hStretch);
+			REQUIRE(p);
+			CHECK(*p == pixel);
+		}
+	}
+	SECTION("the picture doesn't fill the view port") {
+		CHECK(!viewToFrame3D(vec2(0, 0), 320.0f));
+		CHECK(!viewToFrame3D(vec2(320, 240), 320.0f));
+	}
+	SECTION("the middle of the view port isn't the middle of the picture") {
+		auto p = viewToFrame3D(vec2(160, 120), 320.0f);
+		REQUIRE(p);
+		CHECK(*p != ivec2(160, 120));
 	}
 }

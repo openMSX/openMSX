@@ -4,10 +4,13 @@
 // Pure helpers for the Gunstick light gun emulation. They don't depend on
 // the VDP or the Display, so they can be unit tested.
 
+#include "Monitor3D.hh"
 #include "PixelOperations.hh"
+#include "gl_mat.hh"
 #include "gl_vec.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <optional>
 
@@ -87,16 +90,15 @@ template<typename GetPixel>
 	return false;
 }
 
-/** Host mouse position -> RawFrame position, nullopt when outside the MSX
-  * image. Mirrors PostProcessor::paint(): the image shows the middle
-  * 'hStretch' columns and all 240 lines of the RawFrame.
+/** Host mouse position -> position in the view port, in RawFrame pixels:
+  * (0, 0) is the top left corner, (hStretch, FRAME_HEIGHT) the bottom right.
   * @param mouse Mouse position, in window coordinates ('points').
   * @param msxPixelSize Size of one RawFrame pixel in points, see
   *                     VisibleSurface::getMsxPixelSize().
   * @param viewOffset, viewSize The OutputSurface view port, in physical
   *                    pixels (differ from points on high-DPI displays).
   */
-[[nodiscard]] inline std::optional<gl::ivec2> mouseToFrame(
+[[nodiscard]] inline gl::vec2 mouseToView(
 	gl::vec2 mouse, gl::vec2 msxPixelSize,
 	gl::vec2 viewOffset, gl::vec2 viewSize,
 	float hStretch, bool fullStretch)
@@ -106,14 +108,64 @@ template<typename GetPixel>
 	gl::vec2 offset = fullStretch
 	                ? gl::vec2()
 	                : viewOffset * (msxPixelSize * gl::vec2(hStretch, float(FRAME_HEIGHT)) / viewSize);
-	gl::vec2 pos = (mouse - offset) / msxPixelSize;
-	float fx = (float(FRAME_WIDTH) - hStretch) * 0.5f + pos.x;
-	float fy = pos.y;
-	if ((fx < 0.0f) || (fx >= float(FRAME_WIDTH)) ||
-	    (fy < 0.0f) || (fy >= float(FRAME_HEIGHT))) {
+	return (mouse - offset) / msxPixelSize;
+}
+
+/** RawFrame position -> RawFrame pixel, nullopt when outside the frame. */
+[[nodiscard]] inline std::optional<gl::ivec2> framePixel(gl::vec2 pos)
+{
+	if ((pos.x < 0.0f) || (pos.x >= float(FRAME_WIDTH)) ||
+	    (pos.y < 0.0f) || (pos.y >= float(FRAME_HEIGHT))) {
 		return {};
 	}
-	return gl::ivec2(int(fx), int(fy));
+	return gl::ivec2(int(pos.x), int(pos.y));
+}
+
+/** View port position (see mouseToView()) -> RawFrame pixel, for a flat
+  * picture. Mirrors PostProcessor::paint(): the image shows the middle
+  * 'hStretch' columns and all 240 lines of the RawFrame.
+  */
+[[nodiscard]] inline std::optional<gl::ivec2> viewToFrame(gl::vec2 view, float hStretch)
+{
+	return framePixel(gl::vec2((float(FRAME_WIDTH) - hStretch) * 0.5f + view.x, view.y));
+}
+
+/** Same as viewToFrame(), for display_deform "3d": the image is drawn on the
+  * curved surface of Monitor3D.hh, so find where the ray through the view
+  * port position hits that surface. nullopt when it's beside the picture.
+  */
+[[nodiscard]] inline std::optional<gl::ivec2> viewToFrame3D(gl::vec2 view, float hStretch)
+{
+	// normalized device coordinates, y points up
+	gl::vec2 ndc(view.x / hStretch * 2.0f - 1.0f,
+	             1.0f - view.y / float(FRAME_HEIGHT) * 2.0f);
+
+	// ray a + t * d from the near to the far plane, in surface coordinates
+	auto invMvp = inverse(monitor3d::mvpMatrix());
+	auto unproject = [&](float z) {
+		gl::vec4 p = invMvp * gl::vec4(ndc, gl::vec2(z, 1.0f));
+		return gl::vec3(p) / p.w;
+	};
+	gl::vec3 a = unproject(-1.0f);
+	gl::vec3 d = unproject(1.0f) - a;
+
+	// solve x^2 + y^2 + z / CURVATURE = 0 (see monitor3d::surfaceZ())
+	gl::vec2 axy(a);
+	gl::vec2 dxy(d);
+	float qa = length2(dxy);
+	float qb = 2.0f * dot(axy, dxy) + d.z / monitor3d::CURVATURE;
+	float qc = length2(axy) + a.z / monitor3d::CURVATURE;
+	float disc = qb * qb - 4.0f * qa * qc;
+	if (disc < 0.0f) return {}; // misses the surface
+	// The nearest hit, written so that it also works when qa is (nearly)
+	// zero. qb is negative: the ray goes away from the viewer.
+	float t = 2.0f * qc / (std::sqrt(disc) - qb);
+	gl::vec2 xy = axy + t * dxy;
+	if ((std::abs(xy.x) > 1.0f) || (std::abs(xy.y) > 1.0f)) return {};
+
+	gl::vec2 tex = monitor3d::texCoord(xy, hStretch);
+	return framePixel(gl::vec2(tex.x * float(FRAME_WIDTH),
+	                           (1.0f - tex.y) * float(FRAME_HEIGHT)));
 }
 
 } // namespace openmsx::gunstick

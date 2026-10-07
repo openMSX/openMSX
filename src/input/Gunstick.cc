@@ -145,10 +145,14 @@ std::optional<ivec2> Gunstick::mouseToFrame(ivec2 mouse) const
 	auto pixelSize = display.getMsxPixelSize();
 	if (!pixelSize) return {};
 	auto& renderSettings = display.getRenderSettings();
-	return gunstick::mouseToFrame(
+	float hStretch = renderSettings.getHorizontalStretch();
+	auto view = gunstick::mouseToView(
 		vec2(mouse), *pixelSize,
 		vec2(output->getViewOffset()), vec2(output->getViewSize()),
-		renderSettings.getHorizontalStretch(), renderSettings.getFullStretch());
+		hStretch, renderSettings.getFullStretch());
+	return (renderSettings.getDisplayDeform() == RenderSettings::DisplayDeform::_3D)
+	     ? gunstick::viewToFrame3D(view, hStretch)
+	     : gunstick::viewToFrame(view, hStretch);
 }
 
 // MSXEventListener
