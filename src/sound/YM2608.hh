@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <span>
 #include <string_view>
+#include <utility>
 
 namespace openmsx {
 namespace ym2608 {
@@ -27,20 +28,18 @@ namespace ym2608 {
 	return (value >> start) & ((1 << length) - 1);
 }
 
-enum EnvelopeState : uint8_t
-{
-	EG_ATTACK,
-	EG_DECAY,
-	EG_SUSTAIN,
-	EG_RELEASE,
-	EG_STATES,
+enum class EnvelopeState : uint8_t {
+	ATTACK,
+	DECAY,
+	SUSTAIN,
+	RELEASE,
+	COUNT,
 };
 
 // keyon sources; actual keyon is an OR over all of these.
-enum KeyOnType : uint8_t
-{
-	KEYON_NORMAL,
-	KEYON_CSM,
+enum class KeyOnType : uint8_t {
+	NORMAL,
+	CSM,
 };
 
 
@@ -58,7 +57,7 @@ struct OpDataCache
 	uint16_t egSustain;                    // sustain level, shifted up to envelope values
 	int8_t detune;                          // detuning value (used to compute phaseStep)
 	uint8_t multiple;                       // multiple value (x.1, used to compute phaseStep)
-	std::array<uint8_t, EG_STATES> egRate; // envelope rate, including KSR
+	std::array<uint8_t, std::to_underlying(EnvelopeState::COUNT)> egRate;
 	uint8_t lfoPmSens;                    // LFO PM sensitivity (0-7)
 	uint8_t ssgEgMode;                    // SSG-EG envelope shape (0-7)
 	bool ssgEgEnable;                     // true if SSG-EG drives the envelope
@@ -305,7 +304,7 @@ private:
 private:
 	uint32_t phaseAcc = 0;                    // current phase value (10.10 format)
 	uint16_t envAttenuation = 0x3ff;      // computed envelope attenuation (4.6 format)
-	EnvelopeState envState = EG_RELEASE; // current envelope state
+	EnvelopeState envState = EnvelopeState::RELEASE;
 	bool ssgInverted = false;             // true if the output should be inverted
 	bool keyState = false;                // current key state
 	uint8_t keyOnLive = 0;                // live key on state (bit 0 = direct, bit 1 = CSM)
@@ -814,7 +813,6 @@ private:
 	[[nodiscard]] uint8_t peekRegister(unsigned regNum, EmuTime time) const;
 
 	void updateStream(EmuTime time);
-	void updatePrescale(uint8_t prescale);
 	void applyRates(EmuTime time);
 
 	void generateFM(std::span<float*> buffers, unsigned num);

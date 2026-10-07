@@ -225,7 +225,7 @@ void FmOperator::reset()
 {
 	phaseAcc = 0;
 	envAttenuation = 0x3ff;
-	envState = EG_RELEASE;
+	envState = EnvelopeState::RELEASE;
 	ssgInverted = false;
 	keyState = false;
 	keyOnLive = 0;
@@ -238,7 +238,7 @@ bool FmOperator::prepare(const OpnaRegisters& regs, unsigned chOffs, unsigned op
 
 	// clock the key state
 	clockKeystate(keyOnLive != 0);
-	keyOnLive &= ~(1 << KEYON_CSM);
+	keyOnLive &= ~(1 << std::to_underlying(KeyOnType::CSM));
 
 	// Only an enabled SSG-EG can invert. Turning it off mid-note leaves the
 	// flag set, so it is cleared here, after startRelease() has had its look
@@ -248,17 +248,17 @@ bool FmOperator::prepare(const OpnaRegisters& regs, unsigned chOffs, unsigned op
 	}
 
 	// we're active until we're quiet after the release
-	return (envState != EG_RELEASE || envAttenuation < EG_QUIET);
+	return (envState != EnvelopeState::RELEASE || envAttenuation < EG_QUIET);
 }
 
 bool FmOperator::finished() const
 {
-	return envState == EG_RELEASE && envAttenuation >= 0x3ff;
+	return envState == EnvelopeState::RELEASE && envAttenuation >= 0x3ff;
 }
 
 bool FmOperator::audible() const
 {
-	return envState != EG_RELEASE || envAttenuation < EG_QUIET;
+	return envState != EnvelopeState::RELEASE || envAttenuation < EG_QUIET;
 }
 
 void FmOperator::clock(uint32_t envCounter, int32_t lfoRawPm)
@@ -301,15 +301,16 @@ int32_t FmOperator::computeVolume(uint32_t phase, uint32_t amOffset) const
 
 void FmOperator::keyOnOff(bool on, KeyOnType type)
 {
-	keyOnLive = (keyOnLive & ~(1 << type)) | (uint8_t(on) << type);
+	auto bit = std::to_underlying(type);
+	keyOnLive = uint8_t((keyOnLive & ~(1u << bit)) | (uint8_t(on) << bit));
 }
 
 // Also used when an SSG-EG cycle restarts.
 void FmOperator::startAttack(bool isRestart)
 {
 	// don't change anything if already in attack state
-	if (envState == EG_ATTACK) return;
-	envState = EG_ATTACK;
+	if (envState == EnvelopeState::ATTACK) return;
+	envState = EnvelopeState::ATTACK;
 
 	// generally not inverted at start, except if SSG-EG is enabled and
 	// one of the inverted modes is specified; leave this alone on a
@@ -326,7 +327,7 @@ void FmOperator::startAttack(bool isRestart)
 	}
 
 	// if the attack rate >= 62 then immediately go to max attenuation
-	if (cache.egRate[EG_ATTACK] >= 62) {
+	if (cache.egRate[std::to_underlying(EnvelopeState::ATTACK)] >= 62) {
 		envAttenuation = 0;
 	}
 }
@@ -334,8 +335,8 @@ void FmOperator::startAttack(bool isRestart)
 void FmOperator::startRelease()
 {
 	// don't change anything if already in release state
-	if (envState >= EG_RELEASE) return;
-	envState = EG_RELEASE;
+	if (envState >= EnvelopeState::RELEASE) return;
+	envState = EnvelopeState::RELEASE;
 
 	// if attenuation if inverted due to SSG-EG, snap the inverted attenuation
 	// as the starting point
@@ -385,7 +386,7 @@ void FmOperator::clockSsgEgState()
 
 		// if holding, force the attenuation to the expected value once we're
 		// past the attack phase
-		if (envState != EG_ATTACK) {
+		if (envState != EnvelopeState::ATTACK) {
 			envAttenuation = ssgInverted ? 0x200 : 0x3ff;
 		}
 	} else {
@@ -394,7 +395,7 @@ void FmOperator::clockSsgEgState()
 		ssgInverted ^= bitfield(mode, 1);
 
 		// restart attack if in decay/sustain states
-		if (envState == EG_DECAY || envState == EG_SUSTAIN) {
+		if (envState == EnvelopeState::DECAY || envState == EnvelopeState::SUSTAIN) {
 			startAttack(true);
 		}
 
@@ -405,7 +406,7 @@ void FmOperator::clockSsgEgState()
 	}
 
 	// in all modes, once we hit release state, attenuation is forced to maximum
-	if (envState == EG_RELEASE) {
+	if (envState == EnvelopeState::RELEASE) {
 		envAttenuation = 0x3ff;
 	}
 }
@@ -413,8 +414,8 @@ void FmOperator::clockSsgEgState()
 void FmOperator::clockEnvelope(uint32_t envCounter)
 {
 	// handle attack->decay transitions
-	if (envState == EG_ATTACK && envAttenuation == 0) {
-		envState = EG_DECAY;
+	if (envState == EnvelopeState::ATTACK && envAttenuation == 0) {
+		envState = EnvelopeState::DECAY;
 	}
 
 	// handle decay->sustain transitions; it is important to do this immediately
@@ -422,12 +423,12 @@ void FmOperator::clockEnvelope(uint32_t envCounter)
 	// is set to 0 (in which case we will skip right to sustain without doing any
 	// decay); as an example where this can be heard, check the cymbals sound
 	// in channel 0 of shinobi's test mode sound #5
-	if (envState == EG_DECAY && envAttenuation >= cache.egSustain) {
-		envState = EG_SUSTAIN;
+	if (envState == EnvelopeState::DECAY && envAttenuation >= cache.egSustain) {
+		envState = EnvelopeState::SUSTAIN;
 	}
 
 	// fetch the appropriate 6-bit rate value from the cache
-	uint32_t rate = cache.egRate[envState];
+	uint32_t rate = cache.egRate[std::to_underlying(envState)];
 
 	// compute the rate shift value; this is the shift needed to
 	// apply to the envCounter such that it becomes a 5.11 fixed
@@ -443,7 +444,7 @@ void FmOperator::clockEnvelope(uint32_t envCounter)
 	uint32_t increment = attenuationIncrement(rate, relevantBits);
 
 	// attack is the only one that increases
-	if (envState == EG_ATTACK) {
+	if (envState == EnvelopeState::ATTACK) {
 		// glitch means that attack rates of 62/63 don't increment if
 		// changed after the initial key on (where they are handled
 		// specially); nukeykt confirms this happens on OPM, OPN, OPL/OPLL
@@ -872,7 +873,7 @@ void FmEngine::writeReg(uint16_t regNum, uint8_t data, EmuTime time)
 		// handle writes to the keyon register(s)
 		if (keyOnChannel < channels.size()) {
 			// normal channel on/off
-			channels[keyOnChannel].keyOnOff(keyOnOpMask, KEYON_NORMAL);
+			channels[keyOnChannel].keyOnOff(keyOnOpMask, KeyOnType::NORMAL);
 		}
 	}
 }
@@ -944,7 +945,7 @@ void FmEngine::engineTimerExpired(unsigned tNum, EmuTime time)
 	if (tNum == 0 && registers.csm()) {
 		OUTER(YM2608, fm).updateStream(time);
 		modified = true;
-		channels[2].keyOnOff(0xf, KEYON_CSM);
+		channels[2].keyOnOff(0xf, KeyOnType::CSM);
 	}
 
 	// reset
@@ -1171,10 +1172,10 @@ void OpnaRegisters::cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCa
 
 	// determine KSR adjustment for envelope rates
 	uint32_t ksrVal = keycode >> (opKsr(opOffs) ^ 3);
-	cache.egRate[EG_ATTACK] = effectiveRate(opAttackRate(opOffs) * 2, ksrVal);
-	cache.egRate[EG_DECAY] = effectiveRate(opDecayRate(opOffs) * 2, ksrVal);
-	cache.egRate[EG_SUSTAIN] = effectiveRate(opSustainRate(opOffs) * 2, ksrVal);
-	cache.egRate[EG_RELEASE] = effectiveRate(opReleaseRate(opOffs) * 4 + 2, ksrVal);
+	cache.egRate[std::to_underlying(EnvelopeState::ATTACK)] = effectiveRate(opAttackRate(opOffs) * 2, ksrVal);
+	cache.egRate[std::to_underlying(EnvelopeState::DECAY)] = effectiveRate(opDecayRate(opOffs) * 2, ksrVal);
+	cache.egRate[std::to_underlying(EnvelopeState::SUSTAIN)] = effectiveRate(opSustainRate(opOffs) * 2, ksrVal);
+	cache.egRate[std::to_underlying(EnvelopeState::RELEASE)] = effectiveRate(opReleaseRate(opOffs) * 4 + 2, ksrVal);
 
 	// SSG-EG shape and the LFO AM enable, read per sample otherwise
 	cache.ssgEgMode = uint8_t(opSsgEgMode(opOffs));
@@ -1952,7 +1953,6 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	// Maximum normalization. Standard SSG volume replaces the old trim.
 	ssg.setSoftwareVolume(16382.0f * std::numbers::sqrt2_v<float> * (2.0f / 3.0f) / (32768.0f * 4.3f), time);
 
-	updatePrescale(fm.clockPrescale());
 	reset(time);
 }
 
@@ -2099,11 +2099,11 @@ void YM2608::writePort(unsigned port, uint8_t value, EmuTime time)
 			// interval at the old rates before rebuilding either resampler.
 			updateStream(time);
 			if (addressLatch == 0x2d) {
-				updatePrescale(6);
+				fm.setClockPrescale(6);
 			} else if (addressLatch == 0x2e && fm.clockPrescale() == 6) {
-				updatePrescale(3);
+				fm.setClockPrescale(3);
 			} else if (addressLatch == 0x2f) {
-				updatePrescale(2);
+				fm.setClockPrescale(2);
 			}
 		}
 		break;
@@ -2180,11 +2180,6 @@ uint8_t YM2608::peekRegister(unsigned regNum, EmuTime time) const
 void YM2608::updateStream(EmuTime time)
 {
 	fmPart.updateStream(time);
-}
-
-void YM2608::updatePrescale(uint8_t prescale)
-{
-	fm.setClockPrescale(prescale);
 }
 
 void YM2608::applyRates(EmuTime time)
@@ -2280,10 +2275,10 @@ void YM2608::Registers::write(unsigned address, uint8_t value, EmuTime time)
 }
 
 static constexpr auto envelopeInfo = std::to_array<enum_string<ym2608::EnvelopeState>>({
-	{ "ATTACK",  ym2608::EG_ATTACK },
-	{ "DECAY",   ym2608::EG_DECAY },
-	{ "SUSTAIN", ym2608::EG_SUSTAIN },
-	{ "RELEASE", ym2608::EG_RELEASE },
+	{ "ATTACK",  ym2608::EnvelopeState::ATTACK },
+	{ "DECAY",   ym2608::EnvelopeState::DECAY },
+	{ "SUSTAIN", ym2608::EnvelopeState::SUSTAIN },
+	{ "RELEASE", ym2608::EnvelopeState::RELEASE },
 });
 SERIALIZE_ENUM(ym2608::EnvelopeState, envelopeInfo);
 
