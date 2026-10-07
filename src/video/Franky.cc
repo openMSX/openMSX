@@ -1,0 +1,72 @@
+#include "Franky.hh"
+
+#include "serialize.hh"
+
+namespace openmsx {
+
+Franky::Franky(const DeviceConfig& config)
+	: MSXDevice(config)
+	, vdp(getMotherBoard(), getName())
+	, sn76489(config)
+{
+}
+
+void Franky::reset(EmuTime time)
+{
+	vdp.reset(time);
+	sn76489.reset(time);
+}
+
+byte Franky::readIO(uint16_t port, EmuTime time)
+{
+	switch (port & 0xff) {
+	case 0x48: return vdp.readVCounter(time);
+	case 0x49: return vdp.readHCounter(time);
+	case 0x88: return vdp.readData(time);
+	case 0x89: return vdp.readControl(time);
+	default:   return 0xff;
+	}
+}
+
+byte Franky::peekIO(uint16_t port, EmuTime time) const
+{
+	// Side-effect-free variants of the readIO() values (no read-ahead
+	// advance, no status clearing, no H-counter latch clearing).
+	switch (port & 0xff) {
+	case 0x48: return vdp.peekVCounter(time);
+	case 0x49: return vdp.peekHCounter();
+	case 0x88: return vdp.peekData();
+	case 0x89: return vdp.peekControl(time);
+	default:   return 0xff;
+	}
+}
+
+void Franky::writeIO(uint16_t port, byte value, EmuTime time)
+{
+	switch (port & 0xff) {
+	case 0x48:
+	case 0x49:
+		sn76489.write(value, time);
+		break;
+	case 0x88:
+		vdp.writeData(value, time);
+		break;
+	case 0x89:
+		vdp.writeControl(value, time);
+		break;
+	default:
+		break;
+	}
+}
+
+template<typename Archive>
+void Franky::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("vdp", vdp);
+	ar.serialize("sn76489", sn76489);
+}
+INSTANTIATE_SERIALIZE_METHODS(Franky);
+REGISTER_MSXDEVICE(Franky, "Franky");
+
+} // namespace openmsx
