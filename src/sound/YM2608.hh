@@ -665,9 +665,6 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	// signal key on/off
-	void keyOnOff(bool on);
-
 	// num clocks. Position steps that do not cross a nibble are applied in
 	// one multiply. Each nibble is consumeNibble(), shared with generate().
 	// A channel that is not decoding clears PLAYING once and returns.
