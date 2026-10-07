@@ -872,6 +872,7 @@ private:
 		void rate(unsigned value);
 
 	private:
+		[[nodiscard]] float getAmplificationFactorImpl() const override;
 		void generateChannels(std::span<float*> buffers, unsigned num) override;
 	};
 

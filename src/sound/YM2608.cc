@@ -12,7 +12,6 @@
 #include "YM2608AdpcmRom.hh"
 
 #include <algorithm>
-#include <numbers>
 
 namespace openmsx {
 
@@ -2015,8 +2014,8 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	, ssg(strCat(name, " SSG"), DummyAY8910Periphery::instance(), config, time,
 		AY8910::Type::YM2149, 2'000'000.0f)
 {
-	// Maximum normalization. Standard SSG volume replaces the old trim.
-	ssg.setSoftwareVolume(16382.0f * std::numbers::sqrt2_v<float> * (2.0f / 3.0f) / (32768.0f * 4.3f), time);
+	// Default FM:SSG balance (hardware has a trim; retune via volume settings).
+	ssg.setSoftwareVolume(0.876925f, time);
 
 	reset(time);
 }
@@ -2322,6 +2321,12 @@ void YM2608::FmPart::rate(unsigned value)
 		setInputRate(value);
 		createResampler();
 	}
+}
+
+float YM2608::FmPart::getAmplificationFactorImpl() const
+{
+	// Post-OUTPUT_SHIFT, a full-scale carrier is about ±4084 (op peak 8168 >> 1).
+	return 1.0f / 4096.0f;
 }
 
 void YM2608::FmPart::generateChannels(std::span<float*> buffers, unsigned num)
