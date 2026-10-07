@@ -181,7 +181,7 @@ public:
 	[[nodiscard]] uint32_t lfoMaxCount() const;
 
 	// clock an enabled LFO, returning its PM value
-	int32_t clockLfo(uint32_t maxCount);
+	[[nodiscard]] int32_t clockLfo(uint32_t maxCount);
 
 	struct LfoState { uint32_t counter; uint8_t am; };
 	[[nodiscard]] LfoState saveLfo() const;
@@ -194,7 +194,7 @@ public:
 	[[nodiscard]] uint32_t lfoAmOffset(uint32_t amShift) const;
 
 	// caching helpers
-	void cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCache& cache);
+	void cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCache& cache) const;
 
 	// compute the phase step, given a PM value
 	[[nodiscard]] static uint32_t computePhaseStep(const OpDataCache& cache, int32_t lfoRawPm);
@@ -270,7 +270,7 @@ public:
 	void reset();
 
 	// prepare prior to clocking; the registers are read only here
-	[[nodiscard]] bool prepare(OpnaRegisters& regs, unsigned chOffs, unsigned opOffs);
+	[[nodiscard]] bool prepare(const OpnaRegisters& regs, unsigned chOffs, unsigned opOffs);
 
 	// Release has reached maximum attenuation. A later key-on restarts phase.
 	[[nodiscard]] bool finished() const;
@@ -330,7 +330,7 @@ public:
 	void keyOnOff(uint32_t states, KeyOnType type);
 
 	// prepare prior to clocking; the registers are read only here
-	[[nodiscard]] bool prepare(OpnaRegisters& regs, unsigned chNum);
+	[[nodiscard]] bool prepare(const OpnaRegisters& regs, unsigned chNum);
 
 	// Every operator has finished its release.
 	[[nodiscard]] bool finished() const;

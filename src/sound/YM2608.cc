@@ -231,7 +231,7 @@ void FmOperator::reset()
 	keyOnLive = 0;
 }
 
-bool FmOperator::prepare(OpnaRegisters& regs, unsigned chOffs, unsigned opOffs)
+bool FmOperator::prepare(const OpnaRegisters& regs, unsigned chOffs, unsigned opOffs)
 {
 	// cache the data
 	regs.cacheOperatorData(chOffs, opOffs, cache);
@@ -540,7 +540,7 @@ void FmChannel::quiesceFeedback(unsigned num)
 	}
 }
 
-bool FmChannel::prepare(OpnaRegisters& regs, unsigned chNum)
+bool FmChannel::prepare(const OpnaRegisters& regs, unsigned chNum)
 {
 	// prepare all operators and determine if any of them is active
 	bool active = false;
@@ -848,7 +848,7 @@ void FmEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint3
 		registers.restoreLfo(lfo0);
 		const uint32_t lfoMaxCount = registers.lfoMaxCount();
 		for (unsigned i = 0; i < num; ++i) {
-			registers.clockLfo(lfoMaxCount);
+			(void)registers.clockLfo(lfoMaxCount);
 		}
 	}
 }
@@ -1107,7 +1107,7 @@ uint32_t OpnaRegisters::lfoAmOffset(uint32_t amShift) const
 	return (lfoAm << 1) >> amShift;
 }
 
-void OpnaRegisters::cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCache& cache)
+void OpnaRegisters::cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCache& cache) const
 {
 	// get frequency from the channel
 	uint32_t blockFreq = cache.blockFreq = chBlockFreq(chOffs);
@@ -1839,13 +1839,13 @@ void OpnaRegisters::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("lfoCounter", lfoCounter,
 	             "lfoAm",      lfoAm,
-	             "regData",     regData);
+	             "regData",    regData);
 }
 
 template<typename Archive>
 void FmOperator::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("phase",           phaseAcc,
+	ar.serialize("phaseAcc",       phaseAcc,
 	             "envAttenuation", envAttenuation,
 	             "envState",       envState,
 	             "ssgInverted",    ssgInverted,
@@ -1856,25 +1856,25 @@ void FmOperator::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void FmChannel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("feedback",    feedback,
+	ar.serialize("feedback",   feedback,
 	             "feedbackIn", feedbackIn,
-	             "operators",   ops);
+	             "ops",        ops);
 }
 
 template<typename Archive>
 void FmEngine::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("envCounter",    envCounter,
-	             "status",         statusReg,
-	             "prescale", prescale,
-	             "irqMask",       irqMask,
-	             "timerRunning",  timerRunning,
-	             "totalClocks",   totalClocks,
-	             "regs",           registers,
-	             "channels",       channels,
-	             "irq",            irq,
-	             "timers",         timers);
-	// Operator caches are not saved. The next generate() rebuilds them.
+	ar.serialize("envCounter",   envCounter,
+	             "statusReg",    statusReg,
+	             "prescale",     prescale,
+	             "timerRunning", timerRunning,
+	             "totalClocks",  totalClocks,
+	             "registers",    registers,
+	             "channels",     channels,
+	             "irq",          irq,
+	             "timers",       timers);
+	// Operator caches and irqMask are not saved. The next generate() rebuilds
+	// the caches; YM2608::serialize restores irqMask from irqEnable/flagControl.
 	modified = true;
 }
 
@@ -1895,7 +1895,7 @@ void AdpcmAChannel::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("curAddress",  curAddress,
 	             "accumulator", accumulator,
-	             "stepIndex",  stepIndex,
+	             "stepIndex",   stepIndex,
 	             "playing",     playing,
 	             "curNibble",   curNibble,
 	             "curByte",     curByte);
@@ -1904,8 +1904,8 @@ void AdpcmAChannel::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void AdpcmAEngine::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("regs",     registers,
-	             "channels", channels);
+	ar.serialize("registers", registers,
+	             "channels",  channels);
 }
 
 template<typename Archive>
@@ -1917,24 +1917,24 @@ void AdpcmBRegisters::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void AdpcmBChannel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("curAddress",       curAddress,
-	             "position",         position,
-	             "accumulator",      accumulator,
-	             "prevAccum",       prevAccum,
-	             "adpcmStep",       adpcmStep,
-	             "status",           statusReg,
-	             "curNibble",        curNibble,
-	             "curByte",          curByte,
-	             "dummyRead",       dummyRead,
+	ar.serialize("curAddress",     curAddress,
+	             "position",       position,
+	             "accumulator",    accumulator,
+	             "prevAccum",      prevAccum,
+	             "adpcmStep",      adpcmStep,
+	             "statusReg",      statusReg,
+	             "curNibble",      curNibble,
+	             "curByte",        curByte,
+	             "dummyRead",      dummyRead,
 	             "cpuWriteActive", cpuWriteActive);
 }
 
 template<typename Archive>
 void AdpcmBEngine::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("regs",      registers,
+	ar.serialize("registers", registers,
 	             "channel",   channel,
-	             "sampleRAM", ram);
+	             "ram",       ram);
 }
 
 } // namespace ym2608
@@ -2293,15 +2293,16 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (!Archive::IS_LOADER) {
 		updateStream(fm.getCurrentTime());
 	}
-	ar.serialize("address",     addressLatch,
-	             "irqEnable",   irqEnable,
-	             "flagControl", flagControl,
-	             "fm",          fm,
-	             "adpcmA",      adpcmA,
-	             "adpcmB",      adpcmB,
-	             "busyEnd",     busyEnd,
-	             "ssg",         ssg);
+	ar.serialize("addressLatch", addressLatch,
+	             "irqEnable",    irqEnable,
+	             "flagControl",  flagControl,
+	             "fm",           fm,
+	             "adpcmA",       adpcmA,
+	             "adpcmB",       adpcmB,
+	             "busyEnd",      busyEnd,
+	             "ssg",          ssg);
 	if constexpr (Archive::IS_LOADER) {
+		fm.setIrqMask(irqEnable & ~flagControl & 0x1f);
 		applyRates(fm.getCurrentTime());
 	}
 }
