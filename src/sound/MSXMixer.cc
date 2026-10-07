@@ -636,6 +636,12 @@ void MSXMixer::reschedule2()
 
 void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 {
+	// Generate up to now with the old parameters first. reInit() moves
+	// the time base to the current time, and whatever had not been
+	// generated yet would otherwise be skipped: not just not heard, the
+	// sound devices would never advance through it.
+	updateStream(getCurrentTime());
+
 	// TODO old code checked that values did actually change,
 	//      investigate if this optimization is worth it
 	hostSampleRate = newSampleRate;
