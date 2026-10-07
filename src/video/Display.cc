@@ -107,6 +107,17 @@ void Display::releaseCrosshairCursor()
 	if (videoSystem) videoSystem->updateCursor();
 }
 
+void Display::requestRenderAllFrames()
+{
+	++renderAllFramesRequests;
+}
+
+void Display::releaseRenderAllFrames()
+{
+	assert(renderAllFramesRequests > 0);
+	--renderAllFramesRequests;
+}
+
 OutputSurface* Display::getOutputSurface()
 {
 	return videoSystem ? videoSystem->getOutputSurface() : nullptr;

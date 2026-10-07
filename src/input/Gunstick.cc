@@ -3,9 +3,9 @@
 // Games blank the screen, draw the targets in white and then poll the light
 // sensor (e.g. Target Plus counts how many reads see light). The sensor is
 // emulated by looking at the frame the VDP is drawing at the moment the MSX
-// reads the port, see GunstickSensor.hh. So it needs an active renderer: on
-// skipped frames the working frame still holds an older picture, and with
-// renderer "none" the gun never sees light.
+// reads the port, see GunstickSensor.hh. So it needs an active renderer, and
+// it asks the Display to also render the frames that frameskip doesn't show.
+// With renderer "none" the gun never sees light.
 // That also makes the sensor output non-reproducible, so it's recorded as a
 // state change, and a replay uses the recorded value.
 
@@ -75,10 +75,12 @@ void Gunstick::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 	display.requestCrosshairCursor();
+	display.requestRenderAllFrames();
 }
 
 void Gunstick::unplugHelper(EmuTime /*time*/)
 {
+	display.releaseRenderAllFrames();
 	display.releaseCrosshairCursor();
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
