@@ -74,6 +74,7 @@ private:
 	bool hostTrigger = false;         //
 	std::optional<gl::ivec2> aim; // msx state (different from host state
 	bool trigger = false;         //            during replay)
+	bool light = false; // last sensor output, recorded for replay
 };
 
 } // namespace openmsx

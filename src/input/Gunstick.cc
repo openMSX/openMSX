@@ -6,6 +6,8 @@
 // reads the port, see GunstickSensor.hh. So it needs an active renderer: on
 // skipped frames the working frame still holds an older picture, and with
 // renderer "none" the gun never sees light.
+// That also makes the sensor output non-reproducible, so it's recorded as a
+// state change, and a replay uses the recorded value.
 
 #include "Gunstick.hh"
 #include "GunstickSensor.hh"
@@ -88,9 +90,16 @@ static constexpr uint8_t TRIGGER = JoystickDevice::RD_PIN6;
 
 uint8_t Gunstick::read(EmuTime time)
 {
+	if (!stateChangeDistributor.isReplaying()) {
+		// The CPU syncs the scheduler before a port read, so on replay
+		// this event is delivered before the read at the same time.
+		if (bool newLight = senseLight(time); newLight != light) {
+			stateChangeDistributor.distributeNew<GunstickLightState>(time, newLight);
+		}
+	}
 	uint8_t result = 0x3F; // 1-bit means not active
 	if (trigger) result &= ~TRIGGER;
-	if (senseLight(time)) result &= ~LIGHT;
+	if (light)   result &= ~LIGHT;
 	return result;
 }
 
@@ -173,6 +182,8 @@ void Gunstick::signalStateChange(const StateChange& event)
 	if (const auto* gs = std::get_if<GunstickState>(&event)) {
 		aim     = gs->getAim();
 		trigger = gs->getTrigger();
+	} else if (const auto* ls = std::get_if<GunstickLightState>(&event)) {
+		light = ls->getLight();
 	}
 }
 
@@ -189,7 +200,8 @@ void Gunstick::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize host state
 	GunstickState::serializeAim(ar, aim);
-	ar.serialize("trigger", trigger);
+	ar.serialize("trigger", trigger,
+	             "light",   light);
 
 	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {

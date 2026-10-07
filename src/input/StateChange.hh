@@ -379,6 +379,27 @@ private:
 };
 
 
+/** Output of the Gunstick light sensor. It's computed from the rendered
+  * frame, which isn't reproducible during replay, so it's recorded. */
+class GunstickLightState final : public StateChangeBase
+{
+public:
+	GunstickLightState() = default; // for serialize
+	GunstickLightState(EmuTime time_, bool light_)
+		: StateChangeBase(time_), light(light_) {}
+
+	[[nodiscard]] auto getLight() const { return light; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChangeBase>(*this);
+		ar.serialize("light", light);
+	}
+private:
+	bool light = false;
+};
+
+
 class MouseState final : public StateChangeBase
 {
 public:
@@ -442,7 +463,8 @@ using StateChange = std::variant<
 	MouseState,
 	JoyMegaState,
 	JoyHandleState,
-	GunstickState
+	GunstickState,
+	GunstickLightState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -467,7 +489,8 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"MouseState",          index<MouseState>         },
 		{"JoyMegaState",        index<JoyMegaState>       },
 		{"JoyHandleState",      index<JoyHandleState>     },
-		{"GunstickState",       index<GunstickState>      }
+		{"GunstickState",       index<GunstickState>      },
+		{"GunstickLightState",  index<GunstickLightState> }
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;

@@ -1729,9 +1729,9 @@ lines. Some consequences:
 </p>
 <ul>
 <li>A renderer is needed: with the "none" renderer the gun never sees light,
-and on frames that are skipped (for instance when fast forwarding or
-replaying) it sees an older picture. So a replay that involves the Gunstick may
-not play back the same.</li>
+and on frames that are skipped (for instance when fast forwarding) it sees an
+older picture. Replays are not affected: the sensor output is recorded, so a
+replay plays back the same.</li>
 <li>Only the normal MSX VDP is supported, not the V9990 (GFX9000).</li>
 </ul>
 
