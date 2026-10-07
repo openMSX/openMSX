@@ -2962,6 +2962,9 @@
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh">
       <Filter>video</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\video\Monitor3D.hh">
+      <Filter>video</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh">
       <Filter>video</Filter>
     </None>

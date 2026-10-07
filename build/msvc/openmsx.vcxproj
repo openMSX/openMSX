@@ -1435,6 +1435,7 @@
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\Monitor3D.hh" />
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelRenderer.hh" />
