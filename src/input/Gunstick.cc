@@ -126,15 +126,16 @@ bool Gunstick::senseLight(EmuTime time)
 	const RawFrame* frame = vdp->getWorkingFrame(time);
 	if (!frame) return false; // renderer "none"
 
+	// cache the last fetched line
 	std::array<FrameSource::Pixel, gunstick::FRAME_WIDTH> buf;
-	const FrameSource::Pixel* line = nullptr;
-	int lineY = -1;
+	const FrameSource::Pixel* lineCache = nullptr;
+	int lineCacheY = -1;
 	return gunstick::seesLight(beamPos, *aim, [&](int x, int y) {
-		if (y != lineY) {
-			line = frame->getLinePtr320_240(y, buf).data();
-			lineY = y;
+		if (y != lineCacheY) {
+			lineCache = frame->getLinePtr320_240(y, buf).data();
+			lineCacheY = y;
 		}
-		return line[x];
+		return lineCache[x];
 	});
 }
 

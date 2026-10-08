@@ -23,10 +23,12 @@ inline constexpr int TICKS_PER_LINE = 1368; // VDP::TICKS_PER_LINE
 inline constexpr int PIXELS_PER_LINE = TICKS_PER_LINE / 4; // in 320-wide pixels
 inline constexpr int TICKS_ORIGIN = 770; // VDP tick of RawFrame column 160
 
-// Sensor model, in RawFrame pixels. Based on NYYRIKKI's measurements of a
-// real gun (openMSX issue #139): the sensor sees a circle of about 5 pixels
-// radius, reacts about one line after the light and then holds the signal
-// for 24-28 lines.
+// Sensor model, in RawFrame pixels. A CRT pixel only lights up briefly when
+// the beam draws it, so the sensor sees a short flash when the beam passes
+// the aim point, and a capacitor in the gun stretches that flash. Based on
+// NYYRIKKI's measurements of a real gun (openMSX issue #139): the sensor sees
+// a circle of about 5 pixels radius, reacts about one line after the light
+// and then holds the signal for 24-28 lines.
 // The delay also matters for the emulation: the renderer has not yet drawn
 // the pixel under the beam, so that pixel (and the rest of the line) still
 // holds an older frame.
@@ -39,8 +41,8 @@ inline constexpr int BRIGHT_THRESHOLD = 128; // luminance, 0..255
 [[nodiscard]] inline bool isBright(Pixel p)
 {
 	PixelOperations pixelOps;
-	unsigned luminance = (pixelOps.red(p) * 77 + pixelOps.green(p) * 150 + pixelOps.blue(p) * 29) >> 8;
-	return luminance >= BRIGHT_THRESHOLD;
+	unsigned luminance = pixelOps.red(p) * 77 + pixelOps.green(p) * 150 + pixelOps.blue(p) * 29;
+	return luminance >= (BRIGHT_THRESHOLD << 8);
 }
 
 /** Position of the VDP beam expressed as the RawFrame pixel (y * PIXELS_PER_LINE
