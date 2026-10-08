@@ -5,10 +5,8 @@
 #include "TclObject.hh"
 
 #include "dynarray.hh"
-#include "gl_vec.hh"
 #include "serialize_meta.hh"
 
-#include <optional>
 #include <variant>
 #include <vector>
 
@@ -342,61 +340,25 @@ private:
 };
 
 
+/** Light sensor and trigger of the Gunstick light gun, as the joystick port
+  * bits (0 = active). The sensor output is computed from the rendered frame,
+  * which isn't reproducible during replay, so it's recorded as well. */
 class GunstickState final : public StateChangeBase
 {
 public:
 	GunstickState() = default; // for serialize
-	GunstickState(EmuTime time_, std::optional<gl::ivec2> aim_, bool trigger_)
-		: StateChangeBase(time_)
-		, aim(aim_), trigger(trigger_) {}
+	GunstickState(EmuTime time_, uint8_t status_)
+		: StateChangeBase(time_), status(status_) {}
 
-	[[nodiscard]] auto getAim()     const { return aim; }
-	[[nodiscard]] auto getTrigger() const { return trigger; }
+	[[nodiscard]] auto getStatus() const { return status; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChangeBase>(*this);
-		serializeAim(ar, aim);
-		ar.serialize("trigger", trigger);
-	}
-
-	/** Also used by the Gunstick itself. Stored as RawFrame coordinates,
-	  * -1 means "not on the screen". */
-	template<typename Archive>
-	static void serializeAim(Archive& ar, std::optional<gl::ivec2>& aim_)
-	{
-		int x = aim_ ? aim_->x : -1;
-		int y = aim_ ? aim_->y : -1;
-		ar.serialize("x", x,
-		             "y", y);
-		if constexpr (Archive::IS_LOADER) {
-			aim_ = (x >= 0) ? std::optional(gl::ivec2(x, y)) : std::nullopt;
-		}
+		ar.serialize("status", status);
 	}
 private:
-	std::optional<gl::ivec2> aim; // nullopt when not aiming at the screen
-	bool trigger = false;
-};
-
-
-/** Output of the Gunstick light sensor. It's computed from the rendered
-  * frame, which isn't reproducible during replay, so it's recorded. */
-class GunstickLightState final : public StateChangeBase
-{
-public:
-	GunstickLightState() = default; // for serialize
-	GunstickLightState(EmuTime time_, bool light_)
-		: StateChangeBase(time_), light(light_) {}
-
-	[[nodiscard]] auto getLight() const { return light; }
-
-	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
-	{
-		ar.template serializeBase<StateChangeBase>(*this);
-		ar.serialize("light", light);
-	}
-private:
-	bool light = false;
+	uint8_t status = 0;
 };
 
 
@@ -463,8 +425,7 @@ using StateChange = std::variant<
 	MouseState,
 	JoyMegaState,
 	JoyHandleState,
-	GunstickState,
-	GunstickLightState
+	GunstickState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -489,8 +450,7 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"MouseState",          index<MouseState>         },
 		{"JoyMegaState",        index<JoyMegaState>       },
 		{"JoyHandleState",      index<JoyHandleState>     },
-		{"GunstickState",       index<GunstickState>      },
-		{"GunstickLightState",  index<GunstickLightState> }
+		{"GunstickState",       index<GunstickState>      }
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;

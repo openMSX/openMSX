@@ -40,7 +40,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] std::optional<gl::ivec2> mouseToFrame(gl::ivec2 mouse) const;
+	[[nodiscard]] std::optional<gl::ivec2> getAim() const;
 	[[nodiscard]] bool senseLight(EmuTime time);
 
 	// Pluggable
@@ -69,12 +69,9 @@ private:
 	// is looked up on first use.
 	VDP* vdp = nullptr;
 
-	// Aim points are RawFrame coordinates, nullopt when not on the screen.
-	std::optional<gl::ivec2> hostAim; // host state
-	bool hostTrigger = false;         //
-	std::optional<gl::ivec2> aim; // msx state (different from host state
-	bool trigger = false;         //            during replay)
-	bool light = false; // last sensor output, recorded for replay
+	bool hostTrigger = false; // host state
+	uint8_t status = 0x3F; // msx state (different from host state during
+	                       // replay): the LIGHT and TRIGGER bits, 0 = active
 };
 
 } // namespace openmsx

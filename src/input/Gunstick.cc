@@ -24,6 +24,7 @@
 #include "RenderSettings.hh"
 #include "SDLRasterizer.hh"
 #include "VDP.hh"
+#include "VideoSystem.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "stl.hh"
@@ -90,19 +91,22 @@ void Gunstick::unplugHelper(EmuTime /*time*/)
 static constexpr uint8_t LIGHT   = JoystickDevice::RD_PIN2;
 static constexpr uint8_t TRIGGER = JoystickDevice::RD_PIN6;
 
+[[nodiscard]] static constexpr uint8_t setActive(uint8_t status, uint8_t bit, bool active)
+{
+	return active ? (status & ~bit) : (status | bit); // 0-bit means active
+}
+
 uint8_t Gunstick::read(EmuTime time)
 {
 	if (!stateChangeDistributor.isReplaying()) {
 		// The CPU syncs the scheduler before a port read, so on replay
 		// this event is delivered before the read at the same time.
-		if (bool newLight = senseLight(time); newLight != light) {
-			stateChangeDistributor.distributeNew<GunstickLightState>(time, newLight);
+		if (auto newStatus = setActive(status, LIGHT, senseLight(time));
+		    newStatus != status) {
+			stateChangeDistributor.distributeNew<GunstickState>(time, newStatus);
 		}
 	}
-	uint8_t result = 0x3F; // 1-bit means not active
-	if (trigger) result &= ~TRIGGER;
-	if (light)   result &= ~LIGHT;
-	return result;
+	return status;
 }
 
 void Gunstick::write(uint8_t /*value*/, EmuTime /*time*/)
@@ -112,6 +116,7 @@ void Gunstick::write(uint8_t /*value*/, EmuTime /*time*/)
 
 bool Gunstick::senseLight(EmuTime time)
 {
+	auto aim = getAim();
 	if (!aim) return false;
 	if (!vdp) {
 		vdp = dynamic_cast<VDP*>(motherBoard.findDevice("VDP")); // TODO name based OK?
@@ -139,16 +144,19 @@ bool Gunstick::senseLight(EmuTime time)
 	});
 }
 
-std::optional<ivec2> Gunstick::mouseToFrame(ivec2 mouse) const
+// The RawFrame pixel under the host mouse pointer.
+std::optional<ivec2> Gunstick::getAim() const
 {
 	const auto* output = display.getOutputSurface();
 	if (!output) return {};
+	auto mouse = display.getVideoSystem().getMouseCoord();
+	if (!mouse) return {}; // not over the openMSX window
 	auto pixelSize = display.getMsxPixelSize();
 	if (!pixelSize) return {};
 	auto& renderSettings = display.getRenderSettings();
 	float hStretch = renderSettings.getHorizontalStretch();
 	auto view = gunstick::mouseToView(
-		vec2(mouse), *pixelSize,
+		vec2(*mouse), *pixelSize,
 		vec2(output->getViewOffset()), vec2(output->getViewSize()),
 		hStretch, renderSettings.getFullStretch());
 	return (renderSettings.getDisplayDeform() == RenderSettings::DisplayDeform::_3D)
@@ -160,13 +168,8 @@ std::optional<ivec2> Gunstick::mouseToFrame(ivec2 mouse) const
 void Gunstick::signalMSXEvent(const Event& event,
                               EmuTime time) noexcept
 {
-	auto newAim = hostAim;
 	bool newTrigger = hostTrigger;
-
 	std::visit(overloaded{
-		[&](const MouseMotionEvent& e) {
-			newAim = mouseToFrame(ivec2(e.getAbsX(), e.getAbsY()));
-		},
 		[&](const MouseButtonDownEvent& e) {
 			if (e.getButton() == SDL_BUTTON_LEFT) newTrigger = true;
 		},
@@ -176,10 +179,10 @@ void Gunstick::signalMSXEvent(const Event& event,
 		[](const EventBase&) { /*ignore*/ }
 	}, event);
 
-	if ((newAim != hostAim) || (newTrigger != hostTrigger)) {
-		hostAim = newAim;
+	if (newTrigger != hostTrigger) {
 		hostTrigger = newTrigger;
-		stateChangeDistributor.distributeNew<GunstickState>(time, hostAim, hostTrigger);
+		stateChangeDistributor.distributeNew<GunstickState>(
+			time, setActive(status, TRIGGER, hostTrigger));
 	}
 }
 
@@ -187,17 +190,15 @@ void Gunstick::signalMSXEvent(const Event& event,
 void Gunstick::signalStateChange(const StateChange& event)
 {
 	if (const auto* gs = std::get_if<GunstickState>(&event)) {
-		aim     = gs->getAim();
-		trigger = gs->getTrigger();
-	} else if (const auto* ls = std::get_if<GunstickLightState>(&event)) {
-		light = ls->getLight();
+		status = gs->getStatus();
 	}
 }
 
 void Gunstick::stopReplay(EmuTime time) noexcept
 {
-	if ((aim != hostAim) || (trigger != hostTrigger)) {
-		stateChangeDistributor.distributeNew<GunstickState>(time, hostAim, hostTrigger);
+	if (auto newStatus = setActive(status, TRIGGER, hostTrigger);
+	    newStatus != status) {
+		stateChangeDistributor.distributeNew<GunstickState>(time, newStatus);
 	}
 }
 
@@ -206,9 +207,7 @@ template<typename Archive>
 void Gunstick::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize host state
-	GunstickState::serializeAim(ar, aim);
-	ar.serialize("trigger", trigger,
-	             "light",   light);
+	ar.serialize("status", status);
 
 	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
