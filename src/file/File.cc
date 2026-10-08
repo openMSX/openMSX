@@ -15,7 +15,7 @@ namespace openmsx {
 
 File::File() = default;
 
-[[nodiscard]] static std::unique_ptr<FileBase> init(zstring_view filename, File::OpenMode mode)
+[[nodiscard]] static std::unique_ptr<FileBase> init(zstring_view filename, File::OpenMode mode, zstring_view extension = {})
 {
 	static constexpr std::array<uint8_t, 3> GZ_HEADER  = {0x1F, 0x8B, 0x08};
 	static constexpr std::array<uint8_t, 4> ZIP_HEADER = {0x50, 0x4B, 0x03, 0x04};
@@ -28,7 +28,7 @@ File::File() = default;
 		if (std::ranges::equal(subspan<3>(buf), GZ_HEADER)) {
 			file = std::make_unique<GZFileAdapter>(std::move(file), filename);
 		} else if (std::ranges::equal(subspan<4>(buf), ZIP_HEADER)) {
-			file = std::make_unique<ZipFileAdapter>(std::move(file), filename);
+			file = std::make_unique<ZipFileAdapter>(std::move(file), filename, extension);
 		} else {
 			// only pre-cache non-compressed files
 			if (mode == File::OpenMode::PRE_CACHE) {
@@ -39,8 +39,8 @@ File::File() = default;
 	return file;
 }
 
-File::File(zstring_view filename, OpenMode mode)
-	: file(init(filename, mode))
+File::File(zstring_view filename, OpenMode mode, zstring_view extension)
+	: file(init(filename, mode, extension))
 {
 }
 

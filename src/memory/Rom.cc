@@ -123,7 +123,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		if (resolvedFilenameElem) {
 			try {
 				auto fname = resolvedFilenameElem->getData();
-				file = File(fname);
+				file = File(fname, File::OpenMode::NORMAL, ".rom");
 				filename = fname;
 			} catch (FileException&) {
 				// ignore
