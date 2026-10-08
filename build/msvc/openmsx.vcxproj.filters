@@ -672,6 +672,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\EventDelay.cc">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Gunstick.cc">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -2233,6 +2236,12 @@
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh">
       <Filter>input</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\input\Gunstick.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\GunstickSensor.hh">
+      <Filter>input</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh">
       <Filter>input</Filter>
     </None>
@@ -2951,6 +2960,9 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\Monitor3D.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh">

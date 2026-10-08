@@ -273,7 +273,7 @@ void VisibleSurface::update(const Setting& /*setting*/) noexcept
 void VisibleSurface::executeRT()
 {
 	// timer expired, hide cursor
-	videoSystem.showCursor(false);
+	videoSystem.showCursor(VideoSystem::Cursor::HIDDEN);
 	inputEventGenerator.updateGrab(grab);
 }
 
@@ -293,6 +293,14 @@ void VisibleSurface::updateCursor()
 	grab = !guiActive && !pauseSetting.getBoolean() &&
 	       (renderSettings.getFullScreen() ||
 	        inputEventGenerator.getGrabInput().getBoolean());
+	if (display.isCrosshairCursorRequested() && !guiActive && window) {
+		// The host cursor is the aim point (e.g. of a light gun), so
+		// keep it visible, also in fullscreen and grab-input mode. (No
+		// crosshair before the window exists: its size depends on it.)
+		inputEventGenerator.updateGrab(grab);
+		videoSystem.showCursor(VideoSystem::Cursor::CROSSHAIR);
+		return;
+	}
 	if (grab) {
 		// always hide cursor in fullscreen or grab-input mode, but do it
 		// after the derived class is constructed to avoid an SDL bug.
@@ -302,9 +310,9 @@ void VisibleSurface::updateCursor()
 	inputEventGenerator.updateGrab(grab);
 	float delay = renderSettings.getPointerHideDelay();
 	if (delay == 0.0f) {
-		videoSystem.showCursor(false);
+		videoSystem.showCursor(VideoSystem::Cursor::HIDDEN);
 	} else {
-		videoSystem.showCursor(true);
+		videoSystem.showCursor(VideoSystem::Cursor::NORMAL);
 		if (delay > 0.0f) {
 			scheduleRT(int(delay * 1e6f)); // delay in s, schedule in us
 		}

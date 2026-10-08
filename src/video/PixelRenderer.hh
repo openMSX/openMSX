@@ -119,6 +119,7 @@ private:
 	RealTime& realTime;
 	SpeedManager& speedManager;
 	ThrottleManager& throttleManager;
+	Display& display;
 	RenderSettings& renderSettings;
 	VideoSourceSetting& videoSourceSetting;
 

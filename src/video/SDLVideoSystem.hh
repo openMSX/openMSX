@@ -1,6 +1,7 @@
 #ifndef SDLVIDEOSYSTEM_HH
 #define SDLVIDEOSYSTEM_HH
 
+#include "SDLSurfacePtr.hh"
 #include "VideoSystem.hh"
 #include "gl_vec.hh"
 
@@ -48,7 +49,8 @@ public:
 	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() override;
 	[[nodiscard]] std::optional<gl::vec2> getMsxPixelSize() override;
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
-	void showCursor(bool show) override;
+	void showCursor(Cursor cursor) override;
+	void updateCursor() override;
 	[[nodiscard]] bool getCursorEnabled() override;
 	[[nodiscard]] std::string getClipboardText() override;
 	void setClipboardText(zstring_view text) override;
@@ -57,6 +59,8 @@ public:
 	void repaint() override;
 
 private:
+	[[nodiscard]] SDL_Cursor* getCrosshairCursor();
+
 	// EventListener
 	bool signalEvent(const Event& event) override;
 	// Observer
@@ -67,6 +71,8 @@ private:
 	Display& display;
 	RenderSettings& renderSettings;
 	std::unique_ptr<VisibleSurface> screen;
+	SDLCursorPtr crosshairCursor;
+	int crosshairSize = 0;
 	std::unique_ptr<Layer> snowLayer;
 	std::unique_ptr<Layer> iconLayer;
 	std::unique_ptr<Layer> osdGuiLayer;

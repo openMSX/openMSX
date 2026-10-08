@@ -537,6 +537,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\ArkanoidPad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\DummyJoystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\EventDelay.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Gunstick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc" />
@@ -1148,6 +1149,8 @@
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh" />
     <None Include="$(OpenMSXSrcDir)\input\DummyJoystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\Gunstick.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\GunstickSensor.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickManager.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickPort.hh" />
@@ -1432,6 +1435,7 @@
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\Monitor3D.hh" />
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelRenderer.hh" />

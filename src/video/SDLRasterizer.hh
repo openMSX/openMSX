@@ -68,6 +68,13 @@ public:
 		int displayWidth, int displayHeight) override;
 	[[nodiscard]] bool isRecording() const override;
 
+	/** First VDP line (counted from the start of the frame) that is stored
+	  * in the RawFrame: our frame has 240 lines while the VDP has 262 or 313.
+	  */
+	[[nodiscard]] static constexpr int getLineRenderTop(bool isPal) {
+		return isPal ? 59 - 14 : 32 - 14;
+	}
+
 private:
 	inline void renderBitmapLine(std::span<Pixel> buf, unsigned vramLine);
 

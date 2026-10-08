@@ -48,7 +48,11 @@ OutputSurface* DummyVideoSystem::getOutputSurface()
 	return nullptr;
 }
 
-void DummyVideoSystem::showCursor(bool /*show*/)
+void DummyVideoSystem::showCursor(Cursor /*cursor*/)
+{
+}
+
+void DummyVideoSystem::updateCursor()
 {
 }
 
