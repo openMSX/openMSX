@@ -1711,10 +1711,12 @@ href="commands.html#plugunplug">plug</a> joyportb circuit-designer-rd-dongle
 The Gunstick from MHT Ingenieros is a light gun that was sold in Spain for MSX
 (and other computers). openMSX emulates it with the mouse: the mouse pointer is
 the aim point and the left mouse button is the trigger. Most games expect it in
-port A, so in the console type: <code><a class="external"
-href="commands.html#plugunplug">plug</a> joyporta gunstick</code> (but
-Guillermo Tell wants it in port B). While the Gunstick is plugged in, the mouse
-pointer is shown as a crosshair, also in full screen mode.
+joystick port A (but Guillermo Tell wants it in port B). To plug it in, use the
+<span class="menu-reference">Main menu bar &rarr; Connectors</span> menu or the
+console command <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyporta gunstick</code>. While the
+Gunstick is plugged in, the mouse pointer is shown as a crosshair, also in full
+screen mode.
 </p>
 
 <p>
@@ -1725,13 +1727,10 @@ looking at the picture that is being drawn at the moment the MSX reads the
 joystick port. Like the real gun (as measured by NYYRIKKI), the sensor sees a
 circle of about 5 pixels around the aim point, reacts about one line after the
 beam drew something bright there and then keeps signalling light for about 26
-lines. Some consequences:
+lines. Limitations:
 </p>
 <ul>
-<li>A renderer is needed: with the "none" renderer the gun never sees light.
-While the gun is plugged in, every frame is rendered, also the ones that
-frameskip doesn't show. Replays are not affected: the sensor output is
-recorded, so a replay plays back the same.</li>
+<li>With the "none" renderer the gun never sees light.</li>
 <li>Only the normal MSX VDP is supported, not the V9990 (GFX9000).</li>
 </ul>
 
