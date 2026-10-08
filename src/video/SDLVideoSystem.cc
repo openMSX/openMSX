@@ -152,9 +152,9 @@ void SDLVideoSystem::showCursor(Cursor cursor)
 {
 	if (cursor == Cursor::CROSSHAIR) {
 		SDL_SetCursor(getCrosshairCursor());
-	} else if (crosshairCursor) {
+	} else if (crosshairCursor && (SDL_GetCursor() == crosshairCursor.get())) {
+		// Keep the crosshair around, it's likely needed again soon.
 		SDL_SetCursor(SDL_GetDefaultCursor());
-		crosshairCursor.reset();
 	}
 	SDL_ShowCursor((cursor == Cursor::HIDDEN) ? SDL_DISABLE : SDL_ENABLE);
 	// Only let ImGui change the shape of the normal cursor.
