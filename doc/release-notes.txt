@@ -24,6 +24,8 @@ MSX device support:
 - fixed details on the turboR's FDC emulation, so that now FastCopy 3.0
   properly detects it, including the correct number of drives
 - added emulation of the MHT Gunstick light gun, controlled with the mouse
+- added emulation of the ASCII Plus-X Terminator Laser light gun, also
+  controlled with the mouse
 - added Korean 128-in-1 mapper type
 - added Namco mapper type (A13-not-connected 16kB cartridges)
 - added ASCII8-R (reversed) mapper type
