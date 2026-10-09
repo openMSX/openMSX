@@ -6,7 +6,7 @@
     <manufacturer>SuperSoniqs</manufacturer>
     <code/>
     <release_year>2009</release_year>
-    <description>SuperSoniqs Franky cartridge in the PAL / VDP2 configuration. It contains a Sega Master System VDP (Sega 315-5246) with its integrated SN76489 sound chip. The VDP is available on I/O ports 0x88/0x89 (data/control) and 0x48/0x49 (V-counter/H-counter, and PSG writes). Use 'set videosource Franky' to display the Sega VDP output. See doc/Franky.md for the NTSC variant and for how to create a VDP1 variant.</description>
+    <description>Franky cartridge in PAL / VDP2 config. See doc/Franky.md for more info and for how to create a VDP1 variant.</description>
     <type>graphics expansion</type>
   </info>
   <devices>
