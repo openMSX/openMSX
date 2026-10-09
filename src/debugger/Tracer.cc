@@ -131,17 +131,24 @@ void Tracer::stopReplay(EmuTime time) noexcept
 
 Tracer::Trace& Tracer::getOrCreateTrace(Debugger& debugger, std::string_view name)
 {
+	bool created = false;
 	Trace* trace = [&] {
 		auto it = std::ranges::lower_bound(traces, name, {}, &Trace::name);
 		if (it != traces.end() && (*it)->name == name) {
 			return it->get();
 		} else {
+			created = true;
 			it = traces.insert(it, std::make_unique<Trace>(std::string(name)));
 			return it->get();
 		}
 	}();
-	if (auto* probe = debugger.findProbe(name)) {
-		trace->attachProbe(debugger, *probe);
+	// Only attach on creation. 'Subject::attach' doesn't check for duplicates,
+	// so attaching an already attached trace would record every single probe
+	// update twice.
+	if (created) {
+		if (auto* probe = debugger.findProbe(name)) {
+			trace->attachProbe(debugger, *probe);
+		}
 	}
 	return *trace;
 }
