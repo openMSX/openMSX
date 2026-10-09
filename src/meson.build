@@ -243,6 +243,7 @@ sources = files(
     'input/SETetrisDongle.cc',
     'input/SG1000JoystickIO.cc',
     'input/StateChangeDistributor.cc',
+    'input/TerminatorLaser.cc',
     'input/Touchpad.cc',
     'input/Trackball.cc',
     'input/UnicodeKeymap.cc',

@@ -362,6 +362,26 @@ private:
 };
 
 
+/** Light sensor and trigger of the Terminator Laser light gun, as the joystick
+  * port bits. Like GunstickState, the sensor output is recorded as well. */
+class TerminatorLaserState final : public StateChangeBase
+{
+public:
+	TerminatorLaserState() = default; // for serialize
+	TerminatorLaserState(EmuTime time_, uint8_t status_)
+		: StateChangeBase(time_), status(status_) {}
+
+	[[nodiscard]] auto getStatus() const { return status; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChangeBase>(*this);
+		ar.serialize("status", status);
+	}
+private:
+	uint8_t status = 0;
+};
+
 class MouseState final : public StateChangeBase
 {
 public:
@@ -425,7 +445,8 @@ using StateChange = std::variant<
 	MouseState,
 	JoyMegaState,
 	JoyHandleState,
-	GunstickState
+	GunstickState,
+	TerminatorLaserState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -450,7 +471,8 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"MouseState",          index<MouseState>         },
 		{"JoyMegaState",        index<JoyMegaState>       },
 		{"JoyHandleState",      index<JoyHandleState>     },
-		{"GunstickState",       index<GunstickState>      }
+		{"GunstickState",       index<GunstickState>      },
+		{"TerminatorLaserState", index<TerminatorLaserState>}
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;
