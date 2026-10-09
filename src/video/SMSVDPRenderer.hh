@@ -29,17 +29,11 @@ public:
 	  */
 	[[nodiscard]] virtual bool isActive() const = 0;
 
-	/** Re-initialise the renderer's state. */
-	virtual void reset(EmuTime time) = 0;
-
-	/** Signal the start of a new frame. */
-	virtual void frameStart(EmuTime time) = 0;
-
 	/** Signal the end of the current frame. */
 	virtual void frameEnd(EmuTime time) = 0;
 
-	/** Draw one output scanline (320 pixels in 0x00RRGGBB format). */
-	virtual void drawLine(unsigned y, std::span<const uint32_t, 320> pixels) = 0;
+	/** Draw one output scanline (320 palette indices, values 0..79). */
+	virtual void drawLine(unsigned y, std::span<const uint8_t, 320> paletteIndices) = 0;
 
 protected:
 	SMSVDPRenderer() = default;

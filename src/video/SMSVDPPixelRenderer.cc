@@ -38,20 +38,6 @@ bool SMSVDPPixelRenderer::isActive() const
 	       !motherboard.isFastForwarding();
 }
 
-void SMSVDPPixelRenderer::reset(EmuTime time)
-{
-	(void)time;
-	rasterizer->reset();
-}
-
-void SMSVDPPixelRenderer::frameStart(EmuTime time)
-{
-	(void)time;
-	if (isActive()) {
-		rasterizer->frameStart();
-	}
-}
-
 void SMSVDPPixelRenderer::frameEnd(EmuTime time)
 {
 	const bool active = isActive();
@@ -67,9 +53,9 @@ void SMSVDPPixelRenderer::frameEnd(EmuTime time)
 }
 
 void SMSVDPPixelRenderer::drawLine(
-	unsigned y, std::span<const uint32_t, 320> pixels)
+	unsigned y, std::span<const uint8_t, 320> paletteIndices)
 {
-	rasterizer->drawLine(y, pixels);
+	rasterizer->drawLine(y, paletteIndices);
 }
 
 } // namespace openmsx

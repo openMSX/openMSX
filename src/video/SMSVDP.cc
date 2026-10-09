@@ -1,8 +1,10 @@
 #include "SMSVDP.hh"
 
+#include "SMSVDPDummyRenderer.hh"
 #include "SMSVDPRenderer.hh"
 
 #include "Display.hh"
+#include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "PostProcessor.hh"
 #include "Reactor.hh"
@@ -15,56 +17,38 @@
 #include "strCat.hh"
 
 #include <algorithm>
+#include <cassert>
 
 namespace openmsx {
 
-SMSVDP::SMSVDP(MSXMotherBoard& motherBoard_, std::string name)
+SMSVDP::SMSVDP(MSXMotherBoard& motherBoard_, std::string name,
+               VideoStandard standard, SMSVDPCore::Variant variant)
 	: motherBoard(motherBoard_)
-	, videoStandardSetting(
-		motherBoard.getCommandController(),
-		"franky_video_standard",
-		"Video standard of the Franky's Sega VDP "
-		"(NTSC also covers the PAL-M timing)",
-		VideoStandard::NTSC,
-		EnumSetting<VideoStandard>::Map{
-			{"NTSC", VideoStandard::NTSC},
-			{"PAL",  VideoStandard::PAL}})
-	, variantSetting(
-		motherBoard.getCommandController(),
-		"franky_vdp_variant",
-		"Sega VDP chip variant of the Franky "
-		"(SMS1 = 315-5124, SMS2 = 315-5246)",
-		SMSVDPCore::Variant::SMS2,
-		EnumSetting<SMSVDPCore::Variant>::Map{
-			{"SMS1", SMSVDPCore::Variant::SMS1},
-			{"SMS2", SMSVDPCore::Variant::SMS2}})
+	, videoStandard(standard)
 	, autoVideoSwitchSetting(
 		motherBoard.getCommandController(),
-		"franky_auto_video_switch",
+		name + " auto video switch",
 		"Automatically select the video source: the MSX VDP while it has "
 		"interrupts enabled, otherwise Franky while its VDP has interrupts "
 		"enabled. Disable to control the 'videosource' setting manually.",
 		true)
-	, core(variantSetting.getEnum(), isPal())
+	, core(variant, isPal())
 	, irq(motherBoard, name + ".IRQ")
 	, regDebug(*this, name)
 	, statusDebug(*this, name)
 	, pixelClock(EmuTime::zero())
 {
 	updateClock();
-	videoStandardSetting.attach(*this);
-	variantSetting.attach(*this);
 	motherBoard.getReactor().getDisplay().attach(*this);
+	core.setNintCallback([this](bool asserted) { irq.set(asserted); });
 	auto time = motherBoard.getCurrentTime();
-	createRenderer(time);
+	createRenderer();
 	reset(time);
 }
 
 SMSVDP::~SMSVDP()
 {
 	motherBoard.getReactor().getDisplay().detach(*this);
-	variantSetting.detach(*this);
-	videoStandardSetting.detach(*this);
 }
 
 void SMSVDP::reset(EmuTime time)
@@ -73,14 +57,12 @@ void SMSVDP::reset(EmuTime time)
 	syncInt.removeSyncPoint();
 	syncDraw.removeSyncPoint();
 	syncEol.removeSyncPoint();
-	core.setPal(isPal()); // the setting is authoritative
+	core.setPal(isPal()); // the device configuration is authoritative
 	core.reset();
 	vpos = core.height() - 1; // executeLine() will wrap to 0
 	frameActive = false;
 	pixelClock.reset(time);
-	renderer->reset(time);
 	syncLine.setSyncPoint(time);
-	updateIrq();
 }
 
 // ---------------------------------------------------------------------------
@@ -89,9 +71,7 @@ void SMSVDP::reset(EmuTime time)
 
 uint8_t SMSVDP::readData(EmuTime /*time*/)
 {
-	auto result = core.readData();
-	updateIrq();
-	return result;
+	return core.readData();
 }
 
 void SMSVDP::writeData(uint8_t value, EmuTime /*time*/)
@@ -101,15 +81,12 @@ void SMSVDP::writeData(uint8_t value, EmuTime /*time*/)
 
 uint8_t SMSVDP::readControl(EmuTime time)
 {
-	auto result = core.readControl(narrow<int>(currentHpos(time)));
-	updateIrq();
-	return result;
+	return core.readControl(narrow<int>(currentHpos(time)));
 }
 
 void SMSVDP::writeControl(uint8_t value, EmuTime time)
 {
 	core.writeControl(value, narrow<int>(currentHpos(time)));
-	updateIrq();
 }
 
 uint8_t SMSVDP::readVCounter(EmuTime time)
@@ -158,7 +135,6 @@ void SMSVDP::executeLine(EmuTime time)
 		if (frameActive) {
 			renderer->frameEnd(time);
 		}
-		renderer->frameStart(time);
 		frameActive = true;
 		updateAutoVideoSwitch(time);
 	}
@@ -171,13 +147,11 @@ void SMSVDP::executeLine(EmuTime time)
 	syncDraw.setSyncPoint(pixelClock + 63); // MAME's DRAW_TIME_SMS
 	syncEol .setSyncPoint(pixelClock + (SMSVDPCore::WIDTH - 1));
 	syncLine.setSyncPoint(pixelClock + SMSVDPCore::WIDTH);
-	updateIrq();
 }
 
 void SMSVDP::executeInt(EmuTime /*time*/)
 {
 	core.updateInterrupts(core.intHpos());
-	updateIrq();
 }
 
 void SMSVDP::executeDraw(EmuTime /*time*/)
@@ -188,16 +162,15 @@ void SMSVDP::executeDraw(EmuTime /*time*/)
 	const int outLine = vpos - core.activeStart() +
 	                    (SMSVDPCore::OUTPUT_HEIGHT - core.yPixels()) / 2;
 	if (0 <= outLine && outLine < SMSVDPCore::OUTPUT_HEIGHT) {
-		std::array<uint32_t, SMSVDPCore::OUTPUT_WIDTH> pixels;
-		core.drawLine(outLine, pixels);
-		renderer->drawLine(narrow<unsigned>(outLine), pixels);
+		std::array<uint8_t, SMSVDPCore::OUTPUT_WIDTH> paletteIndices;
+		core.drawLine(outLine, paletteIndices);
+		renderer->drawLine(narrow<unsigned>(outLine), paletteIndices);
 	}
 }
 
 void SMSVDP::executeEol(EmuTime /*time*/)
 {
 	core.checkPendingFlags(SMSVDPCore::WIDTH - 1);
-	updateIrq();
 }
 
 void SMSVDP::updateClock()
@@ -209,18 +182,6 @@ void SMSVDP::updateClock()
 	pixelClock.setFreq(isPal() ? 10640679u : 10738635u, 2u);
 }
 
-void SMSVDP::reschedule(EmuTime time)
-{
-	// Called when a setting changes mid-emulation: cut off the current
-	// line and continue with the (possibly different) timing from 'time'.
-	syncLine.removeSyncPoint();
-	syncInt.removeSyncPoint();
-	syncDraw.removeSyncPoint();
-	syncEol.removeSyncPoint();
-	pixelClock.reset(time);
-	syncLine.setSyncPoint(time);
-}
-
 unsigned SMSVDP::currentHpos(EmuTime time) const
 {
 	// The scheduler guarantees that all sync points before 'time' have
@@ -228,20 +189,27 @@ unsigned SMSVDP::currentHpos(EmuTime time) const
 	return std::min<unsigned>(SMSVDPCore::WIDTH - 1, pixelClock.getTicksTill(time));
 }
 
-void SMSVDP::updateIrq()
-{
-	irq.set(core.intLineAsserted());
-}
-
 // ---------------------------------------------------------------------------
 // renderer / video source
 // ---------------------------------------------------------------------------
 
-void SMSVDP::createRenderer(EmuTime time)
+void SMSVDP::createRenderer()
 {
-	renderer = RendererFactory::createSMSVDPRenderer(
-		*this, motherBoard.getReactor().getDisplay());
-	renderer->reset(time);
+	// Only one Franky can provide the "Franky" video source. A second
+	// Franky is still emulated (both devices respond to the shared I/O
+	// ports), but its video output cannot be selected. Two Frankys can
+	// never work together anyway: they generate interrupts at independent
+	// times, so software could not tell which VDP interrupted.
+	const auto sources = motherBoard.getVideoSource().getPossibleValues();
+	if (std::ranges::find(sources, VIDEO_SOURCE) != sources.end()) {
+		motherBoard.getMSXCliComm().printWarning(
+			"Another Franky is already providing the \"", VIDEO_SOURCE,
+			"\" video source; the video output of this Franky is disabled.");
+		renderer = std::make_unique<SMSVDPDummyRenderer>();
+	} else {
+		renderer = RendererFactory::createSMSVDPRenderer(
+			*this, motherBoard.getReactor().getDisplay());
+	}
 }
 
 PostProcessor* SMSVDP::getPostProcessor() const
@@ -254,13 +222,22 @@ Scheduler& SMSVDP::getScheduler() const
 	return motherBoard.getScheduler();
 }
 
+void SMSVDP::setMsxVdp(VDP& vdp)
+{
+	msxVdp = &vdp;
+}
+
 void SMSVDP::updateAutoVideoSwitch(EmuTime time)
 {
 	if (!autoVideoSwitchSetting.getBoolean()) return;
+	// A Franky without video output (dummy renderer) must not manage the
+	// video source.
+	if (getPostProcessor() == nullptr) return;
 
-	// The machine's VDP always uses the id "VDP" in the machine configs.
-	auto* vdp = dynamic_cast<VDP*>(motherBoard.findDevice("VDP"));
-	if (!vdp) return;
+	// The VDP reference is resolved once in Franky::init(); openMSX
+	// guarantees it stays valid as long as this Franky exists.
+	auto* vdp = msxVdp;
+	assert(vdp);
 
 	// Interrupts enabled: IE0 = R#1 bit 5 (all VDPs), IE1 = R#0 bit 4
 	// (V99x8 only; R#1 bit 4 is M1, a display-mode bit!).
@@ -294,30 +271,7 @@ void SMSVDP::preVideoSystemChange() noexcept
 
 void SMSVDP::postVideoSystemChange() noexcept
 {
-	createRenderer(motherBoard.getCurrentTime());
-}
-
-// ---------------------------------------------------------------------------
-// settings
-// ---------------------------------------------------------------------------
-
-void SMSVDP::update(const Setting& setting) noexcept
-{
-	if (&setting == &videoStandardSetting) {
-		// The core's frame geometry (262 vs 313 lines, v-counter wrap,
-		// active area) must follow the video standard too, not only the
-		// pixel clock.
-		core.setPal(isPal());
-		vpos = std::min(vpos, core.height() - 1);
-		updateClock();
-		reschedule(motherBoard.getCurrentTime());
-		updateIrq();
-	} else if (&setting == &variantSetting) {
-		core = SMSVDPCore(variantSetting.getEnum(), isPal());
-		vpos = std::min(vpos, core.height() - 1);
-		reschedule(motherBoard.getCurrentTime());
-		updateIrq();
-	}
+	createRenderer();
 }
 
 // ---------------------------------------------------------------------------
@@ -341,7 +295,6 @@ void SMSVDP::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 	auto& vdp = OUTER(SMSVDP, regDebug);
 	vdp.core.writeRegister(narrow<uint8_t>(address), value,
 	                       narrow<int>(vdp.currentHpos(time)));
-	vdp.updateIrq();
 }
 
 SMSVDP::StatusDebug::StatusDebug(const SMSVDP& vdp, std::string_view name)
@@ -372,10 +325,10 @@ void SMSVDP::serialize(Archive& ar, unsigned /*version*/)
 	             "syncDraw", syncDraw,
 	             "syncEol",  syncEol);
 	if constexpr (Archive::IS_LOADER) {
-		core.setPal(isPal()); // the setting is authoritative
+		core.setPal(isPal()); // the device configuration is authoritative
 		vpos = std::min(vpos, core.height() - 1);
 		updateClock();
-		updateIrq();
+		irq.set(core.intLineAsserted()); // the callback is not serialized
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SMSVDP);

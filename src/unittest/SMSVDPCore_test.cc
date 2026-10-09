@@ -27,13 +27,13 @@ struct Bus {
 	}
 };
 
-std::array<uint32_t, 320> renderLine(Bus& bus, int vpos, int outLine)
+std::array<uint8_t, 320> renderLine(Bus& bus, int vpos, int outLine)
 {
 	// processLine must run first so the sprite selection matches.
 	bus.core.processLine(vpos);
-	std::array<uint32_t, 320> pixels{};
-	bus.core.drawLine(outLine, std::span<uint32_t, 320>(pixels));
-	return pixels;
+	std::array<uint8_t, 320> indices{};
+	bus.core.drawLine(outLine, std::span<uint8_t, 320>(indices));
+	return indices;
 }
 
 } // namespace
@@ -133,6 +133,34 @@ TEST_CASE("SMSVDPCore: HINT and /INT line")
 	CHECK(!core.intLineAsserted());
 }
 
+TEST_CASE("SMSVDPCore: /INT callback")
+{
+	SMSVDPCore core(SMSVDPCore::Variant::SMS2, false);
+	int calls = 0;
+	bool last = true;
+	core.setNintCallback([&](bool asserted) { last = asserted; ++calls; });
+	// Registering immediately synchronizes the listener.
+	CHECK(calls == 1);
+	CHECK(!last);
+
+	Bus bus{core};
+	bus.setReg(0x00, 0x04);
+	bus.setReg(0x01, 0x60); // display enable + VINT enable
+	core.processLine(236);  // VINT pending
+	core.updateInterrupts(core.intHpos());
+	CHECK(last); // asserted
+	const int callsAfterAssert = calls;
+	CHECK(callsAfterAssert >= 2);
+
+	core.updateInterrupts(core.intHpos()); // same state, still notified
+	CHECK(calls == callsAfterAssert + 1);
+	CHECK(last);
+
+	const uint8_t status = core.readControl(30);
+	CHECK((status & 0x80) != 0);
+	CHECK(!last); // cleared by the status read
+}
+
 TEST_CASE("SMSVDPCore: NTSC/PAL runtime switch")
 {
 	SMSVDPCore core(SMSVDPCore::Variant::SMS2, false);
@@ -167,13 +195,19 @@ TEST_CASE("SMSVDPCore: mode 4 scanline render")
 		const uint8_t plane0 = 0xff;
 		bus.vramWrite(0x0020, &plane0, 1);
 
-		const auto pixels = renderLine(bus, core.activeStart(), 24);
+		const auto indices = renderLine(bus, core.activeStart(), 24);
+		// Mode 4: tile pen 1 maps to CRAM[1], the backdrop pen
+		// (R#7 = 0 -> pen 0x10) maps to CRAM[0x10].
+		const uint8_t pen1 = core.peekCram(1);
+		const uint8_t backdrop = core.peekCram(0x10);
+		CHECK(indices[32 + 0] == pen1);
+		CHECK(indices[32 + 255] == pen1);
+		CHECK(indices[0] == backdrop);
+		CHECK(indices[319] == backdrop);
+		// The chip color levels differ between the variants.
 		const uint32_t white = (variant == SMSVDPCore::Variant::SMS1)
 		                     ? 0xEEEEEEu : 0xFFFFFFu;
-		CHECK(pixels[32 + 0] == white);
-		CHECK(pixels[32 + 255] == white);
-		CHECK(pixels[0] == 0x000000u);
-		CHECK(pixels[319] == 0x000000u);
+		CHECK(core.paletteColors()[63] == white);
 	}
 }
 
@@ -208,8 +242,8 @@ TEST_CASE("SMSVDPCore: sprite overflow and collision")
 		const uint8_t plane0 = 0x80; // tile 1, row 0, pixel 0 set
 		bus.vramWrite(0x0020, &plane0, 1);
 		core.processLine(core.activeStart() + 10);
-		std::array<uint32_t, 320> pixels{};
-		core.drawLine(24 + 10, std::span<uint32_t, 320>(pixels));
+		std::array<uint8_t, 320> indices{};
+		core.drawLine(24 + 10, std::span<uint8_t, 320>(indices));
 		core.checkPendingFlags(100);
 		const uint8_t status = core.readControl(101);
 		CHECK((status & 0x20) != 0); // sprite collision

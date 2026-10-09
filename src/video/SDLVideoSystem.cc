@@ -97,9 +97,10 @@ std::unique_ptr<SMSVDPRasterizer> SDLVideoSystem::createSMSVDPRasterizer(
 	assert(display.getRenderer() == RenderSettings::RendererID::SDLGL_PP);
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	return std::make_unique<SMSVDPSDLRasterizer>(
+		vdp, display, *screen,
 		std::make_unique<PostProcessor>(
 			motherBoard, display, *screen,
-			"Franky", 320, 240, false));
+			std::string(SMSVDP::VIDEO_SOURCE), 320, 240, false));
 }
 
 #if COMPONENT_LASERDISC

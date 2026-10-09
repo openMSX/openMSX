@@ -22,12 +22,10 @@ public:
 	/** See SMSVDP::getPostProcessor. */
 	[[nodiscard]] virtual PostProcessor* getPostProcessor() const = 0;
 
-	virtual void reset() = 0;
-	virtual void frameStart() = 0;
 	virtual void frameEnd(EmuTime time) = 0;
 
-	/** Draw one output scanline (320 pixels in 0x00RRGGBB format). */
-	virtual void drawLine(unsigned y, std::span<const uint32_t, 320> pixels) = 0;
+	/** Draw one output scanline (320 palette indices, values 0..79). */
+	virtual void drawLine(unsigned y, std::span<const uint8_t, 320> paletteIndices) = 0;
 
 protected:
 	SMSVDPRasterizer() = default;

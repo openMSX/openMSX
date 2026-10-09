@@ -1,36 +1,61 @@
 #include "SMSVDPSDLRasterizer.hh"
 
+#include "SMSVDP.hh"
+
+#include "Display.hh"
+#include "OutputSurface.hh"
 #include "PostProcessor.hh"
 #include "RawFrame.hh"
+#include "RenderSettings.hh"
 
+#include "enumerate.hh"
+#include "one_of.hh"
 #include "xrange.hh"
 
 #include <cassert>
 
+using namespace gl;
+
 namespace openmsx {
 
 SMSVDPSDLRasterizer::SMSVDPSDLRasterizer(
+		SMSVDP& vdp_, Display& display, OutputSurface& screen_,
 		std::unique_ptr<PostProcessor> postProcessor_)
-	: workFrame(std::make_unique<RawFrame>(320, 240))
+	: vdp(vdp_)
+	, screen(screen_)
+	, renderSettings(display.getRenderSettings())
+	, workFrame(std::make_unique<RawFrame>(320, 240))
 	, postProcessor(std::move(postProcessor_))
 {
+	precalcPalette();
+
+	renderSettings.getGammaSetting()      .attach(*this);
+	renderSettings.getBrightnessSetting() .attach(*this);
+	renderSettings.getContrastSetting()   .attach(*this);
+	renderSettings.getColorMatrixSetting().attach(*this);
 }
 
-SMSVDPSDLRasterizer::~SMSVDPSDLRasterizer() = default;
+SMSVDPSDLRasterizer::~SMSVDPSDLRasterizer()
+{
+	renderSettings.getColorMatrixSetting().detach(*this);
+	renderSettings.getGammaSetting()      .detach(*this);
+	renderSettings.getBrightnessSetting() .detach(*this);
+	renderSettings.getContrastSetting()   .detach(*this);
+}
 
 PostProcessor* SMSVDPSDLRasterizer::getPostProcessor() const
 {
 	return postProcessor.get();
 }
 
-void SMSVDPSDLRasterizer::reset()
+void SMSVDPSDLRasterizer::precalcPalette()
 {
-	// nothing
-}
-
-void SMSVDPSDLRasterizer::frameStart()
-{
-	// nothing
+	const auto colors = vdp.getPaletteColors();
+	for (auto [i, col] : enumerate(palette)) {
+		const uint32_t rgb = colors[i];
+		col = screen.mapRGB(renderSettings.transformRGB(
+			vec3((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF) * (1.0f / 255.0f)));
+	}
 }
 
 void SMSVDPSDLRasterizer::frameEnd(EmuTime time)
@@ -40,19 +65,24 @@ void SMSVDPSDLRasterizer::frameEnd(EmuTime time)
 }
 
 void SMSVDPSDLRasterizer::drawLine(
-	unsigned y, std::span<const uint32_t, 320> pixels)
+	unsigned y, std::span<const uint8_t, 320> paletteIndices)
 {
 	assert(y < 240);
 	auto line = workFrame->getLineDirect(y);
-	// Convert 0x00RRGGBB to openMSX' native pixel format (0xAABBGGRR).
 	for (auto i : xrange(320)) {
-		const uint32_t p = pixels[i];
-		line[i] = ((p >> 16) & 0xFF)        // R
-		        | (p & 0x0000FF00)          // G
-		        | ((p & 0x000000FF) << 16)  // B
-		        | 0xFF000000;               // A
+		line[i] = palette[paletteIndices[i]];
 	}
 	workFrame->setLineWidth(y, 320);
+}
+
+void SMSVDPSDLRasterizer::update(const Setting& setting) noexcept
+{
+	if (&setting == one_of(&renderSettings.getGammaSetting(),
+	                       &renderSettings.getBrightnessSetting(),
+	                       &renderSettings.getContrastSetting(),
+	                       &renderSettings.getColorMatrixSetting())) {
+		precalcPalette();
+	}
 }
 
 } // namespace openmsx

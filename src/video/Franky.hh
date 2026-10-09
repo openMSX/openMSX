@@ -19,6 +19,7 @@ class Franky final : public MSXDevice
 public:
 	explicit Franky(const DeviceConfig& config);
 
+	void init() override;
 	void reset(EmuTime time) override;
 	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
 	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;

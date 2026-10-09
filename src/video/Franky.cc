@@ -1,14 +1,59 @@
 #include "Franky.hh"
 
+#include "MSXException.hh"
+#include "VDP.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {
 
+namespace {
+
+[[nodiscard]] SMSVDP::VideoStandard parseVideoStandard(std::string_view value)
+{
+	if (value == "NTSC") return SMSVDP::VideoStandard::NTSC;
+	if (value == "PAL")  return SMSVDP::VideoStandard::PAL;
+	throw MSXException("Invalid Franky video standard '", value,
+	                   "', expected 'NTSC' or 'PAL'.");
+}
+
+[[nodiscard]] SMSVDPCore::Variant parseVdpType(std::string_view value)
+{
+	if (value == "VDP1") return SMSVDPCore::Variant::SMS1; // 315-5124
+	if (value == "VDP2") return SMSVDPCore::Variant::SMS2; // 315-5246
+	throw MSXException("Invalid Franky VDP type '", value,
+	                   "', expected 'VDP1' or 'VDP2'.");
+}
+
+} // namespace
+
 Franky::Franky(const DeviceConfig& config)
 	: MSXDevice(config)
-	, vdp(getMotherBoard(), getName())
-	, sn76489(config)
+	, vdp(getMotherBoard(), getName(),
+	      parseVideoStandard(config.getChildData("video_standard", "NTSC")),
+	      parseVdpType(config.getChildData("vdp", "VDP2")))
+	, sn76489(config, getName() + "_SN76489")
 {
+}
+
+void Franky::init()
+{
+	MSXDevice::init();
+
+	// The video auto switch needs the MSX VDP. Declared via
+	// <device idref="VDP"/> in the extension; openMSX then guarantees the
+	// VDP cannot be removed while this Franky exists.
+	const auto& refs = getReferences();
+	if (refs.size() != 1) {
+		throw MSXException("Invalid Franky configuration: "
+		                   "need reference to VDP device.");
+	}
+	auto* msxVdp = dynamic_cast<VDP*>(refs[0]);
+	if (!msxVdp) {
+		throw MSXException("Invalid Franky configuration: device '",
+		                   refs[0]->getName(), "' is not a VDP device.");
+	}
+	vdp.setMsxVdp(*msxVdp);
 }
 
 void Franky::reset(EmuTime time)

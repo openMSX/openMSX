@@ -7,6 +7,7 @@
 #include "SMSVDPCore.hh"
 
 #include <cassert>
+#include <utility>
 
 namespace openmsx {
 
@@ -76,7 +77,8 @@ static constexpr std::array<std::array<uint8_t, 3>, 16> tmsColors = {{
 
 SMSVDPCore::SMSVDPCore(Variant variant_, bool isPal)
 	: variant(variant_)
-	, lineTiming(lineTiming315_5124.data())
+	, frameTiming(isPal ? pal192 : ntsc192)
+	, lineTiming(lineTiming315_5124)
 	, palette(buildPalette(variant_))
 {
 	maxSpriteZoomHcount = (variant == Variant::SMS1) ? 4 : 8;
@@ -103,7 +105,7 @@ void SMSVDPCore::reset()
 	displayDisabled = false;
 	cramDirty = true;
 	buffer = 0;
-	nintAsserted = false;
+	setNint(false);
 	lineCounter = 0;
 	hcounter = 0;
 	hcounterLatched = false;
@@ -111,6 +113,22 @@ void SMSVDPCore::reset()
 	setDisplaySettings();
 	cram.fill(0);
 	vram.fill(0);
+}
+
+void SMSVDPCore::setNintCallback(std::function<void(bool)> callback)
+{
+	nintCallback = std::move(callback);
+	if (nintCallback) {
+		nintCallback(nintAsserted); // immediately synchronize the listener
+	}
+}
+
+void SMSVDPCore::setNint(bool asserted)
+{
+	nintAsserted = asserted;
+	if (nintCallback) {
+		nintCallback(asserted);
+	}
 }
 
 void SMSVDPCore::setPal(bool pal)
@@ -179,7 +197,7 @@ void SMSVDPCore::setFrameTiming()
 	case 240: timing = palFlag ? &pal240 : &ntsc240; break;
 	default:  timing = palFlag ? &pal192 : &ntsc192; break;
 	}
-	frameTiming = timing->data();
+	frameTiming = std::span<const uint8_t, 6>(*timing);
 }
 
 // MAME: vcount
@@ -234,7 +252,7 @@ void SMSVDPCore::updateInterrupts(int hpos)
 	    ((pendingStatus & STATUS_VINT) || (status & STATUS_VINT))) {
 		wantInt = true;
 	}
-	nintAsserted = wantInt;
+	setNint(wantInt);
 }
 
 // MAME: check_pending_flags
@@ -286,7 +304,7 @@ uint8_t SMSVDPCore::readControl(int hpos)
 	pendingControlWrite = false;
 	hintOccurred = false;
 	status = uint8_t(~(STATUS_VINT | STATUS_SPROVR | STATUS_SPRCOL));
-	nintAsserted = false;
+	setNint(false);
 	return result;
 }
 
@@ -404,8 +422,8 @@ void SMSVDPCore::writeRegister(uint8_t regNum, uint8_t value, int hpos)
 	// (see the comments in 315_5124.cpp for the test ROMs/games
 	// that require this).
 	if ((regNum == 0 && hintOccurred) || (regNum == 1 && (status & STATUS_VINT))) {
-		nintAsserted = (regNum == 0) ? ((reg[0x00] & 0x10) != 0)
-		                             : ((reg[0x01] & 0x20) != 0);
+		setNint((regNum == 0) ? ((reg[0x00] & 0x10) != 0)
+		                      : ((reg[0x01] & 0x20) != 0));
 	}
 }
 
@@ -490,12 +508,12 @@ void SMSVDPCore::updatePalette()
 	cramDirty = false;
 	if (vdpMode != 4) {
 		for (int i = 0; i < 16; ++i) {
-			currentPalette[i] = 64 + i;
+			currentPalette[i] = uint8_t(64 + i);
 		}
 		return;
 	}
 	for (int i = 0; i < 32; ++i) {
-		currentPalette[i] = cram[i] & 0x3f;
+		currentPalette[i] = uint8_t(cram[i] & 0x3f);
 	}
 }
 
@@ -552,7 +570,8 @@ uint8_t SMSVDPCore::spriteTileSelectMode4(uint8_t tileNumber) const
 }
 
 // MAME: draw_leftmost_pixels_mode4
-void SMSVDPCore::drawLeftmostPixelsMode4(int* lineBuffer, int* prioritySelected,
+void SMSVDPCore::drawLeftmostPixelsMode4(std::span<uint8_t, 256> lineBuffer,
+                                         std::span<int, 256> prioritySelected,
                                          int fineXScroll, int paletteSelected, int tileLine)
 {
 	// To draw the leftmost pixels when they aren't part of a tile column
@@ -575,7 +594,8 @@ void SMSVDPCore::drawLeftmostPixelsMode4(int* lineBuffer, int* prioritySelected,
 }
 
 // MAME: draw_scanline_mode4
-void SMSVDPCore::drawScanlineMode4(int* lineBuffer, int* prioritySelected, int line)
+void SMSVDPCore::drawScanlineMode4(std::span<uint8_t, 256> lineBuffer,
+                                   std::span<int, 256> prioritySelected, int line)
 {
 	const int xScroll = (((reg[0x00] & 0x40) != 0) && (line < 16)) ? 0 : reg8copy;
 	const int xScrollStartColumn = 32 - (xScroll >> 3);
@@ -647,7 +667,7 @@ void SMSVDPCore::drawScanlineMode4(int* lineBuffer, int* prioritySelected, int l
 }
 
 // MAME: draw_scanline_mode0 (Graphics I)
-void SMSVDPCore::drawScanlineMode0(int* lineBuffer, int line)
+void SMSVDPCore::drawScanlineMode0(std::span<uint8_t, 256> lineBuffer, int line)
 {
 	const uint16_t nameBase = uint16_t((reg[0x02] & 0x0f) << 10);
 	const uint16_t colorBase = uint16_t((reg[0x03] << 6) & 0x3fff);
@@ -676,7 +696,7 @@ void SMSVDPCore::drawScanlineMode0(int* lineBuffer, int line)
 }
 
 // MAME: draw_scanline_mode1 (Text)
-void SMSVDPCore::drawScanlineMode1(int* lineBuffer, int line)
+void SMSVDPCore::drawScanlineMode1(std::span<uint8_t, 256> lineBuffer, int line)
 {
 	const uint16_t nameBase = uint16_t((reg[0x02] & 0x0f) << 10);
 	const uint16_t patternBase = uint16_t((reg[0x04] << 11) & 0x3fff);
@@ -711,7 +731,7 @@ void SMSVDPCore::drawScanlineMode1(int* lineBuffer, int line)
 }
 
 // MAME: draw_scanline_mode2 (Graphics II)
-void SMSVDPCore::drawScanlineMode2(int* lineBuffer, int line)
+void SMSVDPCore::drawScanlineMode2(std::span<uint8_t, 256> lineBuffer, int line)
 {
 	const uint16_t nameBase = uint16_t((reg[0x02] & 0x0f) << 10);
 	const uint16_t colorBase = uint16_t((reg[0x03] & 0x80) << 6);
@@ -743,7 +763,7 @@ void SMSVDPCore::drawScanlineMode2(int* lineBuffer, int line)
 }
 
 // MAME: draw_scanline_mode3 (Multicolor)
-void SMSVDPCore::drawScanlineMode3(int* lineBuffer, int line)
+void SMSVDPCore::drawScanlineMode3(std::span<uint8_t, 256> lineBuffer, int line)
 {
 	const uint16_t nameBase = uint16_t((reg[0x02] & 0x0f) << 10);
 	const uint16_t patternBase = uint16_t((reg[0x04] << 11) & 0x3fff);
@@ -905,7 +925,8 @@ void SMSVDPCore::spriteCollision(int /*line*/, int spriteColX)
 }
 
 // MAME: draw_sprites_mode4
-void SMSVDPCore::drawSpritesMode4(int* lineBuffer, int* prioritySelected, int line)
+void SMSVDPCore::drawSpritesMode4(std::span<uint8_t, 256> lineBuffer,
+                                  std::span<int, 256> prioritySelected, int line)
 {
 	if (displayDisabled || (spriteCount == 0)) {
 		return;
@@ -974,7 +995,7 @@ void SMSVDPCore::drawSpritesMode4(int* lineBuffer, int* prioritySelected, int li
 }
 
 // MAME: draw_sprites_tms9918_mode
-void SMSVDPCore::drawSpritesTms9918Mode(int* lineBuffer, int line)
+void SMSVDPCore::drawSpritesTms9918Mode(std::span<uint8_t, 256> lineBuffer, int line)
 {
 	if (displayDisabled || (spriteCount == 0)) {
 		return;
@@ -1038,65 +1059,73 @@ void SMSVDPCore::drawSpritesTms9918Mode(int* lineBuffer, int line)
 
 // MAME: draw_scanline + blit_scanline, but rendering into a fixed
 // 320x240 output frame (active 256 pixels centered, active lines centered).
-void SMSVDPCore::drawLine(int outLine, std::span<uint32_t, OUTPUT_WIDTH> pixels)
+void SMSVDPCore::drawLine(int outLine, std::span<uint8_t, OUTPUT_WIDTH> paletteIndices)
 {
 	updatePalette();
 
-	const uint32_t backdrop = penColor(backdropColor());
-	std::fill(pixels.begin(), pixels.end(), backdrop);
-
+	const uint8_t backdrop = currentPalette[backdropColor()];
 	const int line = outLine - ((OUTPUT_HEIGHT - yPixelsValue) / 2);
 
-	if (displayDisabled) {
+	// Display disabled or a line outside the active display: the complete
+	// line is backdrop.
+	if (displayDisabled || (line >= frameTiming[ACTIVE_DISPLAY_V])) {
+		std::ranges::fill(paletteIndices, backdrop);
 		return;
 	}
 
-	if (line < frameTiming[ACTIVE_DISPLAY_V]) {
-		std::array<int, 256> lineBuffer{};
-		std::array<int, 256> prioritySelected;
-		std::fill(prioritySelected.begin(), prioritySelected.end(), 1);
+	std::array<uint8_t, 256> lineBuffer{};
+	std::array<int, 256> prioritySelected;
+	std::ranges::fill(prioritySelected, 1);
 
-		switch (vdpMode) {
-		case 0:
-			if (line >= 0) drawScanlineMode0(lineBuffer.data(), line);
-			if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
-				drawSpritesTms9918Mode(lineBuffer.data(), line);
-			break;
-		case 1:
-			if (line >= 0) drawScanlineMode1(lineBuffer.data(), line);
-			// Text mode, no sprite drawing
-			break;
-		case 2:
-			if (line >= 0) drawScanlineMode2(lineBuffer.data(), line);
-			if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
-				drawSpritesTms9918Mode(lineBuffer.data(), line);
-			break;
-		case 3:
-			if (line >= 0) drawScanlineMode3(lineBuffer.data(), line);
-			if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
-				drawSpritesTms9918Mode(lineBuffer.data(), line);
-			break;
-		case 4:
-		default:
-			if (line >= 0) drawScanlineMode4(lineBuffer.data(), prioritySelected.data(), line);
-			if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
-				drawSpritesMode4(lineBuffer.data(), prioritySelected.data(), line);
-			break;
-		}
-
-		if ((line >= 0) && (line < frameTiming[ACTIVE_DISPLAY_V])) {
-			int x = 0;
-			if ((vdpMode == 4) && (reg[0x00] & 0x20)) {
-				// Fill column 0 with overscan color
-				do {
-					pixels[32 + x] = penColor(backdropColor());
-				} while (++x < 8);
-			}
-			do {
-				pixels[32 + x] = colorAt(lineBuffer[x]);
-			} while (++x < 256);
-		}
+	switch (vdpMode) {
+	case 0:
+		if (line >= 0) drawScanlineMode0(lineBuffer, line);
+		if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
+			drawSpritesTms9918Mode(lineBuffer, line);
+		break;
+	case 1:
+		if (line >= 0) drawScanlineMode1(lineBuffer, line);
+		// Text mode, no sprite drawing
+		break;
+	case 2:
+		if (line >= 0) drawScanlineMode2(lineBuffer, line);
+		if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
+			drawSpritesTms9918Mode(lineBuffer, line);
+		break;
+	case 3:
+		if (line >= 0) drawScanlineMode3(lineBuffer, line);
+		if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
+			drawSpritesTms9918Mode(lineBuffer, line);
+		break;
+	case 4:
+	default:
+		if (line >= 0) drawScanlineMode4(lineBuffer, prioritySelected, line);
+		if ((line >= 0) || ((line >= -13) && (yPixelsValue == 192)))
+			drawSpritesMode4(lineBuffer, prioritySelected, line);
+		break;
 	}
+
+	if (line < 0) {
+		// Above the active display: only the sprite collision flags
+		// matter, the output line stays backdrop.
+		std::ranges::fill(paletteIndices, backdrop);
+		return;
+	}
+
+	// Left and right borders, then the 256 active pixels.
+	std::ranges::fill(paletteIndices.first(32), backdrop);
+	std::ranges::fill(paletteIndices.last(32), backdrop);
+
+	int x = 0;
+	if ((vdpMode == 4) && (reg[0x00] & 0x20)) {
+		// Fill column 0 with overscan color
+		do {
+			paletteIndices[32 + x] = backdrop;
+		} while (++x < 8);
+	}
+	do {
+		paletteIndices[32 + x] = lineBuffer[x];
+	} while (++x < 256);
 }
 
 } // namespace openmsx

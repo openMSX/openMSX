@@ -13,6 +13,10 @@
 // VRAM, CRAM, sprite and scanline semantics, including the documented timing
 // quirks, but replaces MAME's device/timer/screen framework with a small
 // pull/event interface driven by openMSX's scheduler.
+//
+// This class deliberately has no openMSX dependencies (only standard
+// headers), so the chip emulation can be unit-tested in isolation; all
+// openMSX glue lives in SMSVDP.
 
 #ifndef SMSVDPCORE_HH
 #define SMSVDPCORE_HH
@@ -20,6 +24,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <span>
 
 namespace openmsx {
@@ -107,6 +112,13 @@ public:
 	// /INT line: true when asserted (active low on the real chip).
 	[[nodiscard]] bool intLineAsserted() const { return nintAsserted; }
 
+	/** Register a callback that is called whenever the /INT line changes,
+	  * and immediately once with the current state. This mirrors MAME's
+	  * n_int_cb; it keeps the openMSX IRQ line in sync without having to
+	  * poll the state at every call site.
+	  */
+	void setNintCallback(std::function<void(bool)> callback);
+
 	// Are interrupts enabled? VINT (R#1 bit 5) or HINT (R#0 bit 4).
 	[[nodiscard]] bool interruptsEnabled() const {
 		return (reg[0x01] & 0x20) || (reg[0x00] & 0x10);
@@ -123,8 +135,17 @@ public:
 	// updateInterrupts() mirrors MAME's trigger_hint/trigger_vint timers;
 	// scheduled once per line (at/after HINT_HPOS and VINT_HPOS).
 	void updateInterrupts(int hpos);
-	// drawLine() renders one output scanline (320 RGB888 pixels).
-	void drawLine(int outLine, std::span<uint32_t, OUTPUT_WIDTH> pixels);
+	// drawLine() renders one output scanline as 320 palette indices
+	// (values 0..79; see paletteColors()).
+	void drawLine(int outLine, std::span<uint8_t, OUTPUT_WIDTH> paletteIndices);
+
+	/** The 80 chip colors (RGB888): indices 0..63 are the mode-4 CRAM
+	  * colors, 64..79 the fixed TMS colors. Used to translate the palette
+	  * indices to actual colors (e.g. with the video settings applied).
+	  */
+	[[nodiscard]] std::span<const uint32_t, 80> paletteColors() const {
+		return palette;
+	}
 
 	// Debug/test accessors.
 	[[nodiscard]] uint8_t peekReg(int i) const { return reg[i]; }
@@ -183,6 +204,7 @@ public:
 
 private:
 	// helpers
+	void setNint(bool asserted);
 	void selectExtendedResMode4(bool m1, bool m2, bool m3);
 	void selectDisplayMode();
 	void setDisplaySettings();
@@ -196,10 +218,6 @@ private:
 	[[nodiscard]] uint8_t backdropColor() const {
 		return uint8_t((vdpMode == 4 ? 0x10 : 0x00) + (reg[0x07] & 0x0f));
 	}
-	[[nodiscard]] uint32_t colorAt(int index) const { return palette[index & 0x7f]; }
-	[[nodiscard]] uint32_t penColor(int pen) const {
-		return palette[currentPalette[pen & 0x1f] & 0x7f];
-	}
 
 	// variant-dependent selection helpers
 	[[nodiscard]] uint16_t nameRowMode4(uint16_t row) const;
@@ -212,24 +230,27 @@ private:
 	void selectSprites(int line);
 	void spriteCountOverflow(int line, int spriteIndex);
 	void spriteCollision(int line, int spriteColX);
-	void drawSpritesMode4(int* lineBuffer, int* prioritySelected, int line);
-	void drawSpritesTms9918Mode(int* lineBuffer, int line);
+	void drawSpritesMode4(std::span<uint8_t, 256> lineBuffer,
+	                      std::span<int, 256> prioritySelected, int line);
+	void drawSpritesTms9918Mode(std::span<uint8_t, 256> lineBuffer, int line);
 
 	// background scanline drawing
-	void drawLeftmostPixelsMode4(int* lineBuffer, int* prioritySelected,
+	void drawLeftmostPixelsMode4(std::span<uint8_t, 256> lineBuffer,
+	                             std::span<int, 256> prioritySelected,
 	                             int fineXScroll, int paletteSelected, int tileLine);
-	void drawScanlineMode4(int* lineBuffer, int* prioritySelected, int line);
-	void drawScanlineMode3(int* lineBuffer, int line);
-	void drawScanlineMode2(int* lineBuffer, int line);
-	void drawScanlineMode1(int* lineBuffer, int line);
-	void drawScanlineMode0(int* lineBuffer, int line);
+	void drawScanlineMode4(std::span<uint8_t, 256> lineBuffer,
+	                       std::span<int, 256> prioritySelected, int line);
+	void drawScanlineMode3(std::span<uint8_t, 256> lineBuffer, int line);
+	void drawScanlineMode2(std::span<uint8_t, 256> lineBuffer, int line);
+	void drawScanlineMode1(std::span<uint8_t, 256> lineBuffer, int line);
+	void drawScanlineMode0(std::span<uint8_t, 256> lineBuffer, int line);
 
 private:
 	Variant variant;
 
-	// Frame/line timing (pointers into the static tables).
-	const uint8_t* frameTiming = nullptr;
-	const uint8_t* lineTiming = nullptr;
+	// Frame/line timing (spans into the static tables).
+	std::span<const uint8_t, 6> frameTiming;
+	std::span<const uint8_t, 8> lineTiming;
 
 	std::array<uint8_t, 0x4000> vram;   // 16 KiB
 	std::array<uint8_t, 32> cram;       // 32 colors x 1 byte
@@ -249,6 +270,7 @@ private:
 	int pendingSprcolX = 0;
 	uint8_t buffer = 0;
 	bool nintAsserted = false;  // true = /INT asserted
+	std::function<void(bool)> nintCallback;
 	int vdpMode = 0;
 	int yPixelsValue = 192;
 	uint8_t lineCounter = 0;
@@ -267,7 +289,7 @@ private:
 	int maxSpriteZoomHcount = 8;
 	int maxSpriteZoomVcount = 8;
 
-	std::array<int, 32> currentPalette{};
+	std::array<uint8_t, 32> currentPalette{};
 	std::array<uint32_t, 80> palette{};
 
 	bool palFlag = false;

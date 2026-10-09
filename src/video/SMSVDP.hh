@@ -5,9 +5,7 @@
 
 #include "BooleanSetting.hh"
 #include "DynamicClock.hh"
-#include "EnumSetting.hh"
 #include "IRQHelper.hh"
-#include "Observer.hh"
 #include "Schedulable.hh"
 #include "SimpleDebuggable.hh"
 #include "VideoSystemChangeListener.hh"
@@ -18,6 +16,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <string>
 #include <string_view>
 
@@ -28,7 +27,7 @@ class MSXMotherBoard;
 class PostProcessor;
 class Scheduler;
 class SMSVDPRenderer;
-class Setting;
+class VDP;
 
 /** Emulation of the Sega Master System VDP (315-5124/315-5246) as found in
   * the SuperSoniqs Franky cartridge.
@@ -39,12 +38,15 @@ class Setting;
   * output window, like the V9990/Video9000 implementation).
   */
 class SMSVDP final : public VideoSystemChangeListener
-                   , private Observer<Setting>
 {
 public:
 	enum class VideoStandard : uint8_t { NTSC, PAL };
 
-	SMSVDP(MSXMotherBoard& motherBoard, std::string name);
+	/** Name of the video source registered for the Franky's VDP output. */
+	static constexpr std::string_view VIDEO_SOURCE = "Franky";
+
+	SMSVDP(MSXMotherBoard& motherBoard, std::string name,
+	       VideoStandard standard, SMSVDPCore::Variant variant);
 	~SMSVDP();
 
 	void reset(EmuTime time);
@@ -70,6 +72,18 @@ public:
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 	[[nodiscard]] Scheduler& getScheduler() const;
 
+	/** The 80 chip colors (RGB888), used by the rasterizer to build its
+	  * native palette (with the video settings applied).
+	  */
+	[[nodiscard]] std::span<const uint32_t, 80> getPaletteColors() const {
+		return core.paletteColors();
+	}
+
+	/** The MSX VDP watched by the auto video switch. Called from
+	  * Franky::init() with the device declared via <device idref="VDP"/>.
+	  */
+	void setMsxVdp(VDP& vdp);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -78,17 +92,12 @@ private:
 	void preVideoSystemChange() noexcept override;
 	void postVideoSystemChange() noexcept override;
 
-	// Observer<Setting>
-	void update(const Setting& setting) noexcept override;
-
-	void createRenderer(EmuTime time);
+	void createRenderer();
 	void updateClock();
-	void updateIrq();
-	void reschedule(EmuTime time);
 	void updateAutoVideoSwitch(EmuTime time);
 	[[nodiscard]] unsigned currentHpos(EmuTime time) const;
 	[[nodiscard]] bool isPal() const {
-		return videoStandardSetting.getEnum() == VideoStandard::PAL;
+		return videoStandard == VideoStandard::PAL;
 	}
 
 	// scheduled events (all relative to the start of a scanline)
@@ -136,9 +145,9 @@ private:
 private:
 	MSXMotherBoard& motherBoard;
 
-	EnumSetting<VideoStandard> videoStandardSetting;
-	EnumSetting<SMSVDPCore::Variant> variantSetting;
+	VideoStandard videoStandard;
 	BooleanSetting autoVideoSwitchSetting;
+	VDP* msxVdp = nullptr;
 
 	SMSVDPCore core;
 	std::unique_ptr<SMSVDPRenderer> renderer;
