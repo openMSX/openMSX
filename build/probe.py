@@ -215,7 +215,7 @@ class TargetSystem(object):
 			ldflags += ' -shared -Wl,--no-undefined'
 
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
-		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
+		linkCommand = LinkCommand.fromLine(self.compileCommandStr, objectPath + ' ' + ldflags)
 
 		funcName = library.function
 		headers = library.getHeaders(self.platform)
@@ -235,7 +235,7 @@ class TargetSystem(object):
 				'Found' if compileOK else 'Missing'
 				), file=self.log)
 			if compileOK:
-				linkOK = linkCommand.link(self.log, [ objectPath ], binaryPath)
+				linkOK = linkCommand.link(self.log, binaryPath)
 				print('%s: %s lib' % (
 					makeName,
 					'Found' if linkOK else 'Missing'
