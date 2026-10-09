@@ -312,7 +312,13 @@ COMPILE_FLAGS+=$(TARGET_FLAGS)
 LINK_FLAGS+=$(TARGET_FLAGS)
 
 # Determine compiler.
-CXX?=g++
+# Use ccache if available to speed up compilation
+CCACHE?=$(shell command -v ccache 2>/dev/null)
+ifeq ($(CCACHE),)
+  CXX?=g++
+else
+  CXX:=$(CCACHE) $(CXX)
+endif
 WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
