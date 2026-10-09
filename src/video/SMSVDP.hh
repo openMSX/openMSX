@@ -149,9 +149,11 @@ private:
 	BooleanSetting autoVideoSwitchSetting;
 	VDP* msxVdp = nullptr;
 
+	// irq is declared before core: the core constructor resets the chip,
+	// which notifies the /INT callback (forwarded to irq).
+	IRQHelper irq;
 	SMSVDPCore core;
 	std::unique_ptr<SMSVDPRenderer> renderer;
-	IRQHelper irq;
 
 	// Debuggables: "Franky regs" and "Franky status regs".
 	struct RegDebug final : SimpleDebuggable {

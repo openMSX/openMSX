@@ -72,7 +72,13 @@ public:
 		BOTTOM_BLANKING
 	};
 
-	explicit SMSVDPCore(Variant variant, bool isPal);
+	/** @param nintCallback Called with the /INT line state (true = asserted;
+	  *   the pin is active low on the real chip) every time the chip
+	  *   evaluates the line. Must be a valid callback. Mirrors MAME's
+	  *   n_int_cb; the listener (SMSVDP's IRQHelper) owns the state.
+	  */
+	explicit SMSVDPCore(Variant variant, bool isPal,
+	                    std::function<void(bool)> nintCallback);
 
 	void reset();
 	void setPal(bool pal);
@@ -108,16 +114,6 @@ public:
 	[[nodiscard]] uint8_t readVCounter(int vpos, int hpos) const;
 	[[nodiscard]] uint8_t readHCounter();
 	void latchHCounter(int hpos);
-
-	// /INT line: true when asserted (active low on the real chip).
-	[[nodiscard]] bool intLineAsserted() const { return nintAsserted; }
-
-	/** Register a callback that is called whenever the /INT line changes,
-	  * and immediately once with the current state. This mirrors MAME's
-	  * n_int_cb; it keeps the openMSX IRQ line in sync without having to
-	  * poll the state at every call site.
-	  */
-	void setNintCallback(std::function<void(bool)> callback);
 
 	// Are interrupts enabled? VINT (R#1 bit 5) or HINT (R#0 bit 4).
 	[[nodiscard]] bool interruptsEnabled() const {
@@ -180,7 +176,6 @@ public:
 		ar.serialize("pendingControlWrite", pendingControlWrite);
 		ar.serialize("pendingSprcolX", pendingSprcolX);
 		ar.serialize("buffer", buffer);
-		ar.serialize("nintAsserted", nintAsserted);
 		ar.serialize("vdpMode", vdpMode);
 		ar.serialize("yPixelsValue", yPixelsValue);
 		ar.serialize("lineCounter", lineCounter);
@@ -269,7 +264,6 @@ private:
 	bool pendingControlWrite = false;
 	int pendingSprcolX = 0;
 	uint8_t buffer = 0;
-	bool nintAsserted = false;  // true = /INT asserted
 	std::function<void(bool)> nintCallback;
 	int vdpMode = 0;
 	int yPixelsValue = 192;

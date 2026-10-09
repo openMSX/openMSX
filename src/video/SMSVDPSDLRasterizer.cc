@@ -8,11 +8,11 @@
 #include "RawFrame.hh"
 #include "RenderSettings.hh"
 
-#include "enumerate.hh"
 #include "one_of.hh"
 #include "xrange.hh"
 
 #include <cassert>
+#include <ranges>
 
 using namespace gl;
 
@@ -50,10 +50,8 @@ PostProcessor* SMSVDPSDLRasterizer::getPostProcessor() const
 
 void SMSVDPSDLRasterizer::precalcPalette()
 {
-	const auto colors = vdp.getPaletteColors();
-	for (auto [i, col] : enumerate(palette)) {
-		const uint32_t rgb = colors[i];
-		col = screen.mapRGB(renderSettings.transformRGB(
+	for (auto [rgb, out] : std::views::zip(vdp.getPaletteColors(), palette)) {
+		out = screen.mapRGB(renderSettings.transformRGB(
 			vec3((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF) * (1.0f / 255.0f)));
 	}
 }

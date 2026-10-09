@@ -32,15 +32,14 @@ SMSVDP::SMSVDP(MSXMotherBoard& motherBoard_, std::string name,
 		"interrupts enabled, otherwise Franky while its VDP has interrupts "
 		"enabled. Disable to control the 'videosource' setting manually.",
 		true)
-	, core(variant, isPal())
 	, irq(motherBoard, name + ".IRQ")
+	, core(variant, isPal(), [this](bool asserted) { irq.set(asserted); })
 	, regDebug(*this, name)
 	, statusDebug(*this, name)
 	, pixelClock(EmuTime::zero())
 {
 	updateClock();
 	motherBoard.getReactor().getDisplay().attach(*this);
-	core.setNintCallback([this](bool asserted) { irq.set(asserted); });
 	auto time = motherBoard.getCurrentTime();
 	createRenderer();
 	reset(time);
@@ -324,11 +323,11 @@ void SMSVDP::serialize(Archive& ar, unsigned /*version*/)
 	             "syncInt",  syncInt,
 	             "syncDraw", syncDraw,
 	             "syncEol",  syncEol);
+	ar.serialize("irq", irq);
 	if constexpr (Archive::IS_LOADER) {
 		core.setPal(isPal()); // the device configuration is authoritative
 		vpos = std::min(vpos, core.height() - 1);
 		updateClock();
-		irq.set(core.intLineAsserted()); // the callback is not serialized
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SMSVDP);

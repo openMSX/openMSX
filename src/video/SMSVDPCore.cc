@@ -50,8 +50,8 @@ static constexpr std::array<std::array<uint8_t, 3>, 16> tmsColors = {{
 	std::array<uint32_t, 80> result{};
 	if (variant == SMSVDPCore::Variant::SMS1) {
 		// MAME: sega315_5124_palette
-		static constexpr uint8_t level[4] = {0, 78, 160, 238};
-		static constexpr uint8_t blueLevel[4] = {0, 98, 160, 238};
+		static constexpr std::array<uint8_t, 4> level = {0, 78, 160, 238};
+		static constexpr std::array<uint8_t, 4> blueLevel = {0, 98, 160, 238};
 		for (int i = 0; i < 64; ++i) {
 			result[i] = rgb(level[i & 0x03], level[(i & 0x0c) >> 2],
 			                blueLevel[(i & 0x30) >> 4]);
@@ -62,7 +62,7 @@ static constexpr std::array<std::array<uint8_t, 3>, 16> tmsColors = {{
 		}
 	} else {
 		// MAME: sega315_5246_palette
-		static constexpr uint8_t level[4] = {0, 89, 174, 255};
+		static constexpr std::array<uint8_t, 4> level = {0, 89, 174, 255};
 		for (int i = 0; i < 64; ++i) {
 			result[i] = rgb(level[i & 0x03], level[(i & 0x0c) >> 2],
 			                level[(i & 0x30) >> 4]);
@@ -75,12 +75,15 @@ static constexpr std::array<std::array<uint8_t, 3>, 16> tmsColors = {{
 	return result;
 }
 
-SMSVDPCore::SMSVDPCore(Variant variant_, bool isPal)
+SMSVDPCore::SMSVDPCore(Variant variant_, bool isPal,
+                       std::function<void(bool)> nintCallback_)
 	: variant(variant_)
 	, frameTiming(isPal ? pal192 : ntsc192)
 	, lineTiming(lineTiming315_5124)
+	, nintCallback(std::move(nintCallback_))
 	, palette(buildPalette(variant_))
 {
+	assert(nintCallback);
 	maxSpriteZoomHcount = (variant == Variant::SMS1) ? 4 : 8;
 	maxSpriteZoomVcount = 8;
 	palFlag = isPal;
@@ -105,7 +108,7 @@ void SMSVDPCore::reset()
 	displayDisabled = false;
 	cramDirty = true;
 	buffer = 0;
-	setNint(false);
+	setNint(false); // deassert /INT (the listener owns the line state)
 	lineCounter = 0;
 	hcounter = 0;
 	hcounterLatched = false;
@@ -115,20 +118,9 @@ void SMSVDPCore::reset()
 	vram.fill(0);
 }
 
-void SMSVDPCore::setNintCallback(std::function<void(bool)> callback)
-{
-	nintCallback = std::move(callback);
-	if (nintCallback) {
-		nintCallback(nintAsserted); // immediately synchronize the listener
-	}
-}
-
 void SMSVDPCore::setNint(bool asserted)
 {
-	nintAsserted = asserted;
-	if (nintCallback) {
-		nintCallback(asserted);
-	}
+	nintCallback(asserted);
 }
 
 void SMSVDPCore::setPal(bool pal)
@@ -197,7 +189,7 @@ void SMSVDPCore::setFrameTiming()
 	case 240: timing = palFlag ? &pal240 : &ntsc240; break;
 	default:  timing = palFlag ? &pal192 : &ntsc192; break;
 	}
-	frameTiming = std::span<const uint8_t, 6>(*timing);
+	frameTiming = *timing;
 }
 
 // MAME: vcount
