@@ -675,6 +675,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Gunstick.cc">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\LightGunSensor.cc">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -2240,6 +2243,9 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\GunstickSensor.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\LightGunSensor.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh">

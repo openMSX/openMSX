@@ -233,6 +233,7 @@ sources = files(
     'input/MSXJoystick.cc',
     'input/Keyboard.cc',
     'input/KeyboardSettings.cc',
+    'input/LightGunSensor.cc',
     'input/MSXEventDistributor.cc',
     'input/MagicKey.cc',
     'input/Mouse.cc',

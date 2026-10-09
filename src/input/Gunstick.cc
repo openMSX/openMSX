@@ -10,7 +10,6 @@
 // state change, and a replay uses the recorded value.
 
 #include "Gunstick.hh"
-#include "GunstickSensor.hh"
 
 #include "MSXEventDistributor.hh"
 #include "StateChange.hh"
@@ -18,38 +17,25 @@
 
 #include "Display.hh"
 #include "Event.hh"
-#include "MSXMotherBoard.hh"
-#include "OutputSurface.hh"
-#include "RawFrame.hh"
-#include "RenderSettings.hh"
-#include "SDLRasterizer.hh"
-#include "VDP.hh"
-#include "VideoSystem.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "stl.hh"
 
 #include <SDL.h>
 
-#include <array>
 #include <cstdint>
-#include <optional>
 #include <variant>
 
-using namespace gl;
-
 namespace openmsx {
-
-static_assert(gunstick::TICKS_PER_LINE == VDP::TICKS_PER_LINE);
 
 Gunstick::Gunstick(MSXMotherBoard& motherBoard_,
                    MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
                    Display& display_)
-	: motherBoard(motherBoard_)
-	, eventDistributor(eventDistributor_)
+	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, display(display_)
+	, sensor(motherBoard_, display_)
 {
 }
 
@@ -101,7 +87,7 @@ uint8_t Gunstick::read(EmuTime time)
 	if (!stateChangeDistributor.isReplaying()) {
 		// The CPU syncs the scheduler before a port read, so on replay
 		// this event is delivered before the read at the same time.
-		if (auto newStatus = setActive(status, LIGHT, senseLight(time));
+		if (auto newStatus = setActive(status, LIGHT, sensor.senseLight(time));
 		    newStatus != status) {
 			stateChangeDistributor.distributeNew<GunstickState>(time, newStatus);
 		}
@@ -112,56 +98,6 @@ uint8_t Gunstick::read(EmuTime time)
 void Gunstick::write(uint8_t /*value*/, EmuTime /*time*/)
 {
 	// pin 8 is not used
-}
-
-bool Gunstick::senseLight(EmuTime time)
-{
-	auto aim = getAim();
-	if (!aim) return false;
-	if (!vdp) {
-		vdp = dynamic_cast<VDP*>(motherBoard.findDevice("VDP")); // TODO name based OK?
-		if (!vdp) return false; // not expected: MSX machines have a VDP
-	}
-
-	int firstLineTicks = SDLRasterizer::getLineRenderTop(vdp->isPalTiming()) * VDP::TICKS_PER_LINE;
-	int beamPos = gunstick::beamPosition(vdp->getTicksThisFrame(time) - firstLineTicks);
-	// Bail out early: getWorkingFrame() syncs the renderer.
-	if (!gunstick::beamNearAim(beamPos, *aim)) return false;
-
-	const RawFrame* frame = vdp->getWorkingFrame(time);
-	if (!frame) return false; // renderer "none"
-
-	// cache the last fetched line
-	std::array<FrameSource::Pixel, gunstick::FRAME_WIDTH> buf;
-	const FrameSource::Pixel* lineCache = nullptr;
-	int lineCacheY = -1;
-	return gunstick::seesLight(beamPos, *aim, [&](int x, int y) {
-		if (y != lineCacheY) {
-			lineCache = frame->getLinePtr320_240(y, buf).data();
-			lineCacheY = y;
-		}
-		return lineCache[x];
-	});
-}
-
-// The RawFrame pixel under the host mouse pointer.
-std::optional<ivec2> Gunstick::getAim() const
-{
-	const auto* output = display.getOutputSurface();
-	if (!output) return {};
-	auto mouse = display.getVideoSystem().getMouseCoord();
-	if (!mouse) return {}; // not over the openMSX window
-	auto pixelSize = display.getMsxPixelSize();
-	if (!pixelSize) return {};
-	auto& renderSettings = display.getRenderSettings();
-	float hStretch = renderSettings.getHorizontalStretch();
-	auto view = gunstick::mouseToView(
-		vec2(*mouse), *pixelSize,
-		vec2(output->getViewOffset()), vec2(output->getViewSize()),
-		hStretch, renderSettings.getFullStretch());
-	return (renderSettings.getDisplayDeform() == RenderSettings::DisplayDeform::_3D)
-	     ? gunstick::viewToFrame3D(view, hStretch)
-	     : gunstick::viewToFrame(view, hStretch);
 }
 
 // MSXEventListener
