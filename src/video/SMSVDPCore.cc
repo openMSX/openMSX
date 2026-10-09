@@ -563,7 +563,7 @@ uint8_t SMSVDPCore::spriteTileSelectMode4(uint8_t tileNumber) const
 
 // MAME: draw_leftmost_pixels_mode4
 void SMSVDPCore::drawLeftmostPixelsMode4(std::span<uint8_t, 256> lineBuffer,
-                                         std::span<int, 256> prioritySelected,
+                                         std::span<uint16_t, 256> prioritySelected,
                                          int fineXScroll, int paletteSelected, int tileLine)
 {
 	// To draw the leftmost pixels when they aren't part of a tile column
@@ -587,7 +587,7 @@ void SMSVDPCore::drawLeftmostPixelsMode4(std::span<uint8_t, 256> lineBuffer,
 
 // MAME: draw_scanline_mode4
 void SMSVDPCore::drawScanlineMode4(std::span<uint8_t, 256> lineBuffer,
-                                   std::span<int, 256> prioritySelected, int line)
+                                   std::span<uint16_t, 256> prioritySelected, int line)
 {
 	const int xScroll = (((reg[0x00] & 0x40) != 0) && (line < 16)) ? 0 : reg8copy;
 	const int xScrollStartColumn = 32 - (xScroll >> 3);
@@ -652,7 +652,7 @@ void SMSVDPCore::drawScanlineMode4(std::span<uint8_t, 256> lineBuffer,
 			pixelPlotX = fineXScroll + (tileColumn << 3) + pixelPlotX;
 			if (pixelPlotX < 256) {
 				lineBuffer[pixelPlotX] = currentPalette[penSelected];
-				prioritySelected[pixelPlotX] = prioritySelect | (penSelected & 0x0f);
+				prioritySelected[pixelPlotX] = uint16_t(prioritySelect | (penSelected & 0x0f));
 			}
 		}
 	}
@@ -918,7 +918,7 @@ void SMSVDPCore::spriteCollision(int /*line*/, int spriteColX)
 
 // MAME: draw_sprites_mode4
 void SMSVDPCore::drawSpritesMode4(std::span<uint8_t, 256> lineBuffer,
-                                  std::span<int, 256> prioritySelected, int line)
+                                  std::span<uint16_t, 256> prioritySelected, int line)
 {
 	if (displayDisabled || (spriteCount == 0)) {
 		return;
@@ -1066,8 +1066,8 @@ void SMSVDPCore::drawLine(int outLine, std::span<uint8_t, OUTPUT_WIDTH> paletteI
 	}
 
 	std::array<uint8_t, 256> lineBuffer{};
-	std::array<int, 256> prioritySelected;
-	std::ranges::fill(prioritySelected, 1);
+	std::array<uint16_t, 256> prioritySelected;
+	std::ranges::fill(prioritySelected, uint16_t(1));
 
 	switch (vdpMode) {
 	case 0:

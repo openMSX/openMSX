@@ -226,15 +226,15 @@ private:
 	void spriteCountOverflow(int line, int spriteIndex);
 	void spriteCollision(int line, int spriteColX);
 	void drawSpritesMode4(std::span<uint8_t, 256> lineBuffer,
-	                      std::span<int, 256> prioritySelected, int line);
+	                      std::span<uint16_t, 256> prioritySelected, int line);
 	void drawSpritesTms9918Mode(std::span<uint8_t, 256> lineBuffer, int line);
 
 	// background scanline drawing
 	void drawLeftmostPixelsMode4(std::span<uint8_t, 256> lineBuffer,
-	                             std::span<int, 256> prioritySelected,
+	                             std::span<uint16_t, 256> prioritySelected,
 	                             int fineXScroll, int paletteSelected, int tileLine);
 	void drawScanlineMode4(std::span<uint8_t, 256> lineBuffer,
-	                       std::span<int, 256> prioritySelected, int line);
+	                       std::span<uint16_t, 256> prioritySelected, int line);
 	void drawScanlineMode3(std::span<uint8_t, 256> lineBuffer, int line);
 	void drawScanlineMode2(std::span<uint8_t, 256> lineBuffer, int line);
 	void drawScanlineMode1(std::span<uint8_t, 256> lineBuffer, int line);
