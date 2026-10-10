@@ -36,6 +36,7 @@ public:
 
 	void sync(EmuTime curEmu);
 	void flush();
+	void releaseMouseButtons();
 
 private:
 	// EventListener
@@ -50,6 +51,7 @@ private:
 
 	std::vector<Event> toBeScheduledEvents;
 	std::deque<Event> scheduledEvents;
+	unsigned mouseButtons = 0;
 
 #if PLATFORM_ANDROID
 	std::vector<std::pair<int, Event>> nonMatchedKeyPresses;

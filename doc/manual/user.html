@@ -1577,20 +1577,38 @@ keep the left mouse key pressed when plugging it in, just as on a real MSX.
 </p>
 
 <p>
-If you are using openMSX in windowed mode, it might be tricky to use the mouse.
-The setting: <code>set <a
-class="external" href="commands.html#grabinput">grabinput</a> on</code>
-makes sure all input goes to openMSX. Your cursor cannot leave the openMSX
-window with this setting. Just turn it back to off, if you want to disable this
-again. If you only want to escape the window briefly, use this command:
-<code><a class="external"
-href="commands.html#escape_grab">escape_grab</a></code>. It permits you to
-leave the window, but the next time you enter it, the cursor is grabbed again.
-It might be a good idea to bind this command to a key, using the <code><a
-class="external" href="commands.html#bind">bind</a></code> command, which is
-mentioned above. You can also toggle the setting via <span
-class="menu-reference">Main menu bar &rarr; Settings &rarr; Input &rarr; Grab
-input</span>.
+With an MSX mouse connected, click inside the MSX display to capture it. The
+host pointer disappears and movement goes to the MSX, so you only see the
+pointer drawn by the MSX program. This first click is used only to capture the
+mouse; it does not click inside the MSX program.
+</p>
+
+<p>
+Middle-click to release the mouse. The host pointer
+reappears, letting you use openMSX menus and other windows. Click the MSX display
+to capture again. Merely moving over a menu, status bar, or screen edge does
+not release capture. This works in windowed and full-screen modes. Opening the
+console, breaking into the debugger, pausing, or switching to another window
+also releases the mouse.
+</p>
+
+<p>
+While captured, middle-click only releases capture; it does not paste.
+While released, middle-click inside the MSX display retains its usual
+clipboard-paste binding (or your custom binding). Middle-clicking a menu
+or tool stays with the GUI.
+</p>
+
+<p>
+No keyboard shortcut is assigned by default. An optional shortcut can be
+assigned to the existing
+<a class="external" href="commands.html#escape_grab">escape_grab</a> command.
+To restore the previous mouse behavior, disable <span class="menu-reference">
+Main menu bar &rarr; Settings &rarr; Input &rarr; Capture MSX mouse on click</span>
+or use <code>set auto_mouse_capture off</code>. In that mode the existing
+<a class="external" href="commands.html#grabinput">grabinput</a> and
+<a class="external" href="commands.html#escape_grab">escape_grab</a> controls
+remain available.
 </p>
 
 <h3><a id="arkanoidpad">6.4 Arkanoid Pad</a></h3>

@@ -746,6 +746,7 @@ void MSXMotherBoard::powerDown()
 
 void MSXMotherBoard::activate(bool active_)
 {
+	if (!active_) eventDelay->releaseMouseButtons();
 	active = active_;
 	auto event = active ? Event(MachineActivatedEvent())
 	                    : Event(MachineDeactivatedEvent());

@@ -53,11 +53,29 @@ EventDelay::~EventDelay()
 
 bool EventDelay::signalEvent(const Event& event)
 {
+	if (const auto* e = get_event_if<MouseButtonDownEvent>(event)) {
+		if (e->getButton() <= 32 && e->getButton() > 0) mouseButtons |= 1u << (e->getButton() - 1);
+	} else if (const auto* up = get_event_if<MouseButtonUpEvent>(event)) {
+		if (up->getButton() <= 32 && up->getButton() > 0) mouseButtons &= ~(1u << (up->getButton() - 1));
+	}
 	toBeScheduledEvents.push_back(event);
 	if (delaySetting.getDouble() == 0.0) {
 		sync(getCurrentTime());
 	}
 	return false;
+}
+
+void EventDelay::releaseMouseButtons()
+{
+	for (unsigned button = 1; button <= 32; ++button) {
+		if (!(mouseButtons & (1u << (button - 1)))) continue;
+		SDL_Event event = {};
+		event.button.type = SDL_MOUSEBUTTONUP;
+		event.button.timestamp = SDL_GetTicks();
+		event.button.button = uint8_t(button);
+		event.button.state = SDL_RELEASED;
+		signalEvent(MouseButtonUpEvent(event));
+	}
 }
 
 void EventDelay::sync(EmuTime curEmu)

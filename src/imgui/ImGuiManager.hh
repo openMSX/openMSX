@@ -135,6 +135,10 @@ private:
 	void iniWriteAll(ImGuiTextBuffer& buf);
 
 	void updateParts();
+	void updateMouseCapture();
+	// If capture decides routing: true consumes, false forwards to MSX hotkeys.
+	// Otherwise use normal ImGui routing.
+	[[nodiscard]] std::optional<bool> handleMouseCapture(const SDL_Event& event);
 
 private:
 	Reactor& reactor;
@@ -215,6 +219,8 @@ private:
 	bool handleDropped = false;
 	bool openInsertedInfo = false;
 	bool guiActive = false;
+	unsigned suppressedMouseButtons = 0;
+	float mouseCaptureHint = 0.0f;
 
 	EmuTime prevBoardTime = EmuTime::zero();
 	float speedDrawTimeOut = 0.0f;
