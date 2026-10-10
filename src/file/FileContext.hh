@@ -16,9 +16,11 @@ public:
 	            std::vector<std::string>&& savePaths);
 
 	[[nodiscard]] std::string resolve      (std::string_view filename) const;
+	[[nodiscard]] std::string resolveSavePaths(std::string_view filename) const;
 	[[nodiscard]] std::string resolveCreate(std::string_view filename) const;
 
 	[[nodiscard]] std::span<const std::string> getPaths() const;
+	[[nodiscard]] std::span<const std::string> getSavePaths() const;
 	[[nodiscard]] bool isUserContext() const;
 
 	template<typename Archive>

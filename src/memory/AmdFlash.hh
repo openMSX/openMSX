@@ -4,6 +4,8 @@
 #include "serialize_meta.hh"
 
 #include "BitField.hh"
+#include "DeviceConfig.hh"
+#include "RTSchedulable.hh"
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
@@ -27,6 +29,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Rom;
 class SRAM;
+class File;
 class DeviceConfig;
 
 class AmdFlash
@@ -236,6 +239,11 @@ public:
 	         DeviceConfig& config, std::string_view id = {});
 	~AmdFlash();
 
+	// Developer restore: refresh only sectors never programmed/erased by the guest.
+	[[nodiscard]] size_t refreshUnmodified(const Rom& rom);
+	// Drop pending disk writes when discarding a failed, inactive developer restore.
+	void discardPendingPersistence();
+
 	void reset();
 	/**
 	 * Setting the Vpp/WP# pin LOW enables a certain kind of write
@@ -290,6 +298,13 @@ private:
 	[[nodiscard]] const Sector& getSector(size_t address) const { return sectors[getSectorIndex(address)]; };
 	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
+	bool loadPersistent();
+	bool loadLegacyPersistent(File& file, const std::string& path);
+	void validateModifiedSectors() const;
+	void savePersistent();
+	void schedulePersistentSave();
+	void markModified(const Sector& sector);
+
 	void softReset();
 	void clearStatus();
 	void setState(State newState);
@@ -324,10 +339,13 @@ private:
 	void execProgramOperation(EmuTime time);
 	void execSuspend(EmuTime time);
 
+	const DeviceConfig deviceConfig;
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
 	const Chip& chip;
 	std::vector<Sector> sectors;
+	std::vector<uint8_t> modifiedSectors;
+	bool persistenceDirty = false;
 	std::vector<AddressValue> cmd;
 	State state = State::READ;
 	bool vppWpPinLow = false; // true = protection on
@@ -397,8 +415,17 @@ private:
 			outer.execSuspend(time);
 		}
 	} syncSuspend;
+
+	struct PersistentSync final : RTSchedulable {
+		explicit PersistentSync(RTScheduler& scheduler) : RTSchedulable(scheduler) {}
+		void executeRT() override {
+			auto& outer = OUTER(AmdFlash, persistentSync);
+			outer.savePersistent();
+		}
+	};
+	PersistentSync persistentSync;
 };
-SERIALIZE_CLASS_VERSION(AmdFlash, 4);
+SERIALIZE_CLASS_VERSION(AmdFlash, 5);
 
 namespace AmdFlashChip
 {
