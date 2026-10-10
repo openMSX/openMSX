@@ -2153,11 +2153,7 @@ void AdpcmBEngine::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("registers", registers,
 	             "channel",   channel,
 	             "ram",       ram);
-	// The sync point follows from the guest state and the FM sample clock,
-	// which YM2608::serialize() restores before us.
-	if constexpr (Archive::IS_LOADER) {
-		schedule();
-	}
+	// The sync point is not saved, YM2608::serialize() reschedules it.
 }
 
 } // namespace ym2608
@@ -2558,6 +2554,8 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		fm.setIrqMask(irqEnable & ~flagControl & 0x1f);
 		applyRates(fm.getCurrentTime());
+		// only reschedule after all members have been restored
+		adpcmB.schedule();
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2608);
