@@ -91,8 +91,8 @@ void SN76489::NoiseShifter::serialize(Archive& ar, unsigned /*version*/)
 
 // Main class:
 
-SN76489::SN76489(const DeviceConfig& config, std::string_view name)
-	: ResampledSoundDevice(config.getMotherBoard(), name, "DCSG", 4, NATIVE_FREQ_INT, false)
+SN76489::SN76489(const DeviceConfig& config, std::string_view name_)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "DCSG", 4, NATIVE_FREQ_INT, false)
 	, debuggable(config.getMotherBoard(), getName())
 {
 	if (false) {

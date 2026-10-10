@@ -277,9 +277,9 @@ void SMSVDP::postVideoSystemChange() noexcept
 // debuggables
 // ---------------------------------------------------------------------------
 
-SMSVDP::RegDebug::RegDebug(const SMSVDP& vdp, std::string_view name)
+SMSVDP::RegDebug::RegDebug(const SMSVDP& vdp, std::string_view name_)
 	: SimpleDebuggable(vdp.getMotherBoard(),
-	                   strCat(name, " regs"), "Franky VDP registers.", 16)
+	                   strCat(name_, " regs"), "Franky VDP registers.", 16)
 {
 }
 
@@ -296,9 +296,9 @@ void SMSVDP::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 	                       narrow<int>(vdp.currentHpos(time)));
 }
 
-SMSVDP::StatusDebug::StatusDebug(const SMSVDP& vdp, std::string_view name)
+SMSVDP::StatusDebug::StatusDebug(const SMSVDP& vdp, std::string_view name_)
 	: SimpleDebuggable(vdp.getMotherBoard(),
-	                   strCat(name, " status regs"), "Franky VDP status register.", 1)
+	                   strCat(name_, " status regs"), "Franky VDP status register.", 1)
 {
 }
 
