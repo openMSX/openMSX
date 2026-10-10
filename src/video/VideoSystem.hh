@@ -18,6 +18,8 @@ class VDP;
 class V9990Rasterizer;
 class LDRasterizer;
 class V9990;
+class SMSVDP;
+class SMSVDPRasterizer;
 class LaserdiscPlayer;
 class OutputSurface;
 
@@ -42,6 +44,14 @@ public:
 	  */
 	[[nodiscard]] virtual std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
 		V9990& vdp) = 0;
+
+	/** Create the Sega VDP (Franky) rasterizer selected by the current
+	  * renderer setting.
+	  * @param vdp The SMSVDP whose display will be rendered.
+	  * @return The rasterizer created.
+	  */
+	[[nodiscard]] virtual std::unique_ptr<SMSVDPRasterizer> createSMSVDPRasterizer(
+		SMSVDP& vdp) = 0;
 
 #if COMPONENT_LASERDISC
 	[[nodiscard]] virtual std::unique_ptr<LDRasterizer> createLDRasterizer(

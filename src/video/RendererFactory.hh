@@ -14,6 +14,8 @@ class Renderer;
 class VDP;
 class V9990Renderer;
 class V9990;
+class SMSVDPRenderer;
+class SMSVDP;
 class LDRenderer;
 class LaserdiscPlayer;
 
@@ -40,6 +42,14 @@ namespace RendererFactory
 	  */
 	[[nodiscard]] std::unique_ptr<V9990Renderer> createV9990Renderer(
 		V9990& vdp, Display& display);
+
+	/** Create the Sega VDP (Franky) Renderer selected by the current
+	  * renderer setting.
+	  * @param vdp The SMSVDP whose display will be rendered.
+	  * @param display TODO
+	  */
+	[[nodiscard]] std::unique_ptr<SMSVDPRenderer> createSMSVDPRenderer(
+		SMSVDP& vdp, Display& display);
 
 #if COMPONENT_LASERDISC
 	/** Create the Laserdisc Renderer

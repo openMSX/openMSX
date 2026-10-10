@@ -2,6 +2,7 @@
 
 #include "LDRasterizer.hh"
 #include "Rasterizer.hh"
+#include "SMSVDPRasterizer.hh"
 #include "V9990Rasterizer.hh"
 
 #include "unreachable.hh"
@@ -17,6 +18,12 @@ std::unique_ptr<Rasterizer> DummyVideoSystem::createRasterizer(VDP& /*vdp*/)
 
 std::unique_ptr<V9990Rasterizer> DummyVideoSystem::createV9990Rasterizer(
 	V9990& /*vdp*/)
+{
+	UNREACHABLE;
+}
+
+std::unique_ptr<SMSVDPRasterizer> DummyVideoSystem::createSMSVDPRasterizer(
+	SMSVDP& /*vdp*/)
 {
 	UNREACHABLE;
 }
