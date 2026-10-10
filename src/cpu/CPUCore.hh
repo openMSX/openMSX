@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <span>
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -146,6 +147,29 @@ private:
 
 	Probe<int> IRQStatus;
 	Probe<void> IRQAccept;
+	Probe<void> blockInstruction;
+
+	/**
+	 * Address of the block instruction run that's currently in progress (see
+	 * blockInstructionBegin()). All iterations of one block instruction
+	 * re-execute the very same ED-prefixed instruction, so consecutive
+	 * iterations are recognized by the address being the same. As soon as a
+	 * block instruction run has ended this is reset (see
+	 * blockInstructionEnd()), so that a block instruction is always signalled
+	 * again when it's entered anew, even at the same address (e.g. the
+	 * second run of an LDIR inside a loop). Only instructions of the block
+	 * instruction itself reset this, so an interrupted run keeps signalling
+	 * only once. Only used when there is an observer on 'blockInstruction',
+	 * so it doesn't need to be serialized.
+	 *
+	 * Corner case: if a run is left in a way that doesn't go through the end
+	 * of the block instruction, e.g. an interrupt handler that doesn't return
+	 * to it, then re-entering the very same block instruction won't signal
+	 * again. Detecting that would need bookkeeping on every single executed
+	 * instruction, which is a lot more expensive than the rare and unlikely
+	 * benefit.
+	 */
+	uint16_t lastBlockPC = 0xFFFF;
 
 	// dynamic freq
 	BooleanSetting freqLocked;
@@ -162,6 +186,21 @@ private:
 	 * Set to false when the CPU jumps to the NMI handler address.
 	 */
 	bool nmiEdge = false;
+
+	/**
+	 * PCs of currently suspended block-repeat executions, innermost last.
+	 * Pushed when a repeat opcode is dispatched with a different PC on top
+	 * (fresh entry, including loop re-entries and nested handler blocks),
+	 * popped when its final iteration completes. An IRQ/NMI resume
+	 * re-dispatches the PC that is still on top, so it correctly logs no
+	 * new entry. Cleared on reset; serialized with the CPU state.
+	 * PCs are instruction-start addresses (first byte, as in 'reg PC' and
+	 * the disassembler), not the second ED-prefix byte seen at dispatch.
+	 * Same-PC reentrant execution (a handler calling the exact interrupted
+	 * block routine) is not distinguished; that code is not reentrant
+	 * anyway on MSX (handlers run with interrupts disabled).
+	 */
+	std::vector<uint16_t> blockStack;
 
 	std::atomic<bool> exitLoop = false;
 
@@ -425,6 +464,19 @@ private:
 	inline II out_c_0();
 	inline II out_byte_a();
 
+	// Called at the start of each block instruction (iteration). openMSX
+	// implements the repeating block instructions (LDIR, CPIR, ...) as a
+	// series of single iteration instructions: each iteration re-executes
+	// the ED prefix. Signals the 'blockInstruction' probe, but only for the
+	// first iteration of a run.
+	//
+	// Must only be called if blockInstruction has observers.
+	void blockInstructionBegin();
+
+	// Called when a block instruction run ends, i.e. on the last iteration.
+	// Must only be called if blockInstruction has observers.
+	void blockInstructionEnd();
+
 	inline II BLOCK_CP(int increase, bool repeat);
 	inline II cpd();
 	inline II cpi();
@@ -448,6 +500,14 @@ private:
 	inline II outi();
 	inline II otdr();
 	inline II otir();
+
+	// Bookkeeping for block-repeat executions (LDIR/LDDR/CPIR/CPDR/
+	// INIR/INDR/OTIR/OTDR), used to log BlockEntry reverse markers.
+	// Called once per repeat-opcode dispatch (not per single-step
+	// variant); the per-dispatch cost is a couple of predictable
+	// branches. See CPUCore.cc for the stack-discipline rationale.
+	inline void noteBlockRepeatEntry();
+	inline void noteBlockRepeatEnd();
 
 	template<int EE = 0> inline II nop();
 	inline II ccf();
@@ -477,8 +537,8 @@ private:
 
 class Z80TYPE;
 class R800TYPE;
-SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  5);
-SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 5); // keep these two the same
+SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  6);
+SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 6); // keep these two the same
 
 } // namespace openmsx
 

@@ -161,6 +161,10 @@
 #include "CPUCore.hh"
 
 #include "Dasm.hh"
+#include "ReverseManager.hh"
+#include "StateChange.hh"
+#include "StateChangeDistributor.hh"
+#include "serialize_stl.hh"
 #include "MSXCPUInterface.hh"
 #include "R800.hh"
 #include "Z80.hh"
@@ -299,6 +303,10 @@ template<typename T> CPUCore<T>::CPUCore(
 	            0)
 	, IRQAccept(motherboard.getDebugger(), name + ".acceptIRQ",
 	            "This is a valueless (void) probe, it generates an event when the CPU accepts an IRQ.")
+	, blockInstruction(motherboard.getDebugger(), name + ".blockInstruction",
+	            "This is a valueless (void) probe, it generates an event when "
+	            "the CPU starts a block instruction (LDI, LDIR, CPI, CPIR, "
+	            "INI, INIR, OTI, OTIR, and their 'D' variants).")
 	, freqLocked(
 		motherboard.getCommandController(), tmpStrCat(name, "_freq_locked"),
 	        "real (locked) or custom (unlocked) CPU frequency",
@@ -353,6 +361,7 @@ template<typename T> void CPUCore<T>::doReset(EmuTime time)
 	setR(0x00);
 	T::setMemPtr(0xFFFF);
 	clearPrevious();
+	lastBlockPC = 0xFFFF;
 
 	// We expect this assert to be valid
 	//   assert(T::getTimeFast() <= time); // time shouldn't go backwards
@@ -380,6 +389,8 @@ template<typename T> void CPUCore<T>::doReset(EmuTime time)
 	// able to reproduce this assert by recording and replaying using a
 	// single openMSX version.
 	T::setTime(time);
+
+	blockStack.clear(); // no suspended block-repeat execution survives reset
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
@@ -4010,8 +4021,103 @@ template<typename T> II CPUCore<T>::out_byte_a() {
 }
 
 
+// Called at the start of each block instruction (iteration).
+//
+// openMSX implements the repeating block instructions (LDIR, CPIR, ...) as a
+// series of single iteration instructions: each iteration re-executes the ED
+// prefix. So a block instruction signals its very first iteration, and doesn't
+// signal again until the run has ended (see blockInstructionEnd()). That's
+// needed to also see the second, third, ... run of a block instruction inside
+// a loop, which is at the very same address as the first one.
+//
+// Because a run is only forgotten when it actually ends, a run that is
+// interrupted (by an IRQ or NMI) still signals exactly once: the instructions
+// in the interrupt handler don't reset the bookkeeping.
+//
+// Must only be called if blockInstruction has observers.
+template<typename T> NEVER_INLINE void CPUCore<T>::blockInstructionBegin()
+{
+	// At this point PC points to the second opcode byte, the ED prefix (which
+	// identifies the block instruction) is at PC-1.
+	uint16_t pc = getPC();
+	uint16_t blockPC = pc - 1;
+	if (blockPC == lastBlockPC) return;
+	lastBlockPC = blockPC;
+
+	// Temporarily move PC back to the ED prefix, so that debugger commands
+	// (e.g. the 'debug disasm [reg pc]' that 'cpu_trace instr' relies on)
+	// show the whole block instruction instead of only its second byte.
+	setPC(blockPC);
+	// The Tracer timestamps its events with the scheduler's current time,
+	// which is only updated at the sync points in execute2(). We're in the
+	// middle of the CPU's inner loop here, so that time can lag behind by a
+	// lot (e.g. by many block instruction iterations). Bring it up to date,
+	// so that debugger users get the exact time at which this run started.
+	scheduler.schedule(T::getTime());
+	blockInstruction.signal();
+	setPC(pc);
+}
+
+
+// Called when a block instruction run has ended, i.e. when the last iteration
+// of a repeating block instruction was executed (BC reached zero, or the block
+// instruction is the non-repeating variant). Forget the block address, so that
+// a next run signals again, also when it is at the very same address as the
+// previous one (e.g. a block instruction inside a loop).
+//
+// Must only be called if blockInstruction has observers.
+template<typename T> NEVER_INLINE void CPUCore<T>::blockInstructionEnd()
+{
+	lastBlockPC = 0xFFFF;
+}
+
+
 // block CP
+// Bookkeeping for block-repeat executions, see CPUCore.hh.
+// Called once per repeat-opcode dispatch (ldir/lddr/cpir/cpdr/inir/indr/
+// otir/otdr only, never for the single-step variants). A dispatch whose PC
+// is still on top of the stack is either another iteration of the running
+// block or an IRQ/NMI resume of a suspended one: both log nothing. Any
+// other PC is a fresh entry (first iteration, loop re-entry, nested
+// handler block, later call site): push it and, when reverse data is being
+// collected at the live frontier, log one BlockEntry marker. Emission is
+// skipped while replaying (the marker is already in the log; re-emitting
+// would truncate the future via stopReplay) and while not collecting.
+template<typename T> void CPUCore<T>::noteBlockRepeatEntry()
+{
+	// At repeat-opcode dispatch PC points at the second instruction byte
+	// (CASE(ED) already advanced past the prefix); instruction boundaries,
+	// 'reg PC', breakpoints and the disassembler all use the first byte.
+	uint16_t pc = getPC() - 1;
+	if (!blockStack.empty() && blockStack.back() == pc) {
+		return;
+	}
+	if (blockStack.size() >= 8) {
+		blockStack.erase(begin(blockStack)); // drop oldest, keep recent
+	}
+	blockStack.push_back(pc);
+	const auto& reverse = motherboard.getReverseManager();
+	if (reverse.isCollecting() && !reverse.isReplaying()) {
+		motherboard.getStateChangeDistributor().distributeNew<BlockEntry>(
+			T::getTime(), pc, getBC());
+	}
+}
+
+// Called when a repeat opcode finishes its block (BC exhausted, or CPIR/
+// CPDR early match). Pops the matching context so a later re-execution at
+// the same PC (loop pass, later call) is seen as a fresh entry again.
+// The empty-stack fast path keeps single-step LDI/CPI/... untouched.
+template<typename T> void CPUCore<T>::noteBlockRepeatEnd()
+{
+	// Same first-byte convention as noteBlockRepeatEntry().
+	if (!blockStack.empty() && blockStack.back() == uint16_t(getPC() - 1)) {
+		blockStack.pop_back();
+	}
+}
+
 template<typename T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
+	if (repeat && blockInstruction.anyObservers()) [[unlikely]] blockInstructionBegin();
 	T::setMemPtr(T::getMemPtr() + increase);
 	uint8_t val = RDMEM(getHL(), T::CC_CPI_1);
 	uint8_t res = getA() - val;
@@ -4035,6 +4141,8 @@ template<typename T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
 		T::setMemPtr(getPC() + 1);
 		return {uint16_t(-1)/*1*/, T::CC_CPIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
+		if (blockInstruction.anyObservers()) [[unlikely]] blockInstructionEnd();
 		return {1, T::CC_CPI};
 	}
 }
@@ -4046,6 +4154,8 @@ template<typename T> II CPUCore<T>::cpir() { return BLOCK_CP( 1, true ); }
 
 // block LD
 template<typename T> inline II CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
+	if (repeat && blockInstruction.anyObservers()) [[unlikely]] blockInstructionBegin();
 	uint8_t val = RDMEM(getHL(), T::CC_LDI_1);
 	WRMEM(getDE(), val, T::CC_LDI_2);
 	setHL(narrow_cast<uint16_t>(getHL() + increase));
@@ -4065,6 +4175,8 @@ template<typename T> inline II CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
 		T::setMemPtr(getPC() + 1);
 		return {uint16_t(-1)/*1*/, T::CC_LDIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
+		if (blockInstruction.anyObservers()) [[unlikely]] blockInstructionEnd();
 		return {1, T::CC_LDI};
 	}
 }
@@ -4076,6 +4188,8 @@ template<typename T> II CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 
 // block IN
 template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
+	if (repeat && blockInstruction.anyObservers()) [[unlikely]] blockInstructionBegin();
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_INI_1);
 	T::setMemPtr(getBC() + increase);
 	setBC(getBC() - 0x100); // decr before use
@@ -4096,6 +4210,8 @@ template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 		//setPC(getPC() - 2);
 		return {uint16_t(-1)/*1*/, T::CC_INIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
+		if (blockInstruction.anyObservers()) [[unlikely]] blockInstructionEnd();
 		return {1, T::CC_INI};
 	}
 }
@@ -4107,6 +4223,8 @@ template<typename T> II CPUCore<T>::inir() { return BLOCK_IN( 1, true ); }
 
 // block OUT
 template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
+	if (repeat && blockInstruction.anyObservers()) [[unlikely]] blockInstructionBegin();
 	uint8_t val = RDMEM(getHL(), T::CC_OUTI_1);
 	setHL(narrow_cast<uint16_t>(getHL() + increase));
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUTI_2);
@@ -4127,6 +4245,8 @@ template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) 
 		//setPC(getPC() - 2);
 		return {uint16_t(-1)/*1*/, T::CC_OTIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
+		if (blockInstruction.anyObservers()) [[unlikely]] blockInstructionEnd();
 		return {1, T::CC_OUTI};
 	}
 }
@@ -4368,11 +4488,23 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 		ar.serialize("nmiEdge", nmiEdge);
 	}
 
+	if (ar.versionBelow(version, 6)) {
+		// No block-repeat context was recorded: any in-flight block loses
+		// its entry marker (its resume will look like a fresh entry).
+		blockStack.clear();
+	} else {
+		ar.serialize("blockStack", blockStack);
+	}
+
 	// Don't serialize:
 	// - IRQStatus, NMIStatus:
 	//     the IRQHelper deserialization makes sure these get the right value
 	// - slowInstructions, exitLoop:
 	//     serialization happens outside the CPU emulation loop
+	// - lastBlockPC:
+	//     only used for the 'blockInstruction' probe, so it cannot affect
+	//     the emulation (a replay may produce slightly different probe
+	//     events for the very first block instruction after loading)
 
 	if constexpr (T::IS_R800) {
 		if (ar.versionBelow(version, 4)) {
