@@ -788,6 +788,12 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\VisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\Franky.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDP.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPCore.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPDummyRenderer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPPixelRenderer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPSDLRasterizer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.cc" />
@@ -1464,6 +1470,14 @@
     <None Include="$(OpenMSXSrcDir)\video\VisibleSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VRAMObserver.hh" />
     <None Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\Franky.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDP.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPCore.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPDummyRenderer.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPPixelRenderer.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPRasterizer.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPRenderer.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPSDLRasterizer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\Video9000.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.hh" />

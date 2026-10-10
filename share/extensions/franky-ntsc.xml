@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Franky NTSC</name>
+    <manufacturer>SuperSoniqs</manufacturer>
+    <code/>
+    <release_year>2009</release_year>
+    <description>Franky cartridge in NTSC / VDP2 config. See doc/Franky.md for more info and for how to create a VDP1 variant.</description>
+    <type>graphics expansion</type>
+  </info>
+  <devices>
+    <Franky id="Franky">
+      <video_standard>NTSC</video_standard>
+      <vdp>VDP2</vdp>
+      <device idref="VDP"/>
+      <io base="0x48" num="2"/>
+      <io base="0x88" num="2"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+    </Franky>
+  </devices>
+</msxconfig>
