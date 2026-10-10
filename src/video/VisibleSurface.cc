@@ -6,6 +6,7 @@
 #include "GLSnow.hh"
 #include "GLUtil.hh"
 #include "OffScreenSurface.hh"
+#include "PixelOperations.hh"
 #include "RenderSettings.hh"
 #include "VideoSystem.hh"
 

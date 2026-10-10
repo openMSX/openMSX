@@ -3,7 +3,7 @@
 #include "V9990.hh"
 
 #include "Display.hh"
-#include "OutputSurface.hh"
+#include "PixelOperations.hh"
 #include "PostProcessor.hh"
 #include "RawFrame.hh"
 #include "RenderSettings.hh"
