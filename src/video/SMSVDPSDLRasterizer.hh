@@ -12,7 +12,6 @@
 namespace openmsx {
 
 class Display;
-class OutputSurface;
 class PostProcessor;
 class RawFrame;
 class RenderSettings;
@@ -30,8 +29,7 @@ class SMSVDPSDLRasterizer final : public SMSVDPRasterizer
 public:
 	using Pixel = uint32_t;
 
-	SMSVDPSDLRasterizer(SMSVDP& vdp, Display& display, OutputSurface& screen,
-	                    std::unique_ptr<PostProcessor> postProcessor);
+	SMSVDPSDLRasterizer(SMSVDP& vdp, Display& display, std::unique_ptr<PostProcessor> postProcessor);
 	~SMSVDPSDLRasterizer() override;
 
 	// SMSVDPRasterizer interface:
@@ -46,7 +44,6 @@ private:
 	void precalcPalette();
 
 	SMSVDP& vdp;
-	OutputSurface& screen;
 	RenderSettings& renderSettings;
 	std::array<Pixel, 80> palette{};
 	std::unique_ptr<RawFrame> workFrame;

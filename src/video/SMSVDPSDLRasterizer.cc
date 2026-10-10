@@ -19,10 +19,9 @@ using namespace gl;
 namespace openmsx {
 
 SMSVDPSDLRasterizer::SMSVDPSDLRasterizer(
-		SMSVDP& vdp_, Display& display, OutputSurface& screen_,
+		SMSVDP& vdp_, Display& display,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_)
-	, screen(screen_)
 	, renderSettings(display.getRenderSettings())
 	, workFrame(std::make_unique<RawFrame>(320, 240))
 	, postProcessor(std::move(postProcessor_))
@@ -50,9 +49,16 @@ PostProcessor* SMSVDPSDLRasterizer::getPostProcessor() const
 
 void SMSVDPSDLRasterizer::precalcPalette()
 {
+	auto mapRGB = [](gl::vec3 rgb) {
+		auto [r, g, b] = gl::ivec3(rgb * 255.0f);
+		PixelOperations pixelOps;
+		return pixelOps.combine(r, g, b);
+	};
 	for (auto [rgb, out] : std::views::zip(vdp.getPaletteColors(), palette)) {
-		out = screen.mapRGB(renderSettings.transformRGB(
-			vec3((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF) * (1.0f / 255.0f)));
+		out = mapRGB(renderSettings.transformRGB(
+			vec3((rgb >> 16) & 0xFF,
+			     (rgb >>  8) & 0xFF,
+			     (rgb >>  0) & 0xFF) * (1.0f / 255.0f)));
 	}
 }
 

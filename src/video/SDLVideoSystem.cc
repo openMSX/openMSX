@@ -74,7 +74,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
 	return std::make_unique<SDLRasterizer>(
-		vdp, display, *screen,
+		vdp, display,
 		std::make_unique<PostProcessor>(
 			motherBoard, display, *screen,
 			videoSource, 640, 240, true));
@@ -89,7 +89,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	return std::make_unique<V9990SDLRasterizer>(
-		vdp, display, *screen,
+		vdp, display,
 		std::make_unique<PostProcessor>(
 			motherBoard, display, *screen,
 			videoSource, 1280, 240, true));
@@ -101,7 +101,7 @@ std::unique_ptr<SMSVDPRasterizer> SDLVideoSystem::createSMSVDPRasterizer(
 	assert(display.getRenderer() == RenderSettings::RendererID::SDLGL_PP);
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	return std::make_unique<SMSVDPSDLRasterizer>(
-		vdp, display, *screen,
+		vdp, display,
 		std::make_unique<PostProcessor>(
 			motherBoard, display, *screen,
 			std::string(SMSVDP::VIDEO_SOURCE), 320, 240, false));

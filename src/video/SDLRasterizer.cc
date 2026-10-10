@@ -95,10 +95,8 @@ inline void SDLRasterizer::renderBitmapLine(std::span<Pixel> buf, unsigned vramL
 }
 
 SDLRasterizer::SDLRasterizer(
-		VDP& vdp_, Display& display, OutputSurface& screen_,
-		std::unique_ptr<PostProcessor> postProcessor_)
+		VDP& vdp_, Display& display, std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, screen(screen_)
 	, postProcessor(std::move(postProcessor_))
 	, workFrame(std::make_unique<RawFrame>(640, 240))
 	, renderSettings(display.getRenderSettings())
@@ -256,15 +254,23 @@ void SDLRasterizer::setTransparency(bool enabled)
 
 void SDLRasterizer::precalcPalette()
 {
+	auto mapRGB255 = [](gl::ivec3 rgb) {
+		auto [r, g, b] = rgb;
+		PixelOperations pixelOps;
+		return pixelOps.combine(r, g, b);
+	};
+	auto mapRGB = [&](gl::vec3 rgb) {
+		return mapRGB255(gl::ivec3(rgb * 255.0f));
+	};
+
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		const auto palette = vdp.getMSX1Palette();
 		for (auto i : xrange(16)) {
 			const auto rgb = palette[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				screen.mapRGB(
-					renderSettings.transformRGB(
-						vec3(rgb[0], rgb[1], rgb[2]) * (1.0f / 255.0f)));
+				mapRGB(renderSettings.transformRGB(
+					vec3(rgb[0], rgb[1], rgb[2]) * (1.0f / 255.0f)));
 		}
 	} else {
 		if (vdp.hasYJK()) {
@@ -277,7 +283,7 @@ void SDLRasterizer::precalcPalette()
 					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 31.0f)));
 				}
 				for (auto [rgb, col] : enumerate(V9958_COLORS)) {
-					col = screen.mapRGB255(ivec3(
+					col = mapRGB255(ivec3(
 						intensity[(rgb >> 10) & 31],
 						intensity[(rgb >>  5) & 31],
 						intensity[(rgb >>  0) & 31]));
@@ -290,8 +296,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9958_COLORS[(r << 10) + (g << 5) + b] =
-								screen.mapRGB(
-									renderSettings.transformRGB(rgb * (1.0f / 31.0f)));
+								mapRGB(renderSettings.transformRGB(rgb * (1.0f / 31.0f)));
 						}
 					}
 				}
@@ -320,11 +325,10 @@ void SDLRasterizer::precalcPalette()
 				for (auto r : xrange(8)) {
 					for (auto g : xrange(8)) {
 						for (auto b : xrange(8)) {
-							V9938_COLORS[r][g][b] =
-								screen.mapRGB255(ivec3(
-									intensity[r],
-									intensity[g],
-									intensity[b]));
+							V9938_COLORS[r][g][b] = mapRGB255(ivec3(
+								intensity[r],
+								intensity[g],
+								intensity[b]));
 						}
 					}
 				}
@@ -336,8 +340,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(g),
 							         narrow<float>(b)};
 							V9938_COLORS[r][g][b] =
-								screen.mapRGB(
-									renderSettings.transformRGB(rgb * (1.0f / 7.0f)));
+								mapRGB(renderSettings.transformRGB(rgb * (1.0f / 7.0f)));
 						}
 					}
 				}
@@ -381,7 +384,7 @@ void SDLRasterizer::precalcColorIndex0(DisplayMode mode,
 	int tpIndex = transparency ? bgColorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
 		Pixel c = (superimposing && (bgColorIndex == 0))
-		        ? screen.getKeyColor()
+		        ? Pixel(0x00000000) // alpha = 0
 		        : palBg[tpIndex];
 
 		if (palFg[0] != c) {
@@ -414,7 +417,7 @@ std::pair<Pixel, Pixel> SDLRasterizer::getBorderColors()
 			return PALETTE256[bgColor];
 		} else {
 			if (!bgColor && vdp.isSuperimposing()) {
-				return screen.getKeyColor();
+				return Pixel(0x00000000); // alpha = 0
 			} else {
 				return palBg[bgColor];
 			}
