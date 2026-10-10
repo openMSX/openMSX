@@ -5,9 +5,15 @@ Thanks to many contributors (who make well use of modern AI facilities), we
 have a very long list of changes again. Major features are found in the
 debugger GUI, with a new Raster Beam Viewer and Tracer functionality. We also
 have the Quick Setup Editor, for a one-window access to all major setup
-settings. Regarding emulation, we now have plotter emulation and many VDP
-accuracy improvements. There's now also a synthetic TCP/IP UNAPI device to be
-able to try out network programs in openMSX.
+settings.
+
+Then AI hit us with dozens of Pull Requests with new and improved
+functionality... Not all pure AI generated, but also using the AI to analyse
+bulk measurements. This led to many VDP accuracy improvements and emulation of
+new devices like plotters, Panasonic FS-JH1 Joy Handle steering wheel (that
+came with Konami's A1-Spirit), light guns, Franky, Makoto. There's now even
+also a synthetic TCP/IP UNAPI device to be able to try out network programs in
+openMSX.
 
 And many, many more things...
 
@@ -20,22 +26,22 @@ MSX device support:
 - fixed Yamanooto SCC register visibility
 - add emulation of the Sony PRN-C41 (like) plotters, including a viewer in the
   GUI
-- fixed VDP I/O delay to 1 cycle for T9769 engines
 - fixed details on the turboR's FDC emulation, so that now FastCopy 3.0
   properly detects it, including the correct number of drives
-- added emulation of the MHT Gunstick light gun, controlled with the mouse
-- added emulation of the ASCII Plus-X Terminator Laser light gun, also
-  controlled with the mouse
+- added MSX Light Gun emulation, controlled with the mouse on the host:
+  - MHT GUN-STICK
+  - ASCII Plus-X Terminator Laser
 - added Korean 128-in-1 mapper type
 - added Namco mapper type (A13-not-connected 16kB cartridges)
 - added ASCII8-R (reversed) mapper type
 - fixed details of MSX kanji ROM emulation, adding specific behaviour in many
   machines and devices
-- assume that no PSG implementation mirrors its registers (no evidence found
-  they do)
-- added new machines/extensions, thanks to:
-  - bsittler: Yamaha YIS-805/256
+- added Panasonic FS-JH1 Joy Handle (belongs with Konami's A1-Spirit)
+- added SuperSoniqs Franky emulation (allows to play Sega Master System games
+  on MSX)
+- added SuperSoniqs Makoto emulation (OPNA sound cartridge)
 - VDP:
+  - fixed VDP I/O delay to 1 cycle for T9769 engines
   - added implementation of the TEXT2-mode per line blink (bit 2 in VDP R#2)
   - improved timing correctness of the YMMM and LMMM command
   - several other VDP command timing improvements details (including start
@@ -43,6 +49,20 @@ MSX device support:
   - improved VDP-VRAM timing even further
   - fixed display line counter latch (fixes Sex Bomb Bunny shaking screen)
   - fixed border color changes at the wrong position (last part of Utopia)
+  - fixed wrong location for sprite collision flag raising, causing distorted
+    MSX2+ logo animation
+  - fixed 5th/9th sprite flag raise location, obsoleting the special openMSX
+    workaround in the IO demo
+  - fixed wrong location of application of R#23 changes (8-pixel boundary)
+  - fixed: ignore the TP bit in text, multicolor and YAE modes
+- PSG:
+  - assume that no PSG implementation mirrors its registers (no evidence found
+    they do so far...)
+  - fixed interpretation of envelope period of 0 (same as 1)
+  - fixed: do not reset the envelope index when writing the envelope shape
+    register
+- added new machines/extensions, thanks to:
+  - bsittler: Yamaha YIS-805/256
 - updated machine/extension configurations of:
   - Yamaha YIS-503
   - Yamaha FD-03, Sony HB-701FD: add missing singlesided tag
@@ -58,6 +78,7 @@ New or improved emulator features:
   - added slot map viewer
   - added I/O map viewer
   - in the Cartridge Slot window: add a link to Generation MSX where known
+  - fixed history (recent items) for dir-as-disk
 - debugger (including its GUI):
   - allow to double-click a symbol in the Symbol Manager to jump to it in the
     disassembly view
@@ -107,6 +128,10 @@ New or improved emulator features:
   - fixed wrong auto-toggle CODE/KANA lock when the key is manually pressed
   - ignore the Grave key event for Japanese host keyboard layouts to avoid
     hanging keys
+  - added setting for Japanese Windows hosts to disable the IME interfering
+    with the keyboard emulation
+  - fixed handling of MSX shift keys (2 identical MSX keys, 2 different host
+    keys), which caused problems on some systems
 - fixed mouse speed scaling, depending on the host display size (including
   HighDPI) and MSX screen resolution
 - allow SD cards and SCSI disks also to be manipulated by disk manipulator
@@ -121,6 +146,8 @@ New or improved emulator features:
 - dir-as-disk:
   - added support for 40-track 180kB disk drives (e.g. Talent/AVT DPF-550)
   - fixed writing files back to host filesystem on no-op data-sector writes
+- stop using memory mapping of files on Windows, to avoid Windows blocking
+  developers to overwrite the files when openMSX still has them open
 - huge updates on the ROM database, including a simplified file format and
   support for Sega SG-1000 and ColecoVision ROMs
 
