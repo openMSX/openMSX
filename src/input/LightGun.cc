@@ -23,6 +23,7 @@
 #include <SDL.h>
 
 #include <cstdint>
+#include <utility>
 #include <variant>
 
 namespace openmsx {
@@ -35,7 +36,7 @@ namespace openmsx {
 LightGun::LightGun(MSXMotherBoard& motherBoard_,
                    MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   Display& display_, uint8_t id_, Pins pins_)
+                   Display& display_, ID id_, Pins pins_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, display(display_)
@@ -88,7 +89,8 @@ uint8_t LightGun::read(EmuTime time)
 		// this event is delivered before the read at the same time.
 		if (auto newStatus = withLight(status, sensor.senseLight(time));
 		    newStatus != status) {
-			stateChangeDistributor.distributeNew<LightGunState>(time, id, newStatus);
+			stateChangeDistributor.distributeNew<LightGunState>(
+				time, std::to_underlying(id), newStatus);
 		}
 	}
 	return status;
@@ -117,7 +119,7 @@ void LightGun::signalMSXEvent(const Event& event,
 	if (newTrigger != hostTrigger) {
 		hostTrigger = newTrigger;
 		stateChangeDistributor.distributeNew<LightGunState>(
-			time, id, withTrigger(status, hostTrigger));
+			time, std::to_underlying(id), withTrigger(status, hostTrigger));
 	}
 }
 
@@ -125,7 +127,7 @@ void LightGun::signalMSXEvent(const Event& event,
 void LightGun::signalStateChange(const StateChange& event)
 {
 	if (const auto* s = std::get_if<LightGunState>(&event);
-	    s && (s->getId() == id)) {
+	    s && (s->getId() == std::to_underlying(id))) {
 		status = s->getStatus();
 	}
 }
@@ -134,7 +136,8 @@ void LightGun::stopReplay(EmuTime time) noexcept
 {
 	if (auto newStatus = withTrigger(status, hostTrigger);
 	    newStatus != status) {
-		stateChangeDistributor.distributeNew<LightGunState>(time, id, newStatus);
+		stateChangeDistributor.distributeNew<LightGunState>(
+			time, std::to_underlying(id), newStatus);
 	}
 }
 

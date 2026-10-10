@@ -12,7 +12,7 @@ Gunstick::Gunstick(MSXMotherBoard& motherBoard_,
                    StateChangeDistributor& stateChangeDistributor_,
                    Display& display_)
 	: LightGun(motherBoard_, eventDistributor_, stateChangeDistributor_,
-	           display_, /*id*/ 0, {.light = RD_PIN2, .trigger = RD_PIN6, .lightHigh = false})
+	           display_, ID::Gunstick, {.light = RD_PIN2, .trigger = RD_PIN6, .lightHigh = false})
 {
 }
 
@@ -28,9 +28,9 @@ zstring_view Gunstick::getDescription() const
 }
 
 template<typename Archive>
-void Gunstick::serialize(Archive& ar, unsigned version)
+void Gunstick::serialize(Archive& ar, unsigned /*version*/)
 {
-	LightGun::serialize(ar, version);
+	ar.template serializeBase<LightGun>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(Gunstick);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Gunstick, "Gunstick");

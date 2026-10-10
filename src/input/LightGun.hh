@@ -5,6 +5,7 @@
 #include "LightGunSensor.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
+#include "serialize_meta.hh"
 
 #include <cstdint>
 
@@ -24,6 +25,9 @@ class LightGun : public JoystickDevice, private MSXEventListener
                , private StateChangeListener
 {
 public:
+	// distinguishes the guns in the state changes
+	enum class ID : uint8_t { Gunstick = 0, TerminatorLaser = 1 };
+
 	struct Pins {
 		uint8_t light;   // joystick port bit of the light sensor
 		uint8_t trigger; // joystick port bit of the trigger, low while pulled
@@ -33,7 +37,7 @@ public:
 	LightGun(MSXMotherBoard& motherBoard,
 	         MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
-	         Display& display, uint8_t id, Pins pins);
+	         Display& display, ID id, Pins pins);
 	~LightGun() override;
 
 	template<typename Archive>
@@ -63,13 +67,14 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 	Display& display;
 	LightGunSensor sensor;
-	const uint8_t id; // distinguishes the guns in the state changes
+	const ID id;
 	const Pins pins;
 
 	bool hostTrigger = false; // host state
 	uint8_t status; // msx state (different from host state during replay):
 	                // the joystick port bits
 };
+REGISTER_BASE_NAME_HELPER(LightGun, "LightGun");
 
 } // namespace openmsx
 

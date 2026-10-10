@@ -16,7 +16,7 @@ TerminatorLaser::TerminatorLaser(MSXMotherBoard& motherBoard_,
                                  StateChangeDistributor& stateChangeDistributor_,
                                  Display& display_)
 	: LightGun(motherBoard_, eventDistributor_, stateChangeDistributor_,
-	           display_, /*id*/ 1, {.light = RD_PIN6, .trigger = RD_PIN7, .lightHigh = true})
+	           display_, ID::TerminatorLaser, {.light = RD_PIN6, .trigger = RD_PIN7, .lightHigh = true})
 {
 }
 
@@ -32,9 +32,9 @@ zstring_view TerminatorLaser::getDescription() const
 }
 
 template<typename Archive>
-void TerminatorLaser::serialize(Archive& ar, unsigned version)
+void TerminatorLaser::serialize(Archive& ar, unsigned /*version*/)
 {
-	LightGun::serialize(ar, version);
+	ar.template serializeBase<LightGun>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(TerminatorLaser);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, TerminatorLaser, "TerminatorLaser");
