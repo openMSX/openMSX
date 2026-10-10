@@ -36,6 +36,7 @@
 #include "AY8910.hh"
 #include "ResampledSoundDevice.hh"
 
+#include "DynamicClock.hh"
 #include "Schedulable.hh"
 #include "IRQHelper.hh"
 #include "Ram.hh"
@@ -455,8 +456,17 @@ public:
 	// return the current clock prescale
 	[[nodiscard]] uint32_t clockPrescale() const { return prescale; }
 
-	// set prescale factor (2/3/6); scales remaining time on live timers
+	// set prescale factor (2/3/6); scales remaining time on live timers.
+	// The sample clock must already be synced to 'time'.
 	void setClockPrescale(uint32_t value, EmuTime time);
+
+	// Advance the chip sample clock (and totalClocks) to 'time', return the
+	// number of elapsed chip samples. EmuTime based, so independent of the
+	// audio resampler and of the speed setting. Only YM2608::sync() calls this.
+	[[nodiscard]] unsigned sync(EmuTime time);
+
+	// EmuTime of the n-th chip sample after the last synced one.
+	[[nodiscard]] EmuTime sampleTime(uint64_t n) const { return sampleClock + n; }
 
 	[[nodiscard]] EmuTime getCurrentTime() const { return timers[0].getCurrentTime(); }
 
@@ -492,14 +502,15 @@ private:
 private:
 	IRQHelper irq;
 	std::array<Timer, 2> timers;
-	uint32_t envCounter = 0;              // envelope counter; low 2 bits are sub-counter
-	uint8_t statusReg = 0;                 // current status register
-	uint8_t prescale = 6;             // prescale factor (2/3/6)
+	DynamicClock sampleClock{EmuTime::zero()}; // FM/ADPCM sample ticks (EmuTime, no speed)
+	uint32_t envCounter = 0;                   // envelope counter; low 2 bits are sub-counter
+	uint8_t statusReg = 0;                     // current status register
+	uint8_t prescale = 6;                      // prescale factor (2/3/6)
 	uint8_t irqMask = STATUS_TIMER_A | STATUS_TIMER_B;
-	std::array<bool, 2> timerRunning{};   // current timer running state
-	uint8_t totalClocks = 0;              // low 8 bits of the total number of clocks processed
-	bool modified = false;                 // register or key changed since the last generate()
-	OpnaRegisters registers;              // register accessor
+	std::array<bool, 2> timerRunning{};        // current timer running state
+	uint8_t totalClocks = 0;                   // low 8 bits of chip samples (TimerB * 16 phase)
+	bool modified = false;                     // register or key changed since the last generate()
+	OpnaRegisters registers;                   // register accessor
 	std::array<FmChannel, CHANNELS> channels;
 };
 
@@ -701,6 +712,17 @@ public:
 	static constexpr uint8_t STATUS_BRDY = 0x02;
 	static constexpr uint8_t STATUS_PLAYING = 0x04;
 
+	// Playhead state that exists in both the guest (emu) and audio (aud) domains.
+	struct Playhead
+	{
+		uint32_t address = 0;  // byte address in external memory
+		uint16_t position = 0; // fractional position (delta-N phase)
+		uint8_t nibble = 0;    // 0 = high nibble of curByte next, 1 = low
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	};
+
 	AdpcmBChannel(Ram& ram, AdpcmBRegisters& regs);
 
 	void reset();
@@ -708,10 +730,19 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	// num clocks. Position steps that do not cross a nibble are applied in
-	// one multiply. Each nibble is consumeNibble(), shared with generate().
-	// A channel that is not decoding clears PLAYING once and returns.
-	void clockN(unsigned num);
+	// Audio-path clocks. Position steps that do not cross a nibble are applied
+	// in one multiply. Each nibble is consumeNibble(), shared with generate().
+	// A channel that is not decoding clears 'playing' once and returns.
+	void clockAud(unsigned num);
+
+	// Guest clocks (EmuTime chip samples): advance 'emu' and update the status
+	// register. Closed form, so a long stretch between syncs costs nothing
+	// extra; repeat mode leaves 'emu' alone, as nothing observes it there.
+	void clockEmu(unsigned num);
+
+	// Chip samples until clockEmu() next changes the status register (EOS,
+	// BRDY when CPU-driven, PLAYING without synthesis), 0 when none is pending.
+	[[nodiscard]] uint64_t samplesToEvent() const;
 
 	// True when every sample this channel can produce is zero until the
 	// next register write. clock() still has to run.
@@ -742,7 +773,7 @@ public:
 	// and the position step once, like clockN() does.
 	void generate(float* buffer, unsigned num, const OutputPlan& plan);
 
-	// return the status register
+	// return the status register (guest domain, the audio path never touches it)
 	[[nodiscard]] uint8_t status() const { return statusReg; }
 
 	// handle special register reads
@@ -753,7 +784,10 @@ public:
 	void write(uint32_t regNum, uint8_t value);
 
 private:
-	// Register state that lets a clock advance the position.
+	// Execute without record: playback, as opposed to the memory access modes.
+	[[nodiscard]] bool synthesizing() const;
+
+	// Audio: synthesizing() while the audio decoder is active.
 	[[nodiscard]] bool decoding() const;
 
 	// One clock with the buffer's position step, after decoding() held.
@@ -766,36 +800,40 @@ private:
 	// helper - return the current address shift
 	[[nodiscard]] uint32_t addressShift() const;
 
+	// last byte of the chunk described by the limit/end register and addressShift()
+	[[nodiscard]] uint32_t limitAddress() const;
+	[[nodiscard]] uint32_t endAddress() const;
+
 	// One nibble, after the fractional position has already wrapped.
 	// Returns false when playback stops at the end address.
 	[[nodiscard]] bool consumeNibble();
 
-	// load the start address
+	// load the start address (both playheads and the decoder)
 	void loadStart();
 
-	// limit checker; stops at the last byte of the chunk described by addressShift()
-	[[nodiscard]] bool atLimit() const;
+	// Reset a playhead to the programmed start address.
+	void restart(Playhead& pd) const;
 
-	// end checker; stops at the last byte of the chunk described by addressShift()
-	[[nodiscard]] bool atEnd() const;
+	// Clear the decoder state for a new sample.
+	void resetDecoder();
 
 private:
 	AdpcmBRegisters& registers; // reference to registers
 	Ram& ram;
-	uint32_t curAddress = 0;       // current address
-	uint16_t position = 0;         // current fractional position
-	int16_t accumulator = 0;       // accumulator
+	Playhead emu; // guest playhead: status timing, CPU memory access
+	Playhead aud; // audio playhead
+	int16_t accumulator = 0;
 	int16_t prevAccum = 0;        // previous accumulator (for linear interp)
 	int16_t adpcmStep = STEP_MIN; // next forecast (STEP_MIN..STEP_MAX)
 	uint8_t statusReg = STATUS_BRDY;  // EOS / BRDY / PLAYING
-	uint8_t curNibble = 0;         // index of the current nibble
 	uint8_t curByte = 0;           // current byte of data
 	uint8_t dummyRead = 0;        // dummy read tracker
+	bool playing = false;         // audio decoder active (the guest sees STATUS_PLAYING)
 	bool cpuWriteActive = false; // unfinished CPU RAM write sequence
 };
 
 
-class AdpcmBEngine
+class AdpcmBEngine final : public Schedulable
 {
 public:
 	AdpcmBEngine(const DeviceConfig& config, std::string_view name);
@@ -812,6 +850,14 @@ public:
 	// True when this channel adds zero until the next register write.
 	[[nodiscard]] bool silent() const { return channel.silent(); }
 
+	// Advance the guest state by num chip samples, see YM2608::sync().
+	void clockEmu(unsigned num) { channel.clockEmu(num); }
+
+	// Set the sync point for the next status or flag change. Call, with the
+	// sample clock synced, after anything that may move it: ADPCM-B I/O, flag
+	// control, timer flags or the sample period.
+	void schedule();
+
 	// read from the ADPCM-B data port (may advance address / update status)
 	[[nodiscard]] uint8_t read(uint32_t regNum) { return channel.read(regNum); }
 	[[nodiscard]] uint8_t peek(uint32_t regNum) const { return channel.peek(regNum); }
@@ -820,6 +866,9 @@ public:
 
 	[[nodiscard]] uint8_t status() const { return channel.status(); }
 	[[nodiscard]] uint8_t readReg(uint32_t index) const { return registers.read(index); }
+
+private:
+	void executeUntil(EmuTime time) override;
 
 private:
 	AdpcmBRegisters registers;
@@ -850,6 +899,10 @@ private:
 	[[nodiscard]] uint8_t readDataHi();
 	void syncAdpcmBStatus();
 
+	// Advance the guest-visible chip state (FM sample counter, ADPCM-B) to
+	// 'time'. EmuTime only: the audio path never feeds back into it.
+	void sync(EmuTime time);
+
 	void writeRegister(unsigned regNum, uint8_t data, EmuTime time);
 	[[nodiscard]] uint8_t peekRegister(unsigned regNum, EmuTime time) const;
 
@@ -859,6 +912,7 @@ private:
 	void generateFM(std::span<float*> buffers, unsigned num);
 
 	friend class ym2608::FmEngine;
+	friend class ym2608::AdpcmBEngine;
 
 private:
 	[[nodiscard]] bool isBusy(EmuTime time) const;

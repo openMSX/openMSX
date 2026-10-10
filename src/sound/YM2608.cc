@@ -705,6 +705,7 @@ FmEngine::FmEngine(MSXMotherBoard& motherboard, std::string_view name)
 	, timers{Timer(motherboard.getScheduler(), 0),
 	         Timer(motherboard.getScheduler(), 1)}
 {
+	sampleClock.setPeriod(Clock<CLOCK>::duration(24 * prescale));
 }
 
 uint8_t FmEngine::setResetStatus(uint8_t set, uint8_t reset)
@@ -887,7 +888,6 @@ void FmEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint3
 	}
 
 	envCounter = advanceEgCounter(env0, num);
-	totalClocks = uint8_t(totalClocks + num);
 	modified = false;
 	if (lfoEnabled && !lfoWalked) {
 		registers.restoreLfo(lfo0);
@@ -950,8 +950,10 @@ void FmEngine::updateTimer(unsigned tNum, bool enable, int32_t deltaClocks, EmuT
 void FmEngine::setClockPrescale(uint32_t value, EmuTime time)
 {
 	if (value == prescale) return;
+	assert(sampleClock.getTicksTill(time) == 0);
 	const uint32_t oldPrescale = prescale;
 	prescale = value;
+	sampleClock.setPeriod(Clock<CLOCK>::duration(24 * prescale));
 	// Timers count FM ticks; each tick is OPERATORS * prescale master clocks.
 	// Keep the remaining FM tick count and rescale the wall-clock deadline.
 	for (unsigned tNum = 0; tNum < timers.size(); ++tNum) {
@@ -965,6 +967,14 @@ void FmEngine::setClockPrescale(uint32_t value, EmuTime time)
 		}
 		timers[tNum].schedule(time + remaining);
 	}
+}
+
+unsigned FmEngine::sync(EmuTime time)
+{
+	unsigned n = sampleClock.getTicksTill(time);
+	sampleClock.advance(time);
+	totalClocks = uint8_t(totalClocks + n);
+	return n;
 }
 
 void FmEngine::scheduleTimer(unsigned timer, int32_t duration, EmuTime time)
@@ -997,12 +1007,17 @@ void FmEngine::engineTimerExpired(unsigned tNum, EmuTime time)
 {
 	assert(tNum == 0 || tNum == 1);
 
+	// Samples before this instant must not clear the new flag.
+	OUTER(YM2608, fm).sync(time);
+
 	// update status
 	if (tNum == 0 && registers.enableTimerA()) {
 		setResetStatus(STATUS_TIMER_A, 0);
 	} else if (tNum == 1 && registers.enableTimerB()) {
 		setResetStatus(STATUS_TIMER_B, 0);
 	}
+	// a masked flag only lasts until the next sample
+	OUTER(YM2608, fm).adpcmB.schedule();
 
 	// Timer A overflow in CSM mode keys channel 2. Flush the mixer first so
 	// samples before this instant still use the old key state.
@@ -1037,6 +1052,10 @@ void FmEngine::modeWrite(uint8_t data, EmuTime time)
 		resetMask |= STATUS_TIMER_A;
 	}
 	setResetStatus(0, resetMask);
+
+	// Timer B's *16 divider is free-running in chip samples; YM2608::sync()
+	// brought totalClocks up to 'time'.
+	assert(sampleClock.getTicksTill(time) == 0);
 
 	// load timers; note that timer B gets a small negative adjustment because
 	// the *16 multiplier is free-running, so the first tick of the clock
@@ -1524,11 +1543,11 @@ AdpcmBChannel::AdpcmBChannel(Ram& ram_, AdpcmBRegisters& regs)
 void AdpcmBChannel::reset()
 {
 	statusReg = STATUS_BRDY;
-	curNibble = 0;
+	playing = false;
+	emu = {};
+	aud = {};
 	curByte = 0;
 	dummyRead = 0;
-	position = 0;
-	curAddress = 0;
 	accumulator = 0;
 	prevAccum = 0;
 	adpcmStep = STEP_MIN;
@@ -1537,7 +1556,7 @@ void AdpcmBChannel::reset()
 
 bool AdpcmBChannel::resting() const
 {
-	return (statusReg & STATUS_PLAYING) == 0 && accumulator == 0 && prevAccum == 0;
+	return !playing && accumulator == 0 && prevAccum == 0;
 }
 
 AdpcmBChannel::OutputPlan AdpcmBChannel::makeOutputPlan() const
@@ -1548,21 +1567,26 @@ AdpcmBChannel::OutputPlan AdpcmBChannel::makeOutputPlan() const
 int32_t AdpcmBChannel::sample(const OutputPlan& plan) const
 {
 	// do a linear interpolation between samples
-	int32_t result = prevAccum + int32_t((int64_t(accumulator - prevAccum) * int32_t(position)) >> 16);
+	int32_t result = prevAccum + int32_t((int64_t(accumulator - prevAccum) * int32_t(aud.position)) >> 16);
 
 	// apply volume (level) in a linear fashion and reduce
 	return (result * int32_t(plan.level)) >> 9;
 }
 
+bool AdpcmBChannel::synthesizing() const
+{
+	return registers.execute() && !registers.record();
+}
+
 bool AdpcmBChannel::decoding() const
 {
-	return registers.execute() && !registers.record() && (statusReg & STATUS_PLAYING) != 0;
+	return synthesizing() && playing;
 }
 
 bool AdpcmBChannel::advance(uint32_t delta)
 {
-	uint32_t nextPos = position + delta;
-	position = uint16_t(nextPos);
+	uint32_t nextPos = aud.position + delta;
+	aud.position = uint16_t(nextPos);
 	if (nextPos < 0x10000) return true;
 	return consumeNibble();
 }
@@ -1580,59 +1604,58 @@ uint8_t AdpcmBChannel::panMask() const
 	return mask;
 }
 
-bool AdpcmBChannel::atLimit() const
+uint32_t AdpcmBChannel::limitAddress() const
 {
-	return (curAddress == (((registers.limit() + 1) << addressShift()) - 1));
+	return ((registers.limit() + 1) << addressShift()) - 1;
 }
 
-bool AdpcmBChannel::atEnd() const
+uint32_t AdpcmBChannel::endAddress() const
 {
-	return (curAddress == (((registers.end() + 1) << addressShift()) - 1));
+	return ((registers.end() + 1) << addressShift()) - 1;
 }
 
 // One sample after the fractional position has wrapped.
 bool AdpcmBChannel::consumeNibble()
 {
 	// if we're about to process nibble 0, fetch sample
-	if (curNibble == 0) {
+	if (aud.nibble == 0) {
 		// playing from RAM/ROM
 		if (registers.external()) {
-			curByte = ram[curAddress & 0x3ffff];
+			curByte = ram[aud.address & 0x3ffff];
 		}
 	}
 
 	// extract the nibble from our current byte
-	uint8_t data = uint8_t(curByte << (4 * curNibble)) >> 4;
-	curNibble ^= 1;
+	uint8_t data = uint8_t(curByte << (4 * aud.nibble)) >> 4;
+	aud.nibble ^= 1;
 
 	// we just processed the last nibble
-	if (curNibble == 0) {
+	if (aud.nibble == 0) {
 		// if playing from RAM/ROM, check the end/limit address or advance
 		if (registers.external()) {
 			// handle the sample end, either repeating or stopping
-			if (atEnd()) {
+			if (aud.address == endAddress()) {
 				// if repeating, go back to the start
 				if (registers.repeat()) {
-					loadStart();
+					restart(aud);
+					resetDecoder();
 				} else {
-					// otherwise, done; set the EOS bit
+					// otherwise, done (clockEmu() raises EOS)
 					accumulator = 0;
 					prevAccum = 0;
-					statusReg = (statusReg & ~STATUS_PLAYING) | STATUS_EOS;
+					playing = false;
 					return false;
 				}
-			} else if (atLimit()) {
+			} else if (aud.address == limitAddress()) {
 				// wrap at the limit address
-				curAddress = 0;
+				aud.address = 0;
 			} else {
 				// otherwise, advance the current address
-				curAddress++;
-				curAddress &= 0xffffff;
+				aud.address = (aud.address + 1) & 0xffffff;
 			}
 		} else {
-			// if CPU-driven, copy the next byte and request more
+			// if CPU-driven, copy the next byte (clockEmu() raises BRDY)
 			curByte = registers.cpuData();
-			statusReg |= STATUS_BRDY;
 		}
 	}
 
@@ -1656,13 +1679,13 @@ bool AdpcmBChannel::consumeNibble()
 }
 
 // Several clocks, batching position steps.
-void AdpcmBChannel::clockN(unsigned num)
+void AdpcmBChannel::clockAud(unsigned num)
 {
 	if (num == 0) return;
 
-	// Not decoding: a clock only clears PLAYING. One store covers the run.
+	// Not decoding: a clock only clears the audio playing flag.
 	if (!decoding()) {
-		statusReg &= ~STATUS_PLAYING;
+		playing = false;
 		return;
 	}
 
@@ -1672,19 +1695,104 @@ void AdpcmBChannel::clockN(unsigned num)
 
 	while (num != 0) {
 		// Clocks until and including the next 16-bit overflow.
-		uint32_t room = 0x10000u - position;
+		uint32_t room = 0x10000u - aud.position;
 		uint32_t steps = (room + delta - 1) / delta;
 		if (steps > num) {
-			position = uint16_t(uint32_t(position) + uint64_t(num) * delta);
+			aud.position = uint16_t(uint32_t(aud.position) + uint64_t(num) * delta);
 			return;
 		}
 		// The low 16 bits are the position after the overflowing add.
-		position = uint16_t(uint32_t(position) + uint64_t(steps) * delta);
+		aud.position = uint16_t(uint32_t(aud.position) + uint64_t(steps) * delta);
 		num -= steps;
 		// End-without-repeat stops here. Later clocks would only clear
-		// PLAYING, which consumeNibble() already cleared.
+		// playing, which consumeNibble() already cleared.
 		if (!consumeNibble()) return;
 	}
+}
+
+void AdpcmBChannel::clockEmu(unsigned num)
+{
+	if ((statusReg & STATUS_PLAYING) == 0) return;
+
+	// Not synthesizing: a clock only clears PLAYING (like clockN() does for
+	// 'playing').
+	if (!synthesizing()) {
+		statusReg &= ~STATUS_PLAYING;
+		return;
+	}
+
+	// Repeat from RAM/ROM never changes the status, so 'emu' is left alone.
+	// Nothing reads it before it is restarted: leaving this mode takes a
+	// register 0 write, which either restarts playback or arms the dummy
+	// reads, and those restart it too. The EOS and cpuWriteActive clears of
+	// a repeat are no-ops as well: whatever sets either of them also clears
+	// PLAYING.
+	if (registers.external() && registers.repeat()) return;
+
+	// Without repeat at most one status change lies ahead: END stops
+	// playback, and once BRDY is set CPU-driven playback has none left.
+	if (uint64_t event = samplesToEvent(); event != 0 && event <= num) {
+		if (registers.external()) {
+			// END; as with repeat, 'emu' is restarted before anything reads it
+			statusReg = (statusReg & ~STATUS_PLAYING) | STATUS_EOS;
+			return;
+		}
+		// request more data
+		statusReg |= STATUS_BRDY;
+	}
+
+	// Move 'emu' the way num clocks of clockN() move 'aud', in closed form.
+	uint64_t pos = emu.position + uint64_t(num) * registers.deltaN();
+	emu.position = uint16_t(pos);
+	uint64_t nibbles = emu.nibble + (pos >> 16);
+	emu.nibble = uint8_t(nibbles & 1);
+	uint64_t bytes = nibbles >> 1;
+	if (!registers.external()) return; // CPU-driven: no address
+
+	// The end address is not reached (that is the event). Addresses count up
+	// to the limit (or to 0xffffff when they start above it), then cycle
+	// through 0..limit.
+	const uint32_t limit = limitAddress();
+	const uint32_t last = (emu.address <= limit) ? limit : 0xffffff;
+	if (bytes <= last - emu.address) {
+		emu.address += uint32_t(bytes);
+	} else {
+		bytes -= uint64_t(last - emu.address) + 1;
+		emu.address = uint32_t(bytes % (uint64_t(limit) + 1));
+	}
+}
+
+uint64_t AdpcmBChannel::samplesToEvent() const
+{
+	if ((statusReg & STATUS_PLAYING) == 0) return 0;
+	if (!synthesizing()) return 1; // the next clock clears PLAYING
+	const uint32_t delta = registers.deltaN();
+	if (delta == 0) return 0;
+
+	// Nibbles until the event: the rest of the current byte, plus (from
+	// RAM/ROM) the bytes up to the end address.
+	uint64_t nibbles = 2 - emu.nibble;
+	if (registers.external()) {
+		if (registers.repeat()) return 0; // never ends
+		// Addresses count up to the limit (or to 0xffffff when they start
+		// above it) and then wrap to 0.
+		const uint32_t addr = emu.address;
+		const uint32_t end = endAddress();
+		const uint32_t limit = limitAddress();
+		const uint32_t last = (addr <= limit) ? limit : 0xffffff;
+		if (addr <= end && end <= last) {
+			nibbles += 2 * uint64_t(end - addr);
+		} else if (end <= limit) {
+			nibbles += 2 * (uint64_t(last - addr) + 1 + end);
+		} else {
+			return 0; // the end address is never reached
+		}
+	} else if ((statusReg & STATUS_BRDY) != 0) {
+		return 0; // nothing changes until the CPU writes a byte
+	}
+	// The k-th nibble is reached at the first clock n with
+	// position + n * delta >= k * 0x10000, see clockN().
+	return ((nibbles << 16) - emu.position + delta - 1) / delta;
 }
 
 void AdpcmBChannel::generate(float* buffer, unsigned num, const OutputPlan& plan)
@@ -1701,7 +1809,7 @@ void AdpcmBChannel::generate(float* buffer, unsigned num, const OutputPlan& plan
 	if (decoding()) {
 		delta = registers.deltaN();
 	} else {
-		statusReg &= ~STATUS_PLAYING;
+		playing = false;
 	}
 
 	auto tick = [&] {
@@ -1748,7 +1856,7 @@ uint8_t AdpcmBChannel::peek(uint32_t regNum) const
 	// changing EOS/BRDY or invoking a potentially destructive host read.
 	if (regNum == 0x08 && !registers.execute() && !registers.record() && registers.external()) {
 		if (cpuWriteActive) return registers.cpuData();
-		if (dummyRead == 0) return ram[curAddress & 0x3ffff];
+		if (dummyRead == 0) return ram[emu.address & 0x3ffff];
 	}
 	return 0;
 }
@@ -1770,10 +1878,10 @@ uint8_t AdpcmBChannel::read(uint32_t regNum)
 		} else {
 			// read the data
 			// read from outside of the chip
-			result = ram[curAddress & 0x3ffff];
+			result = ram[emu.address & 0x3ffff];
 
 			// did we hit the end? if so, signal EOS
-			if (atEnd()) {
+			if (emu.address == endAddress()) {
 				statusReg = STATUS_EOS | STATUS_BRDY;
 			} else {
 				// signal ready
@@ -1781,10 +1889,10 @@ uint8_t AdpcmBChannel::read(uint32_t regNum)
 			}
 
 			// The limit is inclusive: consume its last byte before wrapping.
-			if (atLimit()) {
-				curAddress = 0;
+			if (emu.address == limitAddress()) {
+				emu.address = 0;
 			} else {
-				curAddress++;
+				emu.address++;
 			}
 		}
 	}
@@ -1822,13 +1930,13 @@ void AdpcmBChannel::write(uint32_t regNum, uint8_t value)
 
 			// The end register describes an inclusive chunk. Keep the CPU
 			// address one past its last byte once the transfer has stopped.
-			uint32_t end = (registers.end() + 1) << addressShift();
-			if (curAddress != end) {
-				ram[curAddress++ & 0x3ffff] = value;
+			uint32_t end = endAddress() + 1;
+			if (emu.address != end) {
+				ram[emu.address++ & 0x3ffff] = value;
 				cpuWriteActive = true;
 			}
 
-			if (curAddress == end) {
+			if (emu.address == end) {
 				cpuWriteActive = false;
 				statusReg = STATUS_EOS | STATUS_BRDY;
 			} else {
@@ -1848,22 +1956,36 @@ uint32_t AdpcmBChannel::addressShift() const
 	return 2;
 }
 
+void AdpcmBChannel::restart(Playhead& pd) const
+{
+	pd.address = registers.external() ? (registers.start() << addressShift()) : 0;
+	pd.position = 0;
+	pd.nibble = 0;
+}
+
 void AdpcmBChannel::loadStart()
 {
+	// Without synthesis the next clock clears PLAYING / 'playing' again.
 	statusReg = (statusReg & ~STATUS_EOS) | STATUS_PLAYING;
-	curAddress = registers.external() ? (registers.start() << addressShift()) : 0;
-	curNibble = 0;
+	playing = true;
+	restart(emu);
+	restart(aud);
+	resetDecoder();
+	cpuWriteActive = false;
+}
+
+void AdpcmBChannel::resetDecoder()
+{
 	curByte = 0;
-	position = 0;
 	accumulator = 0;
 	prevAccum = 0;
 	adpcmStep = STEP_MIN;
-	cpuWriteActive = false;
 }
 
 
 AdpcmBEngine::AdpcmBEngine(const DeviceConfig& config, std::string_view name)
-	: ram(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 0x40000)
+	: Schedulable(config.getScheduler())
+	, ram(config, strCat(name, " ADPCM RAM"), "YM2608 ADPCM-B sample RAM", 0x40000)
 	, channel(ram, registers)
 {
 	ram.clear(0); // hardware power-on contents are unknown.
@@ -1871,6 +1993,7 @@ AdpcmBEngine::AdpcmBEngine(const DeviceConfig& config, std::string_view name)
 
 void AdpcmBEngine::reset()
 {
+	removeSyncPoints();
 	registers.reset();
 	channel.reset();
 }
@@ -1882,7 +2005,7 @@ void AdpcmBEngine::generate(float* buffer, unsigned num)
 	// pan mask means this channel adds nothing.
 	const auto plan = channel.makeOutputPlan();
 	if (buffer == nullptr || plan.panMask == 0) {
-		channel.clockN(num);
+		channel.clockAud(num);
 	} else {
 		channel.generate(buffer, num, plan);
 	}
@@ -1896,6 +2019,27 @@ void AdpcmBEngine::writeReg(uint32_t regNum, uint8_t data)
 
 	// let the channel handle any special writes
 	channel.write(regNum, data);
+}
+
+void AdpcmBEngine::schedule()
+{
+	removeSyncPoints();
+	auto& ym = OUTER(YM2608, adpcmB);
+	uint64_t n = channel.samplesToEvent();
+	if (ym.statusHi() != ym.fm.status()) {
+		// the next sample's syncAdpcmBStatus() changes the flags (and maybe IRQ)
+		n = 1;
+	}
+	if (n != 0) {
+		setSyncPoint(ym.fm.sampleTime(n));
+	}
+}
+
+void AdpcmBEngine::executeUntil(EmuTime time)
+{
+	// clocks the guest state up to the sample this sync point was set for
+	OUTER(YM2608, adpcmB).sync(time);
+	schedule();
 }
 
 
@@ -1934,6 +2078,7 @@ void FmEngine::serialize(Archive& ar, unsigned /*version*/)
 	             "prescale",     prescale,
 	             "timerRunning", timerRunning,
 	             "totalClocks",  totalClocks,
+	             "sampleClock",  sampleClock,
 	             "registers",    registers,
 	             "channels",     channels,
 	             "irq",          irq,
@@ -1980,15 +2125,23 @@ void AdpcmBRegisters::serialize(Archive& ar, unsigned /*version*/)
 }
 
 template<typename Archive>
+void AdpcmBChannel::Playhead::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("address",  address,
+	             "position", position,
+	             "nibble",   nibble);
+}
+
+template<typename Archive>
 void AdpcmBChannel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("curAddress",     curAddress,
-	             "position",       position,
+	ar.serialize("emu",            emu,
+	             "aud",            aud,
 	             "accumulator",    accumulator,
 	             "prevAccum",      prevAccum,
 	             "adpcmStep",      adpcmStep,
 	             "statusReg",      statusReg,
-	             "curNibble",      curNibble,
+	             "playing",        playing,
 	             "curByte",        curByte,
 	             "dummyRead",      dummyRead,
 	             "cpuWriteActive", cpuWriteActive);
@@ -2000,6 +2153,11 @@ void AdpcmBEngine::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("registers", registers,
 	             "channel",   channel,
 	             "ram",       ram);
+	// The sync point follows from the guest state and the FM sample clock,
+	// which YM2608::serialize() restores before us.
+	if constexpr (Archive::IS_LOADER) {
+		schedule();
+	}
 }
 
 } // namespace ym2608
@@ -2023,6 +2181,7 @@ YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 void YM2608::reset(EmuTime time)
 {
 	updateStream(time);
+	sync(time);
 
 	// reset the engines
 	fm.reset(time);
@@ -2055,6 +2214,7 @@ void YM2608::reset(EmuTime time)
 uint8_t YM2608::readPort(unsigned port, EmuTime time)
 {
 	updateStream(time);
+	sync(time);
 
 	switch (port & 3) {
 	case 0: // status port, YM2203 compatible
@@ -2153,11 +2313,21 @@ void YM2608::syncAdpcmBStatus()
 	fm.setResetStatus(status, ~status);
 }
 
+void YM2608::sync(EmuTime time)
+{
+	unsigned n = fm.sync(time);
+	if (n == 0) return;
+	adpcmB.clockEmu(n);
+	// Every sample ends with this; one call covers the whole run.
+	syncAdpcmBStatus();
+}
+
 uint8_t YM2608::readDataHi()
 {
 	if ((addressLatch & 0xff) < 0x10) {
 		uint8_t result = adpcmB.read(addressLatch & 0x0f);
 		syncAdpcmBStatus();
+		adpcmB.schedule();
 		return result;
 	} else {
 		return 0;
@@ -2166,6 +2336,8 @@ uint8_t YM2608::readDataHi()
 
 void YM2608::writePort(unsigned port, uint8_t value, EmuTime time)
 {
+	sync(time);
+
 	switch (port & 3) {
 	case 0: // lower address port
 		addressLatch = value;
@@ -2199,6 +2371,8 @@ void YM2608::writePort(unsigned port, uint8_t value, EmuTime time)
 	}
 
 	applyRates(time);
+	// ADPCM-B I/O, flag control and the sample period can all move it
+	adpcmB.schedule();
 }
 
 void YM2608::writeRegister(unsigned regNum, uint8_t data, EmuTime time)
@@ -2220,7 +2394,8 @@ void YM2608::writeRegister(unsigned regNum, uint8_t data, EmuTime time)
 		adpcmB.writeReg(regNum & 0x0f, data);
 		syncAdpcmBStatus();
 	} else if (regNum == 0x110) {
-		// 110: IRQ flag control
+		// 110: IRQ flag control; the next sample restores the ADPCM-B flags or
+		// clears masked ones, see AdpcmBEngine::schedule()
 		if (data & 0x80) {
 			fm.setResetStatus(0, 0xff);
 		} else {
@@ -2291,9 +2466,9 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 	// channel that is outside this mask or that prepare() finds already quiet.
 	const uint32_t fmMask = (irqEnable & 0x80) ? 0x3f : 0x07;
 	fm.generate(buffers.first<6>(), num, fmMask);
+	// Audio only: the ADPCM-B status and IRQ follow YM2608::sync().
 	adpcmB.generate(buffers[6], num);
 	adpcmA.generate(buffers.subspan(7, 6).first<6>(), num, env);
-	syncAdpcmBStatus();
 }
 
 
