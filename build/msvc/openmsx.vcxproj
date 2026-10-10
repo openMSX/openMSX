@@ -538,6 +538,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\DummyJoystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\EventDelay.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Gunstick.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\LightGun.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\LightGunSensor.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\TerminatorLaser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc" />
@@ -1157,6 +1160,9 @@
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Gunstick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\GunstickSensor.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\LightGun.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\LightGunSensor.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\TerminatorLaser.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickManager.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickPort.hh" />

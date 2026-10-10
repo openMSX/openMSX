@@ -25,6 +25,7 @@
 #include "RS232Tester.hh"
 #include "Reactor.hh"
 #include "SETetrisDongle.hh"
+#include "TerminatorLaser.hh"
 #include "Touchpad.hh"
 #include "Trackball.hh"
 #include "WavAudioInput.hh"
@@ -73,6 +74,9 @@ void PluggableFactory::createAll(PluggingController& controller,
 		msxEventDistributor, stateChangeDistributor,
 		display, commandController));
 	controller.registerPluggable(std::make_unique<Gunstick>(
+		motherBoard, msxEventDistributor, stateChangeDistributor,
+		display));
+	controller.registerPluggable(std::make_unique<TerminatorLaser>(
 		motherBoard, msxEventDistributor, stateChangeDistributor,
 		display));
 	controller.registerPluggable(std::make_unique<JoyTap>(
