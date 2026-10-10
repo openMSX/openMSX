@@ -27,6 +27,8 @@ namespace openmsx {
 	if (pluggable == "joymega2")           return "JoyMega controller 2";
 	if (pluggable == "joyhandle1")         return "Panasonic FS-JH1 Joy Handle 1";
 	if (pluggable == "joyhandle2")         return "Panasonic FS-JH1 Joy Handle 2";
+	if (pluggable == "terminatorlaser")    return "ASCII Plus-X Terminator Laser";
+	if (pluggable == "gunstick")           return "MHT GUN-STICK";
 	if (pluggable == "arkanoidpad")        return "Arkanoid Vaus paddle";
 	if (pluggable == "ninjatap")           return "Ninja Tap";
 	if (pluggable == "cassetteplayer")     return "Tape deck";

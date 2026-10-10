@@ -24,7 +24,7 @@ zstring_view Gunstick::getName() const
 
 zstring_view Gunstick::getDescription() const
 {
-	return "MHT Gunstick light gun, aimed with the mouse";
+	return "MHT GUN-STICK light gun, aimed with the mouse";
 }
 
 template<typename Archive>
