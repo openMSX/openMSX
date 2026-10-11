@@ -953,6 +953,7 @@ void FmEngine::setClockPrescale(uint32_t value, EmuTime time)
 	assert(sampleClock.getTicksTill(time) == 0);
 	const uint32_t oldPrescale = prescale;
 	prescale = value;
+	sampleClock.reset(time); // restart: otherwise a shorter period could put next sample before 'time'
 	sampleClock.setPeriod(Clock<CLOCK>::duration(24 * prescale));
 	// Timers count FM ticks; each tick is OPERATORS * prescale master clocks.
 	// Keep the remaining FM tick count and rescale the wall-clock deadline.
