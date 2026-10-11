@@ -24,7 +24,7 @@ Here's the list with all highlights and details:
 
 MSX device support:
 - fixed Yamanooto SCC register visibility
-- add emulation of the Sony PRN-C41 (like) plotters, including a viewer in the
+- added emulation of the Sony PRN-C41 (like) plotters, including a viewer in the
   GUI
 - fixed details on the turboR's FDC emulation, so that now FastCopy 3.0
   properly detects it, including the correct number of drives
@@ -65,7 +65,7 @@ MSX device support:
   - bsittler: Yamaha YIS-805/256
 - updated machine/extension configurations of:
   - Yamaha YIS-503
-  - Yamaha FD-03, Sony HB-701FD: add missing singlesided tag
+  - Yamaha FD-03, Sony HB-701FD: added missing singlesided tag
 
 New or improved emulator features:
 - GUI:
@@ -77,7 +77,7 @@ New or improved emulator features:
   - added "recent machines" to the Machine menu
   - added slot map viewer
   - added I/O map viewer
-  - in the Cartridge Slot window: add a link to Generation MSX where known
+  - in the Cartridge Slot window: added a link to Generation MSX where known
   - fixed history (recent items) for dir-as-disk
 - debugger (including its GUI):
   - allow to double-click a symbol in the Symbol Manager to jump to it in the
@@ -97,7 +97,7 @@ New or improved emulator features:
   - added `cpu_trace` Tcl command which sets up traces that can be viewed in
     the Trace Viewer
   - bitmap viewer: show y=[0..1023] again
-  - sprite viewer: fix sprite attributes section height when zoomed
+  - sprite viewer: fixed sprite attributes section height when zoomed
   - added a profiler that uses the new Trace Viewer, see the `symboltracer` Tcl
     command
   - added option to export the ASCII view of the generic debuggable
@@ -124,7 +124,7 @@ New or improved emulator features:
   TCP, UDP, ICMP echo) by bridging to the host's BSD sockets. Needs a specific
   UNAPINET.ROM driver on the MSX-side
 - keyboard fixes:
-  - fixed the kbd_numkeypad_enter_key setting and add POSITIONAL mode support
+  - fixed the kbd_numkeypad_enter_key setting and added POSITIONAL mode support
   - fixed wrong auto-toggle CODE/KANA lock when the key is manually pressed
   - ignore the Grave key event for Japanese host keyboard layouts to avoid
     hanging keys
