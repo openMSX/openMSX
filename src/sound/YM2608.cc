@@ -4,12 +4,11 @@
 
 #include "Clock.hh"
 #include "DeviceConfig.hh"
+#include "MSXException.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-
-#include "YM2608AdpcmRom.hh"
 
 #include <algorithm>
 
@@ -1347,7 +1346,7 @@ void AdpcmAChannel::keyOnOff(bool on, uint32_t start)
 	}
 }
 
-void AdpcmAChannel::clock(uint32_t end)
+void AdpcmAChannel::clock(uint32_t end, const Rom& rom)
 {
 	// if not playing, hold a zero sample
 	if (!playing) {
@@ -1373,7 +1372,7 @@ void AdpcmAChannel::clock(uint32_t end)
 			return;
 		}
 
-		curByte = YM2608_ADPCM_ROM[curAddress++ & 0x1fff];
+		curByte = rom[curAddress++ & (AdpcmAEngine::ROM_SIZE - 1)];
 		data = curByte >> 4;
 		curNibble = 1;
 	} else {
@@ -1444,6 +1443,16 @@ AdpcmAChannel::OutputPlan AdpcmAChannel::makeOutputPlan(
 }
 
 
+AdpcmAEngine::AdpcmAEngine(DeviceConfig& config, std::string_view name)
+	: rom(strCat(name, " ROM"), "rom", config)
+{
+	if (rom.size() != ROM_SIZE) {
+		throw MSXException(
+			"Wrong ROM for YM2608 (OPNA). The rhythm ROM (usually "
+			"called ym2608_adpcm_rom.bin) should have a size of exactly 8kB.");
+	}
+}
+
 void AdpcmAEngine::reset()
 {
 	registers.reset();
@@ -1471,7 +1480,7 @@ void AdpcmAEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, u
 			for (unsigned i = 0; i < num; ++i) {
 				env = stepEgCounter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
-					channel.clock(end);
+					channel.clock(end, rom);
 				}
 			}
 		} else {
@@ -1491,7 +1500,7 @@ void AdpcmAEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, u
 			for (unsigned i = 0; i < num; ++i) {
 				env = stepEgCounter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
-					channel.clock(end);
+					channel.clock(end, rom);
 					rescale();
 				}
 				unsigned pos = i * 2;
@@ -2163,6 +2172,7 @@ void AdpcmBEngine::serialize(Archive& ar, unsigned /*version*/)
 YM2608::YM2608(DeviceConfig& config, std::string_view name, EmuTime time)
 	: busyEnd(time)
 	, fm(config.getMotherBoard(), name)
+	, adpcmA(config, name)
 	, adpcmB(config, name)
 	, registers(config.getMotherBoard(), name)
 	, fmPart(config, name)

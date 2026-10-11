@@ -40,6 +40,7 @@
 #include "Schedulable.hh"
 #include "IRQHelper.hh"
 #include "Ram.hh"
+#include "Rom.hh"
 #include "SimpleDebuggable.hh"
 
 #include <array>
@@ -568,7 +569,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	void keyOnOff(bool on, uint32_t start);
-	void clock(uint32_t end);
+	void clock(uint32_t end, const Rom& rom);
 
 	// True when every sample this channel can produce is zero until the
 	// next register write. clock() still has to run.
@@ -607,6 +608,9 @@ class AdpcmAEngine
 {
 public:
 	static constexpr unsigned CHANNELS = AdpcmARegisters::CHANNELS;
+	static constexpr size_t ROM_SIZE = 0x2000;
+
+	AdpcmAEngine(DeviceConfig& config, std::string_view name);
 
 	void reset();
 
@@ -631,6 +635,10 @@ public:
 private:
 	AdpcmARegisters registers;
 	std::array<AdpcmAChannel, CHANNELS> channels;
+
+	// The rhythm samples, a ROM inside the chip. openMSX does not come with
+	// it; Contrib/ym2608_rhythm_rom.py can build one from WAV files.
+	Rom rom;
 };
 
 

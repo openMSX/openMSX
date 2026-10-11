@@ -12,6 +12,14 @@
   <devices>
     <Makoto id="Makoto">
       <io base="0x14" num="4"/>
+      <!-- The rhythm samples are a ROM inside the YM2608. openMSX does not
+           come with it. An image of the real ROM is found by its sha1 in
+           systemroms. Contrib/ym2608_rhythm_rom.py builds a substitute from
+           WAV files; put that one next to this file. -->
+      <rom>
+        <sha1>50b6c3e288eaa12ad275d4f323267bb72b0445df</sha1>
+        <filename>ym2608_adpcm_rom.bin</filename>
+      </rom>
       <!-- FM/ADPCM and SSG have separate standard device-volume controls. -->
       <sound>
         <volume>24000</volume>
