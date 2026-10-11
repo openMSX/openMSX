@@ -1261,6 +1261,44 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	}
 }
 
+// Keyboard preset: the same keys as player 1 or 2 in the 'cvjoy' key matrix
+// of the ColecoVision machines (see Keyboard.cc and the user manual).
+[[nodiscard]] static TclObject keyboardBindings(unsigned player)
+{
+	if (player == 1) {
+		TclObject result(TclObject::MakeDictTag{},
+			"UP",    makeTclList("keyb Up"),
+			"DOWN",  makeTclList("keyb Down"),
+			"LEFT",  makeTclList("keyb Left"),
+			"RIGHT", makeTclList("keyb Right"),
+			"L",     makeTclList("keyb Space", "keyb Right Ctrl"),
+			// LALT/RALT: SDL's own names for these keys differ per platform (e.g. "Left Option")
+			"R",     makeTclList("keyb LALT", "keyb RALT", "keyb Right Shift"),
+			"*",     makeTclList("keyb -", "keyb Keypad *", "keyb Keypad -"),
+			"#",     makeTclList("keyb =", "keyb Keypad /", "keyb Keypad +"));
+		for (auto i : xrange(10)) {
+			result.addDictKeyValue(tmpStrCat(i),
+				makeTclList(tmpStrCat("keyb ", i), tmpStrCat("keyb Keypad ", i)));
+		}
+		return result;
+	} else {
+		TclObject result(TclObject::MakeDictTag{},
+			"UP",    makeTclList("keyb W"),
+			"DOWN",  makeTclList("keyb S"),
+			"LEFT",  makeTclList("keyb A"),
+			"RIGHT", makeTclList("keyb D"),
+			"L",     makeTclList("keyb Left Ctrl"),
+			"R",     makeTclList("keyb Left Shift"),
+			"*",     makeTclList("keyb J"),
+			"#",     makeTclList("keyb M"));
+		static constexpr std::string_view digitKeys = "UVBNFGHRTY"; // keys for '0'..'9'
+		for (auto [i, c] : enumerate(digitKeys)) {
+			result.addDictKeyValue(tmpStrCat(i), makeTclList(tmpStrCat("keyb ", c)));
+		}
+		return result;
+	}
+}
+
 } // namespace colecojoystick
 
 void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& joystickManager)
@@ -1452,28 +1490,16 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 			};
 			im::Menu("Keyboard", [&]{
 				addOrSet([&] {
-					TclObject result(TclObject::MakeDictTag{},
+					if (joystick >= 6) {
+						return colecojoystick::keyboardBindings(joystick - 5);
+					}
+					return TclObject(TclObject::MakeDictTag{},
 						"UP",    makeTclList("keyb Up"),
 						"DOWN",  makeTclList("keyb Down"),
 						"LEFT",  makeTclList("keyb Left"),
-						"RIGHT", makeTclList("keyb Right"));
-					if (joystick < 6) {
-						result.addDictKeyValues(
-							"A", makeTclList("keyb Space"),
-							"B", makeTclList("keyb M"));
-					} else {
-						// ColecoVision: same keys as controller 1 in the 'cvjoy' key matrix
-						result.addDictKeyValues(
-							"L", makeTclList("keyb Space"),
-							"R", makeTclList("keyb Right Shift"),
-							"0", makeTclList("keyb 0"), "1", makeTclList("keyb 1"),
-							"2", makeTclList("keyb 2"), "3", makeTclList("keyb 3"),
-							"4", makeTclList("keyb 4"), "5", makeTclList("keyb 5"),
-							"6", makeTclList("keyb 6"), "7", makeTclList("keyb 7"),
-							"8", makeTclList("keyb 8"), "9", makeTclList("keyb 9"),
-							"*", makeTclList("keyb -"), "#", makeTclList("keyb ="));
-					}
-					return result;
+						"RIGHT", makeTclList("keyb Right"),
+						"A",     makeTclList("keyb Space"),
+						"B",     makeTclList("keyb M"));
 				});
 			});
 			for (auto joyId : joystickManager.getConnectedJoysticks()) {
