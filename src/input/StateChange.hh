@@ -293,6 +293,32 @@ private:
 };
 
 
+class ColecoJoyState final : public StateChangeBase
+{
+public:
+	ColecoJoyState() = default; // for serialize
+	ColecoJoyState(EmuTime time_, uint8_t id_,
+	               unsigned press_, unsigned release_)
+		: StateChangeBase(time_)
+		, press(press_), release(release_), id(id_) {}
+
+	[[nodiscard]] auto getId()       const { return id; }
+	[[nodiscard]] auto getPress()    const { return press; }
+	[[nodiscard]] auto getRelease()  const { return release; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChangeBase>(*this);
+		ar.serialize("id",      id,
+		             "press",   press,
+		             "release", release);
+	}
+private:
+	unsigned press, release;
+	uint8_t id;
+};
+
+
 class PaddleState final : public StateChangeBase
 {
 public:
@@ -428,7 +454,8 @@ using StateChange = std::variant<
 	MouseState,
 	JoyMegaState,
 	JoyHandleState,
-	LightGunState
+	LightGunState,
+	ColecoJoyState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -453,7 +480,8 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"MouseState",          index<MouseState>         },
 		{"JoyMegaState",        index<JoyMegaState>       },
 		{"JoyHandleState",      index<JoyHandleState>     },
-		{"LightGunState",       index<LightGunState>      }
+		{"LightGunState",       index<LightGunState>      },
+		{"ColecoJoyState",      index<ColecoJoyState>     }
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;
