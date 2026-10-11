@@ -50,7 +50,6 @@ YMF278:
     code taken from MAME, written by R. Belmont and O. Galibert
 YM2608 (Makoto):
     FM/ADPCM engines based on YMFM by Aaron Giles (BSD-3-Clause)
-    rhythm ROM from libvgm/MAME fmopn, Jarek Burczynski and Tatsuyuki Satoh
 cas to wav conversion:
     based on "cas2wav" by Vincent van Dam
 
