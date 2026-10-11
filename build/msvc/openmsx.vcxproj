@@ -683,6 +683,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\EmuTimer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\KeyClick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Mixer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXMakoto.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2608.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXAudio.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXFmPac.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXMixer.cc" />

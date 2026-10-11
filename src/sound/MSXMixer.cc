@@ -636,8 +636,6 @@ void MSXMixer::reschedule2()
 
 void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 {
-	// TODO old code checked that values did actually change,
-	//      investigate if this optimization is worth it
 	hostSampleRate = newSampleRate;
 	fragmentSize = newFragmentSize;
 

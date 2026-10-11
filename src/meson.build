@@ -394,6 +394,8 @@ sources = files(
     'sound/MSXFmPac.cc',
     'sound/MSXMixer.cc',
     'sound/MSXMoonSound.cc',
+    'sound/MSXMakoto.cc',
+    'sound/YM2608.cc',
     'sound/MSXMusic.cc',
     'sound/MSXOPL3Cartridge.cc',
     'sound/MSXPSG.cc',
