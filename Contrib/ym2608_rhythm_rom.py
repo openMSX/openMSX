@@ -7,7 +7,10 @@ encodes one WAV file per sound to ADPCM-A and puts each one where the chip
 expects it.
 
     python3 ym2608_rhythm_rom.py --bd bd.wav --sd sd.wav --top top.wav \\
-        --hh hh.wav --tom tom.wav --rim rim.wav -o ym2608_adpcm_rom.bin
+        --hh hh.wav --tom tom.wav --rim rim.wav
+
+The result is written to ym2608_adpcm_rom.bin in the current directory, the
+name Makoto.xml asks for. An existing file of that name is not overwritten.
 
 Put the result in the same directory as Makoto.xml (share/extensions in the
 openMSX installation). openMSX finds it there by its file name. A
@@ -37,6 +40,7 @@ This script is distributed under the same license as openMSX (GNU GPL v2).
 
 import argparse
 import math
+import os
 import struct
 import sys
 import wave
@@ -58,6 +62,7 @@ SOUNDS = [
     ('rim', 'rim shot',   0x1f80, 0x1fff, HALF_RATE),
 ]
 ROM_SIZE = 0x2000
+OUTPUT = 'ym2608_adpcm_rom.bin'
 
 STEPS = [
      16,  17,   19,   21,   23,   25,   28,
@@ -181,9 +186,9 @@ def main():
     for opt, name, *_ in SOUNDS:
         parser.add_argument(f'--{opt}', required=True, metavar='WAV',
                             help=f'the {name}')
-    parser.add_argument('-o', '--output', default='ym2608_adpcm_rom.bin',
-                        help='output file (default: %(default)s)')
     args = parser.parse_args()
+    if os.path.exists(OUTPUT):
+        sys.exit(f'{OUTPUT} already exists; remove it first')
 
     rom = bytearray(ROM_SIZE)
     for opt, name, first, last, rate in SOUNDS:
@@ -199,9 +204,9 @@ def main():
         for i in range(0, length, 2):
             # The high nibble is played first.
             rom[first + i // 2] = (codes[i] << 4) | codes[i + 1]
-    with open(args.output, 'wb') as f:
+    with open(OUTPUT, 'xb') as f:
         f.write(rom)
-    print(f'wrote {args.output} ({ROM_SIZE} bytes)')
+    print(f'wrote {OUTPUT} ({ROM_SIZE} bytes)')
 
 
 if __name__ == '__main__':
