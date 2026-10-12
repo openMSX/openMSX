@@ -30,12 +30,17 @@ TclObject ColecoJoystick::getDefaultConfig(JoystickId joyId, const JoystickManag
 		"LEFT",  makeTclList(tmpStrCat(joy, " -axis0"), tmpStrCat(joy, " hat0 left")),
 		"RIGHT", makeTclList(tmpStrCat(joy, " +axis0"), tmpStrCat(joy, " hat0 right")));
 	// Fire buttons first, then the keypad keys most games use: '1'/'2' to
-	// select the game variant, '*'/'#' to restart or pause.
+	// select the game variant, '*'/'#' to restart or pause. The other keys
+	// get an explicitly empty list: they exist, but have no default binding.
 	static constexpr std::array<std::string_view, 6> buttonKeys = {
 		"L", "R", "1", "2", "*", "#"
 	};
-	for (auto b : xrange(std::min<size_t>(*buttons, buttonKeys.size()))) {
-		result.addDictKeyValue(buttonKeys[b], makeTclList(tmpStrCat(joy, " button", b)));
+	for (auto key : subspan(keyNames, 4)) { // skip the directions
+		auto it = std::ranges::find(buttonKeys, key);
+		auto b = std::distance(buttonKeys.begin(), it);
+		result.addDictKeyValue(key, (it != buttonKeys.end() && size_t(b) < *buttons)
+			? makeTclList(tmpStrCat(joy, " button", b))
+			: makeTclList());
 	}
 	return result;
 }
@@ -81,18 +86,13 @@ void ColecoJoystick::checkJoystickConfig(const TclObject& newValue)
 		throw CommandException("Need an even number of elements");
 	}
 	for (decltype(n) i = 0; i < n; i += 2) {
-		static constexpr std::array<std::string_view, NUM_BUTTONS> keys = {
-			// order is important!
-			"UP", "DOWN", "LEFT", "RIGHT", "L", "R",
-			"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#",
-		};
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
-		auto it = std::ranges::find(keys, key);
-		if (it == keys.end()) {
+		auto it = std::ranges::find(keyNames, key);
+		if (it == keyNames.end()) {
 			throw CommandException(
-				"Invalid key: must be one of ", join(keys, ", "));
+				"Invalid key: must be one of ", join(keyNames, ", "));
 		}
-		auto idx = std::distance(keys.begin(), it);
+		auto idx = std::distance(keyNames.begin(), it);
 
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		for (auto j : xrange(value.getListLength(interp))) {
