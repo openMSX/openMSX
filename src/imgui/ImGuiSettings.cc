@@ -698,9 +698,7 @@ enum : uint8_t {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS};
 static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = {
 	"Up", "Down", "Left", "Right", "A", "B" // show in the GUI
 };
-static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = {
-	"UP", "DOWN", "LEFT", "RIGHT", "A", "B" // keys in Tcl dict
-};
+static_assert(MSXJoystick::keyNames.size() == NUM_BUTTONS); // keys in the Tcl dict, same order
 
 // Customize joystick look
 static constexpr auto boundingBox = gl::vec2{300.0f, 100.0f};
@@ -748,23 +746,16 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 namespace joymega {
 
 enum : uint8_t {UP, DOWN, LEFT, RIGHT,
-                TRIG_A, TRIG_B, TRIG_C,
-                TRIG_X, TRIG_Y, TRIG_Z,
-                TRIG_SELECT, TRIG_START,
+                TRIG_A, TRIG_B, TRIG_C, TRIG_START,
+                TRIG_X, TRIG_Y, TRIG_Z, TRIG_SELECT,
                 NUM_BUTTONS};
 
 static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show in the GUI
 	"Up", "Down", "Left", "Right",
-	"A", "B", "C",
-	"X", "Y", "Z",
-	"Select", "Start",
+	"A", "B", "C", "Start",
+	"X", "Y", "Z", "Select",
 };
-static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = { // keys in Tcl dict
-	"UP", "DOWN", "LEFT", "RIGHT",
-	"A", "B", "C",
-	"X", "Y", "Z",
-	"SELECT", "START",
-};
+static_assert(JoyMega::keyNames.size() == NUM_BUTTONS); // keys in the Tcl dict, same order
 
 // Customize joystick look
 static constexpr auto thickness = 3.0f;
@@ -886,10 +877,7 @@ static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show i
 	"Up", "Down", "Left", "Right",
 	"A", "B", "Wheel (analog)",
 };
-static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = { // keys in Tcl dict
-	"UP", "DOWN", "LEFT", "RIGHT",
-	"A", "B", "WHEEL",
-};
+static_assert(JoyHandle::keyNames.size() == NUM_BUTTONS); // keys in the Tcl dict, same order
 
 [[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
 {
@@ -1139,10 +1127,7 @@ static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show i
 	"Up", "Down", "Left", "Right", "L", "R",
 	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#"
 };
-static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = { // keys in Tcl dict
-	"UP", "DOWN", "LEFT", "RIGHT", "L", "R",
-	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#"
-};
+static_assert(ColecoJoystick::keyNames.size() == NUM_BUTTONS); // keys in the Tcl dict, same order
 
 // Customize joystick look: upright, like the real controller.
 // From top to bottom: the stick, a band with the side buttons L and R, the keypad.
@@ -1308,7 +1293,7 @@ namespace {
 struct ControllerInfo {
 	zstring_view settingPrefix; // e.g. "msxjoystick" -> "msxjoystick1_config"
 	zstring_view guiName;       // e.g. "MSX joystick" -> "MSX joystick 1"
-	std::span<const zstring_view> keyNames;    // keys in the Tcl dict
+	std::span<const std::string_view> keyNames; // keys in the Tcl dict (owned by the device class)
 	std::span<const zstring_view> buttonNames; // shown in the GUI
 	gl::vec2 boundingBox;       // size of the drawing
 	bool drawBesideTable;       // drawing next to the bindings table, instead of above it
@@ -1316,10 +1301,10 @@ struct ControllerInfo {
 };
 }
 static constexpr auto controllerInfos = std::to_array<ControllerInfo>({
-	{"msxjoystick",    "MSX joystick",            msxjoystick::keyNames,    msxjoystick::buttonNames,    msxjoystick::boundingBox,    false, false},
-	{"joymega",        "JoyMega controller",      joymega::keyNames,        joymega::buttonNames,        joymega::boundingBox,        false, false},
-	{"joyhandle",      "Panasonic FS-JH1",        joyhandle::keyNames,      joyhandle::buttonNames,      joyhandle::boundingBox,      false, false},
-	{"colecojoystick", "ColecoVision controller", colecojoystick::keyNames, colecojoystick::buttonNames, colecojoystick::boundingBox, true,  true},
+	{"msxjoystick",    "MSX joystick",            MSXJoystick::keyNames,    msxjoystick::buttonNames,    msxjoystick::boundingBox,    false, false},
+	{"joymega",        "JoyMega controller",      JoyMega::keyNames,        joymega::buttonNames,        joymega::boundingBox,        false, false},
+	{"joyhandle",      "Panasonic FS-JH1",        JoyHandle::keyNames,      joyhandle::buttonNames,      joyhandle::boundingBox,      false, false},
+	{"colecojoystick", "ColecoVision controller", ColecoJoystick::keyNames, colecojoystick::buttonNames, colecojoystick::boundingBox, true,  true},
 });
 static_assert(controllerInfos.size() == size_t(ControllerType::NUM));
 
