@@ -37,6 +37,13 @@ public:
 
 	[[nodiscard]] static TclObject getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager);
 
+	static constexpr unsigned NUM_BUTTONS = 18;
+	// keys in the Tcl config dict, in the order of the 'status' bits
+	static constexpr std::array<std::string_view, NUM_BUTTONS> keyNames = {
+		"UP", "DOWN", "LEFT", "RIGHT", "L", "R",
+		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#",
+	};
+
 	/** Keypad state, active low: bit 0-9 = keys '0'-'9', bit 10 = '*',
 	  * bit 11 = '#' (same layout as rows 2/3 of the 'cvjoy' key matrix).
 	  */
@@ -66,13 +73,7 @@ private:
 	void stopReplay(EmuTime time) noexcept override;
 
 private:
-	static constexpr unsigned NUM_BUTTONS = 18;
 	static constexpr unsigned ALL_RELEASED = (1u << NUM_BUTTONS) - 1;
-	// keys in the Tcl config dict, in the order of the 'status' bits
-	static constexpr std::array<std::string_view, NUM_BUTTONS> keyNames = {
-		"UP", "DOWN", "LEFT", "RIGHT", "L", "R",
-		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#",
-	};
 
 	CommandController& commandController;
 	MSXEventDistributor& eventDistributor;
