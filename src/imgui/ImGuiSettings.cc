@@ -48,6 +48,7 @@
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include "enumerate.hh"
+#include "fixed_capacity_bitset.hh"
 #include "foreach_file.hh"
 #include "narrow.hh"
 #include "strCat.hh"
@@ -535,10 +536,14 @@ struct Rectangle {
 static constexpr auto fractionDPad = 1.0f / 3.0f;
 static constexpr auto thickness = 3.0f;
 
+using HoverResult = fixed_capacity_bitset<24>;
+static_assert(sizeof(HoverResult) == 4);
+
 // Set the hovered state of up, down, left, right (in that order) for a mouse
 // position 'd' relative to the center of a d-pad or stick.
-static void setDirectionHovered(gl::vec2 d, std::span<uint8_t, 4> result)
+static void setDirectionHovered(gl::vec2 d, HoverResult& result)
 {
+	assert(result.size() >= 4);
 	bool t1 = d.x <  d.y;
 	bool t2 = d.x < -d.y;
 	result[0] = !t1 &&  t2; // up
@@ -547,7 +552,7 @@ static void setDirectionHovered(gl::vec2 d, std::span<uint8_t, 4> result)
 	result[3] = !t1 && !t2; // right
 }
 
-static void drawDPad(gl::vec2 center, float size, std::span<const uint8_t, 4> hovered, int hoveredRow)
+static void drawDPad(gl::vec2 center, float size, const HoverResult& hovered, int hoveredRow)
 {
 	const auto F = fractionDPad;
 	std::array<std::array<ImVec2, 5 + 1>, 4> points = {
@@ -709,28 +714,28 @@ static constexpr auto centerB = gl::vec2{260.0f, 50.0f};
 static constexpr auto centerDPad = gl::vec2{50.0f, 50.0f};
 static constexpr auto sizeDPad = 30.0f;
 
-[[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
+[[nodiscard]] static HoverResult buttonsHovered(gl::vec2 mouse)
 {
-	std::vector<uint8_t> result(NUM_BUTTONS); // false
+	HoverResult result(NUM_BUTTONS); // false
 	auto mouseDPad = (mouse - centerDPad) * (1.0f / sizeDPad);
 	if (insideRectangle(mouseDPad, Rectangle{{-1, -1}, {1, 1}}) &&
 		(between(mouseDPad.x, -fractionDPad, fractionDPad) ||
 		between(mouseDPad.y, -fractionDPad, fractionDPad))) { // mouse over d-pad
-		setDirectionHovered(mouseDPad, subspan<4>(result));
+		setDirectionHovered(mouseDPad, result);
 	}
 	result[TRIG_A] = insideCircle(mouse, centerA, radius);
 	result[TRIG_B] = insideCircle(mouse, centerB, radius);
 	return result;
 }
 
-static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
+static void draw(gl::vec2 scrnPos, const HoverResult& hovered, int hoveredRow)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 
 	auto color = getColor(imColor::TEXT);
 	drawList->AddRect(scrnPos, scrnPos + boundingBox, color, corner, thickness);
 
-	drawDPad(scrnPos + centerDPad, sizeDPad, subspan<4>(hovered), hoveredRow);
+	drawDPad(scrnPos + centerDPad, sizeDPad, hovered, hoveredRow);
 
 	auto scrnCenterA = scrnPos + centerA;
 	drawFilledCircle(scrnCenterA, radius, hovered[TRIG_A] || (hoveredRow == TRIG_A));
@@ -774,14 +779,14 @@ static constexpr auto centerDPad = gl::vec2{65.6f, 82.7f};
 static constexpr auto sizeDPad = 34.0f;
 static constexpr auto fractionDPad = 1.0f / 3.0f;
 
-[[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
+[[nodiscard]] static HoverResult buttonsHovered(gl::vec2 mouse)
 {
-	std::vector<uint8_t> result(NUM_BUTTONS); // false
+	HoverResult result(NUM_BUTTONS); // false
 	auto mouseDPad = (mouse - centerDPad) * (1.0f / sizeDPad);
 	if (insideRectangle(mouseDPad, Rectangle{{-1, -1}, {1, 1}}) &&
 		(between(mouseDPad.x, -fractionDPad, fractionDPad) ||
 		between(mouseDPad.y, -fractionDPad, fractionDPad))) { // mouse over d-pad
-		setDirectionHovered(mouseDPad, subspan<4>(result));
+		setDirectionHovered(mouseDPad, result);
 	}
 	result[TRIG_A] = insideCircle(mouse, centerA, radiusABC);
 	result[TRIG_B] = insideCircle(mouse, centerB, radiusABC);
@@ -794,7 +799,7 @@ static constexpr auto fractionDPad = 1.0f / 3.0f;
 	return result;
 }
 
-static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
+static void draw(gl::vec2 scrnPos, const HoverResult& hovered, int hoveredRow)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return scrnPos + p; };
@@ -828,7 +833,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	};
 	drawBezierCurve(outLine, thickness);
 
-	drawDPad(tr(centerDPad), sizeDPad, subspan<4>(hovered), hoveredRow);
+	drawDPad(tr(centerDPad), sizeDPad, hovered, hoveredRow);
 	drawList->AddCircle(tr(centerDPad), 43.0f, color);
 	std::array dPadCurve = {
 		gl::vec2{77.0f,  33.0f}, gl::vec2{ 69.2f, 0.0f},
@@ -879,9 +884,9 @@ static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show i
 };
 static_assert(JoyHandle::keyNames.size() == NUM_BUTTONS); // keys in the Tcl dict, same order
 
-[[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
+[[nodiscard]] static HoverResult buttonsHovered(gl::vec2 mouse)
 {
-	std::vector<uint8_t> result(NUM_BUTTONS); // false
+	HoverResult result(NUM_BUTTONS); // false
 	auto mouse1 = mouse - gl::vec2{39, 149};
 	if (insideCircle(mouse1, {}, 24)) {
 		auto ax = std::abs(mouse1.x);
@@ -981,7 +986,7 @@ static constexpr auto wheelButtonInside = strokeCollection<int16_t>(
 	openPath(from(-164,-243), curve(-164,-236, -207,-238, -207,-245)),
 	openPath(from(164,-243), curve(164,-236, 207,-238, 207,-245)));
 
-static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow, float analogValue)
+static void draw(gl::vec2 scrnPos, const HoverResult& hovered, int hoveredRow, float analogValue)
 {
 	static constexpr ImU32 eraseColor = IM_COL32(0, 0, 0, 1); // alpha=0 is optimized away by ImGui, instead use alpha=1
 	auto color = getColor(imColor::TEXT);
@@ -1162,12 +1167,12 @@ static constexpr std::array<uint8_t, 12> keypadLayout = {
 	return {topLeft, topLeft + keySize};
 }
 
-[[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
+[[nodiscard]] static HoverResult buttonsHovered(gl::vec2 mouse)
 {
-	std::vector<uint8_t> result(NUM_BUTTONS); // false
+	HoverResult result(NUM_BUTTONS); // false
 	if (insideCircle(mouse, centerStick, radiusBase) && !insideCircle(mouse, centerStick, 6.0f)) {
 		// the quadrant of the housing under the mouse
-		setDirectionHovered(mouse - centerStick, subspan<4>(result));
+		setDirectionHovered(mouse - centerStick, result);
 	}
 	// the side buttons are small, so also accept the band next to them
 	result[TRIG_L] = insideRectangle(mouse, {{buttonL.topLeft.x, bandTop}, {centerLetterL.x + 10.0f, bandBottom}});
@@ -1178,7 +1183,7 @@ static constexpr std::array<uint8_t, 12> keypadLayout = {
 	return result;
 }
 
-static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
+static void draw(gl::vec2 scrnPos, const HoverResult& hovered, int hoveredRow)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 
