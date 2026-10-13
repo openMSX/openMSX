@@ -13,6 +13,7 @@
 #include "BooleanInput.hh"
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"
+#include "ColecoJoystick.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
 #include "FileContext.hh"
@@ -46,6 +47,7 @@
 
 #include "StringOp.hh"
 #include "checked_cast.hh"
+#include "enumerate.hh"
 #include "foreach_file.hh"
 #include "narrow.hh"
 #include "strCat.hh"
@@ -466,20 +468,22 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 
 ////// joystick stuff
 
-// joystick is 0..5
+// joystick is 0..7 (6..7 only on a ColecoVision machine)
 [[nodiscard]] static std::string settingName(unsigned joystick)
 {
 	return (joystick < 2) ? strCat("msxjoystick", joystick + 1, "_config")
 	     : (joystick < 4) ? strCat("joymega",     joystick - 1, "_config")
-						  : strCat("joyhandle",   joystick - 3, "_config");
+	     : (joystick < 6) ? strCat("joyhandle",   joystick - 3, "_config")
+	                      : strCat("colecojoystick", joystick - 5, "_config");
 }
 
-// joystick is 0..5
+// joystick is 0..7 (6..7 only on a ColecoVision machine)
 [[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
 {
 	return (joystick < 2) ? strCat("MSX joystick ",       joystick + 1)
 		 : (joystick < 4) ? strCat("JoyMega controller ", joystick - 1)
-	                      : strCat("Panasonic FS-JH1 ",   joystick - 3);
+		 : (joystick < 6) ? strCat("Panasonic FS-JH1 ",   joystick - 3)
+	                      : strCat("ColecoVision controller ", joystick - 5);
 }
 
 [[nodiscard]] static std::string toGuiString(const AnalogInput& input, const JoystickManager& joystickManager)
@@ -547,6 +551,18 @@ struct Rectangle {
 
 static constexpr auto fractionDPad = 1.0f / 3.0f;
 static constexpr auto thickness = 3.0f;
+
+// Set the hovered state of up, down, left, right (in that order) for a mouse
+// position 'd' relative to the center of a d-pad or stick.
+static void setDirectionHovered(gl::vec2 d, std::span<uint8_t, 4> result)
+{
+	bool t1 = d.x <  d.y;
+	bool t2 = d.x < -d.y;
+	result[0] = !t1 &&  t2; // up
+	result[1] =  t1 && !t2; // down
+	result[2] =  t1 &&  t2; // left
+	result[3] = !t1 && !t2; // right
+}
 
 static void drawDPad(gl::vec2 center, float size, std::span<const uint8_t, 4> hovered, int hoveredRow)
 {
@@ -672,6 +688,25 @@ static void drawLetterZ(gl::vec2 center)
 	auto color = getColor(imColor::TEXT);
 	drawList->AddPolyline(linesZ2.data(), 4, color, thickness);
 }
+static void drawLetterL(gl::vec2 center)
+{
+	auto* drawList = ImGui::GetWindowDrawList();
+	auto tr = [&](gl::vec2 p) { return center + p; };
+	const std::array<ImVec2, 3> lines = { tr({-3, -6}), tr({-3, 6}), tr({4, 6}) };
+	auto color = getColor(imColor::TEXT);
+	drawList->AddPolyline(lines.data(), narrow<int>(lines.size()), color, thickness);
+}
+static void drawLetterR(gl::vec2 center)
+{
+	auto* drawList = ImGui::GetWindowDrawList();
+	auto tr = [&](gl::vec2 p) { return center + p; };
+	const std::array<ImVec2, 3> lines = { tr({-4, 6}), tr({-4, -6}), tr({0, -6}) };
+	auto color = getColor(imColor::TEXT);
+	drawList->AddPolyline(lines.data(), narrow<int>(lines.size()), color, thickness);
+	drawList->AddBezierCubic(tr({0, -6}), tr({5, -6}), tr({5, 0}), tr({0, 0}), color, thickness);
+	drawList->AddLine(tr({-4, 0}), tr({0, 0}), color, thickness);
+	drawList->AddLine(tr({0, 0}), tr({4, 6}), color, thickness);
+}
 
 namespace msxjoystick {
 
@@ -700,12 +735,7 @@ static constexpr auto sizeDPad = 30.0f;
 	if (insideRectangle(mouseDPad, Rectangle{{-1, -1}, {1, 1}}) &&
 		(between(mouseDPad.x, -fractionDPad, fractionDPad) ||
 		between(mouseDPad.y, -fractionDPad, fractionDPad))) { // mouse over d-pad
-		bool t1 = mouseDPad.x <  mouseDPad.y;
-		bool t2 = mouseDPad.x < -mouseDPad.y;
-		result[UP]    = !t1 &&  t2;
-		result[DOWN]  =  t1 && !t2;
-		result[LEFT]  =  t1 &&  t2;
-		result[RIGHT] = !t1 && !t2;
+		setDirectionHovered(mouseDPad, subspan<4>(result));
 	}
 	result[TRIG_A] = insideCircle(mouse, centerA, radius);
 	result[TRIG_B] = insideCircle(mouse, centerB, radius);
@@ -777,12 +807,7 @@ static constexpr auto fractionDPad = 1.0f / 3.0f;
 	if (insideRectangle(mouseDPad, Rectangle{{-1, -1}, {1, 1}}) &&
 		(between(mouseDPad.x, -fractionDPad, fractionDPad) ||
 		between(mouseDPad.y, -fractionDPad, fractionDPad))) { // mouse over d-pad
-		bool t1 = mouseDPad.x <  mouseDPad.y;
-		bool t2 = mouseDPad.x < -mouseDPad.y;
-		result[UP]    = !t1 &&  t2;
-		result[DOWN]  =  t1 && !t2;
-		result[LEFT]  =  t1 &&  t2;
-		result[RIGHT] = !t1 && !t2;
+		setDirectionHovered(mouseDPad, subspan<4>(result));
 	}
 	result[TRIG_A] = insideCircle(mouse, centerA, radiusABC);
 	result[TRIG_B] = insideCircle(mouse, centerB, radiusABC);
@@ -1121,13 +1146,181 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow, f
 
 } // namespace joyhandle
 
+namespace colecojoystick {
+
+enum : uint8_t {UP, DOWN, LEFT, RIGHT, TRIG_L, TRIG_R,
+                KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9,
+                KEY_STAR, KEY_HASH, NUM_BUTTONS};
+
+static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show in the GUI
+	"Up", "Down", "Left", "Right", "L", "R",
+	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#"
+};
+static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = { // keys in Tcl dict
+	"UP", "DOWN", "LEFT", "RIGHT", "L", "R",
+	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#"
+};
+
+// Customize joystick look: upright, like the real controller.
+// From top to bottom: the stick, a band with the side buttons L and R, the keypad.
+static constexpr auto boundingBox = gl::vec2{150.0f, 310.0f};
+static constexpr auto body = Rectangle{{15.0f, 5.0f}, {135.0f, 305.0f}};
+static constexpr auto corner = 12.0f;
+static constexpr auto centerStick = gl::vec2{75.0f, 60.0f};
+static constexpr auto radiusBase = 40.0f; // round housing, its quadrants are the directions
+static constexpr auto radiusKnob = 22.0f;
+static constexpr auto bandTop = 108.0f;
+static constexpr auto bandBottom = 150.0f;
+static constexpr auto buttonL = Rectangle{{6.0f, 114.0f}, {15.0f, 144.0f}};
+static constexpr auto buttonR = Rectangle{{135.0f, 114.0f}, {144.0f, 144.0f}};
+static constexpr auto centerLetterL = gl::vec2{27.0f, 129.0f};
+static constexpr auto centerLetterR = gl::vec2{123.0f, 129.0f};
+// keypad: 3 columns x 4 rows, laid out like the real controller
+static constexpr auto keypadTopLeft = gl::vec2{24.0f, 165.0f};
+static constexpr auto keySize = gl::vec2{30.0f, 26.0f};
+static constexpr auto keyGap = 6.0f;
+static constexpr std::array<uint8_t, 12> keypadLayout = {
+	KEY_1,    KEY_2, KEY_3,
+	KEY_4,    KEY_5, KEY_6,
+	KEY_7,    KEY_8, KEY_9,
+	KEY_STAR, KEY_0, KEY_HASH,
+};
+
+[[nodiscard]] static Rectangle keyRectangle(size_t pos)
+{
+	auto col = float(pos % 3);
+	auto row = float(pos / 3);
+	auto topLeft = keypadTopLeft + gl::vec2{col, row} * (keySize + gl::vec2{keyGap});
+	return {topLeft, topLeft + keySize};
+}
+
+[[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
+{
+	std::vector<uint8_t> result(NUM_BUTTONS); // false
+	if (insideCircle(mouse, centerStick, radiusBase) && !insideCircle(mouse, centerStick, 6.0f)) {
+		// the quadrant of the housing under the mouse
+		setDirectionHovered(mouse - centerStick, subspan<4>(result));
+	}
+	// the side buttons are small, so also accept the band next to them
+	result[TRIG_L] = insideRectangle(mouse, {{buttonL.topLeft.x, bandTop}, {centerLetterL.x + 10.0f, bandBottom}});
+	result[TRIG_R] = insideRectangle(mouse, {{centerLetterR.x - 10.0f, bandTop}, {buttonR.bottomRight.x, bandBottom}});
+	for (auto [pos, button] : enumerate(keypadLayout)) {
+		result[button] = insideRectangle(mouse, keyRectangle(pos));
+	}
+	return result;
+}
+
+static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
+{
+	auto* drawList = ImGui::GetWindowDrawList();
+
+	auto color = getColor(imColor::TEXT);
+	auto hoverColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+	auto isActive = [&](int button) { return hovered[button] || (hoveredRow == button); };
+	auto tr = [&](gl::vec2 p) { return scrnPos + p; };
+
+	// side buttons first, so the body outline is drawn on top of them
+	drawFilledRectangle({tr(buttonL.topLeft), tr(buttonL.bottomRight)}, 2.0f, isActive(TRIG_L));
+	drawFilledRectangle({tr(buttonR.topLeft), tr(buttonR.bottomRight)}, 2.0f, isActive(TRIG_R));
+	drawList->AddRect(tr(body.topLeft), tr(body.bottomRight), color, corner, thickness);
+	drawList->AddLine(tr({body.topLeft.x, bandTop}),    tr({body.bottomRight.x, bandTop}),    color, thickness);
+	drawList->AddLine(tr({body.topLeft.x, bandBottom}), tr({body.bottomRight.x, bandBottom}), color, thickness);
+	drawLetterL(tr(centerLetterL));
+	drawLetterR(tr(centerLetterR));
+
+	// stick: highlight the quadrant of the housing for the active direction
+	auto center = tr(centerStick);
+	// per direction (UP, DOWN, LEFT, RIGHT): a unit vector, and its angle in quarter turns
+	static constexpr std::array<gl::vec2, 4> directions = {
+		gl::vec2{0, -1}, gl::vec2{0, 1}, gl::vec2{-1, 0}, gl::vec2{1, 0}
+	};
+	static constexpr std::array<int8_t, 4> quarterTurns = {-1, 1, 2, 0};
+	static constexpr float quarter = 0.5f * float(Math::pi);
+	static constexpr float eighth = 0.25f * float(Math::pi);
+	for (auto i : xrange(4)) {
+		if (!isActive(i)) continue;
+		float a = float(quarterTurns[i]) * quarter;
+		drawList->PathArcTo(center, radiusBase, a - eighth, a + eighth);
+		drawList->PathArcTo(center, radiusKnob, a + eighth, a - eighth);
+		drawList->PathFillConcave(hoverColor);
+	}
+	drawList->AddCircle(center, radiusBase, color, 0, thickness);
+	drawList->AddCircle(center, radiusKnob, color, 0, thickness);
+	drawList->AddCircle(center, radiusKnob - 6.0f, color, 0, 1.0f);
+	// a small arrow per direction, in the ring between knob and housing
+	for (auto dir : directions) {
+		gl::vec2 side{-dir.y, dir.x};
+		auto tip = center + dir * (radiusBase - 5.0f);
+		auto back = center + dir * (radiusKnob + 5.0f);
+		drawList->AddTriangleFilled(tip, back + side * 5.0f, back - side * 5.0f, color);
+	}
+
+	for (auto [pos, button] : enumerate(keypadLayout)) {
+		auto r = keyRectangle(pos);
+		drawFilledRectangle({tr(r.topLeft), tr(r.bottomRight)}, 3.0f, isActive(button));
+		auto label = buttonNames[button];
+		const char* labelEnd = label.data() + label.size(); // avoid strlen() in ImGui
+		auto textSize = gl::vec2(ImGui::CalcTextSize(label.data(), labelEnd));
+		auto textPos = scrnPos + r.topLeft + (keySize - textSize) * 0.5f;
+		drawList->AddText(textPos, color, label.data(), labelEnd);
+	}
+}
+
+// Keyboard preset: the same keys as player 1 or 2 in the 'cvjoy' key matrix
+// of the ColecoVision machines (see Keyboard.cc and the user manual).
+[[nodiscard]] static TclObject keyboardBindings(unsigned player)
+{
+	if (player == 1) {
+		TclObject result(TclObject::MakeDictTag{},
+			"UP",    makeTclList("keyb Up"),
+			"DOWN",  makeTclList("keyb Down"),
+			"LEFT",  makeTclList("keyb Left"),
+			"RIGHT", makeTclList("keyb Right"),
+			"L",     makeTclList("keyb Space", "keyb Right Ctrl"),
+			// LALT/RALT: SDL's own names for these keys differ per platform (e.g. "Left Option")
+			"R",     makeTclList("keyb LALT", "keyb RALT", "keyb Right Shift"),
+			"*",     makeTclList("keyb -", "keyb Keypad *", "keyb Keypad -"),
+			"#",     makeTclList("keyb =", "keyb Keypad /", "keyb Keypad +"));
+		for (auto i : xrange(10)) {
+			result.addDictKeyValue(tmpStrCat(i),
+				makeTclList(tmpStrCat("keyb ", i), tmpStrCat("keyb Keypad ", i)));
+		}
+		return result;
+	} else {
+		TclObject result(TclObject::MakeDictTag{},
+			"UP",    makeTclList("keyb W"),
+			"DOWN",  makeTclList("keyb S"),
+			"LEFT",  makeTclList("keyb A"),
+			"RIGHT", makeTclList("keyb D"),
+			"L",     makeTclList("keyb Left Ctrl"),
+			"R",     makeTclList("keyb Left Shift"),
+			"*",     makeTclList("keyb J"),
+			"#",     makeTclList("keyb M"));
+		static constexpr std::string_view digitKeys = "UVBNFGHRTY"; // keys for '0'..'9'
+		for (auto [i, c] : enumerate(digitKeys)) {
+			result.addDictKeyValue(tmpStrCat(i), makeTclList(tmpStrCat("keyb ", c)));
+		}
+		return result;
+	}
+}
+
+} // namespace colecojoystick
+
 void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& joystickManager)
 {
+	// The ColecoVision controllers only exist on a ColecoVision machine.
+	bool isColeco = motherBoard.getMachineType() == "Coleco";
+	if (!isColeco && joystick >= 6) joystick = 0;
+
 	ImGui::SetNextWindowSize(gl::vec2{316, 323}, ImGuiCond_FirstUseEver);
+	if (joystick >= 6) {
+		// room for the bindings table plus the upright ColecoVision controller next to it
+		ImGui::SetNextWindowSizeConstraints(gl::vec2{470, 420}, gl::vec2{FLT_MAX, FLT_MAX});
+	}
 	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
 		bool justChanged = im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
-			for (const auto& j : xrange(6)) {
+			for (const auto& j : xrange(isColeco ? 8 : 6)) {
 				if (ImGui::Selectable(joystickToGuiString(j).c_str())) {
 					joystick = j;
 				}
@@ -1140,21 +1333,37 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 		auto& interp = setting->getInterpreter();
 		TclObject bindings = setting->getValue();
 
+		const auto& style = ImGui::GetStyle();
+		gl::vec2 boundingBox = joystick < 2 ? msxjoystick::boundingBox
+		                     : joystick < 4 ? joymega    ::boundingBox
+		                     : joystick < 6 ? joyhandle  ::boundingBox
+		                                    : colecojoystick::boundingBox;
+		// The (upright) ColecoVision controller is drawn to the right of
+		// the bindings table, the others above it.
+		bool drawBesideTable = joystick >= 6;
+		float tableWidth = 0.0f; // auto
 		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
+		if (drawBesideTable) {
+			tableWidth = std::max(100.0f, ImGui::GetContentRegionAvail().x - boundingBox.x - style.ItemSpacing.x);
+			scrnPos.x += tableWidth + style.ItemSpacing.x;
+		}
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
 
 		// Check if buttons are hovered
 		auto hovered = joystick < 2 ? msxjoystick::buttonsHovered(mouse)
 		             : joystick < 4 ? joymega    ::buttonsHovered(mouse)
-		                            : joyhandle  ::buttonsHovered(mouse);
+		             : joystick < 6 ? joyhandle  ::buttonsHovered(mouse)
+		                            : colecojoystick::buttonsHovered(mouse);
 		const auto numButtons = hovered.size();
 		using SP = std::span<const zstring_view>;
 		auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
 		              : joystick < 4 ? SP{joymega    ::keyNames}
-		                             : SP{joyhandle  ::keyNames};
+		              : joystick < 6 ? SP{joyhandle  ::keyNames}
+		                             : SP{colecojoystick::keyNames};
 		auto buttonNames = joystick < 2 ? SP{msxjoystick::buttonNames}
 		                 : joystick < 4 ? SP{joymega    ::buttonNames}
-		                                : SP{joyhandle  ::buttonNames};
+		                 : joystick < 6 ? SP{joyhandle  ::buttonNames}
+		                                : SP{colecojoystick::buttonNames};
 
 		// Any joystick button clicked?
 		std::optional<int> addAction;
@@ -1165,18 +1374,20 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 			}
 		}
 
-		ImGui::Dummy(joystick < 2 ? msxjoystick::boundingBox // reserve space for joystick drawing
-		           : joystick < 4 ? joymega    ::boundingBox
-					  : joyhandle  ::boundingBox);
+		if (!drawBesideTable) {
+			ImGui::Dummy(boundingBox); // reserve space for joystick drawing
+		}
 
 		// Draw table
 		bool anyWheel = false;
 		int hoveredRow = -1;
-		const auto& style = ImGui::GetStyle();
 		auto textHeight = ImGui::GetTextLineHeight();
 		float rowHeight = 2.0f * style.FramePadding.y + textHeight;
 		float bottomHeight = style.ItemSpacing.y + 2.0f * style.FramePadding.y + textHeight;
-		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, {0.0f, -bottomHeight}, [&]{
+		// when drawn beside the table, the table is at least as high as the drawing
+		float tableHeight = (drawBesideTable && (ImGui::GetContentRegionAvail().y - bottomHeight) < boundingBox.y)
+		                  ? boundingBox.y : -bottomHeight;
+		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, {tableWidth, tableHeight}, [&]{
 			im::ID_for_range(numButtons, [&](int i) {
 				TclObject key(keyNames[i]);
 				bool wheel = key == "WHEEL";
@@ -1255,7 +1466,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 
 		  joystick < 2 ? msxjoystick::draw(scrnPos, hovered, hoveredRow)
 		: joystick < 4 ? joymega    ::draw(scrnPos, hovered, hoveredRow)
-		               : joyhandle  ::draw(scrnPos, hovered, hoveredRow, analogValue);
+		: joystick < 6 ? joyhandle  ::draw(scrnPos, hovered, hoveredRow, analogValue)
+		               : colecojoystick::draw(scrnPos, hovered, hoveredRow);
 
 		if (ImGui::Button("Default bindings...")) {
 			ImGui::OpenPopup("bindings");
@@ -1286,7 +1498,10 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 				}
 			};
 			im::Menu("Keyboard", [&]{
-				addOrSet([] {
+				addOrSet([&] {
+					if (joystick >= 6) {
+						return colecojoystick::keyboardBindings(joystick - 5);
+					}
 					return TclObject(TclObject::MakeDictTag{},
 						"UP",    makeTclList("keyb Up"),
 						"DOWN",  makeTclList("keyb Down"),
@@ -1301,7 +1516,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 					addOrSet([&]{
 						return joystick < 2 ? MSXJoystick::getDefaultConfig(joyId, joystickManager)
 						     : joystick < 4 ? JoyMega    ::getDefaultConfig(joyId, joystickManager)
-						                    : JoyHandle  ::getDefaultConfig(joyId, joystickManager);
+						     : joystick < 6 ? JoyHandle  ::getDefaultConfig(joyId, joystickManager)
+						                    : ColecoJoystick::getDefaultConfig(joyId, joystickManager);
 					});
 				});
 			}
@@ -1905,7 +2121,8 @@ bool ImGuiSettings::signalEvent(const Event& event)
 	using SP = std::span<const zstring_view>;
 	auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
 	              : joystick < 4 ? SP{joymega    ::keyNames}
-	                             : SP{joyhandle  ::keyNames};
+	              : joystick < 6 ? SP{joyhandle  ::keyNames}
+	                             : SP{colecojoystick::keyNames};
 	if (const auto numButtons = keyNames.size(); addPopupForKey >= numButtons) {
 		deinitListenerIfIdle();
 		return false; // don't block

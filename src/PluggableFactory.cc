@@ -3,6 +3,7 @@
 #include "JoyHandle.hh"
 #include "ArkanoidPad.hh"
 #include "CircuitDesignerRDDongle.hh"
+#include "ColecoJoystick.hh"
 #include "Gunstick.hh"
 #include "InputEventGenerator.hh"
 #include "JoyMega.hh"
@@ -101,6 +102,15 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<JoyHandle>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, joystickManager, 2)); // joyhandle2
+	if (motherBoard.getMachineType() == "Coleco") {
+		// Only on a ColecoVision: on an MSX the keypad would do nothing.
+		controller.registerPluggable(std::make_unique<ColecoJoystick>(
+			commandController, msxEventDistributor,
+			stateChangeDistributor, joystickManager, 1)); // colecojoystick1
+		controller.registerPluggable(std::make_unique<ColecoJoystick>(
+			commandController, msxEventDistributor,
+			stateChangeDistributor, joystickManager, 2)); // colecojoystick2
+	}
 
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());
