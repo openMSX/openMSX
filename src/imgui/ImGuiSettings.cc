@@ -51,6 +51,7 @@
 #include "foreach_file.hh"
 #include "narrow.hh"
 #include "strCat.hh"
+#include "unreachable.hh"
 #include "zstring_view.hh"
 
 #include <imgui.h>
@@ -467,24 +468,6 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 }
 
 ////// joystick stuff
-
-// joystick is 0..7 (6..7 only on a ColecoVision machine)
-[[nodiscard]] static std::string settingName(unsigned joystick)
-{
-	return (joystick < 2) ? strCat("msxjoystick", joystick + 1, "_config")
-	     : (joystick < 4) ? strCat("joymega",     joystick - 1, "_config")
-	     : (joystick < 6) ? strCat("joyhandle",   joystick - 3, "_config")
-	                      : strCat("colecojoystick", joystick - 5, "_config");
-}
-
-// joystick is 0..7 (6..7 only on a ColecoVision machine)
-[[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
-{
-	return (joystick < 2) ? strCat("MSX joystick ",       joystick + 1)
-		 : (joystick < 4) ? strCat("JoyMega controller ", joystick - 1)
-		 : (joystick < 6) ? strCat("Panasonic FS-JH1 ",   joystick - 3)
-	                      : strCat("ColecoVision controller ", joystick - 5);
-}
 
 [[nodiscard]] static std::string toGuiString(const AnalogInput& input, const JoystickManager& joystickManager)
 {
@@ -1306,21 +1289,71 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 
 } // namespace colecojoystick
 
+// The controllers in the joystick config window, 2 of each type: 'joystick'
+// 0..1 are MSX joystick 1/2, 2..3 JoyMega controller 1/2, and so on.
+enum class ControllerType : uint8_t { MSX_JOYSTICK, JOYMEGA, JOYHANDLE, COLECO, NUM };
+static constexpr unsigned CONTROLLERS_PER_TYPE = 2;
+static constexpr unsigned NUM_CONTROLLERS = unsigned(ControllerType::NUM) * CONTROLLERS_PER_TYPE;
+
+[[nodiscard]] static ControllerType controllerType(unsigned joystick)
+{
+	return ControllerType(joystick / CONTROLLERS_PER_TYPE);
+}
+[[nodiscard]] static unsigned controllerId(unsigned joystick) // 1 or 2
+{
+	return joystick % CONTROLLERS_PER_TYPE + 1;
+}
+
+namespace {
+struct ControllerInfo {
+	zstring_view settingPrefix; // e.g. "msxjoystick" -> "msxjoystick1_config"
+	zstring_view guiName;       // e.g. "MSX joystick" -> "MSX joystick 1"
+	std::span<const zstring_view> keyNames;    // keys in the Tcl dict
+	std::span<const zstring_view> buttonNames; // shown in the GUI
+	gl::vec2 boundingBox;       // size of the drawing
+	bool drawBesideTable;       // drawing next to the bindings table, instead of above it
+	bool colecoOnly;            // only offered on a ColecoVision machine
+};
+}
+static constexpr auto controllerInfos = std::to_array<ControllerInfo>({
+	{"msxjoystick",    "MSX joystick",            msxjoystick::keyNames,    msxjoystick::buttonNames,    msxjoystick::boundingBox,    false, false},
+	{"joymega",        "JoyMega controller",      joymega::keyNames,        joymega::buttonNames,        joymega::boundingBox,        false, false},
+	{"joyhandle",      "Panasonic FS-JH1",        joyhandle::keyNames,      joyhandle::buttonNames,      joyhandle::boundingBox,      false, false},
+	{"colecojoystick", "ColecoVision controller", colecojoystick::keyNames, colecojoystick::buttonNames, colecojoystick::boundingBox, true,  true},
+});
+static_assert(controllerInfos.size() == size_t(ControllerType::NUM));
+
+[[nodiscard]] static const ControllerInfo& getInfo(unsigned joystick)
+{
+	return controllerInfos[size_t(controllerType(joystick))];
+}
+[[nodiscard]] static std::string settingName(unsigned joystick)
+{
+	return strCat(getInfo(joystick).settingPrefix, controllerId(joystick), "_config");
+}
+[[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
+{
+	return strCat(getInfo(joystick).guiName, ' ', controllerId(joystick));
+}
+[[nodiscard]] static bool isAvailable(unsigned joystick, const MSXMotherBoard& motherBoard)
+{
+	return !getInfo(joystick).colecoOnly || motherBoard.getMachineType() == "Coleco";
+}
+
 void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& joystickManager)
 {
-	// The ColecoVision controllers only exist on a ColecoVision machine.
-	bool isColeco = motherBoard.getMachineType() == "Coleco";
-	if (!isColeco && joystick >= 6) joystick = 0;
+	if (!isAvailable(joystick, motherBoard)) joystick = 0;
 
 	ImGui::SetNextWindowSize(gl::vec2{316, 323}, ImGuiCond_FirstUseEver);
-	if (joystick >= 6) {
-		// room for the bindings table plus the upright ColecoVision controller next to it
+	if (getInfo(joystick).drawBesideTable) {
+		// room for the bindings table plus the (upright) controller next to it
 		ImGui::SetNextWindowSizeConstraints(gl::vec2{470, 420}, gl::vec2{FLT_MAX, FLT_MAX});
 	}
 	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
 		bool justChanged = im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
-			for (const auto& j : xrange(isColeco ? 8 : 6)) {
+			for (const auto& j : xrange(NUM_CONTROLLERS)) {
+				if (!isAvailable(j, motherBoard)) continue;
 				if (ImGui::Selectable(joystickToGuiString(j).c_str())) {
 					joystick = j;
 				}
@@ -1334,13 +1367,9 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 		TclObject bindings = setting->getValue();
 
 		const auto& style = ImGui::GetStyle();
-		gl::vec2 boundingBox = joystick < 2 ? msxjoystick::boundingBox
-		                     : joystick < 4 ? joymega    ::boundingBox
-		                     : joystick < 6 ? joyhandle  ::boundingBox
-		                                    : colecojoystick::boundingBox;
-		// The (upright) ColecoVision controller is drawn to the right of
-		// the bindings table, the others above it.
-		bool drawBesideTable = joystick >= 6;
+		const auto& info = getInfo(joystick);
+		gl::vec2 boundingBox = info.boundingBox;
+		bool drawBesideTable = info.drawBesideTable;
 		float tableWidth = 0.0f; // auto
 		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 		if (drawBesideTable) {
@@ -1350,20 +1379,19 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
 
 		// Check if buttons are hovered
-		auto hovered = joystick < 2 ? msxjoystick::buttonsHovered(mouse)
-		             : joystick < 4 ? joymega    ::buttonsHovered(mouse)
-		             : joystick < 6 ? joyhandle  ::buttonsHovered(mouse)
-		                            : colecojoystick::buttonsHovered(mouse);
+		auto hovered = [&] {
+			switch (controllerType(joystick)) {
+				case ControllerType::MSX_JOYSTICK: return msxjoystick   ::buttonsHovered(mouse);
+				case ControllerType::JOYMEGA:      return joymega       ::buttonsHovered(mouse);
+				case ControllerType::JOYHANDLE:    return joyhandle     ::buttonsHovered(mouse);
+				case ControllerType::COLECO:       return colecojoystick::buttonsHovered(mouse);
+				case ControllerType::NUM: break;
+			}
+			UNREACHABLE;
+		}();
 		const auto numButtons = hovered.size();
-		using SP = std::span<const zstring_view>;
-		auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
-		              : joystick < 4 ? SP{joymega    ::keyNames}
-		              : joystick < 6 ? SP{joyhandle  ::keyNames}
-		                             : SP{colecojoystick::keyNames};
-		auto buttonNames = joystick < 2 ? SP{msxjoystick::buttonNames}
-		                 : joystick < 4 ? SP{joymega    ::buttonNames}
-		                 : joystick < 6 ? SP{joyhandle  ::buttonNames}
-		                                : SP{colecojoystick::buttonNames};
+		auto keyNames = info.keyNames;
+		auto buttonNames = info.buttonNames;
 
 		// Any joystick button clicked?
 		std::optional<int> addAction;
@@ -1464,10 +1492,13 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 			deinitListenerIfIdle();
 		}
 
-		  joystick < 2 ? msxjoystick::draw(scrnPos, hovered, hoveredRow)
-		: joystick < 4 ? joymega    ::draw(scrnPos, hovered, hoveredRow)
-		: joystick < 6 ? joyhandle  ::draw(scrnPos, hovered, hoveredRow, analogValue)
-		               : colecojoystick::draw(scrnPos, hovered, hoveredRow);
+		switch (controllerType(joystick)) {
+			case ControllerType::MSX_JOYSTICK: msxjoystick   ::draw(scrnPos, hovered, hoveredRow); break;
+			case ControllerType::JOYMEGA:      joymega       ::draw(scrnPos, hovered, hoveredRow); break;
+			case ControllerType::JOYHANDLE:    joyhandle     ::draw(scrnPos, hovered, hoveredRow, analogValue); break;
+			case ControllerType::COLECO:       colecojoystick::draw(scrnPos, hovered, hoveredRow); break;
+			case ControllerType::NUM: UNREACHABLE;
+		}
 
 		if (ImGui::Button("Default bindings...")) {
 			ImGui::OpenPopup("bindings");
@@ -1499,8 +1530,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 			};
 			im::Menu("Keyboard", [&]{
 				addOrSet([&] {
-					if (joystick >= 6) {
-						return colecojoystick::keyboardBindings(joystick - 5);
+					if (controllerType(joystick) == ControllerType::COLECO) {
+						return colecojoystick::keyboardBindings(controllerId(joystick));
 					}
 					return TclObject(TclObject::MakeDictTag{},
 						"UP",    makeTclList("keyb Up"),
@@ -1514,10 +1545,14 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 			for (auto joyId : joystickManager.getConnectedJoysticks()) {
 				im::Menu(tmpStrCat(joystickManager.getDisplayName(joyId), "##", joyId.raw()).c_str(), [&]{
 					addOrSet([&]{
-						return joystick < 2 ? MSXJoystick::getDefaultConfig(joyId, joystickManager)
-						     : joystick < 4 ? JoyMega    ::getDefaultConfig(joyId, joystickManager)
-						     : joystick < 6 ? JoyHandle  ::getDefaultConfig(joyId, joystickManager)
-						                    : ColecoJoystick::getDefaultConfig(joyId, joystickManager);
+						switch (controllerType(joystick)) {
+							case ControllerType::MSX_JOYSTICK: return MSXJoystick   ::getDefaultConfig(joyId, joystickManager);
+							case ControllerType::JOYMEGA:      return JoyMega       ::getDefaultConfig(joyId, joystickManager);
+							case ControllerType::JOYHANDLE:    return JoyHandle     ::getDefaultConfig(joyId, joystickManager);
+							case ControllerType::COLECO:       return ColecoJoystick::getDefaultConfig(joyId, joystickManager);
+							case ControllerType::NUM: break;
+						}
+						UNREACHABLE;
 					});
 				});
 			}
@@ -2118,11 +2153,7 @@ bool ImGuiSettings::signalEvent(const Event& event)
 		}
 	}
 
-	using SP = std::span<const zstring_view>;
-	auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
-	              : joystick < 4 ? SP{joymega    ::keyNames}
-	              : joystick < 6 ? SP{joyhandle  ::keyNames}
-	                             : SP{colecojoystick::keyNames};
+	auto keyNames = getInfo(joystick).keyNames;
 	if (const auto numButtons = keyNames.size(); addPopupForKey >= numButtons) {
 		deinitListenerIfIdle();
 		return false; // don't block
