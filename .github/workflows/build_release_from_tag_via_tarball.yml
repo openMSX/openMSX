@@ -107,7 +107,7 @@ jobs:
       shell: bash
       run: |
         # move the tarball from the downloaded artifact directory to repo root
-        mv dist_artifact/* .
+        mv dist_artifact/${{ steps.get_dist_name.outputs.tarball_name }} .
         rmdir dist_artifact
     - name: Set dist outputs from prepare-dist
       id: get_dist_name
@@ -206,7 +206,7 @@ jobs:
           repo="${GITHUB_REPOSITORY}"
 
           resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${repo}/releases/tags/${TAG}" || true)
+            "https://api.github.com/repos/${repo}/releases/tags/${TAG}")
 
           if echo "$resp" | jq -e '.id' >/dev/null 2>&1; then
             echo "Found existing release for tag ${TAG}"
@@ -255,7 +255,7 @@ jobs:
 
             assets_json=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/${repo}/releases/${release_id}/assets" )
-            existing_id=$(echo "$assets_json" | jq -r --arg NAME "$name" '.[] | select(.name==$NAME) | .id' | head -n1 || true)
+            existing_id=$(echo "$assets_json" | jq -r --arg NAME "$name" '.[] | select(.name==$NAME) | .id' | head -n1)
             if [ -n "$existing_id" ] && [ "$existing_id" != "null" ]; then
               echo "Deleting existing asset id $existing_id with name $name"
               curl -s -X DELETE -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
