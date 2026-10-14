@@ -98,10 +98,16 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
+    - name: Set dist outputs from prepare-dist
+      id: get_dist_name
+      shell: bash
+      run: |
+        echo "tarball_name=${{ needs.prepare-dist.outputs.tarball_name }}" >> $GITHUB_OUTPUT
+        echo "dist_name=${{ needs.prepare-dist.outputs.dist_name }}" >> $GITHUB_OUTPUT
     - name: Download prepared tarball artifact
       uses: actions/download-artifact@v4
       with:
-        name: dist_${{ needs.prepare-dist.outputs.tarball_name }}
+        name: ${{ needs.prepare-dist.outputs.tarball_name }}
         path: dist_artifact
     - name: Move tarball to root
       shell: bash
@@ -109,12 +115,6 @@ jobs:
         # move the tarball from the downloaded artifact directory to repo root
         mv dist_artifact/${{ steps.get_dist_name.outputs.tarball_name }} .
         rmdir dist_artifact
-    - name: Set dist outputs from prepare-dist
-      id: get_dist_name
-      shell: bash
-      run: |
-        echo "tarball_name=${{ needs.prepare-dist.outputs.tarball_name }}" >> $GITHUB_OUTPUT
-        echo "dist_name=${{ needs.prepare-dist.outputs.dist_name }}" >> $GITHUB_OUTPUT
     - name: Remove everything except tarball from root
       shell: bash
       run: |
