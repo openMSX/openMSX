@@ -124,8 +124,7 @@ The CPU keeps a small saved history of block-repeat executions (PC, SP,
 start time and an active flag).  It contains suspended and completed runs,
 is serialized in the CPU savestate, and is queried with
 `reverse blockstart <pc> <sp>`.  The command returns the start time of the
-latest matching run, or errors (`nok`) when the global
-`debug_block_instructions` setting is disabled or no matching run is in the
+latest matching run, or errors (`nok`) when no matching run is in the
 history.  `step_back` uses this command and otherwise falls back to the
 generic reverse search.
 
