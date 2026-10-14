@@ -109,7 +109,7 @@ jobs:
       shell: bash
       run: |
         # move the tarball from the downloaded artifact directory to repo root
-        mv dist_artifact/${{ needs.prepare-dist.outputs.dist_name }}/${{ needs.prepare-dist.outputs.tarball_name }} .
+        mv dist_artifact/${{ needs.prepare-dist.outputs.tarball_name }} .
         rmdir dist_artifact
     - name: Remove everything except tarball from root
       shell: bash
