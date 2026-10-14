@@ -12,7 +12,6 @@ permissions:
   contents: write
 
 jobs:
-
   prepare-dist:
     name: Prepare distribution tarball
     runs-on: ubuntu-latest
@@ -254,11 +253,7 @@ jobs:
                 "https://api.github.com/repos/${repo}/releases/assets/${existing_id}"
             fi
 
-            encoded_name=$(python3 - "$name" <<'PY'
-  import urllib.parse,sys
-  print(urllib.parse.quote(sys.argv[1]))
-  PY
-            )
+            encoded_name=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$name")
             target="${base_upload_url}?name=${encoded_name}"
             echo "Uploading to $target"
             curl --fail -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
