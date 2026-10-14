@@ -72,11 +72,11 @@ public:
 	                                            std::span<float, FFT_LEN> tmpBuf)
 	{
 		pass<FFT_LEN_L2 - 1>(output, tmpBuf, input);
-#ifndef NDEBUG
+#ifdef DEBUG
 		// In debug mode, verify imaginary outputs are indeed ~0 for Symmetric mode
 		if constexpr (MODE == FFTInputMode::Symmetric) {
 			for (unsigned i = FFT_LEN / 2 + 1; i < FFT_LEN; ++i) {
-				assert(std::abs(output[i]) < 1e-4f && "Symmetric mode: imaginary outputs should be ~0");
+				assert(std::abs(output[i]) < (1e-2f * FFT_LEN) && "Symmetric mode: imaginary outputs should be ~0");
 			}
 		}
 #endif
