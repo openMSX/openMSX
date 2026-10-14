@@ -119,7 +119,7 @@ proc omsx::spawn {args} {
 	}
 
 	set stderr [file join $::omsx::rootdir test .stderr.log]
-	set cmdline "$cl -control stdio [join $args { }] 2>> [list $stderr]"
+	set cmdline "$cl -control stdio [join $args { }] 2> [list $stderr]"
 	set ::omsx::pipe [open "|$cmdline" r+]
 	fconfigure $::omsx::pipe -blocking 0 -buffering none
 	set ::omsx::ibuf ""
