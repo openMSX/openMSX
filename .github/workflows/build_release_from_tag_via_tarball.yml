@@ -177,9 +177,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tarfile="artifacts/${{ needs.build.outputs.dist_name }}/${{ needs.build.outputs.tarball_name }}
+          tarfile="artifacts/${{ needs.build.outputs.dist_name }}/${{ needs.build.outputs.tarball_name }}"
           # Release notes are always at doc/release-notes.txt inside the tarball 
-          entry=$(tar -tzf "$tarfile" | grep -i '/doc/release-notes.txt$' | head -n 1 || true)
+          entry=$(tar -tzf "$tarfile" | grep -i '/doc/release-notes.txt$' | head -n 1)
           if [ -z "$entry" ]; then
             echo "No release-notes.txt found inside tarball — aborting"
             exit 1
@@ -241,12 +241,12 @@ jobs:
           fi
 
           echo "Uploading ${#files[@]} files to release id ${release_id}:"
+          assets_json=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repo}/releases/${release_id}/assets" )
           for f in "${files[@]}"; do
             name=$(basename "$f")
             echo "Preparing to upload: $f -> $name"
 
-            assets_json=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${repo}/releases/${release_id}/assets" )
             existing_id=$(echo "$assets_json" | jq -r --arg NAME "$name" '.[] | select(.name==$NAME) | .id' | head -n1)
             if [ -n "$existing_id" ] && [ "$existing_id" != "null" ]; then
               echo "Deleting existing asset id $existing_id with name $name"
