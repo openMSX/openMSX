@@ -8,6 +8,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: ${{ matrix.name }} ${{ matrix.cpu }}
@@ -147,7 +150,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tarfile=$(find artifacts -type f -name '*.tar.gz' | head -n 1 || true)
+          tarfile=$(find artifacts -type f -name 'openmsx-*.tar.gz' -print -quit || true)
+          if [ -z "$tarfile" ]; then
+            tarfile=$(find artifacts -type f -name '*.tar.gz' -print -quit || true)
+          fi
           if [ -z "$tarfile" ]; then
             echo "No tar.gz artifact found under artifacts/ — aborting"
             exit 1
