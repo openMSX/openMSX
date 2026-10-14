@@ -40,13 +40,16 @@ jobs:
       - name: Upload tarball artifact
         uses: actions/upload-artifact@v6
         with:
-          name: dist_${{ steps.get_dist_name.outputs.tarball_name }}
+          name: ${{ steps.get_dist_name.outputs.dist_name }}
           path: ${{ steps.get_dist_name.outputs.tarball_name }}
 
   build:
     name: ${{ matrix.name }} ${{ matrix.cpu }}
     needs: prepare-dist
     runs-on: ${{ matrix.image }}
+    outputs:
+      tarball_name: ${{ needs.prepare-dist.outputs.tarball_name }}
+      dist_name: ${{ needs.prepare-dist.outputs.dist_name }}
     strategy:
       fail-fast: false
       matrix:
@@ -98,37 +101,31 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-    - name: Set dist outputs from prepare-dist
-      id: get_dist_name
-      shell: bash
-      run: |
-        echo "tarball_name=${{ needs.prepare-dist.outputs.tarball_name }}" >> $GITHUB_OUTPUT
-        echo "dist_name=${{ needs.prepare-dist.outputs.dist_name }}" >> $GITHUB_OUTPUT
     - name: Download prepared tarball artifact
       uses: actions/download-artifact@v4
       with:
-        name: ${{ needs.prepare-dist.outputs.tarball_name }}
+        name: ${{ needs.prepare-dist.outputs.dist_name }}
         path: dist_artifact
     - name: Move tarball to root
       shell: bash
       run: |
         # move the tarball from the downloaded artifact directory to repo root
-        mv dist_artifact/${{ steps.get_dist_name.outputs.tarball_name }} .
+        mv dist_artifact/${{ needs.prepare-dist.outputs.dist_name }}/${{ needs.prepare-dist.outputs.tarball_name }} .
         rmdir dist_artifact
     - name: Remove everything except tarball from root
       shell: bash
       run: |
         shopt -s extglob
-        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}")
+        rm -rf -v !("${{ needs.prepare-dist.outputs.tarball_name }}")
     - name: Extract tarball
       uses: a7ul/tar-action@v1.2.0
       id: extract
       with:
         command: x
-        files: ${{ steps.get_dist_name.outputs.tarball_name }}
+        files: ${{ needs.prepare-dist.outputs.tarball_name }}
     - name: Move extracted tarball contents to root
       shell: bash
-      run: mv ${{ steps.get_dist_name.outputs.dist_name }}/* .
+      run: mv ${{ needs.prepare-dist.outputs.dist_name }}/* .
     - name: Select Xcode version
       if: ${{ matrix.xcode_version }}
       run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
@@ -180,12 +177,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Try to open the tarball that matches the requested release tag exactly (fail if not present).
-          tarfile=$(find artifacts -type f -name "openmsx-${{ inputs.tag }}*.tar.gz" -print -quit || true)
-          if [ -z "$tarfile" ]; then
-            echo "openmsx-${{ inputs.tag }}*.tar.gz not found under artifacts/ — aborting"
-            exit 1
-          fi
+          tarfile="artifacts/${{ needs.build.outputs.dist_name }}/${{ needs.build.outputs.tarball_name }}
           # Release notes are always at doc/release-notes.txt inside the tarball 
           entry=$(tar -tzf "$tarfile" | grep -i '/doc/release-notes.txt$' | head -n 1 || true)
           if [ -z "$entry" ]; then
