@@ -12,8 +12,40 @@ permissions:
   contents: write
 
 jobs:
+
+  prepare-dist:
+    name: Prepare distribution tarball
+    runs-on: ubuntu-latest
+    outputs:
+      tarball_name: ${{ steps.get_dist_name.outputs.tarball_name }}
+      dist_name: ${{ steps.get_dist_name.outputs.dist_name }}
+    steps:
+      - name: Get current master code from Git repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Create tarball
+        shell: bash
+        run: python3 build/gitdist.py ${{ inputs.tag }}
+      - name: Determine tarball name
+        id: get_dist_name
+        shell: bash
+        run: |
+          NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='${{ inputs.tag }}'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
+          echo "tarball_name=$NAME.tar.gz" >> $GITHUB_OUTPUT
+          echo "dist_name=$NAME" >> $GITHUB_OUTPUT
+      - name: Move tarball to root
+        shell: bash
+        run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: dist_${{ steps.get_dist_name.outputs.tarball_name }}
+          path: ${{ steps.get_dist_name.outputs.tarball_name }}
+
   build:
     name: ${{ matrix.name }} ${{ matrix.cpu }}
+    needs: prepare-dist
     runs-on: ${{ matrix.image }}
     strategy:
       fail-fast: false
@@ -62,28 +94,27 @@ jobs:
             os: windows-vc
             flavour: opt
     steps:
-    - name: Get current master code from Git repo
+    - name: Get current master code from Git repo (for the .github folder)
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-    - name: Create tarball
+    - name: Download prepared tarball artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dist_${{ needs.prepare-dist.outputs.tarball_name }}
+        path: dist_artifact
+    - name: Move tarball to root
       shell: bash
-      run: python3 build/gitdist.py ${{ inputs.tag }}
-    - name: Determine tarball name
+      run: |
+        # move the tarball from the downloaded artifact directory to repo root
+        mv dist_artifact/* .
+        rmdir dist_artifact
+    - name: Set dist outputs from prepare-dist
       id: get_dist_name
       shell: bash
       run: |
-        NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='${{ inputs.tag }}'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
-        echo "tarball_name=$NAME.tar.gz" >> $GITHUB_OUTPUT
-        echo "dist_name=$NAME" >> $GITHUB_OUTPUT
-    - name: Move tarball to root
-      shell: bash
-      run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
-    - name: Upload tarball as artifact
-      uses: actions/upload-artifact@v6
-      with:
-        name: ${{ matrix.os }}-${{ matrix.cpu }}-${{ matrix.flavour }}_${{ steps.get_dist_name.outputs.tarball_name }}
-        path: ${{ steps.get_dist_name.outputs.tarball_name }}
+        echo "tarball_name=${{ needs.prepare-dist.outputs.tarball_name }}" >> $GITHUB_OUTPUT
+        echo "dist_name=${{ needs.prepare-dist.outputs.dist_name }}" >> $GITHUB_OUTPUT
     - name: Remove everything except tarball from root
       shell: bash
       run: |
@@ -152,7 +183,7 @@ jobs:
           # Try to open the tarball that matches the requested release tag exactly (fail if not present).
           tarfile=$(find artifacts -type f -name "openmsx-${{ inputs.tag }}*.tar.gz" -print -quit || true)
           if [ -z "$tarfile" ]; then
-            echo "openmsx-${{ inputs.tag }}*.tar.gz found under artifacts/ — aborting"
+            echo "openmsx-${{ inputs.tag }}*.tar.gz not found under artifacts/ — aborting"
             exit 1
           fi
           # Release notes are always at doc/release-notes.txt inside the tarball 
