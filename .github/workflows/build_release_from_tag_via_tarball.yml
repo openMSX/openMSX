@@ -138,30 +138,25 @@ jobs:
     name: Publish release assets (draft)
     needs: build
     runs-on: ubuntu-latest
-    if: always()
     steps:
       - name: Download all workflow artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Extract release-notes from tarball (guaranteed present)
+      - name: Extract release-notes from tarball
         id: relnotes
         shell: bash
         run: |
           set -euo pipefail
-          tarfile=$(find artifacts -type f -name 'openmsx-*.tar.gz' -print -quit || true)
+          # Try to open the tarball that matches the requested release tag exactly (fail if not present).
+          tarfile=$(find artifacts -type f -name "openmsx-${{ inputs.tag }}*.tar.gz" -print -quit || true)
           if [ -z "$tarfile" ]; then
-            tarfile=$(find artifacts -type f -name '*.tar.gz' -print -quit || true)
-          fi
-          if [ -z "$tarfile" ]; then
-            echo "No tar.gz artifact found under artifacts/ — aborting"
+            echo "openmsx-${{ inputs.tag }}*.tar.gz found under artifacts/ — aborting"
             exit 1
           fi
+          # Release notes are always at doc/release-notes.txt inside the tarball 
           entry=$(tar -tzf "$tarfile" | grep -i '/doc/release-notes.txt$' | head -n 1 || true)
-          if [ -z "$entry" ]; then
-            entry=$(tar -tzf "$tarfile" | grep -i 'release-notes.txt' | head -n 1 || true)
-          fi
           if [ -z "$entry" ]; then
             echo "No release-notes.txt found inside tarball — aborting"
             exit 1
