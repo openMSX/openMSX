@@ -1,0 +1,24 @@
+name: Test composite build action (Windows-VC)
+
+on:
+  push:
+    branches:
+      - wix-test-catapult-integration
+  workflow_dispatch:
+
+jobs:
+  test-windows-vc:
+    name: Test windows-vc path
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Use composite build action for Windows-VC (branch-local)
+        uses: ./.github/actions/build
+        with:
+          os: windows-vc
+          cpu: x64
+          flavour: opt
