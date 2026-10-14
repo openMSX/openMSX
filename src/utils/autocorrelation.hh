@@ -2,6 +2,7 @@
 #define AUTOCORRELATION_HH
 
 #include "FFTReal.hh"
+#include "ranges.hh"
 
 #include <algorithm>
 #include <array>
