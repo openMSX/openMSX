@@ -95,7 +95,34 @@ runs:
         curl -L -o wxcatapult.zip \
           https://github.com/openMSX/wxcatapult/releases/download/wxcatapult-ci-latest/catapult-19.0-8-g7ff2d47-Windows-VC-x64-bin.zip
         unzip -q wxcatapult.zip -d derived/wxcatapult
-    - name: Create ZIP package of VC build
+
+    # Install WiX so we can build the MSI; only for windows-vc runs
+    - name: Install WiX Toolset 3.11
+      if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
+      run: |
+        choco install wixtoolset --version=3.11.2.4516 -y
+        refreshenv
+
+    # Normalize the downloaded Catapult artifact into the legacy layout used
+    # by the packaging scripts (derived/.../install/catapult.exe etc.)
+    - name: Prepare Catapult artifact for packaging
+      if: ${{ inputs.os == 'windows-vc' }}
+      shell: bash
+      run: |
+        # Use the repo-local helper to normalize the wxCatapult artifact
+        py build/package-windows/prepare_catapult.py derived/wxcatapult \
+          --out build/package-windows/catapult-staging \
+          --platform x64 --configuration Release
+
+    # Generate MSI installer only (will use the normalized catapult staging tree)
+    - name: Generate MSI installer (with Catapult)
+      if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
+      run: |
+        cmd /c "build\\package-windows\\package.cmd" x64 release build\\package-windows\\catapult-staging MSIONLY
+
+    - name: Create ZIP package of VC build (without Catapult)
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
@@ -151,6 +178,12 @@ runs:
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: derived\x64-VC-Release\package-windows\*-bin.zip
+    - name: Upload Windows VC MSI redistributable (zip)
+      if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ steps.openmsx.outputs.target_file }}-msi.zip
+        path: derived\x64-VC-Release\package-windows\*-msi.zip
     - name: Upload Windows VC debug symbols
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v6
