@@ -504,6 +504,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDebugger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDisassembly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiFrankySprites.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiFrankyTiles.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiFrankyVdpRegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiIoPorts.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.cc" />
@@ -1128,6 +1131,9 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDebugger.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDisassembly.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiFrankySprites.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiFrankyTiles.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiFrankyVdpRegs.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiIoPorts.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.hh" />

@@ -28,6 +28,9 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+	/** The embedded Sega VDP (used by the Franky debugger viewers). */
+	[[nodiscard]] SMSVDP& getVdp() { return vdp; }
+
 private:
 	SMSVDP vdp;
 	SN76489 sn76489;
