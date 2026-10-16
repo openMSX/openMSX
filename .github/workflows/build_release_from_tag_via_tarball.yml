@@ -176,7 +176,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tarfile="artifacts/${{ needs.build.outputs.dist_name }}/${{ needs.build.outputs.tarball_name }}"
+          tarfile="artifacts/${{ needs.build.outputs.tarball_name }}"
           # Release notes are always at doc/release-notes.txt inside the tarball 
           entry=$(tar -tzf "$tarfile" | grep -i '/doc/release-notes.txt$' | head -n 1)
           if [ -z "$entry" ]; then
@@ -233,7 +233,7 @@ jobs:
           upload_url="${{ steps.get_release.outputs.upload_url }}"
           base_upload_url="${upload_url%\{*}"
 
-          mapfile -t files < <(find artifacts -type f -print)
+          mapfile -t files < <(find artifacts -type f -not -name "*mingw*" -not -name "*proberesults*" -print)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No artifact files found under artifacts/, nothing to upload."
             exit 0
