@@ -1,6 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="generic"><UniqueIdentifier>{79C55B31-598F-4C43-99D7-7B5A103D22A1}</UniqueIdentifier></Filter>
+    <Filter Include="win"><UniqueIdentifier>{26B80A75-6EC5-4D54-8BB1-C7A0526E06B4}</UniqueIdentifier></Filter>
+    <Filter Include="libtommath"><UniqueIdentifier>{539D5F47-8BDD-4DC8-9DED-1FBE793A61A5}</UniqueIdentifier></Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -11,497 +14,584 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_add.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_add_d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_and.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_clamp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_clear.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_clear_multi.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp_d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp_mag.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_copy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_count_bits.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_3.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_exch.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_grow.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_copy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_multi.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_size.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_lshd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod_2d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_2.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_2d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_neg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_or.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_radix_size.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_radix_smap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_read_radix.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_rshd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_shrink.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqrt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sub.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sub_d.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_xor.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_zero.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_add.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sub.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regcomp.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regerror.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regexec.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regfree.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclArithSeries.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAlloc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAsync.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclBasic.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclBinary.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCkalloc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclClock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCmdAH.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCmdIL.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCmdMZ.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompCmds.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompExpr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompile.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclConfig.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDate.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDictObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEncoding.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnv.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEvent.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclExecute.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclFCmd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclFileName.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclGet.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclHash.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclHistory.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIndexObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclInterp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIO.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOCmd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOGT.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORChan.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOSock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOUtil.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLink.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclListObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLiteral.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLoad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclMain.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNamesp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNotify.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPanic.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclParse.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPathObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPipe.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPkg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPkgConfig.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPreserve.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclProc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclRegexp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclResolve.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclResult.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclScan.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStringObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStrToD.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStubInit.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThread.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadAlloc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadJoin.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadStorage.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTimer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTomMathInterface.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTrace.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtf.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtil.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclVar.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWin32Dll.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinChan.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinConsole.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinDde.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinError.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinFCmd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinFile.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinInit.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinLoad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinNotify.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinPipe.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinReg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinSerial.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinSock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinThrd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinTime.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPosixStr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAssembly.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAsync.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclBasic.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclBinary.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCkalloc.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclClock.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclClockFmt.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCmdAH.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCmdIL.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCmdMZ.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompCmds.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompCmdsGR.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompCmdsSZ.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompExpr.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompile.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclConfig.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDate.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDictObj.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDisassemble.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEncoding.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnsemble.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnv.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEvent.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclExecute.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclFCmd.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclFileName.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclGet.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclGrapheme.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclHash.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclHistory.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIcu.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIndexObj.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclInterp.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIO.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOCmd.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOGT.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOSock.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOUtil.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORChan.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORTrans.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLink.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclListObj.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclListTypes.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLiteral.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLoad.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclMain.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclMain.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNamesp.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNotify.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOO.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOBasic.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOCall.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOODefineCmds.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOInfo.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOMethod.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOProp.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOStubInit.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclObj.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOptimize.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPanic.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclParse.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPathObj.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPipe.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPkg.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPkgConfig.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPosixStr.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPreserve.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclProc.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclProcess.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclRegexp.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclResolve.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclResult.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclScan.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStringObj.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStrIdxTree.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStrToD.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStubInit.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThread.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadAlloc.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadStorage.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTimer.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTomMathInterface.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTrace.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtf.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtil.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclVar.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclZipfs.c">
+      <Filter>generic</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclZlib.c">
-      <Filter>Source Files</Filter>
+      <Filter>generic</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_expt_u32.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\utf8proc\utf8proc.c">
+      <Filter>generic</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod_d.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\adler32.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\compress.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\crc32.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\deflate.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\infback.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\inffast.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\inflate.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\inftrees.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\trees.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\uncompr.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\compat\zlib\zutil.c">
+      <Filter>generic</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_add.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_add_d.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_and.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_clamp.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_clear.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_clear_multi.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp_d.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp_mag.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_copy.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_count_bits.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_d.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2d.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_div_3.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_exch.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_expt_n.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_get_mag_u64.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_grow.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_copy.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_i64.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_multi.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_size.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_u64.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_lshd.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mod_2d.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_2.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_2d.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_mul_d.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_neg.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_or.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_pack.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_pack_count.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_radix_size.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_radix_smap.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_read_radix.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_rshd.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_i64.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_u64.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_shrink.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqr.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqrt.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sub.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sub_d.c">
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_signed_rsh.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_to_radix.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_to_ubin.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_to_radix.c">
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_ubin_size.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_unpack.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_xor.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_zero.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_add.c">
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_balance_mul.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_karatsuba_mul.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_karatsuba_sqr.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs.c">
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs_fast.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_reverse.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr.c">
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr_fast.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_toom_mul.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sub.c">
+      <Filter>libtommath</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_toom_sqr.c">
-      <Filter>Source Files</Filter>
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_toom_mul.c">
+      <Filter>libtommath</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWin32Dll.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinChan.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinConsole.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinError.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinFCmd.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinFile.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinInit.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinLoad.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinNotify.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinReg.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinPipe.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinSerial.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinSock.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinThrd.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinThreadJoin.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinTime.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinPanic.c">
+      <Filter>win</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinDde.c">
+      <Filter>win</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
