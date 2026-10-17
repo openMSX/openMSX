@@ -292,6 +292,40 @@ void ReverseManager::goTo(std::span<const TclObject> tokens)
 	goTo(target, noVideo);
 }
 
+void ReverseManager::blockStart(std::span<const TclObject> tokens, TclObject& result)
+{
+	// usage: reverse blockstart <pc> [<time>]
+	// Returns the start time of the latest recorded block-repeat execution
+	// at <pc> at or before <time> (default: current time). Throws when
+	// reverse is disabled or no such entry exists (e.g. old replay, or the
+	// block started before recording began); callers fall back to
+	// heuristics or a plain single step in that case.
+	auto& interp = motherBoard.getReactor().getInterpreter();
+	if ((tokens.size() < 3) || (tokens.size() > 4)) throw SyntaxError();
+	unsigned pc = tokens[2].getInt(interp);
+	EmuTime bound = (tokens.size() == 4)
+		? EmuTime::zero() + EmuDuration::sec(tokens[3].getDouble(interp))
+		: getCurrentTime();
+	if (!isCollecting()) {
+		throw CommandException(
+			"Reverse was not enabled. First execute the 'reverse "
+			"start' command to start collecting data.");
+	}
+	// Events are time-ordered; walk back so the first hit is the latest.
+	for (auto it = history.events.rbegin(); it != history.events.rend(); ++it) {
+		if (getTime(*it) > bound) continue;
+		if (const auto* entry = std::get_if<BlockEntry>(std::to_address(it))) {
+			if (entry->getPC() == pc) {
+				result = entry->getTime().toDouble();
+				return;
+			}
+		}
+	}
+	throw CommandException(
+		"No recorded block-repeat execution at this address "
+		"(old replay, or the block started before recording began).");
+}
+
 void ReverseManager::goTo(EmuTime target, bool noVideo)
 {
 	if (!isCollecting()) {
@@ -957,6 +991,7 @@ void ReverseManager::ReverseCmd::execute(std::span<const TclObject> tokens, TclO
 		"debug",      [&]{ manager.debugInfo(result); },
 		"goback",     [&]{ manager.goBack(tokens); },
 		"goto",       [&]{ manager.goTo(tokens); },
+		"blockstart", [&]{ manager.blockStart(tokens, result); },
 		"savereplay", [&]{ manager.saveReplay(interp, tokens, result); },
 		"loadreplay", [&]{ manager.loadReplay(interp, tokens, result); },
 		"viewonlymode", [&]{
@@ -984,6 +1019,7 @@ std::string ReverseManager::ReverseCmd::help(std::span<const TclObject> /*tokens
 	       "status              show various status info on reverse\n"
 	       "goback <n>          go back <n> seconds in time\n"
 	       "goto <time>         go to an absolute moment in time\n"
+	       "blockstart <pc> [time]  start time of the latest recorded block-repeat execution at <pc> (default time: now)\n"
 	       "viewonlymode <bool> switch viewonly mode on or off\n"
 	       "truncatereplay      stop replaying and remove all 'future' data\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
@@ -996,6 +1032,7 @@ void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens)
 	if (tokens.size() == 2) {
 		static constexpr std::array subCommands = {
 			"start"sv, "stop"sv, "status"sv, "goback"sv, "goto"sv,
+			"blockstart"sv,
 			"savereplay"sv, "loadreplay"sv, "viewonlymode"sv,
 			"truncatereplay"sv,
 		};

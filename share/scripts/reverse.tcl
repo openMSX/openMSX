@@ -9,7 +9,28 @@ if {$is_android} {
 	set default_auto_enable_reverse "true"
 }
 
+# Attach a trace to the 'blockInstruction' probe of the CPU(s). That probe
+# fires exactly once at the start of every block instruction run (LDIR,
+# LDDR, CPIR, ...), so the resulting trace tells us where such runs started.
+# 'step_back' uses that to step back over a block instruction as a whole
+# instead of stopping in the middle of it.
+#
+# This must happen as early as possible (i.e. while the machine is being
+# created), because a run that already started before the trace is attached
+# isn't recorded. Attaching costs a single (predictable) branch per block
+# instruction run and one small event per run.
+proc attach_block_trace {} {
+	set probes [debug probe list]
+	foreach cpu {z80 r800} {
+		set name "${cpu}.blockInstruction"
+		if {$name in $probes} {
+			catch {debug trace probe $name}
+		}
+	}
+}
+
 proc after_switch {} {
+	attach_block_trace
 	# enabling reverse could fail if the active machine is an 'empty'
 	# machine (e.g. because the last machine is removed or because
 	# you explictly switch to an empty machine)
