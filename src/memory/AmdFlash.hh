@@ -4,6 +4,8 @@
 #include "serialize_meta.hh"
 
 #include "BitField.hh"
+#include "DeviceConfig.hh"
+#include "RTSchedulable.hh"
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
@@ -19,6 +21,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -27,6 +30,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Rom;
 class SRAM;
+class File;
 class DeviceConfig;
 
 class AmdFlash
@@ -189,6 +193,8 @@ public:
 	};
 
 	struct Chip {
+		// Stable persistence identity; JEDEC IDs can be shared by different chips.
+		std::string_view name;
 		AutoSelect autoSelect;
 		Geometry geometry;
 		Erase erase = {};
@@ -197,6 +203,7 @@ public:
 		Misc misc = {};
 
 		constexpr void validate() const {
+			assert(!name.empty());
 			autoSelect.validate();
 			geometry.validate();
 			erase.validate();
@@ -235,6 +242,11 @@ public:
 	         std::span<const bool> writeProtectSectors,
 	         DeviceConfig& config, std::string_view id = {});
 	~AmdFlash();
+
+	// Developer restore: refresh only sectors never programmed/erased by the guest.
+	[[nodiscard]] size_t refreshUnmodified(const Rom& rom);
+	// Drop pending disk writes when discarding a failed, inactive developer restore.
+	void discardPendingPersistence();
 
 	void reset();
 	/**
@@ -290,6 +302,16 @@ private:
 	[[nodiscard]] const Sector& getSector(size_t address) const { return sectors[getSectorIndex(address)]; };
 	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
+	[[nodiscard]] std::string persistentFilename() const;
+	bool loadPersistent();
+	bool loadSparsePersistent(File& file);
+	bool loadSerializedPersistent(const std::string& path);
+	bool loadLegacyPersistent(File& file, const std::string& path);
+	void validateModifiedSectors() const;
+	void savePersistent();
+	void schedulePersistentSave();
+	void markModified(const Sector& sector);
+
 	void softReset();
 	void clearStatus();
 	void setState(State newState);
@@ -324,10 +346,15 @@ private:
 	void execProgramOperation(EmuTime time);
 	void execSuspend(EmuTime time);
 
+	const DeviceConfig deviceConfig;
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
 	const Chip& chip;
 	std::vector<Sector> sectors;
+	std::vector<uint8_t> modifiedSectors;
+	bool persistenceDirty = false;
+	// A complete persistent image supplies initial contents if no ROM is available.
+	bool persistentFullImage = false;
 	std::vector<AddressValue> cmd;
 	State state = State::READ;
 	bool vppWpPinLow = false; // true = protection on
@@ -397,8 +424,17 @@ private:
 			outer.execSuspend(time);
 		}
 	} syncSuspend;
+
+	struct PersistentSync final : RTSchedulable {
+		explicit PersistentSync(RTScheduler& scheduler) : RTSchedulable(scheduler) {}
+		void executeRT() override {
+			auto& outer = OUTER(AmdFlash, persistentSync);
+			outer.savePersistent();
+		}
+	};
+	PersistentSync persistentSync;
 };
-SERIALIZE_CLASS_VERSION(AmdFlash, 4);
+SERIALIZE_CLASS_VERSION(AmdFlash, 5);
 
 namespace AmdFlashChip
 {
@@ -408,6 +444,7 @@ namespace AmdFlashChip
 
 	// AMD AM29F040B
 	static constexpr ValidatedChip AM29F040B = {{
+		.name = "AM29F040B",
 		.autoSelect{.manufacturer = AMD, .device{0xA4}, .extraCode = 0x01},
 		.geometry{
 			DeviceInterface::x8, {
@@ -420,6 +457,7 @@ namespace AmdFlashChip
 
 	// AMD AM29F016D
 	static constexpr ValidatedChip AM29F016D = {{
+		.name = "AM29F016D",
 		.autoSelect{.manufacturer = AMD, .device{0xAD}},
 		.geometry{
 			DeviceInterface::x8, {
@@ -455,6 +493,7 @@ namespace AmdFlashChip
 
 	// Microchip SST39SF010  (128kB, 32 x 4kB sectors)
 	static constexpr ValidatedChip SST39SF010 = {{
+		.name = "SST39SF010",
 		.autoSelect{.manufacturer = SST, .device{0xB5}},
 		.geometry{
 			DeviceInterface::x8, {
@@ -467,6 +506,7 @@ namespace AmdFlashChip
 
 	// Numonyx M29W800DB
 	static constexpr ValidatedChip M29W800DB = {{
+		.name = "M29W800DB",
 		.autoSelect{.manufacturer = STM, .device{0x5B}},
 		.geometry{
 			DeviceInterface::x8x16, {
@@ -503,6 +543,7 @@ namespace AmdFlashChip
 
 	// Micron M29W640GB
 	static constexpr ValidatedChip M29W640GB = {{
+		.name = "M29W640GB",
 		.autoSelect{.manufacturer = STM, .device{0x10, 0x00}, .extraCode = 0x0008, .undefined = 0, .oddZero = true, .readMask = 0x7F},
 		.geometry{
 			DeviceInterface::x8x16, {
@@ -543,6 +584,7 @@ namespace AmdFlashChip
 
 	// Infineon / Cypress / Spansion S29GL064N90TFI04
 	static constexpr ValidatedChip S29GL064N90TFI04 = {{
+		.name = "S29GL064N90TFI04",
 		.autoSelect{.manufacturer = AMD, .device{0x10, 0x00}, .extraCode = 0xFF0A, .readMask = 0x0F},
 		.geometry{
 			DeviceInterface::x8x16, {
@@ -583,6 +625,7 @@ namespace AmdFlashChip
 
 	// Infineon / Cypress / Spansion S29GL064S70TFI040
 	static constexpr ValidatedChip S29GL064S70TFI040 = {{
+		.name = "S29GL064S70TFI040",
 		.autoSelect{.manufacturer = AMD, .device{0x10, 0x00}, .extraCode = 0xFF0A, .readMask = 0x0F},
 		.geometry{
 			DeviceInterface::x8x16, {

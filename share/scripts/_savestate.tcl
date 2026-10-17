@@ -32,6 +32,41 @@ proc loadstate {{name ""}} {
 	return $name
 }
 
+# This intentionally leaves normal loadstate and reverse/replay unchanged.
+proc loadstate_dev {{name ""}} {
+	savestate_common
+	set newID [restore_machine $fullname]
+	try {
+		set refreshed 0
+		foreach device [${newID}::machine_info device] {
+			set info [${newID}::machine_info device $device]
+			if {![dict exists $info mappertype]} continue
+			if {[dict get $info mappertype] ne "ASCII16-X"} continue
+			set count [${newID}::debug refresh_flash_from_rom $device]
+			if {$count == 0} {
+				error "No untouched Flash sectors could be refreshed. Use a state created by the current Flash build; older states lack sector history."
+			}
+			incr refreshed $count
+		}
+	} on error {message options} {
+		# Restoring Flash schedules persistence. Do not let destruction of a
+		# rejected inactive machine overwrite the running game's saved data.
+		foreach device [${newID}::machine_info device] {
+			set info [${newID}::machine_info device $device]
+			if {[dict exists $info mappertype] && [dict get $info mappertype] eq "ASCII16-X"} {
+				${newID}::debug discard_flash_persistence $device
+			}
+		}
+		delete_machine $newID
+		return -options $options $message
+	}
+	set currentID [machine]
+	if {$currentID ne ""} {delete_machine $currentID}
+	activate_machine $newID
+	message "Development state loaded; refreshed $refreshed Flash bytes from ROM."
+	return $name
+}
+
 # helper proc to get the raw savestate info
 proc list_savestates_raw {} {
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
@@ -139,8 +174,20 @@ See also 'savestate', 'loadstate', 'list_savestates'.
 }
 set_tabcompletion_proc delete_savestate [namespace code savestate_tab]
 
+set_help_text loadstate_dev \
+{loadstate_dev [<name>]
+
+Load a state (default: quicksave) using current ROM graphics/code. For ASCII16-X,
+refresh untouched Flash sectors from the ROM file; preserve saved guest-written
+sectors, RAM, registers and mapper banks. The code/RAM layout must be compatible.
+Old Flash states without sector history cannot be refreshed. Normal loadstate
+is unchanged. Saves are restored from the snapshot, not from newer progress.
+}
+set_tabcompletion_proc loadstate_dev [namespace code savestate_tab]
+
 namespace export savestate
 namespace export loadstate
+namespace export loadstate_dev
 namespace export delete_savestate
 namespace export list_savestates
 

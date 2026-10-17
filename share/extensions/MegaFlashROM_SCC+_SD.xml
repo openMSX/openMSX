@@ -29,6 +29,7 @@
             <size>100</size>
           </sdcard2>
           <sramname>megaflashromsccplussd.sram</sramname>
+          <flashname>megaflashromsccplussd.sram.flash</flashname>
           <hasmemorymapper>true</hasmemorymapper>
         </MegaFlashRomSCCPlusSD>
       </secondary>
