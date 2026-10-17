@@ -22,6 +22,7 @@
             <sha1>2c359c979fbfe5c7c3cce90b4593dba4b7cbcd92</sha1> <!-- pre-4.0 dos2 -->
           </rom>
           <sramname>nowind.flash</sramname>
+          <flashname>nowind.flash.flash</flashname>
         </Nowind>
       </secondary>
     </primary>

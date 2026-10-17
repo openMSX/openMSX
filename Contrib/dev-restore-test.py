@@ -26,7 +26,7 @@ def check_rejected_states(emu, folder, rom, state):
     emu.command('carta eject; carta ' + tcl_path(rom) + ' -romtype ASCII16-X; reset')  # Flush progress.
     emu.advance(3)
     current = emu.command('machine')
-    save_files = list((folder / 'home').rglob('*.sparse'))
+    save_files = list((folder / 'home').rglob('*.flash'))
     assert save_files
     disk_before = {str(p): p.read_bytes() for p in save_files}
     error = emu.command('catch {loadstate_dev busy_flash} reason; set reason')
@@ -57,6 +57,8 @@ def run_case(args, out, name, mapper):
         patch.write_bytes(b'PATCH\x00\x10\x00\x00\x01\x33EOF')
     emu = Emulator(args.openmsx, folder, args.firmware_dir, rom, mapper, patch)
     try:
+        assert emu.command('catch {bind CTRL+SHIFT+F7}') == '1'
+        emu.command('bind CTRL+SHIFT+F7 loadstate_dev')
         assert 'loadstate_dev' in emu.command('bind CTRL+SHIFT+F7')
         # CPU waits in RAM immediately before an RLE graphics decoder.
         emu.command('debug write_block memory 0xc100 [binary format H* 18fe]; reg PC 0xc100; reg SP 0xff00; debug write ioports 0xa8 0xd4; debug write memory 0x6000 0; debug write memory 0x7000 8')

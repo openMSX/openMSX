@@ -2,11 +2,13 @@
 
 `loadstate_dev [name]` restores a saved machine without resetting it, then
 refreshes untouched ASCII16-X Flash sectors from the current ROM image before
-execution resumes. The default state is `quicksave`. A default **Ctrl+Shift+F7**
-binding invokes it; normal `loadstate` and reverse/replay are unchanged.
+execution resumes. The default state is `quicksave`. Normal `loadstate` and
+reverse/replay are unchanged. There is no default keyboard binding; developers
+can opt in with `bind CTRL+SHIFT+F7 loadstate_dev`.
 
 On Windows, save a test point with **Alt+F8**, rebuild the ROM at the same path,
-and press **Ctrl+Shift+F7**. Save before the image/text is unpacked: RAM, VRAM,
+and run `loadstate_dev` (or your chosen shortcut). Save before the image/text
+is unpacked: RAM, VRAM,
 CPU registers and mapper banks are restored exactly, so already-decoded assets
 remain old. The code, bank and RAM layouts must still be compatible.
 

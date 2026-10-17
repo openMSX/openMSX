@@ -137,7 +137,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	for (Sector& sector : sectors) {
 		if (sector.writeAddress != -1) { // don't use isWritable() here
 			sector.readAddress = &(*ram)[sector.writeAddress];
-			if (!modifiedSectors[sector.index]) {
+			if (!modifiedSectors[sector.index] && (romSize != 0 || !persistentFullImage)) {
 				auto ramBlock = ram->getWriteBackdoor().subspan(sector.writeAddress, sector.size);
 				if (offset >= romSize) {
 					// completely past end of rom
@@ -210,7 +210,7 @@ size_t AmdFlash::refreshUnmodified(const Rom& rom)
 }
 
 // Based on Laurens Holst's sector persistence design in openMSX PR #1629.
-// Metadata and payload share one checksummed file so they cannot get out of sync.
+// Read-only migration support for our earlier checksummed sparse prototype.
 static constexpr std::array<uint8_t, 8> FLASH_FILE_MAGIC = {'O', 'M', 'S', 'X', 'F', 'L', 'S', 1};
 
 bool AmdFlash::loadLegacyPersistent(File& file, const std::string& path)
@@ -225,72 +225,150 @@ bool AmdFlash::loadLegacyPersistent(File& file, const std::string& path)
 	return true;
 }
 
+// Disk persistence contains only nonvolatile data. Normal savestates/reverse
+// keep their existing AmdFlash layout, including volatile commands and timers.
+// This versioned record can grow with emulated protection/ECC/secure regions.
+struct FlashPersistentState
+{
+	std::string chipType;
+	std::vector<unsigned> sectorSizes;
+	std::vector<uint8_t> modifiedSectors;
+	std::vector<uint8_t> content;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version)
+	{
+		if constexpr (Archive::IS_LOADER) {
+			if (version != 1) throw MSXException("Unsupported Flash persistence version");
+			std::string savedChip;
+			std::vector<unsigned> savedSizes;
+			ar.serialize("chipType", savedChip, "sectorSizes", savedSizes);
+			if (savedChip != chipType || savedSizes != sectorSizes) {
+				throw MSXException("Flash chip type or geometry mismatch (expected ",
+				                   chipType, ", found ", savedChip, "); existing save retained");
+			}
+		} else {
+			ar.serialize("chipType", chipType, "sectorSizes", sectorSizes);
+		}
+		if constexpr (Archive::IS_LOADER) {
+			// Decode as integers before narrowing, so e.g. 256 cannot become zero.
+			std::vector<unsigned> flags;
+			ar.serialize("modifiedSectors", flags);
+			if (flags.size() != sectorSizes.size() ||
+			    std::ranges::any_of(flags, [](unsigned flag) { return flag > 1; })) {
+				throw MSXException("Invalid Flash modified-sector flags");
+			}
+			modifiedSectors.assign(flags.begin(), flags.end());
+		} else {
+			ar.serialize("modifiedSectors", modifiedSectors);
+		}
+		// The destination size comes from the selected chip, never from the file.
+		ar.serialize_blob("content", std::span{content});
+	}
+};
+
+std::string AmdFlash::persistentFilename() const
+{
+	// Old extension configs and saved machines predate <flashname>.
+	if (auto filename = deviceConfig.getChildData("flashname", ""); !filename.empty()) {
+		return std::string(filename);
+	}
+	auto legacy = deviceConfig.getChildData("sramname", "");
+	if (legacy.empty()) throw MSXException("Flash requires a flashname or legacy sramname");
+	return strCat(legacy, ".flash");
+}
+
+bool AmdFlash::loadSerializedPersistent(const std::string& path)
+{
+	FlashPersistentState saved{.chipType = std::string(chip.name)};
+	for (const auto& sector : sectors) saved.sectorSizes.push_back(narrow<unsigned>(size_t(sector.size)));
+	saved.content.resize(size());
+	XmlInputArchive in(path);
+	in.serialize("flash", saved);
+	for (const auto& sector : sectors) {
+		if (sector.writeProtect && saved.modifiedSectors[sector.index]) {
+			throw MSXException("Persisted Flash data targets a read-only sector");
+		}
+	}
+	// Apply only after the complete record has been decoded and validated.
+	for (const auto& sector : sectors) {
+		if (sector.writeProtect) continue;
+		copy_to_range(std::span{saved.content}.subspan(sector.address, sector.size),
+		              ram->getWriteBackdoor().subspan(sector.writeAddress, sector.size));
+	}
+	modifiedSectors = std::move(saved.modifiedSectors);
+	persistentFullImage = true;
+	return true;
+}
+
+bool AmdFlash::loadSparsePersistent(File& file)
+{
+	const size_t headerSize = 16 + 5 * sectors.size();
+	const size_t fileSize = file.getSize();
+	if (fileSize < headerSize + 4 || fileSize > headerSize + ram->size() + 4) {
+		throw FileException("Invalid sparse Flash data size");
+	}
+	std::vector<uint8_t> bytes(fileSize);
+	file.read(std::span{bytes});
+	if (!std::ranges::equal(std::span{bytes}.first(8), FLASH_FILE_MAGIC) ||
+	    Endian::read_UA_L32(bytes.data() + 8) != size() ||
+	    Endian::read_UA_L32(bytes.data() + 12) != sectors.size()) {
+		throw FileException("Unsupported sparse Flash version or chip geometry");
+	}
+	if (const auto crc = crc32(0, bytes.data(), narrow<uInt>(bytes.size() - 4));
+	    crc != Endian::read_UA_L32(bytes.data() + bytes.size() - 4)) {
+		throw FileException("Sparse Flash checksum mismatch");
+	}
+	size_t expectedSize = headerSize + 4;
+	for (const Sector& s : sectors) {
+		const auto* entry = bytes.data() + 16 + 5 * s.index;
+		if (Endian::read_UA_L32(entry) != s.size || entry[4] > 1 ||
+		    (s.writeProtect && entry[4])) {
+			throw FileException("Invalid sparse Flash sector metadata");
+		}
+		if (entry[4]) expectedSize += s.size;
+	}
+	if (expectedSize != bytes.size()) throw FileException("Sparse Flash payload size mismatch");
+
+	// Apply only after validating the entire file. Never partially load a save.
+	auto data = ram->getWriteBackdoor();
+	size_t offset = headerSize;
+	for (const Sector& s : sectors) {
+		modifiedSectors[s.index] = bytes[16 + 5 * s.index + 4];
+		if (modifiedSectors[s.index]) {
+			copy_to_range(std::span{bytes}.subspan(offset, s.size), data.subspan(s.writeAddress, s.size));
+			offset += s.size;
+		}
+	}
+	return true;
+}
+
 bool AmdFlash::loadPersistent()
 {
 	const auto& context = deviceConfig.getFileContext();
-	const auto filename = deviceConfig.getChildData("sramname");
-	std::string path;
-	bool sparse = true;
-	try {
-		path = context.resolveSavePaths(strCat(filename, ".sparse"));
-	} catch (FileException&) {
-		sparse = false;
+	const auto legacy = deviceConfig.getChildData("sramname", "");
+	const std::array filenames = {persistentFilename(),
+	                             legacy.empty() ? std::string{} : strCat(legacy, ".sparse"),
+	                             std::string(legacy)};
+	for (size_t format = 0; format < filenames.size(); ++format) {
+		if (filenames[format].empty()) continue;
+		std::string path;
 		try {
-			path = context.resolveSavePaths(filename);
+			path = context.resolveSavePaths(filenames[format]);
 		} catch (FileException&) {
-			return false;
+			continue; // Only a missing file allows falling back to an older format.
+		}
+		try {
+			if (format == 0) return loadSerializedPersistent(path);
+			File file(path);
+			return format == 1 ? loadSparsePersistent(file) : loadLegacyPersistent(file, path);
+		} catch (MSXException& e) {
+			// Refuse incompatible/corrupt data instead of starting blank and later
+			// overwriting the only copy of the player's progress. No legacy fallback.
+			throw MSXException("Couldn't load Flash data ", path, " (", e.getMessage(), ").");
 		}
 	}
-
-	try {
-		File file(path);
-		if (!sparse) {
-			return loadLegacyPersistent(file, path);
-		}
-
-		const size_t headerSize = 16 + 5 * sectors.size();
-		const size_t fileSize = file.getSize();
-		if (fileSize < headerSize + 4 || fileSize > headerSize + ram->size() + 4) {
-			throw FileException("Invalid sparse Flash data size");
-		}
-		std::vector<uint8_t> bytes(fileSize);
-		file.read(std::span{bytes});
-		if (!std::ranges::equal(std::span{bytes}.first(8), FLASH_FILE_MAGIC) ||
-		    Endian::read_UA_L32(bytes.data() + 8) != size() ||
-		    Endian::read_UA_L32(bytes.data() + 12) != sectors.size()) {
-			throw FileException("Unsupported sparse Flash version or chip geometry");
-		}
-		if (const auto crc = crc32(0, bytes.data(), narrow<uInt>(bytes.size() - 4));
-		    crc != Endian::read_UA_L32(bytes.data() + bytes.size() - 4)) {
-			throw FileException("Sparse Flash checksum mismatch");
-		}
-		size_t expectedSize = headerSize + 4;
-		for (const Sector& s : sectors) {
-			const auto* entry = bytes.data() + 16 + 5 * s.index;
-			if (Endian::read_UA_L32(entry) != s.size || entry[4] > 1 ||
-			    (s.writeProtect && entry[4])) {
-				throw FileException("Invalid sparse Flash sector metadata");
-			}
-			if (entry[4]) expectedSize += s.size;
-		}
-		if (expectedSize != bytes.size()) throw FileException("Sparse Flash payload size mismatch");
-
-		// Apply only after validating the entire file. Never partially load a save.
-		auto data = ram->getWriteBackdoor();
-		size_t offset = headerSize;
-		for (const Sector& s : sectors) {
-			modifiedSectors[s.index] = bytes[16 + 5 * s.index + 4];
-			if (modifiedSectors[s.index]) {
-				copy_to_range(std::span{bytes}.subspan(offset, s.size), data.subspan(s.writeAddress, s.size));
-				offset += s.size;
-			}
-		}
-		return true;
-	} catch (FileException& e) {
-		// Refuse to mount bad data instead of silently starting blank and later
-		// overwriting the only copy of the player's progress.
-		throw MSXException("Couldn't load Flash data ", path, " (", e.getMessage(), ").");
-	}
+	return false;
 }
 
 void AmdFlash::schedulePersistentSave()
@@ -307,37 +385,31 @@ void AmdFlash::markModified(const Sector& sector)
 
 void AmdFlash::savePersistent()
 {
-	const auto filename = strCat(deviceConfig.getChildData("sramname"), ".sparse");
+	const auto filename = persistentFilename();
 	std::string temporary;
 	try {
-		const size_t headerSize = 16 + 5 * sectors.size();
-		std::vector<uint8_t> bytes(headerSize);
-		copy_to_range(FLASH_FILE_MAGIC, std::span{bytes}.first(8));
-		Endian::write_UA_L32(bytes.data() + 8, narrow<uint32_t>(size_t(size())));
-		Endian::write_UA_L32(bytes.data() + 12, narrow<uint32_t>(sectors.size()));
-		for (const Sector& s : sectors) {
-			Endian::write_UA_L32(bytes.data() + 16 + 5 * s.index, narrow<uint32_t>(size_t(s.size)));
-			bytes[16 + 5 * s.index + 4] = modifiedSectors[s.index];
+		FlashPersistentState saved{.chipType = std::string(chip.name),
+		                           .modifiedSectors = modifiedSectors};
+		saved.content.resize(size(), 0xff);
+		for (const auto& sector : sectors) {
+			saved.sectorSizes.push_back(narrow<unsigned>(size_t(sector.size)));
+			if (sector.readAddress) {
+				copy_to_range(std::span{sector.readAddress, size_t(sector.size)},
+				              std::span{saved.content}.subspan(sector.address, sector.size));
+			}
 		}
-		for (const Sector& s : sectors) {
-			if (!modifiedSectors[s.index]) continue;
-			const auto data = std::span{&(*ram)[s.writeAddress], size_t(s.size)};
-			bytes.insert(bytes.end(), data.begin(), data.end());
-		}
-		const auto crc = crc32(0, bytes.data(), narrow<uInt>(bytes.size()));
-		bytes.resize(bytes.size() + 4);
-		Endian::write_UA_L32(bytes.data() + bytes.size() - 4, narrow<uint32_t>(crc));
-
 		const auto path = deviceConfig.getFileContext().resolveCreate(filename);
 		auto file = FileOperations::openUniqueFile(std::string(FileOperations::getDirName(path)), temporary);
-		if (!file || fwrite(bytes.data(), 1, bytes.size(), file.get()) != bytes.size() ||
-		    fflush(file.get()) != 0) {
-			throw FileException("Couldn't write temporary Flash data");
-		}
+		if (!file) throw FileException("Couldn't create temporary Flash data");
 		file.reset();
+		{
+			XmlOutputArchive out(temporary);
+			out.serialize("flash", saved);
+			out.close(); // Observe compression/write errors before replacing the good save.
+		}
 		FileOperations::replaceFile(temporary, path);
 		persistenceDirty = false;
-	} catch (FileException& e) {
+	} catch (MSXException& e) {
 		if (!temporary.empty()) FileOperations::unlink(temporary);
 		deviceConfig.getCliComm().printWarning("Couldn't save Flash data ", filename, " (", e.getMessage(), ").");
 	}

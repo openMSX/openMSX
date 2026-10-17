@@ -1,89 +1,78 @@
-# Flash sector persistence prototype
+# Flash persistence with current ROM contents
 
-This prototype addresses [openMSX issue #2083](https://github.com/openMSX/openMSX/issues/2083): after Flash has been saved, a rebuilt ROM with the same filename can be hidden by the old full-chip `.SRAM` image.
+This prototype addresses [openMSX issue #2083](https://github.com/openMSX/openMSX/issues/2083): an older persistent Flash image must not hide rebuilt ROM code while preserving the game's Flash saves.
 
-The design builds on **Laurens Holst (Grauw)'s draft [PR #1629](https://github.com/openMSX/openMSX/pull/1629)**, including its save-path resolution helper. It is adapted to the current Flash command/timing implementation rather than cherry-picked. The draft's payload/XML pair is replaced here by a single checksummed file. This is an experimental local format, not an agreed upstream format. The format and migration policy are proposed for upstream review.
+It builds on Laurens Holst (Grauw)'s sector-tracking design in [PR #1629](https://github.com/openMSX/openMSX/pull/1629) and his [October 2026 storage proposal](https://github.com/openMSX/openMSX/pull/2206#issuecomment-6239682987). Persistence now uses standard openMSX serialization, a complete chip image, an exact chip-type identifier and per-sector modification history. This remains a proposal for upstream review.
 
-## Loading and saving
+## Behavior
 
-- Initialize unmodified sectors from the current ROM, or FF beyond the ROM.
-- Overlay only sectors previously programmed or erased by the emulated Flash.
-- Track entire erase sectors. An erase counts as a modification even when the result is all FF: subsequent ROM changes must not undo a saved erase.
-- Keep the current Flash operation timing and command engine. Mark sectors when an operation actually changes/erases memory, not when its command is first issued.
-- Flush after five seconds of real time and on device destruction when dirty.
-- Write a temporary file beside the destination, flush and close it, then replace the destination. A replacement failure keeps the previous save and reports a warning. This is not a guarantee of power-loss durability on every host filesystem.
-- No writes means no persistence file for a fresh profile.
+- Sectors ever programmed or erased by the guest retain their saved contents. Erasing an already-FF sector still counts as a modification.
+- With a current ROM image, untouched sectors are initialized from that ROM, with FF beyond its end. Keeping a complete persistent image does not let its stale code override the current ROM.
+- If an optional factory ROM is unavailable, a complete persistent image supplies the untouched sectors too. With neither source, initial contents are FF.
+- Flash command timing is unchanged. Modification flags are set when program/erase operations execute, not when the command is issued.
+- Ordinary savestates and reverse snapshots retain both the chip contents and volatile command/timer state. Disk persistence contains only nonvolatile data and modification history.
+- Dirty data is saved after five seconds of real time and on destruction. A fresh profile with no writes creates no save file.
+- Serialization completes in a temporary file beside the destination. Only after the archive closes successfully is it substituted for the previous save. This preserves the previous file if writing/replacement fails; it is not a guarantee against power loss on every filesystem.
 
-A ROM update within a **modified sector** remains hidden by that sector's saved contents. Code and save data must occupy separate erase sectors. For ASCII16X's currently emulated S29GL064S, the first 64 KiB comprises eight 8 KiB sectors; the rest uses 64 KiB sectors.
+Tracking is at erase-sector granularity. Updated code within a sector the guest has modified is deliberately hidden by the saved sector. Keep code and save data in different erase sectors. ASCII16-X's S29GL064S uses eight 8 KiB sectors followed by 127 64 KiB sectors.
 
-## Files and compatibility
+## Format and configuration
 
-New data is stored beside the existing persistence filename, with `.sparse` appended (for example `probe.rom.SRAM.sparse`). Existing full-image `.SRAM` files are left intact. If both exist, the sparse file takes precedence.
+`<flashname>` selects the new persistence file independently of SRAM. Automatically generated cartridge configurations use the old SRAM filename plus `.flash`, for example `probe.rom.SRAM.flash`. Old extension configurations and saved machines without `<flashname>` derive the same name from `<sramname>`. A configuration with only `<flashname>` also works.
 
-The binary format is little-endian:
+The file is an ordinary compressed openMSX XML archive. Its version-1 `flash` record contains:
 
-| Field | Size |
+| Field | Meaning |
 | --- | --- |
-| Magic/version `OMSXFLS` followed by byte 01 | 8 bytes |
-| Full Flash chip size | 4 bytes |
-| Sector count | 4 bytes |
-| Each sector: size, modified flag (0 or 1) | 5 bytes per sector |
-| Modified sector payloads in sector order | Sum of modified sector sizes |
-| CRC32 of all preceding bytes | 4 bytes |
+| `chipType` | Stable chip model identifier, such as `S29GL064S70TFI040`; not just a potentially shared JEDEC ID |
+| `sectorSizes` | Complete ordered sector geometry |
+| `modifiedSectors` | One 0/1 flag per sector; includes erased sectors |
+| `content` | Full chip contents, using the standard compressed binary-blob representation |
 
-The loader validates geometry, flags, bounds, payload length and checksum before applying any data. A corrupt file prevents mounting the cartridge rather than silently starting blank and overwriting progress.
+The record can be extended/versioned when nonvolatile protection bits, ECC or secure regions are emulated. This change does not implement those hardware features. Commands, status registers, pending operations and timers are not persisted across emulator sessions.
 
-For ASCII16X, one modified 64 KiB sector occupies **66,231 bytes**, versus the old 8 MiB full image.
+The loader validates version, chip type, geometry, flag count/values and exact decoded content length before applying data. A corrupt or incompatible file **prevents mounting** and is retained. Unlike silently ignoring a chip mismatch, this makes it impossible for that session to overwrite the incompatible save with fresh contents. Correct the cartridge/chip selection or explicitly choose a different `<flashname>` for a separate save.
 
-### Existing saves
+## Migration
 
-Legacy raw `.SRAM` files have no modification history. They load conservatively with **all writable sectors marked modified**. This protects existing data but also preserves the old-ROM masking behavior for those legacy files. It is not safe to guess which bytes are saves by comparing them against a newly rebuilt ROM. Migration that recovers the intended sparse mask would require the matching original ROM or an explicit choice of save sectors.
+Load order is:
 
-For a fresh development test, use a separate openMSX profile. Do not delete existing saves. Sparse output is created on a subsequent write or state restore; the legacy input is retained. Grauw's draft `.SRAM` + `.meta` format is deliberately not imported by this prototype.
+1. The new `<flashname>` file.
+2. The previous prototype's `<sramname>.sparse` file, if present.
+3. The legacy raw `<sramname>` file.
 
-AmdFlash save-state version 5 retains the previous RAM serialization and adds modified-sector flags. Version 4 states load with all writable sectors marked modified. Restoring a new state with no modified sectors writes an empty mask, so a previous persistent save does not reappear on restart. Older openMSX builds do not understand the new sparse file or version-5 states; keep a separate profile while testing. Do not alternate old and new builds against the same persistence files.
+Only a missing file allows fallback. Malformed or incompatible data is not hidden by loading an older file. Earlier formats remain untouched; a subsequent guest write or state restore creates the new file.
 
-## Regression tests
+Sparse files retain their original modification flags, including erased sectors, after checksum and geometry validation. Raw legacy images contain no modification history, so every writable sector is conservatively marked modified. This protects saves but retains old-ROM masking for those legacy files. Recovering their intended mask requires the matching original ROM or an explicit choice of save sectors; comparing against a newly rebuilt ROM would be unsafe. The older `.SRAM` plus `.meta` draft format is not imported.
 
-`Contrib/flash-persistence-test.py` uses generated, disposable ROMs and a new isolated profile under `derived/`. It does not load or upload a commercial game. It requires locally supplied Philips NMS8250 firmware.
+AmdFlash savestate version 5 remains unchanged: existing version-5 snapshots keep their masks, and version-4 snapshots protect all writable sectors. Restoring a pre-write state persists an empty mask, preventing newer disk saves from unexpectedly reappearing. Older emulator builds do not read the new persistence file. Use an isolated profile while evaluating this revision; alternating versions against one profile can load stale older files.
 
-Build the supplied Z80 routines (tniASM 0.44 plus its compatibility layer is one option):
+## Developer restore
 
-```text
-tniasm.exe /path/to/compat.asm Contrib/flash-persistence-ram.asm derived/flash-persistence-ram.bin
-```
+[`loadstate_dev`](development-state-restore.md) remains available to restore CPU/RAM/VRAM/mapper state and refresh untouched ASCII16-X sectors from rebuilt ROM assets. Normal state restore remains exact for Flash. Busy Flash commands and states without usable modification history are rejected without replacing the active machine or flushing the rejected machine's old saves.
 
-The assembly is Max Iwamoto's hardware-tested byte-program, erase and DQ7/DQ5 polling code, with only entry-point jumps and assembler-compatible number spelling added. He reports it works on ASCII16X, MFR, C2 and C2+. Automated testing here focuses on ASCII16X; it does not independently verify those physical devices.
+The command has no default keyboard binding. Developers can opt in with `bind CTRL+SHIFT+F7 loadstate_dev`. No new Flash-management window is introduced by this revision.
 
-Test mapping:
+## Tests
 
-- Flash commands in CPU page 1: `4AAAh` and `4555h`, bank 0.
-- Flash save data in CPU page 2: `8000h-9FFFh` during this test, bank 8 (physical `020000h`). The test avoids mapper-register writes at `A000h-BFFFh`.
-- Routines in RAM at `C200h`, source at `C800h`, RAM stack below `FE00h`; interrupts disabled.
-- Program all 256 byte values, check carry and readback, erase, restart, and replace the ROM with a different code marker while retaining saves.
-- DQ5 failure and DQ7 success branches are additionally tested against controlled RAM status values. This tests the assembly's decision/reset path; it does not inject a hardware timing failure into the Flash model.
+The scripts create synthetic ROMs and isolated profiles under `derived/`; no game, firmware or personal save is distributed. Supply Philips NMS8250 firmware locally.
 
 ```text
-python Contrib/flash-persistence-test.py --openmsx /path/to/patched/openmsx.exe --firmware-dir /path/to/systemroms --ram-routines derived/flash-persistence-ram.bin
+python Contrib/flash-persistence-test.py --openmsx /path/to/openmsx --firmware-dir /path/to/systemroms --ram-routines /path/to/flash-persistence-ram.bin --legacy-fixtures /path/to/flash-baseline
+python Contrib/dev-restore-test.py --openmsx /path/to/openmsx --firmware-dir /path/to/systemroms --release-rom-before-rebuild
+python Contrib/flash-device-test.py --openmsx /path/to/openmsx --firmware-dir /path/to/systemroms
 ```
 
-To reproduce the original bug and produce actual version-4 save-state fixtures, run the same test with a clean upstream executable:
+The Flash regression covers rebuilt code, multiple saved sectors, erased sectors, pre-write and pending-operation snapshots, raw/v4 and sparse migrations, full-image precedence, incompatible chips with identical geometry, malformed records, and failed file replacement. Its format fixtures are independently generated. The optional RAM routines exercise Max Iwamoto's programming/erase/status routines and all 256 byte values. Build `Contrib/flash-persistence-ram.asm` with a compatible Z80 assembler.
 
-```text
-python Contrib/flash-persistence-test.py --openmsx /path/to/upstream/openmsx.exe --firmware-dir /path/to/systemroms --baseline
-```
+The developer-restore test checks new decoded graphics with preserved CPU/RAM/VRAM/banks, IPS/gzip inputs, normal versus developer restore, named/default states and safe rejection. `--release-rom-before-rebuild` is needed on Windows builds without the separate ROM-file locking fix.
 
-Then pass its reported artifact directory to the patched run with `--legacy-fixtures /path/to/flash-baseline-...`.
+The device test uses the MFR SCC+ SD's M29W640GB with a synthetic extension and no SD cards. It checks complete-image fallback when no factory ROM exists, an explicit `<flashname>` without `<sramname>`, state restoration and refreshing from a newly supplied factory ROM. A synthetic Manbow2 configuration also checks full AM29F040B images with read-only sectors and rejection of modification flags targeting protected sectors.
 
-Coverage includes new-ROM visibility, saved/erased sectors, empty-state restore, pending RAM-program state restore, malformed data rejection, legacy raw saves and v4 snapshots, and failed destination replacement on Windows. This does not yet establish compatibility across every cartridge using AmdFlash, reverse execution, or non-Windows hosts.
+Validated on Windows x64 Release / MSVC v145 on 2026-10-17:
 
-## Validation and developer restore
+- All 38 persistence sessions passed, including the supplied RAM routines and actual upstream version-4 fixtures.
+- All four developer-restore cases passed: ASCII16, ASCII16-X, IPS and gzip. Busy/legacy rejection preserved the active machine and newer disk saves.
+- All four additional device checks passed, covering M29W640GB full-image fallback and AM29F040B read-only sectors alongside the main S29GL064S tests.
 
-Validated on Windows x64 Release with Visual Studio v145. Tests use locally
-supplied firmware and generated ROMs; firmware and save artifacts are not
-included. The baseline reproduces whole-image masking. Regression coverage
-includes RAM-executed programming/erase, old save fixtures and malformed files.
-Non-Windows hosts and all other AmdFlash cartridges still need wider testing.
-
-See [development restore](development-state-restore.md) for the optional
-state-loading workflow that refreshes untouched Flash from current ROM assets.
+This does not establish compatibility with every AmdFlash cartridge, reverse/replay scenario or non-Windows host. Protection-bit/ECC/secure-region hardware remains unimplemented.
