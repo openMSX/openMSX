@@ -233,7 +233,7 @@ jobs:
           upload_url="${{ steps.get_release.outputs.upload_url }}"
           base_upload_url="${upload_url%\{*}"
 
-          mapfile -t files < <(find artifacts -type f -not -name "*mingw*" -not -name "*proberesults*" -print)
+          mapfile -t files < <(find artifacts \( -name "*mingw*" -o -name "*proberesults*" \) -prune -o -type f -print)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No artifact files found under artifacts/, nothing to upload."
             exit 0
