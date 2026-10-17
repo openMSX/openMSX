@@ -71,7 +71,7 @@ The device test uses the MFR SCC+ SD's M29W640GB with a synthetic extension and 
 
 Validated on Windows x64 Release / MSVC v145 on 2026-10-17:
 
-- All 38 persistence sessions passed, including the supplied RAM routines and actual upstream version-4 fixtures.
+- All 40 persistence sessions passed, including the supplied RAM routines and actual upstream version-4 fixtures.
 - All four developer-restore cases passed: ASCII16, ASCII16-X, IPS and gzip. Busy/legacy rejection preserved the active machine and newer disk saves.
 - All four additional device checks passed, covering M29W640GB full-image fallback and AM29F040B read-only sectors alongside the main S29GL064S tests.
 

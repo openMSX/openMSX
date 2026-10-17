@@ -251,11 +251,11 @@ struct FlashPersistentState
 			ar.serialize("chipType", chipType, "sectorSizes", sectorSizes);
 		}
 		if constexpr (Archive::IS_LOADER) {
-			// Decode as integers before narrowing, so e.g. 256 cannot become zero.
-			std::vector<unsigned> flags;
+			// The numeric XML reader permits overflow. Boolean decoding rejects
+			// malformed values rather than silently marking a saved sector untouched.
+			std::vector<bool> flags;
 			ar.serialize("modifiedSectors", flags);
-			if (flags.size() != sectorSizes.size() ||
-			    std::ranges::any_of(flags, [](unsigned flag) { return flag > 1; })) {
+			if (flags.size() != sectorSizes.size()) {
 				throw MSXException("Invalid Flash modified-sector flags");
 			}
 			modifiedSectors.assign(flags.begin(), flags.end());

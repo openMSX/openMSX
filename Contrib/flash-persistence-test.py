@@ -99,6 +99,8 @@ def check_corrupt_files(flash, run):
         ('bad-sector-size', lambda f: setattr(f.find('sectorSizes/item'), 'text', '4096')),
         ('bad-sector-flag', lambda f: setattr(f.find('modifiedSectors/item'), 'text', '2')),
         ('overflow-sector-flag', lambda f: setattr(f.find('modifiedSectors/item'), 'text', '256')),
+        ('wide-overflow-sector-flag', lambda f: setattr(f.find('modifiedSectors/item'), 'text', '4294967296')),
+        ('empty-sector-flag', lambda f: setattr(f.find('modifiedSectors/item'), 'text', '')),
         ('missing-sector-flag', lambda f: f.find('modifiedSectors').remove(f.find('modifiedSectors/item'))),
         ('future-format', lambda f: f.set('version', '2')),
         ('missing-payload', lambda f: f.remove(f.find('content'))),
