@@ -112,8 +112,7 @@ runs:
       run: |
         # Use the repo-local helper to normalize the wxCatapult artifact
         py build/package-windows/prepare_catapult.py derived/wxcatapult \
-          --out build/package-windows/catapult-staging \
-          --platform x64 --configuration Release
+          build/package-windows/catapult-staging
 
     # Generate MSI installer only (will use the normalized catapult staging tree)
     - name: Generate MSI installer (with Catapult)

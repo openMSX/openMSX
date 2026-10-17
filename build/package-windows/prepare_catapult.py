@@ -1,73 +1,41 @@
-"""Strict, fail-fast script to map the Catapult artifact into the layout
-expected by openMSX Windows packaging scripts. No robustness/fallbacks.
-"""
-from __future__ import annotations
-import argparse
-import shutil
+# Converts the extracted wxCatapult CI artifact (x64, Release) into the
+# directory layout that packagemsi.py expects as its catapultPath.
+#
+# Usage: py prepare_catapult.py <extracted artifact dir> <output dir>
+
+from os import makedirs
+from os.path import dirname, join as joinpath
+from shutil import copy2, copytree, ignore_patterns
 import sys
-from pathlib import Path
 
-def compute_catapult_configuration(configuration: str) -> str:
-    cfg = configuration.lower()
-    if cfg == 'release':
-        return 'Unicode Release'
-    elif cfg in ('developer', 'debug'):
-        return 'Unicode Debug'
-    raise ValueError(f"Unknown configuration: {configuration}")
+buildPath = 'derived/x64-VC-Unicode Release'
 
-def main():
-    parser = argparse.ArgumentParser(description='Prepare Catapult artifact strict mapping')
-    parser.add_argument('artifact', help='Path to extracted Catapult artifact root directory')
-    parser.add_argument('--out', '-o', default='build/package-windows/catapult-staging', help='Output staging directory')
-    parser.add_argument('--platform', choices=['Win32', 'x64'], default='x64')
-    parser.add_argument('--configuration', choices=['Release', 'Developer', 'Debug'], default='Release')
-    args = parser.parse_args()
+def prepareCatapult(artifactPath, outPath):
+	def src(path):
+		return joinpath(artifactPath, 'Catapult', path)
+	def dst(path):
+		return joinpath(outPath, path)
+	def copyFile(source, dest):
+		makedirs(dirname(dest), exist_ok = True)
+		copy2(source, dest)
 
-    art_root = Path(args.artifact).resolve()
-    out_dir = Path(args.out).resolve()
-
-    # Fail fast if source artifact structure is wrong
-    print(f"Reading Catapult artifact from: {art_root}")
-    if not art_root.is_dir():
-        sys.exit(f"ERROR: Artifact root '{art_root}' is not a valid directory.")
-
-    # Expecting the layout: Catapult/bin, Catapult/doc, Catapult/resources
-    bin_dir = art_root / 'bin'
-    doc_dir = art_root / 'doc'
-    res_dir = art_root / 'resources'
-
-    for required_path in (bin_dir, doc_dir, res_dir):
-        if not required_path.is_dir():
-            sys.exit(f"ERROR: Expected directory '{required_path}' missing from artifact.")
-
-    catapult_exe = bin_dir / 'catapult.exe'
-    if not catapult_exe.is_file():
-        sys.exit(f"ERROR: Mandatory file '{catapult_exe}' not found.")
-
-    # Clean / recreate output staging directory
-    if out_dir.exists():
-        print(f"Clearing existing output directory: {out_dir}")
-        shutil.rmtree(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    # 1. Copy top-level folders directly to staging root
-    print("Copying bin, doc, resources to staging root...")
-    shutil.copytree(bin_dir, out_dir / 'bin')
-    shutil.copytree(doc_dir, out_dir / 'doc')
-    shutil.copytree(res_dir, out_dir / 'resources')
-
-    # 2. Create the exact derived/ layout required by packagewindows.py / packagemsi.py
-    cat_cfg = compute_catapult_configuration(args.configuration)
-    plat_key = 'Win32' if args.platform.lower() == 'win32' else 'x64'
-    derived_install = out_dir / 'derived' / f"{plat_key}-VC-{cat_cfg}" / 'install'
-    derived_install.mkdir(parents=True, exist_ok=True)
-
-    # 3. Place catapult.exe into the derived install path where WiX scripts look for it
-    dest_exe = derived_install / 'catapult.exe'
-    shutil.copy2(catapult_exe, dest_exe)
-    print(f"Successfully staged catapult.exe -> {dest_exe}")
-
-    print(f"\nPreparation complete. Staging folder ready at: {out_dir}")
+	copyFile(src('bin/catapult.exe'), dst(buildPath + '/install/catapult.exe'))
+	# README is packaged separately; keeping it in doc too would install it
+	# twice into Catapult\doc.
+	copytree(src('doc'), dst('doc'), ignore = ignore_patterns('README'))
+	copyFile(src('doc/README'), dst('README'))
+	copytree(src('resources/bitmaps'), dst('resources/bitmaps'))
+	copytree(src('resources/dialogs'), dst(buildPath + '/install/dialogs'))
+	copyFile(
+		src('resources/icons/catapult.xpm'), dst(buildPath + '/src/catapult.xpm')
+		)
 
 if __name__ == '__main__':
-    main()
+	if len(sys.argv) == 3:
+		prepareCatapult(*sys.argv[1 : ])
+	else:
+		print(
+			'Usage: py prepare_catapult.py artifactPath outPath',
+			file=sys.stderr
+			)
+		sys.exit(2)
