@@ -247,7 +247,7 @@ void Debugger::Cmd::execute(
 			auto* device = dynamic_cast<RomAscii16X*>(
 				debugger().motherBoard.findDevice(tokens[2].getString()));
 			if (!device) throw CommandException("Expected an ASCII16-X ROM device");
-			result = device->refreshFlashFromRom();
+			result = narrow<uint64_t>(device->refreshFlashFromRom());
 		},
 		"step",              [&]{ debugger().motherBoard.getCPUInterface().doStep(); },
 		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
