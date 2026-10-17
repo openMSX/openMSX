@@ -57,7 +57,7 @@ def encode_document(root):
     return gzip.compress(header + ET.tostring(root), mtime=0)
 
 
-def decode_flash(path):
+def decode_flash(path: Path):
     flash = ET.fromstring(gzip.decompress(path.read_bytes())).find('flash')
     assert flash is not None and flash.get('version', '1') == '1'
     assert flash.findtext('chipType') == 'S29GL064S70TFI040'
@@ -84,7 +84,7 @@ def sparse_fixture(sectors):
     return payload + struct.pack('<I', zlib.crc32(payload))
 
 
-def check_corrupt_files(flash, run):
+def check_corrupt_files(flash: Path, run):
     good = flash.read_bytes()
     assert decode_flash(flash) == {}
     content = bytes(image(0x11)).ljust(0x800000, b'\xff')
@@ -118,7 +118,8 @@ def check_corrupt_files(flash, run):
         assert flash.read_bytes() == bad
         assert old_sparse.read_bytes() == sparse_fixture({})
     old_sparse.unlink()
-    flash.write_bytes(good)
+    with flash.open('wb') as restored:
+        restored.write(good)
     run('valid-after-corrupt', [('expect', MARKER, 0x33)])
     if os.name == 'nt':
         existing = set(flash.parent.iterdir())
@@ -132,7 +133,7 @@ def check_corrupt_files(flash, run):
         run('after-replace-failure', [('expect', SECOND, 0xff)])
 
 
-def check_sparse_migration(flash, run, marker):
+def check_sparse_migration(flash: Path, run, marker):
     old_sparse = Path(str(flash).removesuffix('.flash') + '.sparse')
     # Erased sectors must retain their modification history, not just written data.
     raw = sparse_fixture({9: b'\xff' * 0x10000})
