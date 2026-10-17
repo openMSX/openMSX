@@ -1,0 +1,416 @@
+#include "SdMapperV1.hh"
+
+#include "CheckedRam.hh"
+#include "SdCard.hh"
+
+#include "CacheLine.hh"
+#include "MSXCPUInterface.hh"
+#include "MSXException.hh"
+#include "serialize.hh"
+
+#include "enumerate.hh"
+#include "unreachable.hh"
+#include "xrange.hh"
+
+namespace openmsx {
+
+// Fabio Belavenuto's MSX SD Mapper v1 (msxsdmapper).
+// Config type is SdMapperV1. SD Mapper v2 is a different, incompatible device.
+//
+// CPLD (CPLD/src/sdmapper.vhd, megamapper.vhd, sd.vhd):
+// - 128kB flash. Write $6000 selects the 16kB bank shown at $4000-$7FFF.
+//   $8000-$BFFF reads bank 0. Port $5F bit 7 allows flash writes and bits 2-0
+//   select which 16kB page is mapped for those accesses.
+// - Write $6001 bit 0 switches $4000-$47FF (data) and $4800 (status/CS)
+//   between the flash and the SPI master. A data access completes one SPI
+//   byte in the CPLD; the CPU reads the previous byte and the new result
+//   is latched for the next access.
+// - RAM switch on: standard slot expander, flash/SPI in subslot 1, the same
+//   512kB SRAM in subslot 3. Mode switch selects memory mapper ($FC-$FF,
+//   32 x 16kB) or MegaRAM ($8E/$8F, 64 x 8kB, A15 ignored).
+// - RAM switch off: no expander, the whole slot is flash/SPI.
+
+[[nodiscard]] static bool isMapperMode(const DeviceConfig& config)
+{
+	auto mode = config.getChildData("mode", "mapper");
+	if (mode == "mapper") return true;
+	if (mode == "megaram") return false;
+	throw MSXException("Unknown SD Mapper v1 mode \"", mode,
+	                   "\". Expected \"mapper\" or \"megaram\".");
+}
+
+SdMapperV1::MapperIO::MapperIO(SdMapperV1& device_)
+	: MSXMapperIOClient(device_.getMotherBoard())
+	, device(device_)
+{
+}
+
+byte SdMapperV1::MapperIO::readIO(uint16_t port, EmuTime time)
+{
+	return peekIO(port, time);
+}
+
+byte SdMapperV1::MapperIO::peekIO(uint16_t port, EmuTime /*time*/) const
+{
+	// 512kB mapper readback: bits 7-5 are 1, bits 4-0 are the segment.
+	return byte(0xE0 | (device.banks[port & 3] & MAPPER_MASK));
+}
+
+void SdMapperV1::MapperIO::writeIO(uint16_t port, byte value, EmuTime /*time*/)
+{
+	byte page = port & 3;
+	// The register is 6 bits wide; mapper addressing uses the low 5.
+	device.banks[page] = byte(value & MEGA_MASK);
+	device.invalidateDeviceRWCache(0x4000 * page, 0x4000);
+}
+
+byte SdMapperV1::MapperIO::getSelectedSegment(byte page) const
+{
+	return byte(device.banks[page] & MAPPER_MASK);
+}
+
+SdMapperV1::SdMapperV1(DeviceConfig& config)
+	: MSXDevice(config)
+	, ramEnabled(config.getChildDataAsBool("ram", true))
+	, mapperMode(isMapperMode(config))
+	, flash(getName() + " flash", AmdFlashChip::AM29F010, {}, config)
+	, ram(ramEnabled
+		? std::make_unique<CheckedRam>(config, getName() + " RAM", "SD Mapper v1 RAM", RAM_SIZE)
+		: nullptr)
+	, mapperIO((ramEnabled && mapperMode) ? std::make_unique<MapperIO>(*this) : nullptr)
+{
+	sdCard[0] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
+	sdCard[1] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
+
+	powerUp(getCurrentTime());
+	getCPUInterface().register_IO_Out(0x5F, this);
+	if (ramEnabled && !mapperMode) {
+		getCPUInterface().register_IO_InOut(0x8E, this);
+		getCPUInterface().register_IO_InOut(0x8F, this);
+	}
+}
+
+SdMapperV1::~SdMapperV1()
+{
+	getCPUInterface().unregister_IO_Out(0x5F, this);
+	if (ramEnabled && !mapperMode) {
+		getCPUInterface().unregister_IO_InOut(0x8E, this);
+		getCPUInterface().unregister_IO_InOut(0x8F, this);
+	}
+}
+
+void SdMapperV1::powerUp(EmuTime time)
+{
+	if (ram) ram->clear();
+	reset(time);
+}
+
+void SdMapperV1::reset(EmuTime /*time*/)
+{
+	subslotReg = 0;
+	romBank = 0;
+	sdEnabled = false;
+	flashWriteEnable = false;
+	flashPage = 0;
+	cardCs = 0x03;
+	spiIn = 0xFF;
+	megaWriteEnable = false;
+	for (auto [i, bank] : enumerate(banks)) {
+		bank = byte(i);
+	}
+	flash.reset();
+	invalidateDeviceRWCache();
+}
+
+byte SdMapperV1::getSubSlot(uint16_t addr) const
+{
+	if (!expanderEnabled()) return 1;
+	return byte((subslotReg >> (2 * (addr >> 14))) & 3);
+}
+
+bool SdMapperV1::spiData(uint16_t addr) const
+{
+	return (addr & 0xF800) == 0x4000; // $4000-$47FF
+}
+
+bool SdMapperV1::spiMapped(uint16_t addr) const
+{
+	return sdEnabled && !flashWriteEnable && (spiData(addr) || (addr == 0x4800));
+}
+
+bool SdMapperV1::flashVisible(uint16_t addr) const
+{
+	auto page = addr >> 14;
+	return (page == 1) || (page == 2);
+}
+
+unsigned SdMapperV1::flashAddress(uint16_t addr) const
+{
+	unsigned bank = flashWriteEnable ? flashPage
+	              : ((addr >> 14) == 1 ? romBank : 0);
+	return (bank << 14) | (addr & 0x3FFF);
+}
+
+unsigned SdMapperV1::ramAddress(uint16_t addr) const
+{
+	if (mapperMode) {
+		unsigned segment = banks[addr >> 14] & MAPPER_MASK;
+		return (segment << 14) | (addr & 0x3FFF);
+	}
+	unsigned block = banks[(addr >> 13) & 3] & MEGA_MASK;
+	return (block << 13) | (addr & 0x1FFF);
+}
+
+byte SdMapperV1::readStatus() const
+{
+	// bit 7 busy (transfer finishes inside the access), bit 6 reserved.
+	// bit 5: 1 = mapper, 0 = MegaRAM. bit 4: 1 = RAM enabled.
+	// bits 3-2: write protect, 0 = protected. bits 1-0: card detect, 0 = present.
+	byte value = 0;
+	if (!sdCard[0]->isPresent())       value |= 0x01;
+	if (!sdCard[1]->isPresent())       value |= 0x02;
+	if (sdCard[0]->isWriteProtected()) value |= 0x04;
+	if (sdCard[1]->isWriteProtected()) value |= 0x08;
+	if (ramEnabled)                    value |= 0x10;
+	if (mapperMode)                    value |= 0x20;
+	return value;
+}
+
+byte SdMapperV1::transferSpi(byte value)
+{
+	// MISO is shared. A deselected card returns 0xFF and does not change state.
+	byte result = 0xFF;
+	for (auto i : xrange(2)) {
+		bool csHigh = (cardCs & (1 << i)) != 0;
+		result &= sdCard[i]->transfer(value, csHigh);
+	}
+	return result;
+}
+
+byte SdMapperV1::readSpiData()
+{
+	byte result = spiIn;
+	spiIn = transferSpi(0xFF);
+	return result;
+}
+
+byte SdMapperV1::readRom(uint16_t addr, EmuTime time)
+{
+	if (spiMapped(addr)) {
+		return spiData(addr) ? readSpiData() : readStatus();
+	}
+	if (flashVisible(addr)) {
+		return flash.read(flashAddress(addr), time);
+	}
+	return 0xFF;
+}
+
+byte SdMapperV1::peekRom(uint16_t addr, EmuTime time) const
+{
+	if (spiMapped(addr)) {
+		return spiData(addr) ? spiIn : readStatus();
+	}
+	if (flashVisible(addr)) {
+		return flash.peek(flashAddress(addr), time);
+	}
+	return 0xFF;
+}
+
+const byte* SdMapperV1::getRomReadCacheLine(uint16_t addr) const
+{
+	if (sdEnabled && !flashWriteEnable &&
+	    (spiData(addr) || addr == 0x4800)) {
+		return nullptr;
+	}
+	if (flashVisible(addr)) {
+		return flash.getReadCacheLine(flashAddress(addr));
+	}
+	return unmappedRead.data();
+}
+
+void SdMapperV1::writeRom(uint16_t addr, byte value, EmuTime time)
+{
+	if (flashWriteEnable) {
+		if (!sdEnabled) {
+			flash.write(flashAddress(addr), value, time);
+		}
+		return;
+	}
+	if (addr == 0x6000) {
+		byte bank = byte(value & 7);
+		if (bank != romBank) {
+			romBank = bank;
+			invalidateDeviceRWCache(0x4000, 0x4000);
+		}
+		return;
+	}
+	if (addr == 0x6001) {
+		bool enable = (value & 1) != 0;
+		if (enable != sdEnabled) {
+			sdEnabled = enable;
+			invalidateDeviceRWCache(0x4000, 0x1000);
+		}
+		return;
+	}
+	if (sdEnabled) {
+		if (spiData(addr)) {
+			spiIn = transferSpi(value);
+		} else if (addr == 0x4800) {
+			cardCs = byte(value & 0x03);
+		}
+	}
+}
+
+byte SdMapperV1::readRam(uint16_t addr)
+{
+	return ram->read(ramAddress(addr));
+}
+
+byte SdMapperV1::peekRam(uint16_t addr) const
+{
+	return ram->peek(ramAddress(addr));
+}
+
+void SdMapperV1::writeRam(uint16_t addr, byte value)
+{
+	if (mapperMode || megaWriteEnable) {
+		ram->write(ramAddress(addr), value);
+		return;
+	}
+	unsigned page = (addr >> 13) & 3;
+	banks[page] = byte(value & MEGA_MASK);
+	invalidateDeviceRWCache(page * 0x2000, 0x2000);
+	invalidateDeviceRWCache(0x8000 + page * 0x2000, 0x2000);
+}
+
+byte SdMapperV1::peekMem(uint16_t addr, EmuTime time) const
+{
+	if (expanderEnabled() && addr == 0xFFFF) {
+		return byte(subslotReg ^ 0xFF);
+	}
+	switch (getSubSlot(addr)) {
+	case 1: return peekRom(addr, time);
+	case 3: return peekRam(addr);
+	default: return 0xFF;
+	}
+}
+
+byte SdMapperV1::readMem(uint16_t addr, EmuTime time)
+{
+	if (expanderEnabled() && addr == 0xFFFF) {
+		return byte(subslotReg ^ 0xFF);
+	}
+	switch (getSubSlot(addr)) {
+	case 1: return readRom(addr, time);
+	case 3: return readRam(addr);
+	default: return 0xFF;
+	}
+}
+
+const byte* SdMapperV1::getReadCacheLine(uint16_t addr) const
+{
+	if (expanderEnabled() &&
+	    ((addr & CacheLine::HIGH) == (0xFFFF & CacheLine::HIGH))) {
+		return nullptr;
+	}
+	switch (getSubSlot(addr)) {
+	case 1: return getRomReadCacheLine(addr);
+	case 3: return ram->getReadCacheLine(ramAddress(addr));
+	default: return unmappedRead.data();
+	}
+}
+
+void SdMapperV1::writeMem(uint16_t addr, byte value, EmuTime time)
+{
+	if (expanderEnabled() && addr == 0xFFFF) {
+		byte diff = byte(value ^ subslotReg);
+		subslotReg = value;
+		for (auto page : xrange(4)) {
+			if (diff & (3 << (2 * page))) {
+				invalidateDeviceRWCache(0x4000 * page, 0x4000);
+			}
+		}
+		return;
+	}
+	switch (getSubSlot(addr)) {
+	case 1: writeRom(addr, value, time); break;
+	case 3: writeRam(addr, value); break;
+	default: break;
+	}
+}
+
+byte* SdMapperV1::getWriteCacheLine(uint16_t addr)
+{
+	if (expanderEnabled() &&
+	    ((addr & CacheLine::HIGH) == (0xFFFF & CacheLine::HIGH))) {
+		return nullptr;
+	}
+	switch (getSubSlot(addr)) {
+	case 1:
+		return nullptr;
+	case 3:
+		if (!mapperMode && !megaWriteEnable) return nullptr;
+		return ram->getWriteCacheLine(ramAddress(addr));
+	default:
+		return unmappedWrite.data();
+	}
+}
+
+byte SdMapperV1::readIO(uint16_t /*port*/, EmuTime /*time*/)
+{
+	// IN $8E/$8F enables SRAM writes and disables bank switching.
+	if (!megaWriteEnable) {
+		megaWriteEnable = true;
+		invalidateDeviceRWCache();
+	}
+	return 0xFF;
+}
+
+byte SdMapperV1::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
+{
+	return 0xFF;
+}
+
+void SdMapperV1::writeIO(uint16_t port, byte value, EmuTime /*time*/)
+{
+	switch (port & 0xFF) {
+	case 0x5F:
+		flashWriteEnable = (value & 0x80) != 0;
+		flashPage = byte(value & 7);
+		invalidateDeviceRWCache();
+		break;
+	case 0x8E:
+	case 0x8F:
+		// OUT $8E/$8F disables SRAM writes and enables bank switching.
+		if (megaWriteEnable) {
+			megaWriteEnable = false;
+			invalidateDeviceRWCache();
+		}
+		break;
+	default:
+		UNREACHABLE;
+	}
+}
+
+template<typename Archive>
+void SdMapperV1::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("flash",            flash,
+	             "subslotReg",       subslotReg,
+	             "romBank",          romBank,
+	             "sdEnabled",        sdEnabled,
+	             "flashWriteEnable", flashWriteEnable,
+	             "flashPage",        flashPage,
+	             "cardCs",           cardCs,
+	             "spiIn",            spiIn,
+	             "banks",            banks,
+	             "megaWriteEnable",  megaWriteEnable,
+	             "sdCard0",          *sdCard[0],
+	             "sdCard1",          *sdCard[1]);
+	if (ram) ar.serialize("ram", ram->getUncheckedRam());
+}
+INSTANTIATE_SERIALIZE_METHODS(SdMapperV1);
+REGISTER_MSXDEVICE(SdMapperV1, "SdMapperV1");
+
+} // namespace openmsx
