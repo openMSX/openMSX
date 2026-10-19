@@ -36,8 +36,6 @@ SMSVDP::SMSVDP(MSXMotherBoard& motherBoard_, std::string name,
 	, core(variant, isPal(), [this](bool asserted) { irq.set(asserted); })
 	, regDebug(*this, name)
 	, statusDebug(*this, name)
-	, vramDebug(*this, name)
-	, cramDebug(*this, name)
 	, pixelClock(EmuTime::zero())
 {
 	updateClock();
@@ -145,7 +143,7 @@ void SMSVDP::executeLine(EmuTime time)
 	// The chip has a single /INT pin, shared by the VINT and HINT logic,
 	// so one event at the latest of the two hpos moments covers both.
 	syncInt .setSyncPoint(pixelClock + core.intHpos());
-	syncDraw.setSyncPoint(pixelClock + SMSVDPCore::ACTIVE_HPOS); // MAME's DRAW_TIME_SMS
+	syncDraw.setSyncPoint(pixelClock + 63); // MAME's DRAW_TIME_SMS
 	syncEol .setSyncPoint(pixelClock + (SMSVDPCore::WIDTH - 1));
 	syncLine.setSyncPoint(pixelClock + SMSVDPCore::WIDTH);
 }
@@ -188,20 +186,6 @@ unsigned SMSVDP::currentHpos(EmuTime time) const
 	// The scheduler guarantees that all sync points before 'time' have
 	// been executed, so pixelClock's last tick is not after 'time'.
 	return std::min<unsigned>(SMSVDPCore::WIDTH - 1, pixelClock.getTicksTill(time));
-}
-
-std::pair<int, int> SMSVDP::getRasterPosition() const
-{
-	// Active-display coordinates: (0,0) is the top-left of the 256x192
-	// (or 224/240) display area; values outside that area are possible.
-	const auto time = motherBoard.getCurrentTime();
-	return { int(currentHpos(time)) - SMSVDPCore::ACTIVE_HPOS,
-	         vpos - core.activeStart() };
-}
-
-void SMSVDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
-{
-	core.writeRegister(reg, val, narrow<int>(currentHpos(time)));
 }
 
 // ---------------------------------------------------------------------------
@@ -308,7 +292,8 @@ uint8_t SMSVDP::RegDebug::read(unsigned address)
 void SMSVDP::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& vdp = OUTER(SMSVDP, regDebug);
-	vdp.changeRegister(narrow<uint8_t>(address), value, time);
+	vdp.core.writeRegister(narrow<uint8_t>(address), value,
+	                       narrow<int>(vdp.currentHpos(time)));
 }
 
 SMSVDP::StatusDebug::StatusDebug(const SMSVDP& vdp, std::string_view name_)
@@ -321,42 +306,6 @@ uint8_t SMSVDP::StatusDebug::read(unsigned /*address*/)
 {
 	const auto& vdp = OUTER(SMSVDP, statusDebug);
 	return vdp.core.peekStatus();
-}
-
-SMSVDP::VramDebug::VramDebug(const SMSVDP& vdp, std::string_view name_)
-	: SimpleDebuggable(vdp.getMotherBoard(),
-	                   strCat(name_, " VRAM"), "Franky VDP video RAM (16 KiB).", 0x4000)
-{
-}
-
-uint8_t SMSVDP::VramDebug::read(unsigned address)
-{
-	const auto& vdp = OUTER(SMSVDP, vramDebug);
-	return vdp.core.peekVram(narrow<uint16_t>(address));
-}
-
-void SMSVDP::VramDebug::write(unsigned address, uint8_t value, EmuTime /*time*/)
-{
-	auto& vdp = OUTER(SMSVDP, vramDebug);
-	vdp.core.pokeVram(narrow<uint16_t>(address), value);
-}
-
-SMSVDP::CramDebug::CramDebug(const SMSVDP& vdp, std::string_view name_)
-	: SimpleDebuggable(vdp.getMotherBoard(),
-	                   strCat(name_, " CRAM"), "Franky VDP color RAM (32 bytes, 6-bit colors).", 0x20)
-{
-}
-
-uint8_t SMSVDP::CramDebug::read(unsigned address)
-{
-	const auto& vdp = OUTER(SMSVDP, cramDebug);
-	return vdp.core.peekCram(narrow<int>(address));
-}
-
-void SMSVDP::CramDebug::write(unsigned address, uint8_t value, EmuTime /*time*/)
-{
-	auto& vdp = OUTER(SMSVDP, cramDebug);
-	vdp.core.pokeCram(narrow<int>(address), value);
 }
 
 // ---------------------------------------------------------------------------

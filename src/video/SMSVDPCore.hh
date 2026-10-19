@@ -43,8 +43,6 @@ public:
 	static constexpr int ACTIVE_WIDTH = 256;  // visible pixels
 	static constexpr int OUTPUT_WIDTH = 320;  // openMSX output
 	static constexpr int OUTPUT_HEIGHT = 240;
-	// MAME's DRAW_TIME_SMS: hpos at which the 256 active pixels start.
-	static constexpr int ACTIVE_HPOS = 63;
 
 	// Status register bits.
 	static constexpr uint8_t STATUS_VINT = 0x80;
@@ -151,10 +149,6 @@ public:
 	[[nodiscard]] uint8_t peekVram(uint16_t a) const { return vram[a & 0x3fff]; }
 	[[nodiscard]] uint8_t peekCram(int i) const { return cram[i & 0x1f]; }
 	[[nodiscard]] int peekMode() const { return vdpMode; }
-	[[nodiscard]] uint8_t peekLineCounter() const { return lineCounter; }
-	[[nodiscard]] std::span<const uint8_t, 0x4000> getVram() const { return vram; }
-	void pokeVram(uint16_t a, uint8_t v) { vram[a & 0x3fff] = v; }
-	void pokeCram(int i, uint8_t v) { cram[i & 0x1f] = v; cramDirty = true; }
 
 	// Side-effect-free versions of the counter/data/control reads (used by
 	// peekIO()); peekControl() simulates the pending-flag promotion that a

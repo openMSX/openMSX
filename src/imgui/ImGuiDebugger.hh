@@ -20,9 +20,6 @@ class Debugger;
 class ImGuiBitmapViewer;
 class ImGuiCharacter;
 class ImGuiDisassembly;
-class ImGuiFrankySprites;
-class ImGuiFrankyTiles;
-class ImGuiFrankyVdpRegs;
 class ImGuiSpriteViewer;
 class MSXCPUInterface;
 
@@ -85,9 +82,6 @@ private:
 	std::vector<std::unique_ptr<ImGuiBitmapViewer>> bitmapViewers;
 	std::vector<std::unique_ptr<ImGuiCharacter>> tileViewers;
 	std::vector<std::unique_ptr<ImGuiSpriteViewer>> spriteViewers;
-	std::vector<std::unique_ptr<ImGuiFrankyTiles>> frankyTilesViewers;
-	std::vector<std::unique_ptr<ImGuiFrankySprites>> frankySpriteViewers;
-	std::vector<std::unique_ptr<ImGuiFrankyVdpRegs>> frankyVdpRegsViewers;
 	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
 
 	std::optional<SlotInfo> slotSnapshot;

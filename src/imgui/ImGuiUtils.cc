@@ -17,6 +17,7 @@
 #include <SDL.h>
 
 #include <algorithm>
+#include <cassert>
 #include <variant>
 
 namespace openmsx {
@@ -423,6 +424,76 @@ std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin
 		result += static_cast<char>(val);
 	}
 	return result;
+}
+
+void drawRasterBeam(ImDrawList* drawList, gl::vec2 center, gl::vec2 zm, gl::vec4 color)
+{
+	auto col = ImGui::ColorConvertFloat4ToU32(color);
+	auto thickness = zm.y * 0.5f;
+	auto zm1 = 1.5f * zm;
+	auto zm3 = 3.5f * zm;
+	drawList->AddRect(center - zm, center + zm, col, 0.0f, thickness);
+	drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, col, thickness);
+	drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, col, thickness);
+	drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, col, thickness);
+	drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, col, thickness);
+}
+
+std::string formatBinary(function_ref<uint8_t(unsigned)> fetch, unsigned address, unsigned size)
+{
+	assert(size > 0);
+	return formatToString(fetch, address, address + size - 1, {}, 1, {}, ", ",
+		[](uint8_t v) { return strCat(hex_string<2, HexCase::upper>(v)); });
+}
+
+void rasterBeamSettings(bool& enabled, gl::vec4& color, gl::ivec2 pos, ImFont* font)
+{
+	ImGui::Checkbox("beam", &enabled);
+	ImGui::SameLine();
+	im::Disabled(!enabled, [&]{
+		ImGui::ColorEdit4("raster beam color", color.data(),
+			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+		ImGui::SameLine();
+		im::Font(font, [&]{
+			ImGui::StrCat('(', dec_string<4>(pos.x),
+			              ',', dec_string<4>(pos.y), ')');
+		});
+	});
+	HelpMarker("Position of the raster beam, expressed in MSX coordinates.\n"
+	           "Left/top border have negative x/y-coordinates.\n"
+	           "Only practically useful when emulation is paused.");
+}
+
+void gridSettings(bool& enabled, gl::vec4& color)
+{
+	ImGui::Checkbox("grid", &enabled);
+	ImGui::SameLine();
+	im::Disabled(!enabled, [&]{
+		ImGui::ColorEdit4("Grid color", color.data(),
+			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+	});
+}
+
+void printAddress(std::string_view name, unsigned address)
+{
+	ImGui::StrCat(name, " address:");
+	ImGui::StrCat("  0x", hex_string<5>(address));
+}
+
+void printAddressRange(std::string_view name, unsigned address, unsigned count)
+{
+	assert(count > 0);
+	ImGui::StrCat(name, " address:");
+	ImGui::StrCat("  0x", hex_string<5>(address), "-0x", hex_string<5>(address + count - 1));
+}
+
+bool copyToClipboardPopup(zstring_view caption, function_ref<std::string()> supplier)
+{
+	return im::PopupContextWindow("CopyToClipboardPopup", [&]{
+		if (ImGui::MenuItem(caption.c_str())) {
+			ImGui::SetClipboardText(supplier().c_str());
+		}
+	});
 }
 
 } // namespace openmsx
