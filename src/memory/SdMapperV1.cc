@@ -30,13 +30,16 @@ namespace openmsx {
 //   32 x 16kB) or MegaRAM ($8E/$8F, 64 x 8kB, A15 ignored).
 // - RAM switch off: no expander, the whole slot is flash/SPI. The mode switch
 //   still shows up in status bit 5.
-// - Status bit 7 (SPI busy) is always 0 here. The CPLD is clocked by the
-//   board's 25MHz oscillator, so an 8-bit transfer finishes before the next
-//   Z80 access can read the status register.
+// - Status bit 7 is SPI busy (sd.vhd: busy <= start). The 25MHz oscillator
+//   drops it 19 clocks, about 0.76us, after a data access. A Z80, or an R800
+//   fetching from an external slot, cannot read $4800 that soon. Code in
+//   DRAM, or a faster CPU, can.
 
 static constexpr unsigned RAM_SIZE = 512 * 1024;
 static constexpr byte MAPPER_MASK = RAM_SIZE / 0x4000 - 1; // 16kB pages
 static constexpr byte MEGA_MASK   = RAM_SIZE / 0x2000 - 1; // 8kB blocks
+// 2 clocks to enter s_running, then 17 clocks until ff_clr on the 8th bit.
+static constexpr auto SPI_BUSY_TIME = EmuDuration::hz(25e6) * 19;
 
 [[nodiscard]] static bool isMapperMode(const DeviceConfig& config)
 {
@@ -114,7 +117,7 @@ void SdMapperV1::powerUp(EmuTime time)
 	reset(time);
 }
 
-void SdMapperV1::reset(EmuTime /*time*/)
+void SdMapperV1::reset(EmuTime time)
 {
 	subslotReg = 0;
 	romBank = 0;
@@ -123,6 +126,7 @@ void SdMapperV1::reset(EmuTime /*time*/)
 	flashPage = 0;
 	cardCs = 0x03;
 	spiIn = 0xFF;
+	spiBusyUntil = time;
 	megaWriteEnable = false;
 	ranges::iota(banks, byte(0));
 	flash.reset();
@@ -168,15 +172,16 @@ unsigned SdMapperV1::ramAddress(uint16_t addr) const
 	return (block << 13) | (addr & 0x1FFF);
 }
 
-byte SdMapperV1::readStatus() const
+byte SdMapperV1::readStatus(EmuTime time) const
 {
-	// bit 7: busy, always 0. See the comment at the top of this file.
+	// bit 7: 1 while the shift started by the last data access is running.
 	// bit 6: reserved, always 0.
 	// bit 5: 1 = mapper, 0 = MegaRAM.
 	// bit 4: 1 = RAM enabled.
 	// bits 3-2: 1 = write protected.
 	// bits 1-0: 0 = card present.
 	byte value = 0;
+	if (time < spiBusyUntil)           value |= 0x80;
 	if (!sdCard[0]->isPresent())       value |= 0x01;
 	if (!sdCard[1]->isPresent())       value |= 0x02;
 	if (sdCard[0]->isWriteProtected()) value |= 0x04;
@@ -197,17 +202,18 @@ byte SdMapperV1::transferSpi(byte value)
 	return result;
 }
 
-byte SdMapperV1::readSpiData()
+byte SdMapperV1::accessSpiData(EmuTime time, byte value)
 {
 	byte result = spiIn;
-	spiIn = transferSpi(0xFF);
+	spiIn = transferSpi(value);
+	spiBusyUntil = time + SPI_BUSY_TIME;
 	return result;
 }
 
 byte SdMapperV1::readRom(uint16_t addr, EmuTime time)
 {
 	if (spiMapped(addr)) {
-		return spiDataRegion(addr) ? readSpiData() : readStatus();
+		return spiDataRegion(addr) ? accessSpiData(time) : readStatus(time);
 	}
 	if (flashVisible(addr)) {
 		return flash.read(flashAddress(addr), time);
@@ -218,7 +224,7 @@ byte SdMapperV1::readRom(uint16_t addr, EmuTime time)
 byte SdMapperV1::peekRom(uint16_t addr, EmuTime time) const
 {
 	if (spiMapped(addr)) {
-		return spiDataRegion(addr) ? spiIn : readStatus();
+		return spiDataRegion(addr) ? spiIn : readStatus(time);
 	}
 	if (flashVisible(addr)) {
 		return flash.peek(flashAddress(addr), time);
@@ -266,7 +272,7 @@ void SdMapperV1::writeRom(uint16_t addr, byte value, EmuTime time)
 	}
 	if (sdEnabled) {
 		if (spiDataRegion(addr)) {
-			spiIn = transferSpi(value);
+			accessSpiData(time, value);
 		} else if (addr == 0x4800) {
 			cardCs = byte(value & 0x03);
 		}
@@ -425,6 +431,7 @@ void SdMapperV1::serialize(Archive& ar, unsigned /*version*/)
 	             "flashPage",        flashPage,
 	             "cardCs",           cardCs,
 	             "spiIn",            spiIn,
+	             "spiBusyUntil",     spiBusyUntil,
 	             "banks",            banks,
 	             "megaWriteEnable",  megaWriteEnable,
 	             "sdCard0",          *sdCard[0],

@@ -42,9 +42,9 @@ private:
 	[[nodiscard]] bool flashVisible(uint16_t addr) const;
 	[[nodiscard]] unsigned flashAddress(uint16_t addr) const;
 	[[nodiscard]] unsigned ramAddress(uint16_t addr) const;
-	[[nodiscard]] byte readStatus() const;
+	[[nodiscard]] byte readStatus(EmuTime time) const;
 	[[nodiscard]] byte transferSpi(byte value);
-	[[nodiscard]] byte readSpiData();
+	[[nodiscard]] byte accessSpiData(EmuTime time, byte value = 0xFF);
 
 	[[nodiscard]] byte readRom(uint16_t addr, EmuTime time);
 	[[nodiscard]] byte peekRom(uint16_t addr, EmuTime time) const;
@@ -83,6 +83,7 @@ private:
 	byte flashPage = 0;           // port $5F bits 2-0
 	byte cardCs = 0x03;           // 1 = /CS high (deselected)
 	byte spiIn = 0xFF;            // result of the previous SPI byte
+	EmuTime spiBusyUntil = EmuTime::zero(); // status bit 7
 	std::array<byte, 4> banks = {};
 	bool megaWriteEnable = false;
 };
