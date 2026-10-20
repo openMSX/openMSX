@@ -19,6 +19,8 @@
             <sha1>26de5eeef26ffb48a233b7844076e341c7f0685f</sha1>
             <filename>sdmapper.rom</filename>
           </rom>
+          <!-- Persisted AM29F010 contents. The tag name is the openMSX key, not the 512kB SRAM. -->
+          <sramname>sdmapperv1.flash</sramname>
           <!-- Two switches on the board, reported separately in status bits 5 and 4.
                mode stays visible when RAM is off, so this is not one 3-way setting. -->
           <!-- ram: false disables the slot expander and the 512kB SRAM. -->
