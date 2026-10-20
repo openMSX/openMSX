@@ -332,6 +332,7 @@ sources = files(
     'memory/RomZemina25in1.cc',
     'memory/SRAM.cc',
     'memory/SdCard.cc',
+    'memory/SdMapperV1.cc',
     'memory/TrackedRam.cc',
     'security/SocketStreamWrapper.cc',
     'security/SspiNegotiateServer.cc',
