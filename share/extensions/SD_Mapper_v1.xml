@@ -6,7 +6,7 @@
     <manufacturer>Fabio Belavenuto</manufacturer>
     <code/>
     <release_year>2014</release_year>
-    <description>SD Mapper v1 (msxsdmapper): 128kB flash cartridge with two SD cards and 512kB memory mapper or MegaRAM. This is not the later, incompatible SD Mapper v2. With ram enabled the cartridge expands its slot (subslot 1 = flash/SPI, subslot 3 = RAM) and must be inserted in an unexpanded primary slot. Set ram to false to use only the SD interface, including in an expanded slot.</description>
+    <description>128kB flash cartridge with two SD cards and 512kB memory mapper or MegaRAM.</description>
     <type>SD Mapper v1</type>
   </info>
   <devices>
@@ -19,9 +19,11 @@
             <sha1>26de5eeef26ffb48a233b7844076e341c7f0685f</sha1>
             <filename>sdmapper.rom</filename>
           </rom>
-          <!-- ram: false disables the slot expander and the 512kB SRAM -->
+          <!-- Two switches on the board, reported separately in status bits 5 and 4.
+               mode stays visible when RAM is off, so this is not one 3-way setting. -->
+          <!-- ram: false disables the slot expander and the 512kB SRAM. -->
           <ram>true</ram>
-          <!-- mode: mapper ($FC-$FF) or megaram ($8E/$8F). Ignored when ram is false. -->
+          <!-- mode: mapper ($FC-$FF) or megaram ($8E/$8F). -->
           <mode>mapper</mode>
           <sdcard1>
             <filename>sdmapperv1-1.sdc</filename>

@@ -35,14 +35,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	static constexpr unsigned RAM_SIZE = 512 * 1024;
-	static constexpr byte MAPPER_MASK = 0x1F; // 32 x 16kB
-	static constexpr byte MEGA_MASK   = 0x3F; // 64 x 8kB
-
-	[[nodiscard]] bool expanderEnabled() const { return ramEnabled; }
+	[[nodiscard]] bool expanderEnabled() const { return ram != nullptr; }
 	[[nodiscard]] byte getSubSlot(uint16_t addr) const;
 	[[nodiscard]] bool spiMapped(uint16_t addr) const;
-	[[nodiscard]] bool spiData(uint16_t addr) const;
+	[[nodiscard]] bool spiDataRegion(uint16_t addr) const;
 	[[nodiscard]] bool flashVisible(uint16_t addr) const;
 	[[nodiscard]] unsigned flashAddress(uint16_t addr) const;
 	[[nodiscard]] unsigned ramAddress(uint16_t addr) const;
@@ -72,7 +68,8 @@ private:
 		SdMapperV1& device;
 	};
 
-	const bool ramEnabled;
+	// mr_mp switch. Status bit 5 reports it even when RAM is disabled,
+	// so this is not the same as `mapperIO != nullptr`.
 	const bool mapperMode;
 	AmdFlash flash;
 	const std::unique_ptr<CheckedRam> ram;       // nullptr when RAM is disabled
