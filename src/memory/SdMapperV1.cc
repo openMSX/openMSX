@@ -210,7 +210,7 @@ byte SdMapperV1::accessSpiData(EmuTime time, byte value)
 	return result;
 }
 
-byte SdMapperV1::readRom(uint16_t addr, EmuTime time)
+byte SdMapperV1::readFlashSlot(uint16_t addr, EmuTime time)
 {
 	if (spiMapped(addr)) {
 		return spiDataRegion(addr) ? accessSpiData(time) : readStatus(time);
@@ -221,7 +221,7 @@ byte SdMapperV1::readRom(uint16_t addr, EmuTime time)
 	return 0xFF;
 }
 
-byte SdMapperV1::peekRom(uint16_t addr, EmuTime time) const
+byte SdMapperV1::peekFlashSlot(uint16_t addr, EmuTime time) const
 {
 	if (spiMapped(addr)) {
 		return spiDataRegion(addr) ? spiIn : readStatus(time);
@@ -232,7 +232,7 @@ byte SdMapperV1::peekRom(uint16_t addr, EmuTime time) const
 	return 0xFF;
 }
 
-const byte* SdMapperV1::getRomReadCacheLine(uint16_t addr) const
+const byte* SdMapperV1::getFlashSlotReadCacheLine(uint16_t addr) const
 {
 	if (spiMapped(addr)) {
 		return nullptr;
@@ -243,7 +243,7 @@ const byte* SdMapperV1::getRomReadCacheLine(uint16_t addr) const
 	return unmappedRead.data();
 }
 
-void SdMapperV1::writeRom(uint16_t addr, byte value, EmuTime time)
+void SdMapperV1::writeFlashSlot(uint16_t addr, byte value, EmuTime time)
 {
 	// $5F bit 7 inhibits the $6000/$6001 switches and the SPI window.
 	// Flash /WE is generated only while SPI mode is off, so a write with
@@ -279,17 +279,17 @@ void SdMapperV1::writeRom(uint16_t addr, byte value, EmuTime time)
 	}
 }
 
-byte SdMapperV1::readRam(uint16_t addr)
+byte SdMapperV1::readRamSlot(uint16_t addr)
 {
 	return ram->read(ramAddress(addr));
 }
 
-byte SdMapperV1::peekRam(uint16_t addr) const
+byte SdMapperV1::peekRamSlot(uint16_t addr) const
 {
 	return ram->peek(ramAddress(addr));
 }
 
-void SdMapperV1::writeRam(uint16_t addr, byte value)
+void SdMapperV1::writeRamSlot(uint16_t addr, byte value)
 {
 	if (mapperMode || megaWriteEnable) {
 		ram->write(ramAddress(addr), value);
@@ -307,8 +307,8 @@ byte SdMapperV1::peekMem(uint16_t addr, EmuTime time) const
 		return byte(subslotReg ^ 0xFF);
 	}
 	switch (getSubSlot(addr)) {
-	case 1: return peekRom(addr, time);
-	case 3: return peekRam(addr);
+	case 1: return peekFlashSlot(addr, time);
+	case 3: return peekRamSlot(addr);
 	default: return 0xFF;
 	}
 }
@@ -319,8 +319,8 @@ byte SdMapperV1::readMem(uint16_t addr, EmuTime time)
 		return byte(subslotReg ^ 0xFF);
 	}
 	switch (getSubSlot(addr)) {
-	case 1: return readRom(addr, time);
-	case 3: return readRam(addr);
+	case 1: return readFlashSlot(addr, time);
+	case 3: return readRamSlot(addr);
 	default: return 0xFF;
 	}
 }
@@ -332,7 +332,7 @@ const byte* SdMapperV1::getReadCacheLine(uint16_t addr) const
 		return nullptr;
 	}
 	switch (getSubSlot(addr)) {
-	case 1: return getRomReadCacheLine(addr);
+	case 1: return getFlashSlotReadCacheLine(addr);
 	case 3: return ram->getReadCacheLine(ramAddress(addr));
 	default: return unmappedRead.data();
 	}
@@ -351,8 +351,8 @@ void SdMapperV1::writeMem(uint16_t addr, byte value, EmuTime time)
 		return;
 	}
 	switch (getSubSlot(addr)) {
-	case 1: writeRom(addr, value, time); break;
-	case 3: writeRam(addr, value); break;
+	case 1: writeFlashSlot(addr, value, time); break;
+	case 3: writeRamSlot(addr, value); break;
 	default: break;
 	}
 }

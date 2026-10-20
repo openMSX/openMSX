@@ -46,14 +46,14 @@ private:
 	[[nodiscard]] byte transferSpi(byte value);
 	[[nodiscard]] byte accessSpiData(EmuTime time, byte value = 0xFF);
 
-	[[nodiscard]] byte readRom(uint16_t addr, EmuTime time);
-	[[nodiscard]] byte peekRom(uint16_t addr, EmuTime time) const;
-	[[nodiscard]] const byte* getRomReadCacheLine(uint16_t addr) const;
-	void writeRom(uint16_t addr, byte value, EmuTime time);
+	[[nodiscard]] byte readFlashSlot(uint16_t addr, EmuTime time);
+	[[nodiscard]] byte peekFlashSlot(uint16_t addr, EmuTime time) const;
+	[[nodiscard]] const byte* getFlashSlotReadCacheLine(uint16_t addr) const;
+	void writeFlashSlot(uint16_t addr, byte value, EmuTime time);
 
-	[[nodiscard]] byte readRam(uint16_t addr);
-	[[nodiscard]] byte peekRam(uint16_t addr) const;
-	void writeRam(uint16_t addr, byte value);
+	[[nodiscard]] byte readRamSlot(uint16_t addr);
+	[[nodiscard]] byte peekRamSlot(uint16_t addr) const;
+	void writeRamSlot(uint16_t addr, byte value);
 
 	class MapperIO final : public MSXMapperIOClient {
 	public:
