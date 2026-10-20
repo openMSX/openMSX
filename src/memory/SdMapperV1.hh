@@ -44,7 +44,7 @@ private:
 	[[nodiscard]] unsigned ramAddress(uint16_t addr) const;
 	[[nodiscard]] byte readStatus(EmuTime time) const;
 	[[nodiscard]] byte transferSpi(byte value);
-	[[nodiscard]] byte accessSpiData(EmuTime time, byte value = 0xFF);
+	byte accessSpiData(EmuTime time, byte value = 0xFF);
 
 	[[nodiscard]] byte readFlashSlot(uint16_t addr, EmuTime time);
 	[[nodiscard]] byte peekFlashSlot(uint16_t addr, EmuTime time) const;
