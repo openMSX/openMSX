@@ -6,7 +6,7 @@
 #include "MSXMotherBoard.hh"
 #include "SoundDevice.hh"
 
-#include "FFTReal.hh"
+#include "fft.hh"
 #include "fast_log2.hh"
 #include "halfband.hh"
 #include "hammingWindow.hh"
@@ -238,7 +238,7 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 	if (buf.size() >= 2) {
 		// We want to take an FFT of fixed length (256, 512, 1024, 2048 points), reduce the
 		// input (decimate + zero-pad) to this exact length.
-		std::array<float, 32768> workBuf; // ok, uninitialized
+		alignas(64) std::array<float, 32768> workBuf; // ok, uninitialized
 		auto [signal, zeroPadded, normalize, sampleRate_] = reduce(buf, workBuf, fftLen, device.getNativeSampleRate());
 		sampleRate = sampleRate_;
 		assert(zeroPadded.size() == fftLen);
@@ -250,35 +250,34 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 			s = (s - avg) * w;
 		}
 
-		// perform FFT
-		std::array<float, 2048> tmp_; // ok, uninitialized
-		std::array<float, 2048> f_;   // ok, uninitialized
+		// perform FFT → power spectrum |X[k]|² (we ignore phase)
+		alignas(64) std::array<float, 2048> tmp_; // ok, uninitialized
+		alignas(64) std::array<float, 2048> f_;   // ok, uninitialized
 		switch (fftLen) {
 		case 256:
-			FFTReal<8>::execute(subspan<256>(zeroPadded), subspan<256>(f_), subspan<256>(tmp_));
+			fft::FFT<8, fft::InputMode::Full, fft::OutputMode::Power>::execute(
+				subspan<256>(zeroPadded), subspan<256>(f_), subspan<256>(tmp_));
 			break;
 		case 512:
-			FFTReal<9>::execute(subspan<512>(zeroPadded), subspan<512>(f_), subspan<512>(tmp_));
+			fft::FFT<9, fft::InputMode::Full, fft::OutputMode::Power>::execute(
+				subspan<512>(zeroPadded), subspan<512>(f_), subspan<512>(tmp_));
 			break;
 		case 1024:
-			FFTReal<10>::execute(subspan<1024>(zeroPadded), subspan<1024>(f_), subspan<1024>(tmp_));
+			fft::FFT<10, fft::InputMode::Full, fft::OutputMode::Power>::execute(
+				subspan<1024>(zeroPadded), subspan<1024>(f_), subspan<1024>(tmp_));
 			break;
 		default:
-			FFTReal<11>::execute(subspan<2048>(zeroPadded), subspan<2048>(f_), subspan<2048>(tmp_));
+			fft::FFT<11, fft::InputMode::Full, fft::OutputMode::Power>::execute(
+				subspan<2048>(zeroPadded), subspan<2048>(f_), subspan<2048>(tmp_));
 			break;
 		}
-		auto f = subspan(f_, 0, fftLen);
 
-		// combine real and imaginary components into magnitude (we ignore phase)
 		normalize *= factor;
 		auto offset = fast_log2(normalize * normalize * (1.0f / float(fftLen))) + range;
 		auto halfFftLen = fftLen / 2;
 		magnitude = subspan(magnitude_, 0, halfFftLen - 1);
 		for (unsigned i = 0; i < halfFftLen - 1; ++i) {
-			float real = f[i + 1];
-			float imag = f[i + 1 + halfFftLen];
-			float mag = real * real + imag * imag;
-			magnitude[i] = fast_log2(mag) + offset;
+			magnitude[i] = fast_log2(f_[i + 1]) + offset;
 		}
 	}
 

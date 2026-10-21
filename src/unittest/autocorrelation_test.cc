@@ -106,7 +106,7 @@ TEST_CASE("autocorrelation: constant signal")
 
 TEST_CASE("autocorrelation: sine wave")
 {
-	constexpr unsigned SIGNAL_L2 = 6;
+	constexpr unsigned SIGNAL_L2 = 8;
 	constexpr unsigned N = 1 << SIGNAL_L2;
 	constexpr float freq = 5.0f; // 5 complete cycles
 
@@ -131,7 +131,7 @@ TEST_CASE("autocorrelation: sine wave")
 
 TEST_CASE("autocorrelation: random signal")
 {
-	constexpr unsigned SIGNAL_L2 = 5;
+	constexpr unsigned SIGNAL_L2 = 7;
 	constexpr unsigned N = 1 << SIGNAL_L2;
 
 	// Use fixed seed for deterministic results
@@ -157,7 +157,7 @@ TEST_CASE("autocorrelation: random signal")
 
 TEST_CASE("autocorrelation: non-power-of-2 signal length")
 {
-	constexpr unsigned SIGNAL_L2 = 5;
+	constexpr unsigned SIGNAL_L2 = 7;
 	constexpr unsigned N = 20;  // Not a power of 2 (SIGNAL_LEN = 32, but we only use 20)
 
 	std::vector<float> signal(N);
@@ -181,7 +181,7 @@ TEST_CASE("autocorrelation: non-power-of-2 signal length")
 
 TEST_CASE("autocorrelation: normalization")
 {
-	constexpr unsigned SIGNAL_L2 = 4;
+	constexpr unsigned SIGNAL_L2 = 7;
 	constexpr unsigned N = 1 << SIGNAL_L2;
 
 	std::vector<float> signal(N);
