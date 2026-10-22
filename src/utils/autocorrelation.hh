@@ -76,18 +76,15 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 	fft::FFT<FFT_LEN_L2, fft::InputMode::Symmetric>::execute(power, autocorr, fftWork);
 	// The result is a real signal, so the 2nd half (imaginary part) is zero (apart from rounding errors)
 
-	// Step 4: Normalize by 1/FFT_LEN to get autocorrelation (optional)
+	// Step 4: Extract the first N elements, optionally normalized by 1/FFT_LEN.
 	// Since FFT(real+even) = real, no conjugate is needed.
-	// We only normalize the first N elements that we actually use.
+	auto result = subspan(autocorr, 0, N);
 	if constexpr (NORMALIZE) {
 		const float norm = 1.0f / FFT_LEN;
-		for (unsigned i = 0; i < N; ++i) {
-			autocorr[i] *= norm;
-		}
+		std::ranges::transform(result, output.begin(), [&](float x) { return x * norm; });
+	} else {
+		std::ranges::copy(result, output.begin());
 	}
-
-	// Step 5: Extract result
-	std::ranges::copy_n(autocorr.begin(), N, output.begin());
 }
 
 #endif
