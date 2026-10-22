@@ -249,6 +249,16 @@ inline void centerNextWindowOverCurrent()
 	ImGui::SetNextWindowPos(windowCenter, ImGuiCond_Appearing, center);
 }
 
+// Draw a 'raster beam' marker (a small crosshair) at 'center'.
+void drawRasterBeam(ImDrawList* drawList, gl::vec2 center, gl::vec2 zm, gl::vec4 color);
+
+// Settings controls for the raster beam: checkbox, color and (mono spaced)
+// position display at 'pos', plus a help marker.
+void rasterBeamSettings(bool& enabled, gl::vec4& color, gl::ivec2 pos, ImFont* font);
+
+// Settings controls for the (pixel) grid: checkbox and color.
+void gridSettings(bool& enabled, gl::vec4& color);
+
 class ConfirmDialog {
 public:
 	explicit ConfirmDialog(std::string title_) : title(std::move(title_)) {}
@@ -448,6 +458,39 @@ std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name);
 	unsigned columns, std::string_view suffix, std::string_view separator, std::function<std::string(uint8_t)> formatFunc);
 
 [[nodiscard]] std::string rawToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end);
+
+// Format 'size' bytes (in the common "%02X, %02X, ..." clipboard format).
+[[nodiscard]] std::string formatBinary(function_ref<uint8_t(unsigned)> fetch, unsigned address, unsigned size);
+
+void printAddress(std::string_view name, unsigned address);
+void printAddressRange(std::string_view name, unsigned address, unsigned count);
+
+// Popup with a single menu item that copies the text returned by 'supplier'
+// to the clipboard. Returns true when the popup is open.
+bool copyToClipboardPopup(zstring_view caption, function_ref<std::string()> supplier);
+
+// Draw a (6 or 8 pixel wide) monochrome pattern row into 'out'.
+inline void draw6(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 6> out)
+{
+	out[0] = (pattern & 0x80) ? fgCol : bgCol;
+	out[1] = (pattern & 0x40) ? fgCol : bgCol;
+	out[2] = (pattern & 0x20) ? fgCol : bgCol;
+	out[3] = (pattern & 0x10) ? fgCol : bgCol;
+	out[4] = (pattern & 0x08) ? fgCol : bgCol;
+	out[5] = (pattern & 0x04) ? fgCol : bgCol;
+}
+
+inline void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 8> out)
+{
+	out[0] = (pattern & 0x80) ? fgCol : bgCol;
+	out[1] = (pattern & 0x40) ? fgCol : bgCol;
+	out[2] = (pattern & 0x20) ? fgCol : bgCol;
+	out[3] = (pattern & 0x10) ? fgCol : bgCol;
+	out[4] = (pattern & 0x08) ? fgCol : bgCol;
+	out[5] = (pattern & 0x04) ? fgCol : bgCol;
+	out[6] = (pattern & 0x02) ? fgCol : bgCol;
+	out[7] = (pattern & 0x01) ? fgCol : bgCol;
+}
 
 // Read from VRAM-table, including mirroring behavior
 //  shared between ImGuiCharacter, ImGuiSpriteViewer

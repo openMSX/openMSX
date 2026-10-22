@@ -274,12 +274,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				ImGui::Separator();
 				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
 				ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-				ImGui::Checkbox("grid", &grid);
-				ImGui::SameLine();
-				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", gridColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				});
+				gridSettings(grid, gridColor);
 				ImGui::Checkbox("Name table overlay", &nameTableOverlay);
 
 				ImGui::Checkbox("Override color table", &overrideColorTable);
@@ -302,20 +297,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				});
 
 				ImGui::Separator();
-				ImGui::Checkbox("beam", &rasterBeam);
-				ImGui::SameLine();
-				im::Disabled(!rasterBeam, [&]{
-					ImGui::ColorEdit4("raster beam color", rasterBeamColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-					ImGui::SameLine();
-					im::Font(manager.fontMono, [&]{
-						ImGui::StrCat('(', dec_string<4>(rasterBeamPos.x),
-						              ',', dec_string<4>(rasterBeamPos.y), ')');
-					});
-				});
-				HelpMarker("Position of the raster beam, expressed in MSX coordinates.\n"
-				           "Left/top border have negative x/y-coordinates.\n"
-				           "Only practically useful when emulation is paused.");
+				rasterBeamSettings(rasterBeam, rasterBeamColor, rasterBeamPos, manager.fontMono);
 			});
 		});
 		int manualLines = (manualRows == 0) ? 192
@@ -419,44 +401,31 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		auto printPatternNr = [](unsigned pat) {
 			ImGui::StrCat("Pattern: ", pat, " (0x", hex_string<3>(pat), ')');
 		};
-		auto printAddressName = [](std::string_view name) {
-			ImGui::StrCat(name, " address:");
-		};
-		auto printAddress = [&](std::string_view name, unsigned address) {
-			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<5>(address));
-		};
-		auto printAddressRange8 = [&](std::string_view name, unsigned address) {
-			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<5>(address), "-0x", hex_string<5>(address + 7));
-		};
 		auto printPatternColorAddress = [&](unsigned pattern) {
-			printAddressRange8("Pattern", patTable.getAddress(8 * pattern));
+			printAddressRange("Pattern", patTable.getAddress(8 * pattern), 8);
 			if (mode == one_of(SCR1, SCR2, SCR4)) {
-				printAddressRange8("Color", colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)));
+				printAddressRange("Color", colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)), 8);
 			}
 		};
 		auto formatBinaryData = [&](unsigned address) {
-			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + 7, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+			return formatBinary([&](unsigned addr){ return vram[addr]; }, address, 8);
 		};
 		auto getPatternFromGrid = [&] {
 			return gridPosition.x + 32 * gridPosition.y;
 		};
 		auto copyPatternColorPopup = [&] {
-			return im::PopupContextWindow("PatternCopyPopup", [&]{
-				bool hasColorData = mode == one_of(SCR1, SCR2);
-				const char* caption = hasColorData
-					? "Copy pattern and color data to clipboard"
-					: "Copy pattern data to clipboard";
-				if (ImGui::MenuItem(caption)) {
-					auto pattern = getPatternFromGrid();
-					auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern)));
-					if (hasColorData) {
-						auto cp = (mode == SCR1) ? (pattern / 8) : (8 * pattern);
-						strAppend(text, "Color data\n", formatBinaryData(colTable.getAddress(cp)));
-					}
-					ImGui::SetClipboardText(text.c_str());
+			bool hasColorData = mode == one_of(SCR1, SCR2);
+			const char* caption = hasColorData
+				? "Copy pattern and color data to clipboard"
+				: "Copy pattern data to clipboard";
+			return copyToClipboardPopup(caption, [&]{
+				auto pattern = getPatternFromGrid();
+				auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern)));
+				if (hasColorData) {
+					auto cp = (mode == SCR1) ? (pattern / 8) : (8 * pattern);
+					strAppend(text, "Color data\n", formatBinaryData(colTable.getAddress(cp)));
 				}
+				return text;
 			});
 		};
 		auto drawGrid = [&] {
@@ -581,15 +550,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				}
 				if (rasterBeam) {
 					auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
-					auto color = ImGui::ColorConvertFloat4ToU32(rasterBeamColor);
-					auto thickness = zm.y * 0.5f;
-					auto zm1 = 1.5f * zm;
-					auto zm3 = 3.5f * zm;
-					drawList->AddRect(center - zm, center + zm, color, 0.0f, thickness);
-					drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
-					drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
-					drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
-					drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+					drawRasterBeam(drawList, center, zm, rasterBeamColor);
 				}
 
 				auto pos1 = ImGui::GetCursorPos();
@@ -628,28 +589,6 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			});
 		});
 	});
-}
-
-static void draw6(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 6> out)
-{
-	out[0] = (pattern & 0x80) ? fgCol : bgCol;
-	out[1] = (pattern & 0x40) ? fgCol : bgCol;
-	out[2] = (pattern & 0x20) ? fgCol : bgCol;
-	out[3] = (pattern & 0x10) ? fgCol : bgCol;
-	out[4] = (pattern & 0x08) ? fgCol : bgCol;
-	out[5] = (pattern & 0x04) ? fgCol : bgCol;
-}
-
-static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 8> out)
-{
-	out[0] = (pattern & 0x80) ? fgCol : bgCol;
-	out[1] = (pattern & 0x40) ? fgCol : bgCol;
-	out[2] = (pattern & 0x20) ? fgCol : bgCol;
-	out[3] = (pattern & 0x10) ? fgCol : bgCol;
-	out[4] = (pattern & 0x08) ? fgCol : bgCol;
-	out[5] = (pattern & 0x04) ? fgCol : bgCol;
-	out[6] = (pattern & 0x02) ? fgCol : bgCol;
-	out[7] = (pattern & 0x01) ? fgCol : bgCol;
 }
 
 void ImGuiCharacter::renderPatterns(int mode, std::span<const uint32_t, 16> palette,

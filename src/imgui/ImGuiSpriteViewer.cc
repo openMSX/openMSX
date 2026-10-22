@@ -40,18 +40,6 @@ void ImGuiSpriteViewer::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 8> out)
-{
-	out[0] = (pattern & 0x80) ? fgCol : bgCol;
-	out[1] = (pattern & 0x40) ? fgCol : bgCol;
-	out[2] = (pattern & 0x20) ? fgCol : bgCol;
-	out[3] = (pattern & 0x10) ? fgCol : bgCol;
-	out[4] = (pattern & 0x08) ? fgCol : bgCol;
-	out[5] = (pattern & 0x04) ? fgCol : bgCol;
-	out[6] = (pattern & 0x02) ? fgCol : bgCol;
-	out[7] = (pattern & 0x01) ? fgCol : bgCol;
-}
-
 static void renderPatterns8(const VramTable& pat, std::span<uint32_t> output)
 {
 	auto zero = getColor(imColor::TRANSPARENT);
@@ -302,12 +290,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::Separator();
 				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
 				ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-				ImGui::Checkbox("grid", &grid);
-				ImGui::SameLine();
-				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", gridColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				});
+				gridSettings(grid, gridColor);
 
 				ImGui::TextUnformatted("Checkerboard:"sv);
 				simpleToolTip("Used as background in 'Sprite attribute' and 'Rendered sprites' view");
@@ -323,17 +306,6 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			});
 		});
 		ImGui::Separator();
-
-		auto copySpriteDataPopup = [&](zstring_view text, function_ref<std::string()> supplier) {
-			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
-				if (ImGui::MenuItem(text.c_str())) {
-					ImGui::SetClipboardText(supplier().c_str());
-				}
-			});
-		};
-		auto formatClipboardData = [&](unsigned address, unsigned size) {
-			return formatToString([&](unsigned addr) { return vram[addr]; }, address, address + size - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
-		};
 
 		int mode = manMode ? manualMode : vdpMode;
 		int size = manSize ? manualSize : vdpSize;
@@ -421,8 +393,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					auto pattern = (size == 16) ? ((16 * gridPosition.y) + gridPosition.x) * 4
 												: ((32 * gridPosition.y) + gridPosition.x) * 1;
-					bool popup = copySpriteDataPopup("Copy pattern data to clipboard", [&] {
-						return formatClipboardData(patTable.getAddress(8 * pattern), size == 16 ? 32 : 8);
+					bool popup = copyToClipboardPopup("Copy pattern data to clipboard", [&] {
+						return formatBinary([&](unsigned addr) { return vram[addr]; },
+						                    patTable.getAddress(8 * pattern), size == 16 ? 32 : 8);
 					});
 					if (hovered || popup) {
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
@@ -505,8 +478,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					}
 					auto sprite = 8 * gridPosition.y + gridPosition.x;
 					auto addr = getSpriteAttrAddr(sprite, mode);
-					bool popup = (mode == 2) && copySpriteDataPopup("Copy color data to clipboard", [&]{
-						return formatClipboardData(attTable.getAddress(getSpriteColorAddr(sprite, mode)), size);
+					bool popup = (mode == 2) && copyToClipboardPopup("Copy color data to clipboard", [&]{
+						return formatBinary([&](unsigned addr) { return vram[addr]; },
+						                    attTable.getAddress(getSpriteColorAddr(sprite, mode)), size);
 					});
 					if (hovered || popup) {
 						ImGui::SameLine();

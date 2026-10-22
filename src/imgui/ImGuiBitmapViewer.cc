@@ -261,27 +261,9 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
 			ImGui::Combo("Zoom", &bitmapZoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-			ImGui::Checkbox("grid", &bitmapGrid);
-			ImGui::SameLine();
-			im::Disabled(!bitmapGrid, [&]{
-				ImGui::ColorEdit4("Grid color", bitmapGridColor.data(),
-					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-			});
+			gridSettings(bitmapGrid, bitmapGridColor);
 			ImGui::Separator();
-			ImGui::Checkbox("beam", &rasterBeam);
-			ImGui::SameLine();
-			im::Disabled(!rasterBeam, [&]{
-				ImGui::ColorEdit4("raster beam color", rasterBeamColor.data(),
-					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				ImGui::SameLine();
-				im::Font(manager.fontMono, [&]{
-					ImGui::StrCat('(',  dec_string<4>(rasterBeamPos.x),
-					              ',', dec_string<4>(rasterBeamPos.y), ')');
-				});
-			});
-			HelpMarker("Position of the raster beam, expressed in MSX coordinates.\n"
-			           "Left/top border have negative x/y-coordinates.\n"
-			           "Only practically useful when emulation is paused.");
+			rasterBeamSettings(rasterBeam, rasterBeamColor, rasterBeamPos, manager.fontMono);
 		});
 
 		// VDP block command overlay settings
@@ -400,15 +382,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			auto* drawList = ImGui::GetWindowDrawList();
 			if (rasterBeam) {
 				auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
-				auto color = ImGui::ColorConvertFloat4ToU32(rasterBeamColor);
-				auto thickness = zm.y * 0.5f;
-				auto zm1 = 1.5f * zm;
-				auto zm3 = 3.5f * zm;
-				drawList->AddRect(center - zm, center + zm, color, 0.0f, thickness);
-				drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
-				drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
-				drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
-				drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+				drawRasterBeam(drawList, center, zm, rasterBeamColor);
 			}
 
 			// draw the VDP command overlay
