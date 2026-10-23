@@ -11,9 +11,9 @@ Then AI hit us with dozens of Pull Requests with new and improved
 functionality... Not all pure AI generated, but also using the AI to analyse
 bulk measurements. This led to many VDP accuracy improvements and emulation of
 new devices like plotters, Panasonic FS-JH1 Joy Handle steering wheel (that
-came with Konami's A1-Spirit), light guns, Franky, Makoto. There's now even
-also a synthetic TCP/IP UNAPI device to be able to try out network programs in
-openMSX.
+came with Konami's A1-Spirit), light guns, Franky, Makoto, SD Mapper V1.
+There's now even also a synthetic TCP/IP UNAPI device to be able to try out
+network programs in openMSX.
 
 And many, many more things...
 
@@ -36,10 +36,14 @@ MSX device support:
 - added ASCII8-R (reversed) mapper type
 - fixed details of MSX kanji ROM emulation, adding specific behaviour in many
   machines and devices
-- added Panasonic FS-JH1 Joy Handle (belongs with Konami's A1-Spirit)
+- added Panasonic FS-JH1 Joy Handle (belongs with Konami's A1-Spirit),
+  including configuration window
 - added SuperSoniqs Franky emulation (allows to play Sega Master System games
   on MSX)
 - added SuperSoniqs Makoto emulation (OPNA sound cartridge)
+- added SD Mapper V1 emulation
+- updated Neo mapper support to specification version 1.2 now supporting a
+  13-bit segment register (16384 segments)
 - VDP:
   - fixed VDP I/O delay to 1 cycle for T9769 engines
   - added implementation of the TEXT2-mode per line blink (bit 2 in VDP R#2)
@@ -79,6 +83,7 @@ New or improved emulator features:
   - added I/O map viewer
   - in the Cartridge Slot window: added a link to Generation MSX where known
   - fixed history (recent items) for dir-as-disk
+  - added ColecoVision controller configuration window
 - debugger (including its GUI):
   - allow to double-click a symbol in the Symbol Manager to jump to it in the
     disassembly view
@@ -102,6 +107,7 @@ New or improved emulator features:
     command
   - added option to export the ASCII view of the generic debuggable
     editor/viewer
+  - added visualization of line commands in the bitmap viewer
 - instead of showing corrupted video, a problem with shaders will now be a
   fatal error
 - fixed issues with non-ASCII paths by forcing UTF-8 paths on Windows
@@ -157,6 +163,7 @@ Build system, packaging, documentation:
 - Android build is totally broken, and will require a lot of effort and help to
   get back up, which is not planned by us.
 - 3rd party updates of SDL (2.32.10), Dear ImGui (1.92.9WIP)
+- added ccache support for faster compiling whilst developing on openMSX
 - macOS builds are now "notarized"
 - several fixes on the manual, e.g. debug subcommands and stale examples
 
