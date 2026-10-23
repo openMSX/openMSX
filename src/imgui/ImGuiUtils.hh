@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <concepts>
+#include <expected>
 #include <functional>
 #include <span>
 #include <string>
@@ -144,7 +145,9 @@ class FloatSetting;
 class HotKey;
 class ImGuiManager;
 class IntegerSetting;
+class Interpreter;
 class Setting;
+class SymbolManager;
 class VideoSourceSetting;
 
 struct EnumToolTip {
@@ -177,6 +180,11 @@ void simpleToolTip(std::invocable<> auto descFunc)
 
 void HelpMarkerNewLine(std::string_view desc);
 void HelpMarker(std::string_view desc, float spacing = -1.0f);
+
+// Accepts a decimal or hexadecimal value, a symbol name, or a Tcl expression.
+// An empty string evaluates to 0.
+[[nodiscard]] std::expected<unsigned, std::string> parseAddressExpr(
+	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp);
 
 // Generate a distinct color for each given index.
 // Obviously the more colors you request, the less distinct each color pair will be.

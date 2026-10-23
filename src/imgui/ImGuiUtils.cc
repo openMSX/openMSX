@@ -5,10 +5,14 @@
 #include "KeyMappings.hh"
 
 #include "BooleanSetting.hh"
+#include "CommandException.hh"
 #include "EnumSetting.hh"
 #include "FloatSetting.hh"
 #include "HotKey.hh"
 #include "IntegerSetting.hh"
+#include "Interpreter.hh"
+#include "SymbolManager.hh"
+#include "TclObject.hh"
 #include "VideoSourceSetting.hh"
 
 #include <imgui.h>
@@ -33,6 +37,24 @@ void HelpMarkerNewLine(std::string_view desc)
 {
 	ImGui::TextDisabledUnformatted("(?)");
 	simpleToolTip(desc);
+}
+
+std::expected<unsigned, std::string> parseAddressExpr(
+	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp)
+{
+	if (str.empty()) return 0;
+
+	// TODO linear search, probably OK for now, but can be improved if it turns out to be a problem
+	// Note: limited to 16-bit, but larger values trigger an errors and are then handled below, so that's fine
+	if (auto addr = symbolManager.parseSymbolOrValue(str)) {
+		return *addr;
+	}
+
+	try {
+		return TclObject(str).eval(interp).getInt(interp);
+	} catch (CommandException& e) {
+		return std::unexpected(e.getMessage());
+	}
 }
 
 void ConfirmDialog::execute()
