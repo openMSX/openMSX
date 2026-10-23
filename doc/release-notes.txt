@@ -108,6 +108,11 @@ New or improved emulator features:
   - added option to export the ASCII view of the generic debuggable
     editor/viewer
   - added visualization of line commands in the bitmap viewer
+  - added a generic bitmap viewer for any debuggable (from the Debugger menu or
+    the hex editor's context menu): configurable bits per pixel (1 to 32),
+    bit order and endianness, up to 2 levels of tiling with custom steps,
+    grayscale, palette and packed color formats, zoom, pixel/tile/group grids
+    (as lines or gaps) and a hover readout of address and value
 - instead of showing corrupted video, a problem with shaders will now be a
   fatal error
 - fixed issues with non-ASCII paths by forcing UTF-8 paths on Windows

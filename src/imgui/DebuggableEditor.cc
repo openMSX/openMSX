@@ -1,5 +1,6 @@
 #include "DebuggableEditor.hh"
 
+#include "DebuggableBitmapViewer.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiDebugger.hh"
 #include "ImGuiManager.hh"
@@ -803,6 +804,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::Separator();
 		if (ImGui::MenuItem("Export...")) {
 			showExportWindow = true;
+		}
+		if (ImGui::MenuItem("Open bitmap viewer...")) {
+			debugger->openBitmapViewer(getDebuggableName()).setOffset(currentAddr);
 		}
 	});
 	im::Popup("NotFound", [&]{

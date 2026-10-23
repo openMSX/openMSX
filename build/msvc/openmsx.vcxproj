@@ -494,6 +494,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\BitmapDecoder.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\BitmapDecoderSettings.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\DebuggableBitmapViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\FileListWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.cc" />
@@ -1120,6 +1121,7 @@
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\BitmapDecoder.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\BitmapDecoderSettings.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\DebuggableBitmapViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\FileListWidget.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.hh" />

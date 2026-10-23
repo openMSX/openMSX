@@ -15,6 +15,7 @@
 
 namespace openmsx {
 
+class DebuggableBitmapViewer;
 class DebuggableEditor;
 class Debugger;
 class ImGuiBitmapViewer;
@@ -51,6 +52,7 @@ public:
 	void signalContinue();
 	void signalQuit();
 	void setGotoTarget(uint16_t target);
+	DebuggableBitmapViewer& openBitmapViewer(std::string_view debuggableName);
 	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard,
 	                    ImGuiDisassembly* disassembly);
 
@@ -83,6 +85,7 @@ private:
 	std::vector<std::unique_ptr<ImGuiCharacter>> tileViewers;
 	std::vector<std::unique_ptr<ImGuiSpriteViewer>> spriteViewers;
 	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
+	std::vector<std::unique_ptr<DebuggableBitmapViewer>> debuggableBitmapViewers; // sorted on 'getDebuggableName()'
 
 	std::optional<SlotInfo> slotSnapshot;
 	std::optional<CPURegs> cpuRegsSnapshot;
