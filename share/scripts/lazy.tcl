@@ -77,7 +77,7 @@ register_lazy "_utils.tcl" {
 	file_completion filename_clean get_next_numbered_filename}
 register_lazy "_vdp.tcl" {
 	getcolor setcolor get_screen_mode get_screen_mode_number vdpreg vdpregs
-	v9990regs vpeek vpoke palette vdpvramaddress vdpstatus
+	v9990reg v9990regs vpeek vpoke palette vdpvramaddress vdpstatus
 	get_frame_duration}
 register_lazy "_vdp_access_test.tcl" toggle_vdp_access_test
 register_lazy "_vdp_busy.tcl" toggle_vdp_busy
