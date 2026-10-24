@@ -73,6 +73,7 @@
 					<li><a class="internal" href="#beeride">5.4.2 Beer IDE</a></li>
 					<li><a class="internal" href="#scsi">5.4.3 SCSI devices</a></li>
 					<li><a class="internal" href="#sd">5.4.4 MegaFlashROM SCC+ SD</a></li>
+					<li><a class="internal" href="#sdmapperv1">5.4.5 SD Mapper v1</a></li>
 				</ol>
 			</li>
 
@@ -962,7 +963,8 @@ with openMSX. There is no specific support for this.
 <p>
 openMSX has a special command to perform file imports and
 exports, with support for normal disk images, Sunrise IDE harddisk images with partitions (FAT12
-only), and Nextor harddisk images with partitions (FAT12 and FAT16).
+only), and Nextor harddisk images with partitions (FAT12 and FAT16). Besides
+IDE harddisks, this also works for SCSI harddisks and SD cards.
 <p>
 <p>
 In the GUI, you can find this tool under <span class="menu-reference">Main menu
@@ -1067,7 +1069,7 @@ only save to new cassette images in WAV format.
 The Sunrise IDE interface was the first one to be emulated in openMSX, so by now it's thoroughly supported.
 Later support for two types of SCSI interfaces was added:
 the Gouda/Novaxis SCSI interface and the MEGA-SCSI, followed by support for
-the MegaFlashROM SCC+ SD, the Carnivore 2, and the Beer IDE interfaces. Not all harddisk management tools may support these newer mass storage devices.
+the MegaFlashROM SCC+ SD, the Carnivore 2, the Beer IDE and the SD Mapper v1 interfaces. Not all harddisk management tools may support these newer mass storage devices.
 </p>
 
 <p>
@@ -1281,8 +1283,7 @@ href="https://web.archive.org/web/20200315110709/http://members.chello.nl/m.delo
 <h4><a id="sd">5.4.4 MegaFlashROM SCC+ SD</a></h4>
 
 <p>
-Currently there is only one SD interface emulated: the MegaFlashROM SCC+ SD.
-All features of this cartridge are emulated in the sense that all software currently
+All features of the MegaFlashROM SCC+ SD are emulated in the sense that all software currently
 working with it, runs on openMSX too. It is not emulated accurately
 enough to rely on it for development.
 </p>
@@ -1333,6 +1334,32 @@ href="diskmanipulator.html">diskmanipulator</a></code> with the
 <code>-nextor</code> option to partition and to import files, similar to what
 is explained above <a class="internal" href="#ide">in the Sunrise IDE
 section</a>.
+</p>
+
+<h4><a id="sdmapperv1">5.4.5 SD Mapper v1</a></h4>
+
+<p>
+The SD Mapper v1 by Fabio Belavenuto is a cartridge with two SD card slots,
+128kB of flash ROM (normally containing a Nextor driver) and 512kB of RAM,
+that can be used as memory mapper or as MegaRAM.
+</p>
+
+<p>
+Like with the MegaFlashROM SCC+ SD, the initial content of the flash ROM is
+loaded from a ROM file in your systemroms folder (<code>sdmapper.rom</code>,
+with driver 1.0.7 and Nextor 2.1.2), but only if there is no persistent file
+for the flash ROM yet. Without it, the flash ROM starts empty.
+</p>
+
+<p>
+The SD card slots appear as "Hard Disk A/B", so you can use the <a
+class="external" href="commands.html#hd">hda/hdb</a> commands and the
+<code>-hda</code> and <code>-hdb</code> command-line parameters to select the
+images. By default, both SD cards are 32MB in size, which you can change by
+editing <code>share/extensions/SD_Mapper_v1.xml</code>. To get files on the SD
+cards, you can use <code><a class="external"
+href="diskmanipulator.html">diskmanipulator</a></code> with the
+<code>-nextor</code> option, just like for the MegaFlashROM SCC+ SD.
 </p>
 
 <h3><a id="laserdisc">5.5 Running Laserdisc software</a></h3>
