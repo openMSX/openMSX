@@ -1551,7 +1551,10 @@ bar &rarr; Settings &rarr; Input &rarr; Keyboard mapping mode</span>.
 <p>
 If you have a controller or joystick connected to your PC, you can map its
 input to one of the emulated MSX joystick (like) devices, internally called <code>msxjoystick1</code>,
-<code>msxjoystick2</code>, <code>joymega1</code> and <code>joymega2</code>.
+<code>msxjoystick2</code>, <code>joymega1</code>, <code>joymega2</code>,
+<code>joyhandle1</code> and <code>joyhandle2</code> (the Panasonic FS-JH1 Joy
+Handle). On ColecoVision machines, there are also the ColecoVision controllers
+<code>colecojoystick1</code> and <code>colecojoystick2</code>.
 </p>
 
 <p>
@@ -1561,12 +1564,13 @@ devices</a> on how to connect these devices to your emulated machine.
 
 <p>
 The mapping of your host devices (host controllers, joysticks or keyboard) to
-these 4 emulated MSX joysticks is fully configurable. The easiest way is to use
+these emulated joysticks is fully configurable. The easiest way is to use
 the GUI menu for that under <span class="menu-reference">Main menu bar &rarr;
 Settings &rarr; Input &rarr; Configure MSX joysticks</span>. You can also do it
 in the console with the  <a class="external"
 href="commands.html#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a>
-settings.
+settings (and similarly <code>joyhandle&lt;n&gt;_config</code> and
+<code>colecojoystick&lt;n&gt;_config</code>).
 </p>
 
 <p>
