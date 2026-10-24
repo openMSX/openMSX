@@ -410,7 +410,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 
 			// Character Set dropdown
 			static constexpr std::array charSetNames = { // must be in sync with Plotter
-				"International", "Japanese", "DIN (German)"
+				"International", "DIN (German)"
 			};
 			auto currentCharSet = int(plotter->getCharacterSet());
 			if (ImGui::Combo("Character set", &currentCharSet, charSetNames.data(), int(charSetNames.size()))) {
