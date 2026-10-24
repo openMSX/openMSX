@@ -3458,7 +3458,7 @@ current MSX model can be:</p>
 
   <h3><a id="cputrace">cputrace</a></h3>
 
-  <p>Enable/disable CPU instruction tracing. When enabled, the state of the CPU (Z80/R800) is printed on stdout after every instruction. This creates a lot of output and slows down emulation considerably, but it can be very useful for debugging.</p>
+  <p>Enable/disable CPU instruction tracing. When enabled, for every instruction the address, the disassembled instruction and the CPU (Z80/R800) registers are printed on stderr. The register values are the ones from before that instruction is executed. This creates a lot of output and slows down emulation considerably, but it can be very useful for debugging.</p>
 
   <div class="subsectiontitle">
     usage:
