@@ -243,11 +243,6 @@ public:
 	         DeviceConfig& config, std::string_view id = {});
 	~AmdFlash();
 
-	// Developer restore: refresh only sectors never programmed/erased by the guest.
-	[[nodiscard]] size_t refreshUnmodified(const Rom& rom);
-	// Drop pending disk writes when discarding a failed, inactive developer restore.
-	void discardPendingPersistence();
-
 	void reset();
 	/**
 	 * Setting the Vpp/WP# pin LOW enables a certain kind of write
@@ -308,7 +303,7 @@ private:
 	bool loadSerializedPersistent(const std::string& path);
 	bool loadLegacyPersistent(File& file, const std::string& path);
 	void validateModifiedSectors() const;
-	void savePersistent();
+	bool savePersistent();
 	void schedulePersistentSave();
 	void markModified(const Sector& sector);
 
@@ -353,6 +348,7 @@ private:
 	std::vector<Sector> sectors;
 	std::vector<uint8_t> modifiedSectors;
 	bool persistenceDirty = false;
+	bool persistenceSaveFailed = false;
 	// A complete persistent image supplies initial contents if no ROM is available.
 	bool persistentFullImage = false;
 	std::vector<AddressValue> cmd;
@@ -429,7 +425,8 @@ private:
 		explicit PersistentSync(RTScheduler& scheduler) : RTSchedulable(scheduler) {}
 		void executeRT() override {
 			auto& outer = OUTER(AmdFlash, persistentSync);
-			outer.savePersistent();
+			// A temporary write failure must not require another guest write.
+			if (!outer.savePersistent()) scheduleRT(5000000);
 		}
 	};
 	PersistentSync persistentSync;

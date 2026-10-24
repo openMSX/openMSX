@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
-"""Exercise host-side ROM replacement while openMSX holds an inserted cartridge.
-
-Windows regression for issue #955; uses synthetic ROMs and disposable profiles.
-No user ROM or save file is changed. Retains test artifacts under derived/.
-"""
-import argparse
+"""Shared helpers for isolated emulator regression tests."""
 import base64
-import gzip
 import hashlib
 import json
 import os
@@ -14,7 +8,6 @@ import re
 from pathlib import Path
 import shutil
 import subprocess
-import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -94,7 +87,7 @@ after realtime 0.01 poll_test
         env = dict(os.environ, OPENMSX_HOME=str(out / 'home'), OPENMSX_USER_DATA=str(user),
                    OPENMSX_SYSTEM_DATA=str(ROOT / 'share'), ROM_TEST_DIR=str(out),
                    SDL_VIDEODRIVER='dummy', SDL_AUDIODRIVER='dummy')
-        args = [str(exe), '-machine', 'Philips_NMS_8250', '-cart', str(rom), '-romtype', mapper]
+        args = [str(exe), '-machine', test_machine(user, firmware), '-cart', str(rom), '-romtype', mapper]
         if ips:
             args += ['-ips', str(ips)]
         args += ['-script', str(script)]
@@ -160,97 +153,63 @@ after realtime 0.01 poll_test
             (self.out / 'commands.json').write_text(json.dumps(self.log, indent=2), encoding='utf-8')
 
 
-def run_case(exe, out, firmware, mapper, compressed=False, patch=False, baseline=False):
-    out.mkdir()
-    rom = out / ('development.rom.gz' if compressed else 'development.rom')
-    raw = image(0x11)
-    encode = (lambda b: gzip.compress(b, mtime=0)) if compressed else (lambda b: b)
-    rom.write_bytes(encode(raw))
-    patched = bytearray(raw)
-    ips = None
-    marker = 0x11
-    if patch:
-        ips = out / 'development.ips'
-        # One IPS byte, same file size. The original SHA1 must stay unpatched.
-        ips.write_bytes(b'PATCH' + b'\x00\x10\x00\x00\x01\x33' + b'EOF')
-        patched[0x1000] = marker = 0x33
-    emulator = Emulator(exe, out, firmware, rom, mapper, ips)
-    events = []
-    try:
-        emulator.expect(marker, raw, bytes(patched))
-        if baseline:
-            try:
-                rom.write_bytes(encode(image(0x22)))
-            except OSError as error:
-                events.append(f'Expected baseline failure: {error}')
-            else:
-                raise AssertionError('Baseline unexpectedly allowed truncating the loaded ROM')
-            return events
 
-        # An ordinary save-state roundtrip must retain the image and ROM hashes.
-        state = out / 'before.oms'
-        emulator.command('store_machine [machine] ' + tcl_path(state))
-        emulator.command('set old [machine]; set new [restore_machine ' + tcl_path(state) + ']; delete_machine $old; activate_machine $new')
-        emulator.expect(marker, raw, bytes(patched))
-        events.append('save-state restore and original/patched hashes')
-
-        # Existing build tools use different write/replace strategies.
-        for operation in ('overwrite', 'truncate', 'replace', 'rename', 'delete'):
-            fresh = image(0x22)
-            if operation == 'overwrite':
-                with rom.open('r+b') as stream:
-                    stream.write(encode(fresh))
-            elif operation == 'truncate':
-                rom.write_bytes(encode(image(0x22, 0x8000)))
-            elif operation == 'replace':
-                temporary = out / 'replacement.tmp'
-                temporary.write_bytes(encode(fresh))
-                os.replace(temporary, rom)
-            elif operation == 'rename':
-                renamed = out / 'renamed.tmp'
-                rom.rename(renamed)
-                renamed.rename(rom)
-            else:
-                rom.unlink()
-                emulator.expect(marker, raw, bytes(patched))
-                rom.write_bytes(encode(fresh))
-            emulator.expect(marker, raw, bytes(patched))
-            events.append(operation + ': host write succeeds; running snapshot and hashes unchanged')
-
-        # The existing SHA1 file pool caches whole-second mtimes. Ensure the
-        # replacement is distinguishable even when this test completes rapidly.
-        stamp = rom.stat()
-        os.utime(rom, (stamp.st_atime, stamp.st_mtime + 2))
-
-        # Insert the new file without the IPS; no emulator restart required.
-        emulator.command('carta eject')
-        emulator.command('carta ' + tcl_path(rom) + ' -romtype ' + mapper)
-        emulator.command('reset')
-        emulator.advance(3)
-        emulator.expect(0x22, image(0x22))
-        events.append('reinsertion loads the rebuilt image and new hashes')
-        return events
-    finally:
-        emulator.close()
+def fixture_path(root, path):
+    """Reject writes outside the fresh fixture directory, including symlinks."""
+    root = Path(root).resolve(strict=True)
+    path = Path(path)
+    resolved = path.resolve()
+    if resolved == root or not resolved.is_relative_to(root):
+        raise ValueError('Fixture path escapes the isolated test directory')
+    # Reject even in-root symlink aliases: each fixture has one owned pathname.
+    for entry in (path, *path.parents):
+        if entry.is_symlink() or (hasattr(entry, 'is_junction') and entry.is_junction()):
+            raise ValueError('Fixture paths must not contain symlinks or junctions')
+        if entry == root:
+            break
+    return resolved
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--openmsx', type=executable_path, default=ROOT / 'derived/x64-VC-Release/install/openmsx.exe')
-    parser.add_argument('--firmware-dir', type=Path, required=True)
-    parser.add_argument('--baseline', action='store_true')
-    args = parser.parse_args()
-    out = Path(tempfile.mkdtemp(prefix='rom-replacement-', dir=ROOT / 'derived'))
-    reports = {}
-    cases = [('ascii16', 'ASCII16', False, False), ('asciix16', 'ASCII16-X', False, False)]
-    if not args.baseline:
-        cases += [('gzip', 'ASCII16', True, False), ('ips', 'ASCII16', False, True)]
-    for name, mapper, compressed, patch in cases:
-        reports[name] = run_case(args.openmsx, out / name, args.firmware_dir, mapper, compressed, patch, args.baseline)
-        print('PASS', name, *reports[name], sep='\n  ', flush=True)
-    (out / 'results.json').write_text(json.dumps(reports, indent=2) + '\n')
-    print('Artifacts:', out)
+def write_fixture(root, path, data):
+    """Write only an explicitly validated file under a disposable profile."""
+    destination = fixture_path(root, path)
+    with destination.open('wb') as stream:
+        stream.write(data)
 
 
-if __name__ == '__main__':
-    main()
+def synthetic_firmware(directory):
+    """Minimal original boot code, not an MSX BIOS or a commercial ROM.
+
+    Configure the 8250 PPI, RAM subslot and mapper, then enter the synthetic
+    cartridge at 4020h. Persistence tests need no BIOS services or interrupts.
+    """
+    directory.mkdir(parents=True)
+    boot = bytes.fromhex(
+        'f3 3e 82 d3 ab 3e c0 d3 a8 3e aa 32 ff ff '
+        '3e 03 d3 fc 3e 02 d3 fd 3e 01 d3 fe af d3 ff '
+        '3e d4 d3 a8 31 00 f0 c3 20 40')
+    (directory/'nms8250_basic-bios2.rom').write_bytes(boot.ljust(0x8000, b'\xff'))
+    (directory/'nms8250_msx2sub.rom').write_bytes(b'\xff' * 0x4000)
+    (directory/'nms8250_disk.rom').write_bytes(b'\xff' * 0x4000)
+    (directory/'synthetic-boot.txt').write_text('Original minimal boot code for Flash tests.\n')
+    return directory
+
+
+def test_machine(user, firmware):
+    if not (firmware/'synthetic-boot.txt').exists():
+        return 'Philips_NMS_8250'
+    import xml.etree.ElementTree as ET
+    config = ET.parse(ROOT/'share/machines/Philips_NMS_8250.xml')
+    for rom in config.iter('rom'):
+        for checksum in list(rom.findall('sha1')):
+            rom.remove(checksum)
+        filename = rom.find('filename')
+        filename.text = (user/'systemroms'/filename.text).resolve().as_posix()
+    description = config.find('info/description')
+    description.text = 'Synthetic Flash test machine; no BIOS services'
+    machines = user/'machines'
+    machines.mkdir(exist_ok=True)
+    (machines/'Flash_Test.xml').write_bytes(
+        b'<?xml version="1.0"?>\n<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">\n' +
+        ET.tostring(config.getroot()))
+    return 'Flash_Test'

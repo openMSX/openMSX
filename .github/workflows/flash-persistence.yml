@@ -1,0 +1,68 @@
+name: Flash persistence regressions
+
+on:
+  push:
+    branches:
+      - codex/flash-save-development
+      - codex/developer-state-restore
+  pull_request:
+    paths:
+      - 'src/memory/AmdFlash.*'
+      - 'src/file/FileContext.*'
+      - 'src/file/FileOperations.*'
+      - 'Contrib/flash-*'
+      - 'Contrib/rom-test-utils.py'
+      - 'Contrib/rom-harness-validation-test.py'
+      - '.github/workflows/flash-persistence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  persistence:
+    name: Flash persistence (${{ matrix.os }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            os: linux
+            cpu: x86_64
+            flavour: super-opt
+          - runner: macos-15
+            os: darwin
+            cpu: aarch64
+            flavour: opt
+          - runner: windows-latest
+            os: windows-vc
+            cpu: x64
+            flavour: opt
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Build native emulator
+        uses: ./.github/actions/build
+        with:
+          os: ${{ matrix.os }}
+          cpu: ${{ matrix.cpu }}
+          flavour: ${{ matrix.flavour }}
+      - name: Test persistence without external firmware
+        shell: bash
+        run: python Contrib/flash-ci-test.py
+      - name: Retain diagnostic fixtures
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: flash-persistence-${{ matrix.os }}
+          path: |
+            derived/flash-regression-*
+            derived/flash-lifecycle-*
+            derived/flash-device-*
+          if-no-files-found: ignore

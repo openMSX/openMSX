@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """End-to-end Flash persistence checks with synthetic ROMs and isolated profiles.
 
-Run from any directory. Requires Python 3 and locally available Philips NMS8250
-firmware; no commercial game is used. Files are retained in a new derived folder.
+Run from any directory. Requires Python 3 and either synthetic boot code or
+locally supplied Philips NMS8250 firmware. Artifacts remain in a fresh derived folder.
 """
 import argparse
 import base64
@@ -22,8 +22,9 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 MAGIC = b'OMSXFLS\x01'
 SIZES = [0x2000] * 8 + [0x10000] * 127
-helpers = runpy.run_path(str(ROOT / 'Contrib/rom-replacement-test.py'))
-executable_path, tcl_path = (helpers[n] for n in ('executable_path', 'tcl_path'))
+helpers = runpy.run_path(str(ROOT / 'Contrib/rom-test-utils.py'))
+executable_path, tcl_path, write_fixture, synthetic_firmware, test_machine = (helpers[n] for n in
+    ('executable_path', 'tcl_path', 'write_fixture', 'synthetic_firmware', 'test_machine'))
 PENDING_STATE = 'pending.oms'
 MARKER, SAVE, SECOND = 0x1000, 0x20100, 0x30100
 
@@ -84,12 +85,12 @@ def sparse_fixture(sectors):
     return payload + struct.pack('<I', zlib.crc32(payload))
 
 
-def check_corrupt_files(flash: Path, run):
+def check_corrupt_files(flash: Path, run, profile):
     good = flash.read_bytes()
     assert decode_flash(flash) == {}
     content = bytes(image(0x11)).ljust(0x800000, b'\xff')
     fixture = encode_document(flash_document(content))
-    flash.write_bytes(fixture)
+    write_fixture(profile, flash, fixture)
     run('independent-full-image', [('expect', MARKER, 0x33), ('expect', SAVE, 0x88)])
     # The unmodified marker in the old full image must not hide the current ROM.
     assert flash.read_bytes() == fixture
@@ -111,15 +112,14 @@ def check_corrupt_files(flash: Path, run):
         variants.append((name, encode_document(document)))
     # An older valid save must never conceal a corrupt/incompatible new one.
     old_sparse = Path(str(flash).removesuffix('.flash') + '.sparse')
-    old_sparse.write_bytes(sparse_fixture({}))
+    write_fixture(profile, old_sparse, sparse_fixture({}))
     for name, bad in variants:
-        flash.write_bytes(bad)
+        write_fixture(profile, flash, bad)
         run(name, [], expect_error=True)
         assert flash.read_bytes() == bad
         assert old_sparse.read_bytes() == sparse_fixture({})
     old_sparse.unlink()
-    with flash.open('wb') as restored:
-        restored.write(good)
+    write_fixture(profile, flash, good)
     run('valid-after-corrupt', [('expect', MARKER, 0x33)])
     if os.name == 'nt':
         existing = set(flash.parent.iterdir())
@@ -133,16 +133,16 @@ def check_corrupt_files(flash: Path, run):
         run('after-replace-failure', [('expect', SECOND, 0xff)])
 
 
-def check_sparse_migration(flash: Path, run, marker):
+def check_sparse_migration(flash: Path, run, marker, profile):
     old_sparse = Path(str(flash).removesuffix('.flash') + '.sparse')
     # Erased sectors must retain their modification history, not just written data.
     raw = sparse_fixture({9: b'\xff' * 0x10000})
     flash.unlink()
     bad = raw[:-1] + bytes([raw[-1] ^ 1])
-    old_sparse.write_bytes(bad)
+    write_fixture(profile, old_sparse, bad)
     run('sparse-corrupt', [], expect_error=True)
     assert old_sparse.read_bytes() == bad and not flash.exists()
-    old_sparse.write_bytes(raw)
+    write_fixture(profile, old_sparse, raw)
     run('sparse-load', [('expect', MARKER, marker), ('expect', SAVE, 0xff)])
     assert not flash.exists() and old_sparse.read_bytes() == raw
     run('sparse-migrate', [('program', SECOND, 0xe0), ('expect', SECOND, 0xe0)])
@@ -155,7 +155,10 @@ def check_sparse_migration(flash: Path, run, marker):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--openmsx', type=executable_path, default=ROOT/'derived/x64-VC-Release/install/openmsx.exe')
-    parser.add_argument('--firmware-dir', type=Path, required=True)
+    firmware_source = parser.add_mutually_exclusive_group(required=True)
+    firmware_source.add_argument('--firmware-dir', type=Path)
+    firmware_source.add_argument('--synthetic-firmware', action='store_true',
+                                 help='Use original minimal boot code; no external firmware needed')
     parser.add_argument('--baseline', action='store_true', help='Confirm the old whole-image persistence bug')
     parser.add_argument('--ram-routines', type=Path, help='Assembled flash-persistence-ram.asm, loaded at C200h')
     parser.add_argument('--legacy-fixtures', type=Path, help='Artifact directory from a --baseline run')
@@ -165,8 +168,10 @@ def main():
     user = profile/'share'
     firmware = user/'systemroms'
     firmware.mkdir(parents=True)
+    firmware_source = synthetic_firmware(out/'synthetic-firmware') if args.synthetic_firmware else args.firmware_dir
     for name in ('nms8250_basic-bios2.rom','nms8250_msx2sub.rom','nms8250_disk.rom'):
-        shutil.copy2(args.firmware_dir/name, firmware/name)
+        shutil.copy2(firmware_source/name, firmware/name)
+    machine = test_machine(user, firmware_source)
     rom = out/'probe.rom'
     persistent = profile/'persistent/roms/probe.rom/probe.rom.SRAM'
     flash = Path(str(persistent)+'.flash')
@@ -184,7 +189,7 @@ def main():
                    OPENMSX_SYSTEM_DATA=str(ROOT/'share'), SDL_VIDEODRIVER='dummy', SDL_AUDIODRIVER='dummy',
                    FLASH_PLAN=str(plan), FLASH_RESULT=str(result),
                    FLASH_RAM_ROUTINES=str(args.ram_routines.resolve()) if args.ram_routines else '')
-        process = subprocess.run([str(args.openmsx.resolve()), '-machine','Philips_NMS_8250',
+        process = subprocess.run([str(args.openmsx.resolve()), '-machine',machine,
                     '-cart',str(rom),'-romtype','ASCII16-X','-script',str(Path(__file__).with_suffix('.tcl'))],
                     shell=False, env=env, capture_output=True, text=True, timeout=60,
                     creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
@@ -222,7 +227,7 @@ def main():
     run('restore-clean', [('load',before),('expect',SAVE,0xff)])
     assert decode_flash(flash) == {}
     run('restart-clean', [('expect',MARKER,0x33),('expect',SAVE,0x88)])
-    check_corrupt_files(flash, run)
+    check_corrupt_files(flash, run, profile)
     if args.ram_routines:
         # CPU executes the supplied routines from RAM, including status polling.
         # Map commands in page 1, data in page 2, code/source/stack in page 3.
@@ -246,7 +251,7 @@ def main():
                                 ('ram-status-byte',0xf0)])
         run('ram-dq7-success', [('ram-status',0x20,0x20), ('ram-result',0),
                                 ('ram-status-byte',0x20)])
-    check_sparse_migration(flash, run, 0x44 if args.ram_routines else 0x33)
+    check_sparse_migration(flash, run, 0x44 if args.ram_routines else 0x33, profile)
     if args.legacy_fixtures:
         legacy=args.legacy_fixtures.resolve()
         flash.unlink()

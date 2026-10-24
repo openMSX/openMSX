@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-helpers = runpy.run_path(str(ROOT / 'Contrib/rom-replacement-test.py'))
+helpers = runpy.run_path(str(ROOT / 'Contrib/rom-test-utils.py'))
 formats = runpy.run_path(str(ROOT / 'Contrib/flash-persistence-test.py'))
 Emulator, tcl_path, image = (helpers[n] for n in ('Emulator', 'tcl_path', 'image'))
 
@@ -61,9 +61,12 @@ def check_protected_sectors(emu, out):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--openmsx', type=helpers['executable_path'], required=True)
-    parser.add_argument('--firmware-dir', type=Path, required=True)
+    firmware_source = parser.add_mutually_exclusive_group(required=True)
+    firmware_source.add_argument('--firmware-dir', type=Path)
+    firmware_source.add_argument('--synthetic-firmware', action='store_true')
     args = parser.parse_args()
     out = Path(tempfile.mkdtemp(prefix='flash-device-', dir=ROOT / 'derived'))
+    firmware = helpers['synthetic_firmware'](out/'synthetic-firmware') if args.synthetic_firmware else args.firmware_dir
     rom = out / 'bootstrap.rom'
     rom.write_bytes(image(0x11))
     flash = out / 'explicit.flash'
@@ -91,7 +94,7 @@ def main():
         extension.write_bytes(b'<?xml version="1.0"?>\n<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">\n' + ET.tostring(config))
 
     save_config()
-    emu = Emulator(args.openmsx, out, args.firmware_dir, rom, 'ASCII16')
+    emu = Emulator(args.openmsx, out, firmware, rom, 'ASCII16')
     reports = []
     try:
         emu.command('set power off; carta eject')
