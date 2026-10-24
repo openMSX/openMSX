@@ -24,7 +24,7 @@
 //   * verbatim variable payload ................................. appended
 //     separately (NOT a struct member).
 //
-// Protocol v2 framing (see unapinet/protocol-v2.md): every reply begins with
+// Protocol v2 framing (see network/protocol-v2.md): every reply begins with
 // a status byte, 0x00 = success, anything else a single-byte error reply.
 // Each result struct therefore carries 'uint8_t status = 0;' as its first
 // member - the correct value is baked into the type, so 'T{}' already is a

@@ -88,6 +88,20 @@ public:
 
 	[[nodiscard]] gl::ivec2 getWindowSize() const;
 
+	/** While there are requests, the host mouse cursor is shown as a
+	  * crosshair (also in fullscreen/grab mode), e.g. while a light gun is
+	  * plugged in. Every request must be released again. */
+	void requestCrosshairCursor();
+	void releaseCrosshairCursor();
+	[[nodiscard]] bool isCrosshairCursorRequested() const { return crosshairRequests > 0; }
+
+	/** While there are requests, frames are rendered even when frameskip
+	  * doesn't show them, e.g. a light gun looks at the frame being drawn.
+	  * Every request must be released again. */
+	void requestRenderAllFrames();
+	void releaseRenderAllFrames();
+	[[nodiscard]] bool isRenderAllFramesRequested() const { return renderAllFramesRequests > 0; }
+
 	// Get the latest fps value
 	[[nodiscard]] float getFps() const;
 
@@ -114,6 +128,8 @@ private:
 private:
 	Layers layers; // sorted on z
 	std::unique_ptr<VideoSystem> videoSystem;
+	int crosshairRequests = 0;
+	int renderAllFramesRequests = 0;
 
 	std::vector<VideoSystemChangeListener*> listeners; // unordered
 

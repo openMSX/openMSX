@@ -3,7 +3,9 @@
 
 #include "xrange.hh"
 
+#include <array>
 #include <memory>
+#include <span>
 #include <vector>
 
 using namespace std;
@@ -137,4 +139,20 @@ TEST_CASE("cb_queue, move-only") {
 	q.push_back(make_unique<int>(2)); check_queue(q, 4, {1,2});
 	CHECK(*q.pop_front() == 1);       check_queue(q, 4, {2});
 	q.clear();                        check_queue(q, 4, {});
+}
+
+TEST_CASE("cb_queue, push_back_range") {
+	cb_queue<int> q;                           check_queue(q, 0, {});
+	const array<int, 4> a = {1, 2, 3, 4};
+	q.push_back_range(a);                      check_queue(q, 4, {1,2,3,4});
+	// One growth step for the whole range: size 4 + 6 => need 10 => capacity
+	// becomes exactly 10 (repeated push_back would have doubled to 16).
+	const array<int, 6> b = {5, 6, 7, 8, 9, 10};
+	q.push_back_range(b);                      check_queue(q, 10, {1,2,3,4,5,6,7,8,9,10});
+	// An empty range is a no-op.
+	q.push_back_range(span<const int>{});      check_queue(q, 10, {1,2,3,4,5,6,7,8,9,10});
+	CHECK(q.pop_front() == 1);                 check_queue(q, 10, {2,3,4,5,6,7,8,9,10});
+	// Wrap-around + growth: size 9 + 2 => need 11 => capacity 20.
+	const vector<int> c = {11, 12};
+	q.push_back_range(c);                      check_queue(q, 20, {2,3,4,5,6,7,8,9,10,11,12});
 }

@@ -12,11 +12,8 @@
 
 #include "AY8910Periphery.hh"
 #include "DeviceConfig.hh"
-#include "GlobalSettings.hh"
-#include "MSXException.hh"
 
 #include "Math.hh"
-#include "StringOp.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -31,15 +28,6 @@
 #include <iostream>
 
 namespace openmsx {
-
-// The step clock for the tone and noise generators is the chip clock
-// divided by 8; for the envelope generator of the AY-3-8910, it is half
-// that much (clock/16).
-static constexpr float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
-static constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
-
-static constexpr int PORT_A_DIRECTION = 0x40;
-static constexpr int PORT_B_DIRECTION = 0x80;
 
 static constexpr uint8_t AY_AFINE    =  0;
 static constexpr uint8_t AY_ACOARSE  =  1;
@@ -134,8 +122,8 @@ inline void AY8910::Generator::setPeriod(int value)
 	// important difference when the program is rapidly changing the period to
 	// modulate the sound.
 	// Also, note that period = 0 is the same as period = 1. This is mentioned
-	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
-	// period. In that case, period = 0 is half as period = 1.
+	// in the YM2203 data sheets. The envelope period behaves the same way
+	// (measured on a YM2149; assumed for the AY-3-8910).
 	period = std::max(1, value);
 	count = std::min(count, period - 1);
 }
@@ -172,7 +160,7 @@ int AY8910::ToneGenerator::getDetune(const AY8910& ay8910)
 	if (float vibPerc = ay8910.vibratoPercent.getFloat();
 	    vibPerc != 0.0f) {
 		auto vibratoPeriod = int(
-			NATIVE_FREQ_FLOAT /
+			ay8910.outputFreq /
 			ay8910.vibratoFrequency.getFloat());
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
@@ -182,7 +170,7 @@ int AY8910::ToneGenerator::getDetune(const AY8910& ay8910)
 	}
 	if (float detunePerc = ay8910.detunePercent.getFloat();
 	    detunePerc != 0.0f) {
-		float detunePeriod = NATIVE_FREQ_FLOAT /
+		float detunePeriod = ay8910.outputFreq /
 			ay8910.detuneFrequency.getFloat();
 		detuneCount += period;
 		float noiseIdx = narrow_cast<float>(detuneCount) / detunePeriod;
@@ -293,20 +281,8 @@ inline void AY8910::NoiseGenerator::advance(unsigned duration)
 
 // Amplitude:
 
-static bool checkAY8910(const DeviceConfig& config)
-{
-	auto type = config.getChildData("type", "ay8910");
-	StringOp::casecmp cmp;
-	if (cmp(type, "ay8910")) {
-		return true;
-	} else if (cmp(type, "ym2149")) {
-		return false;
-	}
-	throw FatalError("Unknown PSG type: ", type);
-}
-
-AY8910::Amplitude::Amplitude(const DeviceConfig& config)
-	: isAY8910(checkAY8910(config))
+AY8910::Amplitude::Amplitude(Type type)
+	: isAY8910(type == Type::AY8910)
 	, envVolTable(isAY8910 ? AY8910EnvelopeTab : YM2149EnvelopeTab)
 {
 	vol[0] = vol[1] = vol[2] = 0.0f;
@@ -368,9 +344,12 @@ inline void AY8910::Envelope::reset()
 
 inline void AY8910::Envelope::setPeriod(int value)
 {
-	// twice as fast as AY8910
-	//  see also Generator::setPeriod()
-	period = std::max(1, 2 * value);
+	// Stored in half-steps: each output sample adds 2, so one index step
+	// takes 'value' samples. Register 0 is the same as register 1.
+	// Measured on a YM2149; assumed for the AY-3-8910. The 16-level AY
+	// envelope comes from repeating levels in the table, not from this
+	// counter.
+	period = 2 * std::max(1, value);
 	count = std::min(count, period - 1);
 }
 
@@ -406,7 +385,11 @@ inline void AY8910::Envelope::setShape(unsigned shape)
 		hold = (shape & 0x01) != 0;
 		alternate = (shape & 0x02) != 0;
 	}
-	count = 0;
+	// The index restarts on the write. The period counter keeps running, so
+	// the next step comes after whatever time is left in the current period.
+	// Measured on YM2149 (Philips NMS8280): rewriting faster than one period
+	// still produces a dip. Assumed the same for AY8910. (ssg_engine and MAME
+	// implement the same behavior).
 	step = 0x1F;
 	holding = false;
 }
@@ -458,7 +441,7 @@ inline void AY8910::Envelope::advance(unsigned duration)
 inline void AY8910::Envelope::doNextEvent()
 {
 	count = 0;
-	doSteps(period == 1 ? 2 : 1);
+	doSteps(1);
 }
 
 inline unsigned AY8910::Envelope::getNextEventTime() const
@@ -477,9 +460,14 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 
 // AY8910 main class:
 
+// The step clock for the tone and noise generators is the chip clock
+// divided by 8; for the envelope generator of the AY-3-8910, it is half
+// that much (clock/16).
+
 AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
-               const DeviceConfig& config, EmuTime time)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, NATIVE_FREQ_INT, false)
+               const DeviceConfig& config, EmuTime time, Type type,
+               float clockFreq)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, std::lrint(clockFreq / 8), false)
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
 	, vibratoPercent(
@@ -494,12 +482,10 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	, detuneFrequency(
 		config.getCommandController(), tmpStrCat(getName(), "_detune_frequency"),
 		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
-	, directionsCallback(
-		config.getGlobalSettings().getInvalidPsgDirectionsSetting())
-	, amplitude(config)
+	, amplitude(type)
 	, envelope(amplitude.getEnvVolTable())
-	, isAY8910(checkAY8910(config))
-	, ignorePortDirections(config.getChildDataAsBool("ignorePortDirections", true))
+	, outputFreq(clockFreq / 8)
+	, isAY8910(type == Type::AY8910)
 {
 	update(vibratoPercent);
 
@@ -512,6 +498,17 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	// only attach once all initialization is successful
 	vibratoPercent.attach(*this);
 	detunePercent .attach(*this);
+}
+
+void AY8910::setClockFrequency(float frequency, EmuTime time)
+{
+	outputFreq = frequency / 8;
+	auto rate = unsigned(std::lrint(outputFreq));
+	if (getInputRate() != rate) {
+		updateStream(time);
+		setInputRate(rate);
+		createResampler();
+	}
 }
 
 AY8910::~AY8910()
@@ -592,15 +589,7 @@ void AY8910::wrtReg(unsigned reg, uint8_t value, EmuTime time)
 {
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
-		if (value & PORT_A_DIRECTION) {
-			directionsCallback.execute();
-		}
-		if (ignorePortDirections)
-		{
-			// portA -> input
-			// portB -> output
-			value = (value & ~PORT_A_DIRECTION) | PORT_B_DIRECTION;
-		}
+		value = periphery.adjustDirectionBits(value);
 	}
 
 	// Note: unused bits are stored as well; they can be read back.

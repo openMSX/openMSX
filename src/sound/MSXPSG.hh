@@ -5,6 +5,7 @@
 #include "AY8910Periphery.hh"
 
 #include "MSXDevice.hh"
+#include "TclCallback.hh"
 #include "serialize_meta.hh"
 
 #include <array>
@@ -34,17 +35,20 @@ private:
 	// AY8910Periphery: port A input, port B output
 	[[nodiscard]] byte readA(EmuTime time) override;
 	void writeB(byte value, EmuTime time) override;
+	uint8_t adjustDirectionBits(uint8_t reg7) override;
 
 private:
 	CassettePortInterface& cassette;
 	RenShaTurbo& renShaTurbo;
 
 	std::array<JoystickPortIf*, 2> ports;
+	TclCallback directionsCallback;
 	int selectedPort = 0;
 	int registerLatch;
 	byte prev = 255;
 	const byte keyLayout; // 0x40 or 0x00
 	const byte addressMask; // controls address mirroring
+	const bool ignorePortDirections;
 	AY8910 ay8910; // must come after initialisation of most stuff above
 };
 SERIALIZE_CLASS_VERSION(MSXPSG, 2);

@@ -8,10 +8,47 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 jobs:
+  prepare-dist:
+    name: Prepare distribution tarball
+    runs-on: ubuntu-latest
+    outputs:
+      tarball_name: ${{ steps.get_dist_name.outputs.tarball_name }}
+      dist_name: ${{ steps.get_dist_name.outputs.dist_name }}
+    steps:
+      - name: Get current master code from Git repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Create tarball
+        shell: bash
+        run: python3 build/gitdist.py ${{ inputs.tag }}
+      - name: Determine tarball name
+        id: get_dist_name
+        shell: bash
+        run: |
+          NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='${{ inputs.tag }}'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
+          echo "tarball_name=$NAME.tar.gz" >> $GITHUB_OUTPUT
+          echo "dist_name=$NAME" >> $GITHUB_OUTPUT
+      - name: Move tarball to root
+        shell: bash
+        run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.get_dist_name.outputs.dist_name }}
+          path: ${{ steps.get_dist_name.outputs.tarball_name }}
+
   build:
     name: ${{ matrix.name }} ${{ matrix.cpu }}
+    needs: prepare-dist
     runs-on: ${{ matrix.image }}
+    outputs:
+      tarball_name: ${{ needs.prepare-dist.outputs.tarball_name }}
+      dist_name: ${{ needs.prepare-dist.outputs.dist_name }}
     strategy:
       fail-fast: false
       matrix:
@@ -59,42 +96,35 @@ jobs:
             os: windows-vc
             flavour: opt
     steps:
-    - name: Get current master code from Git repo
+    - name: Get current master code from Git repo (for the .github folder)
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-    - name: Create tarball
-      shell: bash
-      run: python3 build/gitdist.py ${{ inputs.tag }}
-    - name: Determine tarball name
-      id: get_dist_name
-      shell: bash
-      run: |
-        NAME=`PYTHONPATH=build python3 -c "import gitdist; rel='${{ inputs.tag }}'; print (f'openmsx-{gitdist.niceVersionFromGitDescription(gitdist.getDescription(rel))}')"`
-        echo "tarball_name=$NAME.tar.gz" >> $GITHUB_OUTPUT
-        echo "dist_name=$NAME" >> $GITHUB_OUTPUT
+    - name: Download prepared tarball artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ needs.prepare-dist.outputs.dist_name }}
+        path: dist_artifact
     - name: Move tarball to root
       shell: bash
-      run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
-    - name: Upload tarball as artifact
-      uses: actions/upload-artifact@v6
-      with:
-        name: ${{ matrix.os }}-${{ matrix.cpu }}-${{ matrix.flavour }}_${{ steps.get_dist_name.outputs.tarball_name }}
-        path: ${{ steps.get_dist_name.outputs.tarball_name }}
+      run: |
+        # move the tarball from the downloaded artifact directory to repo root
+        mv dist_artifact/${{ needs.prepare-dist.outputs.tarball_name }} .
+        rmdir dist_artifact
     - name: Remove everything except tarball from root
       shell: bash
       run: |
         shopt -s extglob
-        rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}")
+        rm -rf -v !("${{ needs.prepare-dist.outputs.tarball_name }}")
     - name: Extract tarball
       uses: a7ul/tar-action@v1.2.0
       id: extract
       with:
         command: x
-        files: ${{ steps.get_dist_name.outputs.tarball_name }}
+        files: ${{ needs.prepare-dist.outputs.tarball_name }}
     - name: Move extracted tarball contents to root
       shell: bash
-      run: mv ${{ steps.get_dist_name.outputs.dist_name }}/* .
+      run: mv ${{ needs.prepare-dist.outputs.dist_name }}/* .
     - name: Select Xcode version
       if: ${{ matrix.xcode_version }}
       run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
@@ -127,3 +157,118 @@ jobs:
         os: ${{ matrix.os }}
         cpu: ${{ matrix.cpu }}
         flavour: ${{ matrix.flavour }}
+
+  # Publish release assets as a draft and populate release notes from the tarball.
+  # This job runs after the 'build' job and downloads all per-job artifacts, extracts
+  # doc/release-notes.txt from the tar.gz artifact and uploads all artifacts to the release.
+  publish-release:
+    name: Publish release assets (draft)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all workflow artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Extract release-notes from tarball
+        id: relnotes
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarfile="artifacts/${{ needs.build.outputs.dist_name }}/${{ needs.build.outputs.tarball_name }}"
+          # Release notes are always at doc/release-notes.txt inside the tarball 
+          entry=$(tar -tzf "$tarfile" | grep -i '/doc/release-notes.txt$' | head -n 1)
+          if [ -z "$entry" ]; then
+            echo "No release-notes.txt found inside tarball — aborting"
+            exit 1
+          fi
+          tar -xOzf "$tarfile" "$entry" > release-notes-body.txt
+          echo "body_file=release-notes-body.txt" >> "$GITHUB_OUTPUT"
+
+      - name: Create or get draft release for tag (uses GitHub API)
+        id: get_release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ inputs.tag }}"
+          repo="${GITHUB_REPOSITORY}"
+
+          resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repo}/releases/tags/${TAG}")
+
+          if echo "$resp" | jq -e '.id' >/dev/null 2>&1; then
+            echo "Found existing release for tag ${TAG}"
+            release_id=$(echo "$resp" | jq -r .id)
+            upload_url=$(echo "$resp" | jq -r .upload_url)
+          else
+            echo "Creating draft release for tag ${TAG}"
+            body_json=$(jq -Rs . release-notes-body.txt)
+            create_resp=$(curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+              -d "$(jq -n --arg t "${TAG}" --arg n "Release ${TAG}" --argjson b "$body_json" '{tag_name:$t,name:$n,draft:true,prerelease:false,body:$b}')" \
+              "https://api.github.com/repos/${repo}/releases")
+            release_id=$(echo "$create_resp" | jq -r .id)
+            upload_url=$(echo "$create_resp" | jq -r .upload_url)
+          fi
+
+          if [ -z "$upload_url" ] || [ "$upload_url" = "null" ]; then
+            echo "Could not obtain upload_url for release" >&2
+            echo "$resp" >&2
+            exit 1
+          fi
+
+          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+          echo "upload_url=$upload_url" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifacts to release (delete existing same-name assets first)
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          repo="${GITHUB_REPOSITORY}"
+          release_id="${{ steps.get_release.outputs.release_id }}"
+          upload_url="${{ steps.get_release.outputs.upload_url }}"
+          base_upload_url="${upload_url%\{*}"
+
+          mapfile -t files < <(find artifacts \( -name "*mingw*" -o -name "*proberesults*" \) -prune -o -type f -print)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No artifact files found under artifacts/, nothing to upload."
+            exit 0
+          fi
+
+          echo "Uploading ${#files[@]} files to release id ${release_id}:"
+          assets_json=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repo}/releases/${release_id}/assets" )
+          for f in "${files[@]}"; do
+            name=$(basename "$f")
+            echo "Preparing to upload: $f -> $name"
+
+            existing_id=$(echo "$assets_json" | jq -r --arg NAME "$name" '.[] | select(.name==$NAME) | .id' | head -n1)
+            if [ -n "$existing_id" ] && [ "$existing_id" != "null" ]; then
+              echo "Deleting existing asset id $existing_id with name $name"
+              curl -s -X DELETE -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${repo}/releases/assets/${existing_id}"
+            fi
+
+            encoded_name=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$name")
+            target="${base_upload_url}?name=${encoded_name}"
+            echo "Uploading to $target"
+            curl --fail -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/octet-stream" --data-binary @"${f}" \
+              "${target}"
+            echo "Uploaded $name"
+          done
+
+      - name: Print release URL
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          repo="${GITHUB_REPOSITORY}"
+          release_api=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repo}/releases/${{ steps.get_release.outputs.release_id }}")
+          html_url=$(echo "$release_api" | jq -r .html_url)
+          echo "Draft release available at: $html_url"

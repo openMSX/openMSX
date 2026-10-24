@@ -95,7 +95,33 @@ runs:
         curl -L -o wxcatapult.zip \
           https://github.com/openMSX/wxcatapult/releases/download/wxcatapult-ci-latest/catapult-19.0-8-g7ff2d47-Windows-VC-x64-bin.zip
         unzip -q wxcatapult.zip -d derived/wxcatapult
-    - name: Create ZIP package of VC build
+
+    # Install WiX so we can build the MSI; only for windows-vc runs
+    - name: Install WiX Toolset 3.11
+      if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
+      run: |
+        choco install wixtoolset --version=3.11.2.4516 -y
+        refreshenv
+
+    # Normalize the downloaded Catapult artifact into the legacy layout used
+    # by the packaging scripts (derived/.../install/catapult.exe etc.)
+    - name: Prepare Catapult artifact for packaging
+      if: ${{ inputs.os == 'windows-vc' }}
+      shell: bash
+      run: |
+        # Use the repo-local helper to normalize the wxCatapult artifact
+        py build/package-windows/prepare_catapult.py derived/wxcatapult \
+          build/package-windows/catapult-staging
+
+    # Generate MSI installer only (will use the normalized catapult staging tree)
+    - name: Generate MSI installer (with Catapult)
+      if: ${{ inputs.os == 'windows-vc' }}
+      shell: pwsh
+      run: |
+        cmd /c "build\\package-windows\\package.cmd" x64 release build\\package-windows\\catapult-staging MSIONLY
+
+    - name: Create ZIP package of VC build (without Catapult)
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
@@ -105,36 +131,31 @@ runs:
       run: |
         OPENMSX_VERSION=`python3 build/version.py`
         DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
+        TARGET_BASE=openmsx-${OPENMSX_VERSION}-${{ inputs.os }}-${{ inputs.cpu }}-bin
         if [ "${{ inputs.os }}" = "darwin" ]; then
-          HAS_SINGLE_FILE_OUTPUT=true
           SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
         else
-          HAS_SINGLE_FILE_OUTPUT=false
+          SINGLE_OUTPUT_FILE=${TARGET_BASE}.zip
         fi
         echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
         echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
         echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
-        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "target_file_base=$TARGET_BASE" >> $GITHUB_OUTPUT
         echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
-        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Run unittests
       if: ${{ inputs.flavour == 'unittest' }}
       shell: bash
       run: derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}/bin/openmsx
-    - name: Rename output folder for upload
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
+    - name: Rename output folder and zip it for upload
+      if: ${{ inputs.os != 'windows-vc' && inputs.os != 'darwin' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       shell: bash
       run: |
         cd ${{ steps.openmsx.outputs.derived_path }}/bindist
-        mv install ../${{ steps.openmsx.outputs.target_file }}
-    - name: Upload redistributable zip
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
-      uses: actions/upload-artifact@v6
-      with:
-        name: ${{ steps.openmsx.outputs.target_file }}.zip
-        path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
-    - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
+        mv install ../${{ steps.openmsx.outputs.target_file_base }}
+        cd ..
+        zip -r "${{ steps.openmsx.outputs.single_output_file}}" "${{ steps.openmsx.outputs.target_file_base }}"
+    - name: Upload redistributable ${{ steps.openmsx.outputs.single_output_file}}
+      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
@@ -143,14 +164,20 @@ runs:
       if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       uses: actions/upload-artifact@v6
       with:
-        name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
+        name: ${{ steps.openmsx.outputs.target_file_base }}-proberesults.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/config
     - name: Upload Windows VC redistributable
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v6
       with:
-        name: ${{ steps.openmsx.outputs.target_file }}.zip
+        name: ${{ steps.openmsx.outputs.target_file_base }}.zip
         path: derived\x64-VC-Release\package-windows\*-bin.zip
+    - name: Upload Windows VC MSI redistributable (zip)
+      if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ steps.openmsx.outputs.target_file_base }}-msi.zip
+        path: derived\x64-VC-Release\package-windows\*-msi.zip
     - name: Upload Windows VC debug symbols
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v6

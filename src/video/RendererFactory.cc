@@ -5,6 +5,8 @@
 #include "DummyVideoSystem.hh"
 #include "PixelRenderer.hh"
 #include "SDLVideoSystem.hh"
+#include "SMSVDPDummyRenderer.hh"
+#include "SMSVDPPixelRenderer.hh"
 #include "V9990DummyRenderer.hh"
 #include "V9990PixelRenderer.hh"
 
@@ -53,6 +55,18 @@ std::unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 			return std::make_unique<V9990DummyRenderer>();
 		case RenderSettings::RendererID::SDLGL_PP:
 			return std::make_unique<V9990PixelRenderer>(vdp);
+		default:
+			UNREACHABLE;
+	}
+}
+
+std::unique_ptr<SMSVDPRenderer> createSMSVDPRenderer(SMSVDP& vdp, Display& display)
+{
+	switch (display.getRenderer()) {
+		case RenderSettings::RendererID::DUMMY:
+			return std::make_unique<SMSVDPDummyRenderer>();
+		case RenderSettings::RendererID::SDLGL_PP:
+			return std::make_unique<SMSVDPPixelRenderer>(vdp);
 		default:
 			UNREACHABLE;
 	}

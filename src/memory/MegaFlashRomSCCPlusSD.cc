@@ -274,7 +274,7 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(DeviceConfig& config)
 	, flash("MFR SCC+ SD flash", AmdFlashChip::M29W640GB, {}, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
-	      getCurrentTime())
+	      getCurrentTime(), AY8910::Type::AY8910)
 	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
 		std::make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
 		: nullptr)

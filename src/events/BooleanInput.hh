@@ -137,12 +137,12 @@ using BooleanInput = std::variant<
 
 [[nodiscard]] std::string toString(const BooleanInput& input);
 [[nodiscard]] std::optional<BooleanInput> parseBooleanInput(std::string_view text);
-[[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadZone);
+[[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadThreshold);
 
 [[nodiscard]] bool operator==(const BooleanInput& x, const BooleanInput& y);
 
 [[nodiscard]] std::optional<bool> match(const BooleanInput& binding, const Event& event,
-                                        function_ref<int(JoystickId)> getJoyDeadZone);
+                                        function_ref<int(JoystickId)> getJoyDeadThreshold);
 
 } // namespace openmsx
 

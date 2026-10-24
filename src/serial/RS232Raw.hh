@@ -67,6 +67,10 @@ public:
 	void setParityBit(bool enable, Parity parity) override;
 	void setBaudRate(unsigned baud) override;
 
+	// Whether the host serial port is currently open (the worker thread
+	// retries opening it briefly after plugging; false while it fails).
+	[[nodiscard]] bool isOpen() const { return handle.has_value(); }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

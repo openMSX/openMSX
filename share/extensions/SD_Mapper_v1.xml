@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>SD Mapper v1</name>
+    <manufacturer>Fabio Belavenuto</manufacturer>
+    <code/>
+    <release_year>2014</release_year>
+    <description>128kB flash cartridge with two SD cards and 512kB memory mapper or MegaRAM.</description>
+    <type>SD Mapper v1</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <SdMapperV1 id="SD Mapper v1">
+          <mem base="0x0000" size="0x10000"/>
+          <rom>
+            <!-- sdmapper.rom Driver 1.0.7 Nextor 2.1.2 -->
+            <sha1>26de5eeef26ffb48a233b7844076e341c7f0685f</sha1>
+            <filename>sdmapper.rom</filename>
+          </rom>
+          <!-- Persisted AM29F010 contents. The tag name is the openMSX key, not the 512kB SRAM. -->
+          <sramname>sdmapperv1.flash</sramname>
+          <flashname>sdmapperv1.flash.flash</flashname>
+          <!-- Two switches on the board, reported separately in status bits 5 and 4.
+               mode stays visible when RAM is off, so this is not one 3-way setting. -->
+          <!-- ram: false disables the slot expander and the 512kB SRAM. -->
+          <ram>true</ram>
+          <!-- mode: mapper ($FC-$FF) or megaram ($8E/$8F). -->
+          <mode>mapper</mode>
+          <sdcard1>
+            <filename>sdmapperv1-1.sdc</filename>
+            <size>32</size>
+          </sdcard1>
+          <sdcard2>
+            <filename>sdmapperv1-2.sdc</filename>
+            <size>32</size>
+          </sdcard2>
+        </SdMapperV1>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

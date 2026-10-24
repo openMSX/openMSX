@@ -26,6 +26,11 @@ using namespace std::literals;
 void HelpMarker(std::string_view desc, float spacing)
 {
 	ImGui::SameLine(0.0f, spacing);
+	HelpMarkerNewLine(desc);
+}
+
+void HelpMarkerNewLine(std::string_view desc)
+{
 	ImGui::TextDisabledUnformatted("(?)");
 	simpleToolTip(desc);
 }

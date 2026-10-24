@@ -9,6 +9,7 @@
 #include "StringSetting.hh"
 
 #include <array>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -30,6 +31,11 @@ public:
 	~MSXJoystick() override;
 
 	[[nodiscard]] static TclObject getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager);
+
+	// keys in the Tcl config dict, in the order of the 'status' bits
+	static constexpr std::array<std::string_view, 6> keyNames = {
+		"UP", "DOWN", "LEFT", "RIGHT", "A", "B",
+	};
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -1,6 +1,7 @@
 #include "MSXPSG.hh"
 
 #include "CassettePort.hh"
+#include "GlobalSettings.hh"
 #include "JoystickPort.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
@@ -30,15 +31,30 @@ namespace openmsx {
 		"', expected 'jis' or '50on'.");
 }
 
+static AY8910::Type getType(const DeviceConfig& config)
+{
+	auto type = config.getChildData("type", "ay8910");
+	StringOp::casecmp cmp;
+	if (cmp(type, "ay8910")) {
+		return AY8910::Type::AY8910;
+	} else if (cmp(type, "ym2149")) {
+		return AY8910::Type::YM2149;
+	}
+	throw FatalError("Unknown PSG type: ", type);
+}
+
 // MSXDevice
 MSXPSG::MSXPSG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassette(getMotherBoard().getCassettePort())
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, ports(generate_array<2>([&](auto i) { return &getMotherBoard().getJoystickPort(unsigned(i)); }))
+	, directionsCallback(
+		config.getGlobalSettings().getInvalidPsgDirectionsSetting())
 	, keyLayout(getKeyboardLayout(*this))
 	, addressMask(config.getChildDataAsBool("mirrored_registers", false) ? 0x0f : 0xff)
-	, ay8910(getName(), *this, config, getCurrentTime())
+	, ignorePortDirections(config.getChildDataAsBool("ignorePortDirections", true))
+	, ay8910(getName(), *this, config, getCurrentTime(), getType(config))
 {
 	reset(getCurrentTime());
 }
@@ -120,6 +136,20 @@ void MSXPSG::writeB(byte value, EmuTime time)
 		getLedStatus().setLed(LedStatus::KANA, !(value & 0x80));
 	}
 	prev = value;
+}
+
+uint8_t MSXPSG::adjustDirectionBits(uint8_t reg7)
+{
+	if (reg7 & AY8910::PORT_A_DIRECTION) {
+		// portA may not be set as output
+		directionsCallback.execute();
+	}
+	if (ignorePortDirections) {
+		// portA -> input
+		// portB -> output
+		reg7 = (reg7 & ~AY8910::PORT_A_DIRECTION) | AY8910::PORT_B_DIRECTION;
+	}
+	return reg7;
 }
 
 // version 1: initial version

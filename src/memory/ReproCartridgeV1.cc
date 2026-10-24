@@ -37,7 +37,7 @@ ReproCartridgeV1::ReproCartridgeV1(
 	, flash(rom, AmdFlashChip::M29W640GB, {}, config)
 	, scc("ReproCartV1 SCC", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("ReproCartV1 PSG", DummyAY8910Periphery::instance(), config,
-	      getCurrentTime())
+	      getCurrentTime(), AY8910::Type::AY8910)
 {
 	// adjust PSG volume, see details in https://github.com/openMSX/openMSX/issues/1934
 	// note: this is a theoretical value. The actual relative volume should be measured!

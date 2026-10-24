@@ -6,6 +6,7 @@
 
 #include "components.hh"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -17,6 +18,8 @@ class VDP;
 class V9990Rasterizer;
 class LDRasterizer;
 class V9990;
+class SMSVDP;
+class SMSVDPRasterizer;
 class LaserdiscPlayer;
 class OutputSurface;
 
@@ -41,6 +44,14 @@ public:
 	  */
 	[[nodiscard]] virtual std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
 		V9990& vdp) = 0;
+
+	/** Create the Sega VDP (Franky) rasterizer selected by the current
+	  * renderer setting.
+	  * @param vdp The SMSVDP whose display will be rendered.
+	  * @return The rasterizer created.
+	  */
+	[[nodiscard]] virtual std::unique_ptr<SMSVDPRasterizer> createSMSVDPRasterizer(
+		SMSVDP& vdp) = 0;
 
 #if COMPONENT_LASERDISC
 	[[nodiscard]] virtual std::unique_ptr<LDRasterizer> createLDRasterizer(
@@ -78,7 +89,14 @@ public:
 
 	/** TODO */
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
-	virtual void showCursor(bool show) = 0;
+	enum class Cursor : uint8_t {
+		HIDDEN,
+		NORMAL,
+		CROSSHAIR, // e.g. the aim point of a light gun
+	};
+	virtual void showCursor(Cursor cursor) = 0;
+	/** Re-evaluate which cursor to show, see Display::requestCrosshairCursor(). */
+	virtual void updateCursor() = 0;
 	[[nodiscard]] virtual bool getCursorEnabled() = 0;
 	[[nodiscard]] virtual std::string getClipboardText() = 0;
 	virtual void setClipboardText(zstring_view text) = 0;

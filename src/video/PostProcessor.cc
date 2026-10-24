@@ -14,13 +14,13 @@
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
 #include "MSXMotherBoard.hh"
+#include "Monitor3D.hh"
 #include "OutputSurface.hh"
 #include "PNG.hh"
 #include "RawFrame.hh"
 #include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "SuperImposedFrame.hh"
-#include "gl_transform.hh"
 
 #include "MemBuffer.hh"
 #include "aligned.hh"
@@ -718,8 +718,6 @@ void PostProcessor::preCalcMonitor3D(float width)
 	std::array<std::array<Vertex, GRID_SIZE1>, GRID_SIZE1> vertices;
 
 	constexpr float GRID_SIZE2 = float(GRID_SIZE) * 0.5f;
-	float s = width * (1.0f / 320.0f);
-	float b = (320.0f - width) * (1.0f / (2.0f * 320.0f));
 
 	for (auto sx : xrange(GRID_SIZE1)) {
 		for (auto sy : xrange(GRID_SIZE1)) {
@@ -727,10 +725,10 @@ void PostProcessor::preCalcMonitor3D(float width)
 			float x = (narrow<float>(sx) - GRID_SIZE2) / GRID_SIZE2;
 			float y = (narrow<float>(sy) - GRID_SIZE2) / GRID_SIZE2;
 
-			v.position = vec3(x, y, (x * x + y * y) * (1.0f / -12.0f));
-			v.normal = normalize(vec3(x * (1.0f / 6.0f), y * (1.0f / 6.0f), 1.0f)) * 1.2f;
-			v.tex = vec2((float(sx) / GRID_SIZE) * s + b,
-			              float(sy) / GRID_SIZE);
+			vec2 xy(x, y);
+			v.position = vec3(xy, monitor3d::surfaceZ(xy));
+			v.normal = normalize(vec3(2.0f * monitor3d::CURVATURE * xy, 1.0f)) * 1.2f;
+			v.tex = monitor3d::texCoord(xy, width);
 		}
 	}
 
@@ -767,13 +765,8 @@ void PostProcessor::preCalcMonitor3D(float width)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	// calculate transformation matrices
-	mat4 proj = frustum(-1, 1, -1, 1, 1, 10);
-	mat4 tran = translate(vec3(0.0f, 0.4f, -2.0f));
-	mat4 rotX = rotateX(radians(-10.0f));
-	mat4 scal = scale(vec3(2.2f, 2.2f, 2.2f));
-
-	mat3 normal(rotX);
-	mat4 mvp = proj * tran * rotX * scal;
+	mat3 normal(monitor3d::rotation());
+	mat4 mvp = monitor3d::mvpMatrix();
 
 	// set uniforms
 	monitor3DProg.activate();

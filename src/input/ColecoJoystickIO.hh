@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class ColecoJoystick;
 class JoystickPortIf;
 
 class ColecoJoystickIO final : public MSXDevice
@@ -24,6 +25,10 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
+
+private:
+	/** The ColecoVision controller plugged into the given port, or nullptr. */
+	[[nodiscard]] const ColecoJoystick* getColecoJoystick(int joyPort) const;
 
 private:
 	byte joyMode;

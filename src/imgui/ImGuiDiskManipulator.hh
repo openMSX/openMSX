@@ -103,7 +103,11 @@ private:
 	} transferHostToMsxPhase = IDLE;
 	std::vector<FileInfo> existingFiles;
 	std::vector<FileInfo> existingDirs;
-	std::map<std::string, std::vector<FileInfo>, std::less<>> duplicateEntries;
+
+	// std::less<> is better, but runs into a gcc-16 bug (fixed 2026/09/04):
+	//   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=126716
+	//std::map<std::string, std::vector<FileInfo>, std::less<>> duplicateEntries;
+	std::map<std::string, std::vector<FileInfo>> duplicateEntries;
 
 	enum NewDiskType : int { UNPARTITIONED = 0, PARTITIONED = 1 };
 	int newDiskType = UNPARTITIONED;

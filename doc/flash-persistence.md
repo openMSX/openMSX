@@ -80,6 +80,10 @@ suppressing the analyzer rule.
 
 The Flash persistence workflow builds and runs the portable suite on Windows,
 Linux and macOS. It uses synthetic fixtures only and retains diagnostic artifacts.
+These native builds do not depend on installer packaging or Catapult downloads.
+
+The device test also covers upstream SD Mapper v1 and its AM29F010 chip identity,
+geometry and modification history across serialized restoration.
 
 The device test uses the MFR SCC+ SD's M29W640GB with a synthetic extension and no SD cards. It checks complete-image fallback when no factory ROM exists, an explicit `<flashname>` without `<sramname>`, state restoration and refreshing from a newly supplied factory ROM. A synthetic Manbow2 configuration also checks full AM29F040B images with read-only sectors and rejection of modification flags targeting protected sectors.
 

@@ -18,7 +18,8 @@ static constexpr unsigned BIOS_ROM_SIZE = 0x2000; // 8kB
 
 ColecoSuperGameModule::ColecoSuperGameModule(DeviceConfig& config)
 	: MSXDevice(config)
-	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
+	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config,
+	      getCurrentTime(), AY8910::Type::AY8910)
 	, sgmRam(config, getName() + " RAM", "SGM RAM", SGM_RAM_SIZE)
 	, mainRam(config, "Main RAM", "Main RAM", MAIN_RAM_SIZE)
 	, biosRom(getName(), "BIOS ROM", config)

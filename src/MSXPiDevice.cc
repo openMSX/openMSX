@@ -2,9 +2,11 @@
 
 #include "DeviceConfig.hh"
 #include "MSXCPU.hh"
+#include "MSXException.hh"
 #include "MSXMotherBoard.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
+#include "serialize.hh"
 
 #include <algorithm>
 #include <array>
@@ -27,15 +29,32 @@ static constexpr int DEFAULT_SERVER_PORT = 5000;
 // lasts. In the order of what the Pi's native GPIO engine needs.
 static constexpr auto TRANSFER_TIME = EmuDuration::usec(20);
 
-MSXPiDevice::MSXPiDevice(const DeviceConfig& config)
+MSXPiDevice::MSXPiDevice(DeviceConfig& config)
 	: MSXDevice(config)
 	, activePort(DEFAULT_SERVER_PORT)
+	, rom(getName() + " ROM", "MSXPi EEPROM", config)
+	, bankSetting(getCommandController(), "msxpirom_bank",
+		"MSXPi bank jumper, as labelled on the PCB: BANK2 (EEPROM A14 = CPU "
+		"A15) puts the lower half (MSX-DOS) at 4000h, BANK1 (EEPROM A14 = CPU "
+		"A14) the upper half (BIOS only). Takes effect at the next reset",
+		Bank::A15,
+		EnumSetting<Bank>::Map{{"BANK1", Bank::A14}, {"BANK2", Bank::A15}})
+	, sltslSetting(getCommandController(), "msxpirom_sltsl",
+		"MSXPi J3 SLTSL jumper: OFF disconnects the EEPROM, the interface "
+		"ports keep working. Takes effect at the next reset", Sltsl::ON,
+		EnumSetting<Sltsl>::Map{{"ON", Sltsl::ON}, {"OFF", Sltsl::OFF}})
 	, portSetting(getCommandController(), "msxpiserver_port",
 		"TCP port used to connect to the MSXPi server",
 		DEFAULT_SERVER_PORT, 1, 65535)
 {
 	activePort = portSetting.getInt();
 	portSetting.attach(*this);
+	if (rom.size() != 0x4000 && rom.size() != 0x8000) {
+		throw MSXException("MSXPi EEPROM image must be 16KB or 32KB, got ",
+		                   rom.size(), " bytes");
+	}
+	bank = bankSetting.getEnum(); // read before the first access
+	romEnabled = sltslSetting.getEnum() == Sltsl::ON;
 	thread = std::thread(&MSXPiDevice::readLoop, this);
 }
 
@@ -86,6 +105,54 @@ void MSXPiDevice::powerUp(EmuTime /*time*/)
 {
 	interfaceReset();
 	latch = 0xFF;
+	applyJumpers();
+}
+
+void MSXPiDevice::reset(EmuTime /*time*/)
+{
+	// The interface itself has no reset input (see powerUp); only the
+	// EEPROM jumpers, which are read as the machine comes up, are picked up.
+	applyJumpers();
+}
+
+// ---------------------------------------------------------------------------
+// EEPROM
+// ---------------------------------------------------------------------------
+
+void MSXPiDevice::applyJumpers()
+{
+	auto newBank = bankSetting.getEnum();
+	auto newEnabled = sltslSetting.getEnum() == Sltsl::ON;
+	if (newBank == bank && newEnabled == romEnabled) return;
+	bank = newBank;
+	romEnabled = newEnabled;
+	invalidateDeviceRCache();
+}
+
+const byte* MSXPiDevice::romByte(uint16_t address) const
+{
+	// The chip's A14 is CPU A15 or CPU A14, as the bank jumper wires it.
+	if (!romEnabled) return unmappedRead.data(); // /CE not connected
+	unsigned a14 = (bank == Bank::A15) ? (address >> 15) & 1 : (address >> 14) & 1;
+	unsigned chip = (a14 << 14) | (address & 0x3FFF);
+	if (chip >= rom.size()) return unmappedRead.data(); // 16KB image
+	return &rom[chip];
+}
+
+byte MSXPiDevice::readMem(uint16_t address, EmuTime time)
+{
+	return peekMem(address, time);
+}
+
+byte MSXPiDevice::peekMem(uint16_t address, EmuTime /*time*/) const
+{
+	return *romByte(address);
+}
+
+const byte* MSXPiDevice::getReadCacheLine(uint16_t start) const
+{
+	// A cache line never crosses a 16KB boundary, so one lookup covers it.
+	return romByte(start);
 }
 
 bool MSXPiDevice::ready() const
@@ -387,6 +454,32 @@ void MSXPiDevice::readLoop()
 	}
 }
 
+// The state the MSX can observe, which is what a savestate has to carry: the
+// EEPROM jumpers as of the last reset, and the port-level state of the
+// interface. The link to the server is deliberately left out - a socket and a
+// reader thread cannot be restored - so after a load the device reconnects
+// exactly as it does at startup, and a transfer that was in flight is dropped:
+// the protocol's checksum/retry layer recovers from that.
+template<typename Archive>
+void MSXPiDevice::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+
+	auto bankA14 = byte(bank == Bank::A14);
+	ar.serialize("bankA14",    bankA14,
+	             "romEnabled", romEnabled,
+	             "latch",      latch,
+	             "busy",       busy,
+	             "waitMode",   waitMode,
+	             "srValue",    srValue);
+
+	if constexpr (Archive::IS_LOADER) {
+		bank = bankA14 ? Bank::A14 : Bank::A15;
+		bound.reset(); // nobody is clocking a transfer any more
+		invalidateDeviceRCache(); // the ROM may be mapped differently now
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXPiDevice);
 REGISTER_MSXDEVICE(MSXPiDevice, "MSXPiDevice");
 
 } // namespace openmsx

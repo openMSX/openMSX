@@ -32,7 +32,7 @@
 // UnapiNet - MSX-UNAPI TCP/IP bridge device
 //
 // Bridge between the MSX I/O ports and BSD sockets on the host, speaking
-// protocol v2 (see unapinet/protocol-v2.md): every reply begins with a
+// protocol v2 (see network/protocol-v2.md): every reply begins with a
 // status byte carrying an MSX-UNAPI error code verbatim, so the Z80 driver
 // hands it to its caller without translating. Async DNS, TCP and UDP (4
 // connections each), ICMP echo where the host supports it.

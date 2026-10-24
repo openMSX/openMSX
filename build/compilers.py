@@ -58,7 +58,7 @@ class _Command(object):
 			)
 
 	def _run(self, log, name, args, inputSeq, captureOutput):
-		commandLine = [ self.__executable ] + args + self.__flags
+		commandLine = [ self.__executable ] + self.__flags + args
 		try:
 			proc = Popen(
 				commandLine,
@@ -163,7 +163,7 @@ class CompileCommand(_Command):
 
 class LinkCommand(_Command):
 
-	def link(self, log, objectPaths, binaryPath):
+	def link(self, log, binaryPath):
 		return self._run(
-			log, 'linker', objectPaths + [ '-o', binaryPath ], None, False
+			log, 'linker', [ '-o', binaryPath ], None, False
 			)

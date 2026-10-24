@@ -28,6 +28,11 @@ class HarnessValidation(unittest.TestCase):
             batch.write_text('@echo not an emulator')
             with self.assertRaises(ValueError):
                 executable_path(batch)
+            shell = root / ('openmsx-test.exe' if os.name == 'nt' else 'openmsx')
+            shell.write_text('#!/bin/sh\nexit 0\n')
+            shell.chmod(0o755)
+            with self.assertRaises(ValueError):
+                executable_path(shell)
             if os.name == 'nt':
                 fake_exe = root / 'openmsx.exe'
                 fake_exe.write_text('@echo not a PE executable')
@@ -62,6 +67,15 @@ class HarnessValidation(unittest.TestCase):
             with self.assertRaises(ValueError):
                 write_fixture(root, link, b'bad')
             self.assertEqual(target.read_bytes(), b'untouched')
+            # A system alias above our owned root (e.g. macOS /var) is valid.
+            actual = root/'actual'
+            actual.mkdir()
+            parent_alias = root/'parent-alias'
+            parent_alias.symlink_to(actual, target_is_directory=True)
+            owned = parent_alias/'owned'
+            owned.mkdir()
+            write_fixture(owned, owned/'good.bin', b'fixture')
+            self.assertEqual((actual/'owned/good.bin').read_bytes(), b'fixture')
 
     def test_tcl_path_contains_only_encoded_user_bytes(self):
         original = Path('assets/} ; set injected 1; # [exit] $name ' + chr(0x65e5) + '.rom')

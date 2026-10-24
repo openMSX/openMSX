@@ -1205,6 +1205,7 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 	switch (reg) {
 	case 0:
 		spriteChecker->sync(time);
+		spriteChecker->checkStatusEarly(time);
 		return statusReg0;
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled

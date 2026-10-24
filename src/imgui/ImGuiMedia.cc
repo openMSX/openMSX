@@ -1672,7 +1672,11 @@ void ImGuiMedia::addRecent(const TclObject& cmd)
 			}
 		} else if (mediaName.starts_with("disk")) {
 			if (int i = mediaName[4] - 'a'; 0 <= i && i < int(RealDrive::MAX_DRIVES)) {
-				return &diskMediaInfo[i].groups[SelectDiskType::IMAGE];
+				// TODO: ugly to retrieve back the info that we were doing a directory....
+				// should be somehow passed from the point where we still know this.
+				auto type = FileOperations::isDirectory(cmd.getListIndexUnchecked(2).getString())
+					? SelectDiskType::DIR_AS_DISK : SelectDiskType::IMAGE;
+				return &diskMediaInfo[i].groups[type];
 			}
 		} else if (mediaName.starts_with("hd")) {
 			if (int i = mediaName[2] - 'a'; 0 <= i && i < int(HD::MAX_HD)) {

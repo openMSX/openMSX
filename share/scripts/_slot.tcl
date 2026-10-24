@@ -155,7 +155,7 @@ proc address_in_slot {addr ps {ss "X"} {block "X"}} {
 	if {$pc_ss eq "X"} {set pc_ss 0}
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]
 	if {$mapper_size != 0} {
-		set pc_block [debug read "MapperIO" $page]
+		set pc_block [debug read "MSX Memory Mapper I/O" $page]
 		return [expr {$block == ($pc_block & ($mapper_size - 1))}]
 	}
 

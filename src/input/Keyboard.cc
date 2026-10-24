@@ -41,6 +41,20 @@
 #include <ranges>
 #include <type_traits>
 
+#if defined(_WIN32)
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifdef _MSC_VER
+#pragma comment(lib, "imm32")
+#endif
+#include "SDL_syswm.h"
+
+#endif // _WIN32
+
+
 namespace openmsx {
 
 // How does the CAPSLOCK key behave?
@@ -157,6 +171,23 @@ static constexpr auto extractScanCodeMapping(GetMapping getMapping)
 	assert(i == N);
 	std::ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
 	return result;
+}
+template<typename GetMapping>
+static constexpr auto extractCombinedShiftFlag(GetMapping getMapping)
+{
+	constexpr auto mapping = getMapping();
+	constexpr size_t N = count(mapping, &MsxKeyScanMapping::hostKeyCodes);
+	std::array<KeyCodeMsxMapping, N> result;
+	for (const auto& m : mapping) {
+		bool lshift = false;
+		bool rshift = false;
+		for (const auto& k : m.hostKeyCodes) {
+			if (k == SDLK_LSHIFT) lshift = true;
+			if (k == SDLK_RSHIFT) rshift = true;
+			if (lshift && rshift) return true;
+		}
+	}
+	return false;
 }
 
 static constexpr auto getMSXMapping()
@@ -636,14 +667,18 @@ static constexpr auto getSegaMapping()
 //   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
 }
 
-static constexpr auto msxKeyCodeMapping    = extractKeyCodeMapping ([] { return getMSXMapping(); });
-static constexpr auto msxScanCodeMapping   = extractScanCodeMapping([] { return getMSXMapping(); });
-static constexpr auto sviKeyCodeMapping    = extractKeyCodeMapping ([] { return getSVIMapping(); });
-static constexpr auto sviScanCodeMapping   = extractScanCodeMapping([] { return getSVIMapping(); });
-static constexpr auto cvJoyKeyCodeMapping  = extractKeyCodeMapping ([] { return getCvJoyMapping(); });
-static constexpr auto cvJoyScanCodeMapping = extractScanCodeMapping([] { return getCvJoyMapping(); });
-static constexpr auto segaKeyCodeMapping   = extractKeyCodeMapping ([] { return getSegaMapping(); });
-static constexpr auto segaScanCodeMapping  = extractScanCodeMapping([] { return getSegaMapping(); });
+static constexpr auto msxKeyCodeMapping      = extractKeyCodeMapping   ([] { return getMSXMapping(); });
+static constexpr auto msxScanCodeMapping     = extractScanCodeMapping  ([] { return getMSXMapping(); });
+static constexpr auto msxCombinedShiftFlag   = extractCombinedShiftFlag([] { return getMSXMapping(); });
+static constexpr auto sviKeyCodeMapping      = extractKeyCodeMapping   ([] { return getSVIMapping(); });
+static constexpr auto sviScanCodeMapping     = extractScanCodeMapping  ([] { return getSVIMapping(); });
+static constexpr auto sviCombinedShiftFlag   = extractCombinedShiftFlag([] { return getSVIMapping(); });
+static constexpr auto cvJoyKeyCodeMapping    = extractKeyCodeMapping   ([] { return getCvJoyMapping(); });
+static constexpr auto cvJoyScanCodeMapping   = extractScanCodeMapping  ([] { return getCvJoyMapping(); });
+static constexpr auto cvJoyCombinedShiftFlag = extractCombinedShiftFlag([] { return getCvJoyMapping(); });
+static constexpr auto segaKeyCodeMapping     = extractKeyCodeMapping   ([] { return getSegaMapping(); });
+static constexpr auto segaScanCodeMapping    = extractScanCodeMapping  ([] { return getSegaMapping(); });
+static constexpr auto segaCombinedShiftFlag  = extractCombinedShiftFlag([] { return getSegaMapping(); });
 
 static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const KeyCodeMsxMapping>> defaultKeyCodeMappings = {
 	msxKeyCodeMapping,
@@ -656,6 +691,12 @@ static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const ScanCod
 	sviScanCodeMapping,
 	cvJoyScanCodeMapping,
 	segaScanCodeMapping,
+};
+static constexpr array_with_enum_index<Keyboard::Matrix, bool> defaultCombinedShiftFlags = {
+	msxCombinedShiftFlag,
+	sviCombinedShiftFlag,
+	cvJoyCombinedShiftFlag,
+	segaCombinedShiftFlag,
 };
 
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
@@ -673,6 +714,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, eventDistributor(eventDistributor_)
 	, keyCodeTab (defaultKeyCodeMappings [matrix])
 	, scanCodeTab(defaultScanCodeMappings[matrix])
+	, combinedShiftFlag(defaultCombinedShiftFlags[matrix])
 	, modifierPos(modifierPosForMatrix[matrix])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
@@ -680,6 +722,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxcode2UnicodeCmd(commandController)
 	, unicode2MsxcodeCmd(commandController)
 	, capsLockAligner(eventDistributor, scheduler_)
+#if defined(_WIN32)
+	, imeManager(eventDistributor)
+#endif
 	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
@@ -870,6 +915,13 @@ void Keyboard::stopReplay(EmuTime time) noexcept
 
 void Keyboard::syncHostKeyMatrix(EmuTime time)
 {
+	if (!focus) {
+		// On focus loss, all keys are released in the matrix. Clear host-side Shift
+		// tracking to match this state and prevent subsequent events from being dropped.
+		// Only clear when !focus so that stopReplay() can preserve held keys.
+		leftShiftPressed = false;
+		rightShiftPressed = false;
+	}
 	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
 		changeKeyMatrixEvent(time, uint8_t(row), hkm);
 	}
@@ -1026,6 +1078,15 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 	// KEYPAD_RETURN and KEYPAD_COMMA exist at the same physical position on the host side.
 	} else if ((key.sym.sym == SDLK_KP_ENTER) || (key.sym.sym == SDLK_KP_COMMA)) {
 		processKeypadEnterKey(time, down);
+		return false;
+	} else if (combinedShiftFlag && ((key.sym.sym == SDLK_LSHIFT) || (key.sym.sym == SDLK_RSHIFT))) {
+		if (key.sym.sym == SDLK_LSHIFT) leftShiftPressed= down;
+		if (key.sym.sym == SDLK_RSHIFT) rightShiftPressed = down;
+		if (down && (leftShiftPressed!= rightShiftPressed)) {
+			processSdlKey(time, SDLKey::create(SDLK_LSHIFT,SDL_SCANCODE_LSHIFT, down, key.sym.mod));
+		} else if (!down && !leftShiftPressed && !rightShiftPressed) {
+			processSdlKey(time, SDLKey::create(SDLK_LSHIFT,SDL_SCANCODE_LSHIFT, down, key.sym.mod));
+		}
 		return false;
 	} else {
 		// To work around a Japanese keyboard Kanji mode bug. (Multi-character
@@ -2024,6 +2085,70 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime time)
 	}
 }
 
+#if defined(_WIN32)
+// class ImeManager
+
+/*  FOR WINDOWS:
+ *  To work around a Japanese keyboard Kanji mode bug. (Multi-character
+ *	input makes a keydown event without keyrelease message.)
+ */
+Keyboard::ImeManager::ImeManager(
+		EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
+{
+	eventDistributor.registerEventListener(EventType::WINDOW, *this);
+	hImc = 0;
+}
+
+Keyboard::ImeManager::~ImeManager()
+{
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
+}
+
+/*
+ *  disable IME at msx window.
+ *  -> SDL_WINDOWEVENT_FOCUS_GAINED : IME OFF
+ */
+bool Keyboard::ImeManager::signalEvent(const Event& event)
+{
+	auto getWindow = [](const WindowEvent& e) -> HWND {
+		SDL_SysWMinfo info;
+		SDL_VERSION(&info.version);
+		auto window = SDL_GetWindowFromID(e.getMainWindowId());
+		if (SDL_GetWindowWMInfo(window, &info)) {
+			return info.info.win.window;
+		}
+		return nullptr;
+	};
+
+	std::visit(overloaded{
+		[&](const WindowEvent& e) {
+			if (e.isMainWindow()) {
+				const auto& evt = e.getSdlWindowEvent();
+				if (evt.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+					auto& keyboard = OUTER(Keyboard, imeManager);
+					if (keyboard.keyboardSettings.getDisableIME()) {
+						// disable IME when focus is gained
+						auto hwnd = getWindow(e);
+						if (hwnd) {
+							hImc = ::ImmAssociateContext(hwnd, 0);
+						}
+					}
+				}
+				else if (evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+					auto hwnd = getWindow(e);
+					if (hwnd && hImc) {
+						hImc = ::ImmAssociateContext(hwnd, hImc);
+					}
+				}
+			}
+		},
+		[](const EventBase&) { UNREACHABLE; }
+	}, event);
+
+	return false;
+}
+#endif
 
 // class KeybDebuggable
 

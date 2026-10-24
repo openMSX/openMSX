@@ -114,7 +114,7 @@ void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
+PixelRenderer::PixelRenderer(VDP& vdp_, Display& display_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, eventDistributor(vdp.getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
@@ -122,6 +122,7 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 		vdp.getReactor().getGlobalSettings().getSpeedManager())
 	, throttleManager(
 		vdp.getReactor().getGlobalSettings().getThrottleManager())
+	, display(display_)
 	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, spriteChecker(vdp.getSpriteChecker())
@@ -219,7 +220,7 @@ void PixelRenderer::frameStart(EmuTime time)
 
 	if (paintFrame) {
 		frameSkipCounter = std::remainder(frameSkipCounter, 1.0f);
-	} else if (!rasterizer->isRecording()) {
+	} else if (!rasterizer->isRecording() && !display.isRenderAllFramesRequested()) {
 		renderFrame = false;
 		return;
 	}

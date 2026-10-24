@@ -60,8 +60,12 @@ JoyMega::JoyMega(CommandController& commandController_,
 {
 	configSetting.setChecker([this](const TclObject& newValue) {
 		this->checkJoystickConfig(newValue); });
-	// fill in 'bindings'
-	checkJoystickConfig(configSetting.getValue());
+	try {
+		// fill in 'bindings'
+		checkJoystickConfig(configSetting.getValue());
+	} catch (MSXException& /*e*/) {
+		configSetting.setValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
+	}
 }
 
 JoyMega::~JoyMega()
@@ -81,19 +85,13 @@ void JoyMega::checkJoystickConfig(const TclObject& newValue)
 		throw CommandException("Need an even number of elements");
 	}
 	for (decltype(n) i = 0; i < n; i += 2) {
-		static constexpr std::array<std::string_view, 12> keys = {
-			// order is important!
-			"UP", "DOWN", "LEFT", "RIGHT",
-			"A", "B", "C", "START",
-			"X", "Y", "Z", "SELECT",
-		};
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
-		auto it = std::ranges::find(keys, key);
-		if (it == keys.end()) {
+		auto it = std::ranges::find(keyNames, key);
+		if (it == keyNames.end()) {
 			throw CommandException(
-				"Invalid key: must be one of ", join(keys, ", "));
+				"Invalid key: must be one of ", join(keyNames, ", "));
 		}
-		auto idx = std::distance(keys.begin(), it);
+		auto idx = std::distance(keyNames.begin(), it);
 
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		for (auto j : xrange(value.getListLength(interp))) {
@@ -203,13 +201,12 @@ void JoyMega::signalMSXEvent(const Event& event, EmuTime time) noexcept
 	unsigned press = 0;
 	unsigned release = 0;
 
-	auto getJoyDeadZone = [&](JoystickId joyId) {
-		const auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
-		return setting ? setting->getInt() : 0;
+	auto getJoyDeadThreshold = [&](JoystickId joyId) {
+		return joystickManager.getJoyDeadThreshold(joyId);
 	};
 	for (int i : xrange(12)) {
 		for (const auto& binding : bindings[i]) {
-			if (auto onOff = match(binding, event, getJoyDeadZone)) {
+			if (auto onOff = match(binding, event, getJoyDeadThreshold)) {
 				(*onOff ? press : release) |= 1 << i;
 			}
 		}

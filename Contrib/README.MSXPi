@@ -1,15 +1,15 @@
 Using MSXPi Extension for openMSX
 =================================
-MSXPi is a hardware and software solution that allows MSX 
+MSXPi is a hardware and software solution that allows MSX
 computers to control and use Raspberry Pi resources. The interface
-exposes I/O ports for the MSX computer, which allows exchange of 
+exposes I/O ports for the MSX computer, which allows exchange of
 data with the Raspberry Pi using a custom protocol. Many resources are
 implemented, such as access to network drives, internet, disk images,
 and access to the Raspberry Pi itself to execute commands.
 
 The MSXPiDevice for openMSX implements the same functionality of the
-physical MSXPi without the need of a Raspberry Pi - instead, relies 
-on a Python msxpi-server code running on the same computer where 
+physical MSXPi without the need of a Raspberry Pi - instead, relies
+on a Python msxpi-server code running on the same computer where
 openMSX is hosted.
 
 For detailed information about the MSXPi project and the hardware interface,
@@ -21,19 +21,58 @@ the physical interface.
 Architecture of the physical Interface:
 ┌────────────┐         ┌────────────────────────┐         ┌────────────────────┐
 │    MSX     │  <--->  │     MSXPi Interface    │  <--->  │   msxpi-server     │
-│ (Z80 I/O)  │   0x56  │   (CPLD + SPI bridge)  │  GPIO   │ (Python GPIO API)  │
-└────────────┘   0x5A  └────────────────────────┘         └────────────────────┘
-                                                 
-Architecture of the MSXPi extension for openMSX: 
+│ (Z80 I/O)  │  0x56   │   (CPLD + SPI bridge)  │  GPIO   │ (Python GPIO API)  │
+│            │  0x57   │     + 32KB EEPROM      │         │                    │
+└────────────┘  0x5A   └────────────────────────┘         └────────────────────┘
+
+Architecture of the MSXPi extension for openMSX:
 ┌────────────┐         ┌────────────────────────┐         ┌────────────────────┐
 │    MSX     │  <--->  │     MSXPi Interface    │  <--->  │   msxpi-server     │
-│ (Z80 I/O)  │  0x56   │ MSXPiDevice + socket)  │  Socket │(Python socket API) │
+│ (Z80 I/O)  │  0x56   │  (MSXPiDevice + socket │  Socket │(Python socket API) │
+│            │  0x57   │     + msxpibios.rom)   │         │                    │
 └────────────┘  0x5A   └────────────────────────┘         └────────────────────┘
+
+The emulated device reproduces the CPLD (firmware v1.6) at I/O-port level, so
+the same msxpibios.rom and the same MSX side commands that run on the physical
+interface run unchanged in openMSX. Port 0x57 returns the firmware version,
+which means software cannot tell the emulated interface from the real one.
 
 Now that you know everything you need (not really!) to start with MSXPi, prepare
 the environment.
 
-To use this extension, you will need Python3 installed in your computer.
+Quick setup on Windows
+======================
+
+If you are on Windows, one installer does everything below: it installs
+Python 3 and the modules the server needs, 7-Zip and mpv music player, the msxpi-server
+code, the MSXPi disk images, an openMSX build with MSXPi support, MSXPi.xml
+and msxpibios.rom, and a launcher that starts the server and openMSX together.
+
+Download msxpi-openmsx-install.bat from:
+
+   https://github.com/costarc/MSXPi/tree/master/software/Server/Setup
+
+and double-click it. The .bat fetches msxpi-windows-setup.ps1 (the script that
+does the work) if it is not next to it, so that one file is enough. From a
+command line, with options:
+
+   msxpi-openmsx-install.bat [-Network] [-Branch name]
+
+   -Network  also installs the OpenVPN TAP driver and sets up the MSX network
+             (NAT), so the MSX TCP/IP commands work. This step asks for
+             administrator rights; the rest of the install does not need any.
+
+Everything lands in C:\home\pi\msxpi - the path the server expects - with
+openMSX in C:\home\pi\msxpi\openMSX. You get a start-openmsx.bat launcher
+and an MSXPi icon on the desktop. Running the installer again is safe: it
+updates what is out of date and keeps your msxpi.ini and your disk images.
+
+Then start MSXPi from the desktop icon and go to step 8 below, where the
+MSXPi commands are tried out.
+The manual steps that follow are for other platforms, or if you would rather
+install the pieces yourself.
+
+To install the pieces by hand you will need Python3 installed in your computer.
 IDLE will work with MSXPi in Windows - it can be downloaded and installed
 from Microsoft App store. MSXPi will also work in other platforms - it
 works better on Linux, since it is the native environment it was designed
@@ -53,99 +92,109 @@ Go to Windows command line and type:
 
 Repeat for all modules that are not already installed.
 
-Some commands (such as ploadr) will try to use 7-Zip, LHA or UNAR to 
-decompress files.. You will need to install those tools also or the
-command will fail.
-
-You will also have to download several files needed by MSXPi - follow the 
+You will also have to download several files needed by MSXPi - follow the
 instructions below to get started.
 
-Steps to Setup and Try MSXPi in openMSX
-=======================================
+Manual setup, and trying MSXPi out
+==================================
 
 1. Install an openMSX version that has support for MSXPi extension. You can download
    binaries for all platforms (nightly builds from openMSX) in the releases section:
    https://github.com/costarc/openMSX/releases
-   
+
    Always use the latest release.
-   
+
 2. Download msxpi-server.py from:
 
    https://github.com/costarc/MSXPi/tree/master/software/Server/Python/src
 
+   Use a server from the same MSXPi version as the ROM in step 3: the socket
+   transport that openMSX uses was introduced in MSXPi v1.6, older servers do
+   not speak it.
 
    Note: the msxpi-server component has some commands that require elevation of privileges
    in the Raspberry Pi platform using "sudo". These commands apply only to Raspberry Pi
    and will return a message "Command not supported on this platform" for all non-raspberry
    pi hosts.
-   
+
    Run from IDLE console, or from command line:
-   
+
    python msxpi-server.py
-   
+
 3. Download msxpibios.rom from:
    https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/systemroms/extensions
-   
+
    Copy to you openMSX/share/systemroms/extensions/ folder.
-   
-4. Download the matching MSXPi.xml from:
+
+   This file is required: openMSX does not ship ROM images, and the extension
+   will not load without it. It is the content of the EEPROM on the physical
+   board, and the emulated interface serves it in the same way, so it boots
+   the MSXPi BIOS and MSX-DOS1 on its own.
+
+4. The MSXPi.xml extension definition is part of openMSX, so there is nothing
+   to copy for it. If you want to use a ROM newer than the openMSX release you
+   installed, take the matching MSXPi.xml from:
    https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/extensions
-   
-   copy to you openMSX/share/extensions/ folder.
+
+   and copy it into your personal openMSX folder (share/extensions/ under
+   ~/.openMSX, or under Documents/openMSX on Windows), where it takes
+   precedence over the one that comes with openMSX.
 
 5. Use a DIR as DISK with openMSX to facilitate the tests.
    Create a directory named FloppyA
    Copy MSXDOS.SYS and COMMAND.COM to FloppyA
    Make sure openMSX can boot into MSX-DOS using this folder as a drive:
-   
+
    openmsx -machine Panasonic_FS-A1WSX -diska FloppyA
-   
+
+   This is the easiest way to get the MSXPi commands onto a drive. You can
+   also boot MSX-DOS1 from the interface itself, as the physical board does,
+   and use the MSXPi drives instead of a floppy.
+
 6. Download the MSXPi commands you want to test from:
    https://github.com/costarc/MSXPi/tree/master/software/target
-   
-   Some commands will not work (yet) with openMSX because they were originally 
+
+   Some commands will not work (yet) with openMSX because they were originally
    developed to work on Raspberry Pi. In time, most (if not all) commands
    will be ported to abstract the platform and run everywhere. If you can develop
    in python, help port them (thanks).
-   
-   For now, I suggest you start with:
-   
-   chatgpt.com (you will need an OpenAI key to use it)
-   prun.com
-   pcd.com
-   pdir.com
-   pver.com
-   pset.com
-   ploadr
-   
+
+   Three files give you the whole command set:
+
+   p.com     the MSXPi command, which takes the operation as its first
+             argument: "p dir", "p run", "p chatgpt" and so on. It replaces
+             the older one-command-per-operation files (pdir.com, prun.com,
+             pcd.com and the rest), which are gone.
+   pver.com  versions of the interface, the ROM and the server
+   pcopy.com copy files between the MSX drives and the MSXPi drives
+
    Copy all these commands to you FloppyA
- 
+
+   You will need an OpenAI key for "p chatgpt" - see step 9 for where it goes.
+
 7. Start openMSX loading the MSXPi extension:
 
    openmsx -machine Panasonic_FS-A1WSX -diska FloppyA -ext MSXPi
-   
+
 8. Try some commands - type exactly as shown:
 
+   p ver
    pver
-   pcd
-   pdir
-   pcd /
-   pdir
-   pset
-   pcd R1:
-   pcd
-   pcd R2:
-   prun ipconfig
-   prun dir /
-   chatgpt
-   chatgpt Tell me funny fact about MSX Computers.
-   ploadr /z zaxxon.lzh
-   
-   Note 1: Read the Users Guide to learn more about these commands. It can be 
+   p cd
+   p dir
+   p set
+   p run
+   p date
+   p chatgpt
+   p music
+   p showpage
+   pcopy
+
+   Note 1: Read the Users Guide to learn more about these commands. It can be
    downloaded here: https://github.com/costarc/MSXPi/tree/master/documents
-   
+
    Note 2: As I mentioned before, some commands will not behave nicely
-   because they were developed for Raspberry Pi (Linux). 
+   because they were developed for Raspberry Pi (Linux).
    Some work is needed on the msxpi-server side to make those commands
    work on Python running in a host that is not Linux.
 
@@ -154,9 +203,43 @@ Steps to Setup and Try MSXPi in openMSX
    folder in your computer (under Windows the path is C:\home\pi\msxpi)
    and save this file inside it:
    https://github.com/costarc/MSXPi/tree/master/software/Server/Shell/msxpi.ini
-   
+
    If you have an OpenAI key, update this file with it so you can use the
-   chatgpt.com command.
+   "p chatgpt" command.
+   
+   The Windows installer creates this file for you, from the msxpi-JumperLeft
+   template, and never overwrites an existing one.
 
 10. Read the MSXPi documentation for more detailed information:
    https://github.com/costarc/MSXPi/tree/master/documents
+
+Settings
+========
+
+The extension adds three openMSX settings. Type "help set <name>" in the
+openMSX console for the full description of each one.
+
+   msxpirom_bank     The bank jumper, as labelled on the PCB. BANK2 (the
+                     default) puts the lower half of the EEPROM, with
+                     MSX-DOS1, at 4000h; BANK1 puts the upper half, the BIOS
+                     only, there. Read at reset.
+
+   msxpirom_sltsl    The J3 SLTSL jumper. OFF disconnects the EEPROM while
+                     the interface ports keep working, which is how the board
+                     is used when the BIOS comes from somewhere else. ON is
+                     the default. Read at reset.
+
+   msxpiserver_port  TCP port used to reach msxpi-server on the host. The
+                     default, 5000, is the port msxpi-server listens on.
+                     Change it on both sides if that port is taken. Takes
+                     effect immediately: the interface reconnects.
+
+The first two mirror jumpers on the physical board, and like the jumpers they
+are sampled when the machine resets, so moving one while the MSX is running
+does not pull the ROM out from under the code that is executing.
+
+Savestates and the reverse feature (PgUp, the "reverse" commands) work with
+the extension: the state of the interface is part of the savestate. The
+connection to msxpi-server is not, and neither is the server's own state, so a
+command that was in the middle of a transfer when the state was saved can fail
+after a load. Save and load between commands.

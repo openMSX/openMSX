@@ -33,7 +33,7 @@ Carnivore2::Carnivore2(DeviceConfig& config)
 	         DeviceConfig(config, config.getChild("eeprom")))
 	, scc(getName() + " scc", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config,
-              getCurrentTime())
+              getCurrentTime(), AY8910::Type::AY8910)
 	, ym2413(getName() + " ym2413", config)
 {
 	// adjust PSG volume, see details in https://github.com/openMSX/openMSX/issues/1934

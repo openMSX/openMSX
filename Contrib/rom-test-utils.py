@@ -8,6 +8,7 @@ import re
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,10 +32,21 @@ def executable_path(value):
         pattern += r'\.exe'
     if not path.is_file() or not re.fullmatch(pattern, path.name, re.IGNORECASE):
         raise ValueError('Expected a native openMSX executable file')
+    if path.suffix.lower() in ('.cmd', '.bat', '.ps1', '.sh', '.py'):
+        raise ValueError('Expected a native executable, not a shell wrapper')
+    with path.open('rb') as stream:
+        magic = stream.read(4)
     if os.name == 'nt':
-        with path.open('rb') as stream:
-            if stream.read(2) != b'MZ':
-                raise ValueError('Expected a Windows executable, not a command script')
+        native = magic[:2] == b'MZ'
+    elif sys.platform == 'darwin':
+        native = magic in (bytes.fromhex('feedface'), bytes.fromhex('cefaedfe'),
+                           bytes.fromhex('feedfacf'), bytes.fromhex('cffaedfe'),
+                           bytes.fromhex('cafebabe'), bytes.fromhex('bebafeca'),
+                           bytes.fromhex('cafebabf'), bytes.fromhex('bfbafeca'))
+    else:
+        native = magic == b'\x7fELF'
+    if not native or (os.name != 'nt' and not os.access(path, os.X_OK)):
+        raise ValueError('Expected a native executable for this host')
     return path
 
 
@@ -156,17 +168,20 @@ after realtime 0.01 poll_test
 
 def fixture_path(root, path):
     """Reject writes outside the fresh fixture directory, including symlinks."""
-    root = Path(root).resolve(strict=True)
-    path = Path(path)
+    # Keep the lexical root as the walk boundary: macOS /var itself is an
+    # alias for /private/var, outside the owned fixture directory.
+    root = Path(root).absolute()
+    path = Path(path).absolute()
+    resolved_root = root.resolve(strict=True)
     resolved = path.resolve()
-    if resolved == root or not resolved.is_relative_to(root):
+    if resolved == resolved_root or not resolved.is_relative_to(resolved_root):
         raise ValueError('Fixture path escapes the isolated test directory')
     # Reject even in-root symlink aliases: each fixture has one owned pathname.
     for entry in (path, *path.parents):
-        if entry.is_symlink() or (hasattr(entry, 'is_junction') and entry.is_junction()):
-            raise ValueError('Fixture paths must not contain symlinks or junctions')
         if entry == root:
             break
+        if entry.is_symlink() or (hasattr(entry, 'is_junction') and entry.is_junction()):
+            raise ValueError('Fixture paths must not contain symlinks or junctions')
     return resolved
 
 

@@ -1,17 +1,20 @@
 #ifndef MSXPIDEVICE_HH
 #define MSXPIDEVICE_HH
 
+#include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "MSXDevice.hh"
 #include "EmuTime.hh"
 #include "Observer.hh"
 #include "Poller.hh"
+#include "Rom.hh"
 #include "Socket.hh"
 
 #include <atomic>
 #include <condition_variable>
 #include <cstdint>
 #include <deque>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <thread>
@@ -88,19 +91,50 @@ class DeviceConfig;
   *
   * A server that sends no hello is too old to speak this protocol. It is
   * treated like an absent Pi: READY stays low.
+  *
+  * THE ROM
+  *
+  * The device also serves the board's 32KB EEPROM, wired
+  * as on the board (J3 "ROM_SWITCH"): /CE is /SLTSL through the SLTSL
+  * jumper, with no address decoding, so the chip answers in every page the
+  * device is mapped in; its A14 pin is jumpered to CPU A14 or to CPU A15.
+  * Two settings stand for the two jumpers, named as on the PCB:
+  *
+  *   msxpirom_bank  BANK2  EEPROM A14 = CPU A15: lower half at 4000h, upper
+  *                         half mirrored at 8000h (default; the only
+  *                         position the EEPROM can be programmed in)
+  *                  BANK1  EEPROM A14 = CPU A14: upper half at 4000h, lower
+  *                         half mirrored at 8000h
+  *   msxpirom_sltsl ON     EEPROM enabled (default)
+  *                  OFF    EEPROM disconnected: the slot reads FFh. The CPLD
+  *                         and its ports are not affected.
+  *
+  * Like moving a jumper with the power off, a change takes effect at the next
+  * reset. Map the device over the whole slot (<mem base="0x0000"
+  * size="0x10000"/>) to see the mirroring the BIOS sees. A 16KB file is a
+  * chip written with 16KB: the upper half reads as erased (FFh). The chip is
+  * not writable here. The <rom> child is required; the board is shipped with
+  * the EEPROM in place, and the SLTSL jumper covers running without it.
   */
 class MSXPiDevice final : public MSXDevice, private Observer<Setting>
 {
 public:
-	explicit MSXPiDevice(const DeviceConfig& config);
+	explicit MSXPiDevice(DeviceConfig& config);
 	~MSXPiDevice() override;
 
 	// The interface has no reset input: an MSX reset leaves it untouched,
 	// only power-up (and OUT (0x56),0xFF) clears it.
 	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
 	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, byte value, EmuTime time) override;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	enum class Link : uint8_t { DOWN, PROBING, FRAMED, INCOMPATIBLE };
@@ -119,6 +153,10 @@ private:
 	EmuTime stall(EmuTime time);
 	void interfaceReset();
 	void waitForPeer(EmuTime time);
+
+	// EEPROM
+	void applyJumpers();
+	[[nodiscard]] const byte* romByte(uint16_t address) const;
 
 	// transport
 	void readLoop();
@@ -166,6 +204,16 @@ private:
 	std::atomic<SOCKET> sock = OPENMSX_INVALID_SOCKET;
 	std::atomic<int> activePort = 0;
 	std::atomic<bool> shouldStop = false;
+
+	// EEPROM
+	const Rom rom;
+	// EEPROM A14 wired to CPU A15 (PCB label BANK2) or CPU A14 (BANK1)
+	enum class Bank : uint8_t { A15, A14 };
+	enum class Sltsl : uint8_t { OFF, ON };  // EEPROM /CE connected to /SLTSL
+	EnumSetting<Bank> bankSetting;           // msxpirom_bank
+	EnumSetting<Sltsl> sltslSetting;         // msxpirom_sltsl
+	Bank bank = Bank::A15;                   // the jumpers as of the last reset
+	bool romEnabled = true;
 
 	// thread & connection
 	IntegerSetting portSetting;

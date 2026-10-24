@@ -1,7 +1,10 @@
 #include "PluggableFactory.hh"
 
+#include "JoyHandle.hh"
 #include "ArkanoidPad.hh"
 #include "CircuitDesignerRDDongle.hh"
+#include "ColecoJoystick.hh"
+#include "Gunstick.hh"
 #include "InputEventGenerator.hh"
 #include "JoyMega.hh"
 #include "JoyTap.hh"
@@ -23,6 +26,7 @@
 #include "RS232Tester.hh"
 #include "Reactor.hh"
 #include "SETetrisDongle.hh"
+#include "TerminatorLaser.hh"
 #include "Touchpad.hh"
 #include "Trackball.hh"
 #include "WavAudioInput.hh"
@@ -70,6 +74,12 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<Touchpad>(
 		msxEventDistributor, stateChangeDistributor,
 		display, commandController));
+	controller.registerPluggable(std::make_unique<Gunstick>(
+		motherBoard, msxEventDistributor, stateChangeDistributor,
+		display));
+	controller.registerPluggable(std::make_unique<TerminatorLaser>(
+		motherBoard, msxEventDistributor, stateChangeDistributor,
+		display));
 	controller.registerPluggable(std::make_unique<JoyTap>(
 		controller, "joytap"));
 	controller.registerPluggable(std::make_unique<NinjaTap>(
@@ -86,6 +96,21 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<JoyMega>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, joystickManager, 2)); // joymega2
+	controller.registerPluggable(std::make_unique<JoyHandle>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 1)); // joyhandle1
+	controller.registerPluggable(std::make_unique<JoyHandle>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 2)); // joyhandle2
+	if (motherBoard.getMachineType() == "Coleco") {
+		// Only on a ColecoVision: on an MSX the keypad would do nothing.
+		controller.registerPluggable(std::make_unique<ColecoJoystick>(
+			commandController, msxEventDistributor,
+			stateChangeDistributor, joystickManager, 1)); // colecojoystick1
+		controller.registerPluggable(std::make_unique<ColecoJoystick>(
+			commandController, msxEventDistributor,
+			stateChangeDistributor, joystickManager, 2)); // colecojoystick2
+	}
 
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());

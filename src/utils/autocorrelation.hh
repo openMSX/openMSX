@@ -2,6 +2,7 @@
 #define AUTOCORRELATION_HH
 
 #include "FFTReal.hh"
+#include "ranges.hh"
 
 #include <algorithm>
 #include <array>
@@ -46,7 +47,11 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 	// Step 1: Zero-pad signal to FFT_LEN. This serves two purposes:
 	// 1. Extend from N to 2*N (required for linear autocorrelation, not circular)
 	// 2. Round up to power-of-2 (required by FFT)
-	std::array<float, FFT_LEN> paddedSignal;  // Zero-padded input signal
+	// Padding is:
+	// * partially explicit (up-to SIGNAL_LEN)
+	// * partially implicit (between SIGNAL_LEN and FFT_LEN) because of FFTInputMode::HalfZeroPadded
+	std::array<float, FFT_LEN> workBuf;
+	auto paddedSignal = subspan<SIGNAL_LEN>(workBuf);
 	std::ranges::copy(signal, paddedSignal.begin());
 	std::ranges::fill(std::span(paddedSignal).subspan(N), 0.0f);
 
@@ -54,7 +59,7 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 	// paddedSignal (time) → spectrum (frequency)
 	std::array<float, FFT_LEN> spectrum; // FFT spectrum / power spectrum
 	std::array<float, FFT_LEN> fftWork;  // Temporary work buffer for FFT operations
-	FFTReal<SIGNAL_LEN_L2 + 1>::execute(paddedSignal, spectrum, fftWork);
+	FFTReal<SIGNAL_LEN_L2 + 1, FFTInputMode::HalfZeroPadded>::execute(paddedSignal, spectrum, fftWork);
 	// spectrum now contains FFT in packed format:
 	//   [Re[0], Re[1], ..., Re[N/2], Im[1], ..., Im[N/2-1]]
 
@@ -77,9 +82,10 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 	// Step 3.1: Mirror the power spectrum to create even symmetry
 	// We need: [P[0], P[1], ..., P[SIGNAL_LEN], P[SIGNAL_LEN-1], ..., P[1]]
 	// using even symmetry: P[-k] = P[k] = P[N-k]
-	for (unsigned i = 1; i < SIGNAL_LEN; ++i) {
-		spectrum[FFT_LEN - i] = spectrum[i]; // P[N-k] = P[k]
-	}
+	//      // This loop is not needed because of FFTInputMode::Symmetric
+	//      for (unsigned i = 1; i < SIGNAL_LEN; ++i) {
+	//          spectrum[FFT_LEN - i] = spectrum[i]; // P[N-k] = P[k]
+	//      }
 	// spectrum is now: a complete real + even symmetric signal
 
 	// Step 4: Apply IFFT to power spectrum
@@ -92,8 +98,8 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 	// - FFT of real+even symmetric signal yields real+even symmetric output
 	// - Therefore: conj(FFT(X)) = FFT(X), so the outer conjugate is identity
 	// - Thus: IFFT(X) = FFT(X) / N (both conjugate operations are implicit/unnecessary)
-	auto& autocorr = paddedSignal; // Reuse buffer for autocorrelation output
-	FFTReal<SIGNAL_LEN_L2 + 1>::execute(spectrum, autocorr, fftWork);
+	auto& autocorr = workBuf; // Reuse buffer for autocorrelation output
+	FFTReal<SIGNAL_LEN_L2 + 1, FFTInputMode::Symmetric>::execute(subspan<SIGNAL_LEN + 1>(spectrum), autocorr, fftWork);
 	// The result is a real signal, so the 2nd half (imaginary part) is zero (apart from rounding errors)
 
 	// Step 5: Normalize by 1/FFT_LEN to get autocorrelation (optional)

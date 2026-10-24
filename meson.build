@@ -48,6 +48,11 @@ dep_tcl = dependency('tcl', version: '>=8.6.0')
 dep_threads = dependency('threads')
 dep_zlib = dependency('zlib')
 
+# The TLS support for the SMXWiFi device loads the host OpenSSL at runtime
+# (dlopen): that needs an explicit libdl on glibc older than 2.34 (the
+# library is absent on other systems, in which case it is simply skipped).
+dep_dl = compiler.find_library('dl', required: false)
+
 dep_gl = dependency('GL', required: get_option('glrenderer'))
 dep_glew = dependency('glew', required: get_option('glrenderer'))
 
@@ -160,7 +165,7 @@ main_exec = executable(
     implicit_include_directories: false,
     include_directories: [incdirs, '.'],
     dependencies: [
-        dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
+        dep_alsa, dep_dl, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
     ],
 )
@@ -177,7 +182,7 @@ test_exec = executable(
     implicit_include_directories: false,
     include_directories: [incdirs, '.', 'Contrib/catch2'],
     dependencies: [
-        dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
+        dep_alsa, dep_dl, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
     ],
 )

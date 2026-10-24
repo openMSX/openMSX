@@ -20,6 +20,15 @@
 #include <string_view>
 #include <vector>
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <windows.h>
+#include <imm.h>
+#endif // _WIN32
+
 namespace openmsx {
 
 class MSXMotherBoard;
@@ -134,6 +143,7 @@ private:
 
 	std::span<const KeyCodeMsxMapping> keyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
+	bool combinedShiftFlag;
 
 	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos;
 
@@ -223,6 +233,24 @@ private:
 		} state = IDLE;
 	} capsLockAligner;
 
+#if defined(_WIN32)
+	class ImeManager final : private EventListener {
+	public:
+		ImeManager(EventDistributor& eventDistributor);
+		~ImeManager();
+
+	private:
+		// EventListener
+		bool signalEvent(const Event& event) override;
+
+	private:
+		EventDistributor& eventDistributor;
+
+		HIMC hImc;
+
+	} imeManager;
+#endif
+
 	KeyboardSettings keyboardSettings;
 
 	class MsxKeyEventQueue final : public Schedulable {
@@ -298,6 +326,10 @@ private:
 	HostKeyMap hostKeyMap = HostKeyMap::UNKNOWN;
 
 	bool focus = true;
+
+	/** Flag for tracking the combined state (OR) of left and right Shift keys */
+	bool leftShiftPressed= false;
+	bool rightShiftPressed = false;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 5);
 

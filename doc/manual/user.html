@@ -100,6 +100,8 @@
 			<li><a class="internal" href="#tetris2dongle">6.9 Tetris II Special Edition dongle</a></li>
 			<li><a class="internal" href="#msxpaddle">6.10 MSX Paddle</a></li>
 			<li><a class="internal" href="#circuitdesignerdongle">6.11 Circuit Designer RD dongle</a></li>
+			<li><a class="internal" href="#gunstick">6.12 Gunstick</a></li>
+			<li><a class="internal" href="#terminatorlaser">6.13 ASCII Plus-X Terminator Laser</a></li>
 		</ol>
 	</li>
 
@@ -1412,23 +1414,26 @@ Windows, Linux or BSD), the second column for Apple Macintosh computers:
   <tr> <td>right</td>          <td>cursor right</td>            <td>D</td>           </tr>
   <tr> <td>fire left</td>      <td>space, R-CTRL</td>           <td>L-CTRL</td>      </tr>
   <tr> <td>fire right</td>     <td>L-ALT, R-ALT, R-SHIFT</td>   <td>L-SHIFT</td>     </tr>
-  <tr> <td>1</td>              <td>1, numpad 1</td>             <td>R</td>           </tr>
-  <tr> <td>2</td>              <td>2, numpad 2</td>             <td>T</td>           </tr>
-  <tr> <td>3</td>              <td>3, numpad 3</td>             <td>Y</td>           </tr>
+  <tr> <td>1</td>              <td>1, numpad 1</td>             <td>V</td>           </tr>
+  <tr> <td>2</td>              <td>2, numpad 2</td>             <td>B</td>           </tr>
+  <tr> <td>3</td>              <td>3, numpad 3</td>             <td>N</td>           </tr>
   <tr> <td>4</td>              <td>4, numpad 4</td>             <td>F</td>           </tr>
   <tr> <td>5</td>              <td>5, numpad 5</td>             <td>G</td>           </tr>
   <tr> <td>6</td>              <td>6, numpad 6</td>             <td>H</td>           </tr>
-  <tr> <td>7</td>              <td>7, numpad 7</td>             <td>V</td>           </tr>
-  <tr> <td>8</td>              <td>8, numpad 8</td>             <td>B</td>           </tr>
-  <tr> <td>9</td>              <td>9, numpad 9</td>             <td>N</td>           </tr>
+  <tr> <td>7</td>              <td>7, numpad 7</td>             <td>R</td>           </tr>
+  <tr> <td>8</td>              <td>8, numpad 8</td>             <td>T</td>           </tr>
+  <tr> <td>9</td>              <td>9, numpad 9</td>             <td>Y</td>           </tr>
   <tr> <td>0</td>              <td>0, numpad 0</td>             <td>U</td>           </tr>
   <tr> <td>*</td>              <td>-, numpad *, numpad -</td>   <td>J</td>           </tr>
   <tr> <td>#</td>              <td>=, numpad /, numpad +</td>   <td>M</td>           </tr>
 </table>
 
 <p>
-Host joysticks can also be used for directions and the fire buttons, but the
-keys from the telephone-style keypad can only be entered via the host keyboard.
+Host joysticks can also be used for directions and the fire buttons. To also
+use the telephone-style keypad from a host controller, plug a
+<code>colecojoystick1</code> or <code>colecojoystick2</code> into the
+joystick ports instead and configure it under <span class="menu-reference">Main
+menu bar &rarr; Settings &rarr; Input &rarr; Configure MSX joysticks</span>.
 </p>
 
 <h4><a id="emukeymapping">6.1.3 Emulator Functions Key Mapping</a></h4>
@@ -1702,6 +1707,58 @@ Circuit Designer dongle from The Falcon, needs the dongle in port B to start
 the program, so in the console type: <code><a class="external"
 href="commands.html#plugunplug">plug</a> joyportb circuit-designer-rd-dongle
 </code>.
+</p>
+
+<h3><a id="gunstick">6.12 Gunstick</a></h3>
+
+<p>
+The Gunstick from MHT Ingenieros is a light gun that was sold in Spain for MSX
+(and other computers). openMSX emulates it with the mouse: the mouse pointer is
+the aim point and the left mouse button is the trigger. Most games expect it in
+joystick port A (but Guillermo Tell wants it in port B). To plug it in, use the
+<span class="menu-reference">Main menu bar &rarr; Connectors</span> menu or the
+console command <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyporta gunstick</code>. While the
+Gunstick is plugged in, the mouse pointer is shown as a crosshair, also in full
+screen mode.
+</p>
+
+<p>
+The real gun has a light sensor (on pin 2, the 'down' direction) and the
+trigger (on pin 6, button A). Games blank the screen, draw the targets in white
+and then check whether the sensor sees light. openMSX emulates the sensor by
+looking at the picture that is being drawn at the moment the MSX reads the
+joystick port. Like the real gun (as measured by NYYRIKKI), the sensor sees a
+circle of about 5 pixels around the aim point, reacts about one line after the
+beam drew something bright there and then keeps signalling light for about 26
+lines. Limitations:
+</p>
+<ul>
+<li>With the "none" renderer the gun never sees light.</li>
+<li>Only the normal MSX VDP is supported, not the V9990 (GFX9000).</li>
+</ul>
+
+<p>
+Games that are known to work: Target Plus and Mike Gunner (Dinamic), Guillermo
+Tell (Opera Soft) and Duck Hunt (Karoshi, MSXdev 2004).
+</p>
+
+<h3><a id="terminatorlaser">6.13 ASCII Plus-X Terminator Laser</a></h3>
+
+<p>
+The Plus-X Terminator Laser from ASCII is another light gun for MSX. It is
+emulated like the <a class="internal" href="#gunstick">Gunstick</a>, with the
+mouse and the same light sensor model, and it has the same limitations. Only
+the pins differ: the light sensor is on pin 6 (button A, high while it sees
+light) and the trigger on pin 7 (button B). So games for one gun don't work
+with the other one. To plug it in, use the <span class="menu-reference">Main
+menu bar &rarr; Connectors</span> menu or the console command <code><a
+class="external" href="commands.html#plugunplug">plug</a> joyporta
+terminatorlaser</code>.
+</p>
+
+<p>
+Games that are known to work: Dungeon Hunter (ASCII).
 </p>
 
 <h2><a id="video">7. Video</a></h2>
