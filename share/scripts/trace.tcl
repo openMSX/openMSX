@@ -26,7 +26,7 @@ vdp_setting_changed ::vdpcmdtrace {} write
 
 # cputrace
 
-user_setting create boolean my_cputrace "CPU tracing on/off" false
+user_setting create boolean cputrace "CPU tracing on/off" false
 
 # Note: this prints the instruction and register values from *before* that
 # instruction has executed. This is different from earlier openMSX version
@@ -53,13 +53,13 @@ variable cond_id
 proc cpu_setting_changed {name1 name2 op} {
 	variable cond_id
 
-	if {$::my_cputrace} {;# setting changed from disabled to enabled
+	if {$::cputrace} {;# setting changed from disabled to enabled
 		set cond_id [debug condition create -command [namespace code trace_cpu]]
 	} else { ;# setting changed from enabled to disabled
 		catch { debug condition remove $cond_id }
 	}
 }
-trace add variable ::my_cputrace "write" [namespace code cpu_setting_changed]
-cpu_setting_changed ::my_cputrace {} write
+trace add variable ::cputrace "write" [namespace code cpu_setting_changed]
+cpu_setting_changed ::cputrace {} write
 
 } ;# namespace eval trace
