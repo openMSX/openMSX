@@ -374,10 +374,13 @@
       <td>Show binding for the given event, optionally you can specify a layer</td>
     </tr>
     <tr>
-      <td><code>bind &lt;event&gt; [-layer &lt;layername&gt;] [-repeat] &lt;command&gt;</code></td>
+      <td><code>bind &lt;event&gt; [-layer &lt;layername&gt;] [-msx] [-repeat] [-event] &lt;command&gt;</code></td>
       <td>Make a new binding. Optionally make this binding in a specific layer.
       Also optionally it's possible to retrigger this binding periodically
-      (e.g. when a key is kept pressed).</td>
+      (e.g. when a key is kept pressed). With <code>-msx</code> the binding
+      only has effect when the MSX window has focus (not when the GUI has
+      focus). With <code>-event</code> the event is passed as an extra
+      argument (a list) to the command.</td>
     </tr>
     <tr>
       <td><code>bind -layers</code></td>
