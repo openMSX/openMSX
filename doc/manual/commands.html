@@ -126,7 +126,7 @@
         <li><a class="internal" href="#invalid_ppi_mode_callback">invalid_ppi_mode_callback</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
         <li><a class="internal" href="#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a></li>
-        <li><a class="internal" href="#joystickN_deadzone">joystick&lt;n&gt;_deadzone</a></li>
+        <li><a class="internal" href="#joystickN_deadzone">joystick&lt;n&gt;_deadzone / joystick&lt;n&gt;_midpoint / joystick&lt;n&gt;_saturation</a></li>
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
         <li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
         <li><a class="internal" href="#kbd_deadkey1_host_key">kbd_deadkey1_host_key</a></li>
@@ -4267,12 +4267,27 @@ current MSX model can be:</p>
   </table>
 
 
-  <h3><a id="joystickN_deadzone">joystick&lt;n&gt;_deadzone</a></h3>
+  <h3><a id="joystickN_deadzone">joystick&lt;n&gt;_deadzone / joystick&lt;n&gt;_midpoint / joystick&lt;n&gt;_saturation</a></h3>
 
-  <p>This setting configures how big the dead centre zone of an (analogue)
-  joystick is. This is expressed as a percentage: 0 means no dead zone, 100
-  means everything falls inside the dead zone. The setting is only available
-  when connected host analogue sticks are detected.</p>
+  <p>These settings configure how the position of an axis of an (analogue)
+  host joystick is translated into the strength of the emulated input. All
+  three are expressed as a percentage of the distance from the centre of the
+  axis: 0 is the centre, 100 is fully pushed. Fractional values are allowed.
+  The settings are only available when connected host analogue sticks are
+  detected.</p>
+
+  <ul>
+    <li><code>joystick&lt;n&gt;_deadzone</code>: the size of the dead centre
+    zone. Inputs below this threshold are clipped to zero. 0 means no dead
+    zone, 100 means everything falls inside the dead zone. The default is
+    25.</li>
+    <li><code>joystick&lt;n&gt;_saturation</code>: inputs above this threshold
+    give the maximum output. The default is 90.</li>
+    <li><code>joystick&lt;n&gt;_midpoint</code>: the input that gives
+    half-strength output. Between the dead zone and the saturation threshold
+    the output follows a curve through this point, which allows to select a
+    non-linear response. The default is 75.</li>
+  </ul>
 
   <div class="subsectiontitle">
     usage:
@@ -4285,6 +4300,15 @@ current MSX model can be:</p>
     <tr>
       <td><code>set joystick1_deadzone 25</code></td>
       <td>Set the size of the dead zone to &frac14; of the total range</td>
+    </tr>
+    <tr>
+      <td><code>set joystick1_saturation 100</code></td>
+      <td>Only give maximum output when the stick is pushed fully</td>
+    </tr>
+    <tr>
+      <td><code>set joystick1_midpoint 62.5</code></td>
+      <td>Put the half-strength point halfway between the dead zone (25) and
+      the saturation threshold (100), giving a linear response</td>
     </tr>
   </table>
 
