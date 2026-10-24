@@ -65,6 +65,11 @@ namespace openmsx::FileOperations {
 	 */
 	int unlink(zstring_view path);
 
+	/** Atomically replace destination with a completed file on the same filesystem.
+	 * The existing destination is left intact if replacement fails.
+	 */
+	void replaceFile(zstring_view source, zstring_view destination);
+
 	/**
 	 * Call rmdir() in a platform-independent manner
 	 */
