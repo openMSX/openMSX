@@ -146,6 +146,7 @@
 				</ol>
 			</li>
 			<li><a class="internal" href="#sdcdb">9.6 SDCC Debugger</a></li>
+			<li><a class="internal" href="#traceviewer">9.7 Trace Viewer and Raster Beam Viewer</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">10. Contact Info</a></li>
@@ -2794,6 +2795,38 @@ openMSX includes the SDCC Debugger called sdcdb, a Tcl script that mimics GDB (G
 </div>
 
 <p>A SDCDB breakpoint is a regular breakpoint and it can be listed with the <code>debug breakpoint list</code> command. When a breakpoint is triggered, you can inspect the source code around it with command <code>sdcdb info</code>. There are two commands that executes code step by step. The first is <code>sdcdb step</code>, which executes C code line by line and goes inside function calls. It is equivalent to the <code>step_in</code> command from the console. The second is <code>sdcdb next</code>, which executes C code line by line but doesn't go inside function calls. It is equivalent to the <code>step_over</code> command from the console. The useful <code>sdcdb laddress &lt;address&gt;</code> will display source code under the given memory address since sdcdb is aware of the program's source code, like GDB. You can type <code>help sdcdb</code> for more details or check out the comments in <code>sdcdb.tcl</code> script for more examples.</p>
+
+<h3><a id="traceviewer">9.7 Trace Viewer and Raster Beam Viewer</a></h3>
+
+<p>
+The Trace Viewer (<span class="menu-reference">Main menu bar &rarr; Debugger
+&rarr; Probe/Trace viewer</span>) shows events in the emulated MSX on a
+timeline, optionally with associated data. This helps to answer questions
+like: how much time passes between the VDP generating an interrupt and the Z80
+responding to it? When is the VDP busy executing commands, and can my program
+keep it busier? When is my function called, and with which parameters?
+</p>
+
+<p>
+The events come from builtin probes (currently for interrupts and the VDP
+command engine) and from your own traces. A trace is typically added from a
+breakpoint or watchpoint with the <code><a class="external"
+href="commands.html#debug-trace">debug trace add</a></code> command, e.g. to log
+register A each time a function is called. Some scripts set up traces for you,
+e.g. <code>cpu_trace</code> (executed instructions and register values) and
+<code>symboltracer</code> (calls of all functions from a symbol file). With
+markers in the graph you can measure the time between events. The Help menu of
+the Trace Viewer has more details and an example.
+</p>
+
+<p>
+The Raster Beam Viewer (<span class="menu-reference">Main menu bar &rarr;
+Debugger &rarr; Raster beam viewer</span>) shows the MSX screen while it is
+being built up, with the current position of the raster beam and where the
+VBLANK and line interrupts will occur. This is especially useful while
+stepping through code in the debugger. It can also show the trace events of the
+last frame, so you can see where on the screen something happened.
+</p>
 
 <h2><a id="contact">10. Contact Info</a></h2>
 
