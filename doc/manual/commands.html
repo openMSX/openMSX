@@ -40,6 +40,7 @@
         <li><a class="internal" href="#laserdiscplayer">laserdiscplayer</a></li>
         <li><a class="internal" href="#list_extensions">list_extensions</a></li>
         <li><a class="internal" href="#load_settings">load_settings</a></li>
+        <li><a class="internal" href="#ls">ls&lt;x&gt;</a></li>
         <li><a class="internal" href="#machine">machine</a></li>
         <li><a class="internal" href="#machines">create_machine / load_machine / activate_machine / list_machines / delete_machine</a></li>
         <li><a class="internal" href="#machine_info">machine_info</a></li>
@@ -1424,6 +1425,39 @@
     </tr>
   </table>
 
+  <h3><a id="ls">ls&lt;x&gt;</a></h3>
+
+  <p>Change the disk image of an LS-120 drive. The commands <code>lsa</code>,
+  <code>lsb</code> etc. are assigned to all available LS-120 drives in the
+  MSX. LS-120 drives are e.g. present in the SCSI interface extensions
+  <code>Gouda_SCSI</code>, <code>ESE_MEGA-SCSI</code> and
+  <code>ESE_WAVE-SCSI</code>.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>lsa &lt;disk image&gt;</code></td>
+
+      <td>Use disk image for LS-120 drive "lsa"</td>
+    </tr>
+
+    <tr>
+      <td><code>lsa eject</code></td>
+
+      <td>Eject the disk from LS-120 drive "lsa"</td>
+    </tr>
+
+    <tr>
+      <td><code>lsa</code></td>
+
+      <td>Show current disk image for LS-120 drive "lsa"</td>
+    </tr>
+  </table>
+
+
   <h3><a id="machine">machine</a></h3>
 
   <p>Switch to a new MSX machine.</p>
@@ -2705,6 +2739,10 @@ current MSX model can be:</p>
       <td>Tests whether an address is inside a certain slot</td>
     </tr>
     <tr>
+      <td><code>casload</code>, <code>cassave</code>, <code>caslist</code>, <code>casrun</code>, <code>caspos</code>, <code>caseject</code></td>
+      <td>Use CAS files directly via the BIOS cassette routines, without converting them to WAV</td>
+    </tr>
+    <tr>
       <td><code>cpuregs</code></td>
       <td>Gives an overview of the CPU registers</td>
     </tr>
@@ -2765,6 +2803,10 @@ current MSX model can be:</p>
       <td>Loads all breakpoint subtypes (breakpoints, watchpoints and conditions) from a given file</td>
     </tr>
     <tr>
+      <td><code>mog_password</code>, <code>mog_password_show</code></td>
+      <td>Extracts the password currently shown in The Maze of Galious, and saves it to a file or only shows it. A saved password can be typed back into the game with <code><a class="internal" href="#type">type_from_file</a> -release</code></td>
+    </tr>
+    <tr>
       <td><code>multi_screenshot</code></td>
       <td>Takes screenshots of multiple successive frames</td>
     </tr>
@@ -2775,6 +2817,10 @@ current MSX model can be:</p>
     <tr>
       <td><code>prev_frame</code></td>
       <td>Rewinds to the (start of) the previous frame</td>
+    </tr>
+    <tr>
+      <td><code>advance_frame</code>, <code>reverse_frame</code></td>
+      <td>Emulates forward/backward for the duration of one (or N) frames</td>
     </tr>
     <tr>
       <td><code>pc_in_slot</code></td>
@@ -2833,12 +2879,12 @@ current MSX model can be:</p>
       <td>Reads an unsigned byte from the given memory location</td>
     </tr>
     <tr>
-      <td><code>poke</code></td>
+      <td><code>poke</code>, <code>poke8</code></td>
       <td>Writes a byte to the given memory location. Use <code>dpoke</code> to only write if the value to be written is different from the current value.</td>
     </tr>
     <tr>
-      <td><code>poke16</code></td>
-      <td>Writes a 16 bit word to the given memory location</td>
+      <td><code>poke16</code>, <code>poke16_LE</code>, <code>poke16_BE</code></td>
+      <td>Writes a 16 bit word (little/big endian) to the given memory location</td>
     </tr>
     <tr>
       <td><code>psg_log</code></td>
@@ -2881,8 +2927,16 @@ current MSX model can be:</p>
       <td>Saves the current MSX screen into an MSX compatible binary file (BLOAD format).</td>
     </tr>
     <tr>
+      <td><code>save_session</code>, <code>load_session</code>, <code>list_sessions</code>, <code>delete_session</code></td>
+      <td>Saves/restores the state of all running machines as a named session, see also <code><a class="internal" href="#enable_session_management">enable_session_management</a></code></td>
+    </tr>
+    <tr>
       <td><code>save_to_file</code></td>
       <td>Helper function to save data (e.g. the output of another command) to a file.</td>
+    </tr>
+    <tr>
+      <td><code>sdcdb</code></td>
+      <td>Source level debugger for programs compiled with SDCC, using its CDB file (still work in progress)</td>
     </tr>
     <tr>
       <td><code>setcolor</code></td>
@@ -2947,6 +3001,14 @@ current MSX model can be:</p>
     <tr>
       <td><code>step_back</code></td>
       <td>Steps one instruction back in time</td>
+    </tr>
+    <tr>
+      <td><code>symboltracer</code></td>
+      <td>Profiler that shows function calls in the Trace Viewer of the debugger. Functions to trace come from a symbol file, or can be toggled per symbol via the right-click menu in the Symbol Manager.</td>
+    </tr>
+    <tr>
+      <td><code>tcl_bridge</code></td>
+      <td>Lets MSX software execute Tcl commands via I/O port 6 (<code>tcl_bridge start</code> to enable it)</td>
     </tr>
     <tr>
       <td><code>text_echo</code></td>
@@ -3061,8 +3123,16 @@ current MSX model can be:</p>
       <td>Records the music played by PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC into a VGM file</td>
     </tr>
     <tr>
+      <td><code>vram2bmp</code></td>
+      <td>Saves a region of the video RAM as a BMP file</td>
+    </tr>
+    <tr>
       <td><code>vpeek/vpoke</code></td>
       <td>Reads/writes bytes from/to video RAM</td>
+    </tr>
+    <tr>
+      <td><code>watch_in_slot</code></td>
+      <td>Checks whether the address of the last watchpoint hit is in the specified slot (useful as watchpoint condition)</td>
     </tr>
   </table>
 
