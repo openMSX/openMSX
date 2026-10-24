@@ -63,11 +63,8 @@
 	<string>oMSX</string>
 	<key>CFBundleVersion</key>
 	<string>%VERSION%</string>
-	<key>LSMinimumSystemVersionByArchitecture</key>
-	<dict>
-		<key>x86_64</key>
-		<string>10.13.0</string>
-	</dict>
+	<key>LSMinimumSystemVersion</key>
+	<string>%MIN_OS_VERSION%</string>
 	<key>LSRequiresCarbon</key>
 	<true/>
 	<key>NSPrefPaneIconFile</key>
