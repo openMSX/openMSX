@@ -125,13 +125,14 @@
         <li><a class="internal" href="#interleave_black_frame">interleave_black_frame</a></li>
         <li><a class="internal" href="#invalid_ppi_mode_callback">invalid_ppi_mode_callback</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
-        <li><a class="internal" href="#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a></li>
+        <li><a class="internal" href="#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config/joyhandle&lt;n&gt;_config/colecojoystick&lt;n&gt;_config</a></li>
         <li><a class="internal" href="#joystickN_deadzone">joystick&lt;n&gt;_deadzone / joystick&lt;n&gt;_midpoint / joystick&lt;n&gt;_saturation</a></li>
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
         <li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
         <li><a class="internal" href="#kbd_deadkey1_host_key">kbd_deadkey1_host_key</a></li>
         <li><a class="internal" href="#kbd_deadkey2_host_key">kbd_deadkey2_host_key</a></li>
         <li><a class="internal" href="#kbd_deadkey3_host_key">kbd_deadkey3_host_key</a></li>
+        <li><a class="internal" href="#kbd_disable_IME">kbd_disable_IME</a></li>
         <li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
         <li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
         <li><a class="internal" href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></li>
@@ -4171,10 +4172,11 @@ current MSX model can be:</p>
   </table>
 
 
-  <h3><a id="msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a></h3>
+  <h3><a id="msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config/joyhandle&lt;n&gt;_config/colecojoystick&lt;n&gt;_config</a></h3>
 
   <p>This setting configures how the buttons/axis/keys of the host are
-  mapped to the inputs of the emulated MSX joysticks or JoyMega devices. For many
+  mapped to the inputs of the emulated MSX joysticks, JoyMega devices,
+  Panasonic FS-JH1 Joy Handles or ColecoVision controllers. For many
   host controllers the initial value of this setting provides an acceptable default
   mapping. But depending on your controller type and taste you may want to tweak
   it.</p>
@@ -4189,6 +4191,11 @@ current MSX model can be:</p>
   <code>RIGHT</code>, <code>UP</code>, <code>DOWN</code>, <code>A</code> and
   <code>B</code>. For the JoyMega devices, add <code>C</code>, <code>X</code>,
   <code>Y</code>, <code>Z</code>, <code>SELECT</code> and <code>START</code>.
+  For the Joy Handle, add <code>WHEEL</code>, which takes an analog host axis
+  (e.g. <code>joy1 axis0</code>). The ColecoVision controllers have
+  <code>L</code> and <code>R</code> instead of <code>A</code> and
+  <code>B</code>, plus the keypad keys <code>0</code>-<code>9</code>,
+  <code>*</code> and <code>#</code>.
   The corresponding dictionary-values are lists of boolean host
   inputs. Possible elements for these lists regarding host controller input are
   <code>joy&lt;n&gt; button&lt;m&gt;</code>, <code>joy&lt;n&gt; +axis&lt;m&gt;</code>,
@@ -4498,6 +4505,30 @@ current MSX model can be:</p>
    playing games but unfortunately it conflicts with the default set-up for the third dead key. Such a command
    binding takes precedence over keyboard mappings, so if you want to use PAGEDOWN as the third dead key you
    will have to enter following additional command in the console: <code>unbind PAGEDOWN</code>.</p>
+
+
+  <h3><a id="kbd_disable_IME">kbd_disable_IME</a></h3>
+
+  <p>Only on Windows: disable the IME (Input Method Editor) of the host, to
+  avoid keyboard input problems in Kanji mode. Enabled by default.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set kbd_disable_IME</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set kbd_disable_IME off</code></td>
+
+      <td>Keep the IME of the host enabled</td>
+    </tr>
+  </table>
 
 
   <h3><a id="kbd_mapping_mode">kbd_mapping_mode</a></h3>
@@ -6122,7 +6153,7 @@ current MSX model can be:</p>
     Video 9000 is available), <code>GFX9000</code> (V9990),
     <code>Video9000</code> (V9990 superimposed on top of V99x8, default if
     available) and <code>Laserdisc</code> (for Palcom machines). There can be
-    even more video sources, e.g. offered by cartridges with a built-in VDP such as the Neos MA-20(V).
+    even more video sources, e.g. offered by cartridges with a built-in VDP such as the Neos MA-20(V) or the Franky.
   </p>
 
   <div class="subsectiontitle">
@@ -6249,6 +6280,30 @@ current MSX model can be:</p>
     <tr>
       <td><code>fast_cas_load_hack_enabled</code></td>
       <td>Enable a hack that lets you quickly load CAS files, without having openMSX convert them to WAV</td>
+    </tr>
+    <tr>
+      <td><code>Franky auto video switch</code></td>
+      <td>Automatically switch the <code><a class="internal" href="#videosource">videosource</a></code> between the MSX VDP and the Franky VDP, based on which one has interrupts enabled (default on)</td>
+    </tr>
+    <tr>
+      <td><code>msxpirom_bank</code>, <code>msxpirom_sltsl</code></td>
+      <td>The BANK and J3 SLTSL jumpers of the MSXPi; take effect at the next reset</td>
+    </tr>
+    <tr>
+      <td><code>msxpiserver_port</code></td>
+      <td>TCP port used to connect to the MSXPi server (default 5000)</td>
+    </tr>
+    <tr>
+      <td><code>plotter-charset</code>, <code>plotter-dipswitch4</code>, <code>plotter-pen-thickness</code></td>
+      <td>Character set (<code>international</code> or <code>din</code>), dip switch 4 (carriage return also does a line feed) and pen thickness (<code>standard</code> or <code>thick</code>) of the MSX plotter</td>
+    </tr>
+    <tr>
+      <td><code>rs232-raw-port</code></td>
+      <td>Host serial port used by the <code>rs232-raw</code> pluggable, e.g. <code>/dev/ttyS0</code> or <code>COM1</code></td>
+    </tr>
+    <tr>
+      <td><code>smxwifi-emulatedesp32-link-enabled</code>, <code>smxwifi-emulatedesp32-quickrcv-enabled</code></td>
+      <td>Report the WiFi link of the emulated ESP32 of the SMX WiFi as up, and use quick receive (assert WAIT when the UART FIFO is empty)</td>
     </tr>
   </table>
 
