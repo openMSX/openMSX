@@ -204,10 +204,16 @@ jobs:
             release_id=$(echo "$resp" | jq -r .id)
             upload_url=$(echo "$resp" | jq -r .upload_url)
           else
-            echo "Creating draft release for tag ${TAG}"
+            # A release candidate (tag like RELEASE_1_2_3_RC1) becomes a pre-release.
+            if [[ "${TAG}" =~ _RC[0-9]+$ ]]; then
+              prerelease=true
+            else
+              prerelease=false
+            fi
+            echo "Creating draft release for tag ${TAG} (pre-release: ${prerelease})"
             body_json=$(jq -Rs . release-notes-body.txt)
             create_resp=$(curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
-              -d "$(jq -n --arg t "${TAG}" --arg n "Release ${TAG}" --argjson b "$body_json" '{tag_name:$t,name:$n,draft:true,prerelease:false,body:$b}')" \
+              -d "$(jq -n --arg t "${TAG}" --arg n "Release ${TAG}" --argjson b "$body_json" --argjson p "${prerelease}" '{tag_name:$t,name:$n,draft:true,prerelease:$p,body:$b}')" \
               "https://api.github.com/repos/${repo}/releases")
             release_id=$(echo "$create_resp" | jq -r .id)
             upload_url=$(echo "$create_resp" | jq -r .upload_url)
