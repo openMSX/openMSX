@@ -6,6 +6,11 @@ OpenMSX I/O port Kanji ROM and I/O port Hangul/Hanja ROM configurations should b
 
 Any machine or cartridge extensions with an I/O port Kanji ROM or I/O port Hangul/Hanja ROM implementation exposed via I/O ports 0xD8/0xD9 and/or 0xDA/0xDB should be tested or studied to determine how it behaves, and then configured accordingly so that OpenMSX can emulate it accurately. If you aren't sure whether a machine or extension contains this, you can try running the test there to find out.
 
+## Running on Real Hardware
+
+- **Disk:** `ktst31.dsk` is a 720 KB (double-sided) disk image. Write it to a floppy, or use it with a floppy emulator or a disk interface that can mount images. It starts the test automatically through `AUTOEXEC.BAS`. For a single-sided drive, copy the files from the image to a 360 KB disk.
+- **Cassette:** `ktst31 [RUN'CAS-'].cas` holds the cassette version. Play it with an app that turns CAS files into audio, connected to the MSX's cassette port, and load it with `RUN"CAS:KTST31"`. To make a WAV file yourself, run `python3 cas2wav.py "ktst31 [RUN'CAS-'].cas" ktst31.wav`.
+
 ## Interpretation of Results
 
 The test suite (as of version 3.1) now consists of a starting program KTST31.ASC that checks to make sure you have enough RAM and gives a list of all the test sections, and then three separate test programs which it runs in sequence:
