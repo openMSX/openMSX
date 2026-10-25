@@ -59,13 +59,21 @@ bindist: app codesign $(DESTDIR)/$(BINDIST_LICENSE)
 		echo "  Signing the disk image..."; \
 		codesign --force --verify --verbose --sign "$(CODE_SIGN_IDENTITY)" "$(BINDIST_PACKAGE)"; \
 	fi
+# Stapling and validating contact Apple's servers, which sometimes lose the
+# connection, so retry those a few times.
 	@if [ -z "$(NOTARY_PROFILE)" ]; then \
 		echo "  Skipping notarization, NOTARY_PROFILE not set."; \
 	else \
 		echo "  Notarizing the disk image..."; \
-		xcrun notarytool submit "$(BINDIST_PACKAGE)" --keychain-profile "$(NOTARY_PROFILE)" --wait; \
-		xcrun stapler staple "$(BINDIST_PACKAGE)"; \
-		xcrun stapler validate "$(BINDIST_PACKAGE)"; \
+		xcrun notarytool submit "$(BINDIST_PACKAGE)" --keychain-profile "$(NOTARY_PROFILE)" --wait || exit 1; \
+		for action in staple validate; do \
+			for attempt in 1 2 3 4 5; do \
+				xcrun stapler $$action "$(BINDIST_PACKAGE)" && break; \
+				if [ $$attempt = 5 ]; then exit 1; fi; \
+				echo "  Stapler $$action failed, retrying in 30 seconds..."; \
+				sleep 30; \
+			done; \
+		done; \
 	fi
 
 $(DESTDIR)/$(APP_PLIST): $(DESTDIR)/$(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% bindistclean
