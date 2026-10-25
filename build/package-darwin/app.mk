@@ -20,8 +20,9 @@ BINDIST_PACKAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_LICENSE:=$(INSTALL_DOC_DIR)/GPL.txt
 
 # Shown as the DMG window title and in the Finder path/status bar. Deliberately
-# uses the plain release version, not the git revision. Keep it under 27
-# characters.
+# uses the plain release version, not the git revision. Keep it at most 27
+# characters: the background alias in .DS_Store stores the volume name in a
+# 27-byte field and truncates anything longer.
 DMG_VOLNAME:=openMSX $(shell PYTHONPATH=build $(PYTHON) -c \
   "import version; print(version.packageVersion)" \
   ) installer
