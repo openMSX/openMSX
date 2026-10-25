@@ -121,10 +121,12 @@ uint8_t MSXWatchIODevice::peekIO(uint16_t port, EmuTime time) const
 uint8_t MSXWatchIODevice::readIO(uint16_t port, EmuTime time)
 {
 	assert(device);
+	// the callback may remove the watchpoint, which deletes 'this'
+	auto* dev = device;
 
 	// first trigger watchpoint, then read from device
 	wp.doReadCallback(getMotherBoard(), port);
-	return device->readIO(port, time);
+	return dev->readIO(port, time);
 }
 
 void MSXWatchIODevice::writeIO(uint16_t port, uint8_t value, EmuTime time)
