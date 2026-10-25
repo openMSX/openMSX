@@ -57,7 +57,7 @@
 //   * Twiddle tables are constexpr and laid out so the hot loops read
 //     sequential (or broadcast) floats.
 //   * Unpack writes several streams into one buffer; those streams are passed
-//     as distinct __restrict__ pointers (and the loop is not inlined) so the
+//     as distinct __restrict pointers (and the loop is not inlined) so the
 //     compiler can vectorize without a run-time alias check.
 //
 // Size: FFT_LEN_L2 in 4 .. 16 → 16 .. 65536 real points, or 4 .. 15 →
@@ -358,7 +358,7 @@ private:
 
 	// Even extension: [a,b,c,d,e] → [a,b,c,d,e,d,c,b]. The second half is the
 	// reverse of the interior (not of the whole first half).
-	static void mirror(const float* __restrict__ in, float* __restrict__ full)
+	static void mirror(const float* __restrict in, float* __restrict full)
 	{
 		std::copy_n(in, M + 1, full);
 		std::reverse_copy(in + 1, in + M, full + M + 1);
@@ -366,7 +366,7 @@ private:
 
 	// Load the 8 inputs of first-pass butterfly p.
 	template<InputMode IN_MODE>
-	ALWAYS_INLINE static void loadFirst(const float* __restrict__ in, int p,
+	ALWAYS_INLINE static void loadFirst(const float* __restrict in, int p,
 	                                    std::span<float, 8> ar, std::span<float, 8> ai)
 	{
 		// Not Symmetric: that is expanded by mirror() and then loaded as Full.
@@ -387,7 +387,7 @@ private:
 	// index p: the inner loop covers 8 consecutive p's (one twiddle block).
 	// M < 64 has a single, partial block.
 	template<InputMode IN_MODE>
-	static void firstPass(const float* __restrict__ in, float* __restrict__ out)
+	static void firstPass(const float* __restrict in, float* __restrict out)
 	{
 		float* yr = out;
 		float* yi = out + LB;
@@ -420,7 +420,7 @@ private:
 	// which writes separate real/imag halves (or |Z|^2 for complex input with
 	// Power output).
 	template<unsigned R, unsigned LEN, unsigned STRIDE, bool LAST>
-	static void stridePass(const float* __restrict__ src, float* __restrict__ dst)
+	static void stridePass(const float* __restrict src, float* __restrict dst)
 	{
 		static_assert(LEN * STRIDE == M);
 		static_assert(STRIDE % 8 == 0);
@@ -526,10 +526,10 @@ private:
 	// for the loop after inlining.
 	template<int BEGIN, int END>
 	NEVER_INLINE static void unpackRange(
-		const float* __restrict__ zr, const float* __restrict__ zi,
-		float* __restrict__ oLo, float* __restrict__ oLoR,
-		float* __restrict__ oHi, float* __restrict__ oHiR,
-		const float* __restrict__ twc, const float* __restrict__ tws)
+		const float* __restrict zr, const float* __restrict zi,
+		float* __restrict oLo, float* __restrict oLoR,
+		float* __restrict oHi, float* __restrict oHiR,
+		const float* __restrict twc, const float* __restrict tws)
 	{
 		for (int k = BEGIN; k < END; ++k) {
 			unpackPair(zr[k], zi[k], zr[M - k], zi[M - k], twc[k - 1], tws[k - 1],
@@ -544,7 +544,7 @@ private:
 		                        twc, tws);
 	}
 
-	static void unpack(const float* __restrict__ z, float* __restrict__ out)
+	static void unpack(const float* __restrict z, float* __restrict out)
 	{
 		const float* zr = z;
 		const float* zi = z + M;
