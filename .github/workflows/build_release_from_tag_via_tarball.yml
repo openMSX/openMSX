@@ -117,11 +117,8 @@ jobs:
         shopt -s extglob
         rm -rf -v !("${{ needs.prepare-dist.outputs.tarball_name }}")
     - name: Extract tarball
-      uses: a7ul/tar-action@v1.2.0
-      id: extract
-      with:
-        command: x
-        files: ${{ needs.prepare-dist.outputs.tarball_name }}
+      shell: bash
+      run: tar -xzf "${{ needs.prepare-dist.outputs.tarball_name }}"
     - name: Move extracted tarball contents to root
       shell: bash
       run: mv ${{ needs.prepare-dist.outputs.dist_name }}/* .
