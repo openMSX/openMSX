@@ -1,18 +1,18 @@
 Release Notes for openMSX 22.0 (2026-xx-xx)
 ===========================================
 
-Thanks to many contributors (who make well use of modern AI facilities), we
+Thanks to many contributors (who make good use of modern AI tools), we
 have a very long list of changes again. Major features are found in the
 debugger GUI, with a new Raster Beam Viewer and Tracer functionality. We also
-have the Quick Setup Editor, for a one-window access to all major setup
+have the Quick Setup Editor, for one-window access to all major setup
 settings.
 
 Then AI hit us with dozens of Pull Requests with new and improved
-functionality... Not all pure AI generated, but also using the AI to analyse
+functionality... Not all purely AI-generated, but also using AI to analyse
 bulk measurements. This led to many VDP accuracy improvements and emulation of
 new devices like plotters, Panasonic FS-JH1 Joy Handle steering wheel (that
-came with Konami's A1-Spirit), light guns, Franky, Makoto, SD Mapper V1.
-There's now even also a synthetic TCP/IP UNAPI device to be able to try out
+came with Konami's A1 Spirit), light guns, Franky, Makoto, SD Mapper V1 and
+SM-X WiFi. There's even a synthetic TCP/IP UNAPI device to be able to try out
 network programs in openMSX.
 
 And many, many more things...
@@ -36,20 +36,23 @@ MSX device support:
 - added ASCII8-R (reversed) mapper type
 - fixed details of MSX kanji ROM emulation, adding specific behaviour in many
   machines and devices
-- added Panasonic FS-JH1 Joy Handle (belongs with Konami's A1-Spirit),
+- added Panasonic FS-JH1 Joy Handle (belongs with Konami's A1 Spirit),
   including configuration window
-- added SuperSoniqs Franky emulation (allows to play Sega Master System games
+- added SuperSoniqs Franky emulation (allows playing Sega Master System games
   on MSX)
 - added SuperSoniqs Makoto emulation (OPNA sound cartridge)
 - added SD Mapper V1 emulation
-- updated Neo mapper support to specification version 1.2 now supporting a
-  13-bit segment register (16384 segments)
+- added SM-X WiFi emulation (UNAPI compatible ESP WiFi module), connecting
+  either to a real ESP32 on a host serial port or to an emulated one that uses
+  the host network
+- updated Neo mapper support to specification version 1.2, now using 14 bits
+  of the segment register (up to 16384 segments)
 - VDP:
-  - fixed VDP I/O delay to 1 cycle for T9769 engines
+  - fixed VDP I/O delay to 1 cycle for machines with a T9769 MSX-ENGINE (all
+    subtypes)
   - added implementation of the TEXT2-mode per line blink (bit 2 in VDP R#2)
-  - improved timing correctness of the YMMM and LMMM command
-  - several other VDP command timing improvements details (including start
-    delays)
+  - improved timing correctness of the YMMM and LMMM commands
+  - several other VDP command timing improvements (including start delays)
   - improved VDP-VRAM timing even further
   - fixed display line counter latch (fixes Sex Bomb Bunny shaking screen)
   - fixed border color changes at the wrong position (last part of Utopia)
@@ -77,10 +80,10 @@ New or improved emulator features:
     change your setup
   - added a "color blind" theme
   - added a pitch estimate column to the audio viewer (hidden by default)
-  - sort mappert types in the GUI alphabetically
+  - sort mapper types in the GUI alphabetically
   - added "recent machines" to the Machine menu
   - added slot map viewer
-  - added I/O map viewer
+  - added I/O ports viewer
   - in the Cartridge Slot window: added a link to Generation MSX where known
   - fixed history (recent items) for dir-as-disk
   - added ColecoVision controller configuration window
@@ -98,16 +101,22 @@ New or improved emulator features:
   - added debug Tracer (console and GUI), with timeline plotting of events in
     Trace Viewer
   - integration of Raster Beam Viewer and Tracer: show trace events on raster
-  - rewrote `vdpcmdtrace` in Tcl now using the Raster Beam Viewer
+  - rewrote `vdpcmdtrace` in Tcl, using the new `VDP.command` probe (output now
+    goes to stderr and its format changed)
+  - rewrote `cputrace` in Tcl (output now goes to stderr, its format changed
+    and it is a lot slower)
   - added `cpu_trace` Tcl command which sets up traces that can be viewed in
     the Trace Viewer
   - bitmap viewer: show y=[0..1023] again
   - sprite viewer: fixed sprite attributes section height when zoomed
   - added a profiler that uses the new Trace Viewer, see the `symboltracer` Tcl
-    command
+    command; tracing a function can also be toggled in the Symbol Manager
   - added option to export the ASCII view of the generic debuggable
     editor/viewer
   - added visualization of line commands in the bitmap viewer
+  - added 'romblock16' debuggable
+  - fixed crash with I/O read watchpoints that remove themselves (e.g. with
+    -once)
   - added a generic bitmap viewer for any debuggable (from the Debugger menu or
     the hex editor's context menu): configurable bits per pixel (1 to 32),
     bit order and endianness, up to 2 levels of tiling with custom steps,
@@ -126,10 +135,15 @@ New or improved emulator features:
 - release cursor grab when openMSX is paused
 - fixed illegal slot specification as was in the CIEL Expert-Turbo machine for
   years
-- fixed crash in HQ resampler when running at very low speeds
+- fixed an out-of-bounds read in the HQ resampler
 - improved UI responsiveness when paused/breaked
 - fixed the pause_on_lost_focus setting which broke since openMSX 20.0
 - fixed crash when having built against sdl2-compat
+- fixed an out-of-bounds access when switching from SCREEN 8 to another mode
+- fixed crash when an 'after' command switches to another machine
+- fixed msxcode2unicode and other issues with Tcl 9
+- added 'tcl_bridge' command, which allows MSX software to execute Tcl commands
+- added 'openmsx_info software' to query the ROM database
 - added UnapiNet: an MSX-UNAPI TCP/IP bridge device. A synthetic device on I/O
   ports 0x28/0x29 that implements the MSX-UNAPI TCP/IP UNAPI functions (DNS,
   TCP, UDP, ICMP echo) by bridging to the host's BSD sockets. Needs a specific
@@ -149,7 +163,8 @@ New or improved emulator features:
 - fixed several bugs in the cashandler script (to use CAS files directly)
 - added 'rs232-raw' pluggable that connects to host RS-232C port
 - added emulation of the MSXPi device
-- restored functionality to query which host joysticks are connected from Tcl
+- restored the possibility to query the names of the connected host joysticks
+  from Tcl ('openmsx_info joystick')
 - fixed saving a setup with a '/' in the (machine) name, like "Philips VG
   8235/39" and similar issues with saving a screenshot/savestate/replay
 - added a Maze of Galious password extractor, to easily save passwords in text
@@ -157,19 +172,20 @@ New or improved emulator features:
 - dir-as-disk:
   - added support for 40-track 180kB disk drives (e.g. Talent/AVT DPF-550)
   - fixed writing files back to host filesystem on no-op data-sector writes
-- stop using memory mapping of files on Windows, to avoid Windows blocking
-  developers to overwrite the files when openMSX still has them open
+- stop using memory mapping of files on Windows, to avoid Windows preventing
+  developers from overwriting the files when openMSX still has them open
 - huge updates on the ROM database, including a simplified file format and
   support for Sega SG-1000 and ColecoVision ROMs
 
 Build system, packaging, documentation:
 - required GNU compiler is now at least g++-13
 - at least macOS 13.3 is required to run openMSX
-- Android build is totally broken, and will require a lot of effort and help to
-  get back up, which is not planned by us.
-- 3rd party updates of SDL (2.32.10), Dear ImGui (1.92.9WIP)
+- the Android build is totally broken; getting it back up would require a lot
+  of effort and help, which we don't plan to do
+- 3rd party updates of SDL (2.32.10), Dear ImGui (1.92.9 WIP)
 - added ccache support for faster compiling whilst developing on openMSX
-- macOS builds are now "notarized"
+- macOS builds are now "notarized" and the installer DMG got a new look
+- the Windows installer is now built automatically, including Catapult
 - several fixes on the manual, e.g. debug subcommands and stale examples
 
 ...and of course the usual various bug fixes and performance improvements.
@@ -185,7 +201,7 @@ tips, see the Setup Guide.
 
 openMSX is confirmed to run on the following operating systems: Linux, Windows,
 macOS, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, PPC, ARM, MIPS and Sparc
-CPUs. Running on other operating systems (wherever SDL and OpenGL 2 runs) or
+CPUs. Running on other operating systems (wherever SDL and OpenGL 2.1 run) or
 CPUs should be possible, but may require some modifications to the build
 system. If you are compiling on a new platform, please share your experiences
 (see below for contact info), so we can make openMSX more portable.
@@ -195,10 +211,11 @@ openMSX Home Page:
 Project page on GitHub:
   https://github.com/openMSX
 Contact options:
-- Talk to us on #openmsx on libera.chat or via Discord using the invite
-  https://discord.gg/JV56gzh2qG.
-- Use the forum on https://www.msx.org/forum/semi-msx-talk/openmsx
 - File a ticket on https://github.com/openMSX/openMSX/issues
+- Use the forum on https://www.msx.org/forum/semi-msx-talk/openmsx
+- Talk to us on #openmsx on libera.chat or via Discord using the invite
+  https://discord.gg/JV56gzh2qG (the #openmsx-irc-bridge channel is the best
+  place to ask questions there)
 
 Thanks to all contributors for their feedback, support, bug reports, testing,
 coding and other help!
