@@ -114,9 +114,8 @@ The release workflow (see above) created a draft release on GitHub. Finish it
 - Make sure you're logged in
 - Go to https://github.com/openMSX/openMSX/releases and edit the draft
   release for the tag, e.g. RELEASE_1_2_3
-- Change the title, which the workflow sets to "Release RELEASE_1_2_3", to
-  'openMSX' and the release number:
-  openMSX 1.2.3
+- Check the title, which the workflow derives from the tag, e.g.
+  "openMSX 1.2.3" or "openMSX 1.2.3-RC1".
 - The description contains the full release notes. Shorten it to the first
   few paragraphs (before the list of changes starts), if you like.
 - Check that all expected files are attached.

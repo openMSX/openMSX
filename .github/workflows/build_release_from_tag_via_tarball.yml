@@ -207,10 +207,15 @@ jobs:
             else
               prerelease=false
             fi
-            echo "Creating draft release for tag ${TAG} (pre-release: ${prerelease})"
+            # Title like "openMSX 1.2.3" or "openMSX 1.2.3-RC1", from the tag.
+            version=${TAG#RELEASE_}
+            version=${version/_RC/-RC}
+            version=${version//_/.}
+            name="openMSX ${version}"
+            echo "Creating draft release '${name}' for tag ${TAG} (pre-release: ${prerelease})"
             body_json=$(jq -Rs . release-notes-body.txt)
             create_resp=$(curl -s -X POST -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
-              -d "$(jq -n --arg t "${TAG}" --arg n "Release ${TAG}" --argjson b "$body_json" --argjson p "${prerelease}" '{tag_name:$t,name:$n,draft:true,prerelease:$p,body:$b}')" \
+              -d "$(jq -n --arg t "${TAG}" --arg n "${name}" --argjson b "$body_json" --argjson p "${prerelease}" '{tag_name:$t,name:$n,draft:true,prerelease:$p,body:$b}')" \
               "https://api.github.com/repos/${repo}/releases")
             release_id=$(echo "$create_resp" | jq -r .id)
             upload_url=$(echo "$create_resp" | jq -r .upload_url)
