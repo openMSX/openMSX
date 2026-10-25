@@ -21,6 +21,7 @@
             <!--<filename>initial-content</filename>-->
           </rom>
           <sramname>megaflashromsccplus.sram</sramname>
+          <flashname>megaflashromsccplus.sram.flash</flashname>
           <mappertype>MegaFlashRomSccPlus</mappertype>
         </ROM>
       </secondary>
