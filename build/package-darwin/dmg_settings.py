@@ -16,8 +16,12 @@ files = [app]
 symlinks = {'Applications': '/Applications'}
 hide_extensions = [appName]
 
-# dmgbuild also picks up dmg_bg@2x.png next to it and combines both into one
-# multi-resolution TIFF, so the background stays sharp on Retina displays.
+# dmg_bg.tiff holds dmg_bg.png and dmg_bg@2x.png as one multi-resolution image,
+# so the background stays sharp on Retina displays. It is JPEG-compressed, which
+# makes it about 5x smaller than the LZW TIFF dmgbuild would make from the PNGs.
+# Regenerate it after changing either PNG, from this directory, with:
+#   magick dmg_bg.png dmg_bg@2x.png -alpha off -units PixelsPerInch \
+#       -set density '%[fx:t==0?72:144]' -compress jpeg -quality 90 dmg_bg.tiff
 background = defines['background']
 
 # The window is sized to dmg_bg.png (600x403) so no blank area shows beside it.
