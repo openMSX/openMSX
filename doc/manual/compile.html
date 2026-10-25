@@ -608,6 +608,9 @@ The final output files will be produced in <code>derived/&lt;cpu&gt;-&lt;os&gt;-
 The final output is a DMG file (Mac disk image) containing the openMSX application folder and documentation. This file is internet-enabled, which means it will be automatically mounted after it is downloaded.
 </p>
 <p>
+To get the styled DMG window (background image and icon layout), install <a class="external" href="https://github.com/dmgbuild/dmgbuild">dmgbuild</a> first, for example with <code>pipx install dmgbuild</code>. Without it, a plain DMG is created.
+</p>
+<p>
 If you have an Apple Developers ID, you can automatically sign the app bundle by providing the following environment variable in your shell before building the app bundle:
 </p>
 <div class="commandline">
