@@ -806,7 +806,7 @@
       <td>Create a new watchpoint with the given properties and return its ID. Supported properties:
         <ul>
           <li><code>-type</code>: one of <code>read_io</code>, <code>write_io</code>, <code>read_mem</code> or <code>write_mem</code>.</li>
-          <li><code>-address</code>: the address(es) where the watchpoint should trigger, either a single address or a begin/end pair. An address is just a number [0..0xFFFF], but can also be dynamically evaluated from a known symbol by specifying <code>{$sym(MySymbol)}</code>.</li>
+          <li><code>-address</code>: the address(es) where the watchpoint should trigger, either a single address or a <code>{begin end}</code> pair, e.g. <code>-address {0x8000 0xBFFF}</code>. An address is just a number [0..0xFFFF], but can also be dynamically evaluated from a known symbol by specifying <code>{$sym(MySymbol)}</code>.</li>
           <li><code>-condition</code>: a Tcl expression that must evaluate to true for the watchpoint to trigger (default = no condition).</li>
           <li><code>-command</code>: a Tcl command that should be executed when the watchpoint triggers (default = <code>debug break</code>).</li>
           <li><code>-enabled</code>: set to false to (temporarily) disable this watchpoint.</li>
