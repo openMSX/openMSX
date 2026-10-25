@@ -101,7 +101,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Download prepared tarball artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: ${{ needs.prepare-dist.outputs.dist_name }}
         path: dist_artifact
@@ -167,7 +167,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all workflow artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
 
