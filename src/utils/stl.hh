@@ -229,7 +229,7 @@ template<std::ranges::input_range Range, typename Proj = std::identity>
 {
 	using Iter = decltype(std::begin(range));
 	using VT = typename std::iterator_traits<Iter>::value_type;
-	using RT = decltype(std::invoke(proj, std::declval<VT>()));
+	using RT = std::remove_cvref_t<decltype(std::invoke(proj, std::declval<VT>()))>;
 
 	auto first = std::ranges::begin(range);
 	auto last = std::ranges::end(range);
