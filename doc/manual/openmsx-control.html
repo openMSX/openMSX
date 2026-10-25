@@ -96,8 +96,9 @@
   <p>This first output is the opening tag (<code>&lt;openmsx-output&gt;</code>).
   All messages that are normally printed on stdout in the
   terminal from which you start openMSX are in a <code>&lt;log&gt;</code> tag.
-  The level can be "info" or "warning" and the message is in the text node
-  itself.
+  The level can be "info", "warning", "error" or "progress" (for long
+  operations, then the message ends with the percentage done) and the message
+  is in the text node itself.
   </p>
 
   <p>
@@ -221,6 +222,10 @@ get messages such as:
     <tr>
       <td><code>connector</code></td>
       <td>connectors changed (add/remove)</td>
+    </tr>
+    <tr>
+      <td><code>debug</code></td>
+      <td>breakpoints, watchpoints or conditions changed (add/remove), the name is their ID</td>
     </tr>
   </table>
 
