@@ -45,7 +45,7 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 	}))
 	, codeKanaHostKey(commandController,
 		"kbd_code_kana_host_key",
-		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
+		"Host key that maps to the MSX CODE/KANA key",
 		SDLK_RALT, getAllowedKeysMap())
 	, kpEnterMode(commandController,
 		"kbd_numkeypad_enter_key",
