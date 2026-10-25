@@ -33,12 +33,17 @@ app: install $(DESTDIR)/$(APP_PLIST) $(DESTDIR)/$(APP_ICON)
 bindist: app codesign $(DESTDIR)/$(BINDIST_LICENSE)
 	@echo "Creating disk image:"
 # dmgbuild (pip install dmgbuild) writes the Finder layout for the background
-# and icon positions. Without it, fall back to a plain, unstyled disk image.
+# and icon positions. Without it, fall back to a plain, unstyled disk image,
+# unless REQUIRE_DMGBUILD is set (as CI does), so a release can't silently lose
+# its layout.
 	@if command -v dmgbuild > /dev/null; then \
 		dmgbuild -s $(APP_SUPPORT_DIR)/dmg_settings.py \
 			-D app=$(DESTDIR)/$(APP_DIR) \
 			-D background=$(APP_SUPPORT_DIR)/dmg_bg.png \
 			"$(DMG_VOLNAME)" $(BINDIST_PACKAGE); \
+	elif [ -n "$(REQUIRE_DMGBUILD)" ]; then \
+		echo "  dmgbuild not found, but REQUIRE_DMGBUILD is set." >&2; \
+		exit 1; \
 	else \
 		echo "  dmgbuild not found, creating an unstyled disk image."; \
 		ln -sf /Applications $(BINDIST_DIR)/Applications; \
