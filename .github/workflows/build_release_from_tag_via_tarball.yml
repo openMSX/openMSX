@@ -44,6 +44,7 @@ jobs:
         with:
           name: ${{ steps.get_dist_name.outputs.dist_name }}
           path: ${{ steps.get_dist_name.outputs.tarball_name }}
+          if-no-files-found: error
 
   build:
     name: ${{ matrix.name }} ${{ matrix.cpu }}

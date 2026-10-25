@@ -160,6 +160,7 @@ runs:
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
+        if-no-files-found: error
     - name: Upload probe logging zip
       if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       uses: actions/upload-artifact@v6
@@ -172,15 +173,18 @@ runs:
       with:
         name: ${{ steps.openmsx.outputs.target_file_base }}.zip
         path: derived\x64-VC-Release\package-windows\*-bin.zip
+        if-no-files-found: error
     - name: Upload Windows VC MSI redistributable (zip)
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.openmsx.outputs.target_file_base }}-msi.zip
         path: derived\x64-VC-Release\package-windows\*-msi.zip
+        if-no-files-found: error
     - name: Upload Windows VC debug symbols
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
       uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.openmsx.outputs.target_file_pdb }}.zip
         path: derived\x64-VC-Release\package-windows\*-pdb.zip
+        if-no-files-found: error
