@@ -23,6 +23,9 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - name: Check that the tag matches the version information
+        shell: bash
+        run: python3 build/check_release.py ${{ inputs.tag }}
       - name: Create tarball
         shell: bash
         run: python3 build/gitdist.py ${{ inputs.tag }}

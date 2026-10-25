@@ -45,6 +45,9 @@ without such a suffix.
   title like "openMSX 1.2.3-RC1 (2026-10-31)". For the final release, replace
   that release candidate entry with the final release notes.
 - Don't forget to commit and push all these last changes before tagging!
+- Check that the version information matches the tag you're going to create:
+    build/check_release.py RELEASE_1_2_3_RC1 HEAD
+  (The release workflow does this check again on the tag itself.)
 - Tag the git archive:
     git tag -a RELEASE_1_2_3_RC1 -m "Tagging release 1.2.3-RC1."
     git push --tags
@@ -55,6 +58,9 @@ without such a suffix.
   Click open "Run workflow" at the top right, fill in the tag (e.g.
   "RELEASE_1_2_3_RC1") at "Release tag to build" and click "Run workflow".
   This workflow:
+  - checks that the tag matches the version number, suffix and release flag
+    in build/version.py, the title of doc/release-notes.txt and an entry in
+    doc/release-history.txt (build/check_release.py), and stops if not
   - creates the distribution tarball (build/gitdist.py) from the tag
   - builds the binaries for all platforms that can be built there from that
     tarball. The Windows (Visual C++) build includes Catapult, taken from the
