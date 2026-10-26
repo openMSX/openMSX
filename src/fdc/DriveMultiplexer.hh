@@ -39,7 +39,7 @@ public:
 	void step(bool direction, EmuTime time) override;
 	void setMotor(bool status, EmuTime time) override;
 	[[nodiscard]] bool getMotor() const override;
-	[[nodiscard]] bool indexPulse(EmuTime time) override;
+	[[nodiscard]] bool indexPulse(EmuTime time) const override;
 	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime time, int count) override;
 	[[nodiscard]] unsigned getTrackLength() override;
 	void writeTrackByte(int idx, uint8_t val, bool addIdam) override;

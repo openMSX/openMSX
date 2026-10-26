@@ -161,35 +161,7 @@ void WD2793::setCommandReg(uint8_t value, EmuTime time)
 
 uint8_t WD2793::getStatusReg(EmuTime time)
 {
-	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
-		// Type I or type IV command
-		statusReg &= ~(INDEX | TRACK00 | HEAD_LOADED | WRITE_PROTECTED);
-		if (drive.indexPulse(time)) {
-			statusReg |=  INDEX;
-		}
-		if (drive.isTrack00()) {
-			statusReg |=  TRACK00;
-		}
-		if ((hldTime <= time) && (time < (hldTime + IDLE))) {
-			statusReg |=  HEAD_LOADED;
-		}
-		if (drive.isWriteProtected()) {
-			statusReg |=  WRITE_PROTECTED;
-		}
-	} else {
-		// Not type I command so bit 1 should be DRQ
-		if (getDTRQ(time)) {
-			statusReg |=  S_DRQ;
-		} else {
-			statusReg &= ~S_DRQ;
-		}
-	}
-
-	if (isReady()) {
-		statusReg &= ~NOT_READY;
-	} else {
-		statusReg |=  NOT_READY;
-	}
+	statusReg = peekStatusReg(time);
 
 	// Reset INTRQ only if it's not scheduled to turn on in the future.
 	if (irqTime <= time) { // if (INTRQ == true)
@@ -201,8 +173,37 @@ uint8_t WD2793::getStatusReg(EmuTime time)
 
 uint8_t WD2793::peekStatusReg(EmuTime time) const
 {
-	// TODO implement proper peek?
-	return const_cast<WD2793*>(this)->getStatusReg(time);
+	uint8_t result = statusReg;
+	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
+		// Type I or type IV command
+		result &= ~(INDEX | TRACK00 | HEAD_LOADED | WRITE_PROTECTED);
+		if (drive.indexPulse(time)) {
+			result |=  INDEX;
+		}
+		if (drive.isTrack00()) {
+			result |=  TRACK00;
+		}
+		if ((hldTime <= time) && (time < (hldTime + IDLE))) {
+			result |=  HEAD_LOADED;
+		}
+		if (drive.isWriteProtected()) {
+			result |=  WRITE_PROTECTED;
+		}
+	} else {
+		// Not type I command so bit 1 should be DRQ
+		if (getDTRQ(time)) {
+			result |=  S_DRQ;
+		} else {
+			result &= ~S_DRQ;
+		}
+	}
+
+	if (isReady()) {
+		result &= ~NOT_READY;
+	} else {
+		result |=  NOT_READY;
+	}
+	return result;
 }
 
 void WD2793::setTrackReg(uint8_t value, EmuTime /*time*/)

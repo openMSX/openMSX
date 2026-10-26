@@ -70,7 +70,7 @@ public:
 	/** Gets the state of the index pulse.
 	 * @param time The moment in emulated time to get the pulse state for.
 	 */
-	[[nodiscard]] virtual bool indexPulse(EmuTime time) = 0;
+	[[nodiscard]] virtual bool indexPulse(EmuTime time) const = 0;
 
 	/** Return the time till the start of the next index pulse
 	 * When there is no disk in the drive or when the disk is not spinning,
@@ -116,7 +116,7 @@ public:
 	void step(bool direction, EmuTime time) override;
 	void setMotor(bool status, EmuTime time) override;
 	[[nodiscard]] bool getMotor() const override;
-	[[nodiscard]] bool indexPulse(EmuTime time) override;
+	[[nodiscard]] bool indexPulse(EmuTime time) const override;
 	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime time, int count) override;
 	[[nodiscard]] unsigned getTrackLength() override;
 	void writeTrackByte(int idx, uint8_t val, bool addIdam) override;
