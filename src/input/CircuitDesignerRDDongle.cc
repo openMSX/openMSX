@@ -46,7 +46,7 @@ void CircuitDesignerRDDongle::unplugHelper(EmuTime /*time*/)
 
 
 // JoystickDevice
-uint8_t CircuitDesignerRDDongle::read(EmuTime /*time*/)
+uint8_t CircuitDesignerRDDongle::peek(EmuTime /*time*/) const
 {
 	return status;
 }

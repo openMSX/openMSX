@@ -30,6 +30,7 @@ public:
 private:
 	// AY8910Periphery: port A input, port B output
 	[[nodiscard]] byte readA(EmuTime time) override;
+	[[nodiscard]] byte peekA(EmuTime time) const override;
 	void writeB(byte value, EmuTime time) override;
 
 private:

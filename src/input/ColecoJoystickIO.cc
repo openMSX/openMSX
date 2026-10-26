@@ -47,10 +47,20 @@ const ColecoJoystick* ColecoJoystickIO::getColecoJoystick(int joyPort) const
 	return dynamic_cast<const ColecoJoystick*>(&port->getPlugged());
 }
 
+byte ColecoJoystickIO::readIO(uint16_t port, EmuTime time)
+{
+	const int joyPort = (port >> 1) & 1;
+	return portValue(joyPort, ports[joyPort]->read(time));
+}
+
 byte ColecoJoystickIO::peekIO(uint16_t port, EmuTime time) const
 {
 	const int joyPort = (port >> 1) & 1;
-	const byte joyStatus = ports[joyPort]->read(time);
+	return portValue(joyPort, ports[joyPort]->peek(time));
+}
+
+byte ColecoJoystickIO::portValue(int joyPort, byte joyStatus) const
+{
 	auto keys = keyboard.getKeys();
 
 	if (joyMode == 0) {
@@ -85,11 +95,6 @@ byte ColecoJoystickIO::peekIO(uint16_t port, EmuTime time) const
 		// Combine with row 0/1 of keyboard matrix.
 		return value & (keys[joyPort] | ~0x4F);
 	}
-}
-
-byte ColecoJoystickIO::readIO(uint16_t port, EmuTime time)
-{
-	return peekIO(port, time);
 }
 
 void ColecoJoystickIO::writeIO(uint16_t port, byte /*value*/, EmuTime /*time*/)

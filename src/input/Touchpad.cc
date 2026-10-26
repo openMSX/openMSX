@@ -116,7 +116,7 @@ static constexpr uint8_t SCK    = JoystickDevice::WR_PIN6;
 static constexpr uint8_t SI     = JoystickDevice::WR_PIN7;
 static constexpr uint8_t CS     = JoystickDevice::WR_PIN8;
 
-uint8_t Touchpad::read(EmuTime time)
+uint8_t Touchpad::peek(EmuTime time) const
 {
 	uint8_t result = SENSE | BUTTON; // 1-bit means not pressed
 	if (touch)  result &= ~SENSE;

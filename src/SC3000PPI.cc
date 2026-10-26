@@ -62,18 +62,32 @@ void SC3000PPI::writeIO(uint16_t port, uint8_t value, EmuTime time)
 
 // I8255Interface
 
+template<typename ReadJoy>
+static uint8_t joysticksA(ReadJoy readJoy)
+{
+	uint8_t joy1 = readJoy(0) & 0x3F;
+	uint8_t joy2 = readJoy(1) & 0x3F;
+	return narrow_cast<uint8_t>(joy1 | (joy2 << 6));
+}
+
+template<typename ReadJoy>
+static uint8_t joysticksB(ReadJoy readJoy)
+{
+	uint8_t joy2 = readJoy(1) & 0x3F;
+	return 0xF0 | (joy2 >> 2);
+}
+
 uint8_t SC3000PPI::readA(EmuTime time)
 {
+	if (selectedRow == 7) {
+		return joysticksA([&](int i) { return ports[i]->read(time); });
+	}
 	return peekA(time);
 }
 uint8_t SC3000PPI::peekA(EmuTime time) const
 {
 	if (selectedRow == 7) {
-		// Joystick hardware cannot detect when it's being read, so using the
-		// read method for peeking should be safe.
-		uint8_t joy1 = ports[0]->read(time) & 0x3F;
-		uint8_t joy2 = ports[1]->read(time) & 0x3F;
-		return narrow_cast<uint8_t>(joy1 | (joy2 << 6));
+		return joysticksA([&](int i) { return ports[i]->peek(time); });
 	} else {
 		return keyboard.getKeys()[selectedRow];
 	}
@@ -84,6 +98,9 @@ void SC3000PPI::writeA(uint8_t /*value*/, EmuTime /*time*/)
 
 uint8_t SC3000PPI::readB(EmuTime time)
 {
+	if (selectedRow == 7) {
+		return joysticksB([&](int i) { return ports[i]->read(time); });
+	}
 	return peekB(time);
 }
 uint8_t SC3000PPI::peekB(EmuTime time) const
@@ -91,10 +108,7 @@ uint8_t SC3000PPI::peekB(EmuTime time) const
 	// TODO: Are bits 4-7 available regardless of which keyboard row is selected?
 	//       That would make sense, but check the schematics.
 	if (selectedRow == 7) {
-		// Joystick hardware cannot detect when it's being read, so using the
-		// read method for peeking should be safe.
-		uint8_t joy2 = ports[1]->read(time) & 0x3F;
-		return 0xF0 | (joy2 >> 2);
+		return joysticksB([&](int i) { return ports[i]->peek(time); });
 	} else {
 		/*
 			Signal  Description

@@ -23,7 +23,7 @@ public:
 	LightGunSensor(MSXMotherBoard& motherBoard, Display& display);
 
 	/** Does the sensor see light at the given time? */
-	[[nodiscard]] bool senseLight(EmuTime time);
+	[[nodiscard]] bool senseLight(EmuTime time) const;
 
 private:
 	[[nodiscard]] std::optional<gl::ivec2> getAim() const;
@@ -33,7 +33,7 @@ private:
 	Display& display;
 	// Pluggables can be created before the machine's devices, so the VDP
 	// is looked up on first use.
-	VDP* vdp = nullptr;
+	mutable VDP* vdp = nullptr;
 };
 
 } // namespace openmsx

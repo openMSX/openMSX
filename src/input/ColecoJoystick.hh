@@ -62,7 +62,7 @@ private:
 	void unplugHelper(EmuTime time) override;
 
 	// JoystickDevice
-	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 
 	// MSXEventListener

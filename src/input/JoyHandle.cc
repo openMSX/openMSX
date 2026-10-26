@@ -153,7 +153,7 @@ void JoyHandle::resetWheelCache()
 }
 
 // MSXJoystickDevice
-uint8_t JoyHandle::read(EmuTime time)
+uint8_t JoyHandle::peek(EmuTime time) const
 {
 	Clock<2> clock(EmuTime::zero()); // ticks at 2Hz
 	uint8_t cycle = clock.getTicksTill(time) & 1;

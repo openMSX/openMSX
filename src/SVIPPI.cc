@@ -117,8 +117,16 @@ void SVIPPI::writeIO(uint16_t port, uint8_t value, EmuTime time)
 
 uint8_t SVIPPI::readA(EmuTime time)
 {
-	uint8_t triggers = ((ports[0]->read(time) & 0x10) ? 0x10 : 0) |
-	                   ((ports[1]->read(time) & 0x10) ? 0x20 : 0);
+	return combinePortA(ports[0]->read(time), ports[1]->read(time), time);
+}
+uint8_t SVIPPI::peekA(EmuTime time) const
+{
+	return combinePortA(ports[0]->peek(time), ports[1]->peek(time), time);
+}
+uint8_t SVIPPI::combinePortA(uint8_t joy1, uint8_t joy2, EmuTime time) const
+{
+	uint8_t triggers = ((joy1 & 0x10) ? 0x10 : 0) |
+	                   ((joy2 & 0x10) ? 0x20 : 0);
 
 	//uint8_t cassetteReady = cassettePort.Ready() ? 0 : 0x40;
 	uint8_t cassetteReady = 0; // ready
@@ -126,10 +134,6 @@ uint8_t SVIPPI::readA(EmuTime time)
 	uint8_t cassetteInput = cassettePort.cassetteIn(time) ? 0x80 : 0x00;
 
 	return triggers | cassetteReady | cassetteInput;
-}
-uint8_t SVIPPI::peekA(EmuTime /*time*/) const
-{
-	return 0; // TODO
 }
 void SVIPPI::writeA(uint8_t /*value*/, EmuTime /*time*/)
 {

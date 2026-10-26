@@ -138,7 +138,7 @@ void ColecoJoystick::unplugHelper(EmuTime /*time*/)
 
 
 // JoystickDevice
-uint8_t ColecoJoystick::read(EmuTime /*time*/)
+uint8_t ColecoJoystick::peek(EmuTime /*time*/) const
 {
 	return pin8 ? 0x3F : (status & 0x3F);
 }

@@ -21,7 +21,7 @@ RenShaTurbo::RenShaTurbo(MSXMotherBoard& motherBoard,
 	}
 }
 
-bool RenShaTurbo::getSignal(EmuTime time)
+bool RenShaTurbo::getSignal(EmuTime time) const
 {
 	return autofire ? autofire->getSignal(time) : false;
 }

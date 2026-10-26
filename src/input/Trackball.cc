@@ -67,7 +67,7 @@ void Trackball::unplugHelper(EmuTime /*time*/)
 }
 
 // JoystickDevice
-uint8_t Trackball::read(EmuTime time)
+uint8_t Trackball::peek(EmuTime time) const
 {
 	// From the Sony GB-7 Service manual:
 	//  http://cdn.preterhuman.net/texts/computing/msx/sonygb7sm.pdf
@@ -88,9 +88,15 @@ uint8_t Trackball::read(EmuTime time)
 	//   pin 8. This seems to suggest the actual (X or Y) value is always
 	//   present on reads and toggling pin 8 resets this value and switches
 	//   to the other axis.
-	syncCurrentWithTarget(time);
-	auto delta = (lastValue & 4) ? currentDeltaY : currentDeltaX;
+	auto current = calcCurrentDelta(time);
+	auto delta = (lastValue & 4) ? current.y : current.x;
 	return (status & ~0x0F) | ((delta + 8) & 0x0F);
+}
+
+uint8_t Trackball::read(EmuTime time)
+{
+	syncCurrentWithTarget(time);
+	return peek(time);
 }
 
 void Trackball::write(uint8_t value, EmuTime time)
@@ -111,6 +117,14 @@ void Trackball::write(uint8_t value, EmuTime time)
 }
 
 void Trackball::syncCurrentWithTarget(EmuTime time)
+{
+	auto current = calcCurrentDelta(time);
+	currentDeltaX = current.x;
+	currentDeltaY = current.y;
+	lastSync = current.lastSync;
+}
+
+Trackball::CurrentDelta Trackball::calcCurrentDelta(EmuTime time) const
 {
 	// In the past we only had 'targetDeltaXY' (was named 'deltaXY' then).
 	// 'currentDeltaXY' was introduced to (slightly) smooth-out the
@@ -147,26 +161,20 @@ void Trackball::syncCurrentWithTarget(EmuTime time)
 
 	if (!smooth) {
 		// for backwards-compatible replay files
-		currentDeltaX = targetDeltaX;
-		currentDeltaY = targetDeltaY;
-		return;
+		return {targetDeltaX, targetDeltaY, lastSync};
 	}
 
 	static constexpr auto INTERVAL = EmuDuration::msec(1);
 
 	auto maxSteps = narrow<int>((time - lastSync) / INTERVAL);
-	lastSync += INTERVAL * maxSteps;
-
-	if (targetDeltaX >= currentDeltaX) {
-		currentDeltaX = narrow<int8_t>(std::min<int>(currentDeltaX + maxSteps, targetDeltaX));
-	} else {
-		currentDeltaX = narrow<int8_t>(std::max<int>(currentDeltaX - maxSteps, targetDeltaX));
-	}
-	if (targetDeltaY >= currentDeltaY) {
-		currentDeltaY = narrow<int8_t>(std::min<int>(currentDeltaY + maxSteps, targetDeltaY));
-	} else {
-		currentDeltaY = narrow<int8_t>(std::max<int>(currentDeltaY - maxSteps, targetDeltaY));
-	}
+	auto step = [&](int8_t current, int8_t target) {
+		return narrow<int8_t>((target >= current)
+			? std::min<int>(current + maxSteps, target)
+			: std::max<int>(current - maxSteps, target));
+	};
+	return {step(currentDeltaX, targetDeltaX),
+	        step(currentDeltaY, targetDeltaY),
+	        lastSync + INTERVAL * maxSteps};
 }
 
 // MSXEventListener

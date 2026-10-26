@@ -23,23 +23,27 @@ SG1000JoystickIO::SG1000JoystickIO(const DeviceConfig& config)
 	}
 }
 
+template<typename ReadJoy>
+static byte readJoysticks(uint16_t port, ReadJoy readJoy)
+{
+	if (port & 1) {
+		byte joy2 = readJoy(1) & 0x3F;
+		return 0xF0 | (joy2 >> 2);
+	} else {
+		byte joy1 = readJoy(0) & 0x3F;
+		byte joy2 = readJoy(1) & 0x3F;
+		return narrow_cast<byte>(joy1 | (joy2 << 6));
+	}
+}
+
 byte SG1000JoystickIO::readIO(uint16_t port, EmuTime time)
 {
-	return peekIO(port, time);
+	return readJoysticks(port, [&](int i) { return ports[i]->read(time); });
 }
 
 byte SG1000JoystickIO::peekIO(uint16_t port, EmuTime time) const
 {
-	// Joystick hardware cannot detect when it's being read, so using the
-	// read() method for peeking should be safe.
-	if (port & 1) {
-		byte joy2 = ports[1]->read(time) & 0x3F;
-		return 0xF0 | (joy2 >> 2);
-	} else {
-		byte joy1 = ports[0]->read(time) & 0x3F;
-		byte joy2 = ports[1]->read(time) & 0x3F;
-		return narrow_cast<byte>(joy1 | (joy2 << 6));
-	}
+	return readJoysticks(port, [&](int i) { return ports[i]->peek(time); });
 }
 
 

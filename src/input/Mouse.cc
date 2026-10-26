@@ -105,7 +105,15 @@ void Mouse::unplugHelper(EmuTime /*time*/)
 }
 
 // JoystickDevice
-uint8_t Mouse::read(EmuTime /*time*/)
+uint8_t Mouse::read(EmuTime time)
+{
+	if (mouseMode) return peek(time);
+	status = joystickStatus();
+	curXRel = curYRel = 0;
+	return status;
+}
+
+uint8_t Mouse::peek(EmuTime /*time*/) const
 {
 	if (mouseMode) {
 		switch (phase) {
@@ -121,58 +129,58 @@ uint8_t Mouse::read(EmuTime /*time*/)
 			UNREACHABLE;
 		}
 	} else {
-		emulateJoystick();
-		return status;
+		return joystickStatus();
 	}
 }
 
-void Mouse::emulateJoystick()
+uint8_t Mouse::joystickStatus() const
 {
-	status &= ~(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT);
+	uint8_t result = status & ~(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT);
 
-	int deltaX = curXRel; curXRel = 0;
-	int deltaY = curYRel; curYRel = 0;
+	int deltaX = curXRel;
+	int deltaY = curYRel;
 	int absX = (deltaX > 0) ? deltaX : -deltaX;
 	int absY = (deltaY > 0) ? deltaY : -deltaY;
 
 	if ((absX < THRESHOLD) && (absY < THRESHOLD)) {
-		return;
+		return result;
 	}
 
 	// tan(pi/8) ~= 5/12
 	if (deltaX > 0) {
 		if (deltaY > 0) {
 			if ((12 * absX) > (5 * absY)) {
-				status |= JOY_RIGHT;
+				result |= JOY_RIGHT;
 			}
 			if ((12 * absY) > (5 * absX)) {
-				status |= JOY_DOWN;
+				result |= JOY_DOWN;
 			}
 		} else {
 			if ((12 * absX) > (5 * absY)) {
-				status |= JOY_RIGHT;
+				result |= JOY_RIGHT;
 			}
 			if ((12 * absY) > (5 * absX)) {
-				status |= JOY_UP;
+				result |= JOY_UP;
 			}
 		}
 	} else {
 		if (deltaY > 0) {
 			if ((12 * absX) > (5 * absY)) {
-				status |= JOY_LEFT;
+				result |= JOY_LEFT;
 			}
 			if ((12 * absY) > (5 * absX)) {
-				status |= JOY_DOWN;
+				result |= JOY_DOWN;
 			}
 		} else {
 			if ((12 * absX) > (5 * absY)) {
-				status |= JOY_LEFT;
+				result |= JOY_LEFT;
 			}
 			if ((12 * absY) > (5 * absX)) {
-				status |= JOY_UP;
+				result |= JOY_UP;
 			}
 		}
 	}
+	return result;
 }
 
 void Mouse::write(uint8_t value, EmuTime time)

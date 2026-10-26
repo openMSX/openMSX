@@ -66,7 +66,7 @@ void ArkanoidPad::unplugHelper(EmuTime /*time*/)
 }
 
 // JoystickDevice
-uint8_t ArkanoidPad::read(EmuTime /*time*/)
+uint8_t ArkanoidPad::peek(EmuTime /*time*/) const
 {
 	return buttonStatus | ((shiftReg & 0x100) >> 8);
 }

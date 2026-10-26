@@ -1296,7 +1296,7 @@ JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard_)
 
 uint8_t JoyPortDebuggable::read(unsigned address, EmuTime time)
 {
-	return getMotherBoard().getJoystickPort(address).read(time);
+	return getMotherBoard().getJoystickPort(address).peek(time);
 }
 
 void JoyPortDebuggable::write(unsigned /*address*/, uint8_t /*value*/)

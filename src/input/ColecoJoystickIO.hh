@@ -29,6 +29,7 @@ public:
 private:
 	/** The ColecoVision controller plugged into the given port, or nullptr. */
 	[[nodiscard]] const ColecoJoystick* getColecoJoystick(int joyPort) const;
+	[[nodiscard]] byte portValue(int joyPort, byte joyStatus) const;
 
 private:
 	byte joyMode;

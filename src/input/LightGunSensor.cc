@@ -24,7 +24,7 @@ LightGunSensor::LightGunSensor(MSXMotherBoard& motherBoard_, Display& display_)
 {
 }
 
-bool LightGunSensor::senseLight(EmuTime time)
+bool LightGunSensor::senseLight(EmuTime time) const
 {
 	auto aim = getAim();
 	if (!aim) return false;

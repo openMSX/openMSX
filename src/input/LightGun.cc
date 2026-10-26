@@ -84,16 +84,20 @@ void LightGun::unplugHelper(EmuTime /*time*/)
 // JoystickDevice
 uint8_t LightGun::read(EmuTime time)
 {
-	if (!stateChangeDistributor.isReplaying()) {
-		// The CPU syncs the scheduler before a port read, so on replay
-		// this event is delivered before the read at the same time.
-		if (auto newStatus = withLight(status, sensor.senseLight(time));
-		    newStatus != status) {
-			stateChangeDistributor.distributeNew<LightGunState>(
-				time, std::to_underlying(id), newStatus);
-		}
+	// The CPU syncs the scheduler before a port read, so on replay
+	// this event is delivered before the read at the same time.
+	if (auto newStatus = peek(time); newStatus != status) {
+		stateChangeDistributor.distributeNew<LightGunState>(
+			time, std::to_underlying(id), newStatus);
 	}
 	return status;
+}
+
+uint8_t LightGun::peek(EmuTime time) const
+{
+	return stateChangeDistributor.isReplaying()
+	     ? status
+	     : withLight(status, sensor.senseLight(time));
 }
 
 void LightGun::write(uint8_t /*value*/, EmuTime /*time*/)

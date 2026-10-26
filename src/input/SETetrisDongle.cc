@@ -27,7 +27,7 @@ void SETetrisDongle::unplugHelper(EmuTime /*time*/)
 
 
 // JoystickDevice
-uint8_t SETetrisDongle::read(EmuTime /*time*/)
+uint8_t SETetrisDongle::peek(EmuTime /*time*/) const
 {
 	return status;
 }

@@ -107,8 +107,17 @@ void MSXPSG::writeIO(uint16_t port, byte value, EmuTime time)
 // AY8910Periphery
 byte MSXPSG::readA(EmuTime time)
 {
-	byte joystick = ports[selectedPort]->read(time) |
-	                ((renShaTurbo.getSignal(time)) ? 0x10 : 0x00);
+	return combinePortA(ports[selectedPort]->read(time), time);
+}
+
+byte MSXPSG::peekA(EmuTime time) const
+{
+	return combinePortA(ports[selectedPort]->peek(time), time);
+}
+
+byte MSXPSG::combinePortA(byte joystick, EmuTime time) const
+{
+	joystick |= renShaTurbo.getSignal(time) ? 0x10 : 0x00;
 
 #if 0
 	This breaks NinjaTap test programs.

@@ -45,6 +45,11 @@ uint8_t JoystickPort::read(EmuTime time)
 	return getPluggedJoyDev().read(time);
 }
 
+uint8_t JoystickPort::peek(EmuTime time) const
+{
+	return getPluggedJoyDev().peek(time);
+}
+
 void JoystickPort::write(uint8_t value, EmuTime time)
 {
 	if (lastValue != value) writeDirect(value, time);
@@ -71,7 +76,7 @@ INSTANTIATE_SERIALIZE_METHODS(JoystickPort);
 
 // class DummyJoystickPort
 
-uint8_t DummyJoystickPort::read(EmuTime /*time*/)
+uint8_t DummyJoystickPort::peek(EmuTime /*time*/) const
 {
 	return 0x3F; // do as-if nothing is connected
 }

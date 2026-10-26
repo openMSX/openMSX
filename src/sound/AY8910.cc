@@ -563,12 +563,12 @@ uint8_t AY8910::peekRegister(unsigned reg, EmuTime time) const
 	switch (reg) {
 	case AY_PORTA:
 		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { // input
-			return periphery.readA(time);
+			return periphery.peekA(time);
 		}
 		break;
 	case AY_PORTB:
 		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { // input
-			return periphery.readB(time);
+			return periphery.peekB(time);
 		}
 		break;
 	}

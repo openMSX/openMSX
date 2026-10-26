@@ -51,7 +51,7 @@ void Paddle::unplugHelper(EmuTime /*time*/)
 }
 
 // JoystickDevice
-uint8_t Paddle::read(EmuTime time)
+uint8_t Paddle::peek(EmuTime time) const
 {
 	// The loop in the BIOS routine that reads the paddle status takes
 	// 41 Z80 cycles per iteration.

@@ -52,7 +52,7 @@ private:
 	void unplugHelper(EmuTime time) override;
 
 	// JoystickDevice
-	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 
 	// MSXEventListener
@@ -64,6 +64,7 @@ private:
 
 	void plugHelper2();
 	void checkTime(EmuTime time);
+	[[nodiscard]] uint8_t getCycle(EmuTime time) const;
 
 private:
 	CommandController& commandController;

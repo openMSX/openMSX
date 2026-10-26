@@ -8,7 +8,7 @@ namespace openmsx {
 class DummyJoystick final : public JoystickDevice
 {
 public:
-	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 	[[nodiscard]] zstring_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime time) override;

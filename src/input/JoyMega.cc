@@ -147,13 +147,12 @@ void JoyMega::unplugHelper(EmuTime /*time*/)
 
 
 // JoystickDevice
-uint8_t JoyMega::read(EmuTime time)
+uint8_t JoyMega::peek(EmuTime time) const
 {
 	// See http://segaretro.org/Control_Pad_(Mega_Drive)
 	// and http://frs.badcoffee.info/hardware/joymega-en.html
 	// for a detailed description of the MegaDrive joystick.
-	checkTime(time);
-	switch (cycle) {
+	switch (getCycle(time)) {
 	case 0: case 2: case 4:
 		// up/down/left/right/b/c
 		return (status & 0x00f) | ((status & 0x060) >> 1);
@@ -189,10 +188,13 @@ void JoyMega::write(uint8_t value, EmuTime time)
 
 void JoyMega::checkTime(EmuTime time)
 {
-	if ((time - lastTime) > EmuDuration::usec(1500)) {
-		// longer than 1.5ms since last write -> reset cycle
-		cycle = 0;
-	}
+	cycle = getCycle(time);
+}
+
+uint8_t JoyMega::getCycle(EmuTime time) const
+{
+	// longer than 1.5ms since last write -> reset cycle
+	return ((time - lastTime) > EmuDuration::usec(1500)) ? 0 : cycle;
 }
 
 // MSXEventListener

@@ -26,7 +26,7 @@ void MagicKey::unplugHelper(EmuTime /*time*/)
 
 
 // JoystickDevice
-uint8_t MagicKey::read(EmuTime /*time*/)
+uint8_t MagicKey::peek(EmuTime /*time*/) const
 {
 	return JOY_BUTTONB | JOY_BUTTONA | JOY_RIGHT | JOY_LEFT;
 }

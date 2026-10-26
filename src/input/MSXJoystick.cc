@@ -131,7 +131,7 @@ void MSXJoystick::unplugHelper(EmuTime /*time*/)
 
 
 // MSXJoystickDevice
-uint8_t MSXJoystick::read(EmuTime /*time*/)
+uint8_t MSXJoystick::peek(EmuTime /*time*/) const
 {
 	return pin8 ? 0x3F : status;
 }

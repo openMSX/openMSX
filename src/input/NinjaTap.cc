@@ -30,7 +30,13 @@ void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime time)
 	createPorts("Ninja Tap port", time);
 }
 
-uint8_t NinjaTap::read(EmuTime /*time*/)
+uint8_t NinjaTap::read(EmuTime time)
+{
+	// unlike JoyTap, this doesn't read the slaves (that happens in write())
+	return peek(time);
+}
+
+uint8_t NinjaTap::peek(EmuTime /*time*/) const
 {
 	return status;
 }

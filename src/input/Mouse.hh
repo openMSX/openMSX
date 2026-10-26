@@ -36,6 +36,7 @@ private:
 
 	// JoystickDevice
 	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 
 	// MSXEventListener
@@ -47,7 +48,7 @@ private:
 
 	void createMouseStateChange(EmuTime time,
 		int deltaX, int deltaY, uint8_t press, uint8_t release);
-	void emulateJoystick();
+	[[nodiscard]] uint8_t joystickStatus() const;
 	void plugHelper2();
 
 private:

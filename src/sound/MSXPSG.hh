@@ -34,8 +34,11 @@ public:
 private:
 	// AY8910Periphery: port A input, port B output
 	[[nodiscard]] byte readA(EmuTime time) override;
+	[[nodiscard]] byte peekA(EmuTime time) const override;
 	void writeB(byte value, EmuTime time) override;
 	uint8_t adjustDirectionBits(uint8_t reg7) override;
+
+	[[nodiscard]] byte combinePortA(byte joystick, EmuTime time) const;
 
 private:
 	CassettePortInterface& cassette;
