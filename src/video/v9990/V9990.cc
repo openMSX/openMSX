@@ -213,6 +213,9 @@ uint8_t V9990::readIO(uint16_t port, EmuTime time)
 		break;
 
 	case REGISTER_DATA:
+		if (uint8_t reg = regSelect & 0x3F; !(regAccess[reg] & ALLOW_READ)) {
+			invalidRegisterReadCallback.execute(reg);
+		}
 		if (!(regSelect & 0x40)) {
 			//regSelect = ( regSelect      & 0xC0) |
 			//            ((regSelect + 1) & 0x3F);
@@ -569,7 +572,6 @@ uint8_t V9990::readRegister(uint8_t reg, EmuTime time) const
 			       : narrow_cast<uint8_t>(borderX >> 8);
 		}
 	} else {
-		invalidRegisterReadCallback.execute(reg);
 		return 0xFF;
 	}
 }
