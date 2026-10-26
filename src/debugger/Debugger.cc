@@ -17,7 +17,6 @@
 #include "TclObject.hh"
 #include "WatchPoint.hh"
 
-#include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -303,9 +302,9 @@ void Debugger::Cmd::readBlock(std::span<const TclObject> tokens, TclObject& resu
 		throw CommandException("Invalid size");
 	}
 
-	MemBuffer<byte> buf(num);
-	device.readBlock(addr, buf);
-	result = std::span{buf}; // makes a copy
+	result.setBinary(num, [&](std::span<uint8_t> buf) {
+		device.readBlock(addr, buf);
+	});
 }
 
 void Debugger::Cmd::write(std::span<const TclObject> tokens, TclObject& /*result*/)

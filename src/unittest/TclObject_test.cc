@@ -182,6 +182,34 @@ TEST_CASE("TclObject, operator=")
 	}
 }
 
+TEST_CASE("TclObject, setBinary")
+{
+	Interpreter interp;
+	auto fill = [](std::span<uint8_t> buf) {
+		CHECK(buf.size() == 3);
+		std::ranges::copy(std::array<uint8_t, 3>{4, 5, 6}, buf.begin());
+	};
+
+	SECTION("unshared") {
+		TclObject t("foo");
+		t.setBinary(3, fill);
+		CHECK(std::ranges::equal(t.getBinary(interp), std::array<uint8_t, 3>{4, 5, 6}));
+	}
+	SECTION("shared") {
+		TclObject t("foo");
+		TclObject t2 = t;
+		t.setBinary(3, fill);
+		CHECK(std::ranges::equal(t.getBinary(interp), std::array<uint8_t, 3>{4, 5, 6}));
+		CHECK(t2.getString() == "foo");
+	}
+	SECTION("empty") {
+		TclObject t("foo");
+		t.setBinary(0, [](std::span<uint8_t> buf) { CHECK(buf.empty()); });
+		CHECK(t.getBinary(interp).empty());
+		CHECK(t.getString().empty());
+	}
+}
+
 TEST_CASE("TclObject, addListElement")
 {
 	Interpreter interp;

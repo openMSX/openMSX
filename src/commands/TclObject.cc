@@ -68,6 +68,17 @@ void TclObject::addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs)
 	}
 }
 
+std::span<uint8_t> TclObject::setUninitializedBinary(size_t size)
+{
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_NewObj();
+		Tcl_IncrRefCount(obj);
+	}
+	Tcl_SetByteArrayObj(obj, nullptr, narrow<int>(size));
+	return {Tcl_GetByteArrayFromObj(obj, nullptr), size};
+}
+
 int TclObject::getInt(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;

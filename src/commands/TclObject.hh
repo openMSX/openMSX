@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cassert>
 #include <climits>
+#include <concepts>
 #include <cstdint>
 #include <initializer_list>
 #include <iterator>
@@ -145,6 +146,12 @@ public:
 	}
 	template<typename... Args> void addListElement(Args&&... args) {
 		addListElementsImpl({newObj(std::forward<Args>(args))...});
+	}
+
+	// make this a byte array of the given size, 'fill' gets the (uninitialized) bytes
+	template<std::invocable<std::span<uint8_t>> Fill>
+	void setBinary(size_t size, Fill&& fill) {
+		std::forward<Fill>(fill)(setUninitializedBinary(size));
 	}
 
 	// add key-value pair(s) to a Tcl dict
@@ -299,6 +306,7 @@ private:
 	void addListElementsImpl(int objc, Tcl_Obj* const* objv);
 	void addListElementsImpl(std::initializer_list<Tcl_Obj*> l);
 	void addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs);
+	[[nodiscard]] std::span<uint8_t> setUninitializedBinary(size_t size);
 	[[nodiscard]] size_t getListLengthUnchecked() const;
 
 private:
