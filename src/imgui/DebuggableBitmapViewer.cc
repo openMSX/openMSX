@@ -19,15 +19,20 @@
 #include "strCat.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include "zstring_view.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <concepts>
 #include <cstdint>
+#include <initializer_list>
 #include <optional>
+#include <span>
+#include <string_view>
 #include <tuple>
 #include <utility>
 
@@ -64,6 +69,125 @@ static constexpr std::array colorModeInfos = {
 	ColorModeInfo{"Hue",       ""},
 };
 static_assert(colorModeInfos.size() == size_t(ColorMode::HUE) + 1);
+
+namespace {
+
+struct GridSettings {
+	bool enabled = false;
+	int size = 0; // 0: an overlay line, otherwise a gutter of that many screen pixels
+};
+
+// Example settings, to demonstrate what the settings can do. The tiling is
+// settings.levels.size() - 1; a grid only applies when the example has that
+// level.
+struct Example {
+	zstring_view group; // the examples of a group are consecutive
+	zstring_view name;
+	std::string_view tooltip;
+	BitmapDecoder::Settings settings;
+	GridSettings tileGrid = {};
+	GridSettings groupGrid = {};
+};
+
+} // namespace
+
+[[nodiscard]] static BitmapDecoder::Settings makeSettings(
+	unsigned bits, ColorMode mode, std::initializer_list<BitmapDecoder::LevelSettings> levels)
+{
+	BitmapDecoder::Settings result{.bitsPerItem = bits, .colorMode = mode, .levels = {}};
+	for (const auto& l : levels) result.levels.push_back(l);
+	return result;
+}
+
+[[nodiscard]] static std::span<const Example> examples()
+{
+	using enum ColorMode;
+	static const std::array result = {
+		Example{
+			.group = "Screen modes",
+			.name = "Screen 5",
+			.tooltip = "4 bits per pixel, 256 wide, palette.\n"
+			           "E.g. a screen 5 image in RAM or ROM, before it is copied to the VRAM.",
+			.settings = makeSettings(4, PALETTE, {{"256", "", "", ""}}),
+		},
+		Example{
+			.group = "Screen modes",
+			.name = "Screen 6",
+			.tooltip = "2 bits per pixel, 512 wide, palette (the first 4 colors).\n"
+			           "E.g. a screen 6 image in RAM or ROM, before it is copied to the VRAM.",
+			.settings = makeSettings(2, PALETTE, {{"512", "", "", ""}}),
+		},
+		Example{
+			.group = "Screen modes",
+			.name = "Screen 7",
+			.tooltip = "4 bits per pixel, 512 wide, palette.\n"
+			           "E.g. a screen 7 image in RAM or ROM, before it is copied to the VRAM.",
+			.settings = makeSettings(4, PALETTE, {{"512", "", "", ""}}),
+		},
+		Example{
+			.group = "Screen modes",
+			.name = "Screen 8",
+			.tooltip = "8 bits per pixel, 256 wide, BRG233.\n"
+			           "E.g. a screen 8 image in RAM or ROM, before it is copied to the VRAM.",
+			.settings = makeSettings(8, BRG233, {{"256", "", "", ""}}),
+		},
+		Example{
+			.group = "Patterns and sprites",
+			.name = "8x8 patterns",
+			.tooltip = "1 bit per pixel. Pixels form 8x8 tiles, the tiles form a sheet 16 wide. "
+			           "All steps are auto: an outer level steps over one block of the level inside it.\n"
+			           "E.g. the BIOS font: debuggable 'memory', offset [peek16 4].",
+			.settings = makeSettings(1, GRAYSCALE, {{"8", "8", "", ""}, {"16", "", "", ""}}),
+			.tileGrid = {.enabled = true, .size = 1},
+		},
+		Example{
+			.group = "Patterns and sprites",
+			.name = "16x16 sprites, V9938 order",
+			.tooltip = "A 16x16 sprite is 4 patterns of 8x8 pixels, stored as 0, 1, 2, 3 but drawn as 0 2 / 1 3: "
+			           "tile X step 128 (2 patterns), tile Y step 64 (1 pattern). "
+			           "The sprites form a sheet 8 wide.\n"
+			           "E.g. sprite patterns in RAM or ROM, before they are copied to the VRAM.",
+			.settings = makeSettings(1, GRAYSCALE, {{"8", "8", "", ""}, {"2", "2", "128", "64"}, {"8", "", "", ""}}),
+			.tileGrid = {.enabled = true, .size = 0},
+			.groupGrid = {.enabled = true, .size = 2},
+		},
+		Example{
+			.group = "Patterns and sprites",
+			.name = "Tiles in 4x4 groups",
+			.tooltip = "4 bits per pixel, two tiling levels, all steps auto: tiles of 8x8 pixels "
+			           "(32 bytes each) form groups of 4x4 tiles, the groups form a sheet 16 wide.",
+			.settings = makeSettings(4, PALETTE, {{"8", "8", "", ""}, {"4", "4", "", ""}, {"16", "", "", ""}}),
+			.tileGrid = {.enabled = true, .size = 1},
+			.groupGrid = {.enabled = true, .size = 2},
+		},
+		Example{
+			.group = "Step tricks",
+			.name = "8x8 patterns, transposed",
+			.tooltip = "Each byte is a column of 8 pixels, the most significant bit at the top: "
+			           "pixel X step 8 is the next byte, pixel Y step 1 the next bit. "
+			           "The tile steps stay auto: a tile still spans 8 bytes.",
+			.settings = makeSettings(1, GRAYSCALE, {{"8", "8", "8", "1"}, {"16", "", "", ""}}),
+			.tileGrid = {.enabled = true, .size = 1},
+		},
+		Example{
+			.group = "Step tricks",
+			.name = "Low byte of 16-bit words",
+			.tooltip = "Pixel X step 2 skips every other byte; add 1 to the offset for the high bytes.\n"
+			           "E.g. a map of 16-bit cells with the tile number in the low byte: "
+			           "the Hue color mode shows equal numbers in equal colors.",
+			.settings = makeSettings(8, HUE, {{"128", "", "2", ""}}),
+		},
+		Example{
+			.group = "Step tricks",
+			.name = "One bit per byte",
+			.tooltip = "Pixel X step 8 skips the other 7 bits of each byte: with 'MSB first' this "
+			           "shows bit 7, with 'LSB first' bit 0. "
+			           "With X step 16 it shows one bit of every 16-bit word.",
+			.settings = makeSettings(1, GRAYSCALE, {{"256", "", "8", ""}}),
+		},
+	};
+	return result;
+}
 
 [[nodiscard]] static const char* colorModeName(ColorMode mode, int bitsPerItem)
 {
@@ -323,6 +447,7 @@ void DebuggableBitmapViewer::drawLayout(unsigned memSize, unsigned offset, std::
 		"  A Tcl expression (e.g. [reg hl] to follow the content of register HL)\n"
 		"\n"
 		"The offset is re-evaluated every frame.");
+	drawExamples();
 	ImGui::Separator();
 
 	auto bitsName = [](int bits) { return strCat(bits, bits == 1 ? " bit" : " bits"); };
@@ -372,6 +497,53 @@ void DebuggableBitmapViewer::drawLayout(unsigned memSize, unsigned offset, std::
 				manager.palette->window.raise();
 			}
 			simpleToolTip("Open palette editor");
+		}
+	});
+}
+
+// A button at the right end of the current line.
+void DebuggableBitmapViewer::drawExamples()
+{
+	static constexpr const char* label = "Examples";
+	ImGui::SameLine();
+	auto width = ImGui::CalcTextSize(label).x + 2.0f * ImGui::GetStyle().FramePadding.x;
+	if (auto avail = ImGui::GetContentRegionAvail().x; avail > width) {
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + avail - width);
+	}
+	if (ImGui::Button(label)) {
+		ImGui::OpenPopup("examples");
+	}
+	simpleToolTip("Load example settings");
+	im::Popup("examples", [&]{
+		ImGui::TextDisabled("Examples of what the settings can do. Every setting stays editable,\n"
+		                    "and many other layouts are possible.\n"
+		                    "For images, patterns and sprites in the VRAM, the VDP bitmap, tile\n"
+		                    "and sprite viewers (Debugger menu) are better suited.");
+		zstring_view group;
+		for (const auto& example : examples()) {
+			if (example.group != group) {
+				group = example.group;
+				ImGui::SeparatorText(group.c_str());
+			}
+			if (ImGui::MenuItem(example.name.c_str())) {
+				const auto& s = example.settings;
+				bitsPerItem = int(s.bitsPerItem);
+				colorMode = int(s.colorMode);
+				bitOrder = int(s.bitOrder);
+				byteOrder = int(s.byteOrder);
+				tiling = int(s.levels.size()) - 1;
+				std::ranges::copy(s.levels, levels.begin());
+				if (tiling >= 1) {
+					tileGrid = example.tileGrid.enabled;
+					tileGridSize = example.tileGrid.size;
+				}
+				if (tiling >= 2) {
+					groupGrid = example.groupGrid.enabled;
+					groupGridSize = example.groupGrid.size;
+				}
+				validateColorMode();
+			}
+			simpleToolTip(example.tooltip);
 		}
 	});
 }

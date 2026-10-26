@@ -52,6 +52,7 @@ private:
 	void validateColorMode();
 
 	void drawLayout(unsigned memSize, unsigned offset, std::string_view offsetError);
+	void drawExamples();
 	void drawStepTable(const Resolved& resolved);
 	void drawSummary(unsigned memSize, unsigned offset, const Layout& layout);
 	void drawView();
