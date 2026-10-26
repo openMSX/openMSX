@@ -811,7 +811,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		if (ImGui::MenuItem("Export...")) {
 			showExportWindow = true;
 		}
-		if (ImGui::MenuItem("Open bitmap viewer...")) {
+		if (ImGui::MenuItem(tmpStrCat("Open bitmap viewer at 0x", formatAddr(s, currentAddr)).c_str())) {
 			debugger->openBitmapViewer(getDebuggableName()).setOffset(currentAddr);
 		}
 	});
