@@ -512,28 +512,61 @@ std::optional<int> SpriteChecker::findCollision2(int line) const
 
 void SpriteChecker::checkStatusEarly(EmuTime time)
 {
-	// Not measured on the TMS99xx, so it keeps flagging at the end of the
-	// line.
-	if (vdp.isMSX1VDP()) return;
-	bool mode1 = updateSpritesMethod == &SpriteChecker::updateSprites1;
-	if (!mode1 && updateSpritesMethod != &SpriteChecker::updateSprites2) return;
-	if (!vdp.spritesEnabledFast()) return;
+	auto early = calcStatusEarly(time);
+	if (early.nthSprite) {
+		vdp.setSpriteStatus(uint8_t(0x40 | (vdp.getStatusReg0() & 0x20) | *early.nthSprite));
+		earlySpriteLine = early.line;
+	}
+	if (early.minXCollision) {
+		vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
+		collisionX = *early.minXCollision + 12;
+		collisionY = early.line - vdp.getLineZero() + 8;
+		earlyCollisionLine = early.line;
+	}
+}
+
+uint8_t SpriteChecker::peekStatusEarly(EmuTime time) const
+{
+	uint8_t status = vdp.getStatusReg0();
+	auto early = calcStatusEarly(time);
+	if (early.nthSprite) {
+		status = uint8_t((status & 0xA0) | 0x40 | *early.nthSprite);
+	}
+	if (early.minXCollision) {
+		status |= 0x20;
+	}
+	return status;
+}
+
+SpriteChecker::EarlyStatus SpriteChecker::calcStatusEarly(EmuTime time) const
+{
 	int ticks = narrow<int>(frameStartTime.getTicksTill(time));
 	int line = ticks / VDP::TICKS_PER_LINE;
-	if (line != currentLine) return;
+	EarlyStatus result{.line = line, .nthSprite = {}, .minXCollision = {}};
+
+	// Not measured on the TMS99xx, so it keeps flagging at the end of the
+	// line.
+	if (vdp.isMSX1VDP()) return result;
+	bool mode1 = updateSpritesMethod == &SpriteChecker::updateSprites1;
+	if (!mode1 && updateSpritesMethod != &SpriteChecker::updateSprites2) return result;
+	if (!vdp.spritesEnabledFast()) return result;
+	if (line != currentLine) return result;
 	// as updateSprites1/2(): in the border only the last line of the top
 	// border is checked (for the first display line)
-	if (!vdp.isDisplayEnabled() && (line != vdp.getLineZero() - 1)) return;
+	if (!vdp.isDisplayEnabled() && (line != vdp.getLineZero() - 1)) return result;
 	uint8_t status = vdp.getStatusReg0();
 	bool wantSprite    = !(status & 0xC0) && (line != earlySpriteLine);
 	bool wantCollision = !(status & 0x20) && (line != earlyCollisionLine);
-	if (!wantSprite && !wantCollision) return;
+	if (!wantSprite && !wantCollision) return result;
 
-	int nthSprite = mode1 ? fillSprites1(line, line + 1).nthSprite
-	                      : fillSprites2(line, line + 1).nthSprite;
+	// The current line isn't filled yet, so it can be used as scratch
+	// space, as long as its count is zero again afterwards.
+	auto& self = const_cast<SpriteChecker&>(*this);
+	int nthSprite = mode1 ? self.fillSprites1(line, line + 1).nthSprite
+	                      : self.fillSprites2(line, line + 1).nthSprite;
 	std::optional<int> minXCollision = mode1 ? findCollision1(line)
 	                                         : findCollision2(line);
-	spriteCount[line] = 0; // updateSprites1/2() fill this line again
+	self.spriteCount[line] = 0;
 	int cycle = ticks % VDP::TICKS_PER_LINE;
 
 	// The VDP reads the y-coordinates of the 32 sprites one by one during
@@ -544,8 +577,7 @@ void SpriteChecker::checkStatusEarly(EmuTime time)
 	int firstRead = vdp.getDisplayMode().isBitmapMode() ? 182 : 226;
 	if (wantSprite && (nthSprite != -1) &&
 	    (cycle >= firstRead + 32 * nthSprite + 6)) {
-		vdp.setSpriteStatus(uint8_t(0x40 | (vdp.getStatusReg0() & 0x20) | nthSprite));
-		earlySpriteLine = line;
+		result.nthSprite = nthSprite;
 	}
 
 	// Measured on a V9958 with the sprite-collision loop the MSX2+ boot
@@ -554,11 +586,9 @@ void SpriteChecker::checkStatusEarly(EmuTime time)
 	static constexpr int COLLISION_DELAY = 5; // pixels
 	int x = (cycle - vdp.getLeftSprites()) / 4 - COLLISION_DELAY;
 	if (wantCollision && minXCollision && (*minXCollision <= x)) {
-		vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
-		collisionX = *minXCollision + 12;
-		collisionY = line - vdp.getLineZero() + 8;
-		earlyCollisionLine = line;
+		result.minXCollision = minXCollision;
 	}
+	return result;
 }
 
 // version 1: initial version

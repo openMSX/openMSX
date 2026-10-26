@@ -224,6 +224,11 @@ public:
 	  */
 	void checkStatusEarly(EmuTime time);
 
+	/** The value of S#0 as checkStatusEarly() would leave it, without
+	  * changing any state. Call after sync().
+	  */
+	[[nodiscard]] uint8_t peekStatusEarly(EmuTime time) const;
+
 	/** Reset sprite collision coordinates.
 	  * This happens directly after a read, so a timestamp for syncing is
 	  * not necessary.
@@ -386,6 +391,15 @@ private:
 	  * nullopt if none. The line must have been filled by fillSprites2().
 	  */
 	[[nodiscard]] std::optional<int> findCollision2(int line) const;
+
+	/** Result of calcStatusEarly().
+	  */
+	struct EarlyStatus {
+		int line;
+		std::optional<int> nthSprite;     // the 5th/9th sprite flag goes up
+		std::optional<int> minXCollision; // the collision flag goes up
+	};
+	[[nodiscard]] EarlyStatus calcStatusEarly(EmuTime time) const;
 
 private:
 	using UpdateSpritesMethod = void (SpriteChecker::*)(int limit);
