@@ -8,6 +8,7 @@
 #include "xrange.hh"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 
 namespace openmsx::BitmapDecoder {
@@ -71,6 +72,34 @@ template<unsigned BITS, Order ORDER>
 [[nodiscard]] static constexpr uint32_t scale5(uint32_t v) { return (v << 3) | (v >> 2); }
 [[nodiscard]] static constexpr uint32_t scale6(uint32_t v) { return (v << 2) | (v >> 4); }
 
+// Entry i has hue i/256 * 360 degrees, at full saturation and brightness.
+static constexpr auto hueTable = [] {
+	std::array<uint32_t, 256> result = {};
+	for (uint32_t i = 0; i < 256; ++i) {
+		auto h = i * 6; // 256 per sixth of the wheel
+		auto up = h % 256;
+		auto down = 255 - up;
+		switch (h / 256) {
+		case 0:  result[i] = rgba(255,   up,    0); break; // red -> yellow
+		case 1:  result[i] = rgba(down, 255,    0); break; // yellow -> green
+		case 2:  result[i] = rgba(0,    255,   up); break; // green -> cyan
+		case 3:  result[i] = rgba(0,   down,  255); break; // cyan -> blue
+		case 4:  result[i] = rgba(up,     0,  255); break; // blue -> magenta
+		default: result[i] = rgba(255,    0, down); break; // magenta -> red
+		}
+	}
+	return result;
+}();
+
+// Table lookups can't be vectorized, so for those converting while decoding is
+// faster. Other conversions are faster in a separate pass, which the compiler
+// vectorizes.
+[[nodiscard]] static constexpr bool separatePass(PixelFormat format)
+{
+	using enum PixelFormat;
+	return format != one_of(PALETTE2, PALETTE4, HUE2, HUE4, HUE8, HUE16, HUE24, HUE32);
+}
+
 template<PixelFormat FORMAT>
 [[nodiscard]] static uint32_t toRGBA(uint32_t v, std::span<const uint32_t, 16> palette)
 {
@@ -84,6 +113,11 @@ template<PixelFormat FORMAT>
 		return rgba(g, g, g);
 	} else if constexpr (FORMAT == one_of(PALETTE2, PALETTE4)) {
 		return palette[v];
+	} else if constexpr (FORMAT == one_of(HUE2, HUE4)) {
+		// shifted, not scaled to 255, so that the values are evenly spread over the wheel
+		return hueTable[v << (8 - BITS)];
+	} else if constexpr (FORMAT == one_of(HUE8, HUE16, HUE24, HUE32)) {
+		return hueTable[v >> (BITS - 8)];
 	} else if constexpr (FORMAT == BRG233) {
 		return rgba(scale3((v >> 2) & 7), scale3(v >> 5), scale2(v & 3));
 	} else if constexpr (FORMAT == BRGX5551) {
@@ -158,7 +192,7 @@ static void decodeContiguous(std::span<const uint32_t, 16> palette, std::span<co
 	constexpr auto BITS = bitsPerItem(FORMAT);
 	static_assert(BITS < 8);
 	constexpr unsigned PER_BYTE = 8 / BITS;
-	constexpr bool SEPARATE_PASS = FORMAT != one_of(PixelFormat::PALETTE2, PixelFormat::PALETTE4);
+	constexpr bool SEPARATE_PASS = separatePass(FORMAT);
 	constexpr size_t CHUNK = 256; // a multiple of PER_BYTE
 
 	// only unrolled when 'out' has a static extent, as it has for full bytes
@@ -219,10 +253,7 @@ static void decodeImpl(const Layout& layout, std::span<const uint32_t, 16> palet
 		if (i != 0) firstRun.add(level.countX, level.stepX * ITEM);
 	}
 
-	// Most conversions are faster in a separate pass, which the compiler
-	// vectorizes. Palette lookups can't be vectorized, so for those converting
-	// while decoding is faster.
-	constexpr bool SEPARATE_PASS = FORMAT != one_of(PixelFormat::PALETTE2, PixelFormat::PALETTE4);
+	constexpr bool SEPARATE_PASS = separatePass(FORMAT);
 	auto convert = [&](std::span<uint32_t> pixels) {
 		for (auto& p : pixels) p = toRGBA<FORMAT>(p, palette);
 	};
@@ -285,6 +316,12 @@ void decode(const Layout& layout, std::span<const uint32_t, 16> palette,
 	case GRAY32:    decodeFormat<GRAY32   >(layout, palette, data, output); break;
 	case PALETTE2:  decodeFormat<PALETTE2 >(layout, palette, data, output); break;
 	case PALETTE4:  decodeFormat<PALETTE4 >(layout, palette, data, output); break;
+	case HUE2:      decodeFormat<HUE2     >(layout, palette, data, output); break;
+	case HUE4:      decodeFormat<HUE4     >(layout, palette, data, output); break;
+	case HUE8:      decodeFormat<HUE8     >(layout, palette, data, output); break;
+	case HUE16:     decodeFormat<HUE16    >(layout, palette, data, output); break;
+	case HUE24:     decodeFormat<HUE24    >(layout, palette, data, output); break;
+	case HUE32:     decodeFormat<HUE32    >(layout, palette, data, output); break;
 	case BRG233:    decodeFormat<BRG233   >(layout, palette, data, output); break;
 	case BRGX5551:  decodeFormat<BRGX5551 >(layout, palette, data, output); break;
 	case BRGYS5551: decodeFormat<BRGYS5551>(layout, palette, data, output); break;

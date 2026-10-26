@@ -29,6 +29,7 @@ enum class ColorMode : uint8_t {
 	RGB888,
 	BGRA8888,
 	RGBA8888,
+	HUE,
 };
 
 [[nodiscard]] std::span<const unsigned> validBitsPerItem(); // 1, 2, 4, 8, 16, 24, 32

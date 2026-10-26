@@ -24,11 +24,11 @@ std::span<const ColorMode> validColorModes(unsigned bitsPerItem)
 {
 	using enum ColorMode;
 	static constexpr std::array subByte1 = {GRAYSCALE};
-	static constexpr std::array subByte  = {PALETTE, GRAYSCALE};
-	static constexpr std::array bits8    = {BRG233, GRAYSCALE};
-	static constexpr std::array bits16   = {RGB565, BGR565, BRGX5551, BRGYS5551, GRAYSCALE};
-	static constexpr std::array bits24   = {RGB888, GRAYSCALE};
-	static constexpr std::array bits32   = {RGBA8888, BGRA8888, GRAYSCALE};
+	static constexpr std::array subByte  = {PALETTE, HUE, GRAYSCALE};
+	static constexpr std::array bits8    = {BRG233, HUE, GRAYSCALE};
+	static constexpr std::array bits16   = {RGB565, BGR565, BRGX5551, BRGYS5551, HUE, GRAYSCALE};
+	static constexpr std::array bits24   = {RGB888, HUE, GRAYSCALE};
+	static constexpr std::array bits32   = {RGBA8888, BGRA8888, HUE, GRAYSCALE};
 	switch (bitsPerItem) {
 	case 1:         return subByte1;
 	case 2: case 4: return subByte;
@@ -56,6 +56,16 @@ std::span<const ColorMode> validColorModes(unsigned bitsPerItem)
 		default: UNREACHABLE;
 		}
 	case ColorMode::PALETTE:   return (bitsPerItem == 2) ? PALETTE2 : PALETTE4;
+	case ColorMode::HUE:
+		switch (bitsPerItem) {
+		case  2: return HUE2;
+		case  4: return HUE4;
+		case  8: return HUE8;
+		case 16: return HUE16;
+		case 24: return HUE24;
+		case 32: return HUE32;
+		default: UNREACHABLE;
+		}
 	case ColorMode::BRG233:    return BRG233;
 	case ColorMode::BRGX5551:  return BRGX5551;
 	case ColorMode::BRGYS5551: return BRGYS5551;

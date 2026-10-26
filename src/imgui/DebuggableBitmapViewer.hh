@@ -96,7 +96,7 @@ private:
 		PersistentElement    {"show",               &DebuggableBitmapViewer::show},
 		PersistentElement    {"offset",             &DebuggableBitmapViewer::offsetExpr},
 		PersistentElementEnum{"bitsPerItem",        &DebuggableBitmapViewer::bitsPerItem, bitsPerItemChoices},
-		PersistentElementMax {"colorMode",          &DebuggableBitmapViewer::colorMode, int(BitmapDecoder::ColorMode::RGBA8888) + 1},
+		PersistentElementMax {"colorMode",          &DebuggableBitmapViewer::colorMode, int(BitmapDecoder::ColorMode::HUE) + 1},
 		PersistentElementMax {"bitOrder",           &DebuggableBitmapViewer::bitOrder, 2},
 		PersistentElementMax {"byteOrder",          &DebuggableBitmapViewer::byteOrder, 2},
 		PersistentElementMax {"tiling",             &DebuggableBitmapViewer::tiling, int(BitmapDecoder::MAX_LEVELS)},

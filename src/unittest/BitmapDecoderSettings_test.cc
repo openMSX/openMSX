@@ -55,7 +55,17 @@ TEST_CASE("BitmapDecoderSettings: valid choices")
 			auto layout = resolveOk(makeSettings(bits, mode, {{"4", "4", "", ""}}));
 			CHECK(bitsPerItem(layout.format) == bits);
 		}
+		// the default first, hue and grayscale last
+		CHECK(modes.back() == ColorMode::GRAYSCALE);
+		if (bits == 1) {
+			CHECK(modes.size() == 1);
+		} else {
+			REQUIRE(modes.size() >= 3);
+			CHECK(modes[modes.size() - 2] == ColorMode::HUE);
+		}
 	}
+	CHECK(resolveOk(makeSettings(2, ColorMode::HUE, {{"1", "1", "", ""}})).format == PixelFormat::HUE2);
+	CHECK(resolveOk(makeSettings(32, ColorMode::HUE, {{"1", "1", "", ""}})).format == PixelFormat::HUE32);
 	CHECK(resolveOk(makeSettings(2, ColorMode::PALETTE, {{"1", "1", "", ""}})).format == PixelFormat::PALETTE2);
 	CHECK(resolveOk(makeSettings(4, ColorMode::PALETTE, {{"1", "1", "", ""}})).format == PixelFormat::PALETTE4);
 	CHECK(resolveOk(makeSettings(1, ColorMode::GRAYSCALE, {{"1", "1", "", ""}})).format == PixelFormat::GRAY1);

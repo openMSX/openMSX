@@ -3,6 +3,7 @@
 #include "one_of.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <utility>
@@ -144,6 +145,36 @@ TEST_CASE("BitmapDecoder: pixel formats")
 	      std::vector{rgba(0x11, 0x22, 0x33, 0x80)});
 }
 
+TEST_CASE("BitmapDecoder: hue")
+{
+	// evenly spread: 0, 90, 180 and 270 degrees
+	std::array<uint8_t, 1> data2 = {0b00'01'10'11};
+	CHECK(decode(linear(HUE2, Order::MSB_FIRST, 4, 1), data2) ==
+	      std::vector{rgba(255, 0, 0), rgba(127, 255, 0), rgba(0, 255, 255), rgba(128, 0, 255)});
+
+	// every color has one channel at full brightness and one at zero
+	std::vector<uint8_t> ramp(256);
+	for (auto i : xrange(256)) ramp[i] = uint8_t(i);
+	auto colors = decode(linear(HUE8, Order::MSB_FIRST, 256, 1), ramp);
+	CHECK(colors[0] == rgba(255, 0, 0));
+	CHECK(colors[128] == rgba(0, 255, 255));
+	for (auto c : colors) {
+		std::array channels = {c & 255, (c >> 8) & 255, (c >> 16) & 255};
+		CHECK(std::ranges::max(channels) == 255);
+		CHECK(std::ranges::min(channels) == 0);
+		CHECK((c >> 24) == 255);
+	}
+
+	// more than 8 bits: only the 8 most significant bits are used
+	std::array<uint8_t, 4> data16 = {0x12, 0xff, 0x12, 0x00};
+	auto hue16 = decode(linear(HUE16, Order::MSB_FIRST, 2, 1), data16);
+	CHECK(hue16[0] == colors[0x12]);
+	CHECK(hue16[1] == colors[0x12]);
+	std::array<uint8_t, 4> data32 = {0x80, 0x11, 0x22, 0x33};
+	CHECK(decode(linear(HUE32, Order::MSB_FIRST, 1, 1), data32) == std::vector{colors[0x80]});
+	CHECK(decode(linear(HUE32, Order::LSB_FIRST, 1, 1), data32) == std::vector{colors[0x33]});
+}
+
 TEST_CASE("BitmapDecoder: steps")
 {
 	SECTION("transposed: each byte is a column, MSB at the top") {
@@ -255,7 +286,7 @@ TEST_CASE("BitmapDecoder: natural order matches the general loop")
 	// count 1 describes the same image, but goes through the general loop.
 	std::vector<uint8_t> data(2000);
 	for (auto i : xrange(data.size())) data[i] = uint8_t(i * 37 + 11);
-	for (auto format : {GRAY1, GRAY2, GRAY4, PALETTE2, PALETTE4}) {
+	for (auto format : {GRAY1, GRAY2, GRAY4, PALETTE2, PALETTE4, HUE2, HUE4}) {
 		for (auto order : {Order::MSB_FIRST, Order::LSB_FIRST}) {
 			// widths that end in the middle of a byte, rows spanning several chunks
 			for (auto [w, h] : {std::pair{3u, 5u}, std::pair{301u, 7u}, std::pair{1000u, 2u}}) {

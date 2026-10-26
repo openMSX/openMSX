@@ -61,8 +61,9 @@ static constexpr std::array colorModeInfos = {
 	ColorModeInfo{"RGB888",    "bits 7-0: red, 15-8: green, 23-16: blue"},
 	ColorModeInfo{"BGRA8888",  "bits 7-0: blue, 15-8: green, 23-16: red, 31-24: alpha"},
 	ColorModeInfo{"RGBA8888",  "bits 7-0: red, 15-8: green, 23-16: blue, 31-24: alpha"},
+	ColorModeInfo{"Hue",       ""},
 };
-static_assert(colorModeInfos.size() == size_t(ColorMode::RGBA8888) + 1);
+static_assert(colorModeInfos.size() == size_t(ColorMode::HUE) + 1);
 
 [[nodiscard]] static const char* colorModeName(ColorMode mode, int bitsPerItem)
 {
@@ -80,6 +81,10 @@ static_assert(colorModeInfos.size() == size_t(ColorMode::RGBA8888) + 1);
 	case ColorMode::PALETTE:
 		return bitsPerItem == 2 ? "Index in the first 4 colors of the palette"
 		                        : "Index in the 16-color palette";
+	case ColorMode::HUE:
+		return strCat(bitsPerItem > 8 ? "Only the 8 most significant bits are used. " : "",
+		              "The values are spread evenly around the color wheel: "
+		              "0 is red, followed by yellow, green, cyan, blue and magenta.");
 	default:
 		return colorModeInfos[size_t(mode)].bitLayout;
 	}

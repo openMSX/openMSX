@@ -23,6 +23,8 @@ enum class PixelFormat : uint8_t {
 	GRAY1, GRAY2, GRAY4, GRAY8,
 	GRAY16, GRAY24, GRAY32, // only the 8 most significant bits are used
 	PALETTE2, PALETTE4,     // index in the 16-entry palette
+	HUE2, HUE4, HUE8,       // around the color wheel, starting at red
+	HUE16, HUE24, HUE32,    // only the 8 most significant bits are used
 	BRG233,
 	BRGX5551, BRGYS5551,    // bit 15: ignored / set means transparent
 	BGR565, RGB565,
@@ -36,17 +38,17 @@ enum class PixelFormat : uint8_t {
 	using enum PixelFormat;
 	case GRAY1:
 		return 1;
-	case GRAY2: case PALETTE2:
+	case GRAY2: case PALETTE2: case HUE2:
 		return 2;
-	case GRAY4: case PALETTE4:
+	case GRAY4: case PALETTE4: case HUE4:
 		return 4;
-	case GRAY8: case BRG233:
+	case GRAY8: case HUE8: case BRG233:
 		return 8;
-	case GRAY16: case BRGX5551: case BRGYS5551: case BGR565: case RGB565:
+	case GRAY16: case HUE16: case BRGX5551: case BRGYS5551: case BGR565: case RGB565:
 		return 16;
-	case GRAY24: case RGB888:
+	case GRAY24: case HUE24: case RGB888:
 		return 24;
-	case GRAY32: case BGRA8888: case RGBA8888:
+	case GRAY32: case HUE32: case BGRA8888: case RGBA8888:
 		return 32;
 	}
 	UNREACHABLE;
