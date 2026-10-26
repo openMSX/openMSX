@@ -11,7 +11,9 @@ public:
 	// SMSVDPRenderer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	[[nodiscard]] bool isActive() const override;
+	void frameStart(EmuTime time) override;
 	void frameEnd(EmuTime time) override;
+	void reInit() override;
 	void drawLine(unsigned y, std::span<const uint8_t, 320> paletteIndices) override;
 };
 

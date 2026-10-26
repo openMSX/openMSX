@@ -123,3 +123,125 @@ The Franky works with software written or converted for it, for example:
 * **SG-1000 conversions** targeting the Franky can use the Franky PSG for
   more faithful audio.
 * **VGMPlay** detects the Franky VDP as well, for more faithful audio.
+
+## Debugging tools
+
+openMSX's ImGui debugger adds three viewers for the Franky's Sega VDP, shown
+in the *Debugger* menu while a Franky is inserted. They inspect the Sega VDP
+(the MSX VDP has its own *VDP ...* viewers) and work for both the
+TMS9918-compatible modes and the SMS-exclusive mode 4, following the current
+screen mode automatically. If the running software uses the MSX VDP instead,
+these viewers show an idle chip.
+
+The viewers only change the emulation where noted (the register viewer, the
+CRAM color blocks and the hex editors can write to the chip); all other
+options are display-only. Window positions and options are remembered between
+sessions.
+
+### SMS VDP tile viewer
+
+*Debugger > SMS VDP tile viewer* — shows the pattern table and the name table.
+
+* **Settings**: the values read from the chip (screen mode, foreground and
+  background color, pattern/color/name table base address, visible rows and
+  the color-0 replacement). Tick *Manual override* — or the checkbox of a
+  single item — to edit a value for the viewer only; useful to explore
+  alternative layouts without changing the running program. In mode 4 the
+  pattern and color tables have no base registers and the color-0 replacement
+  does not exist, so those items are fixed. *Override color table* paints every
+  pattern with one color (TMS modes only; useful to see the pattern shapes when
+  the color table uses the same foreground and background).
+* **CRAM** (mode 4 only): the 32 color RAM entries. Click a color block to
+  pick one of the 64 colors of the chip; CRAM is written immediately, so the
+  displayed output changes.
+* **Pattern Table**: the complete pattern table as the current mode lays it
+  out (mode 4 shows 448 tiles). In mode 4 the *Pattern palette* selector
+  (0/1) chooses which CRAM palette is used to draw them. Hovering a cell
+  shows the pattern number, its VRAM address (and, in graphics I/II, its
+  color address) and a zoomed preview; right-click copies the pattern (and
+  color) data to the clipboard.
+* **Name Table**: the table as it is displayed: mode 4 shows the full table
+  (28 rows, or 32 in the 224/240-line modes) with 16-bit entries (tile
+  number, horizontal/vertical flip and palette); the TMS modes show the
+  visible rows. Hovering a cell shows the column/row, the tile number, the
+  name-table entry address and the pattern/color addresses, plus a preview.
+  *Name table overlay* draws the tile number over each cell: two hex digits
+  (three in mode 4, where tile numbers are 9-bit).
+* Options: *Zoom* (1x–8x), *grid* (with color) and *beam*: a marker at the
+  current raster beam position in Sega VDP pixels. In mode 4 the position is
+  mapped through the scroll registers, so it points at the tile that is
+  currently displayed; it is most useful while the emulation is paused.
+
+### SMS VDP sprite viewer
+
+*Debugger > SMS VDP sprite viewer*
+
+* **Settings**: as in the tile viewer: the values read from the chip (sprite
+  type, size, magnification, color-0 transparency, pattern/attribute table
+  base and visible lines) with optional manual overrides. The sprite type is
+  `1` (TMS9918-style sprites) or `SMS` (mode 4); for SMS the sprite size is
+  8x8 or 8x16 — the size bit doubles the height only.
+* **CRAM** (SMS only): editable as in the tile viewer.
+* **Sprite patterns**: for SMS the default *SAT Sprites* view shows all 64
+  sprite attribute table entries, each drawn as the hardware would (8x16
+  cells). Hovering shows the sprite number, its address, x/y/tile, the entry
+  address and whether the hardware would display it — and if not, why
+  (display disabled, after the Y=0xD0 terminator, off-screen, or beyond the
+  per-line sprite limit). Right-click copies the entry. Untick *SAT Sprites*
+  to show the raw pattern table instead (512 tiles or 256 8x16 sprites). For
+  the TMS modes this section always shows the raw pattern table: 256 8x8
+  patterns or 64 16x16 sprites, drawn in the color from their attributes,
+  with the same hover info and copy.
+  * *Show After Y=0xD0* (default off): in 192-line mode the hardware stops
+    reading the table at the first entry with Y=0xD0. With this option off
+    those entries are left transparent, as if they do not exist; hovering
+    them still shows their values.
+* **Sprite attributes** (TMS modes only): all 32 attribute entries (Y, X,
+  pattern and color/flags) in an 8x4 grid, with hover info and copy.
+* **Rendered sprites**: a simulation of the sprite layer alone — only the
+  sprites are drawn (over the checkerboard), respecting the hardware limits:
+  at most 8 sprites per line for SMS (4 for TMS), magnification, only the
+  first sprites being zoomed and color-0 transparency. Hovering lists the
+  sprites at that pixel; *Bounding box* draws the sprite rectangles (of the
+  hovered sprites or of all). *Max N sprites per line* toggles the per-line
+  limit; *Show After Y=0xD0* (default off) also renders the entries after
+  the terminator.
+* Options (in *Settings*): *Zoom* (1x–8x), applied to all sections; *grid*
+  (with color); and the *Checkerboard* colors and size, used as the background
+  for transparent pixels everywhere (patterns and rendered sprites). Each
+  checkerboard color has a *Reset to default* button in its color picker;
+  picking the same color twice gives a solid background.
+
+### SMS VDP register viewer
+
+*Debugger > SMS VDP register viewer* — shows the registers R#0–R#10 and the
+status register S#0, grouped in sections (mode registers, table base
+registers, scroll registers, color register, line counter and status
+register). Each register is shown with its individual bit names:
+
+* Click a bit button to toggle it, or type a value in the hex field. Writes
+  go to the chip immediately, exactly like the program writing the register.
+* The explanation area (toggle it in the context menu) spells out the derived
+  state: the screen mode, whether the display is enabled, the VINT/HINT
+  enables, sprite size/magnification/shift, the scroll locks, the resulting
+  table base addresses and the status flags (VINT flag, sprite overflow and
+  collision, sprite number). For R#10 both the reload value and the live line
+  counter are shown (the chip raises a line interrupt every N+1 lines).
+
+### Hex editors
+
+The Sega VDP state is also available as debuggables, which can be opened as
+ordinary hex editors via *Debugger > Add hex editor* (view, search, export;
+edit a byte to write it):
+
+| Name | Size | Notes |
+| ---- | ---- | ----- |
+| `SMS VDP regs` | 16 | R#0–R#15 (only R#0–R#10 are functional) |
+| `SMS VDP status regs` | 1 | status register S#0, read-only |
+| `SMS VDP VRAM` | 16 KiB | video RAM |
+| `SMS VDP CRAM` | 32 | color RAM (6-bit colors) |
+
+The same names can be used on the console or in scripts, for example
+`debug read "SMS VDP VRAM" 0x3f00` or `debug write "SMS VDP CRAM" 0 0x3f`.
+The debuggables belong to the Sega VDP chip; with a second Franky inserted
+(which is not useful) they get a ` (1)` suffix.

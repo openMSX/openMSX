@@ -9,6 +9,9 @@
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiRasterViewer.hh"
+#include "ImGuiSMSVDPRegs.hh"
+#include "ImGuiSMSVDPSprites.hh"
+#include "ImGuiSMSVDPTiles.hh"
 #include "ImGuiSpriteViewer.hh"
 #include "ImGuiTraceViewer.hh"
 #include "ImGuiSymbols.hh"
@@ -158,6 +161,9 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 	buf.appendf("bitmapViewers=%d\n", narrow<int>(bitmapViewers.size()));
 	buf.appendf("tileViewers=%d\n", narrow<int>(tileViewers.size()));
 	buf.appendf("spriteViewers=%d\n", narrow<int>(spriteViewers.size()));
+	buf.appendf("smsVdpTilesViewers=%d\n", narrow<int>(smsVdpTilesViewers.size()));
+	buf.appendf("smsVdpSpriteViewers=%d\n", narrow<int>(smsVdpSpriteViewers.size()));
+	buf.appendf("smsVdpRegsViewers=%d\n", narrow<int>(smsVdpRegsViewers.size()));
 
 	// TODO in the future use c++23 std::chunk_by
 	auto it = hexEditors.begin();
@@ -179,6 +185,9 @@ void ImGuiDebugger::loadStart()
 	bitmapViewers.clear();
 	tileViewers.clear();
 	spriteViewers.clear();
+	smsVdpTilesViewers.clear();
+	smsVdpSpriteViewers.clear();
+	smsVdpRegsViewers.clear();
 	hexEditors.clear();
 }
 
@@ -209,6 +218,18 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			repeat(*r, [&] { openOrCreate(manager, spriteViewers); });
 		}
+	} else if (name == "smsVdpTilesViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, smsVdpTilesViewers); });
+		}
+	} else if (name == "smsVdpSpriteViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, smsVdpSpriteViewers); });
+		}
+	} else if (name == "smsVdpRegsViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, smsVdpRegsViewers); });
+		}
 	} else if (name.starts_with(hexEditorPrefix)) {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			auto debuggableName = std::string(name.substr(hexEditorPrefix.size()));
@@ -238,6 +259,18 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		auto it = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, name, index));
 		(*it)->open = true;
 	};
+	auto hexEditorMenuItem = [&](std::string_view name) {
+		auto it = std::ranges::lower_bound(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
+		bool open = (it != hexEditors.end()) && (*it)->open;
+		if (ImGui::MenuItem(strCat(name).c_str(), nullptr, &open)) {
+			if (open) {
+				createHexEditor(std::string(name));
+			} else {
+				assert(it != hexEditors.end());
+				(*it)->open = false;
+			}
+		}
+	};
 
 	im::Menu("Debugger", motherBoard != nullptr, [&]{
 		ImGui::MenuItem("Tool bar", nullptr, &showControl);
@@ -248,16 +281,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("CPU flags", nullptr, &showFlags);
 		ImGui::MenuItem("Slots", nullptr, &showSlots);
 		ImGui::MenuItem("Stack", nullptr, &showStack);
-		auto it = std::ranges::lower_bound(hexEditors, "memory", {}, &DebuggableEditor::getDebuggableName);
-		bool memoryOpen = (it != hexEditors.end()) && (*it)->open;
-		if (ImGui::MenuItem("Memory", nullptr, &memoryOpen)) {
-			if (memoryOpen) {
-				createHexEditor("memory");
-			} else {
-				assert(it != hexEditors.end());
-				(*it)->open = false;
-			}
-		}
+		hexEditorMenuItem("memory");
 		ImGui::Separator();
 		im::Menu("Breakpoints", [&]{
 			ImGui::MenuItem("Editor", nullptr, &manager.breakPoints->show);
@@ -278,6 +302,17 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		}
 		if (ImGui::MenuItem("VDP sprite viewer")) {
 			openOrCreate(manager, spriteViewers);
+		}
+		if (motherBoard && motherBoard->findDevice("Franky")) {
+			if (ImGui::MenuItem("SMS VDP tile viewer")) {
+				openOrCreate(manager, smsVdpTilesViewers);
+			}
+			if (ImGui::MenuItem("SMS VDP sprite viewer")) {
+				openOrCreate(manager, smsVdpSpriteViewers);
+			}
+			if (ImGui::MenuItem("SMS VDP register viewer")) {
+				openOrCreate(manager, smsVdpRegsViewers);
+			}
 		}
 		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show);
 		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show);
