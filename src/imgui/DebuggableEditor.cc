@@ -125,6 +125,7 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	im::ScopedFont sf(manager.fontMono);
 
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
+	if (gotoAddr) ImGui::SetNextWindowFocus();
 
 	im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
@@ -401,7 +402,12 @@ void DebuggableEditor::scrollAddr(const Sizes& s, Debuggable& debuggable, unsign
 void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize)
 {
 	const auto& style = ImGui::GetStyle();
-	if (updateAddr) {
+	if (gotoAddr) {
+		if (addrMode == EXPRESSION) addrExpr = strCat("0x", formatAddr(s, *gotoAddr));
+		scrollAddr(s, debuggable, memSize, *gotoAddr, true);
+		dataEditingTakeFocus = true;
+		gotoAddr.reset();
+	} else if (updateAddr) {
 		updateAddr = false;
 		scrollAddr(s, debuggable, memSize, currentAddr, true);
 	} else {

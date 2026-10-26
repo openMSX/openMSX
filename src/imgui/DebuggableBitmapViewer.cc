@@ -1,6 +1,8 @@
 #include "DebuggableBitmapViewer.hh"
 
+#include "DebuggableEditor.hh"
 #include "ImGuiCpp.hh"
+#include "ImGuiDebugger.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiUtils.hh"
@@ -100,6 +102,26 @@ static_assert(colorModeInfos.size() == size_t(ColorMode::RGBA8888) + 1);
 	size_t digits = 1;
 	for (unsigned n = maxValue >> 4; n != 0; n >>= 4) ++digits;
 	return strCat("0x", hex_string<HexCase::upper>(Digits{digits}, value));
+}
+
+// The address of the item of pixel 'pos', in bits from the start of the image.
+[[nodiscard]] static uint32_t itemBitAddr(const BitmapDecoder::Layout& layout, gl::ivec2 pos)
+{
+	auto x = unsigned(pos.x);
+	auto y = unsigned(pos.y);
+	uint32_t item = 0;
+	for (const auto& level : layout.levels) {
+		item += (x % level.countX) * level.stepX + (y % level.countY) * level.stepY;
+		x /= level.countX;
+		y /= level.countY;
+	}
+	return item * BitmapDecoder::bitsPerItem(layout.format);
+}
+
+// Whether the item at 'bitAddr' lies completely inside 'data'.
+[[nodiscard]] static bool isInside(uint32_t bitAddr, unsigned bits, std::span<const uint8_t> data)
+{
+	return uint64_t(bitAddr) + bits <= uint64_t(data.size()) * 8;
 }
 
 // A blank count or step field means 'auto'.
@@ -717,12 +739,38 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 			return p;
 		};
 		auto mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
+		std::optional<gl::ivec2> pixel;
 		if (auto px = toPixel(edgesX, mouse.x)) {
 			if (auto py = toPixel(edgesY, mouse.y)) {
-				drawHover(memSize, offset, layout, {*px, *py});
+				pixel = gl::ivec2{*px, *py};
+				drawHover(memSize, offset, layout, *pixel);
 			}
 		}
+		// Also over a gutter or beside the image, then without a pixel address.
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+			contextAddr.reset();
+			if (pixel) {
+				auto bitAddr = itemBitAddr(layout, *pixel);
+				if (isInside(bitAddr, BitmapDecoder::bitsPerItem(layout.format), dataBuf)) {
+					contextAddr = offset + bitAddr / 8;
+				}
+			}
+			ImGui::OpenPopup("context");
+		}
 	}
+	im::Popup("context", [&]{
+		auto openHexEditor = [&](unsigned addr) {
+			manager.debugger->openHexEditor(getDebuggableName()).gotoAddress(addr);
+		};
+		if (ImGui::MenuItem(tmpStrCat("Open hex editor at image start (", formatHex(memSize - 1, offset), ')').c_str())) {
+			openHexEditor(offset);
+		}
+		auto pixelLabel = contextAddr ? strCat("Open hex editor at this pixel (", formatHex(memSize - 1, *contextAddr), ')')
+		                              : std::string("Open hex editor at this pixel");
+		if (ImGui::MenuItem(pixelLabel.c_str(), nullptr, false, contextAddr.has_value())) {
+			openHexEditor(*contextAddr);
+		}
+	});
 }
 
 void DebuggableBitmapViewer::drawHover(unsigned memSize, unsigned offset, const Layout& layout, gl::ivec2 pos)
@@ -731,20 +779,18 @@ void DebuggableBitmapViewer::drawHover(unsigned memSize, unsigned offset, const 
 	im::ScopedFont sf(manager.fontMono);
 
 	std::string text = strCat("x=", pos.x, " y=", pos.y);
-	auto x = unsigned(pos.x);
-	auto y = unsigned(pos.y);
-	uint32_t item = 0;
-	for (auto [i, level] : enumerate(layout.levels)) {
-		auto ix = x % level.countX; x /= level.countX;
-		auto iy = y % level.countY; y /= level.countY;
-		item += ix * level.stepX + iy * level.stepY;
-		if (layout.levels.size() > 1) {
-			strAppend(text, (i == 0 ? "  " : " "), levelNames[i], "=(", ix, ',', iy, ')');
+	if (layout.levels.size() > 1) {
+		auto x = unsigned(pos.x);
+		auto y = unsigned(pos.y);
+		for (auto [i, level] : enumerate(layout.levels)) {
+			strAppend(text, (i == 0 ? "  " : " "), levelNames[i], "=(", x % level.countX, ',', y % level.countY, ')');
+			x /= level.countX;
+			y /= level.countY;
 		}
 	}
 
 	auto bits = BitmapDecoder::bitsPerItem(layout.format);
-	auto bitAddr = item * bits;
+	auto bitAddr = itemBitAddr(layout, pos);
 	auto byteAddr = bitAddr / 8;
 	strAppend(text, "  addr=", formatHex(memSize - 1, offset + byteAddr));
 	unsigned shift = 0;
@@ -758,7 +804,7 @@ void DebuggableBitmapViewer::drawHover(unsigned memSize, unsigned offset, const 
 		}
 	}
 
-	if (uint64_t(bitAddr) + bits > uint64_t(dataBuf.size()) * 8) {
+	if (!isInside(bitAddr, bits, dataBuf)) {
 		strAppend(text, "  outside debuggable");
 	} else {
 		uint32_t value = 0;

@@ -278,6 +278,20 @@ DebuggableBitmapViewer& ImGuiDebugger::openBitmapViewer(std::string_view debugga
 	return **it;
 }
 
+DebuggableEditor& ImGuiDebugger::openHexEditor(std::string_view debuggableName)
+{
+	// prefer an open editor, then reuse a previously closed one (when none is open, all are closed)
+	auto [b, e] = std::ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
+	auto it = std::ranges::find(b, e, true, &DebuggableEditor::open);
+	if (it == e) it = b;
+	if (it == e) {
+		// or create a new one
+		it = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, debuggableName, 0));
+	}
+	(*it)->open = true;
+	return **it;
+}
+
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
 	auto createHexEditor = [&](const std::string& name) {

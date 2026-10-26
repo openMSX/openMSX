@@ -44,6 +44,10 @@ public:
 	void makeSnapshot(MSXMotherBoard& motherBoard);
 	void makeSnapshot(Debuggable& debuggable);
 
+	// Moves the cursor to 'addr' and brings the window to the front. In
+	// expression mode the expression is replaced by 'addr'.
+	void gotoAddress(unsigned addr) { gotoAddr = addr; }
+
 	// ImGuiPart
 	[[nodiscard]] zstring_view iniName() const override { return title; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -147,6 +151,7 @@ private:
 	EditType dataEditingActive = HEX;
 	bool dataEditingTakeFocus = false;
 	bool updateAddr = false;
+	std::optional<unsigned> gotoAddr; // set by gotoAddress(), handled in the next paint
 	bool switchedTab = false;
 	bool resetCursor = false;
 

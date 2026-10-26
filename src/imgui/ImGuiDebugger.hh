@@ -56,6 +56,8 @@ public:
 	void signalQuit();
 	void setGotoTarget(uint16_t target);
 	DebuggableBitmapViewer& openBitmapViewer(std::string_view debuggableName);
+	// The first open hex editor for this debuggable, or else a newly opened one.
+	DebuggableEditor& openHexEditor(std::string_view debuggableName);
 	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard,
 	                    ImGuiDisassembly* disassembly);
 
