@@ -40,7 +40,8 @@ void ImGuiSMSVDPRegs::loadLine(std::string_view name, zstring_view value)
 
 // HACK: globals, the explanation functions are plain function pointers.
 static const SMSVDP* g_vdp;
-static std::array<uint8_t, 64 + 1> registerValues; // 0..10 registers, 64 = status
+static constexpr uint8_t STATUS = 11; // index of the status register, after R#0..R#10
+static std::array<uint8_t, STATUS + 1> registerValues;
 
 // The mode as the current register values select it (like
 // SMSVDPCore::selectDisplayMode(), but invalid TMS9918 combinations are
@@ -130,6 +131,7 @@ static constexpr auto registerDescriptions = std::array{
 	RD{{"V7 ", "V6 ", "V5 ", "V4 ", "V3 ", "V2 ", "V1 ", "V0 "}, "Vertical scroll register"}, // R#9
 	RD{{"L7 ", "L6 ", "L5 ", "L4 ", "L3 ", "L2 ", "L1 ", "L0 "}, "Line counter reload register"}, // R#10
 };
+static_assert(registerDescriptions.size() == STATUS);
 static constexpr RegisterDescription statusDescription =
 	RD{{" F ", "5S ", " C ", "SN4", "SN3", "SN2", "SN1", "SN0"}, "Status register"};
 
@@ -233,15 +235,15 @@ static constexpr auto regFunctions = std::array{
 	  }},
 
 	// status register
-	R{{S{64, 0x80}}, "V-Blank interrupt pending",
+	R{{S{STATUS, 0x80}}, "V-Blank interrupt pending",
 	  [](uint32_t v) { return tmpStrCat("VINT: ", v); }},
-	R{{S{64, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
-	R{{S{64, 0x40}}, "sprite overflow",
+	R{{S{STATUS, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
+	R{{S{STATUS, 0x40}}, "sprite overflow",
 	  [](uint32_t v) { return tmpStrCat(v ? ""sv : "no "sv, "sprite overflow"); }},
-	R{{S{64, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
-	R{{S{64, 0x20}}, "sprite collision",
+	R{{S{STATUS, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
+	R{{S{STATUS, 0x20}}, "sprite collision",
 	  [](uint32_t v) { return tmpStrCat(v ? ""sv : "no "sv, "sprite collision"); }},
-	R{{S{64, 0x1F}}, "sprite number",
+	R{{S{STATUS, 0x1F}}, "sprite number",
 	  [](uint32_t v) { return tmpStrCat(" (sprite number=", v, ")\n"); }},
 };
 
@@ -281,11 +283,9 @@ void ImGuiSMSVDPRegs::drawSection(std::span<const uint8_t> showRegisters,
 
 		im::ID_for_range(showRegisters.size(), [&](int i) {
 			auto reg = showRegisters[i];
-			// note:  0..10  regular register
-			//       64      status register
-			const auto& rd = (reg < 64) ? registerDescriptions[reg] : statusDescription;
+			const auto& rd = (reg < STATUS) ? registerDescriptions[reg] : statusDescription;
 			if (ImGui::TableNextColumn()) {
-				auto name = tmpStrCat(reg < 64 ? "R#"sv : "S#"sv, reg < 64 ? reg : reg - 64);
+				auto name = (reg < STATUS) ? tmpStrCat("R#", int(reg)) : TemporaryString("S#0");
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(static_cast<std::string_view>(name));
 				simpleToolTip(rd.name);
@@ -293,7 +293,7 @@ void ImGuiSMSVDPRegs::drawSection(std::span<const uint8_t> showRegisters,
 			uint8_t value = regValues[reg];
 			bool writeReg = false;
 			if (ImGui::TableNextColumn()) {
-				if (reg < 64) {
+				if (reg < STATUS) {
 					if (ImGui::InputScalar("##value", ImGuiDataType_U8, &value, nullptr, nullptr, "%02X", ImGuiInputTextFlags_CharsHexadecimal)) {
 						writeReg = true;
 					}
@@ -325,7 +325,7 @@ void ImGuiSMSVDPRegs::drawSection(std::span<const uint8_t> showRegisters,
 					}
 				}
 			});
-			if (writeReg && (reg < 64)) {
+			if (writeReg && (reg < STATUS)) {
 				vdp.changeRegister(reg, value, time);
 			}
 		});
@@ -364,7 +364,7 @@ void ImGuiSMSVDPRegs::drawSection(std::span<const uint8_t> showRegisters,
 						newHoveredFunction = f;
 					}
 					if (shift == 1) { // single bit
-						if (auto reg = func.subs[0].reg; reg < 64) { // non-status-register
+						if (auto reg = func.subs[0].reg; reg < STATUS) { // non-status-register
 							if (ImGui::IsItemClicked()) {
 								auto mask = func.subs[0].mask;
 								vdp.changeRegister(reg, regValues[reg] ^ mask, time);
@@ -390,10 +390,10 @@ void ImGuiSMSVDPRegs::paint(MSXMotherBoard* motherBoard)
 		auto time = motherBoard->getCurrentTime();
 
 		g_vdp = &vdp;
-		for (auto reg : xrange(11)) {
+		for (auto reg : xrange(STATUS)) {
 			registerValues[reg] = vdp.peekReg(reg);
 		}
-		registerValues[64] = vdp.peekStatus();
+		registerValues[STATUS] = vdp.peekStatus();
 
 		newHoveredFunction = -1;
 		auto make_span = [](const auto& array) {
@@ -420,7 +420,7 @@ void ImGuiSMSVDPRegs::paint(MSXMotherBoard* motherBoard)
 			drawSection(make_span(counterRegs), registerValues, vdp, time);
 		});
 		im::TreeNode("Status register", &openStatus, [&]{
-			static constexpr auto statusRegs = std::to_array<uint8_t>({64});
+			static constexpr auto statusRegs = std::to_array<uint8_t>({STATUS});
 			drawSection(make_span(statusRegs), registerValues, vdp, time);
 		});
 		hoveredFunction = newHoveredFunction;
