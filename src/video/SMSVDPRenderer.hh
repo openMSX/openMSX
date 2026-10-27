@@ -29,8 +29,19 @@ public:
 	  */
 	[[nodiscard]] virtual bool isActive() const = 0;
 
+	/** Signal the start of a new frame. Decides whether this frame is
+	  * rendered/painted (frameskip), see SMSVDPPixelRenderer::frameStart().
+	  */
+	virtual void frameStart(EmuTime time) = 0;
+
 	/** Signal the end of the current frame. */
 	virtual void frameEnd(EmuTime time) = 0;
+
+	/** Reinitialize Renderer state, e.g. after loading a savestate in the
+	  * middle of a frame. The in-progress frame is discarded; the next
+	  * frame is drawn and painted normally.
+	  */
+	virtual void reInit() = 0;
 
 	/** Draw one output scanline (320 palette indices, values 0..79). */
 	virtual void drawLine(unsigned y, std::span<const uint8_t, 320> paletteIndices) = 0;

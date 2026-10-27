@@ -43,6 +43,8 @@ public:
 	static constexpr int ACTIVE_WIDTH = 256;  // visible pixels
 	static constexpr int OUTPUT_WIDTH = 320;  // openMSX output
 	static constexpr int OUTPUT_HEIGHT = 240;
+	// MAME's DRAW_TIME_SMS: hpos at which the 256 active pixels start.
+	static constexpr int ACTIVE_HPOS = 63;
 
 	// Status register bits.
 	static constexpr uint8_t STATUS_VINT = 0x80;

@@ -12,7 +12,15 @@ bool SMSVDPDummyRenderer::isActive() const
 	return false;
 }
 
+void SMSVDPDummyRenderer::frameStart(EmuTime /*time*/)
+{
+}
+
 void SMSVDPDummyRenderer::frameEnd(EmuTime /*time*/)
+{
+}
+
+void SMSVDPDummyRenderer::reInit()
 {
 }
 

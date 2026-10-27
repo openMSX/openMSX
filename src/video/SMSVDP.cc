@@ -58,6 +58,7 @@ void SMSVDP::reset(EmuTime time)
 	syncEol.removeSyncPoint();
 	core.setPal(isPal()); // the device configuration is authoritative
 	core.reset();
+	renderer->reInit();
 	vpos = core.height() - 1; // executeLine() will wrap to 0
 	frameActive = false;
 	pixelClock.reset(time);
@@ -135,6 +136,7 @@ void SMSVDP::executeLine(EmuTime time)
 			renderer->frameEnd(time);
 		}
 		frameActive = true;
+		renderer->frameStart(time);
 		updateAutoVideoSwitch(time);
 	}
 	pixelClock.reset(time);
@@ -143,7 +145,7 @@ void SMSVDP::executeLine(EmuTime time)
 	// The chip has a single /INT pin, shared by the VINT and HINT logic,
 	// so one event at the latest of the two hpos moments covers both.
 	syncInt .setSyncPoint(pixelClock + core.intHpos());
-	syncDraw.setSyncPoint(pixelClock + 63); // MAME's DRAW_TIME_SMS
+	syncDraw.setSyncPoint(pixelClock + SMSVDPCore::ACTIVE_HPOS); // MAME's DRAW_TIME_SMS
 	syncEol .setSyncPoint(pixelClock + (SMSVDPCore::WIDTH - 1));
 	syncLine.setSyncPoint(pixelClock + SMSVDPCore::WIDTH);
 }
@@ -327,6 +329,7 @@ void SMSVDP::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		core.setPal(isPal()); // the device configuration is authoritative
 		vpos = std::min(vpos, core.height() - 1);
+		renderer->reInit(); // a frame may be in progress, discard it
 		updateClock();
 	}
 }
