@@ -190,6 +190,20 @@ unsigned SMSVDP::currentHpos(EmuTime time) const
 	return std::min<unsigned>(SMSVDPCore::WIDTH - 1, pixelClock.getTicksTill(time));
 }
 
+std::pair<int, int> SMSVDP::getRasterPosition() const
+{
+	// Active-display coordinates: (0,0) is the top-left of the 256x192
+	// (or 224/240) display area; values outside that area are possible.
+	const auto time = motherBoard.getCurrentTime();
+	return { int(currentHpos(time)) - SMSVDPCore::ACTIVE_HPOS,
+	         vpos - core.activeStart() };
+}
+
+void SMSVDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
+{
+	core.writeRegister(reg, val, narrow<int>(currentHpos(time)));
+}
+
 // ---------------------------------------------------------------------------
 // renderer / video source
 // ---------------------------------------------------------------------------
@@ -294,8 +308,7 @@ uint8_t SMSVDP::RegDebug::read(unsigned address)
 void SMSVDP::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& vdp = OUTER(SMSVDP, regDebug);
-	vdp.core.writeRegister(narrow<uint8_t>(address), value,
-	                       narrow<int>(vdp.currentHpos(time)));
+	vdp.changeRegister(narrow<uint8_t>(address), value, time);
 }
 
 SMSVDP::StatusDebug::StatusDebug(const SMSVDP& vdp, std::string_view name_)

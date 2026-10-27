@@ -19,6 +19,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace openmsx {
 
@@ -67,6 +68,30 @@ public:
 	[[nodiscard]] uint8_t peekHCounter() const;
 	[[nodiscard]] uint8_t peekData() const;
 	[[nodiscard]] uint8_t peekControl(EmuTime time) const;
+
+	// Debug accessors (used by the Franky debugger viewers and debuggables).
+	[[nodiscard]] std::span<const uint8_t, 0x4000> getVram() const {
+		return core.getVram();
+	}
+	[[nodiscard]] uint8_t peekReg(int i) const { return core.peekReg(i); }
+	[[nodiscard]] uint8_t peekStatus() const { return core.peekStatus(); }
+	[[nodiscard]] int peekMode() const { return core.peekMode(); }
+	[[nodiscard]] uint8_t peekLineCounter() const { return core.peekLineCounter(); }
+	[[nodiscard]] uint8_t peekCram(int i) const { return core.peekCram(i); }
+	void pokeCram(int i, uint8_t value) { core.pokeCram(i, value); }
+	[[nodiscard]] int peekYPixels() const { return core.yPixels(); }
+	[[nodiscard]] SMSVDPCore::Variant getVariant() const { return core.getVariant(); }
+
+	/** Position of the raster beam in active-display coordinates: (0,0) is
+	  * the top-left of the display area; values outside it are possible.
+	  * Used by the beam overlay of the tile viewer.
+	  */
+	[[nodiscard]] std::pair<int, int> getRasterPosition() const;
+
+	/** Write a VDP register (used by the register viewer and the
+	  * "SMS VDP regs" debuggable).
+	  */
+	void changeRegister(uint8_t reg, uint8_t val, EmuTime time);
 
 	[[nodiscard]] PostProcessor* getPostProcessor() const;
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
