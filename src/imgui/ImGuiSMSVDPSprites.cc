@@ -186,30 +186,26 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		int vdpSize = (reg[1] & 0x02) ? 16 : 8;
 		int vdpMag = (reg[1] & 0x01) ? 1 : 0;
 		int vdpTransparent = 1; // color 0 is always transparent on the SMS VDP
-		int vdpPatBase = (vdpType == SMS) ? 0 : ((reg[6] & 0x07) << 11);
-		int vdpAttBase = (vdpType == SMS) ? ((reg[5] << 7) & 0x3f00)
-		                                  : ((reg[5] & 0x7f) << 7);
+		// Table bases as the chip derives them from the registers for sprite
+		// type 't'. The settings readout uses the chip's type, the views use
+		// the type that is shown (these differ when the type is overridden).
+		auto patBaseFor = [&](int t) {
+			return (t == SMS) ? 0 : ((reg[6] & 0x07) << 11);
+		};
+		auto attBaseFor = [&](int t) {
+			return (t == SMS) ? ((reg[5] << 7) & 0x3f00)
+			                  : ((reg[5] & 0x7f) << 7);
+		};
+		int vdpPatBase = patBaseFor(vdpType);
+		int vdpAttBase = attBaseFor(vdpType);
 		int vdpLines = (vdpType == SMS) ? vdpYpixels : 192;
 		auto vramSize = 0x4000;
 
 		// Palette: TMS9918 colors (modes 0-3) or the 32 CRAM colors (mode 4;
-		// sprites always use palette 1 = entries 16-31).
+		// sprites always use palette 1 = entries 16-31). Filled once the
+		// shown type is known.
 		std::array<uint32_t, 32> palette{};
 		const auto colors = vdp.getPaletteColors();
-		for (auto i : xrange(16)) {
-			const uint32_t rgb = colors[64 + i];
-			palette[i] = ImColor(int((rgb >> 16) & 0xff),
-			                     int((rgb >> 8) & 0xff),
-			                     int(rgb & 0xff));
-		}
-		if (vdpType == SMS) {
-			for (auto i : xrange(32)) {
-				const uint32_t rgb = colors[vdp.peekCram(i) & 0x3f];
-				palette[i] = ImColor(int((rgb >> 16) & 0xff),
-				                     int((rgb >> 8) & 0xff),
-				                     int(rgb & 0xff));
-			}
-		}
 
 		// Height for the scrollable section children: the content height plus
 		// room for the horizontal scrollbar, so that showing the scrollbar
@@ -337,6 +333,11 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				});
 				ImGui::SameLine();
 				im::Group([&]{
+					// The type actually shown. manualType stays at its default
+					// unless the type itself is overridden.
+					auto shownType = [&] {
+						return (overrideAll || overrideType) ? manualType : vdpType;
+					};
 					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
 						im::Disabled(!manType, [&]{
 							im::Combo("##type", typeToStr(manualType), [&]{
@@ -345,9 +346,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						im::Disabled(!manSize, [&]{
-							im::Combo("##size", sizeToStr(manualType, manualSize), [&]{
+							im::Combo("##size", sizeToStr(shownType(), manualSize), [&]{
 								if (ImGui::Selectable(" 8 x  8")) manualSize =  8;
-								if (ImGui::Selectable((manualType == SMS) ? " 8 x 16" : "16 x 16")) manualSize = 16;
+								if (ImGui::Selectable((shownType() == SMS) ? " 8 x 16" : "16 x 16")) manualSize = 16;
 							});
 						});
 						im::Disabled(!manMag, [&]{
@@ -362,14 +363,14 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 								if (ImGui::Selectable("yes")) manualTransparent = 1;
 							});
 						});
-						im::Disabled(!manPat || (manualType == SMS), [&]{
+						im::Disabled(!manPat || (shownType() == SMS), [&]{
 							comboHexSequence<5>("##pat", &manualPatBase, 8 * 256, vramSize, 0);
 						});
 						im::Disabled(!manAtt, [&]{
 							comboHexSequence<5>("##att", &manualAttBase,
-							                    (manualType == SMS) ? 0x100 : 0x80, vramSize, 0);
+							                    (shownType() == SMS) ? 0x100 : 0x80, vramSize, 0);
 						});
-						im::Disabled(!manLines || (manualType != SMS), [&]{
+						im::Disabled(!manLines || (shownType() != SMS), [&]{
 							ImGui::Combo("##lines", &manualLines, "192\000224\000240\000");
 						});
 					});
@@ -416,8 +417,19 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			                                  240)
 			            : vdpLines)
 			: 192; // the TMS9918-compatible modes always show 192 lines
-		int patBase = (type == SMS) ? 0 : (manPat ? manualPatBase : vdpPatBase);
-		int attBase = manAtt ? manualAttBase : vdpAttBase;
+		int patBase = (type == SMS) ? 0 : (manPat ? manualPatBase : patBaseFor(type));
+		int attBase = manAtt ? manualAttBase : attBaseFor(type);
+
+		auto toImColor = [](uint32_t rgb) {
+			return uint32_t(ImColor(int((rgb >> 16) & 0xff),
+			                        int((rgb >> 8) & 0xff),
+			                        int(rgb & 0xff)));
+		};
+		for (auto i : xrange(32)) {
+			palette[i] = (type == SMS) ? toImColor(colors[vdp.peekCram(i) & 0x3f])
+			           : (i < 16)      ? toImColor(colors[64 + i])
+			                           : 0;
+		}
 
 		// Background where nothing is drawn (transparent pixels) is the
 		// checkerboard texture.
