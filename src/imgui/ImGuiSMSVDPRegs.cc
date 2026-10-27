@@ -84,8 +84,7 @@ static TemporaryString modeName()
 	case 1: return TemporaryString("text (mode 1)");
 	case 2: return TemporaryString("graphics II (mode 2)");
 	case 3: return TemporaryString("multicolor (mode 3)");
-	case 4: return (lines == 192) ? TemporaryString("mode 4")
-	                              : tmpStrCat("mode 4, ", lines, " lines");
+	case 4: return tmpStrCat("mode 4", strCat_if(lines != 192, ", ", lines, " lines"));
 	default: {
 		std::string bits;
 		for (auto [set, name] : {std::pair{m1(), "M1"}, std::pair{m2(), "M2"}, std::pair{m3(), "M3"}}) {
