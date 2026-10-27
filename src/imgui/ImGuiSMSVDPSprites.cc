@@ -609,6 +609,13 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		int magFactor = mag ? 2 : 1;
 		int magW = magFactor * ((type == SMS) ? 8 : size); // SMS sprites are 8 pixels wide
 		int magH = magFactor * size;
+		// First screen line of a sprite (see selectLine): Y>=240 is above the
+		// screen, and magnification halves Y before the compare, so an odd Y
+		// starts one line earlier.
+		auto spriteTop = [&](int vramY) {
+			int y = (vramY >= 240) ? (vramY - 256) : vramY;
+			return (mag ? (y & ~1) : y) + 1;
+		};
 		int maxZoomH = sms1 ? 4 : 8;
 		int maxZoomV = 8;
 		bool canStopY = (type != SMS) || (lines == 192);
@@ -691,21 +698,20 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				auto visibleText = [&](int sprite) -> std::string_view {
 					if (!(reg[1] & 0x40)) return "no (display disabled)"sv;
 					if (sprite >= stopYIndex) return "no (after the Y=0xD0 terminator)"sv;
+					// A sprite can be selected for a line and still be
+					// completely left of the screen (X=0 with the R#0 shift).
+					int yTop = spriteTop(vram[(attBase + sprite) & 0x3fff]);
+					int x = vram[(attExtra + 2 * sprite) & 0x3fff];
+					int xLeft = xShift ? x - 8 : x;
+					if (((yTop + magH) <= 0) || (yTop >= lines) || ((xLeft + magW) <= 0)) {
+						return "no (off-screen)"sv;
+					}
 					std::array<Selected, 64> selected;
 					for (int line = 0; line < lines; ++line) {
 						int count = selectLine(line, true, canStopY, selected);
 						for (int i = 0; i < count; ++i) {
 							if (selected[i].sprite == sprite) return "yes"sv;
 						}
-					}
-					// Not displayed: off-screen or beyond the per-line limit.
-					int y = vram[(attBase + sprite) & 0x3fff];
-					int yTop = ((y >= 240) ? y - 256 : y) + 1;
-					int x = vram[(attExtra + 2 * sprite) & 0x3fff];
-					int xLeft = xShift ? x - 8 : x;
-					if (((yTop + magH) <= 0) || (yTop >= lines) ||
-					    ((xLeft + magW) <= 0) || (xLeft >= 256)) {
-						return "no (off-screen)"sv;
 					}
 					return "no (beyond the per-line sprite limit)"sv;
 				};
@@ -1001,10 +1007,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			}
 
 			// bounding boxes (raw sprite positions, up to the terminator)
-			std::array<SpriteBox, 2 * 64> clippedBoxes;
+			std::array<SpriteBox, 64> clippedBoxes;
 			int nrClippedBoxes = 0;
 			auto addClippedBox = [&](SpriteBox b) {
-				assert(nrClippedBoxes < 128);
+				assert(nrClippedBoxes < 64);
 				clippedBoxes[nrClippedBoxes] = b;
 				++nrClippedBoxes;
 			};
@@ -1025,7 +1031,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					if (tileBank) pattern += 256;
 					x = xShift ? vramX - 8 : vramX;
 				}
-				int y = ((vramY >= 240) ? (vramY - 256) : vramY) + 1;
+				int y = spriteTop(vramY);
 				int w = magW;
 				int h = magH;
 				if (x < 0) {
@@ -1035,13 +1041,16 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				} else if (x + w > 256) {
 					w = 256 - x;
 				}
-				int yEnd = y + h;
-				if (yEnd < 256) {
-					addClippedBox(SpriteBox{x, y, w, h, sprite, vramX, vramY, pattern});
-				} else {
-					addClippedBox(SpriteBox{x, y, w, 256 - y, sprite, vramX, vramY, pattern});
-					addClippedBox(SpriteBox{x, 0, w, yEnd - 256, sprite, vramX, vramY, pattern});
+				// No wrap to the top: Y>=240 is already the negative range.
+				if (y < 0) {
+					h += y;
+					if (h <= 0) continue;
+					y = 0;
+				} else if (y + h > lines) {
+					h = lines - y;
+					if (h <= 0) continue;
 				}
+				addClippedBox(SpriteBox{x, y, w, h, sprite, vramX, vramY, pattern});
 			}
 
 			if (!renderTex.get()) {
