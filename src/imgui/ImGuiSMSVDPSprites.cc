@@ -457,6 +457,18 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		bool xShift = (reg[0] & 0x08) != 0;
 		bool tileBank = (reg[6] & 0x04) != 0;
 		int attExtra = attBase + (sms1 ? (0x80 & ((reg[5] & 0x01) << 7 | 0x7f)) : 0x80);
+		// The first (top) pattern a sprite uses, as SMSVDPCore::selectSprites
+		// derives it from the attribute byte. 16-line sprites add 1 for the
+		// lower half.
+		auto spriteTile = [&](int sprite) -> unsigned {
+			if (type == TMS) {
+				auto tile = unsigned(vram[(attBase + 4 * sprite + 2) & 0x3fff]);
+				return (size == 16) ? (tile & 0xfc) : tile;
+			}
+			auto tile = spriteTileSelect(vram[(attExtra + 2 * sprite + 1) & 0x3fff]);
+			if (tileBank) tile += 256;
+			return (size == 16) ? (tile & 0x1fe) : tile;
+		};
 
 		auto copySpriteDataPopup = [&](zstring_view text, function_ref<std::string()> supplier) {
 			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
@@ -587,20 +599,14 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		auto spriteH = size;
 		auto renderSpriteAttrib = [&](int sprite, float zoomFactor) {
 			auto zoomVec = zoomFactor * gl::vec2{float(spriteW), float(spriteH)};
+			auto [u1, u2, v1, v2] = spriteUV(spriteTile(sprite));
 			if (type == TMS) {
 				auto flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
-				auto tile = unsigned(vram[(attBase + 4 * sprite + 2) & 0x3fff]);
 				auto color = flags & 0x0f;
-				auto [u1, u2, v1, v2] = spriteUV(tile);
 				ImGui::ImageWithBg(patternTex.getImGui(), zoomVec,
 					{u1, v1}, {u2, v2}, {},
 					ImGui::ColorConvertU32ToFloat4(palette[color]));
 			} else {
-				auto tile = unsigned(vram[(attExtra + 2 * sprite + 1) & 0x3fff]);
-				tile = spriteTileSelect(tile);
-				if (tileBank) tile += 256;
-				if (size == 16) tile &= 0x1fe;
-				auto [u1, u2, v1, v2] = spriteUV(tile);
 				ImGui::Image(patternTex.getImGui(), zoomVec, {u1, v1}, {u2, v2});
 			}
 		};
@@ -647,25 +653,15 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						Selected& s = selected[count];
 						int spriteLine = parseLine - spriteY;
 						s.sprite = sprite;
+						s.tile = spriteTile(sprite);
+						if (spriteLine > 0x07) s.tile += 1;
 						if (type == TMS) {
 							s.x = vram[(attBase + 4 * sprite + 1) & 0x3fff];
-							s.tile = unsigned(vram[(attBase + 4 * sprite + 2) & 0x3fff]);
 							s.flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
-							if (size == 16) {
-								s.tile &= 0xfc;
-								if (spriteLine > 0x07) {
-									s.tile += 1;
-									spriteLine -= 8;
-								}
-							}
 						} else {
 							s.x = vram[(attExtra + 2 * sprite) & 0x3fff];
-							s.tile = spriteTileSelect(vram[(attExtra + 2 * sprite + 1) & 0x3fff]);
 							s.flags = 0;
 							if (xShift) s.x -= 8;
-							if (tileBank) s.tile += 256;
-							if (size == 16) s.tile &= 0x1fe;
-							if (spriteLine > 0x07) s.tile += 1;
 						}
 						s.spriteLine = spriteLine & 0x07;
 						++count;
@@ -782,6 +778,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						auto tile = vram[(attExtra + 2 * sprite + 1) & 0x3fff];
 						ImGui::StrCat("x: ", x, "  y: ", y);
 						ImGui::StrCat("tile: ", tile, " (0x", hex_string<2>(tile), ')');
+						if (auto used = spriteTile(sprite); used != tile) {
+							ImGui::StrCat("uses pattern: ", used, " (0x", hex_string<3>(used), ')');
+						}
 						ImGui::StrCat("entry: 0x", hex_string<5>((attExtra + 2 * sprite) & 0x3fff));
 						ImGui::StrCat("visible: ", visibleText(sprite));
 						ImGui::EndTooltip();
@@ -915,6 +914,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 							auto flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
 							ImGui::StrCat("x: ", x, "  y: ", y);
 							ImGui::StrCat("pattern: ", tile);
+							if (auto used = spriteTile(sprite); used != tile) {
+								ImGui::StrCat("uses pattern: ", used);
+							}
 							ImGui::StrCat("color: ", flags & 15, (flags & 0x80 ? " (EC)"sv : ""sv));
 						} else {
 							auto y = vram[(attBase + sprite) & 0x3fff];
@@ -1018,17 +1020,14 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				auto vramY = vram[(attBase + ((type == SMS) ? sprite : 4 * sprite)) & 0x3fff];
 				if (!renderAfterStopY && canStopY && (vramY == stopY)) break;
 				uint8_t vramX;
-				unsigned pattern;
+				unsigned pattern = spriteTile(sprite);
 				int x;
 				if (type == TMS) {
 					vramX = vram[(attBase + 4 * sprite + 1) & 0x3fff];
-					pattern = vram[(attBase + 4 * sprite + 2) & 0x3fff];
 					auto flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
 					x = (flags & 0x80) ? vramX - 32 : vramX;
 				} else {
 					vramX = vram[(attExtra + 2 * sprite) & 0x3fff];
-					pattern = spriteTileSelect(vram[(attExtra + 2 * sprite + 1) & 0x3fff]);
-					if (tileBank) pattern += 256;
 					x = xShift ? vramX - 8 : vramX;
 				}
 				int y = spriteTop(vramY);
