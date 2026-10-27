@@ -195,7 +195,7 @@ private:
 	} regDebug;
 	struct StatusDebug final : SimpleDebuggable {
 		StatusDebug(const SMSVDP& vdp, std::string_view name);
-		[[nodiscard]] uint8_t read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
 	} statusDebug;
 	struct VramDebug final : SimpleDebuggable {
 		VramDebug(const SMSVDP& vdp, std::string_view name);

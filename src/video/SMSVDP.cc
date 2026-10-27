@@ -345,10 +345,10 @@ SMSVDP::StatusDebug::StatusDebug(const SMSVDP& vdp, std::string_view name_)
 {
 }
 
-uint8_t SMSVDP::StatusDebug::read(unsigned /*address*/)
+uint8_t SMSVDP::StatusDebug::read(unsigned /*address*/, EmuTime time)
 {
 	const auto& vdp = OUTER(SMSVDP, statusDebug);
-	return vdp.core.peekStatus();
+	return vdp.peekControl(time);
 }
 
 SMSVDP::VramDebug::VramDebug(const SMSVDP& vdp, std::string_view name_)
