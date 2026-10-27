@@ -345,9 +345,9 @@ void ImGuiSMSVDPRegs::drawSection(std::span<const uint8_t> showRegisters,
 			auto reg = showRegisters[i];
 			const auto& rd = (reg < STATUS) ? registerDescriptions[reg] : statusDescription;
 			if (ImGui::TableNextColumn()) {
-				auto name = (reg < STATUS) ? tmpStrCat("R#", int(reg)) : TemporaryString("S#0");
+				auto name = (reg < STATUS) ? strCat("R#", int(reg)) : std::string("S#0");
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(static_cast<std::string_view>(name));
+				ImGui::TextUnformatted(name);
 				simpleToolTip(rd.name);
 			}
 			uint8_t value = regValues[reg];
