@@ -150,7 +150,7 @@ static constexpr auto registerDescriptions = std::array{
 };
 static_assert(registerDescriptions.size() == STATUS);
 static constexpr RegisterDescription statusDescription =
-	RD{{" F ", "5S ", " C ", "SN4", "SN3", "SN2", "SN1", "SN0"}, "Status register"};
+	RD{{" F ", "5S ", " C ", "FS4", "FS3", "FS2", "FS1", "FS0"}, "Status register"};
 
 struct SubFunction {
 	uint8_t reg = uint8_t(-1);
@@ -299,13 +299,13 @@ static constexpr auto regFunctions = std::array{
 	R{{S{STATUS, 0x80}}, "V-Blank interrupt pending",
 	  [](uint32_t v) { return tmpStrCat("VINT: ", v); }},
 	R{{S{STATUS, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
-	R{{S{STATUS, 0x40}}, "sprite overflow",
+	R{{S{STATUS, 0x40}}, "sprite overflow: more than 4 (modes 0-3) or 8 (mode 4) sprites on a line",
 	  [](uint32_t v) { return tmpStrCat(v ? ""sv : "no "sv, "sprite overflow"); }},
+	R{{S{STATUS, 0x1F}}, "fifth sprite number: the first sprite that did not fit on a line (modes 0-3); undefined in mode 4",
+	  [](uint32_t v) { return tmpStrCat(" (5th sprite: ", v, ')'); }},
 	R{{S{STATUS, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{STATUS, 0x20}}, "sprite collision",
-	  [](uint32_t v) { return tmpStrCat(v ? ""sv : "no "sv, "sprite collision"); }},
-	R{{S{STATUS, 0x1F}}, "sprite number",
-	  [](uint32_t v) { return tmpStrCat(" (sprite number=", v, ")\n"); }},
+	  [](uint32_t v) { return tmpStrCat(v ? ""sv : "no "sv, "sprite collision\n"); }},
 };
 
 static int lookupFunction(uint8_t reg, uint8_t mask)
