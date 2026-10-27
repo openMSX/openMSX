@@ -132,11 +132,11 @@ struct RegisterDescription {
 using RD = RegisterDescription;
 static constexpr auto registerDescriptions = std::array{
 	RD{{"VSL", "HSL", "LC ", "IE1", "SFT", "M4 ", "M2 ", " 0 "}, "Mode register 0"}, // R#0
-	RD{{" 0 ", "DE ", "IE0", "M1 ", "M3 ", " 0 ", "SS ", "SZ "}, "Mode register 1"}, // R#1
+	RD{{" 0 ", "DE ", "IE0", "M1 ", "M3 ", " 0 ", "SI ", "MAG"}, "Mode register 1"}, // R#1
 	RD{{" 0 ", " 0 ", " 0 ", " 0 ", "A13", "A12", "A11", "A10"}, "Name table base address register"}, // R#2
 	RD{{"A13", "A12", "A11", "A10", "A9 ", "A8 ", "A7 ", "A6 "}, "Color table base address register (modes 0-3) / SMS1 tile mask (mode 4)"}, // R#3
-	RD{{" 0 ", " 0 ", " 0 ", "A15", "A14", "A13", "A12", "A11"}, "Pattern table base address register (modes 0-3) / SMS1 tile mask (mode 4)"}, // R#4
-	RD{{"A14", "A13", "A12", "A11", "A10", "A9 ", "A8 ", "A7 "}, "Sprite attribute table base address register"}, // R#5
+	RD{{" 0 ", " 0 ", " 0 ", " 0 ", " 0 ", "A13", "A12", "A11"}, "Pattern table base address register (modes 0-3) / SMS1 tile mask (mode 4)"}, // R#4
+	RD{{" 0 ", "A13", "A12", "A11", "A10", "A9 ", "A8 ", "A7 "}, "Sprite attribute table base address register"}, // R#5
 	RD{{" 0 ", " 0 ", " 0 ", " 0 ", " 0 ", "A13", "A12", "A11"}, "Sprite pattern table base address register (modes 0-3) / sprite tile bank select bit 2 (mode 4)"}, // R#6
 	RD{{"TC3", "TC2", "TC1", "TC0", "BD3", "BD2", "BD1", "BD0"}, "Text color / backdrop color register"}, // R#7
 	RD{{"H7 ", "H6 ", "H5 ", "H4 ", "H3 ", "H2 ", "H1 ", "H0 "}, "Horizontal scroll register"}, // R#8
@@ -195,10 +195,10 @@ static constexpr auto regFunctions = std::array{
 	R{{S{0, 0x20}}, "hide leftmost column (mode 4)",
 	  [](uint32_t v) { return tmpStrCat("leftmost column: ", v ? "hidden"sv : "shown"sv, '\n'); }},
 
-	R{{S{0, 0x80}}, "vertical scroll lock for the top 2 rows",
+	R{{S{0, 0x80}}, "vertical scroll lock for the rightmost 8 columns, 24-31 (mode 4)",
 	  [](uint32_t v) { return tmpStrCat("v-scroll lock: ", v ? "yes"sv : "no"sv); }},
 	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
-	R{{S{0, 0x40}}, "horizontal scroll lock for the top 2 rows",
+	R{{S{0, 0x40}}, "horizontal scroll lock for the top 2 rows, lines 0-15 (mode 4)",
 	  [](uint32_t v) { return tmpStrCat("h-scroll lock: ", v ? "yes"sv : "no"sv, '\n'); }},
 
 	// table base registers
@@ -241,17 +241,26 @@ static constexpr auto regFunctions = std::array{
 	  }},
 
 	// scroll registers
-	R{{S{8, 0xFF}}, "horizontal scroll",
+	R{{S{8, 0xFF}}, "horizontal scroll (mode 4)",
 	  [](uint32_t v) { return tmpStrCat("h-scroll: ", v); }},
 	R{{S{8, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
-	R{{S{9, 0xFF}}, "vertical scroll",
+	R{{S{9, 0xFF}}, "vertical scroll (mode 4)",
 	  [](uint32_t v) { return tmpStrCat("v-scroll: ", v, '\n'); }},
 
 	// color register
 	R{{S{7, 0xF0}}, "text foreground color (mode 1)",
-	  [](uint32_t v) { return tmpStrCat("text fg: color ", v >> 4); }},
-	R{{S{7, 0x0F}}, "text background (mode 1) / backdrop color (mode 4)",
-	  [](uint32_t v) { return tmpStrCat("  bg/backdrop: color ", v, '\n'); }},
+	  [](uint32_t v) {
+		if (getMode().mode != 1) return TemporaryString{};
+		return tmpStrCat("text fg: color ", v, ", ");
+	  }},
+	R{{S{7, 0x0F}}, "backdrop color, also the text background in mode 1; in mode 4 it selects color 16-31 (the sprite palette)",
+	  [](uint32_t v) {
+		switch (getMode().mode) {
+		case 1: return tmpStrCat("bg/backdrop: color ", v, '\n');
+		case 4: return tmpStrCat("backdrop: color ", v + 16, '\n');
+		default: return tmpStrCat("backdrop: color ", v, '\n');
+		}
+	  }},
 
 	// line counter
 	R{{S{10, 0xFF}}, "line counter reload value; the internal counter decrements on each visible line and reloads (raising HINT) when it underflows",
