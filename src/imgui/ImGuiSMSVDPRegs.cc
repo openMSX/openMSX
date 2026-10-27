@@ -103,8 +103,20 @@ static unsigned nameTableBase()
 	}
 	return (r2 & 0x0f) << 10;
 }
-static unsigned colorTableBase() { return (registerValues[3] << 6) & 0x3fff; }
-static unsigned patternTableBase() { return (registerValues[4] << 11) & 0x3fff; }
+// In graphics II, R#3 bit 7 and R#4 bit 2 select the base; the other bits
+// mask the address within the table.
+static unsigned colorTableBase()
+{
+	auto r3 = registerValues[3];
+	return (getMode().mode == 2) ? ((r3 & 0x80) << 6) : ((r3 << 6) & 0x3fff);
+}
+static unsigned colorTableMask() { return ((registerValues[3] & 0x7f) << 6) | 0x3f; }
+static unsigned patternTableBase()
+{
+	auto r4 = registerValues[4];
+	return (getMode().mode == 2) ? ((r4 & 0x04) << 11) : ((r4 << 11) & 0x3fff);
+}
+static unsigned patternTableMask() { return ((registerValues[4] & 0x03) << 11) | 0x7ff; }
 static unsigned spriteAttBase()
 {
 	auto r5 = registerValues[5];
@@ -192,15 +204,29 @@ static constexpr auto regFunctions = std::array{
 	// table base registers
 	R{{S{2, 0xFF}}, "name table address",
 	  [](uint32_t) { return tmpStrCat("name table:     0x", hex_string<5>(nameTableBase()), '\n'); }},
-	R{{S{3, 0xFF}}, "color table address (modes 0-3)",
+	R{{S{3, 0xFF}}, "color table address (modes 0 and 2); in mode 2 bit 7 selects the base and bits 6-0 mask the address",
 	  [](uint32_t) {
-		if (isMode4()) return tmpStrCat("color table:    (not used in mode 4)\n");
-		return tmpStrCat("color table:    0x", hex_string<5>(colorTableBase()), '\n');
+		switch (auto mode = getMode().mode) {
+		case 1: case 3: case 4:
+			return tmpStrCat("color table:    (not used in mode ", mode, ")\n");
+		case 2:
+			return tmpStrCat("color table:    0x", hex_string<5>(colorTableBase()),
+			                 " (mask 0x", hex_string<4>(colorTableMask()), ")\n");
+		default:
+			return tmpStrCat("color table:    0x", hex_string<5>(colorTableBase()), '\n');
+		}
 	  }},
-	R{{S{4, 0xFF}}, "pattern table address (modes 0-3)",
+	R{{S{4, 0xFF}}, "pattern table address (modes 0-3); in mode 2 bit 2 selects the base and bits 1-0 mask the address",
 	  [](uint32_t) {
-		if (isMode4()) return tmpStrCat("pattern table:  (fixed at 0x0000 in mode 4)\n");
-		return tmpStrCat("pattern table:  0x", hex_string<5>(patternTableBase()), '\n');
+		switch (getMode().mode) {
+		case 2:
+			return tmpStrCat("pattern table:  0x", hex_string<5>(patternTableBase()),
+			                 " (mask 0x", hex_string<4>(patternTableMask()), ")\n");
+		case 4:
+			return tmpStrCat("pattern table:  (fixed at 0x0000 in mode 4)\n");
+		default:
+			return tmpStrCat("pattern table:  0x", hex_string<5>(patternTableBase()), '\n');
+		}
 	  }},
 	R{{S{5, 0xFF}}, "sprite attribute table address",
 	  [](uint32_t) { return tmpStrCat("sprite attr:    0x", hex_string<5>(spriteAttBase()), '\n'); }},
