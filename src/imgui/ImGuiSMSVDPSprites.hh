@@ -87,13 +87,13 @@ private:
 		PersistentElement{"overridePat",         &ImGuiSMSVDPSprites::overridePat},
 		PersistentElement{"overrideAtt",         &ImGuiSMSVDPSprites::overrideAtt},
 		PersistentElement{"overrideLines",       &ImGuiSMSVDPSprites::overrideLines},
-		PersistentElementMinMax{"type",          &ImGuiSMSVDPSprites::manualType, 1, 2}, // 1 or SMS
+		PersistentElementMinMax{"type",          &ImGuiSMSVDPSprites::manualType, 1, 3}, // 1 or SMS
 		PersistentElementEnum{"size",            &ImGuiSMSVDPSprites::manualSize, validSizes},
 		PersistentElementMax{"mag",              &ImGuiSMSVDPSprites::manualMag, 2},
 		PersistentElementMax{"transparent",      &ImGuiSMSVDPSprites::manualTransparent, 2},
 		PersistentElementMax{"patBase",          &ImGuiSMSVDPSprites::manualPatBase, 0x4000},
 		PersistentElementMax{"attBase",          &ImGuiSMSVDPSprites::manualAttBase, 0x4000},
-		PersistentElementMax{"lines",            &ImGuiSMSVDPSprites::manualLines, 2},
+		PersistentElementMax{"lines",            &ImGuiSMSVDPSprites::manualLines, 3}, // 192, 224 or 240
 		PersistentElementMax{"zoom",             &ImGuiSMSVDPSprites::zoom, 8},
 		PersistentElement{"showGrid",            &ImGuiSMSVDPSprites::grid},
 		PersistentElementMax{"checkerBoardSize", &ImGuiSMSVDPSprites::checkerBoardSize, maxCheckerBoardSize + 1},
