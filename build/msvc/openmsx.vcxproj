@@ -525,6 +525,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSlotMap.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPRegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPSprites.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPTiles.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.cc" />
@@ -1155,6 +1156,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSlotMap.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPRegs.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPSprites.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPTiles.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.hh" />

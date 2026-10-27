@@ -10,6 +10,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiRasterViewer.hh"
+#include "ImGuiSMSVDPRegs.hh"
 #include "ImGuiSMSVDPSprites.hh"
 #include "ImGuiSMSVDPTiles.hh"
 #include "ImGuiSpriteViewer.hh"
@@ -194,6 +195,7 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 	buf.appendf("spriteViewers=%d\n", narrow<int>(spriteViewers.size()));
 	buf.appendf("smsVdpTileViewers=%d\n", narrow<int>(smsVdpTileViewers.size()));
 	buf.appendf("smsVdpSpriteViewers=%d\n", narrow<int>(smsVdpSpriteViewers.size()));
+	buf.appendf("smsVdpRegsViewers=%d\n", narrow<int>(smsVdpRegsViewers.size()));
 
 	saveCountPerDebuggable(buf, "hexEditor.", hexEditors);
 	saveCountPerDebuggable(buf, "debuggableBitmap.", debuggableBitmapViewers);
@@ -207,6 +209,7 @@ void ImGuiDebugger::loadStart()
 	spriteViewers.clear();
 	smsVdpTileViewers.clear();
 	smsVdpSpriteViewers.clear();
+	smsVdpRegsViewers.clear();
 	hexEditors.clear();
 	debuggableBitmapViewers.clear();
 }
@@ -246,6 +249,10 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	} else if (name == "smsVdpSpriteViewers") {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			repeat(*r, [&] { openOrCreate(manager, smsVdpSpriteViewers); });
+		}
+	} else if (name == "smsVdpRegsViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, smsVdpRegsViewers); });
 		}
 	} else if (name.starts_with(hexEditorPrefix)) {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
@@ -334,6 +341,9 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::MenuItem("SMS VDP sprite viewer")) {
 				openOrCreate(manager, smsVdpSpriteViewers);
+			}
+			if (ImGui::MenuItem("SMS VDP register viewer")) {
+				openOrCreate(manager, smsVdpRegsViewers);
 			}
 		}
 		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show);
