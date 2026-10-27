@@ -93,6 +93,24 @@ static void renderPatternsTms16(std::span<const uint8_t, 0x4000> vram, unsigned 
 	}
 }
 
+// The 8 pens (0-15) of one mode 4 pattern row: four bytes, one per bit
+// plane, starting at 'addr'.
+static std::array<uint8_t, 8> mode4Pens(std::span<const uint8_t, 0x4000> vram, unsigned addr)
+{
+	auto b0 = vram[(addr + 0) & 0x3fff];
+	auto b1 = vram[(addr + 1) & 0x3fff];
+	auto b2 = vram[(addr + 2) & 0x3fff];
+	auto b3 = vram[(addr + 3) & 0x3fff];
+	std::array<uint8_t, 8> pens;
+	for (auto x : xrange(8)) {
+		pens[x] = uint8_t((((b3 >> (7 - x)) & 1) << 3) |
+		                  (((b2 >> (7 - x)) & 1) << 2) |
+		                  (((b1 >> (7 - x)) & 1) << 1) |
+		                   ((b0 >> (7 - x)) & 1));
+	}
+	return pens;
+}
+
 // Mode 4 sprite patterns are 4bpp and always use CRAM palette 1.
 // 'pen0' is the color used for the (transparent) pen 0 pixels. Sprites
 // address the 256 tiles of one bank (0x0000 or 0x2000, R#6 bit 2).
@@ -104,18 +122,10 @@ static void renderPatternsSms8(std::span<const uint8_t, 0x4000> vram, unsigned p
 		auto charRow = tile / 32;
 		auto charCol = tile % 32;
 		for (auto y : xrange(8)) {
-			auto addr = (patBase + tile * 32 + y * 4) & 0x3fff;
-			auto b0 = vram[addr + 0];
-			auto b1 = vram[addr + 1];
-			auto b2 = vram[addr + 2];
-			auto b3 = vram[addr + 3];
+			auto pens = mode4Pens(vram, patBase + tile * 32 + y * 4);
 			for (auto x : xrange(8)) {
-				auto pen = uint8_t((((b3 >> (7 - x)) & 1) << 3) |
-				                   (((b2 >> (7 - x)) & 1) << 2) |
-				                   (((b1 >> (7 - x)) & 1) << 1) |
-				                    ((b0 >> (7 - x)) & 1));
 				output[(charRow * 8 + y) * 256 + charCol * 8 + x] =
-					(pen == 0) ? pen0 : palette[16 + pen];
+					(pens[x] == 0) ? pen0 : palette[16 + pens[x]];
 			}
 		}
 	}
@@ -133,18 +143,10 @@ static void renderPatternsSms16(std::span<const uint8_t, 0x4000> vram, unsigned 
 		auto charCol = sprite % 32;
 		for (auto y : xrange(16)) {
 			auto tile = 2 * sprite + (y / 8);
-			auto addr = (patBase + tile * 32 + (y & 7) * 4) & 0x3fff;
-			auto b0 = vram[addr + 0];
-			auto b1 = vram[addr + 1];
-			auto b2 = vram[addr + 2];
-			auto b3 = vram[addr + 3];
+			auto pens = mode4Pens(vram, patBase + tile * 32 + (y & 7) * 4);
 			for (auto x : xrange(8)) {
-				auto pen = uint8_t((((b3 >> (7 - x)) & 1) << 3) |
-				                   (((b2 >> (7 - x)) & 1) << 2) |
-				                   (((b1 >> (7 - x)) & 1) << 1) |
-				                    ((b0 >> (7 - x)) & 1));
 				output[(charRow * 16 + y) * 256 + charCol * 8 + x] =
-					(pen == 0) ? pen0 : palette[16 + pen];
+					(pens[x] == 0) ? pen0 : palette[16 + pens[x]];
 			}
 		}
 	}
@@ -209,6 +211,11 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		// shown type is known.
 		std::array<uint32_t, 32> palette{};
 		const auto colors = vdp.getPaletteColors();
+		auto toImColor = [](uint32_t rgb) {
+			return uint32_t(ImColor(int((rgb >> 16) & 0xff),
+			                        int((rgb >> 8) & 0xff),
+			                        int(rgb & 0xff)));
+		};
 
 		// Height for the scrollable section children: the content height plus
 		// room for the horizontal scrollbar, so that showing the scrollbar
@@ -236,12 +243,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					for (auto row : xrange(8)) {
 						for (auto column : xrange(8)) {
 							auto c = row * 8 + column;
-							const uint32_t rgb = colors[c];
 							ImGui::PushID(c);
 							ImGui::ColorButton("##color",
-								ImGui::ColorConvertU32ToFloat4(ImColor(int((rgb >> 16) & 0xff),
-								                                      int((rgb >> 8) & 0xff),
-								                                      int(rgb & 0xff))),
+								ImGui::ColorConvertU32ToFloat4(toImColor(colors[c])),
 								ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoPicker, ImVec2(24.0f, 24.0f));
 							ImGui::PopID();
 							if (ImGui::IsItemHovered()) {
@@ -430,11 +434,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		                            : manualPatBase;
 		int attBase = manAtt ? manualAttBase : attBaseFor(type);
 
-		auto toImColor = [](uint32_t rgb) {
-			return uint32_t(ImColor(int((rgb >> 16) & 0xff),
-			                        int((rgb >> 8) & 0xff),
-			                        int(rgb & 0xff)));
-		};
 		for (auto i : xrange(32)) {
 			palette[i] = (type == SMS) ? toImColor(colors[vdp.peekCram(i) & 0x3f])
 			           : (i < 16)      ? toImColor(colors[64 + i])
@@ -507,8 +506,8 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		if (!patternTex.get()) {
 			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
 		}
-		patternTex.bind();
 		if (type != NONE) {
+			patternTex.bind();
 			if (type == TMS) {
 				if (size == 8) renderPatternsTms8 (vram, unsigned(patBase), pixels);
 				else           renderPatternsTms16(vram, unsigned(patBase), pixels);
@@ -518,10 +517,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				else           renderPatternsSms16(vram, unsigned(patBase), palette, pen0, pixels);
 			}
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize.x, patternTexSize.y, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-		} else {
-			pixels[0] = getColor(imColor::GRAY);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		}
 		// One zoom (Settings) for all sections, like the MSX VDP sprite viewer.
@@ -687,6 +682,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		};
 
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			if (type == NONE) {
+				ImGui::TextUnformatted("No sprites in this screen mode"sv);
+				return;
+			}
 			auto fullSize = gl::vec2(patternTexSize) * float(zm);
 			im::Child("##pattern", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
@@ -697,7 +696,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				}
 				ImGui::Image(patternTex.getImGui(), fullSize);
 				gl::vec2 zoomPatSize{float(spriteW * zm), float(spriteH * zm)};
-				bool hovered = ImGui::IsItemHovered() && (type != NONE);
+				bool hovered = ImGui::IsItemHovered();
 				if (hovered) {
 					gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
 				}
@@ -905,19 +904,11 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 							x += (zoomScale > 1) ? 16 : 8;
 						}
 					} else {
-						auto addr = (s.tile * 32 + s.spriteLine * 4) & 0x3fff;
-						auto b0 = vram[addr + 0];
-						auto b1 = vram[addr + 1];
-						auto b2 = vram[addr + 2];
-						auto b3 = vram[addr + 3];
+						auto pens = mode4Pens(vram, s.tile * 32 + s.spriteLine * 4);
 						for (auto pixelX : xrange(8)) {
-							auto pen = uint8_t((((b3 >> (7 - pixelX)) & 1) << 3) |
-							                   (((b2 >> (7 - pixelX)) & 1) << 2) |
-							                   (((b1 >> (7 - pixelX)) & 1) << 1) |
-							                    ((b0 >> (7 - pixelX)) & 1));
-							uint32_t color;
+							auto pen = pens[pixelX];
 							if (transparent && (pen == 0)) continue;
-							color = palette[16 + pen];
+							auto color = palette[16 + pen];
 							int px = s.x + ((zoomScale > 1) ? (pixelX << 1) : pixelX);
 							for (int z = 0; z < zoomScale; ++z) {
 								if ((0 <= (px + z)) && ((px + z) < 256)) {
