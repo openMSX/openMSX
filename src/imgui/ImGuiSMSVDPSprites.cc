@@ -505,9 +505,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		}
 
 		// Index of the Y=0xD0 terminator (only meaningful in 192-line mode);
-		// entries from there on are not evaluated by the hardware.
+		// entries from there on are not evaluated by the hardware. Follow the
+		// visible line count, including a manual override, not the chip's.
 		int stopYIndex = 64;
-		if ((type == SMS) && (vdpYpixels == 192)) {
+		if ((type == SMS) && (lines == 192)) {
 			for (auto i : xrange(64)) {
 				if (vram[(attBase + i) & 0x3fff] == 0xd0) {
 					stopYIndex = i;
@@ -606,7 +607,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		int magH = magFactor * size;
 		int maxZoomH = sms1 ? 4 : 8;
 		int maxZoomV = 8;
-		bool canStopY = (type != SMS) || (vdpYpixels == 192);
+		bool canStopY = (type != SMS) || (lines == 192);
 		int stopY = 0xd0;
 		int total = (type == SMS) ? 64 : 32;
 
@@ -685,14 +686,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				// sprite (mirrors SMSVDPCore::selectSprites()).
 				auto visibleText = [&](int sprite) -> std::string_view {
 					if (!(reg[1] & 0x40)) return "no (display disabled)"sv;
-					if (canStopY) {
-						for (int i = 0; i < total; ++i) {
-							if (vram[(attBase + i) & 0x3fff] == stopY) {
-								if (sprite >= i) return "no (after the Y=0xD0 terminator)"sv;
-								break;
-							}
-						}
-					}
+					if (sprite >= stopYIndex) return "no (after the Y=0xD0 terminator)"sv;
 					std::array<Selected, 64> selected;
 					for (int line = 0; line < lines; ++line) {
 						int count = selectLine(line, true, canStopY, selected);
