@@ -150,8 +150,11 @@ static constexpr auto regFunctions = std::array{
 	R{{S{0, 0x10}}, "line interrupt enable/disable",
 	  [](uint32_t v) { return tmpStrCat("HINT: ", v ? "enabled"sv : "disabled"sv, '\n'); }},
 
-	R{{S{1, 0x02}}, "sprite size, 8x8 or 16x16",
-	  [](uint32_t v) { return tmpStrCat("sprites: size=", v ? "16x16"sv : "8x8"sv); }},
+	R{{S{1, 0x02}}, "sprite size: 8x8 or 16x16 (modes 0-3), 8x8 or 8x16 (mode 4)",
+	  [](uint32_t v) {
+		if (getMode() >= 4) return tmpStrCat("sprites: size=", v ? "8x16"sv : "8x8"sv);
+		return tmpStrCat("sprites: size=", v ? "16x16"sv : "8x8"sv);
+	  }},
 	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{1, 0x01}}, "sprite magnification enable/disable",
 	  [](uint32_t v) { return TemporaryString(v ? "magnified" : "not magnified"); }},
@@ -184,11 +187,13 @@ static constexpr auto regFunctions = std::array{
 	  }},
 	R{{S{5, 0xFF}}, "sprite attribute table address",
 	  [](uint32_t) { return tmpStrCat("sprite attr:    0x", hex_string<5>(spriteAttBase()), '\n'); }},
-	R{{S{6, 0x04}}, "sprite tile bank select (mode 4)",
-	  [](uint32_t v) { return tmpStrCat("sprite tiles:   ", v ? "256-511"sv : "0-255"sv, '\n'); }},
-	R{{S{6, 0x07}}, "sprite pattern table address (modes 0-3)",
-	  [](uint32_t) {
-		if (getMode() >= 4) return TemporaryString{};
+	// One item for both modes, so that hovering any of these bits
+	// highlights the line that is actually shown.
+	R{{S{6, 0x07}}, "sprite pattern table address (modes 0-3) / sprite tile bank select, bit 2 (mode 4)",
+	  [](uint32_t v) {
+		if (getMode() >= 4) {
+			return tmpStrCat("sprite tiles:   ", (v & 0x04) ? "256-511"sv : "0-255"sv, '\n');
+		}
 		return tmpStrCat("sprite pattern: 0x", hex_string<5>(spritePatBase()), '\n');
 	  }},
 
