@@ -143,7 +143,9 @@ void ImGuiSMSVDPTiles::renderPatterns(const PatternParams& params,
 		}
 		break;
 	case ImGuiSMSVDPTiles::GRAPHIC2:
-		for (auto row : xrange((params.lines == 192 ? 3 : 4) * 8)) {
+		// Rows 24-31 of the name table address a fourth bank (row / 8 == 3).
+		// The chip never scans those lines; the 32-row override is what shows them.
+		for (auto row : xrange(params.graphic2Banks * 8)) {
 			for (auto column : xrange(32)) {
 				auto patNum = 32 * row + column;
 				for (auto y : xrange(8)) {
@@ -403,7 +405,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 							comboHexSequence<5>("##name", &manualNamBase, 1 << 10, vramSize, 0);
 						});
 						im::Disabled(!manRows || (mode == MODE4), [&]{
-							ImGui::Combo("##rows", &manualRows, "24\00028\00030\000");
+							ImGui::Combo("##rows", &manualRows, "24\00032\000");
 						});
 						im::Disabled(!manColor0 || (mode == MODE4), [&]{
 							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Str);
@@ -472,11 +474,6 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				           "Only practically useful when emulation is paused.");
 			});
 		});
-		int manualLines = (manualRows == 0) ? 192
-		                : (manualRows == 1) ? 224
-		                : 240;
-
-		int lines = manRows ? manualLines : vdpLines;
 		int color0 = manColor0 ? manualColor0 : vdpColor0;
 
 		VramTables tables;
@@ -587,24 +584,26 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 
 		// Render the patterns to a texture, we need this both to display
 		// the name-table and the pattern-table.
+		// Graphics II name-table rows 24-31 use a fourth pattern bank.
+		int graphic2Banks = (mode == GRAPHIC2 && manRows && (manualRows == 1)) ? 4 : 3;
 		auto patternTexSize = [&] -> gl::ivec2 {
 			if (mode == TEXT)       return {192,  64}; // 8 rows of 32 characters, each 6x8 pixels
 			if (mode == GRAPHIC1)   return {256,  64}; // 8 rows of 32 characters, each 8x8 pixels
-			if (mode == GRAPHIC2)   return {256, lines == 192 ? 192 : 256}; // all this 3 or 4 times
+			if (mode == GRAPHIC2)   return {256, 64 * graphic2Banks};
 			if (mode == MULTICOLOR) return { 64,  64}; // 8 rows of 32 characters, each 2x2 pixels, all this 4 times
 			if (mode == MODE4)      return {256, 256}; // 512 patterns x 2 palettes (32x32 characters)
 			return {1, 1}; // OTHER -> dummy
 		}();
 		auto patternTexChars = [&] -> gl::vec2 {
 			if (mode == MULTICOLOR) return {32.0f, 32.0f};
-			if (mode == GRAPHIC2)   return {32.0f, lines == 192 ? 24.0f : 32.0f};
+			if (mode == GRAPHIC2)   return {32.0f, float(8 * graphic2Banks)};
 			if (mode == MODE4)      return {32.0f, 32.0f};
 			return {32.0f, 8.0f};
 		}();
 		auto recipPatTexChars = recip(patternTexChars);
 		auto patternDisplaySize = [&] -> gl::ivec2 {
 			if (mode == TEXT)       return {192,  64};
-			if (mode == GRAPHIC2)   return {256, lines == 192 ? 192 : 256};
+			if (mode == GRAPHIC2)   return {256, 64 * graphic2Banks};
 			if (mode == MULTICOLOR) return {256, 256};
 			if (mode == MODE4)      return {256, 112}; // 448 tiles (14 rows)
 			return {256,  64}; // GRAPHIC1, OTHER
@@ -637,7 +636,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		auto gridTiling = (mode == MODE4) ? gl::vec2{32.0f, 14.0f} : patternTexChars;
 		std::array<uint32_t, 256 * 256> pixels; // max size for GRAPHIC2/MODE4
 		PatternParams params{mode, fgCol, bgCol, overrideColorTable,
-		                     uint8_t(overrideColorValue), lines};
+		                     uint8_t(overrideColorValue), graphic2Banks};
 		renderPatterns(params, palette, vram, tables, pixels);
 		if (!patternTex.get()) {
 			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
@@ -774,10 +773,11 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		});
 		ImGui::Separator();
 		im::TreeNode("Name Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			// Mode 4 shows the full table (28 rows, or 32 for the extended
-			// resolutions); the other modes show the visible rows.
+			// Mode 4 shows the scroll map (28 rows, or 32 in 224/240-line
+			// mode). Modes 0-3 show the 24 rows the chip displays; 32 shows
+			// the rest of the 1 kB name-table slot.
 			float rows = (mode == MODE4) ? ((vdpYpixels == 192) ? 28.0f : 32.0f)
-			                             : float(lines) * (1.0f / 8.0f);
+			                             : ((manRows && (manualRows == 1)) ? 32.0f : 24.0f);
 			auto columns = (mode == TEXT) ? 40 : 32;
 			auto charsSize = gl::vec2(float(columns), rows); // (x * y) number of characters
 			auto msxSize = charSize * charsSize; // (x * y) number of VDP pixels

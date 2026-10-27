@@ -47,7 +47,7 @@ private:
 		int bgCol;
 		bool overrideColorTable;
 		uint8_t overrideColorValue;
-		int lines;
+		int graphic2Banks; // 3, or 4 when the name table shows 32 rows
 	};
 
 	static void renderPatterns(const PatternParams& params,
@@ -124,7 +124,7 @@ private:
 		PersistentElementMax{"patBase",         &ImGuiSMSVDPTiles::manualPatBase, 0x4000},
 		PersistentElementMax{"colBase",         &ImGuiSMSVDPTiles::manualColBase, 0x4000},
 		PersistentElementMax{"namBase",         &ImGuiSMSVDPTiles::manualNamBase, 0x4000},
-		PersistentElementMax{"rows",            &ImGuiSMSVDPTiles::manualRows, 2},
+		PersistentElementMax{"rows",            &ImGuiSMSVDPTiles::manualRows, 2}, // 24 or 32
 		PersistentElementMax{"color0",          &ImGuiSMSVDPTiles::manualColor0, 16 + 1},
 		PersistentElementMax{"patternPalette",  &ImGuiSMSVDPTiles::patternPalette, 1}
 	};
