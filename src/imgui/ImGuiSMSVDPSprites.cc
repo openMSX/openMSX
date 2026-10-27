@@ -508,9 +508,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				if (size == 8) renderPatternsTms8 (vram, unsigned(patBase), pixels);
 				else           renderPatternsTms16(vram, unsigned(patBase), pixels);
 			} else {
-				auto transparentColor = getColor(imColor::TRANSPARENT);
-				if (size == 8) renderPatternsSms8 (vram, palette, transparentColor, pixels);
-				else           renderPatternsSms16(vram, palette, transparentColor, pixels);
+				auto pen0 = transparent ? getColor(imColor::TRANSPARENT) : palette[16];
+				if (size == 8) renderPatternsSms8 (vram, palette, pen0, pixels);
+				else           renderPatternsSms16(vram, palette, pen0, pixels);
 			}
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize.x, patternTexSize.y, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
@@ -603,9 +603,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			if (type == TMS) {
 				auto flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
 				auto color = flags & 0x0f;
+				auto tint = (transparent && (color == 0))
+				          ? ImVec4{} : ImGui::ColorConvertU32ToFloat4(palette[color]);
 				ImGui::ImageWithBg(patternTex.getImGui(), zoomVec,
-					{u1, v1}, {u2, v2}, {},
-					ImGui::ColorConvertU32ToFloat4(palette[color]));
+					{u1, v1}, {u2, v2}, {}, tint);
 			} else {
 				ImGui::Image(patternTex.getImGui(), zoomVec, {u1, v1}, {u2, v2});
 			}
