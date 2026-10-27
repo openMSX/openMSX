@@ -19,6 +19,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace openmsx {
 
@@ -67,6 +68,29 @@ public:
 	[[nodiscard]] uint8_t peekHCounter() const;
 	[[nodiscard]] uint8_t peekData() const;
 	[[nodiscard]] uint8_t peekControl(EmuTime time) const;
+
+	// Debug accessors (used by the Franky debugger viewers and debuggables).
+	[[nodiscard]] std::span<const uint8_t, 0x4000> getVram() const {
+		return core.getVram();
+	}
+	[[nodiscard]] uint8_t peekReg(int i) const { return core.peekReg(i); }
+	[[nodiscard]] int peekMode() const { return core.peekMode(); }
+	[[nodiscard]] uint8_t peekLineCounter() const { return core.peekLineCounter(); }
+	[[nodiscard]] uint8_t peekCram(int i) const { return core.peekCram(i); }
+	void pokeCram(int i, uint8_t value) { core.pokeCram(i, value); }
+	[[nodiscard]] int peekYPixels() const { return core.yPixels(); }
+	[[nodiscard]] SMSVDPCore::Variant getVariant() const { return core.getVariant(); }
+
+	/** Position of the raster beam in active-display coordinates: (0,0) is
+	  * the top-left of the display area; values outside it are possible.
+	  * Used by the beam overlay of the tile viewer.
+	  */
+	[[nodiscard]] std::pair<int, int> getRasterPosition() const;
+
+	/** Write a VDP register (used by the register viewer and the
+	  * "SMS VDP regs" debuggable).
+	  */
+	void changeRegister(uint8_t reg, uint8_t val, EmuTime time);
 
 	[[nodiscard]] PostProcessor* getPostProcessor() const;
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
@@ -155,7 +179,14 @@ private:
 	SMSVDPCore core;
 	std::unique_ptr<SMSVDPRenderer> renderer;
 
-	// Debuggables: "Franky regs" and "Franky status regs".
+	// debugName is declared before the debuggables: they use it in their
+	// constructor. The base name is "SMS VDP" (the debuggables belong to
+	// the VDP, not to the Franky cartridge); it is made unique for a second
+	// VDP instance.
+	std::string debugName;
+
+	// Debuggables: "SMS VDP regs", "SMS VDP status regs", "SMS VDP VRAM"
+	// and "SMS VDP CRAM" (used by the ImGui hex editors).
 	struct RegDebug final : SimpleDebuggable {
 		RegDebug(const SMSVDP& vdp, std::string_view name);
 		[[nodiscard]] uint8_t read(unsigned address) override;
@@ -163,8 +194,18 @@ private:
 	} regDebug;
 	struct StatusDebug final : SimpleDebuggable {
 		StatusDebug(const SMSVDP& vdp, std::string_view name);
-		[[nodiscard]] uint8_t read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
 	} statusDebug;
+	struct VramDebug final : SimpleDebuggable {
+		VramDebug(const SMSVDP& vdp, std::string_view name);
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
+	} vramDebug;
+	struct CramDebug final : SimpleDebuggable {
+		CramDebug(const SMSVDP& vdp, std::string_view name);
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
+	} cramDebug;
 
 	/** Pixel clock of the currently selected video standard. */
 	DynamicClock pixelClock;
