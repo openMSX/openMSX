@@ -17,6 +17,8 @@
 
 #include <array>
 #include <bit>
+#include <string>
+#include <utility>
 
 namespace openmsx {
 
@@ -40,40 +42,53 @@ void ImGuiSMSVDPRegs::loadLine(std::string_view name, zstring_view value)
 static const SMSVDP* g_vdp;
 static std::array<uint8_t, 64 + 1> registerValues; // 0..10 registers, 64 = status
 
-// Mirrors SMSVDPCore::selectDisplayMode(): 0-3 TMS9918 modes, 4 mode 4,
-// 6 = mode 4 with 224 lines, 7 = mode 4 with 240 lines, 5 = invalid.
-static int getMode()
+// The mode as the current register values select it (like
+// SMSVDPCore::selectDisplayMode(), but invalid TMS9918 combinations are
+// reported as such instead of keeping the previous mode).
+struct DisplayMode {
+	int mode = -1; // 0-3: TMS9918 modes, 4: mode 4, -1: invalid
+	int lines = 192;
+};
+static bool m1() { return (registerValues[1] & 0x10) != 0; }
+static bool m2() { return (registerValues[0] & 0x02) != 0; }
+static bool m3() { return (registerValues[1] & 0x08) != 0; }
+static bool m4() { return (registerValues[0] & 0x04) != 0; }
+static DisplayMode getMode()
 {
-	const bool m1 = (registerValues[1] & 0x10) != 0;
-	const bool m2 = (registerValues[0] & 0x02) != 0;
-	const bool m3 = (registerValues[1] & 0x08) != 0;
-	const bool m4 = (registerValues[0] & 0x04) != 0;
-
-	if (m4) {
-		if (g_vdp->getVariant() == SMSVDPCore::Variant::SMS2) {
-			if (m2 && m1 && !m3) return 6; // 224-line display
-			if (m2 && !m1 && m3) return 7; // 240-line display
+	if (m4()) {
+		if ((g_vdp->getVariant() == SMSVDPCore::Variant::SMS2) && m2()) {
+			if ( m1() && !m3()) return {4, 224};
+			if (!m1() &&  m3()) return {4, 240};
 		}
-		return 4;
+		return {4};
 	}
-	if (!m1 && !m2 && !m3) return 0; // Graphics I
-	if (m1 && !m2 && !m3) return 1;  // Text
-	if (!m1 && m2 && !m3) return 2;  // Graphics II
-	if (!m1 && !m2 && m3) return 3;  // Multicolor
-	return 5;
+	if (!m1() && !m2() && !m3()) return {0}; // Graphics I
+	if ( m1() && !m2() && !m3()) return {1}; // Text
+	if (!m1() &&  m2() && !m3()) return {2}; // Graphics II
+	if (!m1() && !m2() &&  m3()) return {3}; // Multicolor
+	return {};
 }
+static bool isMode4() { return getMode().mode == 4; }
 
-static zstring_view modeName(int mode)
+static TemporaryString modeName()
 {
+	auto [mode, lines] = getMode();
 	switch (mode) {
-	case 0: return "graphics I (mode 0)";
-	case 1: return "text (mode 1)";
-	case 2: return "graphics II (mode 2)";
-	case 3: return "multicolor (mode 3)";
-	case 4: return "mode 4";
-	case 6: return "mode 4, 224 lines";
-	case 7: return "mode 4, 240 lines";
-	default: return "invalid";
+	case 0: return TemporaryString("graphics I (mode 0)");
+	case 1: return TemporaryString("text (mode 1)");
+	case 2: return TemporaryString("graphics II (mode 2)");
+	case 3: return TemporaryString("multicolor (mode 3)");
+	case 4: return (lines == 192) ? TemporaryString("mode 4")
+	                              : tmpStrCat("mode 4, ", lines, " lines");
+	default: {
+		std::string bits;
+		for (auto [set, name] : {std::pair{m1(), "M1"}, std::pair{m2(), "M2"}, std::pair{m3(), "M3"}}) {
+			if (!set) continue;
+			if (!bits.empty()) bits += '+';
+			bits += name;
+		}
+		return tmpStrCat("invalid mode bits (", bits, ')');
+	}
 	}
 }
 
@@ -81,9 +96,9 @@ static zstring_view modeName(int mode)
 static unsigned nameTableBase()
 {
 	auto r2 = registerValues[2];
-	if (getMode() >= 4) {
-		return (getMode() >= 6) ? (((r2 & 0x0c) << 10) | 0x0700)
-		                        : ((r2 << 10) & 0x3800);
+	if (auto [mode, lines] = getMode(); mode == 4) {
+		return (lines != 192) ? (((r2 & 0x0c) << 10) | 0x0700)
+		                      : ((r2 << 10) & 0x3800);
 	}
 	return (r2 & 0x0f) << 10;
 }
@@ -92,7 +107,7 @@ static unsigned patternTableBase() { return (registerValues[4] << 11) & 0x3fff; 
 static unsigned spriteAttBase()
 {
 	auto r5 = registerValues[5];
-	return (getMode() >= 4) ? ((r5 << 7) & 0x3f00) : ((r5 & 0x7f) << 7);
+	return isMode4() ? ((r5 << 7) & 0x3f00) : ((r5 & 0x7f) << 7);
 }
 static unsigned spritePatBase() { return (registerValues[6] & 0x07) << 11; }
 
@@ -141,7 +156,7 @@ static constexpr auto regFunctions = std::array{
 	  [](uint32_t v) { return TemporaryString(v ? "display enabled" : "display disabled"); }},
 	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{1, 0x18}, S{0, 0x06}}, "display mode",
-	  [](uint32_t) { return TemporaryString(modeName(getMode())); }},
+	  [](uint32_t) { return modeName(); }},
 	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString("\n"); }},
 
 	R{{S{1, 0x20}}, "V-Blank interrupt enable/disable",
@@ -152,7 +167,7 @@ static constexpr auto regFunctions = std::array{
 
 	R{{S{1, 0x02}}, "sprite size: 8x8 or 16x16 (modes 0-3), 8x8 or 8x16 (mode 4)",
 	  [](uint32_t v) {
-		if (getMode() >= 4) return tmpStrCat("sprites: size=", v ? "8x16"sv : "8x8"sv);
+		if (isMode4()) return tmpStrCat("sprites: size=", v ? "8x16"sv : "8x8"sv);
 		return tmpStrCat("sprites: size=", v ? "16x16"sv : "8x8"sv);
 	  }},
 	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
@@ -177,12 +192,12 @@ static constexpr auto regFunctions = std::array{
 	  [](uint32_t) { return tmpStrCat("name table:     0x", hex_string<5>(nameTableBase()), '\n'); }},
 	R{{S{3, 0xFF}}, "color table address (modes 0-3)",
 	  [](uint32_t) {
-		if (getMode() >= 4) return tmpStrCat("color table:    (not used in mode 4)\n");
+		if (isMode4()) return tmpStrCat("color table:    (not used in mode 4)\n");
 		return tmpStrCat("color table:    0x", hex_string<5>(colorTableBase()), '\n');
 	  }},
 	R{{S{4, 0xFF}}, "pattern table address (modes 0-3)",
 	  [](uint32_t) {
-		if (getMode() >= 4) return tmpStrCat("pattern table:  (fixed at 0x0000 in mode 4)\n");
+		if (isMode4()) return tmpStrCat("pattern table:  (fixed at 0x0000 in mode 4)\n");
 		return tmpStrCat("pattern table:  0x", hex_string<5>(patternTableBase()), '\n');
 	  }},
 	R{{S{5, 0xFF}}, "sprite attribute table address",
@@ -191,7 +206,7 @@ static constexpr auto regFunctions = std::array{
 	// highlights the line that is actually shown.
 	R{{S{6, 0x07}}, "sprite pattern table address (modes 0-3) / sprite tile bank select, bit 2 (mode 4)",
 	  [](uint32_t v) {
-		if (getMode() >= 4) {
+		if (isMode4()) {
 			return tmpStrCat("sprite tiles:   ", (v & 0x04) ? "256-511"sv : "0-255"sv, '\n');
 		}
 		return tmpStrCat("sprite pattern: 0x", hex_string<5>(spritePatBase()), '\n');
