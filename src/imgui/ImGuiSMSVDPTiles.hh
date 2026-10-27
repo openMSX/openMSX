@@ -126,7 +126,7 @@ private:
 		PersistentElementMax{"namBase",         &ImGuiSMSVDPTiles::manualNamBase, 0x4000},
 		PersistentElementMax{"rows",            &ImGuiSMSVDPTiles::manualRows, 2}, // 24 or 32
 		PersistentElementMax{"color0",          &ImGuiSMSVDPTiles::manualColor0, 16 + 1},
-		PersistentElementMax{"patternPalette",  &ImGuiSMSVDPTiles::patternPalette, 1}
+		PersistentElementMax{"patternPalette",  &ImGuiSMSVDPTiles::patternPalette, 2} // 0 or 1
 	};
 };
 
