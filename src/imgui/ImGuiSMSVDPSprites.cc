@@ -94,16 +94,17 @@ static void renderPatternsTms16(std::span<const uint8_t, 0x4000> vram, unsigned 
 }
 
 // Mode 4 sprite patterns are 4bpp and always use CRAM palette 1.
-// 'pen0' is the color used for the (transparent) pen 0 pixels.
-static void renderPatternsSms8(std::span<const uint8_t, 0x4000> vram,
+// 'pen0' is the color used for the (transparent) pen 0 pixels. Sprites
+// address the 256 tiles of one bank (0x0000 or 0x2000, R#6 bit 2).
+static void renderPatternsSms8(std::span<const uint8_t, 0x4000> vram, unsigned patBase,
                                std::span<const uint32_t, 32> palette, uint32_t pen0,
                                std::span<uint32_t> output)
 {
-	for (auto tile : xrange(512)) {
+	for (auto tile : xrange(256)) {
 		auto charRow = tile / 32;
 		auto charCol = tile % 32;
 		for (auto y : xrange(8)) {
-			auto addr = (tile * 32 + y * 4) & 0x3fff;
+			auto addr = (patBase + tile * 32 + y * 4) & 0x3fff;
 			auto b0 = vram[addr + 0];
 			auto b1 = vram[addr + 1];
 			auto b2 = vram[addr + 2];
@@ -120,19 +121,19 @@ static void renderPatternsSms8(std::span<const uint8_t, 0x4000> vram,
 	}
 }
 
-static void renderPatternsSms16(std::span<const uint8_t, 0x4000> vram,
+static void renderPatternsSms16(std::span<const uint8_t, 0x4000> vram, unsigned patBase,
                                 std::span<const uint32_t, 32> palette, uint32_t pen0,
                                 std::span<uint32_t> output)
 {
 	// SMS sprites are 8 pixels wide and 16 lines tall (the size bit only
 	// doubles the height); each sprite is a vertical pair of tiles
-	// (2s, 2s+1). 256 sprites in a 32x8 grid (256x128).
-	for (auto sprite : xrange(256)) {
+	// (2s, 2s+1). 128 sprites in a 32x4 grid (256x64).
+	for (auto sprite : xrange(128)) {
 		auto charRow = sprite / 32;
 		auto charCol = sprite % 32;
 		for (auto y : xrange(16)) {
 			auto tile = 2 * sprite + (y / 8);
-			auto addr = (tile * 32 + (y & 7) * 4) & 0x3fff;
+			auto addr = (patBase + tile * 32 + (y & 7) * 4) & 0x3fff;
 			auto b0 = vram[addr + 0];
 			auto b1 = vram[addr + 1];
 			auto b2 = vram[addr + 2];
@@ -190,8 +191,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		// Table bases as the chip derives them from the registers for sprite
 		// type 't'. The settings readout uses the chip's type, the views use
 		// the type that is shown (these differ when the type is overridden).
+		// In mode 4 the pattern table is the sprite tile bank (R#6 bit 2).
 		auto patBaseFor = [&](int t) {
-			return (t == SMS) ? 0 : ((reg[6] & 0x07) << 11);
+			return (t == SMS) ? ((reg[6] & 0x04) << 11) : ((reg[6] & 0x07) << 11);
 		};
 		auto attBaseFor = [&](int t) {
 			return (t == SMS) ? ((reg[5] << 7) & 0x3f00)
@@ -305,7 +307,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Color 0 transparent: ", yesNo(vdpTransparent));
 				});
-				im::Disabled(manPat || (vdpType == SMS), [&]{
+				im::Disabled(manPat, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
 				});
@@ -364,8 +366,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 								if (ImGui::Selectable("yes")) manualTransparent = 1;
 							});
 						});
-						im::Disabled(!manPat || (shownType() == SMS), [&]{
-							comboHexSequence<5>("##pat", &manualPatBase, 8 * 256, vramSize, 0);
+						im::Disabled(!manPat, [&]{
+							if (shownType() == SMS) manualPatBase &= 0x2000;
+							comboHexSequence<5>("##pat", &manualPatBase,
+							                    (shownType() == SMS) ? 0x2000 : 0x800, vramSize, 0);
 						});
 						im::Disabled(!manAtt, [&]{
 							comboHexSequence<5>("##att", &manualAttBase,
@@ -421,7 +425,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			                                  240)
 			            : vdpLines)
 			: 192; // the TMS9918-compatible modes always show 192 lines
-		int patBase = (type == SMS) ? 0 : (manPat ? manualPatBase : patBaseFor(type));
+		int patBase = !manPat       ? patBaseFor(type)
+		            : (type == SMS) ? (manualPatBase & 0x2000) // the two tile banks
+		                            : manualPatBase;
 		int attBase = manAtt ? manualAttBase : attBaseFor(type);
 
 		auto toImColor = [](uint32_t rgb) {
@@ -455,7 +461,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			return sms1 ? (tile & unsigned(((reg[6] & 0x03) << 6) | 0x3f)) : tile;
 		};
 		bool xShift = (reg[0] & 0x08) != 0;
-		bool tileBank = (reg[6] & 0x04) != 0;
+		bool tileBank = (type == SMS) && (patBase != 0);
 		int attExtra = attBase + (sms1 ? (0x80 & ((reg[5] & 0x01) << 7 | 0x7f)) : 0x80);
 		// The first (top) pattern a sprite uses, as SMSVDPCore::selectSprites
 		// derives it from the attribute byte. 16-line sprites add 1 for the
@@ -482,8 +488,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			                      address, address + count - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
 		};
 		auto patternAddress = [&](unsigned pattern) {
-			return (type == SMS) ? ((pattern * 32) & 0x3fff)
-			                     : ((patBase + 8 * pattern) & 0x3fff);
+			return (patBase + ((type == SMS) ? 32 : 8) * pattern) & 0x3fff;
 		};
 		auto patternDataSize = [&](int s) {
 			if (type == SMS) return (s == 16) ? 64u : 32u;
@@ -492,12 +497,12 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 
 		// Pattern texture: monochrome for TMS (colored via the sprite
 		// attribute), full color (palette 1) for mode 4.
-		auto patternTexSize = (type == SMS)
-			? gl::ivec2{256, 128} // 512 tiles 8x8 or 256 sprites 8x16
-			: gl::ivec2{256, 64};
+		// Always 256x64: 256 TMS patterns, 64 TMS 16x16 sprites, the 256
+		// tiles of the mode 4 sprite bank or 128 mode 4 8x16 sprites.
+		auto patternTexSize = gl::ivec2{256, 64};
 		auto patternTexChars = (type == SMS)
-			? ((size == 8) ? gl::vec2{32.0f, 16.0f} : gl::vec2{32.0f,  8.0f})
-			: ((size == 8) ? gl::vec2{32.0f,  8.0f} : gl::vec2{16.0f,  4.0f});
+			? ((size == 8) ? gl::vec2{32.0f, 8.0f} : gl::vec2{32.0f, 4.0f})
+			: ((size == 8) ? gl::vec2{32.0f, 8.0f} : gl::vec2{16.0f, 4.0f});
 		std::array<uint32_t, 256 * 256> pixels;
 		if (!patternTex.get()) {
 			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
@@ -509,8 +514,8 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				else           renderPatternsTms16(vram, unsigned(patBase), pixels);
 			} else {
 				auto pen0 = transparent ? getColor(imColor::TRANSPARENT) : palette[16];
-				if (size == 8) renderPatternsSms8 (vram, palette, pen0, pixels);
-				else           renderPatternsSms16(vram, palette, pen0, pixels);
+				if (size == 8) renderPatternsSms8 (vram, unsigned(patBase), palette, pen0, pixels);
+				else           renderPatternsSms16(vram, unsigned(patBase), palette, pen0, pixels);
 			}
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize.x, patternTexSize.y, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
@@ -568,17 +573,14 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		// UVs of one sprite (or tile) in the pattern texture.
 		auto spriteUV = [&](unsigned tile) -> std::array<float, 4> {
 			if (type == SMS) {
-				if (size == 8) {
-					auto cc = tile % 32;
-					auto rr = tile / 32;
+				tile &= 0xff; // the texture holds only the selected tile bank
+				if (size == 16) {
+					auto s = tile / 2; // even tile selects the 8x16 sprite
+					auto cc = s % 32;
+					auto rr = s / 32;
 					return {float(cc) / 32.0f, float(cc + 1) / 32.0f,
-					        float(rr) / 16.0f, float(rr + 1) / 16.0f};
+					        float(rr) /  4.0f, float(rr + 1) /  4.0f};
 				}
-				auto s = tile / 2; // even tile selects the 8x16 sprite
-				auto cc = s % 32;
-				auto rr = s / 32;
-				return {float(cc) / 32.0f, float(cc + 1) / 32.0f,
-				        float(rr) /  8.0f, float(rr + 1) /  8.0f};
 			}
 			if (size == 8) {
 				auto cc = tile % 32;
@@ -798,6 +800,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				if (hovered) {
 					ImGui::BeginTooltip();
 					ImGui::StrCat("pattern: ", pattern);
+					if (tileBank) {
+						auto used = pattern + 256;
+						ImGui::StrCat("uses pattern: ", used, " (0x", hex_string<3>(used), ')');
+					}
 					ImGui::StrCat("address: 0x", hex_string<5>(patternAddress(pattern)));
 					auto recipPatTex = recip(patternTexChars);
 					auto uv1 = gl::vec2(gridPosition) * recipPatTex;
