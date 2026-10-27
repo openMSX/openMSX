@@ -292,13 +292,17 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 
 		auto [beamX, beamY] = vdp.getRasterPosition();
 		if (mode == MODE4) {
-			// Map the beam to the (scrolled) position in the name table.
-			const int visibleY = beamY;
+			// Map the beam to the (scrolled) position in the name table, like
+			// SMSVDPCore::drawScanlineMode4: screen x shows name-table x minus
+			// R#8, screen y shows name-table y plus R#9. R#0 bit 6 locks the
+			// top 16 lines horizontally, bit 7 the rightmost 8 columns vertically.
 			const int scrollMod = (vdpYpixels == 192) ? 224 : 256;
-			const int xScroll = (((reg[0] & 0x40) != 0) && (visibleY < 16)) ? 0 : reg[8];
-			beamX = (beamX + xScroll) % 256;
+			const int xScroll = (((reg[0] & 0x40) != 0) && (beamY < 16)) ? 0 : reg[8];
+			const int screenColumn = (beamX - (xScroll & 7)) >> 3;
+			const int yScroll = (((reg[0] & 0x80) != 0) && (screenColumn > 23)) ? 0 : reg[9];
+			beamX = (beamX - xScroll) % 256;
 			if (beamX < 0) beamX += 256;
-			beamY = (beamY + reg[9]) % scrollMod;
+			beamY = (beamY + yScroll) % scrollMod;
 			if (beamY < 0) beamY += scrollMod;
 		}
 		gl::vec2 rasterBeamPos{float(beamX), float(beamY)};
