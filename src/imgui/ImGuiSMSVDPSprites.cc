@@ -313,11 +313,11 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				});
 				im::Disabled(manPat, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
+					ImGui::StrCat("Pattern table: 0x", hex_string<4>(vdpPatBase));
 				});
 				im::Disabled(manAtt, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Attribute table: 0x", hex_string<5>(vdpAttBase));
+					ImGui::StrCat("Attribute table: 0x", hex_string<4>(vdpAttBase));
 				});
 				im::Disabled(manLines || (vdpType != SMS), [&]{
 					ImGui::AlignTextToFramePadding();
@@ -372,11 +372,11 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						});
 						im::Disabled(!manPat, [&]{
 							if (shownType() == SMS) manualPatBase &= 0x2000;
-							comboHexSequence<5>("##pat", &manualPatBase,
+							comboHexSequence<4>("##pat", &manualPatBase,
 							                    (shownType() == SMS) ? 0x2000 : 0x800, vramSize, 0);
 						});
 						im::Disabled(!manAtt, [&]{
-							comboHexSequence<5>("##att", &manualAttBase,
+							comboHexSequence<4>("##att", &manualAttBase,
 							                    (shownType() == SMS) ? 0x100 : 0x80, vramSize, 0);
 						});
 						im::Disabled(!manLines || (shownType() != SMS), [&]{
@@ -718,7 +718,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						auto used = pattern + 256;
 						ImGui::StrCat("uses pattern: ", used, " (0x", hex_string<3>(used), ')');
 					}
-					ImGui::StrCat("address: 0x", hex_string<5>(patternAddress(pattern)));
+					ImGui::StrCat("address: 0x", hex_string<4>(patternAddress(pattern)));
 					auto recipPatTex = recip(patternTexChars);
 					auto uv1 = gl::vec2(gridPosition) * recipPatTex;
 					auto uv2 = uv1 + recipPatTex;
@@ -822,7 +822,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					if (hovered) {
 						ImGui::BeginTooltip();
 						ImGui::StrCat("sprite: ", sprite);
-						ImGui::StrCat("address: 0x", hex_string<5>(yAddress(sprite)));
+						ImGui::StrCat("address: 0x", hex_string<4>(yAddress(sprite)));
 						auto pos = ImGui::GetCursorPos();
 						drawTransparentBackground(3.0f * zoomSize);
 						ImGui::SetCursorPos(pos);
@@ -845,7 +845,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 							if (used != tile) {
 								ImGui::StrCat("uses pattern: ", used, " (0x", hex_string<3>(used), ')');
 							}
-							ImGui::StrCat("entry: 0x", hex_string<5>((attExtra + 2 * sprite) & 0x3fff));
+							ImGui::StrCat("entry: 0x", hex_string<4>((attExtra + 2 * sprite) & 0x3fff));
 						}
 						ImGui::StrCat("visible: ", visibleText(sprite));
 						ImGui::EndTooltip();
