@@ -52,6 +52,7 @@ private:
 	int manualAttBase = 0;
 	int manualLines = 0; // 0->192, 1->224, 2->240
 	int zoom = 0; // single zoom for all sections (0->1x, ..., 7->8x)
+	static constexpr int maxCheckerBoardSize = 255;
 	int checkerBoardSize = 4;
 	int boundingBoxOnAll = 0;
 	gl::vec4 gridColor{0.5f, 0.5f, 0.5f, 0.5f}; // RGBA
@@ -95,7 +96,7 @@ private:
 		PersistentElementMax{"lines",            &ImGuiSMSVDPSprites::manualLines, 2},
 		PersistentElementMax{"zoom",             &ImGuiSMSVDPSprites::zoom, 8},
 		PersistentElement{"showGrid",            &ImGuiSMSVDPSprites::grid},
-		PersistentElementMax{"checkerBoardSize", &ImGuiSMSVDPSprites::checkerBoardSize, 256},
+		PersistentElementMax{"checkerBoardSize", &ImGuiSMSVDPSprites::checkerBoardSize, maxCheckerBoardSize + 1},
 		PersistentElementMax{"boundingBoxOnAll", &ImGuiSMSVDPSprites::boundingBoxOnAll, 2},
 		PersistentElement{"gridColor",           &ImGuiSMSVDPSprites::gridColor},
 		PersistentElement{"checkerBoardColor1",  &ImGuiSMSVDPSprites::checkerBoardColor1},

@@ -14,6 +14,7 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstring>
@@ -402,7 +403,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				                      defaultCheckerBoardColor2);
 				im::Indent([&]{
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
-					ImGui::InputInt("size", &checkerBoardSize);
+					if (ImGui::InputInt("size", &checkerBoardSize)) {
+						checkerBoardSize = std::clamp(checkerBoardSize, 0, maxCheckerBoardSize);
+					}
+					simpleToolTip("0 = no checkerboard");
 				});
 			});
 		});
