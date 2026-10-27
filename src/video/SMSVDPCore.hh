@@ -147,7 +147,6 @@ public:
 
 	// Debug/test accessors.
 	[[nodiscard]] uint8_t peekReg(int i) const { return reg[i]; }
-	[[nodiscard]] uint8_t peekStatus() const { return status; }
 	[[nodiscard]] uint8_t peekVram(uint16_t a) const { return vram[a & 0x3fff]; }
 	[[nodiscard]] uint8_t peekCram(int i) const { return cram[i & 0x1f]; }
 	[[nodiscard]] int peekMode() const { return vdpMode; }

@@ -393,7 +393,7 @@ void ImGuiSMSVDPRegs::paint(MSXMotherBoard* motherBoard)
 		for (auto reg : xrange(STATUS)) {
 			registerValues[reg] = vdp.peekReg(reg);
 		}
-		registerValues[STATUS] = vdp.peekStatus();
+		registerValues[STATUS] = vdp.peekControl(time);
 
 		newHoveredFunction = -1;
 		auto make_span = [](const auto& array) {

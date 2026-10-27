@@ -74,7 +74,6 @@ public:
 		return core.getVram();
 	}
 	[[nodiscard]] uint8_t peekReg(int i) const { return core.peekReg(i); }
-	[[nodiscard]] uint8_t peekStatus() const { return core.peekStatus(); }
 	[[nodiscard]] int peekMode() const { return core.peekMode(); }
 	[[nodiscard]] uint8_t peekLineCounter() const { return core.peekLineCounter(); }
 	[[nodiscard]] uint8_t peekCram(int i) const { return core.peekCram(i); }
