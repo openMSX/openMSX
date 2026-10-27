@@ -609,7 +609,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			if (mode == TEXT)       return {192,  64};
 			if (mode == GRAPHIC2)   return {256, 64 * graphic2Banks};
 			if (mode == MULTICOLOR) return {256, 256};
-			if (mode == MODE4)      return {256, 112}; // 448 tiles (14 rows)
+			if (mode == MODE4)      return {256, 128}; // 512 tiles of one palette
 			return {256,  64}; // GRAPHIC1, OTHER
 		}();
 		// UVs of one pattern in the pattern texture; mode 4 stacks the two
@@ -635,9 +635,9 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		// The pattern-table view shows one palette (mode 4) or the whole texture.
 		auto patternViewUV = (mode == MODE4)
 			? std::pair{gl::vec2{0.0f, float(patternPalette * 16) * (1.0f / 32.0f)},
-			            gl::vec2{1.0f, float(patternPalette * 16 + 14) * (1.0f / 32.0f)}}
+			            gl::vec2{1.0f, float(patternPalette * 16 + 16) * (1.0f / 32.0f)}}
 			: std::pair{gl::vec2{}, gl::vec2{1.0f, 1.0f}};
-		auto gridTiling = (mode == MODE4) ? gl::vec2{32.0f, 14.0f} : patternTexChars;
+		auto gridTiling = (mode == MODE4) ? gl::vec2{32.0f, 16.0f} : patternTexChars;
 		std::array<uint32_t, 256 * 256> pixels; // max size for GRAPHIC2/MODE4
 		PatternParams params{mode, fgCol, bgCol, overrideColorTable,
 		                     uint8_t(overrideColorValue), graphic2Banks};
