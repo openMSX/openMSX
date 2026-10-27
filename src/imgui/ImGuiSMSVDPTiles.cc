@@ -329,15 +329,15 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				});
 				im::Disabled(manPat || (vdpMode == MODE4), [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
+					ImGui::StrCat("Pattern table: 0x", hex_string<4>(vdpPatBase));
 				});
 				im::Disabled(manCol || (vdpMode == MODE4), [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Color table: 0x", hex_string<5>(vdpColBase));
+					ImGui::StrCat("Color table: 0x", hex_string<4>(vdpColBase));
 				});
 				im::Disabled(manNam, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Name table: 0x", hex_string<5>(vdpNamBase));
+					ImGui::StrCat("Name table: 0x", hex_string<4>(vdpNamBase));
 				});
 				im::Disabled(manRows, [&]{
 					ImGui::AlignTextToFramePadding();
@@ -398,15 +398,15 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						im::Disabled(!manPat || (mode == MODE4), [&]{
-							comboHexSequence<5>("##pattern", &manualPatBase, patMult(mode), vramSize, 0);
+							comboHexSequence<4>("##pattern", &manualPatBase, patMult(mode), vramSize, 0);
 						});
 						im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
 							im::Disabled(!manCol, [&]{
-								comboHexSequence<5>("##color", &manualColBase, colMult(mode), vramSize, 0);
+								comboHexSequence<4>("##color", &manualColBase, colMult(mode), vramSize, 0);
 							});
 						});
 						im::Disabled(!manNam, [&]{
-							comboHexSequence<5>("##name", &manualNamBase, 1 << 10, vramSize, 0);
+							comboHexSequence<4>("##name", &manualNamBase, 1 << 10, vramSize, 0);
 						});
 						im::Disabled(!manRows || (mode == MODE4), [&]{
 							ImGui::Combo("##rows", &manualRows, "24\00032\000");
@@ -683,11 +683,11 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		};
 		auto printAddress = [&](std::string_view name, unsigned address) {
 			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<5>(address));
+			ImGui::StrCat("  0x", hex_string<4>(address));
 		};
 		auto printAddressRange = [&](std::string_view name, unsigned address, unsigned count) {
 			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<5>(address), "-0x", hex_string<5>(address + count - 1));
+			ImGui::StrCat("  0x", hex_string<4>(address), "-0x", hex_string<4>(address + count - 1));
 		};
 		auto patternAddress = [&](unsigned pattern) { // modes 0-3
 			return (tables.patBase + ((pattern & tables.patMask) << 3)) & 0x3fff;
