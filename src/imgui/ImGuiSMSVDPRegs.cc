@@ -210,7 +210,7 @@ static constexpr auto regFunctions = std::array{
 	R{{S{2, 0xFF}}, "name table address; on SMS1 in mode 4, bit 0 masks the name-table row",
 	  [](uint32_t v) {
 		bool rowMask = sms1Mode4() && !(v & 0x01);
-		return tmpStrCat("name table:     0x", hex_string<5>(nameTableBase()),
+		return tmpStrCat("name table:     0x", hex_string<4>(nameTableBase()),
 		                 rowMask ? " (SMS1: rows 16-27 repeat rows 0-11)"sv : ""sv, '\n');
 	  }},
 	R{{S{3, 0xFF}}, "color table address (modes 0 and 2); in mode 2 bit 7 selects the base and bits 6-0 mask the address; on SMS1 in mode 4, tile mask for bit planes 0-1",
@@ -224,17 +224,17 @@ static constexpr auto regFunctions = std::array{
 		case 1: case 3:
 			return tmpStrCat("color table:    (not used in mode ", mode, ")\n");
 		case 2:
-			return tmpStrCat("color table:    0x", hex_string<5>(colorTableBase()),
+			return tmpStrCat("color table:    0x", hex_string<4>(colorTableBase()),
 			                 " (mask 0x", hex_string<4>(colorTableMask()), ")\n");
 		default:
-			return tmpStrCat("color table:    0x", hex_string<5>(colorTableBase()), '\n');
+			return tmpStrCat("color table:    0x", hex_string<4>(colorTableBase()), '\n');
 		}
 	  }},
 	R{{S{4, 0xFF}}, "pattern table address (modes 0-3); in mode 2 bit 2 selects the base and bits 1-0 mask the address; on SMS1 in mode 4, bits 2-0 are the tile mask for bit planes 2-3",
 	  [](uint32_t v) {
 		switch (getMode().mode) {
 		case 2:
-			return tmpStrCat("pattern table:  0x", hex_string<5>(patternTableBase()),
+			return tmpStrCat("pattern table:  0x", hex_string<4>(patternTableBase()),
 			                 " (mask 0x", hex_string<4>(patternTableMask()), ")\n");
 		case 4:
 			if (auto mask = ((v & 0x07) << 6) | 0x3f; sms1Mode4() && (mask != 0x1ff)) {
@@ -243,13 +243,13 @@ static constexpr auto regFunctions = std::array{
 			}
 			return tmpStrCat("pattern table:  (fixed at 0x0000 in mode 4)\n");
 		default:
-			return tmpStrCat("pattern table:  0x", hex_string<5>(patternTableBase()), '\n');
+			return tmpStrCat("pattern table:  0x", hex_string<4>(patternTableBase()), '\n');
 		}
 	  }},
 	R{{S{5, 0xFF}}, "sprite attribute table address; on SMS1 in mode 4, bit 0 selects where the x/tile entries are",
 	  [](uint32_t v) {
 		bool lowXTile = sms1Mode4() && !(v & 0x01);
-		return tmpStrCat("sprite attr:    0x", hex_string<5>(spriteAttBase()),
+		return tmpStrCat("sprite attr:    0x", hex_string<4>(spriteAttBase()),
 		                 lowXTile ? " (SMS1: x/tile at +0x00 instead of +0x80)"sv : ""sv, '\n');
 	  }},
 	// One item for both modes, so that hovering any of these bits
@@ -263,7 +263,7 @@ static constexpr auto regFunctions = std::array{
 			}
 			return tmpStrCat("sprite tiles:   ", bank, '\n');
 		}
-		return tmpStrCat("sprite pattern: 0x", hex_string<5>(spritePatBase()), '\n');
+		return tmpStrCat("sprite pattern: 0x", hex_string<4>(spritePatBase()), '\n');
 	  }},
 
 	// scroll registers
