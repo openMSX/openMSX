@@ -524,20 +524,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		}
-
-		// Index of the Y=0xD0 terminator (only meaningful in 192-line mode);
-		// entries from there on are not evaluated by the hardware. Follow the
-		// visible line count, including a manual override, not the chip's.
-		int stopYIndex = 64;
-		if ((type == SMS) && (lines == 192)) {
-			for (auto i : xrange(64)) {
-				if (vram[(attBase + i) & 0x3fff] == 0xd0) {
-					stopYIndex = i;
-					break;
-				}
-			}
-		}
-
 		// One zoom (Settings) for all sections, like the MSX VDP sprite viewer.
 		int zm = 2 * (1 + zoom);
 		auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
@@ -596,7 +582,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		};
 
 		// Render one sprite from the sprite attribute table at the given
-		// zoom factor (used by the SAT Sprites and Sprite attributes views).
+		// zoom factor (used by the Sprite attributes view).
 		auto spriteW = (type == SMS) ? 8 : size; // SMS sprites are 8 pixels wide
 		auto spriteH = size;
 		auto renderSpriteAttrib = [&](int sprite, float zoomFactor) {
@@ -630,6 +616,32 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		bool canStopY = (type != SMS) || (lines == 192);
 		int stopY = 0xd0;
 		int total = (type == SMS) ? 64 : 32;
+		auto yAddress = [&](int sprite) {
+			return (attBase + ((type == SMS) ? sprite : 4 * sprite)) & 0x3fff;
+		};
+		// Screen x of a sprite's left edge: the TMS early clock bit and the
+		// mode 4 R#0 shift move it left.
+		auto spriteLeft = [&](int sprite) {
+			if (type == TMS) {
+				int x = vram[(attBase + 4 * sprite + 1) & 0x3fff];
+				bool earlyClock = (vram[(attBase + 4 * sprite + 3) & 0x3fff] & 0x80) != 0;
+				return earlyClock ? (x - 32) : x;
+			}
+			int x = vram[(attExtra + 2 * sprite) & 0x3fff];
+			return xShift ? (x - 8) : x;
+		};
+		// Index of the Y=0xD0 terminator; entries from there on are not
+		// evaluated by the hardware. Follow the visible line count, including
+		// a manual override, not the chip's.
+		int stopYIndex = total;
+		if (canStopY) {
+			for (auto i : xrange(total)) {
+				if (vram[yAddress(i)] == stopY) {
+					stopYIndex = i;
+					break;
+				}
+			}
+		}
 
 		// One entry of SMSVDPCore::selectSprites() for a scanline.
 		struct Selected {
@@ -644,7 +656,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			int count = 0;
 			for (int sprite = 0; sprite < total; ++sprite) {
 				int parseLine = line - 1;
-				int spriteY = vram[(attBase + ((type == SMS) ? sprite : 4 * sprite)) & 0x3fff];
+				int spriteY = vram[yAddress(sprite)];
 				if (stopAtTerminator && (spriteY == stopY)) break;
 				if (spriteY >= 240) spriteY -= 256;
 				if (mag && (count < maxZoomV)) {
@@ -675,103 +687,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		};
 
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			if (type == SMS) {
-				ImGui::Checkbox("SAT Sprites", &satSprites);
-			}
-			if ((type == SMS) && satSprites) {
-				// All 64 entries of the sprite attribute table, regardless
-				// of whether the hardware would display them.
-				auto rows = 8;
-				gl::vec2 cellSize{float(spriteW), float(spriteH)};
-				auto zoomSize = cellSize * float(zm);
-				auto fullSize = zoomSize * gl::vec2(8, rows);
-				// Whether (and if not, why) the hardware would display this
-				// sprite (mirrors SMSVDPCore::selectSprites()).
-				auto visibleText = [&](int sprite) -> std::string_view {
-					if (!(reg[1] & 0x40)) return "no (display disabled)"sv;
-					if (sprite >= stopYIndex) return "no (after the Y=0xD0 terminator)"sv;
-					// A sprite can be selected for a line and still be
-					// completely left of the screen (X=0 with the R#0 shift).
-					int yTop = spriteTop(vram[(attBase + sprite) & 0x3fff]);
-					int x = vram[(attExtra + 2 * sprite) & 0x3fff];
-					int xLeft = xShift ? x - 8 : x;
-					if (((yTop + magH) <= 0) || (yTop >= lines) || ((xLeft + magW) <= 0)) {
-						return "no (off-screen)"sv;
-					}
-					std::array<Selected, 64> selected;
-					for (int line = 0; line < lines; ++line) {
-						int count = selectLine(line, true, canStopY, selected);
-						for (int i = 0; i < count; ++i) {
-							if (selected[i].sprite == sprite) return "yes"sv;
-						}
-					}
-					return "no (beyond the per-line sprite limit)"sv;
-				};
-				im::Child("##sat", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
-					gl::vec2 topLeft = ImGui::GetCursorPos();
-					gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-					ImGui::SetCursorPos(topLeft);
-					drawTransparentBackground(fullSize);
-					for (auto row : xrange(rows)) {
-						for (auto column : xrange(8)) {
-							int sprite = 8 * row + column;
-							ImGui::SetCursorPos(topLeft + zoomSize * gl::vec2(float(column), float(row)));
-							renderSpriteAttrib(sprite, float(zm));
-						}
-					}
-					ImGui::SetCursorPos(topLeft);
-					if (grid) {
-						if (!satGridTex.get()) {
-							satGridTex = gl::Texture(false, true); // no interpolation, with wrapping
-						}
-						int gw = spriteW * zm;
-						int gh = spriteH * zm;
-						for (auto y : xrange(gh)) {
-							auto* line = &pixels[y * gw];
-							for (auto x : xrange(gw)) {
-								line[x] = (x == 0 || y == 0) ? gColor : 0;
-							}
-						}
-						satGridTex.bind();
-						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gw, gh, 0,
-							GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-						ImGui::Image(satGridTex.getImGui(), fullSize, {}, gl::vec2{8, float(rows)});
-					} else {
-						ImGui::Dummy(fullSize);
-					}
-					gl::vec2 zoomPatSize = zoomSize;
-					bool hovered = ImGui::IsItemHovered();
-					if (hovered) {
-						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
-					}
-					auto sprite = 8 * gridPosition.y + gridPosition.x;
-					copySpriteDataPopup("Copy sprite data to clipboard", [&]{
-						return formatClipboardData(attBase + sprite, 1) + '\n'
-						     + formatClipboardData(attExtra + 2 * sprite, 2);
-					});
-					if (hovered) {
-						ImGui::BeginTooltip();
-						ImGui::StrCat("sprite: ", sprite);
-						ImGui::StrCat("address: 0x", hex_string<5>((attBase + sprite) & 0x3fff));
-						auto pos = ImGui::GetCursorPos();
-						drawTransparentBackground(3.0f * zoomPatSize);
-						ImGui::SetCursorPos(pos);
-						renderSpriteAttrib(sprite, float(3 * zm));
-						auto y = vram[(attBase + sprite) & 0x3fff];
-						auto x = vram[(attExtra + 2 * sprite + 0) & 0x3fff];
-						auto tile = vram[(attExtra + 2 * sprite + 1) & 0x3fff];
-						ImGui::StrCat("x: ", x, "  y: ", y);
-						ImGui::StrCat("tile: ", tile, " (0x", hex_string<2>(tile), ')');
-						if (auto used = spriteTile(sprite); used != tile) {
-							ImGui::StrCat("uses pattern: ", used, " (0x", hex_string<3>(used), ')');
-						}
-						ImGui::StrCat("entry: 0x", hex_string<5>((attExtra + 2 * sprite) & 0x3fff));
-						ImGui::StrCat("visible: ", visibleText(sprite));
-						ImGui::EndTooltip();
-					}
-				});
-				return;
-			}
 			auto fullSize = gl::vec2(patternTexSize) * float(zm);
 			im::Child("##pattern", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
@@ -842,12 +757,36 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				}
 			});
 		});
-		// The sprite attribute grid is only relevant for the TMS9918-compatible
-		// modes; in mode 4 the SAT Sprites view replaces it.
+		// Whether (and if not, why) the hardware would display this sprite
+		// (mirrors SMSVDPCore::selectSprites()).
+		auto visibleText = [&](int sprite) -> std::string_view {
+			if (!(reg[1] & 0x40)) return "no (display disabled)"sv;
+			if (sprite >= stopYIndex) return "no (after the Y=0xD0 terminator)"sv;
+			// A sprite can be selected for a line and still be completely
+			// left of the screen (e.g. X=0 with the R#0 shift).
+			int yTop = spriteTop(vram[yAddress(sprite)]);
+			if (((yTop + magH) <= 0) || (yTop >= lines) || ((spriteLeft(sprite) + magW) <= 0)) {
+				return "no (off-screen)"sv;
+			}
+			std::array<Selected, 64> selected;
+			for (int line = 0; line < lines; ++line) {
+				int count = selectLine(line, true, canStopY, selected);
+				for (int i = 0; i < count; ++i) {
+					if (selected[i].sprite != sprite) continue;
+					// Still counts for the per-line limit, but draws nothing.
+					if ((type == TMS) && transparent && ((selected[i].flags & 0x0f) == 0)) {
+						return "no (color 0 is transparent)"sv;
+					}
+					return "yes"sv;
+				}
+			}
+			return "no (beyond the per-line sprite limit)"sv;
+		};
+		// All entries of the sprite attribute table (32 TMS, 64 mode 4),
+		// regardless of whether the hardware would display them.
 		auto drawSpriteAttributes = [&]{
-			auto spriteCount = (type == SMS) ? 64 : 32;
-			auto rows = spriteCount / 8;
-			auto zoomSize = float(zm * size);
+			auto rows = total / 8;
+			auto zoomSize = gl::vec2{float(spriteW), float(spriteH)} * float(zm);
 			auto fullSize = zoomSize * gl::vec2(8, rows);
 			im::Child("##attrib", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				if (type == NONE) {
@@ -855,11 +794,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				} else {
 					gl::vec2 topLeft = ImGui::GetCursorPos();
 					gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-					if (checkerBoardSize) {
-						ImGui::SetCursorPos(topLeft);
-						ImGui::Image(checkerTex.getImGui(), fullSize,
-							{}, fullSize / (4.0f * float(checkerBoardSize)));
-					}
+					drawTransparentBackground(fullSize);
 					for (auto row : xrange(rows)) {
 						for (auto column : xrange(8)) {
 							int sprite = 8 * row + column;
@@ -873,56 +808,54 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					} else {
 						ImGui::Dummy(fullSize);
 					}
-					gl::vec2 zoomPatSize{float(size * zm)};
 					bool hovered = ImGui::IsItemHovered();
 					if (hovered) {
-						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
+						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomSize);
 					}
 					auto sprite = 8 * gridPosition.y + gridPosition.x;
-					auto addr = (type == TMS) ? (attBase + 4 * sprite) : (attBase + sprite);
 					copySpriteDataPopup("Copy sprite data to clipboard", [&]{
 						if (type == TMS) {
-							return formatClipboardData(attBase + 4 * sprite, 4);
+							return formatClipboardData(yAddress(sprite), 4);
 						}
-						return formatClipboardData(attBase + sprite, 1) + '\n'
+						return formatClipboardData(yAddress(sprite), 1) + '\n'
 						     + formatClipboardData(attExtra + 2 * sprite, 2);
 					});
 					if (hovered) {
 						ImGui::BeginTooltip();
 						ImGui::StrCat("sprite: ", sprite);
-						ImGui::StrCat("address: 0x", hex_string<5>(addr & 0x3fff));
+						ImGui::StrCat("address: 0x", hex_string<5>(yAddress(sprite)));
 						auto pos = ImGui::GetCursorPos();
-						drawTransparentBackground(3.0f * zoomPatSize);
+						drawTransparentBackground(3.0f * zoomSize);
 						ImGui::SetCursorPos(pos);
 						renderSpriteAttrib(sprite, float(3 * zm));
+						auto y = vram[yAddress(sprite)];
+						auto used = spriteTile(sprite);
 						if (type == TMS) {
-							auto y = vram[(attBase + 4 * sprite + 0) & 0x3fff];
 							auto x = vram[(attBase + 4 * sprite + 1) & 0x3fff];
 							auto tile = vram[(attBase + 4 * sprite + 2) & 0x3fff];
 							auto flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
 							ImGui::StrCat("x: ", x, "  y: ", y);
 							ImGui::StrCat("pattern: ", tile);
-							if (auto used = spriteTile(sprite); used != tile) {
-								ImGui::StrCat("uses pattern: ", used);
-							}
+							if (used != tile) ImGui::StrCat("uses pattern: ", used);
 							ImGui::StrCat("color: ", flags & 15, (flags & 0x80 ? " (EC)"sv : ""sv));
 						} else {
-							auto y = vram[(attBase + sprite) & 0x3fff];
 							auto x = vram[(attExtra + 2 * sprite + 0) & 0x3fff];
 							auto tile = vram[(attExtra + 2 * sprite + 1) & 0x3fff];
 							ImGui::StrCat("x: ", x, "  y: ", y);
 							ImGui::StrCat("tile: ", tile, " (0x", hex_string<2>(tile), ')');
+							if (used != tile) {
+								ImGui::StrCat("uses pattern: ", used, " (0x", hex_string<3>(used), ')');
+							}
 							ImGui::StrCat("entry: 0x", hex_string<5>((attExtra + 2 * sprite) & 0x3fff));
 						}
+						ImGui::StrCat("visible: ", visibleText(sprite));
 						ImGui::EndTooltip();
 					}
 				}
 			});
 		};
-		if (type != SMS) {
-			ImGui::Separator();
-			im::TreeNode("Sprite attributes", ImGuiTreeNodeFlags_DefaultOpen, drawSpriteAttributes);
-		}
+		ImGui::Separator();
+		im::TreeNode("Sprite attributes", ImGuiTreeNodeFlags_DefaultOpen, drawSpriteAttributes);
 		ImGui::Separator();
 
 		im::TreeNode("Rendered sprites", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -1005,19 +938,12 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				++nrClippedBoxes;
 			};
 			for (int sprite = 0; sprite < total; ++sprite) {
-				auto vramY = vram[(attBase + ((type == SMS) ? sprite : 4 * sprite)) & 0x3fff];
-				if (!renderAfterStopY && canStopY && (vramY == stopY)) break;
-				uint8_t vramX;
+				if (!renderAfterStopY && (sprite >= stopYIndex)) break;
+				auto vramY = vram[yAddress(sprite)];
+				auto vramX = vram[(type == TMS) ? ((attBase + 4 * sprite + 1) & 0x3fff)
+				                                : ((attExtra + 2 * sprite) & 0x3fff)];
 				unsigned pattern = spriteTile(sprite);
-				int x;
-				if (type == TMS) {
-					vramX = vram[(attBase + 4 * sprite + 1) & 0x3fff];
-					auto flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
-					x = (flags & 0x80) ? vramX - 32 : vramX;
-				} else {
-					vramX = vram[(attExtra + 2 * sprite) & 0x3fff];
-					x = xShift ? vramX - 8 : vramX;
-				}
+				int x = spriteLeft(sprite);
 				int y = spriteTop(vramY);
 				int w = magW;
 				int h = magH;

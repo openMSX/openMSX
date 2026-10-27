@@ -65,10 +65,8 @@ private:
 	bool drawBoundingBox = true;
 	bool enableLimitPerLine = true;
 	bool renderAfterStopY = false; // rendered sprites: also show sprites after Y=0xD0
-	bool satSprites = true; // mode 4: show the SAT entries instead of the raw pattern table
 	gl::Texture patternTex {gl::Null{}}; // TODO also deallocate when needed
 	gl::Texture gridTex    {gl::Null{}};
-	gl::Texture satGridTex {gl::Null{}};
 	gl::Texture zoomGridTex{gl::Null{}};
 	gl::Texture checkerTex {gl::Null{}};
 	gl::Texture renderTex  {gl::Null{}};
@@ -102,8 +100,7 @@ private:
 		PersistentElement{"boundingBox",         &ImGuiSMSVDPSprites::drawBoundingBox},
 		PersistentElement{"boundingBoxColor",    &ImGuiSMSVDPSprites::boundingBoxColor},
 		PersistentElement{"spritesPerLineLimit", &ImGuiSMSVDPSprites::enableLimitPerLine},
-		PersistentElement{"renderAfterStopY",    &ImGuiSMSVDPSprites::renderAfterStopY},
-		PersistentElement{"satSprites",          &ImGuiSMSVDPSprites::satSprites}
+		PersistentElement{"renderAfterStopY",    &ImGuiSMSVDPSprites::renderAfterStopY}
 	};
 };
 
