@@ -161,7 +161,7 @@ static void decodeContiguous(std::span<const uint32_t, 16> palette, std::span<co
 	constexpr bool SEPARATE_PASS = FORMAT != one_of(PixelFormat::PALETTE2, PixelFormat::PALETTE4);
 	constexpr size_t CHUNK = 256; // a multiple of PER_BYTE
 
-	// only unrolled when 'out' has a static extend, as it has for full bytes
+	// only unrolled when 'out' has a static extent, as it has for full bytes
 	auto unpack = [&](unsigned byte, auto out) {
 		for (auto j : xrange(out.size())) {
 			auto shift = (ORDER == Order::MSB_FIRST) ? (8 - BITS * (j + 1)) : (BITS * j);

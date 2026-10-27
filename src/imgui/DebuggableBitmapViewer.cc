@@ -52,7 +52,7 @@ static constexpr std::array colorModeInfos = {
 	ColorModeInfo{"Grayscale", ""},
 	ColorModeInfo{"Palette",   ""},
 	ColorModeInfo{"BRG233",    "bits 1-0: blue, 4-2: red, 7-5: green (as in MSX screen 8)"},
-	ColorModeInfo{"BRGX5551",  "bits 4-0: blue, 9=5: red, 14-10: green, 15: ignored"},
+	ColorModeInfo{"BRGX5551",  "bits 4-0: blue, 9-5: red, 14-10: green, 15: ignored"},
 	ColorModeInfo{"BRGYs5551", "bits 4-0: blue, 9-5: red, 14-10: green, 15: transparent when set (as in the V9990)"},
 	ColorModeInfo{"BGR565",    "bits 4-0: blue, 10-5: green, 15-11: red"},
 	ColorModeInfo{"RGB565",    "bits 4-0: red, 10-5: green, 15-11: blue"},

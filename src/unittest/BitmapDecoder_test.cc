@@ -138,7 +138,7 @@ TEST_CASE("BitmapDecoder: pixel formats")
 	CHECK(one(BGRA8888, {0x80, 0x11, 0x22, 0x33}) == rgba(0x11, 0x22, 0x33, 0x80));
 	CHECK(one(RGBA8888, {0x80, 0x11, 0x22, 0x33}) == rgba(0x33, 0x22, 0x11, 0x80));
 
-	// little endian ABGR8888 is R, G, B, A in memory
+	// little endian RGBA8888 is R, G, B, A in memory
 	std::array<uint8_t, 4> data = {0x11, 0x22, 0x33, 0x80};
 	CHECK(decode(linear(RGBA8888, Order::LSB_FIRST, 1, 1), data) ==
 	      std::vector{rgba(0x11, 0x22, 0x33, 0x80)});
