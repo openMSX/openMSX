@@ -180,7 +180,14 @@ private:
 	SMSVDPCore core;
 	std::unique_ptr<SMSVDPRenderer> renderer;
 
-	// Debuggables: "Franky regs" and "Franky status regs".
+	// debugName is declared before the debuggables: they use it in their
+	// constructor. The base name is "SMS VDP" (the debuggables belong to
+	// the VDP, not to the Franky cartridge); it is made unique for a second
+	// VDP instance.
+	std::string debugName;
+
+	// Debuggables: "SMS VDP regs", "SMS VDP status regs", "SMS VDP VRAM"
+	// and "SMS VDP CRAM" (used by the ImGui hex editors).
 	struct RegDebug final : SimpleDebuggable {
 		RegDebug(const SMSVDP& vdp, std::string_view name);
 		[[nodiscard]] uint8_t read(unsigned address) override;
@@ -190,6 +197,16 @@ private:
 		StatusDebug(const SMSVDP& vdp, std::string_view name);
 		[[nodiscard]] uint8_t read(unsigned address) override;
 	} statusDebug;
+	struct VramDebug final : SimpleDebuggable {
+		VramDebug(const SMSVDP& vdp, std::string_view name);
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
+	} vramDebug;
+	struct CramDebug final : SimpleDebuggable {
+		CramDebug(const SMSVDP& vdp, std::string_view name);
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
+	} cramDebug;
 
 	/** Pixel clock of the currently selected video standard. */
 	DynamicClock pixelClock;

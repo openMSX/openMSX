@@ -3,6 +3,7 @@
 #include "SMSVDPDummyRenderer.hh"
 #include "SMSVDPRenderer.hh"
 
+#include "Debugger.hh"
 #include "Display.hh"
 #include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
@@ -21,6 +22,30 @@
 
 namespace openmsx {
 
+namespace {
+
+// The debuggables are chip-scoped ("SMS VDP ..."), not device-scoped: they
+// belong to the VDP. Make the base name unique in case a second VDP instance
+// is created (a second Franky cannot output video, but its device is still
+// constructed). Same " (n)" scheme as MSXDevice and SoundDevice.
+[[nodiscard]] std::string makeUniqueDebugBase(MSXMotherBoard& motherBoard, std::string_view base)
+{
+	auto& debugger = motherBoard.getDebugger();
+	auto isFree = [&](std::string_view b) {
+		return !debugger.findDebuggable(strCat(b, " regs")) &&
+		       !debugger.findDebuggable(strCat(b, " status regs")) &&
+		       !debugger.findDebuggable(strCat(b, " VRAM")) &&
+		       !debugger.findDebuggable(strCat(b, " CRAM"));
+	};
+	std::string result(base);
+	for (unsigned n = 1; !isFree(result); ++n) {
+		result = strCat(base, " (", n, ')');
+	}
+	return result;
+}
+
+} // namespace
+
 SMSVDP::SMSVDP(MSXMotherBoard& motherBoard_, std::string name,
                VideoStandard standard, SMSVDPCore::Variant variant)
 	: motherBoard(motherBoard_)
@@ -34,8 +59,11 @@ SMSVDP::SMSVDP(MSXMotherBoard& motherBoard_, std::string name,
 		true)
 	, irq(motherBoard, name + ".IRQ")
 	, core(variant, isPal(), [this](bool asserted) { irq.set(asserted); })
-	, regDebug(*this, name)
-	, statusDebug(*this, name)
+	, debugName(makeUniqueDebugBase(motherBoard_, "SMS VDP"))
+	, regDebug(*this, debugName)
+	, statusDebug(*this, debugName)
+	, vramDebug(*this, debugName)
+	, cramDebug(*this, debugName)
 	, pixelClock(EmuTime::zero())
 {
 	updateClock();
@@ -295,7 +323,7 @@ void SMSVDP::postVideoSystemChange() noexcept
 
 SMSVDP::RegDebug::RegDebug(const SMSVDP& vdp, std::string_view name_)
 	: SimpleDebuggable(vdp.getMotherBoard(),
-	                   strCat(name_, " regs"), "Franky VDP registers.", 16)
+	                   strCat(name_, " regs"), "SMS VDP registers.", 16)
 {
 }
 
@@ -313,7 +341,7 @@ void SMSVDP::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 
 SMSVDP::StatusDebug::StatusDebug(const SMSVDP& vdp, std::string_view name_)
 	: SimpleDebuggable(vdp.getMotherBoard(),
-	                   strCat(name_, " status regs"), "Franky VDP status register.", 1)
+	                   strCat(name_, " status regs"), "SMS VDP status register.", 1)
 {
 }
 
@@ -321,6 +349,42 @@ uint8_t SMSVDP::StatusDebug::read(unsigned /*address*/)
 {
 	const auto& vdp = OUTER(SMSVDP, statusDebug);
 	return vdp.core.peekStatus();
+}
+
+SMSVDP::VramDebug::VramDebug(const SMSVDP& vdp, std::string_view name_)
+	: SimpleDebuggable(vdp.getMotherBoard(),
+	                   strCat(name_, " VRAM"), "SMS VDP video RAM (16 kB).", 0x4000)
+{
+}
+
+uint8_t SMSVDP::VramDebug::read(unsigned address)
+{
+	const auto& vdp = OUTER(SMSVDP, vramDebug);
+	return vdp.core.peekVram(narrow<uint16_t>(address));
+}
+
+void SMSVDP::VramDebug::write(unsigned address, uint8_t value, EmuTime /*time*/)
+{
+	auto& vdp = OUTER(SMSVDP, vramDebug);
+	vdp.core.pokeVram(narrow<uint16_t>(address), value);
+}
+
+SMSVDP::CramDebug::CramDebug(const SMSVDP& vdp, std::string_view name_)
+	: SimpleDebuggable(vdp.getMotherBoard(),
+	                   strCat(name_, " CRAM"), "SMS VDP color RAM (32 bytes, 6-bit colors).", 0x20)
+{
+}
+
+uint8_t SMSVDP::CramDebug::read(unsigned address)
+{
+	const auto& vdp = OUTER(SMSVDP, cramDebug);
+	return vdp.core.peekCram(narrow<int>(address));
+}
+
+void SMSVDP::CramDebug::write(unsigned address, uint8_t value, EmuTime /*time*/)
+{
+	auto& vdp = OUTER(SMSVDP, cramDebug);
+	vdp.core.pokeCram(narrow<int>(address), value);
 }
 
 // ---------------------------------------------------------------------------
