@@ -689,9 +689,13 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			printAddressName(name);
 			ImGui::StrCat("  0x", hex_string<5>(address), "-0x", hex_string<5>(address + count - 1));
 		};
-		auto patternAddress = [&](unsigned pattern) {
-			if (mode == MODE4) return (pattern * 32) & 0x3fff;
+		auto patternAddress = [&](unsigned pattern) { // modes 0-3
 			return (tables.patBase + ((pattern & tables.patMask) << 3)) & 0x3fff;
+		};
+		// Mode 4 takes bit planes 0-1 from tile1 and planes 2-3 from tile2;
+		// they only differ on SMS1 (SMSVDPCore::tile1SelectMode4/tile2SelectMode4).
+		auto mode4Tiles = [&](unsigned pattern) {
+			return std::pair{pattern & tile1Mask, pattern & tile2Mask};
 		};
 		auto colorAddress = [&](unsigned pattern) {
 			if (mode == GRAPHIC1) return (tables.colBase + (pattern >> 3)) & 0x3fff;
@@ -699,7 +703,13 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		};
 		auto printPatternColorAddress = [&](unsigned pattern) {
 			if (mode == MODE4) {
-				printAddressRange("Pattern", patternAddress(pattern), 32);
+				auto [tile1, tile2] = mode4Tiles(pattern);
+				if (tile1 == tile2) {
+					printAddressRange("Pattern", tile1 * 32, 32);
+				} else {
+					printAddressRange("Pattern (planes 0-1)", tile1 * 32, 32);
+					printAddressRange("Pattern (planes 2-3)", tile2 * 32, 32);
+				}
 			} else {
 				printAddressRange("Pattern", patternAddress(pattern), 8);
 				if (mode == one_of(GRAPHIC1, GRAPHIC2)) {
@@ -709,6 +719,14 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		};
 		auto formatBinaryData = [&](unsigned address, unsigned count) {
 			return formatToString([&](unsigned addr){ return vram[addr & 0x3fff]; }, address, address + count - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+		};
+		auto formatPatternData = [&](unsigned pattern) {
+			if (mode == MODE4) {
+				auto [tile1, tile2] = mode4Tiles(pattern);
+				return formatToString([&](unsigned i) { return vram[((i & 2) ? tile2 : tile1) * 32 + i]; },
+				                      0, 31, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+			}
+			return formatBinaryData(patternAddress(pattern), 8);
 		};
 		auto getPatternFromGrid = [&] {
 			return gridPosition.x + 32 * gridPosition.y;
@@ -721,8 +739,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 					: "Copy pattern data to clipboard";
 				if (ImGui::MenuItem(caption)) {
 					auto pattern = getPatternFromGrid();
-					auto patternSize = (mode == MODE4) ? 32u : 8u;
-					auto text = strCat("Pattern data\n", formatBinaryData(patternAddress(pattern), patternSize));
+					auto text = strCat("Pattern data\n", formatPatternData(pattern));
 					if (hasColorData) {
 						strAppend(text, "Color data\n", formatBinaryData(colorAddress(pattern), 8));
 					}
