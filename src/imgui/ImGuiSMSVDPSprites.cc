@@ -675,13 +675,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			if (type == SMS) {
 				ImGui::Checkbox("SAT Sprites", &satSprites);
-				ImGui::SameLine();
-				im::Disabled(!satSprites, [&]{
-					ImGui::Checkbox("Show After Y=0xD0", &showAfterStopY);
-					simpleToolTip("Show the SAT entries from the Y=0xD0 terminator onwards. "
-					              "The hardware ignores those entries in 192-line mode; when off "
-					              "they are left transparent.");
-				});
 			}
 			if ((type == SMS) && satSprites) {
 				// All 64 entries of the sprite attribute table, regardless
@@ -720,10 +713,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					for (auto row : xrange(rows)) {
 						for (auto column : xrange(8)) {
 							int sprite = 8 * row + column;
-							// Entries from the Y=0xD0 terminator onwards are
-							// not evaluated by the hardware (192-line mode);
-							// when they are not shown, leave them transparent.
-							if (!showAfterStopY && (sprite >= stopYIndex)) continue;
 							ImGui::SetCursorPos(topLeft + zoomSize * gl::vec2(float(column), float(row)));
 							renderSpriteAttrib(sprite, float(zm));
 						}
@@ -754,10 +743,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
 					}
 					auto sprite = 8 * gridPosition.y + gridPosition.x;
-					// Entries hidden by 'Show After Y=0xD0' are not evaluated
-					// by the hardware: in the hover popup they show only the
-					// background (like the grid cell).
-					bool hidden = !showAfterStopY && (sprite >= stopYIndex);
 					copySpriteDataPopup("Copy sprite data to clipboard", [&]{
 						return formatClipboardData(attBase + sprite, 1) + '\n'
 						     + formatClipboardData(attExtra + 2 * sprite, 2);
@@ -769,11 +754,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						auto pos = ImGui::GetCursorPos();
 						drawTransparentBackground(3.0f * zoomPatSize);
 						ImGui::SetCursorPos(pos);
-						if (hidden) {
-							ImGui::Dummy(3.0f * zoomPatSize);
-						} else {
-							renderSpriteAttrib(sprite, float(3 * zm));
-						}
+						renderSpriteAttrib(sprite, float(3 * zm));
 						auto y = vram[(attBase + sprite) & 0x3fff];
 						auto x = vram[(attExtra + 2 * sprite + 0) & 0x3fff];
 						auto tile = vram[(attExtra + 2 * sprite + 1) & 0x3fff];
