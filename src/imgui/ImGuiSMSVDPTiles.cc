@@ -247,16 +247,28 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		// In the TMS9918-compatible modes pen 0 is drawn in the backdrop
 		// color (R#7 low nibble).
 		int vdpColor0 = reg[7] & 0x0f;
-		int vdpPatBase = (vdpMode == MODE4) ? 0
-		               : (vdpMode == GRAPHIC2) ? ((reg[4] & 0x04) << 11)
-		                                       : ((reg[4] << 11) & 0x3fff);
-		int vdpColBase = (vdpMode == MODE4) ? 0
-		               : (vdpMode == GRAPHIC2) ? ((reg[3] & 0x80) << 6)
-		                                       : ((reg[3] << 6) & 0x3fff);
-		int vdpNamBase = (vdpMode == MODE4)
-			? ((vdp.peekYPixels() != 192) ? (((reg[2] & 0x0c) << 10) | 0x0700)
-			                              : ((reg[2] << 10) & 0x3800))
-			: ((reg[2] & 0x0f) << 10);
+		// Table bases as the chip derives them from the registers in mode 'm'.
+		// The settings readout uses the chip's mode, the tables use the
+		// mode that is shown (these differ when the mode is overridden).
+		auto patBaseFor = [&](int m) {
+			return (m == MODE4)    ? 0
+			     : (m == GRAPHIC2) ? ((reg[4] & 0x04) << 11)
+			                       : ((reg[4] << 11) & 0x3fff);
+		};
+		auto colBaseFor = [&](int m) {
+			return (m == MODE4)    ? 0
+			     : (m == GRAPHIC2) ? ((reg[3] & 0x80) << 6)
+			                       : ((reg[3] << 6) & 0x3fff);
+		};
+		auto namBaseFor = [&](int m) {
+			return (m == MODE4)
+				? ((vdp.peekYPixels() != 192) ? (((reg[2] & 0x0c) << 10) | 0x0700)
+				                              : ((reg[2] << 10) & 0x3800))
+				: ((reg[2] & 0x0f) << 10);
+		};
+		int vdpPatBase = patBaseFor(vdpMode);
+		int vdpColBase = colBaseFor(vdpMode);
+		int vdpNamBase = namBaseFor(vdpMode);
 		int vdpYpixels = vdp.peekYPixels();
 		int vdpLines = vdpYpixels; // visible lines (192/224/240)
 		int vramSize = 0x4000;
@@ -337,10 +349,16 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					im::Disabled(overrideAll, [&]{
 						ImGui::Checkbox("##o-mode",    overrideAll ? &overrideAll : &overrideMode);
-						ImGui::Checkbox("##o-fgCol",   overrideAll ? &overrideAll : &overrideFgCol);
-						ImGui::Checkbox("##o-bgCol",   overrideAll ? &overrideAll : &overrideBgCol);
+						// Foreground and background are only used in text mode.
+						im::Disabled(mode != TEXT, [&]{
+							ImGui::Checkbox("##o-fgCol", overrideAll ? &overrideAll : &overrideFgCol);
+							ImGui::Checkbox("##o-bgCol", overrideAll ? &overrideAll : &overrideBgCol);
+						});
 						im::Disabled(mode == MODE4, [&]{
 							ImGui::Checkbox("##o-pat",     overrideAll ? &overrideAll : &overridePat);
+						});
+						// Only graphics I and II have a color table.
+						im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
 							ImGui::Checkbox("##o-col",     overrideAll ? &overrideAll : &overrideCol);
 						});
 						ImGui::Checkbox("##o-nam",     overrideAll ? &overrideAll : &overrideNam);
@@ -363,7 +381,10 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						static const char* const range0_15 = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000";
-						im::Disabled(manualMode != TEXT, [&]{
+						// Gate on the mode actually shown. manualMode stays at its
+						// default when the mode itself is not overridden, so a chip
+						// in text mode would otherwise keep these editors disabled.
+						im::Disabled(mode != TEXT, [&]{
 							im::Disabled(!manFgCol, [&]{
 								ImGui::Combo("##fgCol", &manualFgCol, range0_15);
 							});
@@ -371,21 +392,21 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 								ImGui::Combo("##bgCol", &manualBgCol, range0_15);
 							});
 						});
-						im::Disabled(!manPat || (manualMode == MODE4), [&]{
-							comboHexSequence<5>("##pattern", &manualPatBase, patMult(manualMode), vramSize, 0);
+						im::Disabled(!manPat || (mode == MODE4), [&]{
+							comboHexSequence<5>("##pattern", &manualPatBase, patMult(mode), vramSize, 0);
 						});
-						im::Disabled(manualMode != one_of(GRAPHIC1, GRAPHIC2), [&]{
+						im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
 							im::Disabled(!manCol, [&]{
-								comboHexSequence<5>("##color", &manualColBase, colMult(manualMode), vramSize, 0);
+								comboHexSequence<5>("##color", &manualColBase, colMult(mode), vramSize, 0);
 							});
 						});
 						im::Disabled(!manNam, [&]{
 							comboHexSequence<5>("##name", &manualNamBase, 1 << 10, vramSize, 0);
 						});
-						im::Disabled(!manRows || (manualMode == MODE4), [&]{
+						im::Disabled(!manRows || (mode == MODE4), [&]{
 							ImGui::Combo("##rows", &manualRows, "24\00028\00030\000");
 						});
-						im::Disabled(!manColor0 || (manualMode == MODE4), [&]{
+						im::Disabled(!manColor0 || (mode == MODE4), [&]{
 							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Str);
 						});
 					});
@@ -406,14 +427,14 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				});
 				ImGui::Checkbox("Name table overlay", &nameTableOverlay);
 
-				im::Disabled(mode == MODE4, [&]{
+				im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
 					ImGui::Checkbox("Override color table", &overrideColorTable);
 				});
 				HelpMarker("Ignore the content of the color table and instead use this value for everything.\n"
 				           "Could be useful to visualize the patterns when the color table has the same value for fg and bg.");
 				const char* col0_15 = "0\0001\0002\0003\0004\0005\0006\0007\000"
 				                      "8\0009\00010\00011\00012\00013\00014\00015\000";
-				im::DisabledIndent(!overrideColorTable || (mode == MODE4), [&]{
+				im::DisabledIndent(!overrideColorTable || (mode != one_of(GRAPHIC1, GRAPHIC2)), [&]{
 					int fg = (overrideColorValue >> 4) & 0x0f;
 					int bg = (overrideColorValue >> 0) & 0x0f;
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
@@ -460,7 +481,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		int color0 = manColor0 ? manualColor0 : vdpColor0;
 
 		FrankyTables tables;
-		tables.namBase = manNam ? unsigned(manualNamBase) : unsigned(vdpNamBase);
+		tables.namBase = manNam ? unsigned(manualNamBase) : unsigned(namBaseFor(mode));
 		if (mode == MODE4) {
 			// Mode 4 has no pattern/color table base registers: the tile
 			// number indexes the pattern table at 0x0000.
@@ -472,7 +493,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			tables.patBase = unsigned(manualPatBase);
 			tables.patMask = (mode == GRAPHIC2) ? 0x3ff : 0xff;
 		} else {
-			tables.patBase = unsigned(vdpPatBase);
+			tables.patBase = unsigned(patBaseFor(mode));
 			tables.patMask = (mode == GRAPHIC2) ? unsigned(((reg[4] & 0x03) << 8) | 0xff) : 0xff;
 		}
 		if (mode != MODE4) {
@@ -480,7 +501,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				tables.colBase = unsigned(manualColBase);
 				tables.colMask = (mode == GRAPHIC2) ? 0x3ff : 0;
 			} else {
-				tables.colBase = unsigned(vdpColBase);
+				tables.colBase = unsigned(colBaseFor(mode));
 				tables.colMask = (mode == GRAPHIC2) ? unsigned(((reg[3] & 0x7f) << 3) | 0x07) : 0;
 			}
 		}
