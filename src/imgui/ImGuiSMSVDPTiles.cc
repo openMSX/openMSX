@@ -73,7 +73,6 @@ void ImGuiSMSVDPTiles::initHexDigits()
 	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 }
 
-// VRAM-table addresses of the current mode (SMSVDPCore::drawScanlineMode*).
 static void draw6(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 6> out)
 {
 	out[0] = (pattern & 0x80) ? fgCol : bgCol;
@@ -100,7 +99,7 @@ static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uin
 void ImGuiSMSVDPTiles::renderPatterns(const PatternParams& params,
                                       std::span<const uint32_t, 32> palette,
                                       std::span<const uint8_t, 0x4000> vram,
-                                      const FrankyTables& tables,
+                                      const VramTables& tables,
                                       std::span<uint32_t> output)
 {
 	auto read = [&](unsigned address) { return vram[address & 0x3fff]; };
@@ -246,7 +245,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		int vdpBgCol = reg[7] & 0x0f;
 		// In the TMS9918-compatible modes pen 0 is drawn in the backdrop
 		// color (R#7 low nibble).
-		int vdpColor0 = reg[7] & 0x0f;
+		int vdpColor0 = vdpBgCol;
 		// Table bases as the chip derives them from the registers in mode 'm'.
 		// The settings readout uses the chip's mode, the tables use the
 		// mode that is shown (these differ when the mode is overridden).
@@ -480,7 +479,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		int lines = manRows ? manualLines : vdpLines;
 		int color0 = manColor0 ? manualColor0 : vdpColor0;
 
-		FrankyTables tables;
+		VramTables tables;
 		tables.namBase = manNam ? unsigned(manualNamBase) : unsigned(namBaseFor(mode));
 		if (mode == MODE4) {
 			// Mode 4 has no pattern/color table base registers: the tile

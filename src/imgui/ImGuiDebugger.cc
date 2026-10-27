@@ -191,7 +191,7 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 	buf.appendf("bitmapViewers=%d\n", narrow<int>(bitmapViewers.size()));
 	buf.appendf("tileViewers=%d\n", narrow<int>(tileViewers.size()));
 	buf.appendf("spriteViewers=%d\n", narrow<int>(spriteViewers.size()));
-	buf.appendf("smsVdpTilesViewers=%d\n", narrow<int>(smsVdpTilesViewers.size()));
+	buf.appendf("smsVdpTileViewers=%d\n", narrow<int>(smsVdpTileViewers.size()));
 
 	saveCountPerDebuggable(buf, "hexEditor.", hexEditors);
 	saveCountPerDebuggable(buf, "debuggableBitmap.", debuggableBitmapViewers);
@@ -203,7 +203,7 @@ void ImGuiDebugger::loadStart()
 	bitmapViewers.clear();
 	tileViewers.clear();
 	spriteViewers.clear();
-	smsVdpTilesViewers.clear();
+	smsVdpTileViewers.clear();
 	hexEditors.clear();
 	debuggableBitmapViewers.clear();
 }
@@ -236,9 +236,9 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			repeat(*r, [&] { openOrCreate(manager, spriteViewers); });
 		}
-	} else if (name == "smsVdpTilesViewers") {
+	} else if (name == "smsVdpTileViewers") {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			repeat(*r, [&] { openOrCreate(manager, smsVdpTilesViewers); });
+			repeat(*r, [&] { openOrCreate(manager, smsVdpTileViewers); });
 		}
 	} else if (name.starts_with(hexEditorPrefix)) {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
@@ -323,7 +323,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		}
 		if (motherBoard && motherBoard->findDevice("Franky")) {
 			if (ImGui::MenuItem("SMS VDP tile viewer")) {
-				openOrCreate(manager, smsVdpTilesViewers);
+				openOrCreate(manager, smsVdpTileViewers);
 			}
 		}
 		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show);

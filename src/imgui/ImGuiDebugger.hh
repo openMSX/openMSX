@@ -85,7 +85,7 @@ private:
 	std::vector<std::unique_ptr<ImGuiBitmapViewer>> bitmapViewers;
 	std::vector<std::unique_ptr<ImGuiCharacter>> tileViewers;
 	std::vector<std::unique_ptr<ImGuiSpriteViewer>> spriteViewers;
-	std::vector<std::unique_ptr<ImGuiSMSVDPTiles>> smsVdpTilesViewers;
+	std::vector<std::unique_ptr<ImGuiSMSVDPTiles>> smsVdpTileViewers;
 	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
 	std::vector<std::unique_ptr<DebuggableBitmapViewer>> debuggableBitmapViewers; // sorted on 'getDebuggableName()'
 

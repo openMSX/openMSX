@@ -30,7 +30,7 @@ public:
 
 private:
 	// VRAM-table addresses of the current mode (SMSVDPCore::drawScanlineMode*).
-	struct FrankyTables {
+	struct VramTables {
 		unsigned patBase;
 		unsigned patMask; // pattern-number mask
 		unsigned colBase;
@@ -53,7 +53,7 @@ private:
 	static void renderPatterns(const PatternParams& params,
 	                           std::span<const uint32_t, 32> palette,
 	                           std::span<const uint8_t, 0x4000> vram,
-	                           const FrankyTables& tables,
+	                           const VramTables& tables,
 	                           std::span<uint32_t> output);
 	void initHexDigits();
 
@@ -83,7 +83,7 @@ private:
 
 	// Sega VDP screen modes; the values match the VDP mode numbers
 	// (0-3 are the TMS9918-compatible modes, 4 is the SMS mode).
-	enum FrankyScrnMode : int { GRAPHIC1, TEXT, GRAPHIC2, MULTICOLOR, MODE4, OTHER };
+	enum ScreenMode : int { GRAPHIC1, TEXT, GRAPHIC2, MULTICOLOR, MODE4, OTHER };
 	int manualMode = 0;
 	int manualFgCol = 15;
 	int manualBgCol = 4;
@@ -118,7 +118,7 @@ private:
 		PersistentElement   {"showRasterBeam",  &ImGuiSMSVDPTiles::rasterBeam},
 		PersistentElement   {"rasterBeamColor", &ImGuiSMSVDPTiles::rasterBeamColor},
 		PersistentElement   {"gridColor",       &ImGuiSMSVDPTiles::gridColor},
-		PersistentElementMax{"mode",            &ImGuiSMSVDPTiles::manualMode, OTHER}, // GRAPHIC1..MULTICOLOR
+		PersistentElementMax{"mode",            &ImGuiSMSVDPTiles::manualMode, OTHER}, // GRAPHIC1..MODE4
 		PersistentElementMax{"fgCol",           &ImGuiSMSVDPTiles::manualFgCol, 16},
 		PersistentElementMax{"bgCol",           &ImGuiSMSVDPTiles::manualBgCol, 16},
 		PersistentElementMax{"patBase",         &ImGuiSMSVDPTiles::manualPatBase, 0x4000},
