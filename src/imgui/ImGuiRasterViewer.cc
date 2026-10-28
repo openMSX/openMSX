@@ -265,13 +265,6 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 	im::Child("##display", min(availSize, reqSize), {}, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		scrnPos = ImGui::GetCursorScreenPos();
 
-		auto makeAndBindTex = [&](gl::Texture& tex) {
-			if (!tex.get()) {
-				tex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			tex.bind();
-		};
-
 		gl::vec4 checkerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
 		gl::vec4 checkerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
 		updateCheckerBoardTexture(checkerTex,
@@ -330,9 +323,7 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 		if (borderWidth == 320) any320 = true;
 		std::ranges::replace(allLineWidths, 1, borderWidth);
 
-		makeAndBindTex(viewTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VISIBLE_PIXELS_PER_LINE, numVisibleLines, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pixelBuffer.data());
+		updateTexture(viewTex, {VISIBLE_PIXELS_PER_LINE, numVisibleLines}, pixelBuffer, true); // with wrapping
 
 		auto* drawList = ImGui::GetWindowDrawList();
 		auto colorForLine = [&](int line) {

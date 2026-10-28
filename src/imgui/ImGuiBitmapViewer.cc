@@ -360,12 +360,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		MemBuffer<uint32_t> pixels(512 * 256 * 4); // max size: screen 6/7, show all pages
 		renderBitmap(vram.getData(), palette, mode, height, page,
 				pixels.data());
-		if (!bitmapTex.get()) {
-			bitmapTex = gl::Texture(false, false); // no interpolation, no wrapping
-		}
-		bitmapTex.bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		updateTexture(bitmapTex, {width, height}, pixels);
 		int zx = (1 + bitmapZoom) * divX;
 		int zy = (1 + bitmapZoom) * 2;
 		auto zm = gl::vec2(float(zx), float(zy));

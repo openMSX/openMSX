@@ -360,10 +360,6 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		attTable.setIndexSize((mode == 2) ? 10 : 7);
 
 		// create pattern texture
-		if (!patternTex.get()) {
-			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
-		}
-		patternTex.bind();
 		std::array<uint32_t, 256 * 64> pixels;
 		if (mode != 0) {
 			if (size == 8) {
@@ -371,12 +367,10 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			} else {
 				renderPatterns16(patTable, pixels);
 			}
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 64, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateTexture(patternTex, {256, 64}, pixels);
 		} else {
 			pixels[0] = getColor(imColor::GRAY);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateTexture(patternTex, {1, 1}, pixels);
 		}
 
 		// create grid texture
@@ -675,12 +669,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					}
 				}
 			}
-			if (!renderTex.get()) {
-				renderTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			renderTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, lines, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, screen.data());
+			updateTexture(renderTex, {256, lines}, screen, true); // with wrapping
 
 			std::array<SpriteBox, 2 * 32> clippedBoxes;
 			int nrClippedBoxes = 0;

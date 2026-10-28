@@ -324,6 +324,10 @@ const char* getComboString(int item, const char* itemsSeparatedByZeros);
 std::string formatTime(std::optional<double> time);
 float calculateFade(float current, float target, float period);
 
+// Upload 'size' RGBA pixels to 'tex'. A null texture is created first (without
+// interpolation, and with wrapping when 'wrap' is set).
+void updateTexture(gl::Texture& tex, gl::ivec2 size, std::span<const uint32_t> pixels, bool wrap = false);
+
 // Texture for a grid overlay: a single cell of 'cellSize' pixels, with 'color'
 // on its top row and left column and transparent elsewhere. The texture wraps,
 // so drawing it with UVs {0, 0}-{nx, ny} shows nx x ny cells. A null texture is

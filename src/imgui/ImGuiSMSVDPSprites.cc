@@ -466,11 +466,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			? ((size == 8) ? gl::vec2{32.0f, 8.0f} : gl::vec2{32.0f, 4.0f})
 			: ((size == 8) ? gl::vec2{32.0f, 8.0f} : gl::vec2{16.0f, 4.0f});
 		std::array<uint32_t, 256 * 256> pixels;
-		if (!patternTex.get()) {
-			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
-		}
 		if (type != NONE) {
-			patternTex.bind();
 			if (type == TMS) {
 				if (size == 8) renderPatternsTms8 (vram, unsigned(patBase), pixels);
 				else           renderPatternsTms16(vram, unsigned(patBase), pixels);
@@ -479,8 +475,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				if (size == 8) renderPatternsSms8 (vram, unsigned(patBase), palette, pen0, pixels);
 				else           renderPatternsSms16(vram, unsigned(patBase), palette, pen0, pixels);
 			}
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize.x, patternTexSize.y, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateTexture(patternTex, patternTexSize, pixels);
 		}
 		// One zoom (Settings) for all sections, like the MSX VDP sprite viewer.
 		int zm = 2 * (1 + zoom);
@@ -890,12 +885,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				addClippedBox(SpriteBox{x, y, w, h, sprite, vramX, vramY, pattern});
 			}
 
-			if (!renderTex.get()) {
-				renderTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			renderTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, lines, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, screen.data());
+			updateTexture(renderTex, {256, lines}, screen, true); // with wrapping
 
 			auto fullSize = float(zm) * gl::vec2(256, float(lines));
 			im::Child("##screen", {0.0f, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{

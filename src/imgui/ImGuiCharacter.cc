@@ -384,12 +384,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		}();
 		std::array<uint32_t, 256 * 256> pixels; // max size for SCR2
 		renderPatterns(mode, palette, fgCol, bgCol, fgBlink, bgBlink, patTable, colTable, lines, pixels);
-		if (!patternTex.get()) {
-			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
-		}
-		patternTex.bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize.x, patternTexSize.y, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		updateTexture(patternTex, patternTexSize, pixels);
 
 		// create grid texture
 		auto charWidth = mode == one_of(TEXT40, TEXT80) ? 6 : 8;

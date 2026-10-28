@@ -738,12 +738,7 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 	pixelBuf.resize(size_t(imageSize.x) * size_t(imageSize.y));
 	BitmapDecoder::decode(layout, palette, dataBuf, pixelBuf);
 
-	if (!imageTex.get()) {
-		imageTex = gl::Texture(false, false); // no interpolation, no wrapping
-	}
-	imageTex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageSize.x, imageSize.y, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf.data());
+	updateTexture(imageTex, imageSize, pixelBuf);
 
 	int z = zoom + 1;
 	bool showPixelGrid = pixelGrid && (z > 1);

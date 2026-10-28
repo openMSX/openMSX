@@ -645,12 +645,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		PatternParams params{mode, fgCol, bgCol, overrideColorTable,
 		                     uint8_t(overrideColorValue), graphic2Banks};
 		renderPatterns(params, palette, vram, tables, pixels);
-		if (!patternTex.get()) {
-			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
-		}
-		patternTex.bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize.x, patternTexSize.y, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		updateTexture(patternTex, patternTexSize, pixels);
 
 		// create grid texture
 		auto charWidth = (mode == TEXT) ? 6 : 8;

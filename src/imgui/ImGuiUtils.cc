@@ -328,6 +328,17 @@ float calculateFade(float current, float target, float period)
 	}
 }
 
+void updateTexture(gl::Texture& tex, gl::ivec2 size, std::span<const uint32_t> pixels, bool wrap)
+{
+	assert(pixels.size() >= size_t(size.x) * size_t(size.y));
+	if (!tex.get()) {
+		tex = gl::Texture(false, wrap); // no interpolation
+	}
+	tex.bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
+	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+}
+
 void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color)
 {
 	// Reused, so that the viewers don't allocate it every frame (the GUI
@@ -336,23 +347,13 @@ void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color)
 	pixels.assign(size_t(cellSize.x) * size_t(cellSize.y), 0);
 	for (auto x : xrange(cellSize.x)) pixels[x] = color;
 	for (auto y : xrange(cellSize.y)) pixels[y * cellSize.x] = color;
-	if (!tex.get()) {
-		tex = gl::Texture(false, true); // no interpolation, with wrapping
-	}
-	tex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cellSize.x, cellSize.y, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	updateTexture(tex, cellSize, pixels, true); // with wrapping
 }
 
 void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color2)
 {
 	std::array<uint32_t, 2 * 2> pixels = {color1, color2, color2, color1};
-	if (!tex.get()) {
-		tex = gl::Texture(false, true); // no interpolation, with wrapping
-	}
-	tex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	updateTexture(tex, {2, 2}, pixels, true); // with wrapping
 }
 
 void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSize)
