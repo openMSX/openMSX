@@ -3,15 +3,9 @@
 
 #include "ImGuiPart.hh"
 
-#include "EmuTime.hh"
-
-#include <cstdint>
-#include <span>
 #include <string>
 
 namespace openmsx {
-
-class SMSVDP;
 
 /** Register viewer for the Sega VDP inside the Franky cartridge.
   *
@@ -28,11 +22,6 @@ public:
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
-
-private:
-	void drawSection(std::span<const uint8_t> showRegisters,
-	                 std::span<const uint8_t> regValues,
-	                 SMSVDP& vdp, EmuTime time);
 
 public:
 	bool show = true;

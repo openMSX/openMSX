@@ -2306,6 +2306,9 @@
     <None Include="$(OpenMSXSrcDir)\imgui\Shortcuts.hh">
       <Filter>imgui</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\VDPRegisterViewer.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh">
       <Filter>input</Filter>
     </None>

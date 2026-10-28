@@ -3,15 +3,9 @@
 
 #include "ImGuiPart.hh"
 
-#include "EmuTime.hh"
-
-#include <cstdint>
-#include <span>
-
 namespace openmsx {
 
 class ImGuiManager;
-class VDP;
 
 class ImGuiVdpRegs final : public ImGuiPart
 {
@@ -22,10 +16,6 @@ public:
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
-
-private:
-	void drawSection(std::span<const uint8_t> showRegisters, std::span<const uint8_t> regValues,
-	                 VDP& vdp, EmuTime time);
 
 public:
 	bool show = false;

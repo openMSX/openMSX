@@ -1175,6 +1175,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWaveViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\Shortcuts.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\VDPRegisterViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh" />
     <None Include="$(OpenMSXSrcDir)\input\DummyJoystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh" />

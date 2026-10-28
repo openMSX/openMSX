@@ -2,6 +2,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiUtils.hh"
+#include "VDPRegisterViewer.hh"
 
 #include "VDP.hh"
 
@@ -10,10 +11,8 @@
 #include "zstring_view.hh"
 
 #include "imgui.h"
-#include "imgui_internal.h"
 
 #include <array>
-#include <bit>
 
 namespace openmsx {
 
@@ -75,11 +74,6 @@ static zstring_view modeName(uint32_t v)
 	return modeNames[v];
 }
 
-using Bits = std::array<const char*, 8>;
-struct RegisterDescription {
-	Bits bits;
-	std::string_view name;
-};
 using RD = RegisterDescription;
 static constexpr auto registerDescriptions = std::array{
 	RD{{" 0 ", "DG ", "IE2", "IE1", "M5 ", "M4 ", "M3 ", " 0 "}, "Mode register 0"}, // R#0
@@ -169,31 +163,38 @@ static constexpr auto registerDescriptions = std::array{
 	RD{{" 1 ", " 1 ", " 1 ", " 1 ", " 1 ", " 1 ", " 1 ", "BX8"}, "Border X register high"}, // S#9
 };
 
-struct SubFunction {
-	uint8_t reg = uint8_t(-1);
-	uint8_t mask = 0;
+// The registers of the MSX VDP (see VDPRegisterViewer.hh).
+struct MSXVDPRegisters {
+	MSXVDPRegisters(VDP& vdp_, EmuTime time_)
+		: vdp(vdp_), time(time_)
+	{
+		for (auto reg : xrange(64)) {
+			values[reg] = vdp.peekRegister(reg, time);
+		}
+		for (auto reg : xrange(uint8_t(10))) {
+			values[reg + 64] = vdp.peekStatusReg(reg, time);
+		}
+	}
+	void write(uint8_t reg, uint8_t value) const { vdp.changeRegister(reg, value, time); }
+
+	[[nodiscard]] uint8_t getMode() const { return uint8_t(((values[1] & 0x18) >> 3) | ((values[0] & 0x0E) << 1)); }
+	[[nodiscard]] bool isText2Mode() const { return getMode() == 0b01010; } // Note: M1 and M2 swapped!
+	[[nodiscard]] bool isGraph23Mode() const { return getMode() == one_of(0b00100, 0b01000); }
+	[[nodiscard]] bool isSprite2Mode() const { return getMode() == one_of(0b01000, 0b01100, 0b10000, 0b10100, 0b11100); }
+	[[nodiscard]] bool isBitmapMode() const { return getMode() >= 0x0C; }
+	[[nodiscard]] bool isPlanarMode() const { return (getMode() & 0x14) == 0x14; }
+
+	VDP& vdp;
+	EmuTime time;
+	std::array<uint8_t, 64 + 10> values; // R#0-R#63, followed by S#0-S#9
 };
-struct RegFunction {
-	// drawSection() draws this item when 'subs[0].reg' or 'subs[1].reg' is part of 'showRegisters'
-	// when 'subs[0].mask == 0' the item cannot be highlighted (typically such items show a fixed string)
-	std::array<SubFunction, 2> subs;
-	std::string_view toolTip;
-	TemporaryString(*displayFunc)(uint32_t);
-};
-using S = SubFunction;
-using R = RegFunction;
+
+using Regs = MSXVDPRegisters;
+using S = RegSubFunction;
+using R = RegFunction<Regs>;
 using namespace std::literals;
 static TemporaryString noExplanation(uint32_t) { return TemporaryString{}; }
 static TemporaryString spacing(uint32_t) { return TemporaryString("\n"); }
-
-static const VDP* g_vdp; // HACK: global!!
-static std::array<uint8_t, 64 + 10> registerValues; // HACK: global!!
-static uint8_t getMode() { return uint8_t(((registerValues[1] & 0x18) >> 3) | ((registerValues[0] & 0x0E) << 1)); }
-static bool isText2Mode() { return getMode() == 0b01010; } // Note: M1 and M2 swapped!
-static bool isGraph23Mode() { return getMode() == one_of(0b00100, 0b01000); }
-static bool isSprite2Mode() { return getMode() == one_of(0b01000, 0b01100, 0b10000, 0b10100, 0b11100); }
-static bool isBitmapMode() { return getMode() >= 0x0C; }
-static bool isPlanarMode() { return (getMode() & 0x14) == 0x14; }
 
 static constexpr auto regFunctions = std::array{
 	// mode registers
@@ -249,28 +250,28 @@ static constexpr auto regFunctions = std::array{
 	R{{S{0, 0}}, "", &spacing},
 
 	// Table base registers
-	R{{S{2, 0x7F}}, "name table address", [](uint32_t v) {
-		if (isText2Mode()) {
+	R{{S{2, 0x7F}}, "name table address", [](uint32_t v, const Regs& regs) {
+		if (regs.isText2Mode()) {
 			v &= ~0x03;
-		} else if (isBitmapMode()) {
+		} else if (regs.isBitmapMode()) {
 			v &= ~0x1F;
-			if (isPlanarMode()) {
+			if (regs.isPlanarMode()) {
 				v *= 2;
 			}
 		}
 		return tmpStrCat("name table:    0x", hex_string<5>(v << 10), '\n');
 	  }},
-	R{{S{3, 0xFF}, S{10, 0x07}}, "color table address", [](uint32_t v) {
-		if (isText2Mode()) v &= ~0x07;
-		if (isGraph23Mode()) v &= ~0x7F;
+	R{{S{3, 0xFF}, S{10, 0x07}}, "color table address", [](uint32_t v, const Regs& regs) {
+		if (regs.isText2Mode()) v &= ~0x07;
+		if (regs.isGraph23Mode()) v &= ~0x7F;
 		return tmpStrCat("color table:   0x", hex_string<5>(v << 6), '\n');
 	  }},
-	R{{S{4, 0x3F}}, "pattern table address", [](uint32_t v) {
-		if (isGraph23Mode()) v &= ~0x03;
+	R{{S{4, 0x3F}}, "pattern table address", [](uint32_t v, const Regs& regs) {
+		if (regs.isGraph23Mode()) v &= ~0x03;
 		return tmpStrCat("pattern table: 0x", hex_string<5>(v << 11), '\n');
 	  }},
-	R{{S{5, 0xFF}, S{11, 0x03}}, "sprite attribute table address", [](uint32_t v) {
-		if (isSprite2Mode()) {
+	R{{S{5, 0xFF}, S{11, 0x03}}, "sprite attribute table address", [](uint32_t v, const Regs& regs) {
+		if (regs.isSprite2Mode()) {
 			v &= ~0x03; // note: '3' instead of '7' because we want to display 'addr + 512'
 		}
 		return tmpStrCat("sprite attribute table: 0x", hex_string<5>(v << 7), '\n');
@@ -314,8 +315,8 @@ static constexpr auto regFunctions = std::array{
 	// Access registers
 	R{{S{14, 0x07}}, "VRAM access base address",
 	  [](uint32_t v) { return tmpStrCat("VRAM access base address: ", hex_string<5>(v << 14)); }},
-	R{{S{14, 0}}, "", [](uint32_t) {
-		auto addr = (registerValues[14] << 14) | g_vdp->getVramPointer();
+	R{{S{14, 0}}, "", [](uint32_t, const Regs& regs) {
+		auto addr = (regs.values[14] << 14) | regs.vdp.getVramPointer();
 		return tmpStrCat(", full address: ", hex_string<5>(addr), '\n');
 	}},
 	R{{S{15, 0x0F}}, "select status register",
@@ -435,137 +436,9 @@ static constexpr auto regFunctions = std::array{
 	R{{S{72, 0xFF}, S{73, 0x01}}, "result of SRCH command", &noExplanation},
 };
 
-static int lookupFunction(uint8_t reg, uint8_t mask)
-{
-	int i = 0;
-	for (const auto& f : regFunctions) {
-		for (const auto& s : f.subs) {
-			if ((reg == s.reg) && (mask & s.mask)) {
-				return i;
-			}
-		}
-		++i;
-	}
-	return -1;
-}
-
-void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span<const uint8_t> regValues,
-                               VDP& vdp, EmuTime time)
-{
-	ImGui::SameLine();
-	HelpMarker("Click to toggle bits, or edit the hex-field.\n"
-	           "Right-click to show/hide register explanation.");
-
-	im::Table("table", 10, 0, [&]{
-		// isCellHovered:
-		//   This uses an internal API, see here for a discussion
-		//       https://github.com/ocornut/imgui/issues/6347
-		//   In other words: this solution is suggested by the Dear ImGui
-		//   developers until something better gets implemented.
-		auto mouse_pos = ImGui::GetMousePos();
-		const auto* table = ImGui::GetCurrentTable();
-		auto isCellHovered = [&] {
-			return ImGui::TableGetCellBgRect(table, table->CurrentColumn).Contains(mouse_pos);
-		};
-
-		im::ID_for_range(showRegisters.size(), [&](int i) {
-			auto reg = showRegisters[i];
-			// note:  0..63  regular register
-			//       64..73  status register
-			const auto& rd = registerDescriptions[reg];
-			if (ImGui::TableNextColumn()) {
-				auto name = tmpStrCat(reg < 64 ? "R#"sv : "S#"sv, reg < 64 ? reg : reg - 64);
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted(static_cast<std::string_view>(name));
-				simpleToolTip(rd.name);
-			}
-			uint8_t value = regValues[reg];
-			bool writeReg = false;
-			if (ImGui::TableNextColumn()) {
-				if (reg < 64) {
-					if (ImGui::InputScalar("##value", ImGuiDataType_U8, &value, nullptr, nullptr, "%02X", ImGuiInputTextFlags_CharsHexadecimal)) {
-						writeReg = true;
-					}
-				} else {
-					ImGui::Text("%02X", value);
-				}
-			}
-			const auto& bits = rd.bits;
-			im::ID_for_range(8, [&](int bit_) {
-				if (ImGui::TableNextColumn()) {
-					int bit = 7 - bit_;
-					auto mask = narrow<uint8_t>(1 << bit);
-					int f = lookupFunction(reg, mask);
-					if (f != -1 && f == hoveredFunction) {
-						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg,
-							getColor(imColor::YELLOW));
-					}
-					im::StyleColor(ImGuiCol_Button, getColor(value & mask ? imColor::KEY_ACTIVE : imColor::KEY_NOT_ACTIVE), [&]{
-						if (ImGui::Button(bits[bit_], {40.0f, 0.0f})) {
-							value ^=  mask;
-							writeReg = true;
-						}
-					});
-					if ((f != -1) && isCellHovered()) {
-						newHoveredFunction = f;
-						if (auto tip = regFunctions[f].toolTip; !tip.empty()) {
-							simpleToolTip(tip);
-						}
-					}
-				}
-			});
-			if (writeReg && (reg < 64)) {
-				vdp.changeRegister(reg, value, time);
-			}
-		});
-	});
-	if (explanation) {
-		auto* drawList = ImGui::GetWindowDrawList();
-		gl::vec2 framePadding = ImGui::GetStyle().FramePadding;
-		for (auto f : xrange(narrow<int>(regFunctions.size()))) {
-			const auto& func = regFunctions[f];
-			if (!(contains(showRegisters, func.subs[0].reg) ||
-			      contains(showRegisters, func.subs[1].reg))) {
-				continue;
-			}
-			uint32_t value = 0;
-			int shift = 0;
-			for (const auto& sub : func.subs) {
-				if (sub.reg == uint8_t(-1)) break;
-				auto tmp = ((regValues[sub.reg] & sub.mask) >> std::countr_zero(sub.mask));
-				value |= tmp << shift;
-				shift += std::popcount(sub.mask);
-			}
-			if (auto s = func.displayFunc(value); !s.empty()) {
-				auto textColor = getColor(imColor::TEXT);
-				bool canHover = func.subs[0].mask != 0;
-				if (canHover && (f == hoveredFunction)) {
-					gl::vec2 textSize = ImGui::CalcTextSize(s);
-					gl::vec2 pos = ImGui::GetCursorScreenPos();
-					textColor = getColor(imColor::BLACK);
-					drawList->AddRectFilled(pos - framePadding, pos + textSize + 2.0f * framePadding, getColor(imColor::YELLOW));
-				}
-				im::StyleColor(ImGuiCol_Text, textColor, [&]{
-					ImGui::TextUnformatted(s);
-				});
-				if (canHover) {
-					if (ImGui::IsItemHovered()) {
-						newHoveredFunction = f;
-					}
-					if (shift == 1) { // single bit
-						if (auto reg = func.subs[0].reg; reg < 64) { // non-status-register
-							if (ImGui::IsItemClicked()) {
-								auto mask = func.subs[0].mask;
-								vdp.changeRegister(reg, regValues[reg] ^ mask, time);
-							}
-						}
-					}
-				}
-				if (!s.ends_with('\n')) ImGui::SameLine();
-			}
-		}
-	}
-}
+// note:  0..63  regular register
+//       64..73  status register
+static constexpr VDPRegisterTables<Regs> vdpRegisters{registerDescriptions, regFunctions, 64};
 
 void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 {
@@ -579,15 +452,13 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 		const bool tms99x8 = vdp->isMSX1VDP();
 		const bool v9958 = vdp->hasYJK();
 
-		g_vdp = vdp;
-		for (auto reg : xrange(64)) {
-			registerValues[reg] = vdp->peekRegister(reg, time);
-		}
-		for (auto reg : xrange(uint8_t(10))) {
-			registerValues[reg + 64] = vdp->peekStatusReg(reg, time);
-		}
+		Regs regs(*vdp, time);
 
 		newHoveredFunction = -1;
+		auto drawSection = [&](std::span<const uint8_t> showRegisters) {
+			drawVDPRegisterSection(vdpRegisters, showRegisters, regs, explanation,
+			                       hoveredFunction, newHoveredFunction);
+		};
 		auto make_span = [](const auto& array) {
 			return std::span<const uint8_t, std::dynamic_extent>(std::span(array));
 		};
@@ -596,24 +467,24 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 				static constexpr auto modeRegs1 = std::to_array<uint8_t>({0, 1});
 				static constexpr auto modeRegs2 = std::to_array<uint8_t>({0, 1, 8, 9});
 				auto modeRegs = tms99x8 ? make_span(modeRegs1) : make_span(modeRegs2);
-				drawSection(modeRegs, registerValues, *vdp, time);
+				drawSection(modeRegs);
 			});
 			im::TreeNode("Table base registers", &openBase, [&]{
 				static constexpr auto tableRegs1 = std::to_array<uint8_t>({2, 3, 4, 5, 6});
 				static constexpr auto tableRegs2 = std::to_array<uint8_t>({2, 3, 10, 4, 5, 11, 6});
 				auto tableRegs = tms99x8 ? make_span(tableRegs1) : make_span(tableRegs2);
-				drawSection(tableRegs, registerValues, *vdp, time);
+				drawSection(tableRegs);
 			});
 			im::TreeNode("Color registers", &openColor, [&]{
 				static constexpr auto colorRegs1 = std::to_array<uint8_t>({7});
 				static constexpr auto colorRegs2 = std::to_array<uint8_t>({7, 12, 13, 20, 21, 22});
 				auto colorRegs = tms99x8 ? make_span(colorRegs1) : make_span(colorRegs2);
-				drawSection(colorRegs, registerValues, *vdp, time);
+				drawSection(colorRegs);
 			});
 			if (!tms99x8) {
 				im::TreeNode("Display registers", &openDisplay, [&]{
 					static constexpr auto displayRegs = std::to_array<uint8_t>({18, 19, 23});
-					drawSection(displayRegs, registerValues, *vdp, time);
+					drawSection(displayRegs);
 				});
 			}
 			im::TreeNode("Access registers", &openAccess, [&]{
@@ -622,13 +493,13 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 					              hex_string<4>(vdp->getVramPointer()), '\n');
 				} else {
 					static constexpr auto accessRegs = std::to_array<uint8_t>({14, 15, 16, 17});
-					drawSection(accessRegs, registerValues, *vdp, time);
+					drawSection(accessRegs);
 				}
 			});
 			if (v9958) {
 				im::TreeNode("V9958 registers", &openV9958, [&]{
 					static constexpr auto v9958Regs = std::to_array<uint8_t>({25, 26, 27});
-					drawSection(v9958Regs, registerValues, *vdp, time);
+					drawSection(v9958Regs);
 				});
 			}
 		});
@@ -637,7 +508,7 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 				static constexpr auto cmdRegs = std::to_array<uint8_t>({
 					32, 33, 34, 35,  36, 37, 38, 39,  40, 41, 42, 43,  44, 45, 46
 				});
-				drawSection(cmdRegs, registerValues, *vdp, time);
+				drawSection(cmdRegs);
 			});
 		}
 		im::TreeNode("Status registers", &openStatus, [&]{
@@ -646,7 +517,7 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 				64, 65, 66, 67, 68, 69, 70, 71, 72, 73
 			});
 			auto statusRegs = tms99x8 ? make_span(statusRegs1) : make_span(statusRegs2);
-			drawSection(statusRegs, registerValues, *vdp, time);
+			drawSection(statusRegs);
 		});
 		hoveredFunction = newHoveredFunction;
 
