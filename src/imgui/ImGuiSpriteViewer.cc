@@ -15,6 +15,7 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <ranges>
@@ -318,7 +319,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::ColorEdit4("checkerboard color2", checkerBoardColor2.data(), checkerBoardColorFlags);
 				im::Indent([&]{
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
-					ImGui::InputInt("size", &checkerBoardSize);
+					if (ImGui::InputInt("size", &checkerBoardSize)) {
+						checkerBoardSize = std::clamp(checkerBoardSize, 0, maxCheckerBoardSize);
+					}
 				});
 			});
 		});

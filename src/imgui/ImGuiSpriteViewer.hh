@@ -44,6 +44,7 @@ private:
 	int manualVerticalScroll = 0;
 	int manualLines = 0; // 0->192, 1->212, 2->256
 	int zoom = 0; // 0->1x, 1->2x, ..., 7->8x
+	static constexpr int maxCheckerBoardSize = 255;
 	int checkerBoardSize = 4;
 	int boundingBoxOnAll = 0;
 	gl::vec4 gridColor{0.5f, 0.5f, 0.5f, 0.5f}; // RGBA
@@ -84,7 +85,7 @@ private:
 		PersistentElementMax{"lines",            &ImGuiSpriteViewer::manualLines, 3},
 		PersistentElementMax{"zoom",             &ImGuiSpriteViewer::zoom, 8},
 		PersistentElement{"showGrid",            &ImGuiSpriteViewer::grid},
-		PersistentElementMax{"checkerBoardSize", &ImGuiSpriteViewer::checkerBoardSize, 256},
+		PersistentElementMax{"checkerBoardSize", &ImGuiSpriteViewer::checkerBoardSize, maxCheckerBoardSize + 1},
 		PersistentElementMax{"boundingBoxOnAll", &ImGuiSpriteViewer::boundingBoxOnAll, 2},
 		PersistentElement{"gridColor",           &ImGuiSpriteViewer::gridColor},
 		PersistentElement{"checkerBoardColor1",  &ImGuiSpriteViewer::checkerBoardColor1},
