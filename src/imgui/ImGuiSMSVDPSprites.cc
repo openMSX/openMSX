@@ -431,7 +431,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			: 192; // the TMS9918-compatible modes always show 192 lines
 		int patBase = !manPat       ? patBaseFor(type)
 		            : (type == SMS) ? (manualPatBase & 0x2000) // the two tile banks
-		                            : manualPatBase;
+		                            : (manualPatBase & 0x3800);
 		int attBase = manAtt ? manualAttBase : attBaseFor(type);
 
 		for (auto i : xrange(32)) {
