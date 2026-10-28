@@ -404,7 +404,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		auto patternTexSize = gl::ivec2{256, 64};
 		auto patternTexChars = (type == SMS)
 			? ((size == 8) ? gl::vec2{32.0f, 8.0f} : gl::vec2{32.0f, 4.0f})
-			: ((size == 8) ? gl::vec2{32.0f, 8.0f} : gl::vec2{16.0f, 4.0f});
+			: spritePatternCells(size);
 		std::array<uint32_t, 256 * 256> pixels;
 		if (type != NONE) {
 			if (type == TMS) {
@@ -433,28 +433,17 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		}
 
 		// UVs of one sprite (or tile) in the pattern texture.
-		auto spriteUV = [&](unsigned tile) -> std::array<float, 4> {
+		auto spriteUV = [&](unsigned tile) -> std::pair<gl::vec2, gl::vec2> {
 			if (type == SMS) {
 				tile &= 0xff; // the texture holds only the selected tile bank
 				if (size == 16) {
 					auto s = tile / 2; // even tile selects the 8x16 sprite
-					auto cc = s % 32;
-					auto rr = s / 32;
-					return {float(cc) / 32.0f, float(cc + 1) / 32.0f,
-					        float(rr) /  4.0f, float(rr + 1) /  4.0f};
+					gl::vec2 uv1{float(s % 32) / 32.0f, float(s / 32) / 4.0f};
+					return {uv1, uv1 + gl::vec2{1.0f / 32.0f, 1.0f / 4.0f}};
 				}
+				// the 8x8 tiles have the same layout as the TMS 8x8 patterns
 			}
-			if (size == 8) {
-				auto cc = tile % 32;
-				auto rr = tile / 32;
-				return {float(cc) / 32.0f, float(cc + 1) / 32.0f,
-				        float(rr) /  8.0f, float(rr + 1) /  8.0f};
-			}
-			auto s = tile / 4; // tiles (4s..4s+3) form the 16x16 sprite
-			auto cc = s % 16;
-			auto rr = s / 16;
-			return {float(cc) / 16.0f, float(cc + 1) / 16.0f,
-			        float(rr) /  4.0f, float(rr + 1) /  4.0f};
+			return spritePatternUV(tile, size);
 		};
 
 		// Render one sprite from the sprite attribute table at the given
@@ -463,16 +452,15 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		auto spriteH = size;
 		auto renderSpriteAttrib = [&](int sprite, float zoomFactor) {
 			auto zoomVec = zoomFactor * gl::vec2{float(spriteW), float(spriteH)};
-			auto [u1, u2, v1, v2] = spriteUV(spriteTile(sprite));
+			auto [uv1, uv2] = spriteUV(spriteTile(sprite));
 			if (type == TMS) {
 				auto flags = vram[(attBase + 4 * sprite + 3) & 0x3fff];
 				auto color = flags & 0x0f;
 				auto tint = (transparent && (color == 0))
 				          ? ImVec4{} : ImGui::ColorConvertU32ToFloat4(palette[color]);
-				ImGui::ImageWithBg(patternTex.getImGui(), zoomVec,
-					{u1, v1}, {u2, v2}, {}, tint);
+				ImGui::ImageWithBg(patternTex.getImGui(), zoomVec, uv1, uv2, {}, tint);
 			} else {
-				ImGui::Image(patternTex.getImGui(), zoomVec, {u1, v1}, {u2, v2});
+				ImGui::Image(patternTex.getImGui(), zoomVec, uv1, uv2);
 			}
 		};
 
@@ -581,13 +569,12 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				if (hovered) {
 					gridPosition = hoveredCell(scrnPos, zoomPatSize);
 				}
-				auto pattern = [&] {
+				auto pattern = [&] -> unsigned {
 					if (type == SMS) {
 						return (size == 16) ? ((32 * gridPosition.y) + gridPosition.x) * 2
 						                    : ((32 * gridPosition.y) + gridPosition.x);
 					}
-					return (size == 16) ? ((16 * gridPosition.y) + gridPosition.x) * 4
-					                    : ((32 * gridPosition.y) + gridPosition.x);
+					return spritePatternAt(gridPosition, size);
 				}();
 				copyToClipboardPopup("CopySpriteDataPopup", "Copy pattern data to clipboard", [&] {
 					return formatClipboardData(patternAddress(pattern), patternDataSize(size));

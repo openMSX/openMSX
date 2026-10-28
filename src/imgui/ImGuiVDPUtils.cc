@@ -117,4 +117,14 @@ void renderSpritePatterns16(function_ref<uint8_t(unsigned)> pat, std::span<uint3
 	}
 }
 
+std::pair<gl::vec2, gl::vec2> spritePatternUV(unsigned pattern, int size)
+{
+	auto cells = spritePatternCells(size);
+	auto cell = (size == 16) ? (pattern / 4) : pattern;
+	auto perRow = unsigned(cells.x);
+	auto recipCells = recip(cells);
+	gl::vec2 uv1 = gl::vec2{float(cell % perRow), float(cell / perRow)} * recipCells;
+	return {uv1, uv1 + recipCells};
+}
+
 } // namespace openmsx

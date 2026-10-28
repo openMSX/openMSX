@@ -4,9 +4,11 @@
 // Helpers shared between the viewers of the different VDPs (MSX VDP, SMS VDP).
 
 #include "function_ref.hh"
+#include "gl_vec.hh"
 
 #include <cstdint>
 #include <span>
+#include <utility>
 
 namespace openmsx {
 
@@ -61,6 +63,19 @@ void renderMulticolorPatterns(function_ref<uint8_t(unsigned)> pat,
 // of the sprite pattern table.
 void renderSpritePatterns8 (function_ref<uint8_t(unsigned)> pat, std::span<uint32_t> output);
 void renderSpritePatterns16(function_ref<uint8_t(unsigned)> pat, std::span<uint32_t> output);
+// The layout of that image: the number of cells (32x8 patterns or 16x4
+// sprites), the pattern number shown in 'cell' (for 16x16 the first of the 4),
+// and the part of the image that shows 'pattern' (for 16x16 the sprite of
+// the 4 patterns starting at 'pattern & ~3').
+[[nodiscard]] inline gl::vec2 spritePatternCells(int size)
+{
+	return (size == 16) ? gl::vec2{16.0f, 4.0f} : gl::vec2{32.0f, 8.0f};
+}
+[[nodiscard]] inline unsigned spritePatternAt(gl::ivec2 cell, int size)
+{
+	return (size == 16) ? 4 * (16 * cell.y + cell.x) : (32 * cell.y + cell.x);
+}
+[[nodiscard]] std::pair<gl::vec2, gl::vec2> spritePatternUV(unsigned pattern, int size);
 
 } // namespace openmsx
 
