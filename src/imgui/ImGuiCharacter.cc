@@ -4,6 +4,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "DisplayMode.hh"
 #include "MSXMotherBoard.hh"
@@ -595,28 +596,6 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	});
 }
 
-static void draw6(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 6> out)
-{
-	out[0] = (pattern & 0x80) ? fgCol : bgCol;
-	out[1] = (pattern & 0x40) ? fgCol : bgCol;
-	out[2] = (pattern & 0x20) ? fgCol : bgCol;
-	out[3] = (pattern & 0x10) ? fgCol : bgCol;
-	out[4] = (pattern & 0x08) ? fgCol : bgCol;
-	out[5] = (pattern & 0x04) ? fgCol : bgCol;
-}
-
-static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 8> out)
-{
-	out[0] = (pattern & 0x80) ? fgCol : bgCol;
-	out[1] = (pattern & 0x40) ? fgCol : bgCol;
-	out[2] = (pattern & 0x20) ? fgCol : bgCol;
-	out[3] = (pattern & 0x10) ? fgCol : bgCol;
-	out[4] = (pattern & 0x08) ? fgCol : bgCol;
-	out[5] = (pattern & 0x04) ? fgCol : bgCol;
-	out[6] = (pattern & 0x02) ? fgCol : bgCol;
-	out[7] = (pattern & 0x01) ? fgCol : bgCol;
-}
-
 void ImGuiCharacter::renderPatterns(int mode, std::span<const uint32_t, 16> palette,
                                     int fgCol, int bgCol, int fgBlink, int bgBlink,
                                     VramTable& pat, VramTable& col, int lines, std::span<uint32_t> output)
@@ -637,10 +616,10 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint32_t, 16> pale
 				for (auto y : xrange(8)) {
 					auto pattern = pat[offset + y];
 					auto out = subspan<6>(output, (8 * row + y) * 192 + 6 * column);
-					draw6(pattern, fg, bg, out);
+					drawPatternRow6(pattern, fg, bg, out);
 					if (mode == TEXT80) {
 						auto out2 = subspan<6>(output, (64 + 8 * row + y) * 192 + 6 * column);
-						draw6(pattern, fgB, bgB, out2);
+						drawPatternRow6(pattern, fgB, bgB, out2);
 					}
 				}
 			}
@@ -662,7 +641,7 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint32_t, 16> pale
 					for (auto y : xrange(8)) {
 						auto pattern = pat[offset + y];
 						auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-						draw8(pattern, fg, bg, out);
+						drawPatternRow8(pattern, fg, bg, out);
 					}
 				}
 			}
@@ -681,7 +660,7 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint32_t, 16> pale
 					auto fg = palette[color >> 4];
 					auto bg = palette[color & 15];
 					auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-					draw8(pattern, fg, bg, out);
+					drawPatternRow8(pattern, fg, bg, out);
 				}
 			}
 		}

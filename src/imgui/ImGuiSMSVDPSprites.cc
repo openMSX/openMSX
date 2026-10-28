@@ -6,6 +6,7 @@
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "MSXMotherBoard.hh"
 
@@ -39,18 +40,6 @@ void ImGuiSMSVDPSprites::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 8> out)
-{
-	out[0] = (pattern & 0x80) ? fgCol : bgCol;
-	out[1] = (pattern & 0x40) ? fgCol : bgCol;
-	out[2] = (pattern & 0x20) ? fgCol : bgCol;
-	out[3] = (pattern & 0x10) ? fgCol : bgCol;
-	out[4] = (pattern & 0x08) ? fgCol : bgCol;
-	out[5] = (pattern & 0x04) ? fgCol : bgCol;
-	out[6] = (pattern & 0x02) ? fgCol : bgCol;
-	out[7] = (pattern & 0x01) ? fgCol : bgCol;
-}
-
 // TMS9918 sprite patterns are monochrome; the color comes from the sprite
 // attributes (drawn by tinting this texture).
 static void renderPatternsTms8(std::span<const uint8_t, 0x4000> vram, unsigned patBase,
@@ -65,7 +54,7 @@ static void renderPatternsTms8(std::span<const uint8_t, 0x4000> vram, unsigned p
 			for (auto y : xrange(8)) {
 				auto pattern = vram[(patBase + offset + y) & 0x3fff];
 				auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-				draw8(pattern, one, zero, out);
+				drawPatternRow8(pattern, one, zero, out);
 			}
 		}
 	}
@@ -86,8 +75,8 @@ static void renderPatternsTms16(std::span<const uint8_t, 0x4000> vram, unsigned 
 				auto patternB = vram[(patBase + 8 * (tile + 2) + y) & 0x3fff];
 				auto outA = subspan<8>(output, (16 * row + y) * 256 + 16 * column + 0);
 				auto outB = subspan<8>(output, (16 * row + y) * 256 + 16 * column + 8);
-				draw8(patternA, one, zero, outA);
-				draw8(patternB, one, zero, outB);
+				drawPatternRow8(patternA, one, zero, outA);
+				drawPatternRow8(patternB, one, zero, outB);
 			}
 		}
 	}
