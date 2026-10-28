@@ -198,6 +198,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			im::Group([&]{
+				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted("VDP settings");
 				im::Disabled(manMode, [&]{
 					ImGui::AlignTextToFramePadding();

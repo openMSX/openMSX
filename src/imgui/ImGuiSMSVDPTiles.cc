@@ -319,6 +319,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
 			im::Group([&]{
+				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted("SMS VDP settings");
 				auto pos = ImGui::GetCursorPos();
 				ImGui::Dummy(ImGui::CalcTextSize("Screen mode: graphics II"));

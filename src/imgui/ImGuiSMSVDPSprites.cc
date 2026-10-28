@@ -271,6 +271,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			im::Group([&]{
+				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted("SMS VDP settings");
 				im::Disabled(manType, [&]{
 					ImGui::AlignTextToFramePadding();
