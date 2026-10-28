@@ -438,13 +438,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			return (size == 16) ? (tile & 0x1fe) : tile;
 		};
 
-		auto copySpriteDataPopup = [&](zstring_view text, function_ref<std::string()> supplier) {
-			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
-				if (ImGui::MenuItem(text.c_str())) {
-					ImGui::SetClipboardText(supplier().c_str());
-				}
-			});
-		};
 		auto formatClipboardData = [&](unsigned address, unsigned count) {
 			return formatToString([&](unsigned addr) { return vram[addr & 0x3fff]; },
 			                      address, address + count - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
@@ -648,7 +641,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					return (size == 16) ? ((16 * gridPosition.y) + gridPosition.x) * 4
 					                    : ((32 * gridPosition.y) + gridPosition.x);
 				}();
-				copySpriteDataPopup("Copy pattern data to clipboard", [&] {
+				copyToClipboardPopup("CopySpriteDataPopup", "Copy pattern data to clipboard", [&] {
 					return formatClipboardData(patternAddress(pattern), patternDataSize(size));
 				});
 				if (hovered) {
@@ -737,7 +730,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomSize);
 					}
 					auto sprite = 8 * gridPosition.y + gridPosition.x;
-					copySpriteDataPopup("Copy sprite data to clipboard", [&]{
+					copyToClipboardPopup("CopySpriteDataPopup", "Copy sprite data to clipboard", [&]{
 						if (type == TMS) {
 							return formatClipboardData(yAddress(sprite), 4);
 						}

@@ -720,19 +720,17 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			return gridPosition.x + 32 * gridPosition.y;
 		};
 		auto copyPatternColorPopup = [&] {
-			return im::PopupContextWindow("PatternCopyPopup", [&]{
-				bool hasColorData = mode == one_of(GRAPHIC1, GRAPHIC2);
-				const char* caption = hasColorData
-					? "Copy pattern and color data to clipboard"
-					: "Copy pattern data to clipboard";
-				if (ImGui::MenuItem(caption)) {
-					auto pattern = getPatternFromGrid();
-					auto text = strCat("Pattern data\n", formatPatternData(pattern));
-					if (hasColorData) {
-						strAppend(text, "Color data\n", formatBinaryData(colorAddress(pattern), (mode == GRAPHIC1) ? 1 : 8));
-					}
-					ImGui::SetClipboardText(text.c_str());
+			bool hasColorData = mode == one_of(GRAPHIC1, GRAPHIC2);
+			const char* caption = hasColorData
+				? "Copy pattern and color data to clipboard"
+				: "Copy pattern data to clipboard";
+			return copyToClipboardPopup("PatternCopyPopup", caption, [&]{
+				auto pattern = getPatternFromGrid();
+				auto text = strCat("Pattern data\n", formatPatternData(pattern));
+				if (hasColorData) {
+					strAppend(text, "Color data\n", formatBinaryData(colorAddress(pattern), (mode == GRAPHIC1) ? 1 : 8));
 				}
+				return text;
 			});
 		};
 		auto drawGrid = [&] {

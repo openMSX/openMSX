@@ -429,21 +429,19 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			return gridPosition.x + 32 * gridPosition.y;
 		};
 		auto copyPatternColorPopup = [&] {
-			return im::PopupContextWindow("PatternCopyPopup", [&]{
-				bool hasColorData = mode == one_of(SCR1, SCR2);
-				const char* caption = hasColorData
-					? "Copy pattern and color data to clipboard"
-					: "Copy pattern data to clipboard";
-				if (ImGui::MenuItem(caption)) {
-					auto pattern = getPatternFromGrid();
-					auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern), 8));
-					if (hasColorData) {
-						strAppend(text, "Color data\n",
-						          (mode == SCR1) ? formatBinaryData(colTable.getAddress(pattern / 8), 1)
-						                         : formatBinaryData(colTable.getAddress(8 * pattern), 8));
-					}
-					ImGui::SetClipboardText(text.c_str());
+			bool hasColorData = mode == one_of(SCR1, SCR2);
+			const char* caption = hasColorData
+				? "Copy pattern and color data to clipboard"
+				: "Copy pattern data to clipboard";
+			return copyToClipboardPopup("PatternCopyPopup", caption, [&]{
+				auto pattern = getPatternFromGrid();
+				auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern), 8));
+				if (hasColorData) {
+					strAppend(text, "Color data\n",
+					          (mode == SCR1) ? formatBinaryData(colTable.getAddress(pattern / 8), 1)
+					                         : formatBinaryData(colTable.getAddress(8 * pattern), 8));
 				}
+				return text;
 			});
 		};
 		auto drawGrid = [&] {

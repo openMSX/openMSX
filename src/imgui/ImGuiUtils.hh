@@ -195,6 +195,11 @@ void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& default
 	return contentHeight + ImGui::GetStyle().ScrollbarSize;
 }
 
+// Context menu (right-click) popup for the current window, with a single item
+// 'text' that copies the string returned by 'supplier' to the clipboard.
+// Returns whether the popup is open.
+bool copyToClipboardPopup(const char* popupId, zstring_view text, function_ref<std::string()> supplier);
+
 // Accepts a decimal or hexadecimal value, a symbol name, or a Tcl expression.
 // An empty string evaluates to 0.
 [[nodiscard]] std::expected<unsigned, std::string> parseAddressExpr(

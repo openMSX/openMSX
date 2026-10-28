@@ -62,6 +62,15 @@ void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& default
 	ImGui::PopID();
 }
 
+bool copyToClipboardPopup(const char* popupId, zstring_view text, function_ref<std::string()> supplier)
+{
+	return im::PopupContextWindow(popupId, [&]{
+		if (ImGui::MenuItem(text.c_str())) {
+			ImGui::SetClipboardText(supplier().c_str());
+		}
+	});
+}
+
 std::expected<unsigned, std::string> parseAddressExpr(
 	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp)
 {

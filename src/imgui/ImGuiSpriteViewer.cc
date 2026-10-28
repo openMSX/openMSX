@@ -328,13 +328,6 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		});
 		ImGui::Separator();
 
-		auto copySpriteDataPopup = [&](zstring_view text, function_ref<std::string()> supplier) {
-			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
-				if (ImGui::MenuItem(text.c_str())) {
-					ImGui::SetClipboardText(supplier().c_str());
-				}
-			});
-		};
 		auto formatClipboardData = [&](unsigned address, unsigned size) {
 			return formatToString([&](unsigned addr) { return vram[addr]; }, address, address + size - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
 		};
@@ -401,7 +394,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					auto pattern = (size == 16) ? ((16 * gridPosition.y) + gridPosition.x) * 4
 												: ((32 * gridPosition.y) + gridPosition.x) * 1;
-					bool popup = copySpriteDataPopup("Copy pattern data to clipboard", [&] {
+					bool popup = copyToClipboardPopup("CopySpriteDataPopup", "Copy pattern data to clipboard", [&] {
 						return formatClipboardData(patTable.getAddress(8 * pattern), size == 16 ? 32 : 8);
 					});
 					if (hovered || popup) {
@@ -466,7 +459,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					}
 					auto sprite = 8 * gridPosition.y + gridPosition.x;
 					auto addr = getSpriteAttrAddr(sprite, mode);
-					bool popup = (mode == 2) && copySpriteDataPopup("Copy color data to clipboard", [&]{
+					bool popup = (mode == 2) && copyToClipboardPopup("CopySpriteDataPopup", "Copy color data to clipboard", [&]{
 						return formatClipboardData(attTable.getAddress(getSpriteColorAddr(sprite, mode)), size);
 					});
 					if (hovered || popup) {
