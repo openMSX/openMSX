@@ -276,10 +276,12 @@ proc toggle_mog_overlay {} {
 # editor will ruin your replay
 
 proc draw_block {} {
+	variable mouse1_pressed
+
 	osd_widgets::msx_update "mog"
 	lassign [osd info "mog" -mousecoord] x y
 	poke [expr {0xed80 + int($x / 8) + int(($y - 32) / 8) * 32}] 240
-	if {$mog_overlay::mouse1_pressed} {after frame mog_overlay::draw_block}
+	if {$mouse1_pressed} {after frame mog_overlay::draw_block}
 }
 
 proc put_popolon {} {
