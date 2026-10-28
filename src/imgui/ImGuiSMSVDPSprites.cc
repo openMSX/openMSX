@@ -303,8 +303,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		};
 
 		auto formatClipboardData = [&](unsigned address, unsigned count) {
-			return formatToString([&](unsigned addr) { return vram[addr & 0x3fff]; },
-			                      address, address + count - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+			return formatVramData([&](unsigned addr) { return vram[addr & 0x3fff]; }, address, count);
 		};
 		auto patternAddress = [&](unsigned pattern) {
 			return (patBase + ((type == SMS) ? 32 : 8) * pattern) & 0x3fff;

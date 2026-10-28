@@ -186,7 +186,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		auto formatClipboardData = [&](unsigned address, unsigned size) {
-			return formatToString([&](unsigned addr) { return vram[addr]; }, address, address + size - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+			return formatVramData([&](unsigned addr) { return vram[addr]; }, address, size);
 		};
 
 		int mode = manMode ? manualMode : vdpMode;

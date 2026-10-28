@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <span>
+#include <string>
 #include <string_view>
 #include <utility>
 
@@ -44,6 +45,10 @@ void rasterBeamSettings(bool& rasterBeam, gl::vec4& color, gl::ivec2 pos, ImFont
 // Mark the raster beam at VDP pixel 'pos' on a view of the screen drawn at
 // 'scrnPos', with 'zoom' host pixels per VDP pixel.
 void addRasterBeam(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, gl::vec2 pos, gl::vec4 color);
+
+// VRAM data as the VDP viewers copy it to the clipboard: the 'count' bytes
+// read(address), read(address + 1), ... in hex, one per line.
+[[nodiscard]] std::string formatVramData(function_ref<uint8_t(unsigned)> read, unsigned address, unsigned count);
 
 // The checkerboard background of the sprite viewers.
 inline constexpr int maxCheckerBoardSize = 255;

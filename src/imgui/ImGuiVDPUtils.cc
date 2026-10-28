@@ -93,6 +93,15 @@ void addRasterBeam(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, gl::ve
 	addCrosshair(drawList, center, zoom, ImGui::ColorConvertFloat4ToU32(color), zoom.y * 0.5f);
 }
 
+std::string formatVramData(function_ref<uint8_t(unsigned)> read, unsigned address, unsigned count)
+{
+	std::string result;
+	for (auto i : xrange(count)) {
+		strAppend(result, hex_string<2, HexCase::upper>(read(address + i)), '\n');
+	}
+	return result;
+}
+
 void checkerBoardSettings(std::string_view toolTip, gl::vec4& color1, gl::vec4& color2, int& size)
 {
 	ImGui::TextUnformatted("Checkerboard:"sv);

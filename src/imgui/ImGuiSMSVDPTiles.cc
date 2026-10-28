@@ -509,13 +509,12 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			}
 		};
 		auto formatBinaryData = [&](unsigned address, unsigned count) {
-			return formatToString([&](unsigned addr){ return vram[addr & 0x3fff]; }, address, address + count - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+			return formatVramData([&](unsigned addr) { return vram[addr & 0x3fff]; }, address, count);
 		};
 		auto formatPatternData = [&](unsigned pattern) {
 			if (mode == MODE4) {
 				auto [tile1, tile2] = mode4Tiles(pattern);
-				return formatToString([&](unsigned i) { return vram[((i & 2) ? tile2 : tile1) * 32 + i]; },
-				                      0, 31, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+				return formatVramData([&](unsigned i) { return vram[((i & 2) ? tile2 : tile1) * 32 + i]; }, 0, 32);
 			}
 			return formatBinaryData(patternAddress(pattern), 8);
 		};

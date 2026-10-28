@@ -263,7 +263,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			}
 		};
 		auto formatBinaryData = [&](unsigned address, unsigned count) {
-			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + count - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+			return formatVramData([&](unsigned addr) { return vram[addr]; }, address, count);
 		};
 		auto getPatternFromGrid = [&] {
 			return gridPosition.x + 32 * gridPosition.y;
