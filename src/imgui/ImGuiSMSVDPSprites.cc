@@ -201,6 +201,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			return (t == SMS) ? ((reg[5] << 7) & 0x3f00)
 			                  : ((reg[5] & 0x7f) << 7);
 		};
+		// The alignment of the bases that the registers can select.
+		auto patMult = [](int t) { return (t == SMS) ? 0x2000 : 0x800; }; // SMS: the two tile banks
+		auto attMult = [](int t) { return (t == SMS) ? 0x100 : 0x80; };
 		int vdpPatBase = patBaseFor(vdpType);
 		int vdpAttBase = attBaseFor(vdpType);
 		int vdpLines = (vdpType == SMS) ? vdpYpixels : 192;
@@ -371,13 +374,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						im::Disabled(!manPat, [&]{
-							if (shownType() == SMS) manualPatBase &= 0x2000;
-							comboHexSequence<4>("##pat", &manualPatBase,
-							                    (shownType() == SMS) ? 0x2000 : 0x800, vramSize, 0);
+							comboHexSequence<4>("##pat", &manualPatBase, patMult(shownType()), vramSize, 0);
 						});
 						im::Disabled(!manAtt, [&]{
-							comboHexSequence<4>("##att", &manualAttBase,
-							                    (shownType() == SMS) ? 0x100 : 0x80, vramSize, 0);
+							comboHexSequence<4>("##att", &manualAttBase, attMult(shownType()), vramSize, 0);
 						});
 						im::Disabled(!manLines || (shownType() != SMS), [&]{
 							ImGui::Combo("##lines", &manualLines, "192\000224\000240\000");
@@ -429,10 +429,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			                                  240)
 			            : vdpLines)
 			: 192; // the TMS9918-compatible modes always show 192 lines
-		int patBase = !manPat       ? patBaseFor(type)
-		            : (type == SMS) ? (manualPatBase & 0x2000) // the two tile banks
-		                            : (manualPatBase & 0x3800);
-		int attBase = manAtt ? manualAttBase : attBaseFor(type);
+		// The combos above only align the manual bases while they're shown.
+		int patBase = manPat ? (manualPatBase & ~(patMult(type) - 1)) : patBaseFor(type);
+		int attBase = manAtt ? (manualAttBase & ~(attMult(type) - 1)) : attBaseFor(type);
 
 		for (auto i : xrange(32)) {
 			palette[i] = (type == SMS) ? toImColor(colors[vdp.peekCram(i) & 0x3f])
