@@ -252,27 +252,14 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			smallHexDigits = createHexDigitsTexture();
 		}
 
-		auto printPatternNr = [](unsigned pat) {
-			ImGui::StrCat("Pattern: ", pat, " (0x", hex_string<3>(pat), ')');
-		};
-		auto printAddressName = [](std::string_view name) {
-			ImGui::StrCat(name, " address:");
-		};
-		auto printAddress = [&](std::string_view name, unsigned address) {
-			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<5>(address));
-		};
-		auto printAddressRange8 = [&](std::string_view name, unsigned address) {
-			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<5>(address), "-0x", hex_string<5>(address + 7));
-		};
+		static constexpr int addrDigits = 5; // 128kB VRAM
 		auto printPatternColorAddress = [&](unsigned pattern) {
-			printAddressRange8("Pattern", patTable.getAddress(8 * pattern));
+			printAddressRange("Pattern", patTable.getAddress(8 * pattern), 8, addrDigits);
 			if (mode == SCR1) {
 				// one color byte for 8 patterns
-				printAddress("Color", colTable.getAddress(pattern / 8));
+				printAddress("Color", colTable.getAddress(pattern / 8), addrDigits);
 			} else if (mode == one_of(SCR2, SCR4)) {
-				printAddressRange8("Color", colTable.getAddress(8 * pattern));
+				printAddressRange("Color", colTable.getAddress(8 * pattern), 8, addrDigits);
 			}
 		};
 		auto formatBinaryData = [&](unsigned address, unsigned count) {
@@ -403,10 +390,10 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						auto [uv1, uv2] = getPatternUV(pattern);
 						imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
 						auto nameIndex = columns * gridPos.y + gridPos.x;
-						printAddress("Name", namTable.getAddress(nameIndex));
+						printAddress("Name", namTable.getAddress(nameIndex), addrDigits);
 						printPatternColorAddress(pattern);
 						if (mode == TEXT80) {
-							printAddress("Color", colTable.getAddress(nameIndex / 8));
+							printAddress("Color", colTable.getAddress(nameIndex / 8), addrDigits);
 						}
 					} else {
 						gl::vec2 textSize = ImGui::CalcTextSize("Column: 31 Row: 23"sv);

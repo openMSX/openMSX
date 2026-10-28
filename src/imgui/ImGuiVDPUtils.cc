@@ -201,6 +201,24 @@ void addHexNumbers(ImDrawList* drawList, const gl::Texture& hexDigits, gl::vec2 
 	drawList->PopTexture();
 }
 
+void printPatternNr(unsigned pattern)
+{
+	ImGui::StrCat("Pattern: ", pattern, " (0x", hex_string<3>(pattern), ')');
+}
+
+void printAddress(std::string_view name, unsigned address, int digits)
+{
+	ImGui::StrCat(name, " address:");
+	ImGui::StrCat("  0x", hex_string(Digits{size_t(digits)}, address));
+}
+
+void printAddressRange(std::string_view name, unsigned address, unsigned count, int digits)
+{
+	Digits d{size_t(digits)};
+	ImGui::StrCat(name, " address:");
+	ImGui::StrCat("  0x", hex_string(d, address), "-0x", hex_string(d, address + count - 1));
+}
+
 void renderTextPatterns(function_ref<uint8_t(unsigned)> pat, uint32_t fg, uint32_t bg,
                         std::span<uint32_t> output)
 {

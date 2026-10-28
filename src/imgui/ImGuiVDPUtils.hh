@@ -106,6 +106,12 @@ void addTiles(ImDrawList* drawList, const gl::Texture& tex, gl::vec2 pos, gl::ve
 void addHexNumbers(ImDrawList* drawList, const gl::Texture& hexDigits, gl::vec2 pos, gl::vec2 cellSize,
                    gl::ivec2 numCells, gl::vec2 step, int numDigits, function_ref<unsigned(int column, int row)> number);
 
+// Lines for the tile viewer tooltips: "Pattern: <nr>" (also in hex), and
+// "<name> address:" followed by the address (range) in 'digits' hex digits.
+void printPatternNr(unsigned pattern);
+void printAddress(std::string_view name, unsigned address, int digits);
+void printAddressRange(std::string_view name, unsigned address, unsigned count, int digits);
+
 // Render the patterns of the TMS9918-style character modes into an image (for
 // the tile viewers), 32 patterns per row. 'pat(i)' returns byte 'i' of the
 // pattern table, 'col(i)' byte 'i' of the color table.

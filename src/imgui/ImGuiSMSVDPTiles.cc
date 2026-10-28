@@ -476,20 +476,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			smallHexDigits = createHexDigitsTexture();
 		}
 
-		auto printPatternNr = [](unsigned pat) {
-			ImGui::StrCat("Pattern: ", pat, " (0x", hex_string<3>(pat), ')');
-		};
-		auto printAddressName = [](std::string_view name) {
-			ImGui::StrCat(name, " address:");
-		};
-		auto printAddress = [&](std::string_view name, unsigned address) {
-			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<4>(address));
-		};
-		auto printAddressRange = [&](std::string_view name, unsigned address, unsigned count) {
-			printAddressName(name);
-			ImGui::StrCat("  0x", hex_string<4>(address), "-0x", hex_string<4>(address + count - 1));
-		};
+		static constexpr int addrDigits = 4; // 16kB VRAM
 		auto patternAddress = [&](unsigned pattern) { // modes 0-3
 			return (tables.patBase + ((pattern & tables.patMask) << 3)) & 0x3fff;
 		};
@@ -506,18 +493,18 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			if (mode == MODE4) {
 				auto [tile1, tile2] = mode4Tiles(pattern);
 				if (tile1 == tile2) {
-					printAddressRange("Pattern", tile1 * 32, 32);
+					printAddressRange("Pattern", tile1 * 32, 32, addrDigits);
 				} else {
-					printAddressRange("Pattern (planes 0-1)", tile1 * 32, 32);
-					printAddressRange("Pattern (planes 2-3)", tile2 * 32, 32);
+					printAddressRange("Pattern (planes 0-1)", tile1 * 32, 32, addrDigits);
+					printAddressRange("Pattern (planes 2-3)", tile2 * 32, 32, addrDigits);
 				}
 			} else {
-				printAddressRange("Pattern", patternAddress(pattern), 8);
+				printAddressRange("Pattern", patternAddress(pattern), 8, addrDigits);
 				if (mode == GRAPHIC1) {
 					// one color byte for 8 patterns
-					printAddress("Color", colorAddress(pattern));
+					printAddress("Color", colorAddress(pattern), addrDigits);
 				} else if (mode == GRAPHIC2) {
-					printAddressRange("Color", colorAddress(pattern), 8);
+					printAddressRange("Color", colorAddress(pattern), 8, addrDigits);
 				}
 			}
 		};
@@ -662,12 +649,12 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 					imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
 					if (mode == MODE4) {
 						auto nameRow = (unsigned(gridPos.y) << 6) & nameRowMask;
-						printAddressRange("Name", (tables.namBase + nameRow + 2 * unsigned(gridPos.x)) & 0x3fff, 2);
+						printAddressRange("Name", (tables.namBase + nameRow + 2 * unsigned(gridPos.x)) & 0x3fff, 2, addrDigits);
 					} else {
 						// the name table row stride is 32, also for the
 						// 40-column text mode (like SMSVDPCore/MAME)
 						auto nameIndex = 32 * gridPos.y + gridPos.x;
-						printAddress("Name", (tables.namBase + nameIndex) & 0x3fff);
+						printAddress("Name", (tables.namBase + nameIndex) & 0x3fff, addrDigits);
 					}
 					printPatternColorAddress(entry.tile);
 					ImGui::EndTooltip();
