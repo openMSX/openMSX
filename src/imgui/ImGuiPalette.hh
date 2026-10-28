@@ -24,6 +24,10 @@ public:
 
 	std::array<uint32_t, 16> getPalette(const VDP* vdp) const;
 
+	// For the viewers that use this palette: a combo box to select the
+	// palette, and a button to open the palette editor.
+	void drawSelector();
+
 public:
 	im::WindowStatus window;
 	int whichPalette = PALETTE_VDP;

@@ -303,14 +303,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			ImGui::SameLine();
 			im::Group([&]{
 				// One zoom for all sections, like the MSX VDP sprite viewer.
-				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-				ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-				ImGui::Checkbox("grid", &grid);
-				ImGui::SameLine();
-				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", gridColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				});
+				zoomAndGridSettings(zoom, grid, gridColor);
 
 				ImGui::TextUnformatted("Checkerboard:"sv);
 				simpleToolTip("Used as background for transparent pixels and in the "

@@ -350,14 +350,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			ImGui::Dummy(ImVec2(25, 1));
 			ImGui::SameLine();
 			im::Group([&]{
-				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-				ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-				ImGui::Checkbox("grid", &grid);
-				ImGui::SameLine();
-				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", gridColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				});
+				zoomAndGridSettings(zoom, grid, gridColor);
 				ImGui::Checkbox("Name table overlay", &nameTableOverlay);
 
 				im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
@@ -375,23 +368,13 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				});
 
 				ImGui::Separator();
-				ImGui::Checkbox("beam", &rasterBeam);
-				ImGui::SameLine();
-				im::Disabled(!rasterBeam, [&]{
-					ImGui::ColorEdit4("raster beam color", rasterBeamColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-					ImGui::SameLine();
-					im::Font(manager.fontMono, [&]{
-						ImGui::StrCat('(', dec_string<4>(beamX),
-						              ',', dec_string<4>(beamY), ')');
-					});
-				});
-				HelpMarker("Position of the raster beam, expressed in Sega VDP pixels.\n"
-				           "(0,0) is the top-left of the active display area.\n"
-				           "In mode 4 the position is mapped through the horizontal\n"
-				           "and vertical scroll registers, so it points at the tile\n"
-				           "currently being displayed.\n"
-				           "Only practically useful when emulation is paused.");
+				rasterBeamSettings(rasterBeam, rasterBeamColor, {beamX, beamY}, manager.fontMono,
+					"Position of the raster beam, expressed in Sega VDP pixels.\n"
+					"(0,0) is the top-left of the active display area.\n"
+					"In mode 4 the position is mapped through the horizontal\n"
+					"and vertical scroll registers, so it points at the tile\n"
+					"currently being displayed.\n"
+					"Only practically useful when emulation is paused.");
 			});
 		});
 		int color0 = manColor0 ? manualColor0 : vdpColor0;

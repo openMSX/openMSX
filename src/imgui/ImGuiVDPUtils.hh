@@ -8,9 +8,19 @@
 
 #include <cstdint>
 #include <span>
+#include <string_view>
 #include <utility>
 
+struct ImFont;
+
 namespace openmsx {
+
+// The zoom combo box (1x-8x, stored as 0-7) and the grid checkbox and color.
+void zoomAndGridSettings(int& zoom, bool& grid, gl::vec4& gridColor);
+
+// The raster beam checkbox and color, the beam position 'pos' (in 'font'),
+// and a help marker with 'help'.
+void rasterBeamSettings(bool& rasterBeam, gl::vec4& color, gl::ivec2 pos, ImFont* font, std::string_view help);
 
 // One row of a 1-bit-per-pixel pattern, the most significant bit is the
 // leftmost pixel.

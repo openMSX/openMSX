@@ -7,7 +7,36 @@
 
 #include <imgui.h>
 
+#include <string_view>
+
 namespace openmsx {
+
+void zoomAndGridSettings(int& zoom, bool& grid, gl::vec4& gridColor)
+{
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
+	ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
+	ImGui::Checkbox("grid", &grid);
+	ImGui::SameLine();
+	im::Disabled(!grid, [&]{
+		ImGui::ColorEdit4("Grid color", gridColor.data(),
+			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+	});
+}
+
+void rasterBeamSettings(bool& rasterBeam, gl::vec4& color, gl::ivec2 pos, ImFont* font, std::string_view help)
+{
+	ImGui::Checkbox("beam", &rasterBeam);
+	ImGui::SameLine();
+	im::Disabled(!rasterBeam, [&]{
+		ImGui::ColorEdit4("raster beam color", color.data(),
+			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+		ImGui::SameLine();
+		im::Font(font, [&]{
+			ImGui::StrCat('(', dec_string<4>(pos.x), ',', dec_string<4>(pos.y), ')');
+		});
+	});
+	HelpMarker(help);
+}
 
 void comboFgBgColor(int& colorValue)
 {

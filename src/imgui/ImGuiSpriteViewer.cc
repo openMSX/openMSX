@@ -241,20 +241,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			ImGui::Dummy(ImVec2(25, 1));
 			ImGui::SameLine();
 			im::Group([&]{
-				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
-				ImGui::Combo("Palette", &manager.palette->whichPalette, "VDP\000Custom\000Fixed\000");
-				if (ImGui::Button("Open palette editor")) {
-					manager.palette->window.raise();
-				}
+				manager.palette->drawSelector();
 				ImGui::Separator();
-				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-				ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-				ImGui::Checkbox("grid", &grid);
-				ImGui::SameLine();
-				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", gridColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				});
+				zoomAndGridSettings(zoom, grid, gridColor);
 
 				ImGui::TextUnformatted("Checkerboard:"sv);
 				simpleToolTip("Used as background in 'Sprite attribute' and 'Rendered sprites' view");
