@@ -269,20 +269,11 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			return gridPosition.x + 32 * gridPosition.y;
 		};
 		auto copyPatternColorPopup = [&] {
-			bool hasColorData = mode == one_of(SCR1, SCR2);
-			const char* caption = hasColorData
-				? "Copy pattern and color data to clipboard"
-				: "Copy pattern data to clipboard";
-			return copyToClipboardPopup("PatternCopyPopup", caption, [&]{
-				auto pattern = getPatternFromGrid();
-				auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern), 8));
-				if (hasColorData) {
-					strAppend(text, "Color data\n",
-					          (mode == SCR1) ? formatBinaryData(colTable.getAddress(pattern / 8), 1)
-					                         : formatBinaryData(colTable.getAddress(8 * pattern), 8));
-				}
-				return text;
-			});
+			auto pattern = getPatternFromGrid();
+			return copyPatternDataPopup(mode == one_of(SCR1, SCR2),
+				[&]{ return formatBinaryData(patTable.getAddress(8 * pattern), 8); },
+				[&]{ return (mode == SCR1) ? formatBinaryData(colTable.getAddress(pattern / 8), 1)
+				                           : formatBinaryData(colTable.getAddress(8 * pattern), 8); });
 		};
 		auto drawGrid = [&] {
 			auto pat = getPatternFromGrid();

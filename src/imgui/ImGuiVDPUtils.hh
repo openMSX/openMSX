@@ -111,6 +111,11 @@ void addTiles(ImDrawList* drawList, const gl::Texture& tex, gl::vec2 pos, gl::ve
 void addHexNumbers(ImDrawList* drawList, const gl::Texture& hexDigits, gl::vec2 pos, gl::vec2 cellSize,
                    gl::ivec2 numCells, gl::vec2 step, int numDigits, function_ref<unsigned(int column, int row)> number);
 
+// The context menu of the tile viewers' pattern table: copy the data of a
+// pattern, and when 'hasColorData' also its color data, to the clipboard.
+bool copyPatternDataPopup(bool hasColorData, function_ref<std::string()> patternData,
+                          function_ref<std::string()> colorData);
+
 // Lines for the tile viewer tooltips: "Pattern: <nr>" (also in hex), and
 // "<name> address:" followed by the address (range) in 'digits' hex digits.
 void printPatternNr(unsigned pattern);

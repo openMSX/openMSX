@@ -210,6 +210,21 @@ void addHexNumbers(ImDrawList* drawList, const gl::Texture& hexDigits, gl::vec2 
 	drawList->PopTexture();
 }
 
+bool copyPatternDataPopup(bool hasColorData, function_ref<std::string()> patternData,
+                          function_ref<std::string()> colorData)
+{
+	const char* caption = hasColorData
+		? "Copy pattern and color data to clipboard"
+		: "Copy pattern data to clipboard";
+	return copyToClipboardPopup("PatternCopyPopup", caption, [&]{
+		auto text = strCat("Pattern data\n", patternData());
+		if (hasColorData) {
+			strAppend(text, "Color data\n", colorData());
+		}
+		return text;
+	});
+}
+
 void printPatternNr(unsigned pattern)
 {
 	ImGui::StrCat("Pattern: ", pattern, " (0x", hex_string<3>(pattern), ')');
