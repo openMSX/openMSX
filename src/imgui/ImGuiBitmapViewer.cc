@@ -381,19 +381,8 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			ImGui::Image(bitmapTex.getImGui(), size);
 
 			if (bitmapGrid && (zx > 1) && (zy > 1)) {
-				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
-				for (auto y : xrange(zy)) {
-					auto* line = &pixels[y * zx];
-					for (auto x : xrange(zx)) {
-						line[x] = (x == 0 || y == 0) ? color : 0;
-					}
-				}
-				if (!bitmapGridTex.get()) {
-					bitmapGridTex = gl::Texture(false, true); // no interpolation, with wrapping
-				}
-				bitmapGridTex.bind();
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
-						GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+				updateGridTexture(bitmapGridTex, {zx, zy},
+				                  ImGui::ColorConvertFloat4ToU32(bitmapGridColor));
 				ImGui::SetCursorPos(pos);
 				ImGui::Image(bitmapGridTex.getImGui(), size, gl::vec2{}, msxSize);
 			}

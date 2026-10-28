@@ -748,19 +748,8 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 	int z = zoom + 1;
 	bool showPixelGrid = pixelGrid && (z > 1);
 	if (showPixelGrid) {
-		auto color = ImGui::ColorConvertFloat4ToU32(pixelGridColor);
-		std::array<uint32_t, 8 * 8> gridPixels;
-		for (auto y : xrange(z)) {
-			for (auto x : xrange(z)) {
-				gridPixels[y * z + x] = (x == 0 || y == 0) ? color : 0;
-			}
-		}
-		if (!pixelGridTex.get()) {
-			pixelGridTex = gl::Texture(false, true); // no interpolation, with wrapping
-		}
-		pixelGridTex.bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, z, z, 0,
-		             GL_RGBA, GL_UNSIGNED_BYTE, gridPixels.data());
+		updateGridTexture(pixelGridTex, gl::ivec2{z},
+		                  ImGui::ColorConvertFloat4ToU32(pixelGridColor));
 	}
 	if (checkerBoardSize) {
 		auto col1 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);

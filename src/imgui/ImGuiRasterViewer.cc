@@ -1,6 +1,7 @@
 #include "ImGuiRasterViewer.hh"
 
 #include "ImGuiTraceViewer.hh"
+#include "ImGuiUtils.hh"
 
 #include "MSXMotherBoard.hh"
 #include "RawFrame.hh"
@@ -399,32 +400,12 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 		}
 
 		if (showGrid) {
-			std::array<Pixel, (2 * MAX_ZOOM) * (2 * MAX_ZOOM)> pixels_;
 			auto color = ImGui::ColorConvertFloat4ToU32(gridColor);
-			auto makeGridUnit = [&](int nx, int ny) {
-				auto pixels2 = std::span(pixels_).subspan(0, nx * ny);
-				for (auto yy : xrange(ny)) {
-					auto line = pixels2.subspan(yy * nx, nx);
-					for (auto xx : xrange(nx)) {
-						line[xx] = (xx == 0 || yy == 0) ? color : 0;
-					}
-				}
-			};
 			if (any320) {
-				int nx = 2 * zoom;
-				int ny = 2 * zoom;
-				makeGridUnit(nx, ny);
-				makeAndBindTex(gridTex320);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nx, ny, 0,
-					GL_RGBA, GL_UNSIGNED_BYTE, pixels_.data());
+				updateGridTexture(gridTex320, {2 * zoom, 2 * zoom}, color);
 			}
 			if (any640 && (zoom > 1)) {
-				int nx = zoom;
-				int ny = 2 * zoom;
-				makeGridUnit(nx, ny);
-				makeAndBindTex(gridTex640);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nx, ny, 0,
-					GL_RGBA, GL_UNSIGNED_BYTE, pixels_.data());
+				updateGridTexture(gridTex640, {zoom, 2 * zoom}, color);
 			}
 			foreach_run(lineWidths, [&](size_t i, size_t n, unsigned width) {
 				assert(width == one_of(320u, 640u));

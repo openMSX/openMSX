@@ -383,20 +383,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		int zm = 2 * (1 + zoom);
 		auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
 		if (grid) {
-			size_t gridSize = size * zm;
-			for (auto y : xrange(gridSize)) {
-				auto* line = &pixels[y * gridSize];
-				for (auto x : xrange(gridSize)) {
-					line[x] = (x == 0 || y == 0) ? gColor : 0;
-				}
-			}
-			if (!gridTex.get()) {
-				gridTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			gridTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-			             narrow<int>(gridSize), narrow<int>(gridSize),
-			             0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateGridTexture(gridTex, gl::ivec2{size * zm}, gColor);
 		}
 
 		// create checker board texture
@@ -441,19 +428,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						int z = (size == 16) ? 3 : 6;
 						ImGui::Image(patternTex.getImGui(), float(z) * zoomPatSize, uv1, uv2);
 						if (grid) {
-							if (!zoomGridTex.get()) {
-								zoomGridTex = gl::Texture(false, true); // no interpolation, with wrapping
-							}
-							int s = z * zm;
-							for (auto y : xrange(s)) {
-								auto* line = &pixels[y * s];
-								for (auto x : xrange(s)) {
-									line[x] = (x == 0 || y == 0) ? gColor : 0;
-								}
-							}
-							zoomGridTex.bind();
-							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, s, s, 0,
-								GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+							updateGridTexture(zoomGridTex, gl::ivec2{z * zm}, gColor);
 							ImGui::SetCursorPos(pos2);
 							ImGui::Image(zoomGridTex.getImGui(),
 							             float(z) * zoomPatSize, {}, gl::vec2{float(size)});

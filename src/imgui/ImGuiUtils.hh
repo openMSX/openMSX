@@ -26,6 +26,8 @@
 
 using namespace std::literals;
 
+namespace gl { class Texture; }
+
 namespace ImGui {
 
 inline void TextUnformatted(const std::string& str)
@@ -321,6 +323,12 @@ const char* getComboString(int item, const char* itemsSeparatedByZeros);
 
 std::string formatTime(std::optional<double> time);
 float calculateFade(float current, float target, float period);
+
+// Texture for a grid overlay: a single cell of 'cellSize' pixels, with 'color'
+// on its top row and left column and transparent elsewhere. The texture wraps,
+// so drawing it with UVs {0, 0}-{nx, ny} shows nx x ny cells. A null texture is
+// created first.
+void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color);
 
 template<int HexDigits>
 void comboHexSequence(const char* label, int* value, int mult, int max, int offset) {

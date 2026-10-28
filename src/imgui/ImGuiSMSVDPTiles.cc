@@ -658,21 +658,8 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		auto charZoom = zm * charSize;
 		auto zoomCharSize = gl::vec2(12.0f, 12.0f) * charSize; // hovered size
 		if (grid) {
-			auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
-			auto gridWidth = charWidth * zx;
-			auto gridHeight = 8 * zy;
-			for (auto y : xrange(gridHeight)) {
-				auto* line = &pixels[y * gridWidth];
-				for (auto x : xrange(gridWidth)) {
-					line[x] = (x == 0 || y == 0) ? gColor : 0;
-				}
-			}
-			if (!gridTex.get()) {
-				gridTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			gridTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gridWidth, gridHeight, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateGridTexture(gridTex, {charWidth * zx, 8 * zy},
+			                  ImGui::ColorConvertFloat4ToU32(gridColor));
 		}
 		if (nameTableOverlay && !smallHexDigits.get()) {
 			initHexDigits();

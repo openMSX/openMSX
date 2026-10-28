@@ -496,21 +496,8 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		int zm = 2 * (1 + zoom);
 		auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
 		if (grid) {
-			size_t gridW = ((type == SMS) ? 8 : size) * zm; // SMS sprites are 8 pixels wide
-			size_t gridH = size * zm;
-			for (auto y : xrange(gridH)) {
-				auto* line = &pixels[y * gridW];
-				for (auto x : xrange(gridW)) {
-					line[x] = (x == 0 || y == 0) ? gColor : 0;
-				}
-			}
-			if (!gridTex.get()) {
-				gridTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			gridTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-			             narrow<int>(gridW), narrow<int>(gridH),
-			             0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			int gridW = ((type == SMS) ? 8 : size) * zm; // SMS sprites are 8 pixels wide
+			updateGridTexture(gridTex, {gridW, size * zm}, gColor);
 		}
 
 		if (checkerBoardSize) {
@@ -703,19 +690,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					}
 					ImGui::Image(patternTex.getImGui(), float(z) * zoomPatSize, uv1, uv2);
 					if (grid) {
-						if (!zoomGridTex.get()) {
-							zoomGridTex = gl::Texture(false, true); // no interpolation, with wrapping
-						}
-						int s = z * zm;
-						for (auto y : xrange(s)) {
-							auto* line = &pixels[y * s];
-							for (auto x : xrange(s)) {
-								line[x] = (x == 0 || y == 0) ? gColor : 0;
-							}
-						}
-						zoomGridTex.bind();
-						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, s, s, 0,
-							GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+						updateGridTexture(zoomGridTex, gl::ivec2{z * zm}, gColor);
 						ImGui::SetCursorPos(pos2);
 						ImGui::Image(zoomGridTex.getImGui(),
 						             float(z) * zoomPatSize, {},

@@ -15,6 +15,10 @@
 #include "TclObject.hh"
 #include "VideoSourceSetting.hh"
 
+#include "GLUtil.hh"
+
+#include "xrange.hh"
+
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
@@ -22,6 +26,7 @@
 
 #include <algorithm>
 #include <variant>
+#include <vector>
 
 namespace openmsx {
 
@@ -320,6 +325,22 @@ float calculateFade(float current, float target, float period)
 	} else {
 		return std::max(target, current - step);
 	}
+}
+
+void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color)
+{
+	// Reused, so that the viewers don't allocate it every frame (the GUI
+	// only runs on the main thread).
+	static std::vector<uint32_t> pixels;
+	pixels.assign(size_t(cellSize.x) * size_t(cellSize.y), 0);
+	for (auto x : xrange(cellSize.x)) pixels[x] = color;
+	for (auto y : xrange(cellSize.y)) pixels[y * cellSize.x] = color;
+	if (!tex.get()) {
+		tex = gl::Texture(false, true); // no interpolation, with wrapping
+	}
+	tex.bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cellSize.x, cellSize.y, 0,
+	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 }
 
 TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view command)
