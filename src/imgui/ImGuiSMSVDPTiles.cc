@@ -753,8 +753,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 					drawList->PopClipRect();
 				}
 				if (rasterBeam) {
-					auto center = scrnPos + (rasterBeamPos + gl::vec2{0.5f}) * zm;
-					addCrosshair(drawList, center, zm, ImGui::ColorConvertFloat4ToU32(rasterBeamColor), zm.y * 0.5f);
+					addRasterBeam(drawList, scrnPos, zm, rasterBeamPos, rasterBeamColor);
 				}
 
 				auto pos1 = ImGui::GetCursorPos();

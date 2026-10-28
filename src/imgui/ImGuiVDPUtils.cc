@@ -38,6 +38,12 @@ void rasterBeamSettings(bool& rasterBeam, gl::vec4& color, gl::ivec2 pos, ImFont
 	HelpMarker(help);
 }
 
+void addRasterBeam(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, gl::vec2 pos, gl::vec4 color)
+{
+	auto center = scrnPos + (pos + gl::vec2{0.5f}) * zoom;
+	addCrosshair(drawList, center, zoom, ImGui::ColorConvertFloat4ToU32(color), zoom.y * 0.5f);
+}
+
 void comboFgBgColor(int& colorValue)
 {
 	int fg = (colorValue >> 4) & 0x0f;

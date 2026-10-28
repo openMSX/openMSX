@@ -525,8 +525,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 					drawList->PopClipRect();
 				}
 				if (rasterBeam) {
-					auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
-					addCrosshair(drawList, center, zm, ImGui::ColorConvertFloat4ToU32(rasterBeamColor), zm.y * 0.5f);
+					addRasterBeam(drawList, scrnPos, zm, gl::vec2(rasterBeamPos), rasterBeamColor);
 				}
 
 				auto pos1 = ImGui::GetCursorPos();

@@ -362,8 +362,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			}
 			auto* drawList = ImGui::GetWindowDrawList();
 			if (rasterBeam) {
-				auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
-				addCrosshair(drawList, center, zm, ImGui::ColorConvertFloat4ToU32(rasterBeamColor), zm.y * 0.5f);
+				addRasterBeam(drawList, scrnPos, zm, gl::vec2(rasterBeamPos), rasterBeamColor);
 			}
 
 			// draw the VDP command overlay

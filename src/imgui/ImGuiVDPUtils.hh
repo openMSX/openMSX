@@ -11,6 +11,7 @@
 #include <string_view>
 #include <utility>
 
+struct ImDrawList;
 struct ImFont;
 
 namespace openmsx {
@@ -21,6 +22,10 @@ void zoomAndGridSettings(int& zoom, bool& grid, gl::vec4& gridColor);
 // The raster beam checkbox and color, the beam position 'pos' (in 'font'),
 // and a help marker with 'help'.
 void rasterBeamSettings(bool& rasterBeam, gl::vec4& color, gl::ivec2 pos, ImFont* font, std::string_view help);
+
+// Mark the raster beam at VDP pixel 'pos' on a view of the screen drawn at
+// 'scrnPos', with 'zoom' host pixels per VDP pixel.
+void addRasterBeam(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, gl::vec2 pos, gl::vec4 color);
 
 // One row of a 1-bit-per-pixel pattern, the most significant bit is the
 // leftmost pixel.
