@@ -668,14 +668,11 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						drawCheckerBoard(checkerTex, float(z) * zoomPatSize, z * checkerBoardSize);
 						ImGui::SetCursorPos(pos2);
 					}
-					ImGui::Image(patternTex.getImGui(), float(z) * zoomPatSize, uv1, uv2);
 					if (grid) {
 						updateGridTexture(zoomGridTex, gl::ivec2{z * zm}, gColor);
-						ImGui::SetCursorPos(pos2);
-						ImGui::Image(zoomGridTex.getImGui(),
-						             float(z) * zoomPatSize, {},
-						             gl::vec2{float(spriteW), float(spriteH)});
 					}
+					imageWithGrid(patternTex, float(z) * zoomPatSize, uv1, uv2,
+					              grid ? &zoomGridTex : nullptr, gl::vec2{float(spriteW), float(spriteH)});
 					ImGui::EndTooltip();
 				}
 				if (grid) {

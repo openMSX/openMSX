@@ -451,13 +451,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			printPatternNr(pat);
 			auto uv1 = gl::vec2(gridPosition) * recipPatTexChars;
 			auto uv2 = uv1 + recipPatTexChars;
-			auto pos2 = ImGui::GetCursorPos();
-			ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
-			if (grid) {
-				ImGui::SetCursorPos(pos2);
-				ImGui::Image(gridTex.getImGui(),
-					zoomCharSize, {}, charSize);
-			}
+			imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
 			printPatternColorAddress(pat);
 		};
 
@@ -582,13 +576,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						auto pattern = getPattern(gridPos.x, gridPos.y);
 						printPatternNr(pattern);
 						auto [uv1, uv2] = getPatternUV(pattern);
-						auto pos2 = ImGui::GetCursorPos();
-						ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
-						if (grid) {
-							ImGui::SetCursorPos(pos2);
-							ImGui::Image(gridTex.getImGui(),
-								zoomCharSize, {}, charSize);
-						}
+						imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
 						auto nameIndex = columns * gridPos.y + gridPos.x;
 						printAddress("Name", namTable.getAddress(nameIndex));
 						printPatternColorAddress(pattern);

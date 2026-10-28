@@ -739,13 +739,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			auto pat = getPatternFromGrid();
 			printPatternNr(pat);
 			auto [uv1, uv2] = patternUV(pat, unsigned(patternPalette), false, false);
-			auto pos2 = ImGui::GetCursorPos();
-			ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
-			if (grid) {
-				ImGui::SetCursorPos(pos2);
-				ImGui::Image(gridTex.getImGui(),
-					zoomCharSize, {}, charSize);
-			}
+			imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
 			printPatternColorAddress(pat);
 		};
 		ImGui::Separator();
@@ -877,13 +871,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 					auto entry = getEntry(gridPos.x, gridPos.y);
 					printPatternNr(entry.tile);
 					auto [uv1, uv2] = patternUV(entry.tile, entry.palette, entry.hflip, entry.vflip);
-					auto pos2 = ImGui::GetCursorPos();
-					ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
-					if (grid) {
-						ImGui::SetCursorPos(pos2);
-						ImGui::Image(gridTex.getImGui(),
-							zoomCharSize, {}, charSize);
-					}
+					imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
 					if (mode == MODE4) {
 						auto nameRow = (unsigned(gridPos.y) << 6) & nameRowMask;
 						printAddressRange("Name", (tables.namBase + nameRow + 2 * unsigned(gridPos.x)) & 0x3fff, 2);

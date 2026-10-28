@@ -341,6 +341,12 @@ void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color
 // setting the size of the squares. Draws nothing when 'checkerBoardSize' is 0.
 void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSize);
 
+// Draw the 'uv1'-'uv2' part of 'tex' as an image of 'size' pixels. When
+// 'gridTex' is not null, also draw that (wrapping) grid texture on top of it,
+// showing 'gridCells' cells.
+void imageWithGrid(const gl::Texture& tex, gl::vec2 size, gl::vec2 uv1, gl::vec2 uv2,
+                   const gl::Texture* gridTex, gl::vec2 gridCells);
+
 // Crosshair marker (e.g. for the raster beam position): a rectangle of
 // 2 * 'halfSize' around 'center', with a short line on each side.
 void addCrosshair(ImDrawList* drawList, gl::vec2 center, gl::vec2 halfSize, ImU32 color, float thickness);

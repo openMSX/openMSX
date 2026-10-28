@@ -413,15 +413,12 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						auto recipPatTex = recip((size == 16) ? gl::vec2{16, 4} : gl::vec2{32, 8});
 						auto uv1 = gl::vec2(gridPosition) * recipPatTex;
 						auto uv2 = uv1 + recipPatTex;
-						auto pos2 = ImGui::GetCursorPos();
 						int z = (size == 16) ? 3 : 6;
-						ImGui::Image(patternTex.getImGui(), float(z) * zoomPatSize, uv1, uv2);
 						if (grid) {
 							updateGridTexture(zoomGridTex, gl::ivec2{z * zm}, gColor);
-							ImGui::SetCursorPos(pos2);
-							ImGui::Image(zoomGridTex.getImGui(),
-							             float(z) * zoomPatSize, {}, gl::vec2{float(size)});
 						}
+						imageWithGrid(patternTex, float(z) * zoomPatSize, uv1, uv2,
+						              grid ? &zoomGridTex : nullptr, gl::vec2{float(size)});
 					} else {
 						ImGui::Dummy(zoomPatSize);
 					}

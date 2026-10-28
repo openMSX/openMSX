@@ -362,6 +362,17 @@ void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSiz
 	ImGui::Image(tex.getImGui(), size, {}, size / (4.0f * float(checkerBoardSize)));
 }
 
+void imageWithGrid(const gl::Texture& tex, gl::vec2 size, gl::vec2 uv1, gl::vec2 uv2,
+                   const gl::Texture* gridTex, gl::vec2 gridCells)
+{
+	auto pos = ImGui::GetCursorPos();
+	ImGui::Image(tex.getImGui(), size, uv1, uv2);
+	if (gridTex) {
+		ImGui::SetCursorPos(pos);
+		ImGui::Image(gridTex->getImGui(), size, {}, gridCells);
+	}
+}
+
 void addCrosshair(ImDrawList* drawList, gl::vec2 center, gl::vec2 halfSize, ImU32 color, float thickness)
 {
 	auto zm1 = 1.5f * halfSize;
