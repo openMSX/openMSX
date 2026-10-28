@@ -3,9 +3,11 @@
 #include "StringOp.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+#include "utf8_unchecked.hh"
 
 #include <algorithm>
 #include <array>
+#include <iterator>
 
 namespace openmsx {
 
@@ -109,8 +111,29 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	return SDLK_UNKNOWN;
 }
 
+// A name that consists of a single (UTF-8 encoded) character is the keycode
+// of that character itself (with 'A'-'Z' mapped to 'a'-'z'). This is how
+// SDL2's 'SDL_GetKeyFromName()' handles such names. SDL3 instead maps the
+// character to the key that produces it on the current keyboard layout (e.g.
+// "@" becomes "2" on a US layout). Key names end up in settings.xml, so we
+// handle this case ourselves.
+static std::optional<SDL_Keycode> getKeyFromSingleCharName(std::string_view name)
+{
+	if (name.empty()) return {};
+	auto lead = uint8_t(name[0]);
+	if (auto len = utf8::sequence_length(lead); len > 1) {
+		if (name.size() != len) return {};
+		const char* it = name.data();
+		return SDL_Keycode(utf8::unchecked::next(it));
+	}
+	if (name.size() != 1) return {};
+	return SDL_Keycode(('A' <= lead && lead <= 'Z') ? (lead - 'A' + 'a') : lead);
+}
+
 SDL_Keycode SDLKey::keycodeFromString(zstring_view name)
 {
+	if (auto key = getKeyFromSingleCharName(name)) return *key;
+
 	auto result = SDL_GetKeyFromName(name.c_str());
 	if (result == SDLK_UNKNOWN) {
 		// for backwards compatibility
@@ -225,6 +248,19 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 
 std::string SDLKey::toString(SDL_Keycode code)
 {
+	// A keycode that is a character is named by that character itself
+	// (with 'a'-'z' in uppercase). This is how SDL2's 'SDL_GetKeyName()'
+	// names such keys. SDL3 instead uses the character that the key
+	// produces together with SHIFT on the current keyboard layout (e.g.
+	// an uppercase u-umlaut for the u-umlaut key on a German layout),
+	// which can't be converted back to the same keycode. Only use SDL for
+	// the other keys.
+	if ((0x21 <= code) && (code <= 0x10FFFF) && (code != SDLK_DELETE)) {
+		auto cp = uint32_t(('a' <= code && code <= 'z') ? (code - 'a' + 'A') : code);
+		std::string result;
+		utf8::unchecked::append(cp, std::back_inserter(result));
+		return result;
+	}
 	std::string result = SDL_GetKeyName(code);
 	if (result.empty()) result = "unknown";
 	return result;

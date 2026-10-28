@@ -46,6 +46,12 @@ TEST_CASE("Keys")
 	test("!",          SDLKey::createDown(SDLK_EXCLAIM,  SDL_SCANCODE_UNKNOWN), true);
 	test("PeRiOd",     SDLKey::createDown(SDLK_PERIOD,   SDL_SCANCODE_UNKNOWN), false);
 	test("CARET",      SDLKey::createDown(SDLK_CARET,    SDL_SCANCODE_UNKNOWN), false);
+	test("^",          SDLKey::createDown(SDLK_CARET,    SDL_SCANCODE_UNKNOWN), true);
+	test("&",          SDLKey::createDown(SDLK_AMPERSAND, SDL_SCANCODE_UNKNOWN), true);
+	test("\u00E9",     SDLKey::createDown(0xE9,          SDL_SCANCODE_UNKNOWN), true); // e acute
+	test("\u20AC",     SDLKey::createDown(0x20AC,        SDL_SCANCODE_UNKNOWN), true); // euro sign
+	test("\u00FC",     SDLKey::createDown(0xFC,          SDL_SCANCODE_UNKNOWN), true); // u umlaut
+	test("\u0436",     SDLKey::createDown(0x436,         SDL_SCANCODE_UNKNOWN), true); // cyrillic zhe
 	test("delete",     SDLKey::createDown(SDLK_DELETE,   SDL_SCANCODE_UNKNOWN), false);
 	test("Keypad 7",   SDLKey::createDown(SDLK_KP_7,     SDL_SCANCODE_UNKNOWN), true);
 	test("KP7",        SDLKey::createDown(SDLK_KP_7,     SDL_SCANCODE_UNKNOWN), false);
