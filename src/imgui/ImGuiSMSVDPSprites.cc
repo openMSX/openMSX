@@ -40,48 +40,6 @@ void ImGuiSMSVDPSprites::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-// TMS9918 sprite patterns are monochrome; the color comes from the sprite
-// attributes (drawn by tinting this texture).
-static void renderPatternsTms8(std::span<const uint8_t, 0x4000> vram, unsigned patBase,
-                               std::span<uint32_t> output)
-{
-	auto zero = getColor(imColor::TRANSPARENT);
-	auto one  = getColor(imColor::TEXT);
-	for (auto row : xrange(8)) {
-		for (auto column : xrange(32)) {
-			auto patNum = 32 * row + column;
-			auto offset = 8 * patNum;
-			for (auto y : xrange(8)) {
-				auto pattern = vram[(patBase + offset + y) & 0x3fff];
-				auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-				drawPatternRow8(pattern, one, zero, out);
-			}
-		}
-	}
-}
-
-static void renderPatternsTms16(std::span<const uint8_t, 0x4000> vram, unsigned patBase,
-                                std::span<uint32_t> output)
-{
-	// 64 sprites of 16x16, each composed of tiles (4s, 4s+1, 4s+2, 4s+3).
-	auto zero = getColor(imColor::TRANSPARENT);
-	auto one  = getColor(imColor::TEXT);
-	for (auto row : xrange(4)) {
-		for (auto column : xrange(16)) {
-			auto sprite = 16 * row + column;
-			auto tile = 4 * sprite;
-			for (auto y : xrange(16)) {
-				auto patternA = vram[(patBase + 8 * (tile + 0) + y) & 0x3fff];
-				auto patternB = vram[(patBase + 8 * (tile + 2) + y) & 0x3fff];
-				auto outA = subspan<8>(output, (16 * row + y) * 256 + 16 * column + 0);
-				auto outB = subspan<8>(output, (16 * row + y) * 256 + 16 * column + 8);
-				drawPatternRow8(patternA, one, zero, outA);
-				drawPatternRow8(patternB, one, zero, outB);
-			}
-		}
-	}
-}
-
 // The 8 pens (0-15) of one mode 4 pattern row: four bytes, one per bit
 // plane, starting at 'addr'.
 static std::array<uint8_t, 8> mode4Pens(std::span<const uint8_t, 0x4000> vram, unsigned addr)
@@ -450,8 +408,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		std::array<uint32_t, 256 * 256> pixels;
 		if (type != NONE) {
 			if (type == TMS) {
-				if (size == 8) renderPatternsTms8 (vram, unsigned(patBase), pixels);
-				else           renderPatternsTms16(vram, unsigned(patBase), pixels);
+				auto pat = [&](unsigned i) { return vram[(unsigned(patBase) + i) & 0x3fff]; };
+				if (size == 8) renderSpritePatterns8 (pat, pixels);
+				else           renderSpritePatterns16(pat, pixels);
 			} else {
 				auto pen0 = transparent ? getColor(imColor::TRANSPARENT) : palette[16];
 				if (size == 8) renderPatternsSms8 (vram, unsigned(patBase), palette, pen0, pixels);

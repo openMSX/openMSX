@@ -54,6 +54,14 @@ void renderGraphic2Patterns(function_ref<uint8_t(unsigned)> pat, function_ref<ui
 void renderMulticolorPatterns(function_ref<uint8_t(unsigned)> pat,
                               std::span<const uint32_t, 16> palette, std::span<uint32_t> output);
 
+// Render the monochrome (TMS9918-style) sprite patterns into a 256x64 image
+// (the color comes from the sprite attributes, drawn by tinting this image):
+// either all 256 patterns of 8x8 or all 64 sprites of 16x16 (each composed
+// of the patterns 4s, 4s+1, 4s+2, 4s+3). 'pat(i)' returns byte 'i' (0-0x7ff)
+// of the sprite pattern table.
+void renderSpritePatterns8 (function_ref<uint8_t(unsigned)> pat, std::span<uint32_t> output);
+void renderSpritePatterns16(function_ref<uint8_t(unsigned)> pat, std::span<uint32_t> output);
+
 } // namespace openmsx
 
 #endif

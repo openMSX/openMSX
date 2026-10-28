@@ -42,43 +42,6 @@ void ImGuiSpriteViewer::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-static void renderPatterns8(const VramTable& pat, std::span<uint32_t> output)
-{
-	auto zero = getColor(imColor::TRANSPARENT);
-	auto one  = getColor(imColor::TEXT);
-	for (auto row : xrange(8)) {
-		for (auto column : xrange(32)) {
-			auto patNum = 32 * row + column;
-			auto offset = 8 * patNum;
-			for (auto y : xrange(8)) {
-				auto pattern = pat[offset + y];
-				auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-				drawPatternRow8(pattern, one, zero, out);
-			}
-		}
-	}
-}
-
-static void renderPatterns16(const VramTable& pat, std::span<uint32_t> output)
-{
-	auto zero = getColor(imColor::TRANSPARENT);
-	auto one  = getColor(imColor::TEXT);
-	for (auto row : xrange(4)) {
-		for (auto column : xrange(16)) {
-			auto patNum = 4 * (16 * row + column);
-			auto offset = 8 * patNum;
-			for (auto y : xrange(16)) {
-				auto patternA = pat[offset + y +  0];
-				auto patternB = pat[offset + y + 16];
-				auto outA = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  0);
-				auto outB = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  8);
-				drawPatternRow8(patternA, one, zero, outA);
-				drawPatternRow8(patternB, one, zero, outB);
-			}
-		}
-	}
-}
-
 [[nodiscard]] static int getSpriteAttrAddr(int sprite, int mode)
 {
 	return (mode == 2 ? 512 : 0) + 4 * sprite;
@@ -344,10 +307,11 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		// create pattern texture
 		std::array<uint32_t, 256 * 64> pixels;
 		if (mode != 0) {
+			auto pat = [&](unsigned i) { return patTable[i]; };
 			if (size == 8) {
-				renderPatterns8 (patTable, pixels);
+				renderSpritePatterns8 (pat, pixels);
 			} else {
-				renderPatterns16(patTable, pixels);
+				renderSpritePatterns16(pat, pixels);
 			}
 			updateTexture(patternTex, {256, 64}, pixels);
 		} else {

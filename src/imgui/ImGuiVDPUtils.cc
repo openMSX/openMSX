@@ -1,5 +1,7 @@
 #include "ImGuiVDPUtils.hh"
 
+#include "ImGuiUtils.hh"
+
 #include "ranges.hh"
 #include "xrange.hh"
 
@@ -73,6 +75,43 @@ void renderMulticolorPatterns(function_ref<uint8_t(unsigned)> pat,
 					out[0] = palette[pattern >> 4];
 					out[1] = palette[pattern & 15];
 				}
+			}
+		}
+	}
+}
+
+void renderSpritePatterns8(function_ref<uint8_t(unsigned)> pat, std::span<uint32_t> output)
+{
+	auto zero = getColor(imColor::TRANSPARENT);
+	auto one  = getColor(imColor::TEXT);
+	for (auto row : xrange(8)) {
+		for (auto column : xrange(32)) {
+			auto patNum = 32 * row + column;
+			auto offset = 8 * patNum;
+			for (auto y : xrange(8)) {
+				auto pattern = pat(offset + y);
+				auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
+				drawPatternRow8(pattern, one, zero, out);
+			}
+		}
+	}
+}
+
+void renderSpritePatterns16(function_ref<uint8_t(unsigned)> pat, std::span<uint32_t> output)
+{
+	auto zero = getColor(imColor::TRANSPARENT);
+	auto one  = getColor(imColor::TEXT);
+	for (auto row : xrange(4)) {
+		for (auto column : xrange(16)) {
+			auto patNum = 4 * (16 * row + column);
+			auto offset = 8 * patNum;
+			for (auto y : xrange(16)) {
+				auto patternA = pat(offset + y +  0);
+				auto patternB = pat(offset + y + 16);
+				auto outA = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  0);
+				auto outB = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  8);
+				drawPatternRow8(patternA, one, zero, outA);
+				drawPatternRow8(patternB, one, zero, outB);
 			}
 		}
 	}
