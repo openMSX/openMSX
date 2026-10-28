@@ -492,10 +492,15 @@ class TCL(Library):
 				'dynamic link flags'
 				)
 		else:
+			libs = '${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE}'
+			if platform.startswith('mingw'):
+				# On Windows, a static Tcl 9 contains the dde package, which
+				# uses the stubs mechanism.
+				libs += ' ${TCL_EXEC_PREFIX}/lib/${TCL_STUB_LIB_FILE}'
 			return cls.evalTclConfigExpr(
 				platform,
 				distroRoot,
-				'${TCL_EXEC_PREFIX}/lib/${TCL_LIB_FILE} ${TCL_LIBS}',
+				libs + ' ${TCL_LIBS}',
 				'static link flags'
 				)
 
