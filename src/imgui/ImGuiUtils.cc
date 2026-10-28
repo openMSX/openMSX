@@ -25,6 +25,7 @@
 #include <SDL.h>
 
 #include <algorithm>
+#include <array>
 #include <variant>
 #include <vector>
 
@@ -341,6 +342,23 @@ void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color)
 	tex.bind();
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cellSize.x, cellSize.y, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+}
+
+void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color2)
+{
+	std::array<uint32_t, 2 * 2> pixels = {color1, color2, color2, color1};
+	if (!tex.get()) {
+		tex = gl::Texture(false, true); // no interpolation, with wrapping
+	}
+	tex.bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
+	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+}
+
+void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSize)
+{
+	if (checkerBoardSize == 0) return;
+	ImGui::Image(tex.getImGui(), size, {}, size / (4.0f * float(checkerBoardSize)));
 }
 
 TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view command)

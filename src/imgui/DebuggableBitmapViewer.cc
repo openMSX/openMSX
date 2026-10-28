@@ -752,15 +752,9 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 		                  ImGui::ColorConvertFloat4ToU32(pixelGridColor));
 	}
 	if (checkerBoardSize) {
-		auto col1 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);
-		auto col2 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor2);
-		std::array<uint32_t, 2 * 2> checkerPixels = {col1, col2, col2, col1};
-		if (!checkerTex.get()) {
-			checkerTex = gl::Texture(false, true); // no interpolation, with wrapping
-		}
-		checkerTex.bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-		             GL_RGBA, GL_UNSIGNED_BYTE, checkerPixels.data());
+		updateCheckerBoardTexture(checkerTex,
+		                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor1),
+		                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor2));
 	}
 
 	// The enabled tile and group grids, innermost first.
@@ -832,7 +826,7 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 		if (!blockGrid) {
 			auto pos = ImGui::GetCursorPos();
 			if (checkerBoardSize) {
-				ImGui::Image(checkerTex.getImGui(), totalSize, {}, totalSize / (4.0f * float(checkerBoardSize)));
+				drawCheckerBoard(checkerTex, totalSize, checkerBoardSize);
 				ImGui::SetCursorPos(pos);
 			}
 			ImGui::Image(imageTex.getImGui(), totalSize);

@@ -412,16 +412,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			                           : 0;
 		}
 
-		// Background where nothing is drawn (transparent pixels) is the
-		// checkerboard texture. For a magnified copy of a view, the squares
-		// are magnified as well.
-		auto drawTransparentBackground = [&](gl::vec2 imageSize, int magnify = 1) {
-			if (checkerBoardSize) {
-				ImGui::Image(checkerTex.getImGui(), imageSize,
-					{}, imageSize / (4.0f * float(magnify * checkerBoardSize)));
-			}
-		};
-
 		if (type == SMS) {
 			ImGui::Separator();
 			im::TreeNode("CRAM", ImGuiTreeNodeFlags_DefaultOpen, drawCramEditor);
@@ -501,14 +491,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		}
 
 		if (checkerBoardSize) {
-			pixels[0] = pixels[3] = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);
-			pixels[1] = pixels[2] = ImGui::ColorConvertFloat4ToU32(checkerBoardColor2);
-			if (!checkerTex.get()) {
-				checkerTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			checkerTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateCheckerBoardTexture(checkerTex,
+			                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor1),
+			                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor2));
 		}
 
 		// UVs of one sprite (or tile) in the pattern texture.
@@ -651,7 +636,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				if (type == SMS) {
-					drawTransparentBackground(fullSize);
+					drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
 					ImGui::SetCursorPos(pos1);
 				}
 				ImGui::Image(patternTex.getImGui(), fullSize);
@@ -685,7 +670,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					auto pos2 = ImGui::GetCursorPos();
 					int z = (size == 16) ? 3 : 6;
 					if (type == SMS) {
-						drawTransparentBackground(float(z) * zoomPatSize, z);
+						drawCheckerBoard(checkerTex, float(z) * zoomPatSize, z * checkerBoardSize);
 						ImGui::SetCursorPos(pos2);
 					}
 					ImGui::Image(patternTex.getImGui(), float(z) * zoomPatSize, uv1, uv2);
@@ -741,7 +726,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				} else {
 					gl::vec2 topLeft = ImGui::GetCursorPos();
 					gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-					drawTransparentBackground(fullSize);
+					drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
 					for (auto row : xrange(rows)) {
 						for (auto column : xrange(8)) {
 							int sprite = 8 * row + column;
@@ -772,7 +757,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						ImGui::StrCat("sprite: ", sprite);
 						ImGui::StrCat("address: 0x", hex_string<4>(yAddress(sprite)));
 						auto pos = ImGui::GetCursorPos();
-						drawTransparentBackground(3.0f * zoomSize, 3);
+						drawCheckerBoard(checkerTex, 3.0f * zoomSize, 3 * checkerBoardSize);
 						ImGui::SetCursorPos(pos);
 						renderSpriteAttrib(sprite, float(3 * zm));
 						auto y = vram[yAddress(sprite)];
@@ -924,7 +909,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				};
 
 				gl::vec2 topLeft = ImGui::GetCursorPos();
-				drawTransparentBackground(fullSize);
+				drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
 				ImGui::SetCursorPos(topLeft);
 				ImGui::Image(renderTex.getImGui(), fullSize);
 				bool hovered = ImGui::IsItemHovered();

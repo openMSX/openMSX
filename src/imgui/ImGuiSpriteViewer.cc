@@ -388,14 +388,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 		// create checker board texture
 		if (checkerBoardSize) {
-			pixels[0] = pixels[3] = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);
-			pixels[1] = pixels[2] = ImGui::ColorConvertFloat4ToU32(checkerBoardColor2);
-			if (!checkerTex.get()) {
-				checkerTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			checkerTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateCheckerBoardTexture(checkerTex,
+			                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor1),
+			                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor2));
 		}
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto fullSize = gl::vec2(256, 64) * float(zm);
@@ -457,11 +452,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				} else {
 					gl::vec2 topLeft = ImGui::GetCursorPos();
 					gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-					if (checkerBoardSize) {
-						ImGui::SetCursorPos(topLeft);
-						ImGui::Image(checkerTex.getImGui(), fullSize,
-							{}, fullSize / (4.0f * float(checkerBoardSize)));
-					}
+					drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
 					for (auto row : xrange(4)) {
 						for (auto column : xrange(8)) {
 							int sprite = 8 * row + column;
@@ -496,10 +487,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							ImGui::StrCat("address: 0x", hex_string<5>(attTable.getAddress(addr)));
 							ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 							auto pos = ImGui::GetCursorPos();
-							if (checkerBoardSize) {
-								ImGui::Image(checkerTex.getImGui(), 3.0f * zoomPatSize,
-									{}, zoomPatSize / (4.0f * float(checkerBoardSize)));
-							}
+							drawCheckerBoard(checkerTex, 3.0f * zoomPatSize, 3 * checkerBoardSize);
 							ImGui::SetCursorPos(pos);
 							renderSpriteAttrib(attTable, sprite, mode, size, transparent,
 							                   float(3 * zm), palette, patternTex.getImGui());
@@ -736,10 +724,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				};
 
 				gl::vec2 topLeft = ImGui::GetCursorPos();
-				if (checkerBoardSize) {
-					ImGui::Image(checkerTex.getImGui(), fullSize,
-						{}, fullSize / (4.0f * float(checkerBoardSize)));
-				}
+				drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
 				ImGui::SetCursorPos(topLeft);
 				ImGui::Image(renderTex.getImGui(), fullSize);
 				bool hovered = ImGui::IsItemHovered();

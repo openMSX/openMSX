@@ -330,6 +330,13 @@ float calculateFade(float current, float target, float period);
 // created first.
 void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color);
 
+// Texture for a checkerboard background: 2x2 pixels that wrap. A null texture
+// is created first.
+void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color2);
+// Draw that texture as an image of 'size' pixels, with 'checkerBoardSize'
+// setting the size of the squares. Draws nothing when 'checkerBoardSize' is 0.
+void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSize);
+
 template<int HexDigits>
 void comboHexSequence(const char* label, int* value, int mult, int max, int offset) {
 	assert(offset < mult);

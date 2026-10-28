@@ -274,12 +274,9 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 
 		gl::vec4 checkerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
 		gl::vec4 checkerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
-		auto col1 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);
-		auto col2 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor2);
-		std::array<Pixel, 4> pixels = {col1, col2, col2, col1};
-		makeAndBindTex(checkerTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		updateCheckerBoardTexture(checkerTex,
+		                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor1),
+		                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor2));
 
 		// align checkerboard pattern with MSX pixel (0,0) (when set-adjust is 0)
 		static constexpr float checkerBoardSize = 8.0f;
