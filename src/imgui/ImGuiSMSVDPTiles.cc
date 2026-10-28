@@ -243,6 +243,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		};
 		auto patMult = [](int mode) { return 1 << (mode == GRAPHIC2 ? 13 : 11); };
 		auto colMult = [](int mode) { return 1 << (mode == GRAPHIC2 ? 13 : 6); };
+		constexpr int namMult = 1 << 10;
 		int vdpFgCol = reg[7] >> 4;
 		int vdpBgCol = reg[7] & 0x0f;
 		// In the TMS9918-compatible modes pen 0 is drawn in the backdrop
@@ -406,7 +407,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						im::Disabled(!manNam, [&]{
-							comboHexSequence<4>("##name", &manualNamBase, 1 << 10, vramSize, 0);
+							comboHexSequence<4>("##name", &manualNamBase, namMult, vramSize, 0);
 						});
 						im::Disabled(!manRows || (mode == MODE4), [&]{
 							ImGui::Combo("##rows", &manualRows, "24\00032\000");
@@ -480,8 +481,9 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		});
 		int color0 = manColor0 ? manualColor0 : vdpColor0;
 
+		// The combos above only align the manual bases while they're shown.
 		VramTables tables;
-		tables.namBase = manNam ? unsigned(manualNamBase) : unsigned(namBaseFor(mode));
+		tables.namBase = manNam ? unsigned(manualNamBase & ~(namMult - 1)) : unsigned(namBaseFor(mode));
 		if (mode == MODE4) {
 			// Mode 4 has no pattern/color table base registers: the tile
 			// number indexes the pattern table at 0x0000.
@@ -490,7 +492,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			tables.colBase = 0;
 			tables.colMask = 0;
 		} else if (manPat) {
-			tables.patBase = unsigned(manualPatBase);
+			tables.patBase = unsigned(manualPatBase & ~(patMult(mode) - 1));
 			tables.patMask = (mode == GRAPHIC2) ? 0x3ff : 0xff;
 		} else {
 			tables.patBase = unsigned(patBaseFor(mode));
@@ -498,7 +500,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		}
 		if (mode != MODE4) {
 			if (manCol) {
-				tables.colBase = unsigned(manualColBase);
+				tables.colBase = unsigned(manualColBase & ~(colMult(mode) - 1));
 				tables.colMask = (mode == GRAPHIC2) ? 0x3ff : 0;
 			} else {
 				tables.colBase = unsigned(colBaseFor(mode));
