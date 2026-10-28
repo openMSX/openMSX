@@ -246,7 +246,6 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		if (mode == TEXT) rasterBeamPos.x -= 8.0f; // 40 columns of 6 pixels
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
 			im::Group([&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted("SMS VDP settings");
@@ -283,7 +282,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				});
 				im::Disabled(manColor0 || (vdpMode == MODE4), [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Str));
+					ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Items));
 				});
 			});
 			ImGui::SameLine();
@@ -313,17 +312,16 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 								if (ImGui::Selectable("mode 4"))      manualMode = MODE4;
 							});
 						});
-						static const char* const range0_15 = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000";
 						// Gate on the mode actually shown. manualMode stays at its
 						// default when the mode itself is not overridden, so a chip
 						// in text mode would otherwise keep these editors disabled.
 						// Foreground and background are only used in text mode.
 						im::Disabled(mode != TEXT, [&]{
 							im::Disabled(!manFgCol, [&]{
-								ImGui::Combo("##fgCol", &manualFgCol, range0_15);
+								ImGui::Combo("##fgCol", &manualFgCol, colorItems);
 							});
 							im::Disabled(!manBgCol, [&]{
-								ImGui::Combo("##bgCol", &manualBgCol, range0_15);
+								ImGui::Combo("##bgCol", &manualBgCol, colorItems);
 							});
 						});
 						im::Disabled(!manPat || (mode == MODE4), [&]{
@@ -342,7 +340,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 							ImGui::Combo("##rows", &manualRows, "24\00032\000");
 						});
 						im::Disabled(!manColor0 || (mode == MODE4), [&]{
-							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Str);
+							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Items);
 						});
 					});
 				});
@@ -367,20 +365,8 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				});
 				HelpMarker("Ignore the content of the color table and instead use this value for everything.\n"
 				           "Could be useful to visualize the patterns when the color table has the same value for fg and bg.");
-				const char* col0_15 = "0\0001\0002\0003\0004\0005\0006\0007\000"
-				                      "8\0009\00010\00011\00012\00013\00014\00015\000";
 				im::DisabledIndent(!overrideColorTable || (mode != one_of(GRAPHIC1, GRAPHIC2)), [&]{
-					int fg = (overrideColorValue >> 4) & 0x0f;
-					int bg = (overrideColorValue >> 0) & 0x0f;
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-					if (ImGui::Combo("fg", &fg, col0_15)) {
-						overrideColorValue = (fg << 4) | bg;
-					}
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-					ImGui::SameLine();
-					if (ImGui::Combo("bg", &bg, col0_15)) {
-						overrideColorValue = (fg << 4) | bg;
-					}
+					comboFgBgColor(overrideColorValue);
 				});
 
 				im::Disabled(mode != MODE4, [&]{

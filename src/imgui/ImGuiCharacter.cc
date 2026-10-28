@@ -139,7 +139,6 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		if (mode != TEXT80) rasterBeamPos.x /= 2;
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
 			im::Group([&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted("VDP settings");
@@ -188,7 +187,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				});
 				im::Disabled(manColor0, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Str));
+					ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Items));
 				});
 			});
 			ImGui::SameLine();
@@ -223,21 +222,20 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 								if (!isMSX1 && ImGui::Selectable("screen 4"))    manualMode = SCR4;
 							});
 						});
-						static const char* const range0_15 = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000";
 						im::Disabled(manualMode != one_of(TEXT40, TEXT80), [&]{
 							im::Disabled(!manFgCol, [&]{
-								ImGui::Combo("##fgCol", &manualFgCol, range0_15);
+								ImGui::Combo("##fgCol", &manualFgCol, colorItems);
 							});
 							im::Disabled(!manBgCol, [&]{
-								ImGui::Combo("##bgCol", &manualBgCol, range0_15);
+								ImGui::Combo("##bgCol", &manualBgCol, colorItems);
 							});
 						});
 						im::Disabled(manualMode != TEXT80, [&]{
 							im::Disabled(!manFgBlink, [&]{
-								ImGui::Combo("##fgBlink", &manualFgBlink, range0_15);
+								ImGui::Combo("##fgBlink", &manualFgBlink, colorItems);
 							});
 							im::Disabled(!manBgBlink, [&]{
-								ImGui::Combo("##bgBlink", &manualBgBlink, range0_15);
+								ImGui::Combo("##bgBlink", &manualBgBlink, colorItems);
 							});
 							im::Disabled(!manBlink, [&]{
 								ImGui::Combo("##blink", &manualBlink, "disabled\000enabled\000");
@@ -258,7 +256,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 							ImGui::Combo("##rows", &manualRows, "24\00026.5\00032\000");
 						});
 						im::Disabled(!manColor0, [&]{
-							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Str);
+							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Items);
 						});
 					});
 				});
@@ -287,20 +285,8 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				ImGui::Checkbox("Override color table", &overrideColorTable);
 				HelpMarker("Ignore the content of the color table and instead use this value for everything.\n"
 				           "Could be useful to visualize the patterns when the color table has the same value for fg and bg.");
-				const char* col0_15 = "0\0001\0002\0003\0004\0005\0006\0007\000"
-				                      "8\0009\00010\00011\00012\00013\00014\00015\000";
 				im::DisabledIndent(!overrideColorTable, [&]{
-					int fg = (overrideColorValue >> 4) & 0x0f;
-					int bg = (overrideColorValue >> 0) & 0x0f;
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-					if (ImGui::Combo("fg", &fg, col0_15)) {
-						overrideColorValue = (fg << 4) | bg;
-					}
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-					ImGui::SameLine();
-					if (ImGui::Combo("bg", &bg, col0_15)) {
-						overrideColorValue = (fg << 4) | bg;
-					}
+					comboFgBgColor(overrideColorValue);
 				});
 
 				ImGui::Separator();

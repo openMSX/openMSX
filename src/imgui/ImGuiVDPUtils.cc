@@ -5,7 +5,24 @@
 #include "ranges.hh"
 #include "xrange.hh"
 
+#include <imgui.h>
+
 namespace openmsx {
+
+void comboFgBgColor(int& colorValue)
+{
+	int fg = (colorValue >> 4) & 0x0f;
+	int bg = (colorValue >> 0) & 0x0f;
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
+	if (ImGui::Combo("fg", &fg, colorItems)) {
+		colorValue = (fg << 4) | bg;
+	}
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
+	ImGui::SameLine();
+	if (ImGui::Combo("bg", &bg, colorItems)) {
+		colorValue = (fg << 4) | bg;
+	}
+}
 
 void renderTextPatterns(function_ref<uint8_t(unsigned)> pat, uint32_t fg, uint32_t bg,
                         std::span<uint32_t> output)

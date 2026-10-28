@@ -37,6 +37,15 @@ inline void drawPatternRow6(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std
 	out[5] = (pattern & 0x04) ? fgCol : bgCol;
 }
 
+// Combo box items: the color numbers 0-15, and the same followed by "none"
+// (for the color 0 replacement).
+inline constexpr const char* colorItems = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000";
+inline constexpr const char* color0Items = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
+
+// The "fg" and "bg" combo boxes to edit a color byte (TMS9918-style:
+// foreground in the upper, background in the lower 4 bits).
+void comboFgBgColor(int& colorValue);
+
 // Render the patterns of the TMS9918-style character modes into an image (for
 // the tile viewers), 32 patterns per row. 'pat(i)' returns byte 'i' of the
 // pattern table, 'col(i)' byte 'i' of the color table.

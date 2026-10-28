@@ -4,6 +4,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "DisplayMode.hh"
 #include "VDP.hh"
@@ -165,7 +166,6 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			assert(false); return "ERROR";
 		};
 
-		static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
 		bool manualMode   = overrideAll || overrideMode;
 		bool manualPage   = overrideAll || overridePage;
 		bool manualLines  = overrideAll || overrideLines;
@@ -190,7 +190,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			});
 			im::Disabled(manualColor0, [&]{
 				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Str));
+				ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Items));
 			});
 			// TODO interlace
 		});
@@ -224,7 +224,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 						ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
 					});
 					im::Disabled(!manualColor0, [&]{
-						ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
+						ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Items);
 					});
 				});
 			});
