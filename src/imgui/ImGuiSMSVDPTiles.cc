@@ -362,24 +362,14 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				ImGui::Checkbox("Manual override", &overrideAll);
 				im::Group([&]{
 					im::Disabled(overrideAll, [&]{
-						ImGui::Checkbox("##o-mode",    overrideAll ? &overrideAll : &overrideMode);
-						// Foreground and background are only used in text mode.
-						im::Disabled(mode != TEXT, [&]{
-							ImGui::Checkbox("##o-fgCol", overrideAll ? &overrideAll : &overrideFgCol);
-							ImGui::Checkbox("##o-bgCol", overrideAll ? &overrideAll : &overrideBgCol);
-						});
-						im::Disabled(mode == MODE4, [&]{
-							ImGui::Checkbox("##o-pat",     overrideAll ? &overrideAll : &overridePat);
-						});
-						// Only graphics I and II have a color table.
-						im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
-							ImGui::Checkbox("##o-col",     overrideAll ? &overrideAll : &overrideCol);
-						});
-						ImGui::Checkbox("##o-nam",     overrideAll ? &overrideAll : &overrideNam);
-						im::Disabled(mode == MODE4, [&]{
-							ImGui::Checkbox("##o-rows",    overrideAll ? &overrideAll : &overrideRows);
-							ImGui::Checkbox("##o-color0",  overrideAll ? &overrideAll : &overrideColor0);
-						});
+						ImGui::Checkbox("##o-mode",   overrideAll ? &overrideAll : &overrideMode);
+						ImGui::Checkbox("##o-fgCol",  overrideAll ? &overrideAll : &overrideFgCol);
+						ImGui::Checkbox("##o-bgCol",  overrideAll ? &overrideAll : &overrideBgCol);
+						ImGui::Checkbox("##o-pat",    overrideAll ? &overrideAll : &overridePat);
+						ImGui::Checkbox("##o-col",    overrideAll ? &overrideAll : &overrideCol);
+						ImGui::Checkbox("##o-nam",    overrideAll ? &overrideAll : &overrideNam);
+						ImGui::Checkbox("##o-rows",   overrideAll ? &overrideAll : &overrideRows);
+						ImGui::Checkbox("##o-color0", overrideAll ? &overrideAll : &overrideColor0);
 					});
 				});
 				ImGui::SameLine();
@@ -398,6 +388,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 						// Gate on the mode actually shown. manualMode stays at its
 						// default when the mode itself is not overridden, so a chip
 						// in text mode would otherwise keep these editors disabled.
+						// Foreground and background are only used in text mode.
 						im::Disabled(mode != TEXT, [&]{
 							im::Disabled(!manFgCol, [&]{
 								ImGui::Combo("##fgCol", &manualFgCol, range0_15);
@@ -409,6 +400,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 						im::Disabled(!manPat || (mode == MODE4), [&]{
 							comboHexSequence<4>("##pattern", &manualPatBase, patMult(mode), vramSize, 0);
 						});
+						// Only graphics I and II have a color table.
 						im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
 							im::Disabled(!manCol, [&]{
 								comboHexSequence<4>("##color", &manualColBase, colMult(mode), vramSize, 0);
