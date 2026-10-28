@@ -250,7 +250,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\include\theora\codec.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\include\theora\theora.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\include\theora\theoradec.h" />
-    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\cpu.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\x86cpu.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\internal.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encint.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\enquant.h" />
@@ -269,7 +269,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\quant.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\cpu.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\x86cpu.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\analyze.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encapiwrapper.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\encfrag.c" />
