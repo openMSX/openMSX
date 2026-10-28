@@ -1,6 +1,6 @@
-diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3/include/freetype/config/ftoption.h
---- freetype-2.13.3.orig/include/freetype/config/ftoption.h	2024-07-18 09:14:58.000000000 +0200
-+++ freetype-2.13.3/include/freetype/config/ftoption.h	2024-10-01 00:51:24.574539971 +0200
+diff -ur freetype-2.15.0.orig/include/freetype/config/ftoption.h freetype-2.15.0/include/freetype/config/ftoption.h
+--- freetype-2.15.0.orig/include/freetype/config/ftoption.h	2026-10-02 11:15:12.000000000 +0200
++++ freetype-2.15.0/include/freetype/config/ftoption.h	2026-10-28 11:58:37.555146373 +0100
 @@ -180,7 +180,7 @@
     *
     *   Define this macro if you want to enable this 'feature'.
@@ -19,7 +19,7 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -331,7 +331,7 @@
+@@ -372,7 +372,7 @@
     *   You would normally undefine this configuration macro when building a
     *   version of FreeType that doesn't contain a Type~1 or CFF driver.
     */
@@ -28,7 +28,7 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -348,7 +348,7 @@
+@@ -389,7 +389,7 @@
     *   in your 'psnames' module.  The Type~1 driver will not be able to
     *   synthesize a Unicode charmap out of the glyphs found in the fonts.
     */
@@ -37,7 +37,7 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -361,7 +361,7 @@
+@@ -402,7 +402,7 @@
     *
     *   Note that the 'FOND' resource isn't checked.
     */
@@ -46,7 +46,7 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -538,7 +538,7 @@
+@@ -581,7 +581,7 @@
     *
     *   More details on the hooks can be found in file `otsvg.h`.
     */
@@ -55,7 +55,7 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -569,7 +569,7 @@
+@@ -612,7 +612,7 @@
     * embedded bitmaps in all formats using the 'sfnt' module (namely
     * TrueType~& OpenType).
     */
@@ -64,7 +64,7 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -593,7 +593,7 @@
+@@ -636,7 +636,7 @@
     *
     * (By default, the module uses 'psnames' to extract glyph names.)
     */
@@ -73,7 +73,7 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -607,7 +607,7 @@
+@@ -650,7 +650,7 @@
     * Accessing SFNT names is done through the functions declared in
     * `ftsnames.h`.
     */
@@ -82,16 +82,16 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-@@ -736,7 +736,7 @@
-    * Define `TT_CONFIG_OPTION_BDF` if you want to include support for an
-    * embedded 'BDF~' table within SFNT-based bitmap formats.
+@@ -801,7 +801,7 @@
+    *
+    * for more details.
     */
 -#define TT_CONFIG_OPTION_BDF
 +/* #define TT_CONFIG_OPTION_BDF */
  
  
    /**************************************************************************
-@@ -816,7 +816,7 @@
+@@ -881,7 +881,7 @@
     * into an existing face.  Note that if set, the Type~1 driver will be
     * unable to produce kerning distances.
     */
@@ -100,10 +100,10 @@ diff -ur freetype-2.13.3.orig/include/freetype/config/ftoption.h freetype-2.13.3
  
  
    /**************************************************************************
-diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
---- freetype-2.13.3.orig/modules.cfg	2024-07-18 09:14:59.000000000 +0200
-+++ freetype-2.13.3/modules.cfg	2024-10-01 00:48:16.229254426 +0200
-@@ -37,35 +37,35 @@
+diff -ur freetype-2.15.0.orig/modules.cfg freetype-2.15.0/modules.cfg
+--- freetype-2.15.0.orig/modules.cfg	2026-03-23 19:44:19.000000000 +0100
++++ freetype-2.15.0/modules.cfg	2026-10-28 12:00:15.340842345 +0100
+@@ -37,17 +37,17 @@
  # PostScript Type 1 font driver.
  #
  # This driver needs the `psaux', `pshinter', and `psnames' modules.
@@ -121,6 +121,11 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  # This driver needs the `psaux', `pshinter', and `psnames' modules.
 -FONT_MODULES += cid
 +#FONT_MODULES += cid
+ 
+ # Apple Hierarchical Variable Font (HVF) driver.
+ #
+@@ -56,22 +56,22 @@
+ FONT_MODULES += hvf
  
  # PFR/TrueDoc font driver.  See optional extension ftpfr.c below also.
 -FONT_MODULES += pfr
@@ -147,7 +152,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # SFNT files support.  If used without `truetype' or `cff', it supports
  # bitmap-only fonts within an SFNT wrapper.
-@@ -79,10 +79,10 @@
+@@ -85,10 +85,10 @@
  ####
  
  # FreeType's auto hinter.
@@ -160,7 +165,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # The TrueType hinting engine doesn't have a module of its own but is
  # controlled in file include/freetype/config/ftoption.h
-@@ -97,13 +97,13 @@
+@@ -103,13 +103,13 @@
  RASTER_MODULES += smooth
  
  # Monochrome rasterizer.
@@ -177,7 +182,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  
  ####
-@@ -113,7 +113,7 @@
+@@ -119,7 +119,7 @@
  # FreeType's cache sub-system (quite stable but still in beta -- this means
  # that its public API is subject to change if necessary).  See
  # include/freetype/ftcache.h.  Needs `ftglyph.c'.
@@ -186,7 +191,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # TrueType GX/AAT table validation.  Needs `ftgxval.c' below.
  #
-@@ -127,12 +127,12 @@
+@@ -133,12 +133,12 @@
  # Support for streams compressed with LZW (files with suffix .Z).
  #
  # See include/freetype/ftlzw.h for the API.
@@ -201,7 +206,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # OpenType table validation.  Needs `ftotval.c' below.
  #
-@@ -141,13 +141,13 @@
+@@ -147,13 +147,13 @@
  # Auxiliary PostScript driver component to share common code.
  #
  # This module depends on `psnames'.
@@ -217,7 +222,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  
  ####
-@@ -157,12 +157,12 @@
+@@ -163,12 +163,12 @@
  # Exact bounding box calculation.
  #
  # See include/freetype/ftbbox.h for the API.
@@ -232,7 +237,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # Utility functions for converting 1bpp, 2bpp, 4bpp, and 8bpp bitmaps into
  # 8bpp format, and for emboldening of bitmap glyphs.
-@@ -173,17 +173,17 @@
+@@ -179,17 +179,17 @@
  # Access CID font information.
  #
  # See include/freetype/ftcid.h for the API.
@@ -253,7 +258,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # Convenience functions to handle glyphs.  Needs `ftbitmap.c'.
  #
-@@ -193,7 +193,7 @@
+@@ -199,7 +199,7 @@
  # Interface for gxvalid module.
  #
  # See include/freetype/ftgxval.h for the API.
@@ -262,7 +267,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # Multiple Master font interface.
  #
-@@ -203,17 +203,17 @@
+@@ -209,17 +209,17 @@
  # Interface for otvalid module.
  #
  # See include/freetype/ftotval.h for the API.
@@ -283,7 +288,7 @@ diff -ur freetype-2.13.3.orig/modules.cfg freetype-2.13.3/modules.cfg
  
  # Path stroker.  Needs `ftglyph.c'.
  #
-@@ -230,13 +230,13 @@
+@@ -236,13 +236,13 @@
  # fonts.
  #
  # See include/freetype/t1tables.h for the API.
