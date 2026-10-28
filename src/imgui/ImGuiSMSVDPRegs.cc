@@ -317,45 +317,31 @@ void ImGuiSMSVDPRegs::paint(MSXMotherBoard* motherBoard)
 		auto time = motherBoard->getCurrentTime();
 
 		Regs regs(vdp, time);
-
-		newHoveredFunction = -1;
-		auto drawSection = [&](std::span<const uint8_t> showRegisters) {
-			drawVDPRegisterSection(vdpRegisters, showRegisters, regs, explanation,
-			                       hoveredFunction, newHoveredFunction);
-		};
-		im::TreeNode("Mode registers", &openMode, [&]{
-			static constexpr auto modeRegs = std::to_array<uint8_t>({0, 1});
-			drawSection(modeRegs);
-		});
-		im::TreeNode("Table base registers", &openBase, [&]{
-			static constexpr auto tableRegs = std::to_array<uint8_t>({2, 3, 4, 5, 6});
-			drawSection(tableRegs);
-		});
-		im::TreeNode("Scroll registers", &openScroll, [&]{
-			static constexpr auto scrollRegs = std::to_array<uint8_t>({8, 9});
-			drawSection(scrollRegs);
-		});
-		im::TreeNode("Color register", &openColor, [&]{
-			static constexpr auto colorRegs = std::to_array<uint8_t>({7});
-			drawSection(colorRegs);
-		});
-		im::TreeNode("Line counter", &openLineCounter, [&]{
-			static constexpr auto counterRegs = std::to_array<uint8_t>({10});
-			drawSection(counterRegs);
-		});
-		im::TreeNode("Status register", &openStatus, [&]{
-			static constexpr auto statusRegs = std::to_array<uint8_t>({STATUS});
-			drawSection(statusRegs);
-		});
-		hoveredFunction = newHoveredFunction;
-
-		if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-			ImGui::OpenPopup("context");
-		}
-		im::Popup("context", [&]{
-			if (ImGui::Checkbox("Show explanation ", &explanation)) {
-				ImGui::CloseCurrentPopup();
-			}
+		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, [&](auto& viewer) {
+			im::TreeNode("Mode registers", &openMode, [&]{
+				static constexpr auto modeRegs = std::to_array<uint8_t>({0, 1});
+				viewer.drawSection(modeRegs);
+			});
+			im::TreeNode("Table base registers", &openBase, [&]{
+				static constexpr auto tableRegs = std::to_array<uint8_t>({2, 3, 4, 5, 6});
+				viewer.drawSection(tableRegs);
+			});
+			im::TreeNode("Scroll registers", &openScroll, [&]{
+				static constexpr auto scrollRegs = std::to_array<uint8_t>({8, 9});
+				viewer.drawSection(scrollRegs);
+			});
+			im::TreeNode("Color register", &openColor, [&]{
+				static constexpr auto colorRegs = std::to_array<uint8_t>({7});
+				viewer.drawSection(colorRegs);
+			});
+			im::TreeNode("Line counter", &openLineCounter, [&]{
+				static constexpr auto counterRegs = std::to_array<uint8_t>({10});
+				viewer.drawSection(counterRegs);
+			});
+			im::TreeNode("Status register", &openStatus, [&]{
+				static constexpr auto statusRegs = std::to_array<uint8_t>({STATUS});
+				viewer.drawSection(statusRegs);
+			});
 		});
 	});
 }

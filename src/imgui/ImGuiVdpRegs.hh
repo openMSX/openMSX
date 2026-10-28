@@ -22,7 +22,6 @@ public:
 
 private:
 	int hoveredFunction = -1;
-	int newHoveredFunction = -1;
 	bool explanation = true;
 	bool openControl = false;
 	bool openMode = false;

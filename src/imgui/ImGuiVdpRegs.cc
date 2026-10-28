@@ -453,81 +453,67 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 		const bool v9958 = vdp->hasYJK();
 
 		Regs regs(*vdp, time);
-
-		newHoveredFunction = -1;
-		auto drawSection = [&](std::span<const uint8_t> showRegisters) {
-			drawVDPRegisterSection(vdpRegisters, showRegisters, regs, explanation,
-			                       hoveredFunction, newHoveredFunction);
-		};
 		auto make_span = [](const auto& array) {
 			return std::span<const uint8_t, std::dynamic_extent>(std::span(array));
 		};
-		im::TreeNode("Control registers", &openControl, [&]{
-			im::TreeNode("Mode registers", &openMode, [&]{
-				static constexpr auto modeRegs1 = std::to_array<uint8_t>({0, 1});
-				static constexpr auto modeRegs2 = std::to_array<uint8_t>({0, 1, 8, 9});
-				auto modeRegs = tms99x8 ? make_span(modeRegs1) : make_span(modeRegs2);
-				drawSection(modeRegs);
-			});
-			im::TreeNode("Table base registers", &openBase, [&]{
-				static constexpr auto tableRegs1 = std::to_array<uint8_t>({2, 3, 4, 5, 6});
-				static constexpr auto tableRegs2 = std::to_array<uint8_t>({2, 3, 10, 4, 5, 11, 6});
-				auto tableRegs = tms99x8 ? make_span(tableRegs1) : make_span(tableRegs2);
-				drawSection(tableRegs);
-			});
-			im::TreeNode("Color registers", &openColor, [&]{
-				static constexpr auto colorRegs1 = std::to_array<uint8_t>({7});
-				static constexpr auto colorRegs2 = std::to_array<uint8_t>({7, 12, 13, 20, 21, 22});
-				auto colorRegs = tms99x8 ? make_span(colorRegs1) : make_span(colorRegs2);
-				drawSection(colorRegs);
-			});
-			if (!tms99x8) {
-				im::TreeNode("Display registers", &openDisplay, [&]{
-					static constexpr auto displayRegs = std::to_array<uint8_t>({18, 19, 23});
-					drawSection(displayRegs);
+		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, [&](auto& viewer) {
+			im::TreeNode("Control registers", &openControl, [&]{
+				im::TreeNode("Mode registers", &openMode, [&]{
+					static constexpr auto modeRegs1 = std::to_array<uint8_t>({0, 1});
+					static constexpr auto modeRegs2 = std::to_array<uint8_t>({0, 1, 8, 9});
+					auto modeRegs = tms99x8 ? make_span(modeRegs1) : make_span(modeRegs2);
+					viewer.drawSection(modeRegs);
 				});
-			}
-			im::TreeNode("Access registers", &openAccess, [&]{
-				if (tms99x8) {
-					ImGui::StrCat("VRAM access address: 0x",
-					              hex_string<4>(vdp->getVramPointer()), '\n');
-				} else {
-					static constexpr auto accessRegs = std::to_array<uint8_t>({14, 15, 16, 17});
-					drawSection(accessRegs);
+				im::TreeNode("Table base registers", &openBase, [&]{
+					static constexpr auto tableRegs1 = std::to_array<uint8_t>({2, 3, 4, 5, 6});
+					static constexpr auto tableRegs2 = std::to_array<uint8_t>({2, 3, 10, 4, 5, 11, 6});
+					auto tableRegs = tms99x8 ? make_span(tableRegs1) : make_span(tableRegs2);
+					viewer.drawSection(tableRegs);
+				});
+				im::TreeNode("Color registers", &openColor, [&]{
+					static constexpr auto colorRegs1 = std::to_array<uint8_t>({7});
+					static constexpr auto colorRegs2 = std::to_array<uint8_t>({7, 12, 13, 20, 21, 22});
+					auto colorRegs = tms99x8 ? make_span(colorRegs1) : make_span(colorRegs2);
+					viewer.drawSection(colorRegs);
+				});
+				if (!tms99x8) {
+					im::TreeNode("Display registers", &openDisplay, [&]{
+						static constexpr auto displayRegs = std::to_array<uint8_t>({18, 19, 23});
+						viewer.drawSection(displayRegs);
+					});
+				}
+				im::TreeNode("Access registers", &openAccess, [&]{
+					if (tms99x8) {
+						ImGui::StrCat("VRAM access address: 0x",
+						              hex_string<4>(vdp->getVramPointer()), '\n');
+					} else {
+						static constexpr auto accessRegs = std::to_array<uint8_t>({14, 15, 16, 17});
+						viewer.drawSection(accessRegs);
+					}
+				});
+				if (v9958) {
+					im::TreeNode("V9958 registers", &openV9958, [&]{
+						static constexpr auto v9958Regs = std::to_array<uint8_t>({25, 26, 27});
+						viewer.drawSection(v9958Regs);
+					});
 				}
 			});
-			if (v9958) {
-				im::TreeNode("V9958 registers", &openV9958, [&]{
-					static constexpr auto v9958Regs = std::to_array<uint8_t>({25, 26, 27});
-					drawSection(v9958Regs);
+			if (!tms99x8) {
+				im::TreeNode("Command registers", &openCommand, [&]{
+					static constexpr auto cmdRegs = std::to_array<uint8_t>({
+						32, 33, 34, 35,  36, 37, 38, 39,  40, 41, 42, 43,  44, 45, 46
+					});
+					viewer.drawSection(cmdRegs);
 				});
 			}
-		});
-		if (!tms99x8) {
-			im::TreeNode("Command registers", &openCommand, [&]{
-				static constexpr auto cmdRegs = std::to_array<uint8_t>({
-					32, 33, 34, 35,  36, 37, 38, 39,  40, 41, 42, 43,  44, 45, 46
+			im::TreeNode("Status registers", &openStatus, [&]{
+				static constexpr auto statusRegs1 = std::to_array<uint8_t>({64});
+				static constexpr auto statusRegs2 = std::to_array<uint8_t>({
+					64, 65, 66, 67, 68, 69, 70, 71, 72, 73
 				});
-				drawSection(cmdRegs);
+				auto statusRegs = tms99x8 ? make_span(statusRegs1) : make_span(statusRegs2);
+				viewer.drawSection(statusRegs);
 			});
-		}
-		im::TreeNode("Status registers", &openStatus, [&]{
-			static constexpr auto statusRegs1 = std::to_array<uint8_t>({64});
-			static constexpr auto statusRegs2 = std::to_array<uint8_t>({
-				64, 65, 66, 67, 68, 69, 70, 71, 72, 73
-			});
-			auto statusRegs = tms99x8 ? make_span(statusRegs1) : make_span(statusRegs2);
-			drawSection(statusRegs);
-		});
-		hoveredFunction = newHoveredFunction;
-
-		if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-			ImGui::OpenPopup("context");
-		}
-		im::Popup("context", [&]{
-			if (ImGui::Checkbox("Show explanation ", &explanation)) {
-				ImGui::CloseCurrentPopup();
-			}
 		});
 	});
 }

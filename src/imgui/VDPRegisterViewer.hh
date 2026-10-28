@@ -59,9 +59,9 @@ struct RegFunction {
 		return display ? display(value) : displayRegs(value, regs);
 	}
 
-	// drawVDPRegisterSection() draws this item when 'subs[0].reg' or 'subs[1].reg' is
-	// part of 'showRegisters'; when 'subs[0].mask == 0' the item cannot be
-	// highlighted (typically such items show a fixed string).
+	// VDPRegisterViewer::drawSection() draws this item when 'subs[0].reg' or
+	// 'subs[1].reg' is part of 'showRegisters'; when 'subs[0].mask == 0' the
+	// item cannot be highlighted (typically such items show a fixed string).
 	std::array<RegSubFunction, 2> subs;
 	std::string_view toolTip;
 	Display display = nullptr;
@@ -92,14 +92,37 @@ template<typename Regs>
 	return -1;
 }
 
-// Draw a table with the registers 'showRegisters' (the control registers are
-// editable), followed by their explanation (when enabled).
-// The function 'hoveredFunction' is highlighted; 'newHoveredFunction' is set
-// when a function is hovered.
+// Draws the register sections of one frame, see drawVDPRegisters().
 template<typename Regs>
-void drawVDPRegisterSection(const VDPRegisterTables<Regs>& tables, std::span<const uint8_t> showRegisters,
-                            const Regs& regs, bool explanation,
-                            int hoveredFunction, int& newHoveredFunction)
+class VDPRegisterViewer {
+public:
+	// Draw a table with the registers 'showRegisters' (the control registers
+	// are editable), followed by their explanation (when enabled).
+	void drawSection(std::span<const uint8_t> showRegisters);
+
+private:
+	VDPRegisterViewer(const VDPRegisterTables<Regs>& tables_, const Regs& regs_,
+	                  int& hoveredFunction_, bool& explanation_)
+		: tables(tables_), regs(regs_)
+		, hoveredFunction(hoveredFunction_), explanation(explanation_) {}
+
+	// After the last section (but still inside the window): remembers the
+	// hovered item and handles the context menu.
+	void end();
+
+	template<typename R, typename Sections>
+	friend void drawVDPRegisters(const VDPRegisterTables<R>& tables, const R& regs,
+	                             int& hoveredFunction, bool& explanation, Sections&& sections);
+
+	const VDPRegisterTables<Regs>& tables;
+	const Regs& regs;
+	int& hoveredFunction;
+	bool& explanation;
+	int newHoveredFunction = -1;
+};
+
+template<typename Regs>
+void VDPRegisterViewer<Regs>::drawSection(std::span<const uint8_t> showRegisters)
 {
 	using namespace std::literals;
 	std::span<const uint8_t> regValues = regs.values;
@@ -216,6 +239,38 @@ void drawVDPRegisterSection(const VDPRegisterTables<Regs>& tables, std::span<con
 			}
 		}
 	}
+}
+
+template<typename Regs>
+void VDPRegisterViewer<Regs>::end()
+{
+	hoveredFunction = newHoveredFunction;
+
+	if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+		ImGui::OpenPopup("context");
+	}
+	im::Popup("context", [&]{
+		if (ImGui::Checkbox("Show explanation ", &explanation)) {
+			ImGui::CloseCurrentPopup();
+		}
+	});
+}
+
+// Draws the register sections of one frame: 'sections(viewer)' draws each
+// section with viewer.drawSection(), e.g.
+//     drawVDPRegisters(tables, regs, hoveredFunction, explanation, [&](auto& viewer) {
+//         im::TreeNode("Mode registers", ..., [&]{ viewer.drawSection(modeRegs); });
+//         ...
+//     });
+// 'hoveredFunction' and 'explanation' must outlive the frame: the hovered item
+// is highlighted in the next frame, 'explanation' is a (persistent) setting.
+template<typename Regs, typename Sections>
+void drawVDPRegisters(const VDPRegisterTables<Regs>& tables, const Regs& regs,
+                      int& hoveredFunction, bool& explanation, Sections&& sections)
+{
+	VDPRegisterViewer<Regs> viewer(tables, regs, hoveredFunction, explanation);
+	sections(viewer);
+	viewer.end();
 }
 
 } // namespace openmsx

@@ -30,7 +30,6 @@ private:
 	std::string title;
 
 	int hoveredFunction = -1;
-	int newHoveredFunction = -1;
 	bool explanation = true;
 	bool openMode = false;
 	bool openBase = false;
