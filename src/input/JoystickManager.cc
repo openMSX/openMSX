@@ -126,7 +126,9 @@ std::string JoystickManager::getDisplayName(JoystickId joyId) const
 {
 	unsigned id = joyId.raw();
 	auto* joystick = (id < infos.size()) ? infos[id].joystick : nullptr;
-	return joystick ? SDL_JoystickName(joystick) : "[Not plugged in]";
+	if (!joystick) return "[Not plugged in]";
+	const char* name = SDL_JoystickName(joystick); // nullptr if there's no name
+	return name ? name : "[Unnamed joystick]";
 }
 
 std::optional<unsigned> JoystickManager::getNumAxes(JoystickId joyId) const
