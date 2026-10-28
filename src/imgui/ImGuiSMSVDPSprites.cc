@@ -305,21 +305,10 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				// One zoom for all sections, like the MSX VDP sprite viewer.
 				zoomAndGridSettings(zoom, grid, gridColor);
 
-				ImGui::TextUnformatted("Checkerboard:"sv);
-				simpleToolTip("Used as background for transparent pixels and in the "
-				              "'Rendered sprites' view. Pick both colors equal for a "
-				              "solid background.");
-				ImGui::SameLine();
-				colorEditWithReset("checkerboard color1", checkerBoardColor1, defaultCheckerBoardColor1);
-				ImGui::SameLine();
-				colorEditWithReset("checkerboard color2", checkerBoardColor2, defaultCheckerBoardColor2);
-				im::Indent([&]{
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
-					if (ImGui::InputInt("size", &checkerBoardSize)) {
-						checkerBoardSize = std::clamp(checkerBoardSize, 0, maxCheckerBoardSize);
-					}
-					simpleToolTip("0 = no checkerboard");
-				});
+				checkerBoardSettings("Used as background for transparent pixels and in the "
+				                     "'Rendered sprites' view. Pick both colors equal for a "
+				                     "solid background.",
+				                     checkerBoardColor1, checkerBoardColor2, checkerBoardSize);
 			});
 		});
 

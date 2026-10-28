@@ -346,6 +346,9 @@ void updateTexture(gl::Texture& tex, gl::ivec2 size, std::span<const uint32_t> p
 // created first.
 void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color);
 
+// The default colors of a checkerboard background.
+inline constexpr gl::vec4 defaultCheckerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
+inline constexpr gl::vec4 defaultCheckerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
 // Texture for a checkerboard background: 2x2 pixels that wrap. A null texture
 // is created first.
 void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color2);

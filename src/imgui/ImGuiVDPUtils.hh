@@ -27,6 +27,12 @@ void rasterBeamSettings(bool& rasterBeam, gl::vec4& color, gl::ivec2 pos, ImFont
 // 'scrnPos', with 'zoom' host pixels per VDP pixel.
 void addRasterBeam(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, gl::vec2 pos, gl::vec4 color);
 
+// The checkerboard background of the sprite viewers.
+inline constexpr int maxCheckerBoardSize = 255;
+// Its settings: both colors and the size of the squares (0 = none);
+// 'toolTip' explains where it's used.
+void checkerBoardSettings(std::string_view toolTip, gl::vec4& color1, gl::vec4& color2, int& size);
+
 // One row of a 1-bit-per-pixel pattern, the most significant bit is the
 // leftmost pixel.
 inline void drawPatternRow8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 8> out)

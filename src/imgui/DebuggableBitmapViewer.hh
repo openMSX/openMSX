@@ -3,6 +3,7 @@
 
 #include "BitmapDecoderSettings.hh"
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
 
 #include "GLUtil.hh"
 #include "gl_vec.hh"
@@ -77,8 +78,8 @@ private:
 	int zoom = 1; // 0->1x, 1->2x, ..., 7->8x
 	bool pixelGrid = true;
 	gl::vec4 pixelGridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
-	gl::vec4 checkerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
-	gl::vec4 checkerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
+	gl::vec4 checkerBoardColor1{defaultCheckerBoardColor1}; // RGBA
+	gl::vec4 checkerBoardColor2{defaultCheckerBoardColor2}; // RGBA
 	int checkerBoardSize = 4; // 0 -> no checkerboard
 	// Size 0: an overlay line; otherwise a gutter of that many screen pixels.
 	// When both grids are enabled, the group size is at least the tile size.

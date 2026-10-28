@@ -7,6 +7,7 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <string_view>
 
 namespace openmsx {
@@ -42,6 +43,23 @@ void addRasterBeam(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, gl::ve
 {
 	auto center = scrnPos + (pos + gl::vec2{0.5f}) * zoom;
 	addCrosshair(drawList, center, zoom, ImGui::ColorConvertFloat4ToU32(color), zoom.y * 0.5f);
+}
+
+void checkerBoardSettings(std::string_view toolTip, gl::vec4& color1, gl::vec4& color2, int& size)
+{
+	ImGui::TextUnformatted("Checkerboard:"sv);
+	simpleToolTip(toolTip);
+	ImGui::SameLine();
+	colorEditWithReset("checkerboard color1", color1, defaultCheckerBoardColor1);
+	ImGui::SameLine();
+	colorEditWithReset("checkerboard color2", color2, defaultCheckerBoardColor2);
+	im::Indent([&]{
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
+		if (ImGui::InputInt("size", &size)) {
+			size = std::clamp(size, 0, maxCheckerBoardSize);
+		}
+		simpleToolTip("0 = no checkerboard");
+	});
 }
 
 void comboFgBgColor(int& colorValue)

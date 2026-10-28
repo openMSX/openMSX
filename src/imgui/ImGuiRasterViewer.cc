@@ -265,11 +265,9 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 	im::Child("##display", min(availSize, reqSize), {}, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		scrnPos = ImGui::GetCursorScreenPos();
 
-		gl::vec4 checkerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
-		gl::vec4 checkerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
 		updateCheckerBoardTexture(checkerTex,
-		                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor1),
-		                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor2));
+		                          ImGui::ColorConvertFloat4ToU32(defaultCheckerBoardColor1),
+		                          ImGui::ColorConvertFloat4ToU32(defaultCheckerBoardColor2));
 
 		// align checkerboard pattern with MSX pixel (0,0) (when set-adjust is 0)
 		static constexpr float checkerBoardSize = 8.0f;

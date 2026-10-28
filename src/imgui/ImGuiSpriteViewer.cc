@@ -245,19 +245,8 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::Separator();
 				zoomAndGridSettings(zoom, grid, gridColor);
 
-				ImGui::TextUnformatted("Checkerboard:"sv);
-				simpleToolTip("Used as background in 'Sprite attribute' and 'Rendered sprites' view");
-				ImGui::SameLine();
-				colorEditWithReset("checkerboard color1", checkerBoardColor1, defaultCheckerBoardColor1);
-				ImGui::SameLine();
-				colorEditWithReset("checkerboard color2", checkerBoardColor2, defaultCheckerBoardColor2);
-				im::Indent([&]{
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
-					if (ImGui::InputInt("size", &checkerBoardSize)) {
-						checkerBoardSize = std::clamp(checkerBoardSize, 0, maxCheckerBoardSize);
-					}
-					simpleToolTip("0 = no checkerboard");
-				});
+				checkerBoardSettings("Used as background in 'Sprite attribute' and 'Rendered sprites' view",
+				                     checkerBoardColor1, checkerBoardColor2, checkerBoardSize);
 			});
 		});
 		ImGui::Separator();
