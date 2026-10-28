@@ -2,12 +2,17 @@
 
 #include "ImGuiUtils.hh"
 
+#include "GLUtil.hh"
+
+#include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
 
 #include <imgui.h>
 
 #include <algorithm>
+#include <array>
+#include <ranges>
 #include <string_view>
 
 namespace openmsx {
@@ -117,6 +122,51 @@ void comboFgBgColor(int& colorValue)
 	ImGui::SameLine();
 	if (ImGui::Combo("bg", &bg, colorItems)) {
 		colorValue = (fg << 4) | bg;
+	}
+}
+
+gl::Texture createHexDigitsTexture()
+{
+	// font definition: 16 glyphs 0-9 A-F, each 5 x 8 pixels
+	static constexpr int charWidth = 5;
+	static constexpr int charHeight = 8;
+	static constexpr int totalWidth = 16 * charWidth;
+	static constexpr int totalSize = totalWidth * charHeight;
+	static constexpr std::string_view glyphs =
+		" ...  ...  ................................................  ........ .........."
+		".MMM...M. .MMM..MMM..M.M..MMM..MMM..MMM..MMM..MMM..MMM..MM....MM..MM...MMM..MMM."
+		".M.M..MM. ...M....M..M.M..M....M......M..M.M..M.M..M.M..M.M..M....M.M..M....M..."
+		".M.M...M.  .MM..MMM..M.M..MMM..MMM.  .M..MMM..MMM..MMM..MM...M.  .M.M..MMM..MMM."
+		".M.M. .M. .M.. ...M..MMM....M..M.M.  .M..M.M....M..M.M..M.M..M.  .M.M..M....M..."
+		".M.M. .M. .M......M....M....M..M.M.  .M..M.M....M..M.M..M.M..M....M.M..M....M.  "
+		".MMM. .M. .MMM..MMM.  .M..MMM..MMM.  .M..MMM..MMM..M.M..MM....MM..MM...MMM..M.  "
+		" ...  ... ..........  .............  ......................  ........ ........  ";
+	static_assert(glyphs.size() == totalSize);
+	static_assert(hexDigitSize.x == charWidth && hexDigitSize.y == charHeight);
+
+	// transform to 32-bit RGBA
+	std::array<uint32_t, totalSize> pixels;
+	for (auto [c, p] : std::views::zip(glyphs, pixels)) {
+		p = (c == ' ') ? ImColor(0.0f, 0.0f, 0.0f, 0.0f)  // transparent
+		  : (c == '.') ? ImColor(0.0f, 0.0f, 0.0f, 0.7f)  // black semi-transparent outline
+		               : ImColor(1.0f, 1.0f, 1.0f, 0.7f); // white semi-transparent
+	}
+
+	// and upload as a texture
+	gl::Texture tex(gl::Null{});
+	updateTexture(tex, {totalWidth, charHeight}, pixels);
+	return tex;
+}
+
+void addHexDigits(ImDrawList* drawList, gl::vec2 pos, gl::vec2 step, unsigned value, int numDigits)
+{
+	static constexpr float texDigitWidth = 1.0f / 16.0f;
+	static constexpr gl::vec2 texDigitSize{texDigitWidth, 1.0f};
+	for (auto i : xrange(numDigits)) {
+		auto digit = (value >> (4 * (numDigits - 1 - i))) & 15;
+		gl::vec2 uv{narrow_cast<float>(digit) * texDigitWidth, 0.0f};
+		drawList->PrimRectUV(pos, pos + hexDigitSize, uv, uv + texDigitSize, 0xffffffff);
+		pos += step;
 	}
 }
 

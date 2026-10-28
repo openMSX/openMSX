@@ -24,7 +24,6 @@ private:
 	static void renderPatterns(int mode, std::span<const uint32_t, 16> palette,
 	                           int fgCol, int bgCol, int fgBlink, int bgBlink,
 	                           VramTable& pat, VramTable& col, int lines, std::span<uint32_t> output);
-	void initHexDigits();
 
 public:
 	bool show = true;

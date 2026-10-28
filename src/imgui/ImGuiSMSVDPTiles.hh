@@ -55,7 +55,6 @@ private:
 	                           std::span<const uint8_t, 0x4000> vram,
 	                           const VramTables& tables,
 	                           std::span<uint32_t> output);
-	void initHexDigits();
 
 public:
 	bool show = true;

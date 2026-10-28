@@ -16,8 +16,6 @@
 
 #include <imgui.h>
 
-#include <ranges>
-
 namespace openmsx {
 
 using namespace std::literals;
@@ -36,40 +34,6 @@ void ImGuiCharacter::save(ImGuiTextBuffer& buf)
 void ImGuiCharacter::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
-}
-
-void ImGuiCharacter::initHexDigits()
-{
-	smallHexDigits = gl::Texture(false, false); // no interpolation, no wrapping
-
-	// font definition: 16 glyphs 0-9 A-F, each 5 x 8 pixels
-	static constexpr int charWidth = 5;
-	static constexpr int charHeight = 8;
-	static constexpr int totalWidth = 16 * charWidth;
-	static constexpr int totalSize = totalWidth * charHeight;
-	static constexpr std::string_view glyphs =
-		" ...  ...  ................................................  ........ .........."
-		".MMM...M. .MMM..MMM..M.M..MMM..MMM..MMM..MMM..MMM..MMM..MM....MM..MM...MMM..MMM."
-		".M.M..MM. ...M....M..M.M..M....M......M..M.M..M.M..M.M..M.M..M....M.M..M....M..."
-		".M.M...M.  .MM..MMM..M.M..MMM..MMM.  .M..MMM..MMM..MMM..MM...M.  .M.M..MMM..MMM."
-		".M.M. .M. .M.. ...M..MMM....M..M.M.  .M..M.M....M..M.M..M.M..M.  .M.M..M....M..."
-		".M.M. .M. .M......M....M....M..M.M.  .M..M.M....M..M.M..M.M..M....M.M..M....M.  "
-		".MMM. .M. .MMM..MMM.  .M..MMM..MMM.  .M..MMM..MMM..M.M..MM....MM..MM...MMM..M.  "
-		" ...  ... ..........  .............  ......................  ........ ........  ";
-	static_assert(glyphs.size() == totalSize);
-
-	// transform to 32-bit RGBA
-	std::array<uint32_t, totalSize> pixels;
-	for (auto [c, p] : std::views::zip(glyphs, pixels)) {
-		p = (c == ' ') ? ImColor(0.0f, 0.0f, 0.0f, 0.0f)  // transparent
-		  : (c == '.') ? ImColor(0.0f, 0.0f, 0.0f, 0.7f)  // black semi-transparent outline
-		               : ImColor(1.0f, 1.0f, 1.0f, 0.7f); // white semi-transparent
-	}
-
-	// and upload as a texture
-	smallHexDigits.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, totalWidth, charHeight, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 }
 
 void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
@@ -285,7 +249,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			                  ImGui::ColorConvertFloat4ToU32(gridColor));
 		}
 		if (nameTableOverlay && !smallHexDigits.get()) {
-			initHexDigits();
+			smallHexDigits = createHexDigitsTexture();
 		}
 
 		auto printPatternNr = [](unsigned pat) {
@@ -428,19 +392,11 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 					if (nameTableOverlay) {
 						drawList->PushTexture(smallHexDigits.getImGui());
 						drawList->PrimReserve(12 * numChars, 8 * numChars);
-						static constexpr gl::vec2 digitSize{5.0f, 8.0f};
-						static constexpr float texDigitWidth = 1.0f / 16.0f;
-						static constexpr gl::vec2 texDigitSize{texDigitWidth, 1.0f};
-						auto digitOffset = narrow ? gl::vec2{0.0f, digitSize.y} : gl::vec2{digitSize.x, 0.0f};
+						auto digitOffset = narrow ? gl::vec2{0.0f, hexDigitSize.y} : gl::vec2{hexDigitSize.x, 0.0f};
 						for (auto row : xrange(rowsCeil)) {
 							for (auto column : xrange(columns)) {
-								gl::vec2 p1 = scrnPos + charZoom * gl::vec2{float(column), float(row)};
-								gl::vec2 p2 = p1 + digitOffset;
-								auto pattern = getPattern(column, row);
-								gl::vec2 uv1{narrow_cast<float>((pattern >> 4) & 15) * texDigitWidth, 0.0f};
-								gl::vec2 uv2{narrow_cast<float>((pattern >> 0) & 15) * texDigitWidth, 0.0f};
-								drawList->PrimRectUV(p1, p1 + digitSize, uv1, uv1 + texDigitSize, 0xffffffff);
-								drawList->PrimRectUV(p2, p2 + digitSize, uv2, uv2 + texDigitSize, 0xffffffff);
+								gl::vec2 pos = scrnPos + charZoom * gl::vec2{float(column), float(row)};
+								addHexDigits(drawList, pos, digitOffset, getPattern(column, row), 2);
 							}
 						}
 						drawList->PopTexture();

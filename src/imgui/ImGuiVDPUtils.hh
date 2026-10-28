@@ -14,6 +14,7 @@
 
 struct ImDrawList;
 struct ImFont;
+namespace gl { class Texture; }
 
 namespace openmsx {
 
@@ -83,6 +84,17 @@ inline constexpr const char* color0Items = "0\0001\0002\0003\0004\0005\0006\0007
 // The "fg" and "bg" combo boxes to edit a color byte (TMS9918-style:
 // foreground in the upper, background in the lower 4 bits).
 void comboFgBgColor(int& colorValue);
+
+// Small hex digit font, e.g. to overlay tile numbers on a name table: a
+// texture with the 16 glyphs 0-9 A-F next to each other.
+inline constexpr gl::vec2 hexDigitSize{5.0f, 8.0f};
+[[nodiscard]] gl::Texture createHexDigitsTexture();
+
+// Add the lowest 'numDigits' hex digits of 'value' (most significant first),
+// each digit 'step' further than the previous one. The caller must have
+// pushed the hex digits texture and reserved 6 indices and 4 vertices per
+// digit (ImDrawList::PrimReserve()).
+void addHexDigits(ImDrawList* drawList, gl::vec2 pos, gl::vec2 step, unsigned value, int numDigits);
 
 // Render the patterns of the TMS9918-style character modes into an image (for
 // the tile viewers), 32 patterns per row. 'pat(i)' returns byte 'i' of the
