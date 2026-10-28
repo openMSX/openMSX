@@ -33,7 +33,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\include\theora\theoradec.h">
       <Filter>include\theora</Filter>
     </ClInclude>
-    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\cpu.h">
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\x86cpu.h">
       <Filter>lib</Filter>
     </ClInclude>
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\internal.h">
@@ -86,7 +86,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\cpu.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\x86_vc\x86cpu.c">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTheora)\lib\analyze.c">
