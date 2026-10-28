@@ -162,6 +162,38 @@ void renderSpritePatterns16(function_ref<uint8_t(unsigned)> pat, std::span<uint3
 }
 [[nodiscard]] std::pair<gl::vec2, gl::vec2> spritePatternUV(unsigned pattern, int size);
 
+// The bounding box of a sprite on the 'Rendered sprites' screen (in VDP
+// pixels, clipped to that screen), with the sprite's attributes.
+struct SpriteBox {
+	int x, y, w, h; // box
+	int sprite;
+	uint8_t vramX, vramY;
+	unsigned pattern;
+
+	[[nodiscard]] bool contains(gl::ivec2 p) const {
+		return (x <= p.x) && (p.x < (x + w)) &&
+		       (y <= p.y) && (p.y < (y + h));
+	}
+};
+
+// Clip one side of a sprite box, [pos, pos + size), to [0, limit).
+// Returns false when nothing of it remains.
+[[nodiscard]] bool clipSpriteBoxSide(int& pos, int& size, int limit);
+
+// The "Bounding box" checkbox, its color, and whether to draw it on the
+// hovered or on all sprites.
+void spriteBoxSettings(bool& draw, gl::vec4& color, int& onAll);
+
+// Outline the 'boxes' on the screen at 'scrnPos' (zoomed 'zoom' times): all
+// of them when 'onAll' is set, otherwise those under the mouse ('hoverPos',
+// only when 'hovered').
+void drawSpriteBoxes(ImDrawList* drawList, gl::vec2 scrnPos, float zoom, std::span<const SpriteBox> boxes,
+                     gl::vec4 color, bool onAll, bool hovered, gl::ivec2 hoverPos);
+
+// A bullet with the attributes of each sprite whose box contains 'pos'. The
+// pattern number is also shown as 'patternDigits' hex digits.
+void printSpriteBoxes(std::span<const SpriteBox> boxes, gl::ivec2 pos, int patternDigits);
+
 } // namespace openmsx
 
 #endif

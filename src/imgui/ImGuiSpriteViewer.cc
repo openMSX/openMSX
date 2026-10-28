@@ -12,6 +12,7 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
+#include "static_vector.hh"
 #include "xrange.hh"
 
 #include <imgui.h>
@@ -364,13 +365,6 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		im::TreeNode("Rendered sprites", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			struct SpriteBox {
-				int x, y, w, h; // box
-				uint8_t sprite;
-				uint8_t vramX, vramY;
-				uint8_t pattern;
-			};
-
 			std::array<uint8_t, 256> spriteCount = {}; // zero initialize
 			std::array<std::array<SpriteChecker::SpriteInfo, 32 + 1>, 256> spriteBuffer; // uninitialized
 			std::array<SpriteBox, 32> spriteBoxes; // uninitialized
@@ -515,33 +509,21 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			}
 			updateTexture(renderTex, {256, lines}, screen, true); // with wrapping
 
-			std::array<SpriteBox, 2 * 32> clippedBoxes;
-			int nrClippedBoxes = 0;
-			auto addClippedBox = [&](SpriteBox b) {
-				assert(nrClippedBoxes < 64);
-				clippedBoxes[nrClippedBoxes] = b;
-				++nrClippedBoxes;
-			};
+			static_vector<SpriteBox, 2 * 32> clippedBoxes;
 			for (int sprite : xrange(spriteCnt)) {
 				const auto& b = spriteBoxes[sprite];
 				int x = b.x;
 				int y = b.y;
 				int w = b.w;
 				int h = b.h;
-				if (x < 0) {
-					w += x;
-					if (w <= 0) continue;
-					x = 0;
-				} else if (x + w > 256) {
-					w = 256 - x;
-				}
+				if (!clipSpriteBoxSide(x, w, 256)) continue;
 
 				int yEnd = y + h;
 				if (yEnd < 256) {
-					addClippedBox(SpriteBox{x, y, w, h, b.sprite, b.vramX, b.vramY, b.pattern});
+					clippedBoxes.push_back(SpriteBox{x, y, w, h, b.sprite, b.vramX, b.vramY, b.pattern});
 				} else {
-					addClippedBox(SpriteBox{x, y, w, 256 - y, b.sprite, b.vramX, b.vramY, b.pattern});
-					addClippedBox(SpriteBox{x, 0, w, yEnd - 256, b.sprite, b.vramX, b.vramY, b.pattern});
+					clippedBoxes.push_back(SpriteBox{x, y, w, 256 - y, b.sprite, b.vramX, b.vramY, b.pattern});
+					clippedBoxes.push_back(SpriteBox{x, 0, w, yEnd - 256, b.sprite, b.vramX, b.vramY, b.pattern});
 				}
 			}
 
@@ -549,12 +531,6 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			im::Child("##screen", {0.0f, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto* drawList = ImGui::GetWindowDrawList();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-				auto boxColor = ImGui::ColorConvertFloat4ToU32(boundingBoxColor);
-				auto drawBox = [&](int x, int y, int w, int h) {
-					gl::vec2 tl = scrnPos + gl::vec2{float(x), float(y)} * float(zm);
-					gl::vec2 br = tl + gl::vec2{float(w), float(h)} * float(zm);
-					drawList->AddRect(tl, br, boxColor);
-				};
 
 				gl::vec2 topLeft = ImGui::GetCursorPos();
 				drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
@@ -565,16 +541,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::SameLine();
 
 				im::Group([&]{
-					ImGui::Checkbox("Bounding box", &drawBoundingBox);
-					im::Indent([&]{
-						im::Disabled(!drawBoundingBox, [&]{
-							ImGui::ColorEdit4("color", boundingBoxColor.data(),
-								ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar);
-							ImGui::RadioButton("On hovered sprites", &boundingBoxOnAll, 0);
-							ImGui::RadioButton("On all sprites", &boundingBoxOnAll, 1);
-
-						});
-					});
+					spriteBoxSettings(drawBoundingBox, boundingBoxColor, boundingBoxOnAll);
 					{
 						auto maxStr = tmpStrCat("Max ", spriteLimit, " sprites per line");
 						ImGui::Checkbox(maxStr.c_str(), &enableLimitPerLine);
@@ -589,27 +556,13 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						auto [hx, hy] = hoverPos;
 						ImGui::StrCat("x,y=", hx, ',', hy, " (0x", hex_string<2>(hx), ",0x", hex_string<2>(hy), ')');
 						ImGui::Spacing();
-
-						for (int i : xrange(nrClippedBoxes)) {
-							const auto& b = clippedBoxes[i];
-							if ((b.x <= hx) && (hx < (b.x + b.w)) &&
-							    (b.y <= hy) && (hy < (b.y + b.h))) {
-								if (drawBoundingBox && (boundingBoxOnAll == 0)) {
-									drawBox(b.x, b.y, b.w, b.h);
-								}
-								ImGui::Bullet();
-								ImGui::StrCat("sprite ", b.sprite, ": pat=", b.pattern, " (0x", hex_string<2>(b.pattern), ")\n"
-								              "x,y=", b.vramX, ',', b.vramY, " (0x", hex_string<2>(b.vramX), ",0x", hex_string<2>(b.vramY), ')');
-							}
-						}
+						printSpriteBoxes(clippedBoxes, hoverPos, 2);
 					}
 				});
 
-				if (drawBoundingBox && (boundingBoxOnAll == 1)) {
-					for (int i : xrange(nrClippedBoxes)) {
-						const auto& b = clippedBoxes[i];
-						drawBox(b.x, b.y, b.w, b.h);
-					}
+				if (drawBoundingBox) {
+					drawSpriteBoxes(drawList, scrnPos, float(zm), clippedBoxes, boundingBoxColor,
+					                boundingBoxOnAll == 1, hovered, hoverPos);
 				}
 			});
 		});

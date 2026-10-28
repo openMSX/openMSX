@@ -363,4 +363,51 @@ std::pair<gl::vec2, gl::vec2> spritePatternUV(unsigned pattern, int size)
 	return {uv1, uv1 + recipCells};
 }
 
+bool clipSpriteBoxSide(int& pos, int& size, int limit)
+{
+	if (pos < 0) {
+		size += pos;
+		pos = 0;
+	} else if (pos + size > limit) {
+		size = limit - pos;
+	}
+	return size > 0;
+}
+
+void spriteBoxSettings(bool& draw, gl::vec4& color, int& onAll)
+{
+	ImGui::Checkbox("Bounding box", &draw);
+	im::Indent([&]{
+		im::Disabled(!draw, [&]{
+			ImGui::ColorEdit4("color", color.data(),
+				ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar);
+			ImGui::RadioButton("On hovered sprites", &onAll, 0);
+			ImGui::RadioButton("On all sprites", &onAll, 1);
+		});
+	});
+}
+
+void drawSpriteBoxes(ImDrawList* drawList, gl::vec2 scrnPos, float zoom, std::span<const SpriteBox> boxes,
+                     gl::vec4 color, bool onAll, bool hovered, gl::ivec2 hoverPos)
+{
+	auto boxColor = ImGui::ColorConvertFloat4ToU32(color);
+	for (const auto& b : boxes) {
+		if (onAll || (hovered && b.contains(hoverPos))) {
+			gl::vec2 tl = scrnPos + gl::vec2{float(b.x), float(b.y)} * zoom;
+			gl::vec2 br = tl + gl::vec2{float(b.w), float(b.h)} * zoom;
+			drawList->AddRect(tl, br, boxColor);
+		}
+	}
+}
+
+void printSpriteBoxes(std::span<const SpriteBox> boxes, gl::ivec2 pos, int patternDigits)
+{
+	for (const auto& b : boxes) {
+		if (!b.contains(pos)) continue;
+		ImGui::Bullet();
+		ImGui::StrCat("sprite ", b.sprite, ": pat=", b.pattern, " (0x", hex_string(Digits{size_t(patternDigits)}, b.pattern), ")\n"
+		              "x,y=", b.vramX, ',', b.vramY, " (0x", hex_string<2>(b.vramX), ",0x", hex_string<2>(b.vramY), ')');
+	}
+}
+
 } // namespace openmsx
