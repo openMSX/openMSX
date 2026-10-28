@@ -1708,8 +1708,8 @@ void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
 					                  : joystickManager.getDisplayName(joysticks[selectedJoystick]);
 					im::Combo("Joystick", selectedName.c_str(), [&]{
 						for (auto i : xrange(joysticks.size())) {
-							auto name = joystickManager.getDisplayName(joysticks[selectedJoystick]);
-							if (ImGui::Selectable(tmpStrCat(name, "##", i).c_str()), selectedJoystick == i) {
+							auto name = joystickManager.getDisplayName(joysticks[i]);
+							if (ImGui::Selectable(tmpStrCat(name, "##", i).c_str(), selectedJoystick == i)) {
 								selectedJoystick = unsigned(i);
 							}
 						}
