@@ -3,8 +3,8 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 22.0-RC2 (2026-10-25)
------------------------------
+openMSX 22.0 (2026-10-28)
+-------------------------
 
 Thanks to many contributors (who make good use of modern AI tools), we
 have a very long list of changes again. Major features are found in the
@@ -127,6 +127,8 @@ New or improved emulator features:
     bit order and endianness, up to 2 levels of tiling with custom steps,
     grayscale, palette and packed color formats, zoom, pixel/tile/group grids
     (as lines or gaps) and a hover readout of address and value
+  - added tile, sprite and register viewers for the Sega VDP of the Franky,
+    and debuggables for its registers, VRAM and CRAM (see doc/Franky.md)
 - instead of showing corrupted video, a problem with shaders will now be a
   fatal error
 - fixed issues with non-ASCII paths by forcing UTF-8 paths on Windows

@@ -1,5 +1,5 @@
-Release Notes for openMSX 22.0-RC2 (2026-10-25)
-===============================================
+Release Notes for openMSX 22.0 (2026-10-28)
+===========================================
 
 Thanks to many contributors (who make good use of modern AI tools), we
 have a very long list of changes again. Major features are found in the
