@@ -537,6 +537,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSCCViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWaveViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\Shortcuts.cc" />

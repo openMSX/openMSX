@@ -85,74 +85,29 @@ void ImGuiSMSVDPTiles::renderPatterns(const PatternParams& params,
 	auto readColor = [&](unsigned address) {
 		return params.overrideColorTable ? params.overrideColorValue : read(address);
 	};
+	auto patByte = [&](unsigned i) { return read(tables.patBase + i); };
+	auto colByte = [&](unsigned i) { return readColor(tables.colBase + i); };
+	auto palette16 = palette.first<16>();
 	switch (params.mode) {
-	case ImGuiSMSVDPTiles::TEXT: {
-		auto fg = palette[params.fgCol];
-		auto bg = palette[params.bgCol];
-		for (auto row : xrange(8)) {
-			for (auto column : xrange(32)) {
-				auto patNum = 32 * row + column;
-				auto offset = 8 * patNum;
-				for (auto y : xrange(8)) {
-					auto pattern = read(tables.patBase + offset + y);
-					auto out = subspan<6>(output, (8 * row + y) * 192 + 6 * column);
-					drawPatternRow6(pattern, fg, bg, out);
-				}
-			}
-		}
+	case ImGuiSMSVDPTiles::TEXT:
+		renderTextPatterns(patByte, palette[params.fgCol], palette[params.bgCol], output);
 		break;
-	}
 	case ImGuiSMSVDPTiles::GRAPHIC1:
-		for (auto row : xrange(8)) {
-			for (auto group : xrange(4)) { // 32 columns, split in 4 groups of 8
-				auto color = readColor(tables.colBase + 4 * row + group);
-				auto fg = palette[color >> 4];
-				auto bg = palette[color & 15];
-				for (auto subColumn : xrange(8)) {
-					auto column = 8 * group + subColumn;
-					auto patNum = 32 * row + column;
-					auto offset = 8 * patNum;
-					for (auto y : xrange(8)) {
-						auto pattern = read(tables.patBase + offset + y);
-						auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-						drawPatternRow8(pattern, fg, bg, out);
-					}
-				}
-			}
-		}
+		renderGraphic1Patterns(patByte, colByte, palette16, output);
 		break;
-	case ImGuiSMSVDPTiles::GRAPHIC2:
+	case ImGuiSMSVDPTiles::GRAPHIC2: {
 		// Rows 24-31 of the name table address a fourth bank (row / 8 == 3).
 		// The chip never scans those lines; the 32-row override is what shows them.
-		for (auto row : xrange(params.graphic2Banks * 8)) {
-			for (auto column : xrange(32)) {
-				auto patNum = 32 * row + column;
-				for (auto y : xrange(8)) {
-					auto pattern = read(tables.patBase + (((patNum & tables.patMask) << 3) + y));
-					auto color   = readColor(tables.colBase + (((patNum & tables.colMask) << 3) + y));
-					auto fg = palette[color >> 4];
-					auto bg = palette[color & 15];
-					auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-					drawPatternRow8(pattern, fg, bg, out);
-				}
-			}
-		}
+		// The table masks apply to the pattern number (byte index / 8).
+		auto masked = [](unsigned i, unsigned mask) { return i & ((mask << 3) | 7); };
+		renderGraphic2Patterns(
+			[&](unsigned i) { return read(tables.patBase + masked(i, tables.patMask)); },
+			[&](unsigned i) { return readColor(tables.colBase + masked(i, tables.colMask)); },
+			palette16, params.graphic2Banks, output);
 		break;
+	}
 	case ImGuiSMSVDPTiles::MULTICOLOR:
-		for (auto group : xrange(4)) {
-			for (auto row : xrange(8)) {
-				for (auto column : xrange(32)) {
-					auto patNum = 32 * row + column;
-					auto offset = 8 * patNum + 2 * group;
-					for (auto y : xrange(2)) {
-						auto out = subspan<2>(output, (16 * group + 2 * row + y) * 64 + 2 * column);
-						auto pattern = read(tables.patBase + offset + y);
-						out[0] = palette[pattern >> 4];
-						out[1] = palette[pattern & 15];
-					}
-				}
-			}
-		}
+		renderMulticolorPatterns(patByte, palette16, output);
 		break;
 	case ImGuiSMSVDPTiles::MODE4:
 		// 512 patterns x 2 palettes, stacked: 32x32 characters (256x256).

@@ -3,6 +3,8 @@
 
 // Helpers shared between the viewers of the different VDPs (MSX VDP, SMS VDP).
 
+#include "function_ref.hh"
+
 #include <cstdint>
 #include <span>
 
@@ -32,6 +34,25 @@ inline void drawPatternRow6(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std
 	out[4] = (pattern & 0x08) ? fgCol : bgCol;
 	out[5] = (pattern & 0x04) ? fgCol : bgCol;
 }
+
+// Render the patterns of the TMS9918-style character modes into an image (for
+// the tile viewers), 32 patterns per row. 'pat(i)' returns byte 'i' of the
+// pattern table, 'col(i)' byte 'i' of the color table.
+// - text: 256 patterns of 6x8 pixels in 'fg' and 'bg' (192x64 pixels)
+// - graphics I: 256 patterns of 8x8 pixels, one color byte per 8 patterns
+//   (256x64 pixels)
+// - graphics II: 'banks' times 256 patterns of 8x8 pixels, one color byte per
+//   pattern row (256 x 64*banks pixels)
+// - multicolor: the 4 colors of each pattern as 2x2 pixels, for each of the 4
+//   pairs of pattern rows (64x64 pixels)
+void renderTextPatterns(function_ref<uint8_t(unsigned)> pat, uint32_t fg, uint32_t bg,
+                        std::span<uint32_t> output);
+void renderGraphic1Patterns(function_ref<uint8_t(unsigned)> pat, function_ref<uint8_t(unsigned)> col,
+                            std::span<const uint32_t, 16> palette, std::span<uint32_t> output);
+void renderGraphic2Patterns(function_ref<uint8_t(unsigned)> pat, function_ref<uint8_t(unsigned)> col,
+                            std::span<const uint32_t, 16> palette, int banks, std::span<uint32_t> output);
+void renderMulticolorPatterns(function_ref<uint8_t(unsigned)> pat,
+                              std::span<const uint32_t, 16> palette, std::span<uint32_t> output);
 
 } // namespace openmsx
 

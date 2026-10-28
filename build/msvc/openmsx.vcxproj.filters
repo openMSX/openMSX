@@ -672,6 +672,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.cc">
       <Filter>imgui</Filter>
     </ClCompile>

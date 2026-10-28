@@ -600,88 +600,33 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint32_t, 16> pale
                                     int fgCol, int bgCol, int fgBlink, int bgBlink,
                                     VramTable& pat, VramTable& col, int lines, std::span<uint32_t> output)
 {
+	auto patByte = [&](unsigned i) { return pat[i]; };
+	auto colByte = [&](unsigned i) { return col[i]; };
 	switch (mode) {
 	case TEXT40:
-	case TEXT80: {
+	case TEXT80:
 		pat.setIndexSize(11);
 		col.setIndexSize(9); // only matters for TEXT80
-		auto fg = palette[fgCol];
-		auto bg = palette[bgCol];
-		auto fgB = palette[fgBlink];
-		auto bgB = palette[bgBlink];
-		for (auto row : xrange(8)) {
-			for (auto column : xrange(32)) {
-				auto patNum = 32 * row + column;
-				auto offset = 8 * patNum;
-				for (auto y : xrange(8)) {
-					auto pattern = pat[offset + y];
-					auto out = subspan<6>(output, (8 * row + y) * 192 + 6 * column);
-					drawPatternRow6(pattern, fg, bg, out);
-					if (mode == TEXT80) {
-						auto out2 = subspan<6>(output, (64 + 8 * row + y) * 192 + 6 * column);
-						drawPatternRow6(pattern, fgB, bgB, out2);
-					}
-				}
-			}
+		renderTextPatterns(patByte, palette[fgCol], palette[bgCol], output);
+		if (mode == TEXT80) {
+			// the same patterns in the blink colors, below the others
+			renderTextPatterns(patByte, palette[fgBlink], palette[bgBlink], output.subspan(64 * 192));
 		}
 		break;
-	}
 	case SCR1:
 		pat.setIndexSize(11);
 		col.setIndexSize(6);
-		for (auto row : xrange(8)) {
-			for (auto group : xrange(4)) { // 32 columns, split in 4 groups of 8
-				auto color = col[4 * row + group];
-				auto fg = palette[color >> 4];
-				auto bg = palette[color & 15];
-				for (auto subColumn : xrange(8)) {
-					auto column = 8 * group + subColumn;
-					auto patNum = 32 * row + column;
-					auto offset = 8 * patNum;
-					for (auto y : xrange(8)) {
-						auto pattern = pat[offset + y];
-						auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-						drawPatternRow8(pattern, fg, bg, out);
-					}
-				}
-			}
-		}
+		renderGraphic1Patterns(patByte, colByte, palette, output);
 		break;
 	case SCR2:
 		pat.setIndexSize(13);
 		col.setIndexSize(13);
-		for (auto row : xrange((lines == 192 ? 3 : 4) * 8)) {
-			for (auto column : xrange(32)) {
-				auto patNum = 32 * row + column;
-				auto offset = 8 * patNum;
-				for (auto y : xrange(8)) {
-					auto pattern = pat[offset + y];
-					auto color   = col[offset + y];
-					auto fg = palette[color >> 4];
-					auto bg = palette[color & 15];
-					auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-					drawPatternRow8(pattern, fg, bg, out);
-				}
-			}
-		}
+		renderGraphic2Patterns(patByte, colByte, palette, (lines == 192) ? 3 : 4, output);
 		break;
 	case SCR3:
 		pat.setIndexSize(11);
 		col.setIndexSize(13); // not used?
-		for (auto group : xrange(4)) {
-			for (auto row : xrange(8)) {
-				for (auto column : xrange(32)) {
-					auto patNum = 32 * row + column;
-					auto offset = 8 * patNum + 2 * group;
-					for (auto y : xrange(2)) {
-						auto out = subspan<2>(output, (16 * group + 2 * row + y) * 64 + 2 * column);
-						auto pattern = pat[offset + y];
-						out[0] = palette[pattern >> 4];
-						out[1] = palette[pattern & 15];
-					}
-				}
-			}
-		}
+		renderMulticolorPatterns(patByte, palette, output);
 		break;
 	default:
 		output[0] = getColor(imColor::GRAY);
