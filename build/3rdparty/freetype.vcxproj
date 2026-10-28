@@ -608,6 +608,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftsynth.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\fttype1.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftwinfnt.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\hvf\hvf.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\pcf\pcf.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

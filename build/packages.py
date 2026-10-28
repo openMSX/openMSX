@@ -46,22 +46,22 @@ class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
 	sourceName = 'freetype'
-	version = '2.13.3'
-	fileLength = 4063324
+	version = '2.15.0'
+	fileLength = 4262480
 	checksums = {
 		'sha256':
-			'5c3a8e78f7b24c20b25b54ee575d6daa40007a5f4eea2845861c3409b3021747',
+			'9186627467a616d9a9e3e574748ac0c45fa77398e6364edef3041a8ba8d92f64',
 		}
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
 	sourceName = 'glew'
-	version = '2.2.0'
-	fileLength = 835861
+	version = '2.3.1'
+	fileLength = 866060
 	checksums = {
 		'sha256':
-			'd4fc82893cfb00109578d0a1a2337fb8ca335b3ceccf97b97e5cc7f08e4353e1',
+			'b64790f94b926acd7e8f84c5d6000a86cb43967bd1e688b03089079799c9e889',
 		}
 
 	@classmethod
@@ -72,11 +72,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.6.44'
-	fileLength = 1545850
+	version = '1.6.59'
+	fileLength = 1589315
 	checksums = {
 		'sha256':
-			'8c25a7792099a0089fa1cc76c94260d0bb3f1ec52b93671b572f8bb61577b732',
+			'86a3e4b501f7f50e392c4e456ea158893e9a595b1c63eb88c7bb9f6cf8772dad',
 		}
 
 	@classmethod
@@ -87,11 +87,11 @@ class OGG(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/ogg'
 	niceName = 'libogg'
 	sourceName = 'libogg'
-	version = '1.3.5'
-	fileLength = 593071
+	version = '1.3.6'
+	fileLength = 604469
 	checksums = {
 		'sha256':
-			'0eb4b4b9420a0f51db142ba3f9c64b333f826532dc0f48c6410ae51f4799b664',
+			'83e6704730683d004d20e21b8f7f55dcb3383cdf84c0daedf30bde175f774638',
 		}
 
 	@classmethod
@@ -128,22 +128,22 @@ class SDL2_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL2_ttf'
 	sourceName = 'SDL2_ttf'
-	version = '2.22.0'
-	fileLength = 14314901
+	version = '2.24.0'
+	fileLength = 13335900
 	checksums = {
 		'sha256':
-			'd48cbd1ce475b9e178206bf3b72d56b66d84d44f64ac05803328396234d67723',
+			'0b2bf1e7b6568adbdbc9bb924643f79d9dedafe061fa1ed687d1d9ac4e453bfd',
 		}
 
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
-	version = '8.6.15'
-	fileLength = 11765231
+	version = '9.1.0'
+	fileLength = 12686617
 	checksums = {
 		'sha256':
-			'861e159753f2e2fbd6ec1484103715b0be56be3357522b858d3cbb5f893ffef1',
+			'536c45543f64d6eb11832d97ba3494aacff046fbc5040273bd55258d0e448ff1',
 		}
 
 	@classmethod
@@ -158,11 +158,11 @@ class Theora(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/theora'
 	niceName = 'libtheora'
 	sourceName = 'libtheora'
-	version = '1.1.1'
-	fileLength = 2111877
+	version = '1.2.0'
+	fileLength = 2535283
 	checksums = {
 		'sha256':
-			'40952956c47811928d1e7922cda3bc1f427eb75680c3c37249c91e949054916b',
+			'279327339903b544c28a92aeada7d0dcfd0397b59c2f368cc698ac56f515906e',
 		}
 
 	@classmethod
@@ -188,11 +188,11 @@ class ZLib(DownloadablePackage):
 	downloadURL = 'https://zlib.net/fossils/'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.3.1'
-	fileLength = 1512791
+	version = '1.3.2'
+	fileLength = 1502830
 	checksums = {
 		'sha256':
-			'9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23',
+			'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16',
 		}
 
 # Build a dictionary of packages using introspection.
