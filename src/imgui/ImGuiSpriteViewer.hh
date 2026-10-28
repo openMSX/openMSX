@@ -48,8 +48,10 @@ private:
 	int checkerBoardSize = 4;
 	int boundingBoxOnAll = 0;
 	gl::vec4 gridColor{0.5f, 0.5f, 0.5f, 0.5f}; // RGBA
-	gl::vec4 checkerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
-	gl::vec4 checkerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
+	static constexpr gl::vec4 defaultCheckerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f};
+	static constexpr gl::vec4 defaultCheckerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f};
+	gl::vec4 checkerBoardColor1{defaultCheckerBoardColor1}; // RGBA
+	gl::vec4 checkerBoardColor2{defaultCheckerBoardColor2}; // RGBA
 	gl::vec4 boundingBoxColor  {1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
 	bool grid = true;
 	bool drawBoundingBox = true;

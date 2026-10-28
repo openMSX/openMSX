@@ -276,25 +276,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		bool manAtt    = overrideAll || overrideAtt;
 		bool manLines  = overrideAll || overrideLines;
 
-		// Checkerboard color: a color button that opens a picker, which also
-		// has a button to restore the default color.
-		auto checkerBoardColorEdit = [](const char* id, gl::vec4& color,
-		                                const gl::vec4& defaultColor) {
-			ImGui::PushID(id);
-			if (ImGui::ColorButton("##color", ImVec4(color.x, color.y, color.z, color.w),
-					ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoTooltip)) {
-				ImGui::OpenPopup("##picker");
-			}
-			im::Popup("##picker", [&]{
-				ImGui::ColorPicker4("##picker", color.data(), ImGuiColorEditFlags_NoAlpha);
-				ImGui::Separator();
-				if (ImGui::Button("Reset to default")) {
-					color = defaultColor;
-				}
-			});
-			ImGui::PopID();
-		};
-
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			im::Group([&]{
 				ImGui::TextUnformatted("SMS VDP settings");
@@ -404,11 +385,9 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				              "'Rendered sprites' view. Pick both colors equal for a "
 				              "solid background.");
 				ImGui::SameLine();
-				checkerBoardColorEdit("checkerboard color1", checkerBoardColor1,
-				                      defaultCheckerBoardColor1);
+				colorEditWithReset("checkerboard color1", checkerBoardColor1, defaultCheckerBoardColor1);
 				ImGui::SameLine();
-				checkerBoardColorEdit("checkerboard color2", checkerBoardColor2,
-				                      defaultCheckerBoardColor2);
+				colorEditWithReset("checkerboard color2", checkerBoardColor2, defaultCheckerBoardColor2);
 				im::Indent([&]{
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
 					if (ImGui::InputInt("size", &checkerBoardSize)) {

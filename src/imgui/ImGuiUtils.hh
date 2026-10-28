@@ -181,6 +181,10 @@ void simpleToolTip(std::invocable<> auto descFunc)
 void HelpMarkerNewLine(std::string_view desc);
 void HelpMarker(std::string_view desc, float spacing = -1.0f);
 
+// A color button that opens a color picker (without alpha), which also has a
+// button to restore 'defaultColor'.
+void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& defaultColor);
+
 // Accepts a decimal or hexadecimal value, a symbol name, or a Tcl expression.
 // An empty string evaluates to 0.
 [[nodiscard]] std::expected<unsigned, std::string> parseAddressExpr(

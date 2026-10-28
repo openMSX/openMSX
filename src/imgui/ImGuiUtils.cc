@@ -39,6 +39,23 @@ void HelpMarkerNewLine(std::string_view desc)
 	simpleToolTip(desc);
 }
 
+void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& defaultColor)
+{
+	ImGui::PushID(id);
+	if (ImGui::ColorButton("##color", ImVec4(color.x, color.y, color.z, color.w),
+			ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoTooltip)) {
+		ImGui::OpenPopup("##picker");
+	}
+	im::Popup("##picker", [&]{
+		ImGui::ColorPicker4("##picker", color.data(), ImGuiColorEditFlags_NoAlpha);
+		ImGui::Separator();
+		if (ImGui::Button("Reset to default")) {
+			color = defaultColor;
+		}
+	});
+	ImGui::PopID();
+}
+
 std::expected<unsigned, std::string> parseAddressExpr(
 	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp)
 {
