@@ -1160,6 +1160,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPRegs.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPSprites.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPTiles.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPUtils.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSpriteViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSymbols.hh" />

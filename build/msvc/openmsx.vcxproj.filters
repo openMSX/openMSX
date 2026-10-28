@@ -2261,6 +2261,9 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPTiles.hh">
       <Filter>imgui</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPUtils.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.hh">
       <Filter>imgui</Filter>
     </None>

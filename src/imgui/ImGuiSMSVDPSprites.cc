@@ -5,6 +5,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiSMSVDPUtils.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiVDPUtils.hh"
 
@@ -44,18 +45,8 @@ void ImGuiSMSVDPSprites::loadLine(std::string_view name, zstring_view value)
 // plane, starting at 'addr'.
 static std::array<uint8_t, 8> mode4Pens(std::span<const uint8_t, 0x4000> vram, unsigned addr)
 {
-	auto b0 = vram[(addr + 0) & 0x3fff];
-	auto b1 = vram[(addr + 1) & 0x3fff];
-	auto b2 = vram[(addr + 2) & 0x3fff];
-	auto b3 = vram[(addr + 3) & 0x3fff];
-	std::array<uint8_t, 8> pens;
-	for (auto x : xrange(8)) {
-		pens[x] = uint8_t((((b3 >> (7 - x)) & 1) << 3) |
-		                  (((b2 >> (7 - x)) & 1) << 2) |
-		                  (((b1 >> (7 - x)) & 1) << 1) |
-		                   ((b0 >> (7 - x)) & 1));
-	}
-	return pens;
+	return mode4Pens(vram[(addr + 0) & 0x3fff], vram[(addr + 1) & 0x3fff],
+	                 vram[(addr + 2) & 0x3fff], vram[(addr + 3) & 0x3fff]);
 }
 
 // Mode 4 sprite patterns are 4bpp and always use CRAM palette 1.

@@ -5,6 +5,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiSMSVDPUtils.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiVDPUtils.hh"
 
@@ -122,17 +123,11 @@ void ImGuiSMSVDPTiles::renderPatterns(const PatternParams& params,
 				for (auto y : xrange(8)) {
 					auto addr0 = tile1 * 32 + y * 4;
 					auto addr2 = tile2 * 32 + y * 4;
-					auto bitPlane0 = read(addr0 + 0);
-					auto bitPlane1 = read(addr0 + 1);
-					auto bitPlane2 = read(addr2 + 2);
-					auto bitPlane3 = read(addr2 + 3);
+					auto pens = mode4Pens(read(addr0 + 0), read(addr0 + 1),
+					                      read(addr2 + 2), read(addr2 + 3));
 					for (auto x : xrange(8)) {
-						auto pen = uint8_t((((bitPlane3 >> (7 - x)) & 1) << 3) |
-						                   (((bitPlane2 >> (7 - x)) & 1) << 2) |
-						                   (((bitPlane1 >> (7 - x)) & 1) << 1) |
-						                    ((bitPlane0 >> (7 - x)) & 1));
 						output[(charRow * 8 + y) * 256 + charCol * 8 + x] =
-							palette[16 * pal + pen];
+							palette[16 * pal + pens[x]];
 					}
 				}
 			}
