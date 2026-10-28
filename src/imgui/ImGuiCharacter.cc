@@ -483,7 +483,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			auto size = gl::vec2(patternDisplaySize) * zm;
 			auto textLines = (mode == TEXT40) ? 3.0f : 5.0f;
 			auto previewHeight = zoomCharSize.y + textLines * ImGui::GetTextLineHeightWithSpacing();
-			im::Child("##pattern", {0, std::max(size.y, previewHeight)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##pattern", {0, childHeightWithScrollbar(std::max(size.y, previewHeight))}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(patternTex.getImGui(), size);
@@ -519,7 +519,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			auto msxSize = charSize * charsSize; // (x * y) number of MSX pixels
 			auto hostSize = msxSize * zm; // (x * y) number of host pixels
 
-			im::Child("##name", {0.0f, hostSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##name", {0.0f, childHeightWithScrollbar(hostSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				auto* drawList = ImGui::GetWindowDrawList();
 

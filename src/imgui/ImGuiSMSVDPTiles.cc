@@ -773,18 +773,10 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			}
 			printPatternColorAddress(pat);
 		};
-
-		// Height for the scrollable section children: the content height plus
-		// room for the horizontal scrollbar, so that showing the scrollbar
-		// does not trigger a vertical one.
-		auto childHeight = [](float contentHeight) {
-			return contentHeight + ImGui::GetStyle().ScrollbarSize;
-		};
-
 		ImGui::Separator();
 		im::TreeNode("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto size = gl::vec2(patternDisplaySize) * zm;
-			im::Child("##pattern", {0, childHeight(size.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##pattern", {0, childHeightWithScrollbar(size.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(patternTex.getImGui(), size, patternViewUV.first, patternViewUV.second);
@@ -817,7 +809,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 			auto msxSize = charSize * charsSize; // (x * y) number of VDP pixels
 			auto hostSize = msxSize * zm; // (x * y) number of host pixels
 
-			im::Child("##name", {0.0f, childHeight(hostSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##name", {0.0f, childHeightWithScrollbar(hostSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				auto* drawList = ImGui::GetWindowDrawList();
 

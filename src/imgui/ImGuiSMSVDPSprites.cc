@@ -220,13 +220,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			                        int(rgb & 0xff)));
 		};
 
-		// Height for the scrollable section children: the content height plus
-		// room for the horizontal scrollbar, so that showing the scrollbar
-		// does not trigger a vertical one.
-		auto childHeight = [](float contentHeight) {
-			return contentHeight + ImGui::GetStyle().ScrollbarSize;
-		};
-
 		// Editable CRAM palette: click a swatch to pick one of the 64 colors
 		// of the chip.
 		auto drawCramEditor = [&]{
@@ -666,7 +659,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				return;
 			}
 			auto fullSize = gl::vec2(patternTexSize) * float(zm);
-			im::Child("##pattern", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##pattern", {0, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				if (type == SMS) {
@@ -766,7 +759,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			auto rows = total / 8;
 			auto zoomSize = gl::vec2{float(spriteW), float(spriteH)} * float(zm);
 			auto fullSize = zoomSize * gl::vec2(8, rows);
-			im::Child("##attrib", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##attrib", {0, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				if (type == NONE) {
 					ImGui::TextUnformatted("No sprites in this screen mode"sv);
 				} else {
@@ -944,7 +937,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			             GL_RGBA, GL_UNSIGNED_BYTE, screen.data());
 
 			auto fullSize = float(zm) * gl::vec2(256, float(lines));
-			im::Child("##screen", {0.0f, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##screen", {0.0f, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto* drawList = ImGui::GetWindowDrawList();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				auto boxColor = ImGui::ColorConvertFloat4ToU32(boundingBoxColor);
