@@ -12,6 +12,49 @@
 
 namespace openmsx {
 
+void overridableSettings(std::string_view title, std::string_view widestValue, bool& overrideAll,
+                         std::initializer_list<OverridableSetting> settings)
+{
+	auto isOverridden = [&](const OverridableSetting& s) { return overrideAll || *s.overridden; };
+	im::Group([&]{
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(title);
+		if (!widestValue.empty()) {
+			auto pos = ImGui::GetCursorPos();
+			ImGui::Dummy(ImGui::CalcTextSize(widestValue));
+			ImGui::SetCursorPos(pos);
+		}
+		for (const auto& s : settings) {
+			im::Disabled(isOverridden(s) || !s.vdpValueUsed, [&]{
+				ImGui::AlignTextToFramePadding(); // align with the widgets next to it
+				ImGui::TextUnformatted(s.vdpValue);
+			});
+		}
+	});
+	ImGui::SameLine();
+	im::Group([&]{
+		ImGui::Checkbox("Manual override", &overrideAll);
+		im::Group([&]{
+			im::Disabled(overrideAll, [&]{
+				for (const auto& s : settings) {
+					// while 'overrideAll' is set, show (and toggle) 'overrideAll' instead
+					im::ID(s.overridden, [&]{
+						ImGui::Checkbox("##override", overrideAll ? &overrideAll : s.overridden);
+					});
+				}
+			});
+		});
+		ImGui::SameLine();
+		im::Group([&]{
+			im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
+				for (const auto& s : settings) {
+					im::Disabled(!isOverridden(s), s.editor);
+				}
+			});
+		});
+	});
+}
+
 void zoomAndGridSettings(int& zoom, bool& grid, gl::vec4& gridColor)
 {
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);

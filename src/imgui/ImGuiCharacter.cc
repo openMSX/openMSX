@@ -139,127 +139,50 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		if (mode != TEXT80) rasterBeamPos.x /= 2;
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			im::Group([&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("VDP settings");
-				auto pos = ImGui::GetCursorPos();
-				ImGui::Dummy(ImGui::CalcTextSize("Screen mode: screen 0, width 80"));
-				ImGui::SetCursorPos(pos);
-				im::Disabled(manMode, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
-				});
-				im::Disabled(manFgCol, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Foreground color: ", vdpFgCol);
-				});
-				im::Disabled(manBgCol, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Background color: ", vdpBgCol);
-				});
-				im::Disabled(manFgBlink, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Foreground blink color: ", vdpFgBlink);
-				});
-				im::Disabled(manBgBlink, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Background blink color: ", vdpBgBlink);
-				});
-				im::Disabled(manBlink, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Blink: ", vdpBlink ? "enabled"sv : "disabled"sv);
-				});
-				im::Disabled(manPat, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
-				});
-				im::Disabled(manCol, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Color table: 0x", hex_string<5>(vdpColBase));
-				});
-				im::Disabled(manNam, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Name table: 0x", hex_string<5>(vdpNamBase));
-				});
-				im::Disabled(manRows, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Visible rows: ", (vdpLines == 192) ? "24"sv : "26.5"sv);
-				});
-				im::Disabled(manColor0, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Items));
-				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				ImGui::Checkbox("Manual override", &overrideAll);
-				im::Group([&]{
-					im::Disabled(overrideAll, [&]{
-						ImGui::Checkbox("##o-mode",    overrideAll ? &overrideAll : &overrideMode);
-						ImGui::Checkbox("##o-fgCol",   overrideAll ? &overrideAll : &overrideFgCol);
-						ImGui::Checkbox("##o-bgCol",   overrideAll ? &overrideAll : &overrideBgCol);
-						ImGui::Checkbox("##o-fgBlink", overrideAll ? &overrideAll : &overrideFgBlink);
-						ImGui::Checkbox("##o-bgBlink", overrideAll ? &overrideAll : &overrideBgBlink);
-						ImGui::Checkbox("##o-blink",   overrideAll ? &overrideAll : &overrideBlink);
-						ImGui::Checkbox("##o-pat",     overrideAll ? &overrideAll : &overridePat);
-						ImGui::Checkbox("##o-col",     overrideAll ? &overrideAll : &overrideCol);
-						ImGui::Checkbox("##o-nam",     overrideAll ? &overrideAll : &overrideNam);
-						ImGui::Checkbox("##o-rows",    overrideAll ? &overrideAll : &overrideRows);
-						ImGui::Checkbox("##o-color0",  overrideAll ? &overrideAll : &overrideColor0);
+			overridableSettings("VDP settings", "Screen mode: screen 0, width 80", overrideAll, {
+				{tmpStrCat("Screen mode: ", modeToStr(vdpMode)), &overrideMode, [&]{
+					if (isMSX1 && (manualMode == one_of(TEXT80, SCR4))) manualMode = TEXT40;
+					im::Combo("##mode", modeToStr(manualMode), [&]{
+						if            (ImGui::Selectable("screen 0,40")) manualMode = TEXT40;
+						if (!isMSX1 && ImGui::Selectable("screen 0,80")) manualMode = TEXT80;
+						if            (ImGui::Selectable("screen 1"))    manualMode = SCR1;
+						if            (ImGui::Selectable("screen 2"))    manualMode = SCR2;
+						if            (ImGui::Selectable("screen 3"))    manualMode = SCR3;
+						if (!isMSX1 && ImGui::Selectable("screen 4"))    manualMode = SCR4;
 					});
-				});
-				ImGui::SameLine();
-				im::Group([&]{
-					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-						im::Disabled(!manMode, [&]{
-							if (isMSX1 && (manualMode == one_of(TEXT80, SCR4))) manualMode = TEXT40;
-							im::Combo("##mode", modeToStr(manualMode), [&]{
-								if            (ImGui::Selectable("screen 0,40")) manualMode = TEXT40;
-								if (!isMSX1 && ImGui::Selectable("screen 0,80")) manualMode = TEXT80;
-								if            (ImGui::Selectable("screen 1"))    manualMode = SCR1;
-								if            (ImGui::Selectable("screen 2"))    manualMode = SCR2;
-								if            (ImGui::Selectable("screen 3"))    manualMode = SCR3;
-								if (!isMSX1 && ImGui::Selectable("screen 4"))    manualMode = SCR4;
-							});
-						});
-						im::Disabled(manualMode != one_of(TEXT40, TEXT80), [&]{
-							im::Disabled(!manFgCol, [&]{
-								ImGui::Combo("##fgCol", &manualFgCol, colorItems);
-							});
-							im::Disabled(!manBgCol, [&]{
-								ImGui::Combo("##bgCol", &manualBgCol, colorItems);
-							});
-						});
-						im::Disabled(manualMode != TEXT80, [&]{
-							im::Disabled(!manFgBlink, [&]{
-								ImGui::Combo("##fgBlink", &manualFgBlink, colorItems);
-							});
-							im::Disabled(!manBgBlink, [&]{
-								ImGui::Combo("##bgBlink", &manualBgBlink, colorItems);
-							});
-							im::Disabled(!manBlink, [&]{
-								ImGui::Combo("##blink", &manualBlink, "disabled\000enabled\000");
-							});
-						});
-						im::Disabled(!manPat, [&]{
-							comboHexSequence<5>("##pattern", &manualPatBase, patMult(manualMode), vramSize, 0);
-						});
-						im::Disabled(manualMode == one_of(TEXT40, SCR3), [&]{
-							im::Disabled(!manCol, [&]{
-								comboHexSequence<5>("##color", &manualColBase, colMult(manualMode), vramSize, 0);
-							});
-						});
-						im::Disabled(!manNam, [&]{
-							comboHexSequence<5>("##name", &manualNamBase, namMult(manualMode), vramSize, 0);
-						});
-						im::Disabled(!manRows, [&]{
-							ImGui::Combo("##rows", &manualRows, "24\00026.5\00032\000");
-						});
-						im::Disabled(!manColor0, [&]{
-							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Items);
-						});
+				}},
+				{tmpStrCat("Foreground color: ", vdpFgCol), &overrideFgCol, [&]{
+					im::Disabled(manualMode != one_of(TEXT40, TEXT80), [&]{ ImGui::Combo("##fgCol", &manualFgCol, colorItems); });
+				}},
+				{tmpStrCat("Background color: ", vdpBgCol), &overrideBgCol, [&]{
+					im::Disabled(manualMode != one_of(TEXT40, TEXT80), [&]{ ImGui::Combo("##bgCol", &manualBgCol, colorItems); });
+				}},
+				{tmpStrCat("Foreground blink color: ", vdpFgBlink), &overrideFgBlink, [&]{
+					im::Disabled(manualMode != TEXT80, [&]{ ImGui::Combo("##fgBlink", &manualFgBlink, colorItems); });
+				}},
+				{tmpStrCat("Background blink color: ", vdpBgBlink), &overrideBgBlink, [&]{
+					im::Disabled(manualMode != TEXT80, [&]{ ImGui::Combo("##bgBlink", &manualBgBlink, colorItems); });
+				}},
+				{tmpStrCat("Blink: ", vdpBlink ? "enabled"sv : "disabled"sv), &overrideBlink, [&]{
+					im::Disabled(manualMode != TEXT80, [&]{ ImGui::Combo("##blink", &manualBlink, "disabled\000enabled\000"); });
+				}},
+				{tmpStrCat("Pattern table: 0x", hex_string<5>(vdpPatBase)), &overridePat, [&]{
+					comboHexSequence<5>("##pattern", &manualPatBase, patMult(manualMode), vramSize, 0);
+				}},
+				{tmpStrCat("Color table: 0x", hex_string<5>(vdpColBase)), &overrideCol, [&]{
+					im::Disabled(manualMode == one_of(TEXT40, SCR3), [&]{
+						comboHexSequence<5>("##color", &manualColBase, colMult(manualMode), vramSize, 0);
 					});
-				});
+				}},
+				{tmpStrCat("Name table: 0x", hex_string<5>(vdpNamBase)), &overrideNam, [&]{
+					comboHexSequence<5>("##name", &manualNamBase, namMult(manualMode), vramSize, 0);
+				}},
+				{tmpStrCat("Visible rows: ", (vdpLines == 192) ? "24"sv : "26.5"sv), &overrideRows, [&]{
+					ImGui::Combo("##rows", &manualRows, "24\00026.5\00032\000");
+				}},
+				{tmpStrCat("Replace color 0: ", getComboString(vdpColor0, color0Items)), &overrideColor0, [&]{
+					ImGui::Combo("##Color 0 replacement", &manualColor0, color0Items);
+				}},
 			});
 
 			ImGui::SameLine();

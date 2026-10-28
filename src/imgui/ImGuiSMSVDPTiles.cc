@@ -246,104 +246,57 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		if (mode == TEXT) rasterBeamPos.x -= 8.0f; // 40 columns of 6 pixels
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			im::Group([&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("SMS VDP settings");
-				auto pos = ImGui::GetCursorPos();
-				ImGui::Dummy(ImGui::CalcTextSize("Screen mode: graphics II"));
-				ImGui::SetCursorPos(pos);
-				im::Disabled(manMode, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
-				});
-				im::Disabled(manFgCol, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Foreground color: ", vdpFgCol);
-				});
-				im::Disabled(manBgCol, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Background color: ", vdpBgCol);
-				});
-				im::Disabled(manPat || (vdpMode == MODE4), [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Pattern table: 0x", hex_string<4>(vdpPatBase));
-				});
-				im::Disabled(manCol || (vdpMode == MODE4), [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Color table: 0x", hex_string<4>(vdpColBase));
-				});
-				im::Disabled(manNam, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Name table: 0x", hex_string<4>(vdpNamBase));
-				});
-				im::Disabled(manRows, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Visible rows: ", vdpLines / 8);
-				});
-				im::Disabled(manColor0 || (vdpMode == MODE4), [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Items));
-				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				ImGui::Checkbox("Manual override", &overrideAll);
-				im::Group([&]{
-					im::Disabled(overrideAll, [&]{
-						ImGui::Checkbox("##o-mode",   overrideAll ? &overrideAll : &overrideMode);
-						ImGui::Checkbox("##o-fgCol",  overrideAll ? &overrideAll : &overrideFgCol);
-						ImGui::Checkbox("##o-bgCol",  overrideAll ? &overrideAll : &overrideBgCol);
-						ImGui::Checkbox("##o-pat",    overrideAll ? &overrideAll : &overridePat);
-						ImGui::Checkbox("##o-col",    overrideAll ? &overrideAll : &overrideCol);
-						ImGui::Checkbox("##o-nam",    overrideAll ? &overrideAll : &overrideNam);
-						ImGui::Checkbox("##o-rows",   overrideAll ? &overrideAll : &overrideRows);
-						ImGui::Checkbox("##o-color0", overrideAll ? &overrideAll : &overrideColor0);
+			// The editors are gated on the mode actually shown. manualMode
+			// stays at its default when the mode itself is not overridden, so
+			// a chip in text mode would otherwise keep them disabled.
+			overridableSettings("SMS VDP settings", "Screen mode: graphics II", overrideAll, {
+				{tmpStrCat("Screen mode: ", modeToStr(vdpMode)), &overrideMode, [&]{
+					im::Combo("##mode", modeToStr(manualMode), [&]{
+						if (ImGui::Selectable("graphics I"))  manualMode = GRAPHIC1;
+						if (ImGui::Selectable("text"))        manualMode = TEXT;
+						if (ImGui::Selectable("graphics II")) manualMode = GRAPHIC2;
+						if (ImGui::Selectable("multicolor"))  manualMode = MULTICOLOR;
+						if (ImGui::Selectable("mode 4"))      manualMode = MODE4;
 					});
-				});
-				ImGui::SameLine();
-				im::Group([&]{
-					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-						im::Disabled(!manMode, [&]{
-							im::Combo("##mode", modeToStr(manualMode), [&]{
-								if (ImGui::Selectable("graphics I"))  manualMode = GRAPHIC1;
-								if (ImGui::Selectable("text"))        manualMode = TEXT;
-								if (ImGui::Selectable("graphics II")) manualMode = GRAPHIC2;
-								if (ImGui::Selectable("multicolor"))  manualMode = MULTICOLOR;
-								if (ImGui::Selectable("mode 4"))      manualMode = MODE4;
-							});
-						});
-						// Gate on the mode actually shown. manualMode stays at its
-						// default when the mode itself is not overridden, so a chip
-						// in text mode would otherwise keep these editors disabled.
-						// Foreground and background are only used in text mode.
-						im::Disabled(mode != TEXT, [&]{
-							im::Disabled(!manFgCol, [&]{
-								ImGui::Combo("##fgCol", &manualFgCol, colorItems);
-							});
-							im::Disabled(!manBgCol, [&]{
-								ImGui::Combo("##bgCol", &manualBgCol, colorItems);
-							});
-						});
-						im::Disabled(!manPat || (mode == MODE4), [&]{
-							comboHexSequence<4>("##pattern", &manualPatBase, patMult(mode), vramSize, 0);
-						});
-						// Only graphics I and II have a color table.
-						im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
-							im::Disabled(!manCol, [&]{
-								comboHexSequence<4>("##color", &manualColBase, colMult(mode), vramSize, 0);
-							});
-						});
-						im::Disabled(!manNam, [&]{
-							comboHexSequence<4>("##name", &manualNamBase, namMult(mode), vramSize, namOffset(mode));
-						});
-						im::Disabled(!manRows || (mode == MODE4), [&]{
-							ImGui::Combo("##rows", &manualRows, "24\00032\000");
-						});
-						im::Disabled(!manColor0 || (mode == MODE4), [&]{
-							ImGui::Combo("##Color 0 replacement", &manualColor0, color0Items);
-						});
+				}},
+				// Foreground and background are only used in text mode.
+				{tmpStrCat("Foreground color: ", vdpFgCol), &overrideFgCol, [&]{
+					im::Disabled(mode != TEXT, [&]{ ImGui::Combo("##fgCol", &manualFgCol, colorItems); });
+				}},
+				{tmpStrCat("Background color: ", vdpBgCol), &overrideBgCol, [&]{
+					im::Disabled(mode != TEXT, [&]{ ImGui::Combo("##bgCol", &manualBgCol, colorItems); });
+				}},
+				{.vdpValue = tmpStrCat("Pattern table: 0x", hex_string<4>(vdpPatBase)),
+				 .overridden = &overridePat,
+				 .editor = [&]{
+					im::Disabled(mode == MODE4, [&]{
+						comboHexSequence<4>("##pattern", &manualPatBase, patMult(mode), vramSize, 0);
 					});
-				});
+				 },
+				 .vdpValueUsed = vdpMode != MODE4},
+				// Only graphics I and II have a color table.
+				{.vdpValue = tmpStrCat("Color table: 0x", hex_string<4>(vdpColBase)),
+				 .overridden = &overrideCol,
+				 .editor = [&]{
+					im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
+						comboHexSequence<4>("##color", &manualColBase, colMult(mode), vramSize, 0);
+					});
+				 },
+				 .vdpValueUsed = vdpMode != MODE4},
+				{tmpStrCat("Name table: 0x", hex_string<4>(vdpNamBase)), &overrideNam, [&]{
+					comboHexSequence<4>("##name", &manualNamBase, namMult(mode), vramSize, namOffset(mode));
+				}},
+				{tmpStrCat("Visible rows: ", vdpLines / 8), &overrideRows, [&]{
+					im::Disabled(mode == MODE4, [&]{ ImGui::Combo("##rows", &manualRows, "24\00032\000"); });
+				}},
+				{.vdpValue = tmpStrCat("Replace color 0: ", getComboString(vdpColor0, color0Items)),
+				 .overridden = &overrideColor0,
+				 .editor = [&]{
+					im::Disabled(mode == MODE4, [&]{
+						ImGui::Combo("##Color 0 replacement", &manualColor0, color0Items);
+					});
+				 },
+				 .vdpValueUsed = vdpMode != MODE4},
 			});
 
 			ImGui::SameLine();

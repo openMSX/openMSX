@@ -170,64 +170,28 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		bool manualPage   = overrideAll || overridePage;
 		bool manualLines  = overrideAll || overrideLines;
 		bool manualColor0 = overrideAll || overrideColor0;
-		im::Group([&]{
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted("VDP settings");
-			auto pos = ImGui::GetCursorPos();
-			ImGui::Dummy(ImGui::CalcTextSize("Screen mode: non-bitmap"));
-			ImGui::SetCursorPos(pos);
-			im::Disabled(manualMode, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
-			});
-			im::Disabled(manualPage, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Display page: ", vdpPage);
-			});
-			im::Disabled(manualLines, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Visible lines: ", vdpLines ? 212 : 192);
-			});
-			im::Disabled(manualColor0, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Items));
-			});
-			// TODO interlace
-		});
-		ImGui::SameLine();
-		im::Group([&]{
-			ImGui::Checkbox("Manual override", &overrideAll);
-			im::Group([&]{
-				im::Disabled(overrideAll, [&]{
-					ImGui::Checkbox("##mode",   overrideAll ? &overrideAll : &overrideMode);
-					ImGui::Checkbox("##page",   overrideAll ? &overrideAll : &overridePage);
-					ImGui::Checkbox("##lines",  overrideAll ? &overrideAll : &overrideLines);
-					ImGui::Checkbox("##color0", overrideAll ? &overrideAll : &overrideColor0);
+		// TODO interlace
+		overridableSettings("VDP settings", "Screen mode: non-bitmap", overrideAll, {
+			{tmpStrCat("Screen mode: ", modeToStr(vdpMode)), &overrideMode, [&]{
+				ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
+			}},
+			{tmpStrCat("Display page: ", vdpPage), &overridePage, [&]{
+				// note: 'mode', not 'bitmapScrnMode'
+				int mode = manualMode ? bitmapScrnMode : vdpMode;
+				int numPages = mode <= SCR6 ? 4 : 2; // TODO extended VRAM
+				if (bitmapPage >= numPages) bitmapPage = numPages - 1;
+				if (bitmapPage < 0) bitmapPage = numPages;
+				ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
+				if (bitmapPage == numPages) bitmapPage = -1;
+			}},
+			{tmpStrCat("Visible lines: ", vdpLines ? 212 : 192), &overrideLines, [&]{
+				im::Disabled(bitmapPage < 0, [&]{
+					ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
 				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-					im::Disabled(!manualMode, [&]{
-						ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
-					});
-					im::Disabled(!manualPage, [&]{
-						// note: 'mode', not 'bitmapScrnMode'
-						int mode = manualMode ? bitmapScrnMode : vdpMode;
-						int numPages = mode <= SCR6 ? 4 : 2; // TODO extended VRAM
-						if (bitmapPage >= numPages) bitmapPage = numPages - 1;
-						if (bitmapPage < 0) bitmapPage = numPages;
-						ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
-						if (bitmapPage == numPages) bitmapPage = -1;
-					});
-					im::Disabled(!manualLines || bitmapPage < 0, [&]{
-						ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
-					});
-					im::Disabled(!manualColor0, [&]{
-						ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Items);
-					});
-				});
-			});
+			}},
+			{tmpStrCat("Replace color 0: ", getComboString(vdpColor0, color0Items)), &overrideColor0, [&]{
+				ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Items);
+			}},
 		});
 
 		ImGui::SameLine();

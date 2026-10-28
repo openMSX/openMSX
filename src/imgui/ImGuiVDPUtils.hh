@@ -7,6 +7,7 @@
 #include "gl_vec.hh"
 
 #include <cstdint>
+#include <initializer_list>
 #include <span>
 #include <string_view>
 #include <utility>
@@ -15,6 +16,22 @@ struct ImDrawList;
 struct ImFont;
 
 namespace openmsx {
+
+// The 'VDP settings' / 'Manual override' panel of the VDP viewers. Each row
+// shows a setting as the VDP uses it, a checkbox to override it, and an
+// editor for the manual value (only enabled while overridden).
+// 'vdpValue' and 'editor' only refer to their content, so list the settings
+// in the overridableSettings() call itself (e.g. with tmpStrCat() values).
+struct OverridableSetting {
+	std::string_view vdpValue; // e.g. "Screen mode: screen 1", grayed out while overridden
+	bool* overridden;
+	function_ref<void()> editor;
+	bool vdpValueUsed = true; // false: also gray out 'vdpValue' (e.g. it doesn't apply to the VDP's mode)
+};
+// 'title' heads the column with the VDP's values, which is at least as wide
+// as 'widestValue'. 'overrideAll' overrides all settings at once.
+void overridableSettings(std::string_view title, std::string_view widestValue, bool& overrideAll,
+                         std::initializer_list<OverridableSetting> settings);
 
 // The zoom combo box (1x-8x, stored as 0-7) and the grid checkbox and color.
 void zoomAndGridSettings(int& zoom, bool& grid, gl::vec4& gridColor);

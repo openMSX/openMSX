@@ -187,6 +187,8 @@ void HelpMarker(std::string_view desc, float spacing = -1.0f);
 // button to restore 'defaultColor'.
 void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& defaultColor);
 
+[[nodiscard]] inline const char* yesNo(bool b) { return b ? "yes" : "no"; }
+
 // Height for a child window with a horizontal scrollbar: the content height
 // plus room for that scrollbar, so that showing it does not also trigger a
 // vertical scrollbar.

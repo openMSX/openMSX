@@ -119,12 +119,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			if (size == 16) return (type == SMS) ? "8 x 16" : "16 x 16";
 			assert(false); return "ERROR";
 		};
-		auto yesNo = [](int x) {
-			if (x == 0) return "no";
-			if (x == 1) return "yes";
-			assert(false); return "ERROR";
-		};
-
 		int vdpSize = (reg[1] & 0x02) ? 16 : 8;
 		int vdpMag = (reg[1] & 0x01) ? 1 : 0;
 		int vdpTransparent = 1; // color 0 is always transparent on the SMS VDP
@@ -208,95 +202,45 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		bool manLines  = overrideAll || overrideLines;
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			im::Group([&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("SMS VDP settings");
-				im::Disabled(manType, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Sprite type: ", typeToStr(vdpType));
-				});
-				im::Disabled(manSize, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Sprite size: ", sizeToStr(vdpType, vdpSize));
-				});
-				im::Disabled(manMag, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Sprites magnified: ", yesNo(vdpMag));
-				});
-				im::Disabled(manTrans, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Color 0 transparent: ", yesNo(vdpTransparent));
-				});
-				im::Disabled(manPat, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Pattern table: 0x", hex_string<4>(vdpPatBase));
-				});
-				im::Disabled(manAtt, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Attribute table: 0x", hex_string<4>(vdpAttBase));
-				});
-				im::Disabled(manLines || (vdpType != SMS), [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Visible lines: ", vdpLines);
-				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				ImGui::Checkbox("Manual override", &overrideAll);
-				im::Group([&]{
-					im::Disabled(overrideAll, [&]{
-						ImGui::Checkbox("##o-type",   overrideAll ? &overrideAll : &overrideType);
-						ImGui::Checkbox("##o-size",   overrideAll ? &overrideAll : &overrideSize);
-						ImGui::Checkbox("##o-mag",    overrideAll ? &overrideAll : &overrideMag);
-						ImGui::Checkbox("##o-trans",  overrideAll ? &overrideAll : &overrideTrans);
-						ImGui::Checkbox("##o-pat",    overrideAll ? &overrideAll : &overridePat);
-						ImGui::Checkbox("##o-att",    overrideAll ? &overrideAll : &overrideAtt);
-						ImGui::Checkbox("##o-lines",  overrideAll ? &overrideAll : &overrideLines);
+			// The type actually shown. manualType stays at its default
+			// unless the type itself is overridden.
+			auto shownType = [&] {
+				return (overrideAll || overrideType) ? manualType : vdpType;
+			};
+			overridableSettings("SMS VDP settings", {}, overrideAll, {
+				{tmpStrCat("Sprite type: ", typeToStr(vdpType)), &overrideType, [&]{
+					im::Combo("##type", typeToStr(manualType), [&]{
+						if (ImGui::Selectable("1"))   manualType = TMS;
+						if (ImGui::Selectable("SMS")) manualType = SMS;
 					});
-				});
-				ImGui::SameLine();
-				im::Group([&]{
-					// The type actually shown. manualType stays at its default
-					// unless the type itself is overridden.
-					auto shownType = [&] {
-						return (overrideAll || overrideType) ? manualType : vdpType;
-					};
-					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-						im::Disabled(!manType, [&]{
-							im::Combo("##type", typeToStr(manualType), [&]{
-								if (ImGui::Selectable("1"))   manualType = TMS;
-								if (ImGui::Selectable("SMS")) manualType = SMS;
-							});
-						});
-						im::Disabled(!manSize, [&]{
-							im::Combo("##size", sizeToStr(shownType(), manualSize), [&]{
-								if (ImGui::Selectable(" 8 x  8")) manualSize =  8;
-								if (ImGui::Selectable((shownType() == SMS) ? " 8 x 16" : "16 x 16")) manualSize = 16;
-							});
-						});
-						im::Disabled(!manMag, [&]{
-							im::Combo("##mag", yesNo(manualMag), [&]{
-								if (ImGui::Selectable("no"))  manualMag = 0;
-								if (ImGui::Selectable("yes")) manualMag = 1;
-							});
-						});
-						im::Disabled(!manTrans, [&]{
-							im::Combo("##trans", yesNo(manualTransparent), [&]{
-								if (ImGui::Selectable("no"))  manualTransparent = 0;
-								if (ImGui::Selectable("yes")) manualTransparent = 1;
-							});
-						});
-						im::Disabled(!manPat, [&]{
-							comboHexSequence<4>("##pat", &manualPatBase, patMult(shownType()), vramSize, 0);
-						});
-						im::Disabled(!manAtt, [&]{
-							comboHexSequence<4>("##att", &manualAttBase, attMult(shownType()), vramSize, 0);
-						});
-						im::Disabled(!manLines || (shownType() != SMS), [&]{
-							ImGui::Combo("##lines", &manualLines, "192\000224\000240\000");
-						});
+				}},
+				{tmpStrCat("Sprite size: ", sizeToStr(vdpType, vdpSize)), &overrideSize, [&]{
+					im::Combo("##size", sizeToStr(shownType(), manualSize), [&]{
+						if (ImGui::Selectable(" 8 x  8")) manualSize =  8;
+						if (ImGui::Selectable((shownType() == SMS) ? " 8 x 16" : "16 x 16")) manualSize = 16;
 					});
-				});
+				}},
+				{tmpStrCat("Sprites magnified: ", yesNo(vdpMag)), &overrideMag, [&]{
+					ImGui::Combo("##mag", &manualMag, "no\000yes\000");
+				}},
+				{tmpStrCat("Color 0 transparent: ", yesNo(vdpTransparent)), &overrideTrans, [&]{
+					ImGui::Combo("##trans", &manualTransparent, "no\000yes\000");
+				}},
+				{tmpStrCat("Pattern table: 0x", hex_string<4>(vdpPatBase)), &overridePat, [&]{
+					comboHexSequence<4>("##pat", &manualPatBase, patMult(shownType()), vramSize, 0);
+				}},
+				{tmpStrCat("Attribute table: 0x", hex_string<4>(vdpAttBase)), &overrideAtt, [&]{
+					comboHexSequence<4>("##att", &manualAttBase, attMult(shownType()), vramSize, 0);
+				}},
+				// Only mode 4 can show more than 192 lines.
+				{.vdpValue = tmpStrCat("Visible lines: ", vdpLines),
+				 .overridden = &overrideLines,
+				 .editor = [&]{
+					im::Disabled(shownType() != SMS, [&]{
+						ImGui::Combo("##lines", &manualLines, "192\000224\000240\000");
+					});
+				 },
+				 .vdpValueUsed = vdpType == SMS},
 			});
 			ImGui::SameLine();
 			ImGui::Dummy(ImVec2(25, 1));
