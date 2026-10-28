@@ -440,11 +440,12 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		}
 
 		// Background where nothing is drawn (transparent pixels) is the
-		// checkerboard texture.
-		auto drawTransparentBackground = [&](gl::vec2 imageSize) {
+		// checkerboard texture. For a magnified copy of a view, the squares
+		// are magnified as well.
+		auto drawTransparentBackground = [&](gl::vec2 imageSize, int magnify = 1) {
 			if (checkerBoardSize) {
 				ImGui::Image(checkerTex.getImGui(), imageSize,
-					{}, imageSize / (4.0f * float(checkerBoardSize)));
+					{}, imageSize / (4.0f * float(magnify * checkerBoardSize)));
 			}
 		};
 
@@ -724,7 +725,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					auto pos2 = ImGui::GetCursorPos();
 					int z = (size == 16) ? 3 : 6;
 					if (type == SMS) {
-						drawTransparentBackground(float(z) * zoomPatSize);
+						drawTransparentBackground(float(z) * zoomPatSize, z);
 						ImGui::SetCursorPos(pos2);
 					}
 					ImGui::Image(patternTex.getImGui(), float(z) * zoomPatSize, uv1, uv2);
@@ -823,7 +824,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						ImGui::StrCat("sprite: ", sprite);
 						ImGui::StrCat("address: 0x", hex_string<4>(yAddress(sprite)));
 						auto pos = ImGui::GetCursorPos();
-						drawTransparentBackground(3.0f * zoomSize);
+						drawTransparentBackground(3.0f * zoomSize, 3);
 						ImGui::SetCursorPos(pos);
 						renderSpriteAttrib(sprite, float(3 * zm));
 						auto y = vram[yAddress(sprite)];
