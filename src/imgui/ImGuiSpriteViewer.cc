@@ -322,6 +322,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					if (ImGui::InputInt("size", &checkerBoardSize)) {
 						checkerBoardSize = std::clamp(checkerBoardSize, 0, maxCheckerBoardSize);
 					}
+					simpleToolTip("0 = no checkerboard");
 				});
 			});
 		});
