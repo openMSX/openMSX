@@ -87,11 +87,11 @@ class OGG(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/ogg'
 	niceName = 'libogg'
 	sourceName = 'libogg'
-	version = '1.3.5'
-	fileLength = 593071
+	version = '1.3.6'
+	fileLength = 604469
 	checksums = {
 		'sha256':
-			'0eb4b4b9420a0f51db142ba3f9c64b333f826532dc0f48c6410ae51f4799b664',
+			'83e6704730683d004d20e21b8f7f55dcb3383cdf84c0daedf30bde175f774638',
 		}
 
 	@classmethod
