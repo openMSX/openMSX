@@ -864,15 +864,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				}
 				if (rasterBeam) {
 					auto center = scrnPos + (rasterBeamPos + gl::vec2{0.5f}) * zm;
-					auto color = ImGui::ColorConvertFloat4ToU32(rasterBeamColor);
-					auto thickness = zm.y * 0.5f;
-					auto zm1 = 1.5f * zm;
-					auto zm3 = 3.5f * zm;
-					drawList->AddRect(center - zm, center + zm, color, 0.0f, thickness);
-					drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
-					drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
-					drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
-					drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+					addCrosshair(drawList, center, zm, ImGui::ColorConvertFloat4ToU32(rasterBeamColor), zm.y * 0.5f);
 				}
 
 				auto pos1 = ImGui::GetCursorPos();

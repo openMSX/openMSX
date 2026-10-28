@@ -362,6 +362,17 @@ void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSiz
 	ImGui::Image(tex.getImGui(), size, {}, size / (4.0f * float(checkerBoardSize)));
 }
 
+void addCrosshair(ImDrawList* drawList, gl::vec2 center, gl::vec2 halfSize, ImU32 color, float thickness)
+{
+	auto zm1 = 1.5f * halfSize;
+	auto zm3 = 3.5f * halfSize;
+	drawList->AddRect(center - halfSize, center + halfSize, color, 0.0f, thickness);
+	drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
+	drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
+	drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
+	drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+}
+
 TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view command)
 {
 	for (const auto& info : hotkey.getGlobalBindings()) {

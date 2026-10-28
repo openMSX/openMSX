@@ -341,6 +341,10 @@ void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color
 // setting the size of the squares. Draws nothing when 'checkerBoardSize' is 0.
 void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSize);
 
+// Crosshair marker (e.g. for the raster beam position): a rectangle of
+// 2 * 'halfSize' around 'center', with a short line on each side.
+void addCrosshair(ImDrawList* drawList, gl::vec2 center, gl::vec2 halfSize, ImU32 color, float thickness);
+
 template<int HexDigits>
 void comboHexSequence(const char* label, int* value, int mult, int max, int offset) {
 	assert(offset < mult);
