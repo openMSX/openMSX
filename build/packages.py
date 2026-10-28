@@ -188,11 +188,11 @@ class ZLib(DownloadablePackage):
 	downloadURL = 'https://zlib.net/fossils/'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.3.1'
-	fileLength = 1512791
+	version = '1.3.2'
+	fileLength = 1502830
 	checksums = {
 		'sha256':
-			'9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23',
+			'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16',
 		}
 
 # Build a dictionary of packages using introspection.
