@@ -432,12 +432,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		};
 		auto printPatternColorAddress = [&](unsigned pattern) {
 			printAddressRange8("Pattern", patTable.getAddress(8 * pattern));
-			if (mode == one_of(SCR1, SCR2, SCR4)) {
-				printAddressRange8("Color", colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)));
+			if (mode == SCR1) {
+				// one color byte for 8 patterns
+				printAddress("Color", colTable.getAddress(pattern / 8));
+			} else if (mode == one_of(SCR2, SCR4)) {
+				printAddressRange8("Color", colTable.getAddress(8 * pattern));
 			}
 		};
-		auto formatBinaryData = [&](unsigned address) {
-			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + 7, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
+		auto formatBinaryData = [&](unsigned address, unsigned count) {
+			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + count - 1, {}, 1, {}, ", ", "%02X", manager.getInterpreter());
 		};
 		auto getPatternFromGrid = [&] {
 			return gridPosition.x + 32 * gridPosition.y;
@@ -450,10 +453,11 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 					: "Copy pattern data to clipboard";
 				if (ImGui::MenuItem(caption)) {
 					auto pattern = getPatternFromGrid();
-					auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern)));
+					auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern), 8));
 					if (hasColorData) {
-						auto cp = (mode == SCR1) ? (pattern / 8) : (8 * pattern);
-						strAppend(text, "Color data\n", formatBinaryData(colTable.getAddress(cp)));
+						strAppend(text, "Color data\n",
+						          (mode == SCR1) ? formatBinaryData(colTable.getAddress(pattern / 8), 1)
+						                         : formatBinaryData(colTable.getAddress(8 * pattern), 8));
 					}
 					ImGui::SetClipboardText(text.c_str());
 				}

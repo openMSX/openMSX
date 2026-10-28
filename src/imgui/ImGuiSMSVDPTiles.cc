@@ -712,7 +712,10 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				}
 			} else {
 				printAddressRange("Pattern", patternAddress(pattern), 8);
-				if (mode == one_of(GRAPHIC1, GRAPHIC2)) {
+				if (mode == GRAPHIC1) {
+					// one color byte for 8 patterns
+					printAddress("Color", colorAddress(pattern));
+				} else if (mode == GRAPHIC2) {
 					printAddressRange("Color", colorAddress(pattern), 8);
 				}
 			}
@@ -741,7 +744,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 					auto pattern = getPatternFromGrid();
 					auto text = strCat("Pattern data\n", formatPatternData(pattern));
 					if (hasColorData) {
-						strAppend(text, "Color data\n", formatBinaryData(colorAddress(pattern), 8));
+						strAppend(text, "Color data\n", formatBinaryData(colorAddress(pattern), (mode == GRAPHIC1) ? 1 : 8));
 					}
 					ImGui::SetClipboardText(text.c_str());
 				}
