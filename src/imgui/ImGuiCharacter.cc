@@ -374,32 +374,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				if (mode == OTHER) {
 					drawList->AddRectFilled(scrnPos, scrnPos + hostSize, getColor(imColor::GRAY));
 				} else {
-					auto rowsCeil = int(ceilf(rows));
-					auto numChars = rowsCeil * columns;
+					gl::ivec2 numChars{columns, int(ceilf(rows))};
 					drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
-					drawList->PushTexture(patternTex.getImGui());
-					drawList->PrimReserve(6 * numChars, 4 * numChars);
-					for (auto row : xrange(rowsCeil)) {
-						for (auto column : xrange(columns)) {
-							gl::vec2 p1 = scrnPos + charZoom * gl::vec2{float(column), float(row)};
-							gl::vec2 p2 = p1 + charZoom;
-							auto pattern = getPattern(column, row);
-							auto [uv1, uv2] = getPatternUV(pattern);
-							drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
-						}
-					}
-					drawList->PopTexture();
+					addTiles(drawList, patternTex, scrnPos, charZoom, numChars, [&](int column, int row) {
+						return getPatternUV(getPattern(column, row));
+					});
 					if (nameTableOverlay) {
-						drawList->PushTexture(smallHexDigits.getImGui());
-						drawList->PrimReserve(12 * numChars, 8 * numChars);
 						auto digitOffset = narrow ? gl::vec2{0.0f, hexDigitSize.y} : gl::vec2{hexDigitSize.x, 0.0f};
-						for (auto row : xrange(rowsCeil)) {
-							for (auto column : xrange(columns)) {
-								gl::vec2 pos = scrnPos + charZoom * gl::vec2{float(column), float(row)};
-								addHexDigits(drawList, pos, digitOffset, getPattern(column, row), 2);
-							}
-						}
-						drawList->PopTexture();
+						addHexNumbers(drawList, smallHexDigits, scrnPos, charZoom, numChars, digitOffset, 2,
+						              [&](int column, int row) { return getPattern(column, row); });
 					}
 					drawList->PopClipRect();
 				}

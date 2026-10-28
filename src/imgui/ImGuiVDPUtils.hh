@@ -96,6 +96,16 @@ inline constexpr gl::vec2 hexDigitSize{5.0f, 8.0f};
 // digit (ImDrawList::PrimReserve()).
 void addHexDigits(ImDrawList* drawList, gl::vec2 pos, gl::vec2 step, unsigned value, int numDigits);
 
+// Draw a grid of 'numCells' cells (e.g. the characters of a name table) of
+// 'cellSize' pixels each, starting at 'pos'. 'uv(column, row)' returns the part
+// of 'tex' to draw in that cell.
+void addTiles(ImDrawList* drawList, const gl::Texture& tex, gl::vec2 pos, gl::vec2 cellSize, gl::ivec2 numCells,
+              function_ref<std::pair<gl::vec2, gl::vec2>(int column, int row)> uv);
+// Overlay a hex number on each cell of such a grid: 'number(column, row)' as
+// 'numDigits' digits from the 'hexDigits' texture.
+void addHexNumbers(ImDrawList* drawList, const gl::Texture& hexDigits, gl::vec2 pos, gl::vec2 cellSize,
+                   gl::ivec2 numCells, gl::vec2 step, int numDigits, function_ref<unsigned(int column, int row)> number);
+
 // Render the patterns of the TMS9918-style character modes into an image (for
 // the tile viewers), 32 patterns per row. 'pat(i)' returns byte 'i' of the
 // pattern table, 'col(i)' byte 'i' of the color table.

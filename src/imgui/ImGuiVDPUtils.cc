@@ -170,6 +170,37 @@ void addHexDigits(ImDrawList* drawList, gl::vec2 pos, gl::vec2 step, unsigned va
 	}
 }
 
+void addTiles(ImDrawList* drawList, const gl::Texture& tex, gl::vec2 pos, gl::vec2 cellSize, gl::ivec2 numCells,
+              function_ref<std::pair<gl::vec2, gl::vec2>(int column, int row)> uv)
+{
+	auto num = numCells.x * numCells.y;
+	drawList->PushTexture(tex.getImGui());
+	drawList->PrimReserve(6 * num, 4 * num);
+	for (auto row : xrange(numCells.y)) {
+		for (auto column : xrange(numCells.x)) {
+			gl::vec2 p1 = pos + cellSize * gl::vec2{float(column), float(row)};
+			auto [uv1, uv2] = uv(column, row);
+			drawList->PrimRectUV(p1, p1 + cellSize, uv1, uv2, 0xffffffff);
+		}
+	}
+	drawList->PopTexture();
+}
+
+void addHexNumbers(ImDrawList* drawList, const gl::Texture& hexDigits, gl::vec2 pos, gl::vec2 cellSize,
+                   gl::ivec2 numCells, gl::vec2 step, int numDigits, function_ref<unsigned(int column, int row)> number)
+{
+	auto num = numCells.x * numCells.y * numDigits;
+	drawList->PushTexture(hexDigits.getImGui());
+	drawList->PrimReserve(6 * num, 4 * num);
+	for (auto row : xrange(numCells.y)) {
+		for (auto column : xrange(numCells.x)) {
+			gl::vec2 p = pos + cellSize * gl::vec2{float(column), float(row)};
+			addHexDigits(drawList, p, step, number(column, row), numDigits);
+		}
+	}
+	drawList->PopTexture();
+}
+
 void renderTextPatterns(function_ref<uint8_t(unsigned)> pat, uint32_t fg, uint32_t bg,
                         std::span<uint32_t> output)
 {

@@ -629,35 +629,19 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				if (mode == OTHER) {
 					drawList->AddRectFilled(scrnPos, scrnPos + hostSize, getColor(imColor::GRAY));
 				} else {
-					auto rowsCeil = int(ceilf(rows));
-					auto numChars = rowsCeil * columns;
+					gl::ivec2 numChars{columns, int(ceilf(rows))};
 					drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
-					drawList->PushTexture(patternTex.getImGui());
-					drawList->PrimReserve(6 * numChars, 4 * numChars);
-					for (auto row : xrange(rowsCeil)) {
-						for (auto column : xrange(columns)) {
-							gl::vec2 p1 = scrnPos + charZoom * gl::vec2{float(column), float(row)};
-							gl::vec2 p2 = p1 + charZoom;
-							auto entry = getEntry(column, row);
-							auto [uv1, uv2] = patternUV(entry.tile, entry.palette, entry.hflip, entry.vflip);
-							drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
-						}
-					}
-					drawList->PopTexture();
+					addTiles(drawList, patternTex, scrnPos, charZoom, numChars, [&](int column, int row) {
+						auto entry = getEntry(column, row);
+						return patternUV(entry.tile, entry.palette, entry.hflip, entry.vflip);
+					});
 					if (nameTableOverlay) {
 						// Mode 4 tile numbers are 9-bit, so they need three hex
 						// digits (the mode 4 cells are at least 16 pixels wide,
 						// so three 5-pixel digits fit); the TMS modes use two.
 						const int numDigits = (mode == MODE4) ? 3 : 2;
-						drawList->PushTexture(smallHexDigits.getImGui());
-						drawList->PrimReserve(6 * numDigits * numChars, 4 * numDigits * numChars);
-						for (auto row : xrange(rowsCeil)) {
-							for (auto column : xrange(columns)) {
-								gl::vec2 pos = scrnPos + charZoom * gl::vec2{float(column), float(row)};
-								addHexDigits(drawList, pos, {hexDigitSize.x, 0.0f}, getEntry(column, row).tile, numDigits);
-							}
-						}
-						drawList->PopTexture();
+						addHexNumbers(drawList, smallHexDigits, scrnPos, charZoom, numChars, {hexDigitSize.x, 0.0f}, numDigits,
+						              [&](int column, int row) { return getEntry(column, row).tile; });
 					}
 					drawList->PopClipRect();
 				}
