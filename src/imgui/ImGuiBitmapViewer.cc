@@ -422,7 +422,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::IsItemHovered() && (mode != OTHER)) {
-			auto [x, y] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm);
+			auto [x, y] = hoveredCell(scrnPos, zm);
 			if ((0 <= x) && (x < width) && (0 <= y) && (y < height)) {
 				auto dec3 = [&](int d) {
 					im::ScopedFont sf(manager.fontMono);

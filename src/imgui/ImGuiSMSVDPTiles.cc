@@ -749,7 +749,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				ImGui::Image(patternTex.getImGui(), size, patternViewUV.first, patternViewUV.second);
 				bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
 				if (hovered) {
-					gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+					gridPosition = hoveredCell(scrnPos, charZoom);
 				}
 				copyPatternColorPopup();
 				if (hovered) {
@@ -863,7 +863,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 				ImGui::Dummy(hostSize);
 				bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
 				if (hovered) {
-					auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+					auto gridPos = hoveredCell(scrnPos, charZoom);
 					ImGui::BeginTooltip();
 					ImGui::StrCat("Column: ", gridPos.x, " Row: ", gridPos.y);
 					auto entry = getEntry(gridPos.x, gridPos.y);

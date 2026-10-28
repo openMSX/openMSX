@@ -195,6 +195,13 @@ void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& default
 	return contentHeight + ImGui::GetStyle().ScrollbarSize;
 }
 
+// The cell under the mouse, of a grid of cells of 'cellSize' pixels whose top
+// left corner is at 'scrnPos' (in screen coordinates).
+[[nodiscard]] inline gl::ivec2 hoveredCell(gl::vec2 scrnPos, gl::vec2 cellSize)
+{
+	return trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / cellSize);
+}
+
 // Context menu (right-click) popup for the current window, with a single item
 // 'text' that copies the string returned by 'supplier' to the clipboard.
 // Returns whether the popup is open.

@@ -388,7 +388,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				gl::vec2 zoomPatSize{float(size * zm)};
 				bool hovered = ImGui::IsItemHovered() && (mode != 0);
 				if (hovered) {
-					gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
+					gridPosition = hoveredCell(scrnPos, zoomPatSize);
 				}
 				ImGui::SameLine();
 				im::Group([&]{
@@ -455,7 +455,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					gl::vec2 zoomPatSize{float(size * zm)};
 					bool hovered = ImGui::IsItemHovered();
 					if (hovered) {
-						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
+						gridPosition = hoveredCell(scrnPos, zoomPatSize);
 					}
 					auto sprite = 8 * gridPosition.y + gridPosition.x;
 					auto addr = getSpriteAttrAddr(sprite, mode);
@@ -707,7 +707,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::SetCursorPos(topLeft);
 				ImGui::Image(renderTex.getImGui(), fullSize);
 				bool hovered = ImGui::IsItemHovered();
-				auto hoverPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / gl::vec2(float(zm)));
+				auto hoverPos = hoveredCell(scrnPos, gl::vec2(float(zm)));
 				ImGui::SameLine();
 
 				im::Group([&]{

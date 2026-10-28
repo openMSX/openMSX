@@ -525,7 +525,7 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 		}
 	});
 	if (ImGui::IsItemHovered()) {
-		auto [tx, vy] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / (gl::vec2(0.5f, 2.0f) * float(zoom)));
+		auto [tx, vy] = hoveredCell(scrnPos, gl::vec2(0.5f, 2.0f) * float(zoom));
 		if (0 <= tx && tx < VDP::TICKS_PER_LINE &&
 		    0 <= vy && vy < numLines) {
 			int vx = tx / 2;

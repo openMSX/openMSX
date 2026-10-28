@@ -469,7 +469,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						drawGrid();
 					} else if (hovered) {
 						// store last selected position before popup
-						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+						gridPosition = hoveredCell(scrnPos, charZoom);
 						drawGrid();
 					} else {
 						ImGui::Dummy(zoomCharSize);
@@ -569,7 +569,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				ImGui::SameLine();
 				im::Group([&]{
 					if (hovered) {
-						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+						auto gridPos = hoveredCell(scrnPos, charZoom);
 						ImGui::StrCat("Column: ", gridPos.x, " Row: ", gridPos.y);
 						auto pattern = getPattern(gridPos.x, gridPos.y);
 						printPatternNr(pattern);
