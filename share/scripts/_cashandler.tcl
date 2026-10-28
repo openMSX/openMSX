@@ -59,7 +59,7 @@ proc casopen {filename rw} {
 	# Open file.
 	variable fid${rw}
 	set fid${rw} [open $filename $rw]
-	fconfigure [set fid${rw}] -translation binary -encoding binary
+	fconfigure [set fid${rw}] -translation binary
 
 	# Install BIOS handlers.
 	variable casbios

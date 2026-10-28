@@ -778,7 +778,7 @@ proc vgm_rec_end {abort} {
 		}
 
 		set file_handle [open $file_name "w"]
-		fconfigure $file_handle -encoding binary -translation binary
+		fconfigure $file_handle -translation binary
 		puts -nonewline $file_handle $header
 		puts -nonewline $file_handle $temp_music_data
 		close $file_handle
