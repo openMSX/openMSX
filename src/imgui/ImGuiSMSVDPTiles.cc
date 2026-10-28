@@ -243,7 +243,6 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		};
 		auto patMult = [](int mode) { return 1 << (mode == GRAPHIC2 ? 13 : 11); };
 		auto colMult = [](int mode) { return 1 << (mode == GRAPHIC2 ? 13 : 6); };
-		constexpr int namMult = 1 << 10;
 		int vdpFgCol = reg[7] >> 4;
 		int vdpBgCol = reg[7] & 0x0f;
 		// In the TMS9918-compatible modes pen 0 is drawn in the backdrop
@@ -273,6 +272,14 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		int vdpNamBase = namBaseFor(vdpMode);
 		int vdpYpixels = vdp.peekYPixels();
 		int vdpLines = vdpYpixels; // visible lines (192/224/240)
+		// In mode 4 with 224/240 lines, the name table is at a 4kB aligned
+		// address + 0x700.
+		auto namMult = [&](int mode) {
+			return (mode != MODE4) ? 0x400 : (vdpYpixels == 192) ? 0x800 : 0x1000;
+		};
+		auto namOffset = [&](int mode) {
+			return ((mode == MODE4) && (vdpYpixels != 192)) ? 0x700 : 0;
+		};
 		int vramSize = 0x4000;
 		bool sms1 = vdp.getVariant() == SMSVDPCore::Variant::SMS1;
 		// Mode-4 tile-number masks (identity on SMS2).
@@ -407,7 +414,7 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						im::Disabled(!manNam, [&]{
-							comboHexSequence<4>("##name", &manualNamBase, namMult, vramSize, 0);
+							comboHexSequence<4>("##name", &manualNamBase, namMult(mode), vramSize, namOffset(mode));
 						});
 						im::Disabled(!manRows || (mode == MODE4), [&]{
 							ImGui::Combo("##rows", &manualRows, "24\00032\000");
@@ -483,7 +490,8 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 
 		// The combos above only align the manual bases while they're shown.
 		VramTables tables;
-		tables.namBase = manNam ? unsigned(manualNamBase & ~(namMult - 1)) : unsigned(namBaseFor(mode));
+		tables.namBase = manNam ? unsigned((manualNamBase & ~(namMult(mode) - 1)) | namOffset(mode))
+		                        : unsigned(namBaseFor(mode));
 		if (mode == MODE4) {
 			// Mode 4 has no pattern/color table base registers: the tile
 			// number indexes the pattern table at 0x0000.
