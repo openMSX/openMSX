@@ -137,6 +137,11 @@ void ImGuiManager::initializeImGui()
 	                  //ImGuiConfigFlags_NavEnableGamepad | // TODO revisit this later
 	                  ImGuiConfigFlags_DockingEnable |
 	                  ImGuiConfigFlags_ViewportsEnable;
+	// KEEP-SDL2: The SDL3 backend can make the ImGui windows outside the
+	// main window children of the main window (always on top of it and
+	// minimized together with it). Keep them independent windows, like
+	// with SDL2.
+	io.ConfigViewportsNoDefaultParent = true;
 	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
 	io.IniFilename = iniFilename.c_str();
 
@@ -318,7 +323,7 @@ static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
 	if (const auto& monitors = ImGui::GetPlatformIO().Monitors;
 	    !monitors.empty() && std::ranges::none_of(monitors, overlaps)) {
 		// window isn't visible in any of the monitors
-		// -> place centered on primary monitor
+		// -> place centered on the nearest monitor
 		return gl::ivec2(SDL_WINDOWPOS_CENTERED);
 	}
 	return windowPos; // current placement is fine
