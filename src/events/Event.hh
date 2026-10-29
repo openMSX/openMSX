@@ -16,7 +16,7 @@
 #include <utility>
 #include <variant>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace openmsx {
 
@@ -60,7 +60,7 @@ class KeyUpEvent final : public KeyEvent
 public:
 	using KeyEvent::KeyEvent;
 
-	[[nodiscard]] static KeyUpEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
+	[[nodiscard]] static KeyUpEvent create(SDL_Keycode code, SDL_Keymod mod = SDL_KMOD_NONE) {
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
@@ -79,7 +79,7 @@ class KeyDownEvent final : public KeyEvent
 public:
 	using KeyEvent::KeyEvent;
 
-	[[nodiscard]] static KeyDownEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
+	[[nodiscard]] static KeyDownEvent create(SDL_Keycode code, SDL_Keymod mod = SDL_KMOD_NONE) {
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
@@ -96,7 +96,7 @@ public:
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
 
-		e.type = SDL_KEYDOWN;
+		e.type = SDL_EVENT_KEY_DOWN;
 		e.timestamp = timestamp;
 		e.state = SDL_PRESSED;
 		e.keysym.sym = SDLK_UNKNOWN;

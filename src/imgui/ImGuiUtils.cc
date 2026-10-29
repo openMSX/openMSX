@@ -19,7 +19,7 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <variant>
@@ -313,10 +313,10 @@ TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view com
 		if (const auto* keyDown = std::get_if<KeyDownEvent>(&info.event)) {
 			auto modifiers = keyDown->getModifiers();
 			return tmpStrCat(
-				strCat_if(modifiers & KMOD_CTRL,  "CTRL+"),
-				strCat_if(modifiers & KMOD_SHIFT, "SHIFT+"),
-				strCat_if(modifiers & KMOD_ALT,   "ALT+"),
-				strCat_if(modifiers & KMOD_GUI,   "GUI+"),
+				strCat_if(modifiers & SDL_KMOD_CTRL,  "CTRL+"),
+				strCat_if(modifiers & SDL_KMOD_SHIFT, "SHIFT+"),
+				strCat_if(modifiers & SDL_KMOD_ALT,   "ALT+"),
+				strCat_if(modifiers & SDL_KMOD_GUI,   "GUI+"),
 				SDLKey::toString(keyDown->getKeyCode()));
 		}
 	}
