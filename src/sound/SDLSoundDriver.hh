@@ -7,7 +7,7 @@
 
 #include "MemBuffer.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace openmsx {
 
@@ -35,12 +35,13 @@ private:
 	void reInit();
 	[[nodiscard]] unsigned getBufferFilled() const;
 	[[nodiscard]] unsigned getBufferFree() const;
-	static void audioCallbackHelper(void* userdata, uint8_t* strm, int len);
-	void audioCallback(std::span<StereoFloat> stream);
+	static void audioCallbackHelper(void* userdata, SDL_AudioStream* strm,
+	                                int additionalAmount, int totalAmount);
+	void audioCallback(SDL_AudioStream* strm, size_t len);
 
 private:
 	Reactor& reactor;
-	SDL_AudioDeviceID deviceID;
+	SDL_AudioStream* stream;
 	MemBuffer<StereoFloat> mixBuffer;
 	unsigned frequency;
 	unsigned fragmentSize;
