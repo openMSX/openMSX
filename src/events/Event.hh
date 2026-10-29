@@ -236,7 +236,25 @@ private:
 class TextEvent : public SdlEvent
 {
 public:
-	using SdlEvent::SdlEvent;
+	// SDL3 doesn't store the text inside the event, but points to memory
+	// that is freed when the next event is polled. Events may be delivered
+	// later than that, so keep our own copy of the text.
+	explicit TextEvent(const SDL_Event& e)
+		: SdlEvent(e), text(allocate_c_string(e.text.text))
+	{
+		evt.text.text = text.get();
+	}
+	TextEvent(const TextEvent& other) : TextEvent(other.evt) {}
+	TextEvent& operator=(const TextEvent& other) {
+		*this = TextEvent(other);
+		return *this;
+	}
+	TextEvent(TextEvent&&) = default; // the copy of the text doesn't move
+	TextEvent& operator=(TextEvent&&) = default;
+	~TextEvent() = default;
+
+private:
+	StringStorage text;
 };
 
 
@@ -425,6 +443,9 @@ class ImGuiDelayedActionEvent    final : public SimpleEvent {};
 /** Send when changed host keyboard layout. */
 class KeyMapChangedEvent          final : public SimpleEvent {};
 
+/** Send when text input (re)starts for the main window. */
+class TextInputStartedEvent      final : public SimpleEvent {};
+
 // --- Put all (non-abstract) Event classes into a std::variant ---
 
 using Event = std::variant<
@@ -467,7 +488,8 @@ using Event = std::variant<
 	Rs232RawEvent,
 	ImGuiDelayedActionEvent,
 	ImGuiActiveEvent,
-	KeyMapChangedEvent
+	KeyMapChangedEvent,
+	TextInputStartedEvent
 >;
 
 template<typename T>
@@ -518,6 +540,7 @@ enum class EventType : uint8_t
 	IMGUI_DELAYED_ACTION     = event_index<ImGuiDelayedActionEvent>,
 	IMGUI_ACTIVE             = event_index<ImGuiActiveEvent>,
 	KEYMAP_CHANGED           = event_index<KeyMapChangedEvent>,
+	TEXT_INPUT_STARTED       = event_index<TextInputStartedEvent>,
 
 	NUM_EVENT_TYPES // must be last
 };
