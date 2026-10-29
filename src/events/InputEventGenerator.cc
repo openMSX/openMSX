@@ -435,17 +435,11 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		event = TextEvent(evt);
 		break;
 
-	case SDL_WINDOWEVENT:
-		switch (evt.window.event) {
-		case SDL_WINDOWEVENT_CLOSE:
-			if (WindowEvent::isMainWindow(evt.window.windowID)) {
-				event = quitOnce();
-				break;
-			}
-			[[fallthrough]];
-		default:
+	case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+		if (WindowEvent::isMainWindow(evt.window.windowID)) {
+			event = quitOnce();
+		} else {
 			event = WindowEvent(evt);
-			break;
 		}
 		break;
 
@@ -459,6 +453,11 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		break;
 
 	default:
+		// SDL2 had a single window event type, SDL3 has a range of them.
+		// Pass all of them on (e.g. ImGui needs them for its viewports).
+		if ((SDL_EVENT_WINDOW_FIRST <= evt.type) && (evt.type <= SDL_EVENT_WINDOW_LAST)) {
+			event = WindowEvent(evt);
+		}
 		break;
 	}
 

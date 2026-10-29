@@ -137,6 +137,10 @@ void ImGuiManager::initializeImGui()
 	                  //ImGuiConfigFlags_NavEnableGamepad | // TODO revisit this later
 	                  ImGuiConfigFlags_DockingEnable |
 	                  ImGuiConfigFlags_ViewportsEnable;
+	// The SDL3 backend can make the ImGui windows outside the main window
+	// children of the main window (always on top of it and minimized
+	// together with it). Keep them independent windows, like with SDL2.
+	io.ConfigViewportsNoDefaultParent = true;
 	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
 	io.IniFilename = iniFilename.c_str();
 
