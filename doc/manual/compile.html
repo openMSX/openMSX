@@ -191,7 +191,7 @@ openMSX depends on the following libraries:
 <dl>
 
 <dt><a class="external" href="http://www.libsdl.org/">SDL</a></dt>
-<dd>Simple DirectMedia Layer version 2, a cross-platform library that provides low-level access to video, audio and input devices.</dd>
+<dd>Simple DirectMedia Layer version 3, a cross-platform library that provides low-level access to video, audio and input devices.</dd>
 
 <dt><a class="external" href="http://www.libsdl.org/projects/SDL_ttf/">SDL_ttf</a></dt>
 <dd>Library that provides support for TrueType Fonts in SDL.</dd>
@@ -240,7 +240,7 @@ sudo apt-get build-dep openmsx
 Do note that if the Debian/Ubuntu package that is in the version of the distribution you are currently running is older than the openMSX version you are trying to compile (which is typically so), you might miss some dependencies that were added in the newer version. The build system will complain and you will have to install the remaining (missing) packages manually. Read on to get some tips about that.
 </p>
 <p>
-Typical depending packages are: <code>libsdl2-ttf-dev</code> <code>libogg-dev</code>  <code>tcl-dev</code>  <code>libpng-dev</code>  <code>libtheora-dev</code>  <code>libvorbis-dev</code>  <code>libsdl2-dev</code>  <code>libglew-dev</code>. The complete list for Debian (which will be very very similar) is <a class="external" href="https://packages.debian.org/source/sid/openmsx">here</a>.
+Typical depending packages are: <code>libsdl3-ttf-dev</code> <code>libogg-dev</code>  <code>tcl-dev</code>  <code>libpng-dev</code>  <code>libtheora-dev</code>  <code>libvorbis-dev</code>  <code>libsdl3-dev</code>  <code>libglew-dev</code>. The complete list for Debian (which will be very very similar) is <a class="external" href="https://packages.debian.org/source/sid/openmsx">here</a>.
 </p>
 
 <h5>Other Linux</h5>
@@ -579,7 +579,7 @@ This chapter describes how to build a binary of openMSX that does not depend on 
 </p>
 
 <p>
-The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX.</p>
+The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX. Some of these libraries (SDL and SDL_ttf) are built using <a class="external" href="https://cmake.org/">CMake</a>, so that must be installed as well. On Linux, SDL also needs the development packages of X11 and its extensions (for example on Debian and Ubuntu: <code>libx11-dev libxext-dev libxcursor-dev libxi-dev libxfixes-dev libxrandr-dev libxss-dev libxtst-dev</code>), see <a class="external" href="https://wiki.libsdl.org/SDL3/README-linux#build-dependencies">SDL's build dependencies</a>.</p>
 
 <h3><a id="compilestandalone">5.1 Compilation</a></h3>
 
