@@ -738,10 +738,10 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 	pixelBuf.resize(size_t(imageSize.x) * size_t(imageSize.y));
 	BitmapDecoder::decode(layout, palette, dataBuf, pixelBuf);
 
-	if (!imageTex) {
-		imageTex.emplace(false, false); // no interpolation, no wrapping
+	if (!imageTex.get()) {
+		imageTex = gl::Texture(false, false); // no interpolation, no wrapping
 	}
-	imageTex->bind();
+	imageTex.bind();
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageSize.x, imageSize.y, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf.data());
 
@@ -755,10 +755,10 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 				gridPixels[y * z + x] = (x == 0 || y == 0) ? color : 0;
 			}
 		}
-		if (!pixelGridTex) {
-			pixelGridTex.emplace(false, true); // no interpolation, with wrapping
+		if (!pixelGridTex.get()) {
+			pixelGridTex = gl::Texture(false, true); // no interpolation, with wrapping
 		}
-		pixelGridTex->bind();
+		pixelGridTex.bind();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, z, z, 0,
 		             GL_RGBA, GL_UNSIGNED_BYTE, gridPixels.data());
 	}
@@ -766,10 +766,10 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 		auto col1 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);
 		auto col2 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor2);
 		std::array<uint32_t, 2 * 2> checkerPixels = {col1, col2, col2, col1};
-		if (!checkerTex) {
-			checkerTex.emplace(false, true); // no interpolation, with wrapping
+		if (!checkerTex.get()) {
+			checkerTex = gl::Texture(false, true); // no interpolation, with wrapping
 		}
-		checkerTex->bind();
+		checkerTex.bind();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
 		             GL_RGBA, GL_UNSIGNED_BYTE, checkerPixels.data());
 	}
@@ -843,17 +843,17 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 		if (!blockGrid) {
 			auto pos = ImGui::GetCursorPos();
 			if (checkerBoardSize) {
-				ImGui::Image(checkerTex->getImGui(), totalSize, {}, totalSize / (4.0f * float(checkerBoardSize)));
+				ImGui::Image(checkerTex.getImGui(), totalSize, {}, totalSize / (4.0f * float(checkerBoardSize)));
 				ImGui::SetCursorPos(pos);
 			}
-			ImGui::Image(imageTex->getImGui(), totalSize);
+			ImGui::Image(imageTex.getImGui(), totalSize);
 			if (showPixelGrid) {
 				ImGui::SetCursorPos(pos);
-				ImGui::Image(pixelGridTex->getImGui(), totalSize, {}, imgSize);
+				ImGui::Image(pixelGridTex.getImGui(), totalSize, {}, imgSize);
 			}
 		} else {
 			if (checkerBoardSize) {
-				drawList->AddImage(checkerTex->getImGui(), scrnPos, scrnPos + totalSize,
+				drawList->AddImage(checkerTex.getImGui(), scrnPos, scrnPos + totalSize,
 				                   {}, totalSize / (4.0f * float(checkerBoardSize)));
 			}
 			// inner grids first, so that the outer ones are drawn on top
@@ -884,9 +884,9 @@ void DebuggableBitmapViewer::drawImage(Debuggable& debuggable, unsigned memSize,
 					gl::vec2 p1{x1, y1};
 					auto uv0 = gl::vec2(float(x), float(y)) / imgSize;
 					auto uv1 = gl::vec2(float(x + block.x), float(y + block.y)) / imgSize;
-					drawList->AddImage(imageTex->getImGui(), p0, p1, uv0, uv1);
+					drawList->AddImage(imageTex.getImGui(), p0, p1, uv0, uv1);
 					if (showPixelGrid) {
-						drawList->AddImage(pixelGridTex->getImGui(), p0, p1, {}, gl::vec2(block));
+						drawList->AddImage(pixelGridTex.getImGui(), p0, p1, {}, gl::vec2(block));
 					}
 				}
 			}

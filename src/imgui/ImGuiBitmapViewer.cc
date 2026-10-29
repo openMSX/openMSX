@@ -360,10 +360,10 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		MemBuffer<uint32_t> pixels(512 * 256 * 4); // max size: screen 6/7, show all pages
 		renderBitmap(vram.getData(), palette, mode, height, page,
 				pixels.data());
-		if (!bitmapTex) {
-			bitmapTex.emplace(false, false); // no interpolation, no wrapping
+		if (!bitmapTex.get()) {
+			bitmapTex = gl::Texture(false, false); // no interpolation, no wrapping
 		}
-		bitmapTex->bind();
+		bitmapTex.bind();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		int zx = (1 + bitmapZoom) * divX;
@@ -378,7 +378,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		im::Child("##bitmap", min(availSize, reqSize), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			scrnPos = ImGui::GetCursorScreenPos();
 			auto pos = ImGui::GetCursorPos();
-			ImGui::Image(bitmapTex->getImGui(), size);
+			ImGui::Image(bitmapTex.getImGui(), size);
 
 			if (bitmapGrid && (zx > 1) && (zy > 1)) {
 				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
@@ -388,14 +388,14 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 						line[x] = (x == 0 || y == 0) ? color : 0;
 					}
 				}
-				if (!bitmapGridTex) {
-					bitmapGridTex.emplace(false, true); // no interpolation, with wrapping
+				if (!bitmapGridTex.get()) {
+					bitmapGridTex = gl::Texture(false, true); // no interpolation, with wrapping
 				}
-				bitmapGridTex->bind();
+				bitmapGridTex.bind();
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
 						GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 				ImGui::SetCursorPos(pos);
-				ImGui::Image(bitmapGridTex->getImGui(), size, gl::vec2{}, msxSize);
+				ImGui::Image(bitmapGridTex.getImGui(), size, gl::vec2{}, msxSize);
 			}
 			auto* drawList = ImGui::GetWindowDrawList();
 			if (rasterBeam) {

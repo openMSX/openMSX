@@ -119,9 +119,9 @@ private:
 	std::vector<uint8_t> dataBuf;
 	std::vector<uint32_t> pixelBuf;
 	std::optional<unsigned> contextAddr; // of the right-clicked item, empty when not on an item in the debuggable
-	std::optional<gl::Texture> imageTex;
-	std::optional<gl::Texture> pixelGridTex;
-	std::optional<gl::Texture> checkerTex;
+	gl::Texture imageTex    {gl::Null{}};
+	gl::Texture pixelGridTex{gl::Null{}};
+	gl::Texture checkerTex  {gl::Null{}};
 };
 
 } // namespace openmsx
