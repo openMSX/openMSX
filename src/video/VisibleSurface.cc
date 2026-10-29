@@ -211,7 +211,7 @@ void VisibleSurface::setWindowPosition(gl::ivec2 pos)
 void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 {
 	if (getDisplay().getRenderSettings().getFullScreen()) {
-		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 #ifdef __APPLE__
 	// See VisibleSurface::setViewPort() for why only macos (for now).
@@ -220,20 +220,24 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 
 	assert(!window);
 	auto pos = display.retrieveWindowPosition();
-	window.reset(SDL_CreateWindow(
-			getDisplay().getWindowTitle().c_str(),
-			pos.x, pos.y,
-			size.x, size.y,
-			flags));
+	SDL_PropertiesID props = SDL_CreateProperties();
+	SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, getDisplay().getWindowTitle().c_str());
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, pos.x);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, pos.y);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, size.x);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, size.y);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
+	window.reset(SDL_CreateWindowWithProperties(props));
+	SDL_DestroyProperties(props);
 	if (!window) {
 		std::string err = SDL_GetError();
 		throw InitException("Could not create window: ", err);
 	}
+	// SDL3 may apply the window state (e.g. fullscreen) asynchronously,
+	// but we need the final size right away (see setViewPort()).
+	SDL_SyncWindow(window.get());
 
 	updateWindowTitle();
-
-	// prefer linear filtering (instead of nearest neighbour)
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	// set icon
 	if constexpr (OPENMSX_SET_WINDOW_ICON) {
@@ -324,18 +328,20 @@ void VisibleSurface::updateCursor()
 bool VisibleSurface::setFullScreen(bool fullscreen)
 {
 	auto flags = SDL_GetWindowFlags(window.get());
-	// Note: SDL_WINDOW_FULLSCREEN_DESKTOP also has the SDL_WINDOW_FULLSCREEN
-	//       bit set.
 	if (bool currentState = (flags & SDL_WINDOW_FULLSCREEN) != 0;
 	    currentState == fullscreen) {
 		// already wanted stated
 		return true;
 	}
 
-	if (SDL_SetWindowFullscreen(window.get(),
-			fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0) {
+	// Note: without a fullscreen display mode (SDL_SetWindowFullscreenMode())
+	//       this is a borderless window covering the desktop, like SDL2's
+	//       SDL_WINDOW_FULLSCREEN_DESKTOP.
+	if (!SDL_SetWindowFullscreen(window.get(), fullscreen)) {
 		return false; // error, try re-creating the window
 	}
+	// SDL3 may apply this asynchronously, wait for it (see setViewPort()).
+	SDL_SyncWindow(window.get());
 	fullScreenUpdated(fullscreen);
 	return true; // success
 }
@@ -344,6 +350,7 @@ void VisibleSurface::resize()
 {
 	auto size = display.getWindowSize();
 	SDL_SetWindowSize(window.get(), size.x, size.y);
+	SDL_SyncWindow(window.get()); // see setFullScreen()
 
 	bool fullScreen = display.getRenderSettings().getFullScreen();
 	setViewPort(size, fullScreen);
