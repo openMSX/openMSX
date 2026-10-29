@@ -11,7 +11,7 @@
 #include "one_of.hh"
 #include "stl.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <cassert>
@@ -130,11 +130,12 @@ void EventDelay::sync(EmuTime curEmu)
 #endif
 		scheduledEvents.push_back(e);
 		const auto& sdlEvent = get_event<SdlEvent>(e);
-		uint32_t eventSdlTime = sdlEvent.getCommonSdlEvent().timestamp;
-		uint32_t sdlNow = SDL_GetTicks();
-		auto sdlOffset = int32_t(sdlNow - eventSdlTime);
-		assert(sdlOffset >= 0);
-		auto offset = 1000 * int64_t(sdlOffset); // ms -> us
+		uint64_t eventSdlTime = sdlEvent.getCommonSdlEvent().timestamp;
+		uint64_t sdlNow = SDL_GetTicksNS();
+		// SDL3 can use timestamps provided by the OS, converted to its own
+		// clock, which can be a little later than 'now'.
+		auto sdlOffset = std::max(int64_t(sdlNow - eventSdlTime), int64_t(0));
+		auto offset = sdlOffset / 1000; // ns -> us
 		EmuDuration emuOffset = EmuDuration::sec(factor * narrow_cast<double>(offset));
 		auto schedTime = (emuOffset < extraDelay)
 		               ? time - emuOffset

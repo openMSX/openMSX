@@ -10,7 +10,7 @@
 #include <optional>
 #include <vector>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace openmsx {
 
@@ -26,7 +26,7 @@ class JoystickManager : public Subject<JoystickManager> {
 public:
 	struct Info {
 		SDL_Joystick* joystick = nullptr;
-		int instanceId = -1;
+		SDL_JoystickID instanceId = 0; // 0 = none
 		std::unique_ptr<FloatSetting> deadZoneSetting;
 		std::unique_ptr<FloatSetting> midPointSetting;
 		std::unique_ptr<FloatSetting> saturationSetting;
@@ -42,8 +42,8 @@ public:
 	~JoystickManager();
 
 	// Handle SDL joystick added/removed events
-	void add(int deviceIndex);
-	void remove(int instanceId);
+	void add(SDL_JoystickID instanceId);
+	void remove(SDL_JoystickID instanceId);
 
 	// return the range of JoystickId's for which there is a corresponding SDL_Joystick
 	[[nodiscard]] std::vector<JoystickId> getConnectedJoysticks() const;

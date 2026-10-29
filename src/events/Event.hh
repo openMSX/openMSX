@@ -101,7 +101,7 @@ public:
 		e.mod = mod;
 		return KeyDownEvent(evt);
 	}
-	[[nodiscard]] static KeyDownEvent create(uint32_t timestamp, unsigned unicode) {
+	[[nodiscard]] static KeyDownEvent create_for_unicode(uint64_t timestamp, unsigned unicode) {
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
