@@ -45,6 +45,17 @@ static void initializeSDL()
 {
 	int flags = 0;
 	flags |= SDL_INIT_JOYSTICK;
+	// Deliberately NOT like SDL2: use SDL3's default keycode options. Set
+	// them explicitly, so this doesn't change when SDL changes its default
+	// (the SDL_KEYCODE_OPTIONS environment variable still overrides it). So
+	// the letter keys of non-Latin layouts (e.g. Russian) report Latin keycodes,
+	// and the number row of French layouts reports digits. With the
+	// keycodes of the actual layout (like SDL2), everything based on
+	// keycodes works worse on such keyboards: Ctrl+key on the MSX, the KEY
+	// mapping mode, layout independent bindings and GUI shortcuts (e.g.
+	// Ctrl+C). Text input, and thus typing on the MSX in CHARACTER mode, is
+	// not affected. Only bindings on e.g. 'й' or '&' must now use 'Q' or '1'.
+	SDL_SetHint(SDL_HINT_KEYCODE_OPTIONS, "french_numbers,latin_letters");
 	if (!SDL_Init(flags)) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}

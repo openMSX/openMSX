@@ -207,7 +207,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(unsigne
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(SDLKey key, bool repeat)
 {
 	unsigned buttonMask = [&] {
-		switch (key.sym.sym) {
+		switch (key.keycode) {
 		using enum OsdControlEvent::Button;
 		case SDLK_LEFT:   return 1 << std::to_underlying(LEFT);
 		case SDLK_RIGHT:  return 1 << std::to_underlying(RIGHT);
@@ -241,8 +241,22 @@ static constexpr Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
 		: mod;
 }
 
-void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
+// KEEP-SDL2: With many layouts on Linux (X11 keysym ISO_Level3_Shift), SDL3
+// reports the AltGr key as SDLK_MODE, and SDL_KMOD_MODE while it's held. SDL2
+// reported it as SDLK_RALT and SDL_KMOD_RALT, so do the same (e.g. for the MSX
+// CODE key).
+static void altGrAsRightAlt(SDL_KeyboardEvent& key)
 {
+	if (SDL_GetKeyFromScancode(SDL_SCANCODE_RALT, SDL_KMOD_NONE, true) != SDLK_MODE) return;
+	if (key.scancode == SDL_SCANCODE_RALT) key.key = SDLK_RALT;
+	if (key.mod & SDL_KMOD_MODE) {
+		key.mod = SDL_Keymod((key.mod & ~SDL_KMOD_MODE) | SDL_KMOD_RALT);
+	}
+}
+
+void InputEventGenerator::handleKeyDown(SDL_KeyboardEvent key, uint32_t unicode)
+{
+	altGrAsRightAlt(key);
 	/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
 		event = JoystickButtonDownEvent(0, 0);
 		triggerOsdControlEventsFromJoystickButtonEvent(
@@ -257,10 +271,10 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		memcpy(&evt.key, &key, sizeof(key));
-		evt.key.keysym.mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
-		evt.key.keysym.unused = unicode;
+		evt.key.mod = normalizeModifier(key.key, key.mod);
+		evt.key.reserved = unicode;
 		Event event = KeyDownEvent(evt);
-		triggerOsdControlEventsFromKeyEvent({.sym = key.keysym, .down = true}, key.repeat);
+		triggerOsdControlEventsFromKeyEvent(SDLKey::create(key.key, key.scancode, true, key.mod), key.repeat);
 		eventDistributor.distributeEvent(std::move(event));
 	}
 }
@@ -309,14 +323,16 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			triggerOsdControlEventsFromJoystickButtonEvent(1, true);
 			androidButtonB = false;
 		} else*/ {
+			altGrAsRightAlt(evt.key);
 			SDL_Event e;
 			e.key = SDL_KeyboardEvent{};
 			memcpy(&e.key, &evt.key, sizeof(evt.key));
-			e.key.keysym.mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
+			e.key.mod = normalizeModifier(evt.key.key, evt.key.mod);
+			e.key.reserved = 0; // unicode
 			event = KeyUpEvent(e);
 			bool down = false;
 			bool repeat = false;
-			triggerOsdControlEventsFromKeyEvent({.sym = e.key.keysym, .down = down}, repeat);
+			triggerOsdControlEventsFromKeyEvent(SDLKey::create(e.key.key, e.key.scancode, down, e.key.mod), repeat);
 		}
 		break;
 	case SDL_EVENT_KEY_DOWN:
