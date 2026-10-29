@@ -4,9 +4,10 @@
 #include "EmuDuration.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
 #include "RS232Device.hh"
 #include "RS232Raw.hh"
-#include "Timer.hh"
+#include "RealTime.hh"
 #include "serialize.hh"
 
 #include <array>
@@ -89,7 +90,7 @@ uint8_t SMXWiFi::readIO(uint16_t port, EmuTime time)
 	case 0: // UART data
 		return readFIFO(time);
 	case 1: // UART status
-		return readStatus();
+		return readStatus(time);
 	default:
 		return 0xFF;
 	}
@@ -179,8 +180,11 @@ void SMXWiFi::recvByte(uint8_t value, EmuTime /*time*/)
 
 void SMXWiFi::pushToFifo(std::span<const uint8_t> data)
 {
-	std::scoped_lock lock(fifoMutex);
-	fifo.push_back_range(data);
+	{
+		std::scoped_lock lock(fifoMutex);
+		fifo.push_back_range(data);
+	}
+	fifoCond.notify_all();
 }
 
 bool SMXWiFi::ready()
@@ -269,8 +273,12 @@ uint8_t SMXWiFi::readFIFO(EmuTime time)
 			(time - emuStart).toDouble());
 		if (auto shortfall = target - std::chrono::steady_clock::now();
 		    shortfall > std::chrono::microseconds(0)) {
-			Timer::sleep(std::chrono::duration_cast<
-			             std::chrono::microseconds>(shortfall).count());
+			// Wait on the FIFO instead of sleeping: an arriving byte
+			// ends the wait at once (a plain sleep cannot be woken,
+			// and on Windows it lasts at least about 1 ms).
+			std::unique_lock lock(fifoMutex);
+			fifoCond.wait_for(lock, shortfall,
+			                  [this] { return !fifo.empty(); });
 		}
 	}
 
@@ -286,8 +294,37 @@ uint8_t SMXWiFi::peekFIFO() const
 	return fifo.empty() ? 0xFF : fifo.front();
 }
 
-uint8_t SMXWiFi::readStatus()
+// The driver polls the status port while it waits for the ESP's reply.
+// Emulation runs ahead of real time in slices (RealTime::SYNC_INTERVAL)
+// and then sleeps to throttle, so while the CPU spins on this port the
+// emulated time runs many times faster than the real time the producer
+// (the emulated ESP32 thread, the host network, or a real ESP32 on the
+// serial port) needs: a 0.1 ms host round trip became several ms for the
+// MSX. Instead, spend the time emulation is ahead of real time here,
+// waiting for bytes to arrive. That is time RealTime would have slept
+// anyway, so this never makes emulation fall behind real time, and it
+// does nothing when throttling is off. Same scheme as
+// MSXPiDevice::waitForPeer().
+void SMXWiFi::waitForPeer(EmuTime time)
 {
+	// Keep waiting until emulation is less than MARGIN_US ahead of real
+	// time: every microsecond of lead left unspent here is run off at full
+	// emulation speed by the polling loop instead. STEP_US only bounds a
+	// single wait; a byte arriving ends it at once.
+	static constexpr uint64_t MARGIN_US = 50;
+	static constexpr uint64_t STEP_US = 1000;
+	static constexpr uint64_t ALLOWED_LAG_US = 20000; // RealTime's own slack
+	auto& realTime = getMotherBoard().getRealTime();
+	std::unique_lock lock(fifoMutex);
+	while (fifo.empty() &&
+	       realTime.timeLeft(MARGIN_US + ALLOWED_LAG_US, time)) {
+		fifoCond.wait_for(lock, std::chrono::microseconds(STEP_US));
+	}
+}
+
+uint8_t SMXWiFi::readStatus(EmuTime time)
+{
+	waitForPeer(time);
 	std::scoped_lock lock(fifoMutex);
 	uint8_t status = peekStatusLocked();
 	underrun = false;
