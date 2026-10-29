@@ -5,11 +5,10 @@ using namespace openmsx;
 
 static bool equal(const SDLKey& x, const SDLKey& y)
 {
-	if (x.sym.sym      != y.sym.sym)      return false;
-	if (x.sym.scancode != y.sym.scancode) return false;
-	if (x.sym.mod      != y.sym.mod)      return false;
-	if (x.sym.unused   != y.sym.unused)   return false;
-	if (x.down         != y.down)         return false;
+	if (x.keycode  != y.keycode)  return false;
+	if (x.scancode != y.scancode) return false;
+	if (x.mod      != y.mod)      return false;
+	if (x.down     != y.down)     return false;
 	return true;
 }
 
@@ -34,10 +33,10 @@ static void test(const std::string& name1, SDLKey code1, bool canonical)
 
 TEST_CASE("Keys")
 {
-	test("P",          SDLKey::createDown(SDLK_p,        SDL_SCANCODE_UNKNOWN), true);
-	test("p",          SDLKey::createDown(SDLK_p,        SDL_SCANCODE_UNKNOWN), false);
+	test("P",          SDLKey::createDown(SDLK_P,        SDL_SCANCODE_UNKNOWN), true);
+	test("p",          SDLKey::createDown(SDLK_P,        SDL_SCANCODE_UNKNOWN), false);
 	test("1",          SDLKey::createDown(SDLK_1,        SDL_SCANCODE_UNKNOWN), true);
-	test("z",          SDLKey::createDown(SDLK_z,        SDL_SCANCODE_UNKNOWN), false);
+	test("z",          SDLKey::createDown(SDLK_Z,        SDL_SCANCODE_UNKNOWN), false);
 	test("AT",         SDLKey::createDown(SDLK_AT,       SDL_SCANCODE_UNKNOWN), false);
 	test("@",          SDLKey::createDown(SDLK_AT,       SDL_SCANCODE_UNKNOWN), true);
 	test("Hash",       SDLKey::createDown(SDLK_HASH,     SDL_SCANCODE_UNKNOWN), false);
@@ -64,12 +63,17 @@ TEST_CASE("Keys")
 	test("F8",         SDLKey::createDown(SDLK_F8,       SDL_SCANCODE_UNKNOWN), true);
 	test("RCTRL",      SDLKey::createDown(SDLK_RCTRL,    SDL_SCANCODE_UNKNOWN), false);
 	test("Right Ctrl", SDLKey::createDown(SDLK_RCTRL,    SDL_SCANCODE_UNKNOWN), true);
+	// SDL2 names of keys that were renamed in SDL3 (e.g. in old settings.xml files)
+	test("MediaTrackNext", SDLKey::createDown(SDLK_MEDIA_NEXT_TRACK, SDL_SCANCODE_UNKNOWN), true);
+	test("AudioNext",      SDLKey::createDown(SDLK_MEDIA_NEXT_TRACK, SDL_SCANCODE_UNKNOWN), false);
+	test("AudioMute",      SDLKey::createDown(SDLK_MUTE,             SDL_SCANCODE_UNKNOWN), false);
+	test("audioplay",      SDLKey::createDown(SDLK_MEDIA_PLAY,       SDL_SCANCODE_UNKNOWN), false);
 
-	test("P+SHIFT",   SDLKey::create(SDLK_p, SDL_SCANCODE_UNKNOWN, true, KMOD_SHIFT), true);
-	test("q,shift",   SDLKey::create(SDLK_q, SDL_SCANCODE_UNKNOWN, true, KMOD_SHIFT), false);
-	test("R/shift",   SDLKey::create(SDLK_r, SDL_SCANCODE_UNKNOWN, true, KMOD_SHIFT), false);
-	test("ctrl+c",    SDLKey::create(SDLK_c, SDL_SCANCODE_UNKNOWN, true, KMOD_CTRL ), false);
-	test("ALT/E",     SDLKey::create(SDLK_e, SDL_SCANCODE_UNKNOWN, true, KMOD_ALT  ), false);
-	test("E+ALT",     SDLKey::create(SDLK_e, SDL_SCANCODE_UNKNOWN, true, KMOD_ALT  ), true);
+	test("P+SHIFT",   SDLKey::create(SDLK_P, SDL_SCANCODE_UNKNOWN, true, SDL_KMOD_SHIFT), true);
+	test("q,shift",   SDLKey::create(SDLK_Q, SDL_SCANCODE_UNKNOWN, true, SDL_KMOD_SHIFT), false);
+	test("R/shift",   SDLKey::create(SDLK_R, SDL_SCANCODE_UNKNOWN, true, SDL_KMOD_SHIFT), false);
+	test("ctrl+c",    SDLKey::create(SDLK_C, SDL_SCANCODE_UNKNOWN, true, SDL_KMOD_CTRL ), false);
+	test("ALT/E",     SDLKey::create(SDLK_E, SDL_SCANCODE_UNKNOWN, true, SDL_KMOD_ALT  ), false);
+	test("E+ALT",     SDLKey::create(SDLK_E, SDL_SCANCODE_UNKNOWN, true, SDL_KMOD_ALT  ), true);
 	test("5,release", SDLKey::create(SDLK_5, SDL_SCANCODE_UNKNOWN, false           ), false);
 }

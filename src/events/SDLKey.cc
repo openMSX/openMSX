@@ -12,7 +12,7 @@
 namespace openmsx {
 
 // We prefer to use 'SDL_GetKeyFromName()' to translate a name into a Keycode.
-// That way when new keys are added to SDL2, these immediately work in openMSX.
+// That way when new keys are added to SDL, these immediately work in openMSX.
 // In the past we had our own mapping, and to keep backwards compatible (e.g.
 // because key-names can end up in settings.xml) we retain (part of) that old
 // mapping.
@@ -44,11 +44,11 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	static constexpr std::array unsortedMap = {
 		// Old openMSX name, SDL-key-code, new SDL2 name
 		M{"EXCLAIM",     SDLK_EXCLAIM},     // !
-		M{"QUOTEDBL",    SDLK_QUOTEDBL},    // "
+		M{"QUOTEDBL",    SDLK_DBLAPOSTROPHE}, // "
 		M{"HASH",        SDLK_HASH},        // #
 		M{"DOLLAR",      SDLK_DOLLAR},      // $
 		M{"AMPERSAND",   SDLK_AMPERSAND},   // &
-		M{"QUOTE",       SDLK_QUOTE},       // '
+		M{"QUOTE",       SDLK_APOSTROPHE},  // '
 		M{"LEFTPAREN",   SDLK_LEFTPAREN},   // (
 		M{"RIGHTPAREN",  SDLK_RIGHTPAREN},  // )
 		M{"ASTERISK",    SDLK_ASTERISK},    // *
@@ -69,7 +69,7 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 		M{"RIGHTBRACKET",SDLK_RIGHTBRACKET},// ]
 		M{"CARET",       SDLK_CARET},       // ^
 		M{"UNDERSCORE",  SDLK_UNDERSCORE},  // _
-		M{"BACKQUOTE",   SDLK_BACKQUOTE},   // `
+		M{"BACKQUOTE",   SDLK_GRAVE},       // `
 		M{"PRINT",       SDLK_PRINTSCREEN}, // PrintScreen
 		M{"SCROLLOCK",   SDLK_SCROLLLOCK},  // ScrollLock   backwards compat for typo
 		M{"KP_DIVIDE",   SDLK_KP_DIVIDE},   // Keypad /
@@ -98,6 +98,17 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 		M{"RALT",        SDLK_RALT},        // Right Alt
 		M{"RSUPER",      SDLK_RGUI},        // Right GUI    Right "Windows" key
 		M{"RMODE",       SDLK_MODE},        // ModeSwitch   "Alt Gr" key
+
+		// SDL2 names of keys that were renamed in SDL3 (the search is
+		// case-insensitive, but this table must be sorted in uppercase)
+		// (other SDL2 keys like "WWW" and "Mail" don't exist anymore in SDL3)
+		M{"AUDIONEXT",        SDLK_MEDIA_NEXT_TRACK},     // AudioNext
+		M{"AUDIOPREV",        SDLK_MEDIA_PREVIOUS_TRACK}, // AudioPrev
+		M{"AUDIOSTOP",        SDLK_MEDIA_STOP},           // AudioStop
+		M{"AUDIOPLAY",        SDLK_MEDIA_PLAY},           // AudioPlay
+		M{"AUDIOMUTE",        SDLK_MUTE},                 // AudioMute
+		M{"AUDIOREWIND",      SDLK_MEDIA_REWIND},         // AudioRewind
+		M{"AUDIOFASTFORWARD", SDLK_MEDIA_FAST_FORWARD},   // AudioFastForward
 	};
 	static constexpr auto map = []{
 		auto result = unsortedMap;
@@ -183,12 +194,7 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 	// like:
 	//     ++CTRL    ,+SHIFT   Keypad /,Release    Shift++
 
-	SDLKey result = {};
-	result.sym.scancode = SDL_SCANCODE_UNKNOWN;
-	result.sym.sym = SDLK_UNKNOWN;
-	result.sym.mod = KMOD_NONE;
-	result.sym.unused = 0; // unicode
-	result.down = true;
+	SDLKey result = SDLKey::create(SDLK_UNKNOWN, SDL_SCANCODE_UNKNOWN, true);
 
 	while (!name.empty()) {
 		std::string_view part = [&] {
@@ -213,16 +219,16 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 
 		StringOp::casecmp cmp;
 		if (cmp(part, "SHIFT")) {
-			result.sym.mod |= KMOD_SHIFT;
+			result.mod |= SDL_KMOD_SHIFT;
 		} else if (cmp(part, "CTRL")) {
-			result.sym.mod |= KMOD_CTRL;
+			result.mod |= SDL_KMOD_CTRL;
 		} else if (cmp(part, "ALT")) {
-			result.sym.mod |= KMOD_ALT;
+			result.mod |= SDL_KMOD_ALT;
 		} else if (cmp(part, "GUI") ||
 		           cmp(part, "META")) { // bw-compat
-			result.sym.mod |= KMOD_GUI;
+			result.mod |= SDL_KMOD_GUI;
 		} else if (cmp(part, "MODE")) {
-			result.sym.mod |= KMOD_MODE;
+			result.mod |= SDL_KMOD_MODE;
 
 		} else if (cmp(part, "PRESS")) {
 			result.down = true;
@@ -230,17 +236,17 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 			result.down = false;
 
 		} else {
-			if (result.sym.sym != SDLK_UNKNOWN) {
+			if (result.keycode != SDLK_UNKNOWN) {
 				// more than one non-modifier component is not allowed
 				return {};
 			}
-			result.sym.sym = keycodeFromString(std::string(part));
-			if (result.sym.sym == SDLK_UNKNOWN) {
+			result.keycode = keycodeFromString(std::string(part));
+			if (result.keycode == SDLK_UNKNOWN) {
 				return {};
 			}
 		}
 	}
-	if (result.sym.sym == SDLK_UNKNOWN) {
+	if (result.keycode == SDLK_UNKNOWN) {
 		return {};
 	}
 	return result;
@@ -268,20 +274,20 @@ std::string SDLKey::toString(SDL_Keycode code)
 
 std::string SDLKey::toString() const
 {
-	std::string result = toString(sym.sym);
-	if (sym.mod & KMOD_CTRL) {
+	std::string result = toString(keycode);
+	if (mod & SDL_KMOD_CTRL) {
 		result += "+CTRL";
 	}
-	if (sym.mod & KMOD_SHIFT) {
+	if (mod & SDL_KMOD_SHIFT) {
 		result += "+SHIFT";
 	}
-	if (sym.mod & KMOD_ALT) {
+	if (mod & SDL_KMOD_ALT) {
 		result += "+ALT";
 	}
-	if (sym.mod & KMOD_GUI) {
+	if (mod & SDL_KMOD_GUI) {
 		result += "+GUI";
 	}
-	if (sym.mod & KMOD_MODE) {
+	if (mod & SDL_KMOD_MODE) {
 		result += "+MODE";
 	}
 	if (!down) {
