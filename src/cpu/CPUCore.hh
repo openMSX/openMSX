@@ -13,8 +13,10 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -121,6 +123,14 @@ public:
 	[[nodiscard]] BooleanSetting& getFreqLockedSetting() { return freqLocked; }
 	[[nodiscard]] IntegerSetting& getFreqValueSetting()  { return freqValue; }
 
+	/** Return the start time of the most recent block-repeat execution
+	  * entered with the given PC and SP. Searches the block history from
+	  * newest to oldest. When activeOnly is true, completed runs are
+	  * ignored. Returns no value when no matching run exists.
+	  */
+	[[nodiscard]] std::optional<EmuTime> getBlockStart(
+		uint16_t pc, uint16_t sp, bool activeOnly = false) const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -162,6 +172,31 @@ private:
 	 * Set to false when the CPU jumps to the NMI handler address.
 	 */
 	bool nmiEdge = false;
+
+	/**
+	 * Recent block-repeat executions, oldest first. A new run is pushed
+	 * when the opcode is dispatched and no active context with the same
+	 * (PC, SP) pair exists. When the run finishes its context is marked
+	 * inactive instead of removed, so step_back can still find the start
+	 * of a completed block. An IRQ/NMI resume re-dispatches the same active
+	 * pair, so it does not add an entry. Cleared on reset; serialized with
+	 * the CPU state.
+	 *
+	 * PC is the instruction-start address (as in 'reg PC'), not the second
+	 * ED-prefix byte seen at dispatch. SP distinguishes same-PC nested runs.
+	 * Time is the run's start time (used by 'reverse blockstart'/step_back).
+	 */
+	struct BlockContext {
+		uint16_t pc = 0;
+		uint16_t sp = 0;
+		EmuTime time = EmuTime::zero();
+		bool active = false;
+		template<typename Archive> void serialize(Archive& ar, unsigned /*version*/) {
+			ar.serialize("pc", pc, "sp", sp, "time", time, "active", active);
+		}
+	};
+	static constexpr unsigned MAX_BLOCK_CONTEXTS = 8;
+	std::vector<BlockContext> blockStack;
 
 	std::atomic<bool> exitLoop = false;
 
@@ -449,6 +484,12 @@ private:
 	inline II otdr();
 	inline II otir();
 
+	// Bookkeeping for block-repeat executions (LDIR/LDDR/CPIR/CPDR/
+	// INIR/INDR/OTIR/OTDR), used by reverse blockstart/step_back.
+	// Called once per repeat-opcode dispatch, not per single-step variant.
+	inline void noteBlockRepeatEntry();
+	inline void noteBlockRepeatEnd();
+
 	template<int EE = 0> inline II nop();
 	inline II ccf();
 	inline II cpl();
@@ -477,8 +518,8 @@ private:
 
 class Z80TYPE;
 class R800TYPE;
-SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  5);
-SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 5); // keep these two the same
+SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  6);
+SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 6); // keep these two the same
 
 } // namespace openmsx
 

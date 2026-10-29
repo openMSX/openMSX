@@ -161,6 +161,7 @@
 #include "CPUCore.hh"
 
 #include "Dasm.hh"
+#include "serialize_stl.hh"
 #include "MSXCPUInterface.hh"
 #include "R800.hh"
 #include "Z80.hh"
@@ -177,6 +178,7 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -380,6 +382,8 @@ template<typename T> void CPUCore<T>::doReset(EmuTime time)
 	// able to reproduce this assert by recording and replaying using a
 	// single openMSX version.
 	T::setTime(time);
+
+	blockStack.clear(); // no block-repeat history survives reset
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
@@ -4011,7 +4015,66 @@ template<typename T> II CPUCore<T>::out_byte_a() {
 
 
 // block CP
+// Bookkeeping for block-repeat executions, see CPUCore.hh.
+// Called once per repeat-opcode dispatch (never for the single-step
+// variants). If the innermost active context already has this (PC, SP)
+// pair, this is another iteration or an IRQ/NMI resume, so there is
+// nothing to record. Otherwise it is a fresh run: push it as active.
+template<typename T> void CPUCore<T>::noteBlockRepeatEntry()
+{
+	// At dispatch PC points at the second opcode byte (the ED prefix was
+	// already consumed); convert it to the instruction-start address used
+	// by 'reg PC' and the disassembler.
+	uint16_t pc = getPC() - 1;
+	uint16_t sp = getSP();
+	auto activeIt = std::find_if(blockStack.rbegin(), blockStack.rend(),
+		[](const BlockContext& c) { return c.active; });
+	if ((activeIt != blockStack.rend()) &&
+	    (activeIt->pc == pc) && (activeIt->sp == sp)) {
+		return;
+	}
+	if (blockStack.size() >= MAX_BLOCK_CONTEXTS) {
+		// Drop the oldest completed entry first. Keep active contexts so a
+		// long outer block is not lost because of many nested inner blocks.
+		auto inactiveIt = std::find_if(blockStack.begin(), blockStack.end(),
+			[](const BlockContext& c) { return !c.active; });
+		blockStack.erase((inactiveIt != blockStack.end()) ? inactiveIt
+		                                                 : blockStack.begin());
+	}
+	blockStack.push_back({pc, sp, T::getTime(), true});
+}
+
+// Called when a repeat opcode finishes its block (counter reached zero, or
+// a CPIR/CPDR early match). Marks the innermost active context inactive,
+// but keeps it in the history so step_back can still find its start.
+template<typename T> void CPUCore<T>::noteBlockRepeatEnd()
+{
+	// Same first-byte convention as noteBlockRepeatEntry().
+	uint16_t pc = getPC() - 1;
+	uint16_t sp = getSP();
+	auto activeIt = std::find_if(blockStack.rbegin(), blockStack.rend(),
+		[](const BlockContext& c) { return c.active; });
+	if ((activeIt != blockStack.rend()) &&
+	    (activeIt->pc == pc) && (activeIt->sp == sp)) {
+		activeIt->active = false;
+	}
+}
+
+template<typename T> std::optional<EmuTime> CPUCore<T>::getBlockStart(
+	uint16_t pc, uint16_t sp, bool activeOnly) const
+{
+	// Newest (most recently entered) run first.
+	for (auto it = blockStack.rbegin(); it != blockStack.rend(); ++it) {
+		if (activeOnly && !it->active) continue;
+		if ((it->pc == pc) && (it->sp == sp)) {
+			return it->time;
+		}
+	}
+	return std::nullopt;
+}
+
 template<typename T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	T::setMemPtr(T::getMemPtr() + increase);
 	uint8_t val = RDMEM(getHL(), T::CC_CPI_1);
 	uint8_t res = getA() - val;
@@ -4035,6 +4098,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
 		T::setMemPtr(getPC() + 1);
 		return {uint16_t(-1)/*1*/, T::CC_CPIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_CPI};
 	}
 }
@@ -4046,6 +4110,7 @@ template<typename T> II CPUCore<T>::cpir() { return BLOCK_CP( 1, true ); }
 
 // block LD
 template<typename T> inline II CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	uint8_t val = RDMEM(getHL(), T::CC_LDI_1);
 	WRMEM(getDE(), val, T::CC_LDI_2);
 	setHL(narrow_cast<uint16_t>(getHL() + increase));
@@ -4065,6 +4130,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
 		T::setMemPtr(getPC() + 1);
 		return {uint16_t(-1)/*1*/, T::CC_LDIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_LDI};
 	}
 }
@@ -4076,6 +4142,7 @@ template<typename T> II CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 
 // block IN
 template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_INI_1);
 	T::setMemPtr(getBC() + increase);
 	setBC(getBC() - 0x100); // decr before use
@@ -4096,6 +4163,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 		//setPC(getPC() - 2);
 		return {uint16_t(-1)/*1*/, T::CC_INIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_INI};
 	}
 }
@@ -4107,6 +4175,7 @@ template<typename T> II CPUCore<T>::inir() { return BLOCK_IN( 1, true ); }
 
 // block OUT
 template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	uint8_t val = RDMEM(getHL(), T::CC_OUTI_1);
 	setHL(narrow_cast<uint16_t>(getHL() + increase));
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUTI_2);
@@ -4127,6 +4196,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) 
 		//setPC(getPC() - 2);
 		return {uint16_t(-1)/*1*/, T::CC_OTIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_OUTI};
 	}
 }
@@ -4345,6 +4415,7 @@ template<typename T> template<Reg16 REG> II CPUCore<T>::muluw_hl_SS() {
 //  3 -> timing of the emulation changed (no changes in serialization)
 //  4 -> timing of the emulation changed again (see doc/internal/r800-call.txt)
 //  5 -> added serialization of nmiEdge
+//  6 -> added serialization of blockStack (PC, SP, start time and active flag)
 template<typename T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
@@ -4366,6 +4437,14 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 		// CPU is deserialized after devices, so nmiEdge is restored to the
 		// saved version even if IRQHelpers set it on deserialization.
 		ar.serialize("nmiEdge", nmiEdge);
+	}
+
+	if (ar.versionBelow(version, 6)) {
+		// Older versions had no block-repeat context: forget any in-flight
+		// block (its resume will look like a fresh entry).
+		blockStack.clear();
+	} else {
+		ar.serialize("blockStack", blockStack);
 	}
 
 	// Don't serialize:
