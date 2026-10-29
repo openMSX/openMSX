@@ -142,8 +142,10 @@ class MouseWheelEvent final : public SdlEvent
 public:
 	using SdlEvent::SdlEvent;
 
-	[[nodiscard]] int getX() const { return normalize(evt.wheel.x); }
-	[[nodiscard]] int getY() const { return normalize(evt.wheel.y); }
+	// KEEP-SDL2: SDL3 reports fractions of scroll ticks (e.g. for
+	// touchpads). Like SDL2, use whole scroll ticks (accumulated by SDL).
+	[[nodiscard]] int getX() const { return normalize(evt.wheel.integer_x); }
+	[[nodiscard]] int getY() const { return normalize(evt.wheel.integer_y); }
 
 private:
 	[[nodiscard]] int normalize(int x) const {
@@ -156,10 +158,12 @@ class MouseMotionEvent final : public SdlEvent
 public:
 	using SdlEvent::SdlEvent;
 
-	[[nodiscard]] int getX() const    { return evt.motion.xrel; }
-	[[nodiscard]] int getY() const    { return evt.motion.yrel; }
-	[[nodiscard]] int getAbsX() const { return evt.motion.x; }
-	[[nodiscard]] int getAbsY() const { return evt.motion.y; }
+	// KEEP-SDL2: SDL3 uses float coordinates, SDL2 used whole window
+	// coordinates
+	[[nodiscard]] int getX() const    { return int(evt.motion.xrel); }
+	[[nodiscard]] int getY() const    { return int(evt.motion.yrel); }
+	[[nodiscard]] int getAbsX() const { return int(evt.motion.x); }
+	[[nodiscard]] int getAbsY() const { return int(evt.motion.y); }
 };
 
 

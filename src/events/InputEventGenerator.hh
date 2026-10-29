@@ -88,6 +88,10 @@ private:
 	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 	bool sendQuit = false; // only send QuitEvent once
 
+	// fractional part of the relative mouse motion, not yet passed on
+	float motionFractionX = 0.0f;
+	float motionFractionY = 0.0f;
+
 	// only for Android
 	static inline bool androidButtonA = false;
 	static inline bool androidButtonB = false;
