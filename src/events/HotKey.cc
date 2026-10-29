@@ -88,19 +88,19 @@ void HotKey::initDefaultBindings()
 
 	if constexpr (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_d, KMOD_GUI),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_D, SDL_KMOD_GUI),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_p, KMOD_GUI),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_P, SDL_KMOD_GUI),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_t, KMOD_GUI),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_T, SDL_KMOD_GUI),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_l, KMOD_GUI),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_L, SDL_KMOD_GUI),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_u, KMOD_GUI),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_U, SDL_KMOD_GUI),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_f, KMOD_GUI),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F, SDL_KMOD_GUI),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_q, KMOD_GUI),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_Q, SDL_KMOD_GUI),
 		                       "exit"));
 	} else {
 		// Hot key combos for typical PC keyboards.
@@ -116,11 +116,11 @@ void HotKey::initDefaultBindings()
 		                       "toggle fullscreen"));
 		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F12),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F4, KMOD_ALT),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F4, SDL_KMOD_ALT),
 		                       "exit"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PAUSE, KMOD_CTRL),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PAUSE, SDL_KMOD_CTRL),
 		                       "exit"));
-		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_RETURN, KMOD_ALT),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_RETURN, SDL_KMOD_ALT),
 		                       "toggle fullscreen"));
 	}
 }

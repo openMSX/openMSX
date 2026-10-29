@@ -169,7 +169,7 @@ VisibleSurface::~VisibleSurface()
 	ImGui_ImplSDL3_Shutdown();
 
 	gl::context.reset();
-	SDL_GL_DeleteContext(glContext);
+	SDL_GL_DestroyContext(glContext);
 
 	// store last known position for when we recreate it
 	// the window gets recreated when changing renderers, for instance.
@@ -215,7 +215,7 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 	}
 #ifdef __APPLE__
 	// See VisibleSurface::setViewPort() for why only macos (for now).
-	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
 	assert(!window);
@@ -248,20 +248,21 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 				e.getMessage());
 #endif
 			PixelOperations pixelOps;
-			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
-				const_cast<char*>(openMSX_icon.pixel_data),
+			iconSurf.reset(SDL_CreateSurfaceFrom(
 				narrow<int>(openMSX_icon.width),
 				narrow<int>(openMSX_icon.height),
-				narrow<int>(openMSX_icon.bytes_per_pixel * 8),
-				narrow<int>(openMSX_icon.bytes_per_pixel * openMSX_icon.width),
-				pixelOps.getRmask(),
-				pixelOps.getGmask(),
-				pixelOps.getBmask(),
-				pixelOps.getAmask()));
+				SDL_GetPixelFormatForMasks(
+					narrow<int>(openMSX_icon.bytes_per_pixel * 8),
+					pixelOps.getRmask(),
+					pixelOps.getGmask(),
+					pixelOps.getBmask(),
+					pixelOps.getAmask()),
+				const_cast<char*>(openMSX_icon.pixel_data),
+				narrow<int>(openMSX_icon.bytes_per_pixel * openMSX_icon.width)));
 #ifndef _WIN32
 		}
 #endif
-		SDL_SetColorKey(iconSurf.get(), SDL_TRUE, 0);
+		SDL_SetSurfaceColorKey(iconSurf.get(), true, 0);
 		SDL_SetWindowIcon(window.get(), iconSurf.get());
 	}
 }
@@ -441,7 +442,7 @@ void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 	// vsync is enabled, we attempt adaptive vsync.
 	int interval = syncSetting.getBoolean() ? -1 : 0;
 
-	if ((SDL_GL_SetSwapInterval(interval) < 0) && (interval == -1)) {
+	if (!SDL_GL_SetSwapInterval(interval) && (interval == -1)) {
 		// "Adaptive vsync" is not supported by all drivers. SDL
 		// documentation suggests to fallback to "regular vsync" in
 		// that case.
@@ -453,12 +454,12 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 {
 	gl::ivec2 physicalSize = [&] {
 #ifndef __APPLE__
-		// On macos we set 'SDL_WINDOW_ALLOW_HIGHDPI', and in that case
-		// it's required to use SDL_GL_GetDrawableSize(), but then this
+		// On macos we set 'SDL_WINDOW_HIGH_PIXEL_DENSITY', and in that case
+		// it's required to use SDL_GetWindowSizeInPixels(), but then this
 		// 'full screen'-workaround/hack is counter-productive.
 		if (!fullScreen) {
 			// ??? When switching  back from full screen to windowed mode,
-			// SDL_GL_GetDrawableSize() still returns the dimensions of the
+			// SDL_GetWindowSizeInPixels() still returns the dimensions of the
 			// full screen window ??? Is this a bug ???
 			// But we know that in windowed mode, physical and logical size
 			// must be the same, so enforce that.
@@ -467,7 +468,7 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 #endif
 		(void)fullScreen;
 		int w, h;
-		SDL_GL_GetDrawableSize(window.get(), &w, &h);
+		SDL_GetWindowSizeInPixels(window.get(), &w, &h);
 		return gl::ivec2(w, h);
 	}();
 
