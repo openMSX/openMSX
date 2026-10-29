@@ -359,9 +359,10 @@ std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
 {
 	if (SDL_GetMouseFocus() != window.get()) return {};
 
-	int mouseX, mouseY;
+	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
-	return gl::ivec2{mouseX, mouseY};
+	// SDL3 uses float coordinates, SDL2 used whole window coordinates
+	return gl::ivec2{int(mouseX), int(mouseY)};
 }
 
 gl::vec2 VisibleSurface::getMsxPixelSize() const

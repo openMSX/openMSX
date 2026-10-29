@@ -122,6 +122,8 @@ TEST_CASE("BooleanInput: capture")
 		sdl.wheel.type = SDL_EVENT_MOUSE_WHEEL;
 		sdl.wheel.x = 2;
 		sdl.wheel.y = 4;
+		sdl.wheel.integer_x = 2;
+		sdl.wheel.integer_y = 4;
 		check(MouseWheelEvent(sdl), "");
 	}
 	SECTION("joystick") {
@@ -192,6 +194,8 @@ TEST_CASE("BooleanInput: match")
 	sdl.wheel.type = SDL_EVENT_MOUSE_WHEEL;
 	sdl.wheel.x = 2;
 	sdl.wheel.y = 4;
+	sdl.wheel.integer_x = 2;
+	sdl.wheel.integer_y = 4;
 	auto mouseWheel = MouseWheelEvent(sdl);
 
 	sdl.jbutton = SDL_JoyButtonEvent{};

@@ -12,6 +12,7 @@
 #include "unreachable.hh"
 #include "utf8_unchecked.hh"
 
+#include <cmath>
 #include <utility>
 
 namespace openmsx {
@@ -351,12 +352,22 @@ void InputEventGenerator::handle(SDL_Event& evt)
 	case SDL_EVENT_MOUSE_WHEEL:
 		event = MouseWheelEvent(evt);
 		break;
-	case SDL_MOUSEMOTION:
+	case SDL_EVENT_MOUSE_MOTION: {
+		// SDL3 reports the relative motion with sub-pixel precision. Like
+		// SDL2, only pass on whole pixels, and keep the remaining fraction
+		// for the next event.
+		auto wholePixels = [](float& rel, float& fraction) {
+			fraction += rel;
+			rel = std::trunc(fraction);
+			fraction -= rel;
+		};
+		wholePixels(evt.motion.xrel, motionFractionX);
+		wholePixels(evt.motion.yrel, motionFractionY);
 		event = MouseMotionEvent(evt);
-		if (auto* window = SDL_GL_GetCurrentWindow(); SDL_GetWindowGrab(window)) {
+		if (auto* window = SDL_GL_GetCurrentWindow(); SDL_GetWindowMouseGrab(window)) {
 			int w, h;
 			SDL_GetWindowSize(window, &w, &h);
-			int x, y;
+			float x, y;
 			SDL_GetMouseState(&x, &y);
 			// There seems to be a bug in Windows in which the mouse can be locked on the right edge
 			// only when moving fast to the right (not so fast actually) when grabbing is enabled
@@ -370,13 +381,14 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			// The value of 10 below is a heuristic value which seems to balance all factors
 			// such as font size and the overall size of gui elements
 			// and the speed of crossing virtual barriers
-			static constexpr int MARGIN = 10;
-			int xn = std::clamp(x, MARGIN, w - 1 - MARGIN);
-			int yn = std::clamp(y, MARGIN, h - 1 - MARGIN);
+			static constexpr float MARGIN = 10;
+			float xn = std::clamp(x, MARGIN, w - 1 - MARGIN);
+			float yn = std::clamp(y, MARGIN, h - 1 - MARGIN);
 			if (xn != x || yn != y) SDL_WarpMouseInWindow(window, xn, yn);
 		}
 		break;
-	case SDL_JOYBUTTONUP:
+	}
+	case SDL_EVENT_JOYSTICK_BUTTON_UP:
 		if (joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickButtonUpEvent(evt);
 			triggerOsdControlEventsFromJoystickButtonEvent(

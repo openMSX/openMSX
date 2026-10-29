@@ -142,8 +142,10 @@ class MouseWheelEvent final : public SdlEvent
 public:
 	using SdlEvent::SdlEvent;
 
-	[[nodiscard]] int getX() const { return normalize(evt.wheel.x); }
-	[[nodiscard]] int getY() const { return normalize(evt.wheel.y); }
+	// SDL3 reports fractions of scroll ticks (e.g. for touchpads). Like
+	// SDL2, use whole scroll ticks (accumulated by SDL).
+	[[nodiscard]] int getX() const { return normalize(evt.wheel.integer_x); }
+	[[nodiscard]] int getY() const { return normalize(evt.wheel.integer_y); }
 
 private:
 	[[nodiscard]] int normalize(int x) const {
