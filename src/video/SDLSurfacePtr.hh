@@ -6,7 +6,7 @@
 #include "MemBuffer.hh"
 #include "narrow.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <cassert>
@@ -16,7 +16,7 @@
 
 /** Wrapper around a SDL_Surface.
  *
- * Makes sure SDL_FreeSurface() is called when this object goes out of scope.
+ * Makes sure SDL_DestroySurface() is called when this object goes out of scope.
  * It's modeled after std::unique_ptr, so it has the usual get(), reset() and
  * release() methods. Like unique_ptr it can be moved but not copied.
  *
@@ -46,11 +46,11 @@ public:
 		unsigned pitch = width * (depth >> 3);
 		unsigned size = height * pitch;
 		buffer.resize(size);
-		surface = SDL_CreateRGBSurfaceFrom(
-			buffer.data(),
+		surface = SDL_CreateSurfaceFrom(
 			narrow<int>(width), narrow<int>(height),
-			narrow<int>(depth), narrow<int>(pitch),
-			rMask, gMask, bMask, aMask);
+			SDL_GetPixelFormatForMasks(narrow<int>(depth), rMask, gMask, bMask, aMask),
+			buffer.data(),
+			narrow<int>(pitch));
 		if (!surface) throw std::bad_alloc();
 	}
 
@@ -71,7 +71,7 @@ public:
 
 	~SDLSurfacePtr()
 	{
-		if (surface) SDL_FreeSurface(surface);
+		if (surface) SDL_DestroySurface(surface);
 	}
 
 	void reset(SDL_Surface* surface_ = nullptr)
@@ -160,16 +160,10 @@ struct SDLDestroyWindow {
 using SDLWindowPtr = std::unique_ptr<SDL_Window, SDLDestroyWindow>;
 
 
-struct SDLFreeFormat {
-	void operator()(SDL_PixelFormat* p) const { SDL_FreeFormat(p); }
+struct SDLDestroyCursor {
+	void operator()(SDL_Cursor* c) const { SDL_DestroyCursor(c); }
 };
-using SDLAllocFormatPtr = std::unique_ptr<SDL_PixelFormat, SDLFreeFormat>;
-
-
-struct SDLFreeCursor {
-	void operator()(SDL_Cursor* c) const { SDL_FreeCursor(c); }
-};
-using SDLCursorPtr = std::unique_ptr<SDL_Cursor, SDLFreeCursor>;
+using SDLCursorPtr = std::unique_ptr<SDL_Cursor, SDLDestroyCursor>;
 
 
 template<Uint32 FLAGS>
@@ -184,7 +178,7 @@ public:
 	SDLSubSystemInitializer() {
 		// SDL internally ref-counts sub-system initialization, so we
 		// don't need to worry about it here.
-		if (SDL_InitSubSystem(FLAGS) < 0) {
+		if (!SDL_InitSubSystem(FLAGS)) {
 			throw openmsx::InitException(
 				"SDL init failed (", FLAGS, "): ", SDL_GetError());
 		}

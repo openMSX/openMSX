@@ -59,7 +59,7 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_internal.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 
@@ -397,10 +397,10 @@ bool ImGuiManager::signalEvent(const Event& event)
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
 		ImGui_ImplSDL3_ProcessEvent(&sdlEvent);
 		if ((io.WantCaptureMouse &&
-		     sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
-		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
+		     sdlEvent.type == one_of(SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_WHEEL,
+		                             SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP)) ||
 		    (io.WantCaptureKeyboard &&
-		     sdlEvent.type == one_of(SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTINPUT))) {
+		     sdlEvent.type == one_of(SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP, SDL_EVENT_TEXT_INPUT))) {
 			return true; // block event for lower priority listeners
 		}
 	} else {

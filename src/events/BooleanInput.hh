@@ -25,7 +25,7 @@
 #include "function_ref.hh"
 #include "unreachable.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cstdint>
 #include <optional>
