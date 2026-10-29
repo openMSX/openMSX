@@ -50,7 +50,6 @@
 #ifdef _MSC_VER
 #pragma comment(lib, "imm32")
 #endif
-#include "SDL_syswm.h"
 
 #endif // _WIN32
 
@@ -2097,51 +2096,58 @@ Keyboard::ImeManager::ImeManager(
 	: eventDistributor(eventDistributor_)
 {
 	eventDistributor.registerEventListener(EventType::WINDOW, *this);
+	eventDistributor.registerEventListener(EventType::TEXT_INPUT_STARTED, *this);
 	hImc = 0;
 }
 
 Keyboard::ImeManager::~ImeManager()
 {
+	eventDistributor.unregisterEventListener(EventType::TEXT_INPUT_STARTED, *this);
 	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 }
 
 /*
  *  disable IME at msx window.
- *  -> SDL_WINDOWEVENT_FOCUS_GAINED : IME OFF
+ *  -> SDL_EVENT_WINDOW_FOCUS_GAINED : IME OFF
+ *  -> text input (re)started        : IME OFF (SDL3 enables the IME when
+ *                                     text input is started)
  */
 bool Keyboard::ImeManager::signalEvent(const Event& event)
 {
-	auto getWindow = [](const WindowEvent& e) -> HWND {
-		SDL_SysWMinfo info;
-		SDL_VERSION(&info.version);
-		auto window = SDL_GetWindowFromID(e.getMainWindowId());
-		if (SDL_GetWindowWMInfo(window, &info)) {
-			return info.info.win.window;
+	auto getWindow = [] -> HWND {
+		auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId());
+		if (!window) return nullptr;
+		return static_cast<HWND>(SDL_GetPointerProperty(
+			SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+	};
+	auto disableIme = [&] {
+		auto& keyboard = OUTER(Keyboard, imeManager);
+		if (keyboard.keyboardSettings.getDisableIME()) {
+			if (auto hwnd = getWindow()) {
+				// keep the original context when the IME is already disabled
+				if (auto prev = ::ImmAssociateContext(hwnd, 0)) hImc = prev;
+			}
 		}
-		return nullptr;
 	};
 
 	std::visit(overloaded{
 		[&](const WindowEvent& e) {
 			if (e.isMainWindow()) {
 				const auto& evt = e.getSdlWindowEvent();
-				if (evt.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-					auto& keyboard = OUTER(Keyboard, imeManager);
-					if (keyboard.keyboardSettings.getDisableIME()) {
-						// disable IME when focus is gained
-						auto hwnd = getWindow(e);
-						if (hwnd) {
-							hImc = ::ImmAssociateContext(hwnd, 0);
-						}
-					}
+				if (evt.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
+					// disable IME when focus is gained
+					disableIme();
 				}
-				else if (evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-					auto hwnd = getWindow(e);
+				else if (evt.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
+					auto hwnd = getWindow();
 					if (hwnd && hImc) {
 						hImc = ::ImmAssociateContext(hwnd, hImc);
 					}
 				}
 			}
+		},
+		[&](const TextInputStartedEvent&) {
+			disableIme();
 		},
 		[](const EventBase&) { UNREACHABLE; }
 	}, event);

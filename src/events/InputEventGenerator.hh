@@ -51,6 +51,7 @@ public:
 	void initializeGrab() const;
 
 private:
+	void startTextInput();
 	void handle(SDL_Event& evt);
 	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
 	void splitText(uint32_t timestamp, const char* utf8);

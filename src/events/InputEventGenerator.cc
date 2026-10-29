@@ -46,8 +46,22 @@ void InputEventGenerator::wait()
 	}
 }
 
+void InputEventGenerator::startTextInput()
+{
+	// SDL3 only sends text input events (which we need for the unicode
+	// value of key presses, see poll()) while text input is started for a
+	// window. SDL2 did this by default. The ImGui backend stops text input
+	// again when an ImGui text field loses focus, so check this regularly.
+	auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId());
+	if (!window || SDL_TextInputActive(window)) return;
+	SDL_StartTextInput(window);
+	eventDistributor.distributeEvent(TextInputStartedEvent());
+}
+
 void InputEventGenerator::poll(std::optional<int> timeoutMs)
 {
+	startTextInput();
+
 	// Heuristic to emulate the old SDL1 behavior:
 	//
 	// SDL1 had a unicode field on each KEYDOWN event. In SDL2 that
