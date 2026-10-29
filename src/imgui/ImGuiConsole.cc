@@ -12,6 +12,7 @@
 #include "FileOperations.hh"
 #include "GlobalCommandController.hh"
 #include "Interpreter.hh"
+#include "InputEventGenerator.hh"
 #include "Reactor.hh"
 #include "TclParser.hh"
 #include "Version.hh"
@@ -674,6 +675,7 @@ void ImGuiConsole::setCompletions(std::vector<CompletionCandidate> completions_)
 void ImGuiConsole::update(const Setting& /*setting*/) noexcept
 {
 	show = consoleSetting.getBoolean();
+	if (show) manager.getReactor().getInputEventGenerator().releaseMouse();
 	if (!show) {
 		// Close the console via the 'console' setting.  Typically this
 		// means via the F10 hotkey (or possibly by typing 'set console
