@@ -1,0 +1,94 @@
+# Flatpak manifest for building openMSX from this source tree.
+#
+# Based on the Flathub manifest, desktop file and metainfo file that rderooy
+# (https://github.com/rderooy) created and maintains for the openMSX Flatpak:
+#   https://github.com/flathub/org.openmsx.openMSX
+# Many thanks to rderooy for all the Flatpak (and other Linux packaging) work!
+# The desktop file and metainfo template are in build/freedesktop, because
+# they aren't specific to Flatpak.
+#
+# Build and install it for the current user with:
+#   flatpak-builder --user --install --force-clean <build-dir> \
+#     build/package-flatpak/org.openmsx.openMSX.yaml
+
+app-id: org.openmsx.openMSX
+runtime: org.freedesktop.Platform
+runtime-version: '26.08'
+sdk: org.freedesktop.Sdk
+
+command: openmsx
+
+finish-args:
+  - --device=all # needed for gamepads and serial/parallel
+  - --share=ipc  # needed for X11
+  - --share=network # needed for networking
+  - --socket=x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --filesystem=home
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/man
+  - '*.la'
+  - '*.a'
+
+modules:
+
+  # GLU is needed by GLEW.
+  - name: glu
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://archive.mesa3d.org/glu/glu-9.0.3.tar.xz
+        sha256: bd43fe12f374b1192eb15fe20e45ff456b9bc26ab57f0eee919f96ca0f8a330f
+
+  - name: glew
+    no-autogen: true
+    make-args: &glew-make-args
+      - GLEW_PREFIX=${FLATPAK_DEST}
+      - GLEW_DEST=${FLATPAK_DEST}
+      - LIBDIR=${FLATPAK_DEST}/lib
+      - CFLAGS.EXTRA:=${CFLAGS} -fPIC
+      - LDFLAGS.EXTRA=${LDFLAGS}
+    make-install-args: *glew-make-args
+    sources:
+      - type: archive
+        url: https://github.com/nigels-com/glew/releases/download/glew-2.3.1/glew-2.3.1.tgz
+        sha256: b64790f94b926acd7e8f84c5d6000a86cb43967bd1e688b03089079799c9e889
+
+  # The same Tcl version as in build/packages.py.
+  - name: tcl
+    buildsystem: autotools
+    subdir: unix
+    sources:
+      - type: archive
+        url: https://downloads.sourceforge.net/tcl/tcl8.6.18-src.tar.gz
+        sha256: 14f9af32b1767ff718477a8f974ad03c34341097e6b43f4ce54644ee974e268e
+    post-install:
+      - chmod 755 ${FLATPAK_DEST}/lib/libtcl*.so
+    cleanup:
+      - /bin
+      - /man
+
+  - name: openmsx
+    buildsystem: simple
+    build-options:
+      env:
+        TCL_CONFIG: /app/lib
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - derived
+    build-commands:
+      # Customize the installation as intended for packagers, see build/custom.mk.
+      - sed -i 's|^INSTALL_BASE:=.*|INSTALL_BASE:=/app|;s|^SYMLINK_FOR_BINARY:=.*|SYMLINK_FOR_BINARY:=false|' build/custom.mk
+      - echo 'INSTALL_SHARE_DIR:=/app/share/openmsx' >> build/custom.mk
+      - echo 'INSTALL_DOC_DIR:=/app/share/doc/openmsx' >> build/custom.mk
+      - make -j${FLATPAK_BUILDER_N_JOBS} OPENMSX_FLAVOUR=opt
+      - make install OPENMSX_FLAVOUR=opt
+      - install -Dm644 build/freedesktop/org.openmsx.openMSX.desktop ${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop
+      - python3 build/metainfo.py build/freedesktop/org.openmsx.openMSX.metainfo.xml doc/release-history.txt ${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml
+      - for size in 16 32 48 64 128 256; do install -Dm644 share/icons/openMSX-logo-${size}.png ${FLATPAK_DEST}/share/icons/hicolor/${size}x${size}/apps/${FLATPAK_ID}.png; done

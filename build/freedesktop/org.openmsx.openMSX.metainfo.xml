@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- %COPYRIGHT% openMSX team -->
+<component type="desktop">
+	<id>org.openmsx.openMSX</id>
+	<metadata_license>CC0-1.0</metadata_license>
+	<project_license>GPL-2.0-only</project_license>
+	<name>openMSX</name>
+	<summary>Emulate all aspects of the MSX with high accuracy</summary>
+	<launchable type="desktop-id">org.openmsx.openMSX.desktop</launchable>
+	<developer id="org.openmsx">
+		<name>openMSX team</name>
+	</developer>
+	<releases>
+		%RELEASES%
+	</releases>
+	<description>
+		<p>
+			openMSX is an emulator for the MSX home computer system. MSX was a standard
+			for Z80-based home computers, and was a (largely) Japanese attempt to
+			establish a single standard in home computing similar to VHS in video.
+		</p>
+		<p>
+			The MSX standard was designed by ASCII Corporation in Japan, in cooperation
+			with Microsoft Japan. The latter of which provided the extended BASIC for
+			the machine.
+		</p>
+		<p>
+			In addition to emulating MSX, MSX2, MSX2+, MSX turbo R and many of its
+			peripherals, openMSX also supports emulating the ColecoVision and
+			Sega SG-1000 game consoles and the SpectraVideo SVI-318 and SVI-328
+			home computer systems.
+		</p>
+		<p>
+			Note: by default the openMSX emulator only ships with the C-BIOS open-source
+			BIOS implementation. This BIOS is restricted to cartridge based MSX games. For
+			a full MSX or SVI emulation it is necessary to provide your own MSX and/or SVI
+			BIOS ROMs, which must be placed in the ~/.openMSX/share/systemroms directory.
+		</p>
+	</description>
+	<url type="homepage">https://openmsx.org</url>
+	<url type="bugtracker">https://github.com/openMSX/openMSX/issues</url>
+	<url type="help">https://openmsx.org/manual/user.html</url>
+	<screenshots>
+		<screenshot type="default">
+			<image>https://openmsx.org/images/screenshots/space_mambow.png</image>
+			<caption>Konami Space Manbow</caption>
+		</screenshot>
+		<screenshot>
+			<image>https://openmsx.org/images/screenshots/badlands.png</image>
+			<caption>Konami Badlands - LaserDisc</caption>
+		</screenshot>
+		<screenshot>
+			<image>https://openmsx.org/images/screenshots/cheatfinder.png</image>
+			<caption>Konami Metal Gear - Cheat finder</caption>
+		</screenshot>
+		<screenshot>
+			<image>https://openmsx.org/images/screenshots/mlimit3.png</image>
+			<caption>IOD - Metal Limit demo</caption>
+		</screenshot>
+		<screenshot>
+			<image>https://openmsx.org/images/screenshots/ide.png</image>
+			<caption>HDD emulation</caption>
+		</screenshot>
+		<screenshot>
+			<image>https://openmsx.org/images/screenshots/tb-underwater.png</image>
+			<caption>Team Bomba - Underwater demo</caption>
+		</screenshot>
+	</screenshots>
+	<content_rating type="oars-1.1"/>
+	<update_contact>openmsx-devel@lists.sourceforge.net</update_contact>
+	<recommends>
+		<control>keyboard</control>
+		<control>pointing</control>
+		<control>gamepad</control>
+	</recommends>
+</component>
