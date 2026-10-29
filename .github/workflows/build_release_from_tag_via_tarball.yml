@@ -57,7 +57,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: ubuntu-latest
+          - image: ubuntu-26.04
             name: Unit Tests (on Linux)
             cpu: x86_64
             os: linux
