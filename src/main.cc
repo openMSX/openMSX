@@ -56,6 +56,11 @@ static void initializeSDL()
 	// Ctrl+C). Text input, and thus typing on the MSX in CHARACTER mode, is
 	// not affected. Only bindings on e.g. 'й' or '&' must now use 'Q' or '1'.
 	SDL_SetHint(SDL_HINT_KEYCODE_OPTIONS, "french_numbers,latin_letters");
+	// KEEP-SDL2: We always keep text input started (see
+	// InputEventGenerator::startTextInput()). Without this hint, SDL3 then
+	// shows an on-screen keyboard when there's no physical keyboard (e.g.
+	// on a Steam Deck). SDL2 didn't do that.
+	SDL_SetHint(SDL_HINT_ENABLE_SCREEN_KEYBOARD, "0");
 	if (!SDL_Init(flags)) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
