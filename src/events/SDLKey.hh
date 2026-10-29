@@ -3,7 +3,7 @@
 
 #include "zstring_view.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cstdint>
 #include <optional>
@@ -13,19 +13,17 @@
 namespace openmsx {
 
 // The combination of:
-//   SDL_Keysym: to indicate a specific key (key+scancode) and modifiers
-//   bool:       to indicate up/down
+//   SDL_Scancode, SDL_Keycode and SDL_Keymod: to indicate a specific key and modifiers
+//   bool:                                     to indicate up/down
 struct SDLKey {
-	SDL_Keysym sym;
+	SDL_Scancode scancode;
+	SDL_Keycode keycode;
+	SDL_Keymod mod;
 	bool down; // down=press / up=release
 
-	[[nodiscard]] static SDLKey create(SDL_Keycode code, SDL_Scancode scancode, bool down, uint16_t mod = 0) {
-		SDL_Keysym sym;
-		sym.scancode = scancode; // scancode needs for POSITIONAL mapping mode
-		sym.sym = code;
-		sym.mod = mod;
-		sym.unused = 0; // unicode
-		return {.sym = sym, .down = down};
+	[[nodiscard]] static SDLKey create(SDL_Keycode code, SDL_Scancode scancode, bool down, SDL_Keymod mod = SDL_KMOD_NONE) {
+		// scancode is needed for POSITIONAL mapping mode
+		return {.scancode = scancode, .keycode = code, .mod = mod, .down = down};
 	}
 
 	[[nodiscard]] static SDLKey createDown(SDL_Keycode code, SDL_Scancode scancode) {
@@ -35,7 +33,7 @@ struct SDLKey {
 	[[nodiscard]] static std::optional<SDLKey> fromString(std::string_view name);
 	[[nodiscard]] static SDL_Keycode keycodeFromString(zstring_view name);
 
-	// only uses the 'sym.sym', 'sym.mod' and 'down' fields (ignores sym.scancode and 'sym.unicode')
+	// only uses the 'keycode', 'mod' and 'down' fields (ignores 'scancode')
 	[[nodiscard]] std::string toString() const;
 	[[nodiscard]] static std::string toString(SDL_Keycode code);
 };

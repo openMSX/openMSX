@@ -24,9 +24,11 @@ namespace openmsx::InputEventFactory {
 	evt.key = SDL_KeyboardEvent{};
 	auto& e = evt.key;
 
-	e.timestamp = SDL_GetTicks();
-	e.keysym = key->sym;
-	e.keysym.unused = unicode;
+	e.timestamp = SDL_GetTicksNS();
+	e.scancode = key->scancode;
+	e.key = key->keycode;
+	e.mod = key->mod;
+	e.reserved = unicode;
 	if (key->down) {
 		e.type = SDL_EVENT_KEY_DOWN;
 		e.down = true;

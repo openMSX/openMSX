@@ -207,7 +207,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(unsigne
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(SDLKey key, bool repeat)
 {
 	unsigned buttonMask = [&] {
-		switch (key.sym.sym) {
+		switch (key.keycode) {
 		using enum OsdControlEvent::Button;
 		case SDLK_LEFT:   return 1 << std::to_underlying(LEFT);
 		case SDLK_RIGHT:  return 1 << std::to_underlying(RIGHT);
@@ -257,10 +257,10 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		memcpy(&evt.key, &key, sizeof(key));
-		evt.key.keysym.mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
-		evt.key.keysym.unused = unicode;
+		evt.key.mod = normalizeModifier(key.key, key.mod);
+		evt.key.reserved = unicode;
 		Event event = KeyDownEvent(evt);
-		triggerOsdControlEventsFromKeyEvent({.sym = key.keysym, .down = true}, key.repeat);
+		triggerOsdControlEventsFromKeyEvent(SDLKey::create(key.key, key.scancode, true, key.mod), key.repeat);
 		eventDistributor.distributeEvent(std::move(event));
 	}
 }
@@ -312,11 +312,12 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			SDL_Event e;
 			e.key = SDL_KeyboardEvent{};
 			memcpy(&e.key, &evt.key, sizeof(evt.key));
-			e.key.keysym.mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
+			e.key.mod = normalizeModifier(evt.key.key, evt.key.mod);
+			e.key.reserved = 0; // unicode
 			event = KeyUpEvent(e);
 			bool down = false;
 			bool repeat = false;
-			triggerOsdControlEventsFromKeyEvent({.sym = e.key.keysym, .down = down}, repeat);
+			triggerOsdControlEventsFromKeyEvent(SDLKey::create(e.key.key, e.key.scancode, down, e.key.mod), repeat);
 		}
 		break;
 	case SDL_EVENT_KEY_DOWN:
