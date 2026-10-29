@@ -275,37 +275,45 @@ proc step_over {} {
 	}
 }
 
+# Is the instruction at $address a block instruction?
+proc is_block_instr {address} {
+	set instr ""
+	set failed [catch {set instr [lindex [debug disasm $address] 0]}]
+	if {$failed} {
+		return 0
+	}
+	foreach p {ldir* lddr* cpir* cpdr* inir* indr* otir* otdr*} {
+		if {[string match $p $instr]} { return 1 }
+	}
+	return 0
+}
+
 
 #
 # step_back
 #
 set_help_text step_back \
 {Step back. Go back in time till right before the last instruction was
-executed. Note that this operation is relatively slow (compared to the other
-step functions). Also the reverse feature must be enabled for this to work
-(normally it's enabled by default).}
+executed. Block instructions (LDIR, LDDR, CPIR, ...) are treated as a single
+instruction, so if the last instruction was part of such a run this jumps back
+to the start of that run. Note that this operation is relatively slow (compared
+to the other step functions). Also the reverse feature must be enabled for this
+to work (normally it's enabled by default).}
 proc step_back {} {
-	# In the past this proc was implemented totally different. It's worth
-	# mentioning this old algorithm and explain why it wasn't good enough.
-	# The old algorithm went like this:
-	#  - take small steps back till we're not at the start instruction
-	#    anymore (this works because 'reverse goto' only stops after
-	#    emulating a full instruction)
-	# The problem was that on R800 it could take _many_ (more than 80)
-	# steps till the destination was reached.
+	# Go back to the previous instruction boundary.
 	#
-	# The current algorithm goes like this:
-	#  - take a large step back
-	#  - take small steps forward till we're back at the start
-	#  - we now know where the previous instruction started, so go there
-	#    (= take a small step back again)
+	# A block-repeat instruction (LDIR, LDDR, CPIR, ...) must be stepped
+	# over as a whole: jump to the start of its current run, not to the
+	# previous iteration. When block-instruction tracking is enabled, the
+	# CPU keeps a small saved history of run starts (including completed
+	# runs); use it if available, otherwise fall through to the regular
+	# single-instruction step.
 	#
-	# So the old algorithm takes (potentially) many backwards steps. While
-	# the new algorithm takes exactly 2 backwards steps and (potentially)
-	# many forward steps. In the current openMSX implementation, (small)
-	# forward steps are orders of magnitude faster than backwards steps (an
-	# optimization I added specifically for this use case). So the worst
-	# execution time should now be much better.
+	# Otherwise use the reverse search below: step back far enough to be
+	# certainly before the previous instruction, then step forward until we
+	# pass the original time. The last position before that is the start of
+	# the previous instruction. Forward steps are much cheaper than backward
+	# steps.
 
 	# 'z80' or 'r800'
 	set cpu [get_active_cpu]
@@ -324,40 +332,59 @@ proc step_back {} {
 	# Get time of the start instruction.
 	set start [dict get [reverse status] "current"]
 
-	# Go back till a moment that's certainly before the start instruction.
+	# A block instruction is 2 bytes (ED-prefixed). If the current PC is not
+	# a block, check PC-2: the block may have just completed and the current
+	# instruction is the one immediately after it.
+	set current_pc [reg PC]
+	set marker_candidate $current_pc
+	if {![is_block_instr $marker_candidate]} {
+		set cand2 [expr {$marker_candidate - 2}]
+		if {$cand2 >= 0} { set marker_candidate $cand2 } else { set marker_candidate "" }
+	}
+	if {$marker_candidate ne "" && [is_block_instr $marker_candidate]} {
+		# The CPU's block history includes the SP (so a nested run at the
+		# same PC is distinguished) and is part of the savestate (so it
+		# survives a reverse goto). When we are at the block instruction
+		# itself, only an active run is relevant: at the start of a new
+		# execution the previous run is already completed and must not be
+		# used. For a just-completed block (candidate PC-2), completed runs
+		# are relevant.
+		set at_block [expr {$marker_candidate == $current_pc}]
+		if {[catch {reverse blockstart $marker_candidate [reg SP] $at_block} t]} {
+			# Fall through to the regular single-instruction step.
+		} elseif {[string is double -strict $t] && ($t >= 0) && ($t < $start)} {
+			reverse goto $t
+			return
+		}
+		# If the block-start time equals $start we are exactly at the run
+		# start: don't use it, fall through to the regular single-instruction
+		# step.
+	}
+
+	# Step back far enough to be certainly before the previous instruction.
 	reverse goback -novideo $max_instr_len
 	set curr [dict get [reverse status] "current"]
 	if {$curr >= $start} {
 		error "Internal error: initial step-back was not big enough"
 	}
 
-	# Take small steps (forward) till we again reach the start instruction.
+	# Step forward until we reach or pass the original time. The last
+	# position before that is the start of the previous instruction.
 	while {1} {
-		# Note that 'reverse goto' for a small forward step is
-		# orders of magnitudes faster than a backwards 'reverse goto'.
-		# The '-novideo' flag is required to not (temporarily
-		# internally) step back a few video frames (so that immediately
-		# after 'reverse goto' we have the correct video output).
-		# Also note that this may take a bigger step forward than
-		# requested: it will only stop after a complete instruction is
-		# emulated.
+		# Small forward 'reverse goto's are much faster than backward ones.
+		# '-novideo' avoids a temporary video-frame rewind.
 		reverse goto -novideo [expr {$curr + $cycle_period}]
 		set next [dict get [reverse status] "current"]
 		if {$next >= $start} {
-			# Check for '$next >= $start' (instead of $next == $start).
-			# IO is emulated with sub-instruction precision, it's
-			# possible to call this script from a watchpoint-callback
-			# (which triggers in the middle of an instruction). However
-			# 'reverse goto' always stops at instruction boundaries. So
-			# the combination of this may cause this algorithm to
-			# overshoot the destination timestamp.
+			# Use >= rather than ==: IO can be emulated with
+			# sub-instruction precision (e.g. from a watchpoint callback),
+			# so the forward step may overshoot the exact timestamp.
 			break
 		}
 		set curr $next
 	}
 
-	# The previous step was the correct one, so go back there.
-	# Note that (only here) we don't pass the '-novideo' flag
+	# $curr is the last instruction boundary before $start.
 	reverse goto $curr
 }
 
