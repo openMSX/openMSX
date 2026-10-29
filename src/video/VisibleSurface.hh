@@ -93,7 +93,7 @@ public:
 	void updateCursor();
 
 private:
-	void createSurface(gl::ivec2 size, unsigned flags);
+	void createSurface(gl::ivec2 size, SDL_WindowFlags flags);
 	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 private:

@@ -113,6 +113,9 @@ class PkgConfig(DownloadablePackage):
 			'6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591',
 		}
 
+# When updating SDL3, check that it still reads the SDL_WINDOWS_DPI_AWARENESS
+# hint (see src/main.cc): it has no SDL_HINT_* macro, so it's not part of the
+# documented API.
 class SDL3(DownloadablePackage):
 	downloadURL = 'https://www.libsdl.org/release'
 	niceName = 'SDL3'
