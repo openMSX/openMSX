@@ -188,28 +188,28 @@ template<unsigned FFT_LEN_L2>
 	size_t minLag, size_t maxLag, float threshold)
 {
 	static constexpr unsigned FFT_LEN = 1 << FFT_LEN_L2;
-	static constexpr unsigned WORK_LEN = FFT_LEN / 2;
-	// FFT requires full FFT_LEN, but YIN working buffers only need WORK_LEN
-	// because:
-	//   - FFT_LEN >= 2*N (chosen to be next power of 2 above 2*N)
-	//   - So N <= FFT_LEN/2, and maxLag <= N/2 <= FFT_LEN/4
-	//   - Therefore maxLag + 1 < WORK_LEN, and signal.size() <= WORK_LEN
+	// Buffer sizes, given N + maxLag <= FFT_LEN (see detectPitch()) and
+	// 1 <= maxLag <= N/2: N < FFT_LEN and maxLag + 1 <= FFT_LEN / 2.
+	static constexpr unsigned SIGNAL_LEN = FFT_LEN;
+	static constexpr unsigned LAG_LEN = FFT_LEN / 2;
+	assert(signal.size() + maxLag <= FFT_LEN);
+	assert(maxLag + 1 <= LAG_LEN);
 
 	// Autocorrelation, only for the lags 0..maxLag that YIN needs
-	std::array<float, WORK_LEN> autocorr_; // ok, uninitialized
+	std::array<float, LAG_LEN> autocorr_; // ok, uninitialized
 	auto autocorr = std::span(autocorr_).first(maxLag + 1);
 	autocorrelation<FFT_LEN_L2>(signal, autocorr);
 
 	// Compute difference function
-	std::array<float, WORK_LEN> diff_; // ok, uninitialized
+	std::array<float, LAG_LEN> diff_; // ok, uninitialized
 	auto diff = std::span(diff_).first(maxLag + 1);
-	auto totalEnergy = computeDifferenceFunction<WORK_LEN>(signal, autocorr, diff);
+	auto totalEnergy = computeDifferenceFunction<SIGNAL_LEN>(signal, autocorr, diff);
 
 	// Early exit if signal is essentially silence
 	if (totalEnergy < 1e-10f) return {};
 
 	// Cumulative mean normalization
-	std::array<float, WORK_LEN> diffNorm_; // ok, uninitialized
+	std::array<float, LAG_LEN> diffNorm_; // ok, uninitialized
 	auto diffNorm = std::span(diffNorm_).first(maxLag + 1);
 	cumulativeMeanNormalize(diff, diffNorm);
 
@@ -271,11 +271,18 @@ template<unsigned FFT_LEN_L2>
 	assert(N >= 2);
 	assert(maxLag > minLag);
 
-	// Determine FFT size: next power of 2 that's at least 2*N
-	const auto fftLenL2 = narrow<unsigned>(std::bit_width(2 * N - 1));
+	// Determine FFT size: the autocorrelation via FFT is circular, so lags
+	// up to maxLag are only correct when N + maxLag <= FFT_LEN. Since
+	// maxLag <= N/2 this is at most 1.5 N, typically one power of 2 below
+	// the 2N that would be needed for all lags. Very short signals use the
+	// smallest supported FFT length (32).
+	const auto fftLenL2 = std::max(5u, narrow<unsigned>(std::bit_width(N + maxLag - 1)));
 
 	// Dispatch to appropriate FFT size
 	switch (fftLenL2) {
+	case  5: return detectPitchImpl< 5>(signal, sampleRate, minLag, maxLag, threshold);
+	case  6: return detectPitchImpl< 6>(signal, sampleRate, minLag, maxLag, threshold);
+	case  7: return detectPitchImpl< 7>(signal, sampleRate, minLag, maxLag, threshold);
 	case  8: return detectPitchImpl< 8>(signal, sampleRate, minLag, maxLag, threshold);
 	case  9: return detectPitchImpl< 9>(signal, sampleRate, minLag, maxLag, threshold);
 	case 10: return detectPitchImpl<10>(signal, sampleRate, minLag, maxLag, threshold);
