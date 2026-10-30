@@ -10,6 +10,7 @@
 
 #include "circular_buffer.hh"
 
+#include <condition_variable>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -52,7 +53,8 @@ public:
 private:
 	[[nodiscard]] uint8_t readFIFO(EmuTime time);
 	[[nodiscard]] uint8_t peekFIFO() const;
-	[[nodiscard]] uint8_t readStatus();
+	[[nodiscard]] uint8_t readStatus(EmuTime time);
+	void waitForPeer(EmuTime time);
 	[[nodiscard]] uint8_t peekStatus() const;
 	[[nodiscard]] uint8_t peekStatusLocked() const;
 	void writeCommand(uint8_t value, EmuTime time);
@@ -70,6 +72,8 @@ private:
 
 	cb_queue<uint8_t> fifo;
 	mutable std::mutex fifoMutex;
+	// Signalled when bytes enter the FIFO (wakes the CPU-side waits).
+	std::condition_variable fifoCond;
 
 	// Emulated ESP32, used while no real ESP32 is reachable. Created in
 	// the constructor body, after all members are constructed, so its
