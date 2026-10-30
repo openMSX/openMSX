@@ -25,13 +25,15 @@ template<typename T> [[nodiscard]] constexpr T square(T t)
 // d(τ) = Σ(x[n] - x[n+τ])²
 //      = Σx[n]² + Σx[n+τ]² - 2·Σx[n]·x[n+τ]
 //      = energyLeft(τ) + energyRight(τ) - 2·r(τ)
+//   energyLeft(τ)  = Σ x[n]² for n in [0, N-τ) = total - Σ x[n]² for n in [N-τ, N)
+//   energyRight(τ) = Σ x[n]² for n in [τ, N)   = total - Σ x[n]² for n in [0, τ)
 //
 // Returns: Total energy of the signal (sum of all squared samples)
 //
 // Preconditions:
 //   - autocorr.size() == diff.size()
-//   - diff.size() <= signal.size()
-//   - WORK_LEN >= signal.size() (for internal cumSumSq buffer)
+//   - diff.size() <= signal.size() / 2 + 1
+//   - WORK_LEN >= diff.size() (for internal buffers)
 template<size_t WORK_LEN>
 [[nodiscard]] inline float computeDifferenceFunction(
 	std::span<const float> signal,
@@ -39,34 +41,31 @@ template<size_t WORK_LEN>
 	std::span<float> diff)
 {
 	assert(autocorr.size() == diff.size());
-	assert(diff.size() <= signal.size());
+	assert(diff.size() <= signal.size() / 2 + 1);
 	const auto N = signal.size();
 	const auto maxLag = diff.size();
-	assert(WORK_LEN >= N);
+	assert(WORK_LEN >= maxLag);
 
-	// Internal work buffer for cumulative sum of squares
-	std::array<float, WORK_LEN> cumSumSq; // ok, uninitialized
+	// Total energy Σ x[n]² is the autocorrelation at lag 0.
+	const auto totalEnergy = autocorr[0];
 
-	// Precompute cumulative sum of squares
-	// cumSumSq[i] = Σ signal[j]² for j=0..i (inclusive)
-	cumSumSq[0] = square(signal[0]);
-	for (auto i : xrange(size_t(1), N)) {
-		cumSumSq[i] = cumSumSq[i - 1] + square(signal[i]);
-	}
-	const auto totalEnergy = cumSumSq[N - 1];
-
-	// Compute difference function
-	diff[0] = 0.0f; // Perfect match at lag 0
-
+	// Running sums of x[n]² over the first and the last maxLag samples:
+	//   head[τ] = Σ x[n]² for n in [0, τ)   = total - energyRight(τ)
+	//   tail[τ] = Σ x[n]² for n in [N-τ, N) = total - energyLeft(τ)
+	// Only these two windows are needed, not a prefix sum over all N samples
+	// (which is a long serial dependency chain).
+	std::array<float, WORK_LEN> head; // ok, uninitialized
+	std::array<float, WORK_LEN> tail; // ok, uninitialized
+	head[0] = tail[0] = 0.0f;
 	for (auto lag : xrange(size_t(1), maxLag)) {
-		// energyLeft = Σ signal[n]² for n in [0, N-lag)
-		auto energyLeft = cumSumSq[N - lag - 1];
+		head[lag] = head[lag - 1] + square(signal[lag - 1]);
+		tail[lag] = tail[lag - 1] + square(signal[N - lag]);
+	}
 
-		// energyRight = Σ signal[n]² for n in [lag, N)
-		auto energyRight = totalEnergy - cumSumSq[lag - 1];
-
-		// d(τ) = energyLeft + energyRight - 2·r(τ)
-		diff[lag] = energyLeft + energyRight - 2.0f * autocorr[lag];
+	// d(τ) = energyLeft + energyRight - 2·r(τ) = 2·total - tail[τ] - head[τ] - 2·r(τ)
+	diff[0] = 0.0f; // Perfect match at lag 0
+	for (auto lag : xrange(size_t(1), maxLag)) {
+		diff[lag] = 2.0f * (totalEnergy - autocorr[lag]) - tail[lag] - head[lag];
 	}
 
 	return totalEnergy;
@@ -83,16 +82,17 @@ inline void cumulativeMeanNormalize(std::span<const float> diff,
 {
 	assert(diff.size() == diffNorm.size());
 
+	// First the running sum (inherently serial) into diffNorm, then the
+	// division in a separate loop that the compiler can vectorize.
 	diffNorm[0] = 1.0f; // Special case
-
 	auto runningSum = 0.0f;
 	for (auto lag : xrange(size_t(1), diff.size())) {
 		runningSum += diff[lag];
-		if (runningSum > 0.0f) {
-			diffNorm[lag] = diff[lag] * float(lag) / runningSum;
-		} else {
-			diffNorm[lag] = 1.0f;
-		}
+		diffNorm[lag] = runningSum;
+	}
+	for (auto lag : xrange(size_t(1), diff.size())) {
+		auto sum = diffNorm[lag];
+		diffNorm[lag] = (sum > 0.0f) ? (diff[lag] * float(lag) / sum) : 1.0f;
 	}
 }
 
@@ -188,12 +188,16 @@ template<unsigned FFT_LEN_L2>
 	size_t minLag, size_t maxLag, float threshold)
 {
 	static constexpr unsigned FFT_LEN = 1 << FFT_LEN_L2;
-	// Buffer sizes, given N + maxLag <= FFT_LEN (see detectPitch()) and
-	// 1 <= maxLag <= N/2: N < FFT_LEN and maxLag + 1 <= FFT_LEN / 2.
-	static constexpr unsigned SIGNAL_LEN = FFT_LEN;
+	// Buffer size, given N + maxLag <= FFT_LEN (see detectPitch()) and
+	// 1 <= maxLag <= N/2: maxLag + 1 <= FFT_LEN / 2.
 	static constexpr unsigned LAG_LEN = FFT_LEN / 2;
 	assert(signal.size() + maxLag <= FFT_LEN);
-	assert(maxLag + 1 <= LAG_LEN);
+	assert(minLag < maxLag);
+	if (maxLag >= LAG_LEN || minLag >= maxLag) [[unlikely]] {
+		// Cannot happen (see detectPitch()), but makes the index ranges
+		// below provably in bounds, also for the compiler.
+		return {};
+	}
 
 	// Autocorrelation, only for the lags 0..maxLag that YIN needs
 	std::array<float, LAG_LEN> autocorr_; // ok, uninitialized
@@ -203,7 +207,7 @@ template<unsigned FFT_LEN_L2>
 	// Compute difference function
 	std::array<float, LAG_LEN> diff_; // ok, uninitialized
 	auto diff = std::span(diff_).first(maxLag + 1);
-	auto totalEnergy = computeDifferenceFunction<SIGNAL_LEN>(signal, autocorr, diff);
+	auto totalEnergy = computeDifferenceFunction<LAG_LEN>(signal, autocorr, diff);
 
 	// Early exit if signal is essentially silence
 	if (totalEnergy < 1e-10f) return {};
