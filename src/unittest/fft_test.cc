@@ -44,21 +44,39 @@ static float compareArrays(const float* a, const float* b, size_t size)
 	return maxError;
 }
 
-template<typename FFT, fft::InputMode MODE, bool POWER>
+template<typename FFT, fft::InputMode MODE, fft::OutputMode OUT>
 static double fftError(uint32_t seed)
 {
+	constexpr bool POWER = OUT == fft::OutputMode::Power;
 	constexpr unsigned N = FFT::FFT_LEN;
 	constexpr unsigned W = FFT::WORK_LEN;
 	auto in = fft_reference::randomSignal(FFT::INPUT_LEN, seed);
 	std::vector<double> ref;
-	if constexpr (MODE == fft::InputMode::Complex) {
-		ref = fft_reference::referenceComplexFFT(in);
+	if constexpr (FFT::COMPLEX_IN) {
+		if constexpr (MODE == fft::InputMode::SplitComplex) {
+			// re[0..N), gap, im[0..N) -> interleaved for the reference
+			std::vector<float> ilv(2 * N);
+			for (unsigned n = 0; n < N; ++n) {
+				ilv[2 * n + 0] = in[n];
+				ilv[2 * n + 1] = in[N + fft::SPLIT_PAD + n];
+			}
+			ref = fft_reference::referenceComplexFFT(ilv);
+		} else {
+			ref = fft_reference::referenceComplexFFT(in);
+		}
 		if constexpr (POWER) {
 			std::vector<double> p(N);
 			for (unsigned k = 0; k < N; ++k) {
 				p[k] = ref[k] * ref[k] + ref[N + k] * ref[N + k];
 			}
 			ref = std::move(p);
+		} else if constexpr (OUT == fft::OutputMode::InterleavedFirstHalf) {
+			std::vector<double> h(N);
+			for (unsigned k = 0; k < N / 2; ++k) {
+				h[2 * k + 0] = ref[k];
+				h[2 * k + 1] = ref[N + k];
+			}
+			ref = std::move(h);
 		}
 	} else {
 		ref = fft_reference::referenceFFT(MODE, in, N);
@@ -74,9 +92,8 @@ static double fftError(uint32_t seed)
 template<unsigned L2, fft::InputMode MODE, fft::OutputMode OUT, unsigned... RADICES_L2>
 static void checkRef(uint32_t seed = 1)
 {
-	constexpr bool POWER = OUT == fft::OutputMode::Power;
 	INFO("L2=" << L2 << " MODE=" << int(MODE) << " OUT=" << int(OUT));
-	CHECK(fftError<fft::FFT<L2, MODE, OUT, RADICES_L2...>, MODE, POWER>(seed) < tolerance);
+	CHECK(fftError<fft::FFT<L2, MODE, OUT, RADICES_L2...>, MODE, OUT>(seed) < tolerance);
 }
 
 TEST_CASE("fft: Full mode - known patterns")
@@ -187,13 +204,22 @@ TEST_CASE("fft: modes vs reference")
 	checkRef<4, fft::InputMode::Complex,        fft::OutputMode::Complex>();
 	checkRef<4, fft::InputMode::Full,           fft::OutputMode::Power>();
 	checkRef<4, fft::InputMode::Complex,        fft::OutputMode::Power>();
+	checkRef<4, fft::InputMode::SplitComplex,   fft::OutputMode::Complex>();
+	checkRef<4, fft::InputMode::SplitComplex,   fft::OutputMode::InterleavedFirstHalf>();
 	// Trailing radix-2 plan (M_L2 = 4) for real input.
 	checkRef<5, fft::InputMode::Full,           fft::OutputMode::Complex>();
 	// Boundary of the 8-wide first pass (M = 64): real L2=7 / complex L2=6.
 	checkRef<7, fft::InputMode::Full,           fft::OutputMode::Complex>();
 	checkRef<6, fft::InputMode::Complex,        fft::OutputMode::Complex>();
+	// The other input modes and the fused Power output with 8-wide blocks.
+	checkRef<9, fft::InputMode::HalfZeroPadded, fft::OutputMode::Power>();
+	checkRef<7, fft::InputMode::Complex,        fft::OutputMode::Power>();
 	// Odd default plan (final radix-8).
 	checkRef<9, fft::InputMode::Full,           fft::OutputMode::Complex>();
+	// InterleavedFirstHalf with a radix-2, radix-8 and radix-4 last pass
+	// (plans 8·2, 8·4·8, 8·4·4·4; 8·2 is M_L2 = 4 above).
+	checkRef<8,  fft::InputMode::SplitComplex,  fft::OutputMode::InterleavedFirstHalf>();
+	checkRef<9,  fft::InputMode::SplitComplex,  fft::OutputMode::InterleavedFirstHalf>();
 }
 
 TEST_CASE("fft: alternate radix plan")

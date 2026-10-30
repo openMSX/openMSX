@@ -22,9 +22,11 @@
 //     out[M+1 .. N-1] = Im X[1 .. M-1]
 //   Symmetric input yields a purely real spectrum; only out[0 .. M] is returned.
 //
-// Complex input (InputMode::Complex)
-// -------------------------------------
-//   FFT_LEN complex samples, interleaved as re0,im0,re1,im1,...
+// Complex input (InputMode::Complex / SplitComplex)
+// -------------------------------------------------
+//   FFT_LEN complex samples, interleaved as re0,im0,re1,im1,... (Complex) or
+//   as two separate arrays re[0 .. N), im[0 .. N) (SplitComplex, the layout
+//   that OUT_MODE = Complex produces, so one FFT can feed the next).
 //   Work buffers hold 2·FFT_LEN floats. With OUT_MODE = Complex the result is
 //   split: out[0 .. N) = Re X[k], out[N .. 2N) = Im X[k] (e^{-2πi} forward FFT).
 //
@@ -34,6 +36,9 @@
 //   Power   — |X[k]|^2. For real input: k = 0 .. N/2 (N/2+1 values).
 //             For complex input: k = 0 .. N-1 (N values). Fused into unpack
 //             (real input) or the last FFT pass (complex input).
+//   InterleavedFirstHalf — complex input only: X[0 .. N/2) interleaved as
+//             re0,im0,re1,im1,... (N floats). The last pass skips the upper
+//             half of each butterfly, so this is cheaper than a full pass.
 //
 // Auto-vectorization
 // ------------------
@@ -85,13 +90,21 @@ enum class InputMode {
 	Symmetric,      // First FFT_LEN/2+1 samples; even extension x[N-k]=x[k]
 	                // (e.g. N=8: [a,b,c,d,e] → [a,b,c,d,e,d,c,b])
 	Complex,        // FFT_LEN complex samples, interleaved re0,im0,re1,im1,...
+	SplitComplex,   // FFT_LEN complex samples, split: re[0..N), then im[0..N)
+	                // starting at offset N + SPLIT_PAD
 };
+// Gap (in floats) between the re and im halves of a SplitComplex input. One
+// cache line: without it both halves are a large power of two apart and the
+// two streams (and the re/im streams of a following pass) compete for the
+// same L1 sets.
+inline constexpr unsigned SPLIT_PAD = 16;
 
 // What execute() writes into the output buffer.
 enum class OutputMode {
 	Complex, // Full spectrum (packed real-FFT layout, or split Re/Im for
 	         // Complex input). Symmetric real input: only the real parts.
 	Power,   // |X[k]|^2 (see file comment for the k-range).
+	InterleavedFirstHalf, // Complex input only: X[0 .. N/2), interleaved re,im.
 };
 
 template<typename F, int... Is>
@@ -255,7 +268,10 @@ template<unsigned FFT_LEN_L2, InputMode MODE = InputMode::Full,
 class FFT
 {
 public:
-	static constexpr bool COMPLEX_IN = MODE == InputMode::Complex;
+	static constexpr bool COMPLEX_IN = MODE == InputMode::Complex ||
+	                                   MODE == InputMode::SplitComplex;
+	static constexpr bool ILV_OUT = OUT_MODE == OutputMode::InterleavedFirstHalf;
+	static_assert(!ILV_OUT || COMPLEX_IN);
 	// Complex FFT length M: 8 (leading radix-8 pass) .. 32768. Complex input
 	// needs M >= 16, so that there is a stride pass to fuse Power output into.
 	static_assert(FFT_LEN_L2 >= 4);
@@ -264,12 +280,14 @@ public:
 	// Complex arrays need 2 floats per sample; real-FFT modes reuse FFT_LEN.
 	static constexpr unsigned WORK_LEN = COMPLEX_IN ? (2 * FFT_LEN) : FFT_LEN;
 	static constexpr unsigned INPUT_LEN =
+		(MODE == InputMode::SplitComplex) ? (WORK_LEN + SPLIT_PAD) :
 		COMPLEX_IN ? WORK_LEN :
 		(MODE == InputMode::HalfZeroPadded) ? (FFT_LEN / 2) :
 		(MODE == InputMode::Symmetric) ? (FFT_LEN / 2 + 1) :
 		FFT_LEN;
 	static constexpr unsigned OUTPUT_LEN =
 		(OUT_MODE == OutputMode::Power) ? (COMPLEX_IN ? FFT_LEN : FFT_LEN / 2 + 1) :
+		ILV_OUT ? FFT_LEN :
 		COMPLEX_IN ? WORK_LEN :
 		(MODE == InputMode::Symmetric) ? (FFT_LEN / 2 + 1) :
 		FFT_LEN;
@@ -277,6 +295,8 @@ public:
 	// 'output' and 'tmpBuf' must each hold WORK_LEN floats. The returned span
 	// aliases the first OUTPUT_LEN elements of 'output'. Prefer 64-byte
 	// aligned buffers (e.g. alignas(64) std::array) for SIMD loads.
+	// 'input' is only read by the first pass, which writes a single work
+	// buffer: 'input' may alias the other one (see inputMayAliasOutput()).
 	static std::span<float, OUTPUT_LEN> execute(std::span<const float, INPUT_LEN> input,
 	                                            std::span<float, WORK_LEN> output,
 	                                            std::span<float, WORK_LEN> tmpBuf)
@@ -301,6 +321,10 @@ public:
 		}
 		return std::span<float, OUTPUT_LEN>(output.data(), OUTPUT_LEN);
 	}
+
+	// Which of the two buffers passed to execute() may alias the input:
+	// true = 'output', false = 'tmpBuf'. (The first pass writes the other.)
+	static constexpr bool inputMayAliasOutput() { return bufIdx(0) == 1; }
 
 private:
 	static constexpr unsigned N = FFT_LEN;
@@ -371,14 +395,21 @@ private:
 	{
 		// Not Symmetric: that is expanded by mirror() and then loaded as Full.
 		static_assert(IN_MODE == InputMode::Full || IN_MODE == InputMode::Complex ||
+		              IN_MODE == InputMode::SplitComplex ||
 		              IN_MODE == InputMode::HalfZeroPadded);
 		// Full: pack pairs of reals as complex. Complex: interleaved input.
+		// SplitComplex: separate re/im arrays (contiguous, no de-interleave).
 		// HalfZeroPadded: inputs 4..7 are zero; dft8<true> doesn't read them.
 		unroll<8>([&](auto k) {
 			if constexpr (IN_MODE != InputMode::HalfZeroPadded || k < 4) {
 				const int n = p + k * int(P0);
-				ar[k] = in[2 * n + 0];
-				ai[k] = in[2 * n + 1];
+				if constexpr (IN_MODE == InputMode::SplitComplex) {
+					ar[k] = in[n];
+					ai[k] = in[int(M) + int(SPLIT_PAD) + n];
+				} else {
+					ar[k] = in[2 * n + 0];
+					ai[k] = in[2 * n + 1];
+				}
 			}
 		});
 	}
@@ -418,7 +449,7 @@ private:
 	// Later passes: radix R, current length LEN, stride STRIDE (LEN * STRIDE == M).
 	// Source is always blocked; destination is blocked except on the LAST pass,
 	// which writes separate real/imag halves (or |Z|^2 for complex input with
-	// Power output).
+	// Power output, or the interleaved lower half for InterleavedFirstHalf).
 	template<unsigned R, unsigned LEN, unsigned STRIDE, bool LAST>
 	static void stridePass(const float* __restrict src, float* __restrict dst)
 	{
@@ -426,7 +457,8 @@ private:
 		static_assert(STRIDE % 8 == 0);
 		constexpr int OA = LAST ? LA_SPLIT : LA;
 		constexpr int OB = LAST ? LB_SPLIT : LB;
-		constexpr bool OUT_POWER = LAST && COMPLEX_IN && POWER;
+		[[maybe_unused]] constexpr bool OUT_POWER = LAST && COMPLEX_IN && POWER;
+		constexpr bool OUT_ILV = LAST && ILV_OUT;
 		const float* xr = src;
 		const float* xi = src + LB;
 		float* yr = dst;
@@ -453,7 +485,15 @@ private:
 					dft<R>(ar, ai);
 					unroll<R>([&](auto j) {
 						const int e = OA * (qb + SB * (int(R) * p + j)) + l;
-						if constexpr (OUT_POWER) {
+						if constexpr (OUT_ILV) {
+							// Last pass (m == 1): e is the natural index
+							// q + STRIDE * j; only j < R/2 is below M/2.
+							static_assert(m == 1);
+							if constexpr (j < int(R) / 2) {
+								yr[2 * e + 0] = ar[j];
+								yr[2 * e + 1] = ai[j];
+							}
+						} else if constexpr (OUT_POWER) {
 							static_assert(m == 1); // last pass: no twiddles
 							yr[e] = ar[j] * ar[j] + ai[j] * ai[j];
 						} else if constexpr (m == 1 || j == 0) {

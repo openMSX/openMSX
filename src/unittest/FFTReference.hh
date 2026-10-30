@@ -32,6 +32,7 @@ inline std::vector<double> expandInput(fft::InputMode mode, std::span<const floa
 			x[n] = (n <= N / 2) ? in[n] : in[N - n];
 			break;
 		case fft::InputMode::Complex:
+		case fft::InputMode::SplitComplex:
 			assert(false);
 			break;
 		}
