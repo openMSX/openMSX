@@ -39,13 +39,13 @@ static float maxError(const std::vector<float>& a, const std::vector<float>& b)
 
 TEST_CASE("autocorrelation: zero signal")
 {
-	constexpr unsigned SIGNAL_L2 = 4;
-	constexpr unsigned N = 1 << SIGNAL_L2;
+	constexpr unsigned FFT_L2 = 5;
+	constexpr unsigned N = 1 << (FFT_L2 - 1);
 
 	std::vector<float> signal(N, 0.0f); // All zeros
 
 	std::vector<float> autocorr(N);
-	autocorrelation<SIGNAL_L2>(std::span(signal), std::span(autocorr));
+	autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
 	auto reference = autocorrReference(signal);
 
 	// Autocorrelation of all zeros should be all zeros
@@ -60,14 +60,14 @@ TEST_CASE("autocorrelation: zero signal")
 
 TEST_CASE("autocorrelation: impulse signal")
 {
-	constexpr unsigned SIGNAL_L2 = 4;
-	constexpr unsigned N = 1 << SIGNAL_L2;
+	constexpr unsigned FFT_L2 = 5;
+	constexpr unsigned N = 1 << (FFT_L2 - 1);
 
 	std::vector<float> signal(N, 0.0f);
 	signal[0] = 1.0f; // Impulse
 
 	std::vector<float> autocorr(N);
-	autocorrelation<SIGNAL_L2>(std::span(signal), std::span(autocorr));
+	autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
 	auto reference = autocorrReference(signal);
 
 	// Verify impulse response: autocorr[0] = 1, all others = 0
@@ -83,13 +83,13 @@ TEST_CASE("autocorrelation: impulse signal")
 
 TEST_CASE("autocorrelation: constant signal")
 {
-	constexpr unsigned SIGNAL_L2 = 4;
-	constexpr unsigned N = 1 << SIGNAL_L2;
+	constexpr unsigned FFT_L2 = 5;
+	constexpr unsigned N = 1 << (FFT_L2 - 1);
 
 	std::vector<float> signal(N, 2.0f); // All values = 2.0
 
 	std::vector<float> autocorr(N);
-	autocorrelation<SIGNAL_L2>(std::span(signal), std::span(autocorr));
+	autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
 	auto reference = autocorrReference(signal);
 
 	// For constant signal, autocorr[τ] = (N-τ) * value²
@@ -106,8 +106,8 @@ TEST_CASE("autocorrelation: constant signal")
 
 TEST_CASE("autocorrelation: sine wave")
 {
-	constexpr unsigned SIGNAL_L2 = 8;
-	constexpr unsigned N = 1 << SIGNAL_L2;
+	constexpr unsigned FFT_L2 = 9;
+	constexpr unsigned N = 1 << (FFT_L2 - 1);
 	constexpr float freq = 5.0f; // 5 complete cycles
 
 	std::vector<float> signal(N);
@@ -116,7 +116,7 @@ TEST_CASE("autocorrelation: sine wave")
 	}
 
 	std::vector<float> autocorr(N);
-	autocorrelation<SIGNAL_L2>(std::span(signal), std::span(autocorr));
+	autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
 	auto reference = autocorrReference(signal);
 
 	// Verify autocorr[0] is maximum
@@ -131,8 +131,8 @@ TEST_CASE("autocorrelation: sine wave")
 
 TEST_CASE("autocorrelation: random signal")
 {
-	constexpr unsigned SIGNAL_L2 = 7;
-	constexpr unsigned N = 1 << SIGNAL_L2;
+	constexpr unsigned FFT_L2 = 8;
+	constexpr unsigned N = 1 << (FFT_L2 - 1);
 
 	// Use fixed seed for deterministic results
 	srand(42);
@@ -142,7 +142,7 @@ TEST_CASE("autocorrelation: random signal")
 	}
 
 	std::vector<float> autocorr(N);
-	autocorrelation<SIGNAL_L2>(std::span(signal), std::span(autocorr));
+	autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
 	auto reference = autocorrReference(signal);
 
 	// Verify autocorr[0] is maximum
@@ -157,8 +157,8 @@ TEST_CASE("autocorrelation: random signal")
 
 TEST_CASE("autocorrelation: non-power-of-2 signal length")
 {
-	constexpr unsigned SIGNAL_L2 = 7;
-	constexpr unsigned N = 20;  // Not a power of 2 (SIGNAL_LEN = 32, but we only use 20)
+	constexpr unsigned FFT_L2 = 8;
+	constexpr unsigned N = 20;  // Not a power of 2 (FFT_LEN = 256 would allow up to 128)
 
 	std::vector<float> signal(N);
 	for (unsigned i = 0; i < N; ++i) {
@@ -166,7 +166,7 @@ TEST_CASE("autocorrelation: non-power-of-2 signal length")
 	}
 
 	std::vector<float> autocorr(N);
-	autocorrelation<SIGNAL_L2>(std::span(signal), std::span(autocorr));
+	autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
 	auto reference = autocorrReference(signal);
 
 	// Verify autocorr[0] is maximum
@@ -179,10 +179,56 @@ TEST_CASE("autocorrelation: non-power-of-2 signal length")
 	CHECK(error < 1e-3f);
 }
 
+TEST_CASE("autocorrelation: fewer lags than samples")
+{
+	// The YIN use case: N samples, only L lags, with N + L <= FFT_LEN + 1
+	// (so FFT_LEN can be smaller than 2N).
+	constexpr unsigned FFT_L2 = 8;
+	constexpr unsigned FFT_LEN = 1 << FFT_L2;
+	for (unsigned N : {129u, 200u, 225u, 256u}) {
+		const unsigned L = std::min(FFT_LEN + 1 - N, FFT_LEN / 2);
+		std::vector<float> signal(N);
+		srand(N);
+		for (auto& x : signal) x = float(rand()) / float(RAND_MAX) - 0.5f;
+
+		std::vector<float> autocorr(L);
+		autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
+		auto reference = autocorrReference(signal);
+		reference.resize(L);
+
+		INFO("N=" << N << " L=" << L);
+		float error = maxError(autocorr, reference);
+		CHECK(error < 1e-3f);
+	}
+}
+
+TEST_CASE("autocorrelation: small FFT sizes")
+{
+	// FFT_LEN 32 and 64 use the scalar (partial block) first pass, 128 is
+	// the first full block; FFT_LEN 32 uses the short middle loop. Also
+	// covers odd and even signal lengths.
+	auto check = [&]<unsigned FFT_L2>() {
+		constexpr unsigned FFT_LEN = 1 << FFT_L2;
+		for (unsigned N : {FFT_LEN / 2, FFT_LEN / 2 - 1, FFT_LEN / 4 + 1}) {
+			std::vector<float> signal(N);
+			srand(N);
+			for (auto& x : signal) x = float(rand()) / float(RAND_MAX) - 0.5f;
+			std::vector<float> autocorr(N);
+			autocorrelation<FFT_L2>(std::span(signal), std::span(autocorr));
+			auto reference = autocorrReference(signal);
+			INFO("FFT_LEN=" << FFT_LEN << " N=" << N);
+			CHECK(maxError(autocorr, reference) < 1e-4f);
+		}
+	};
+	check.operator()<5>();
+	check.operator()<6>();
+	check.operator()<7>();
+}
+
 TEST_CASE("autocorrelation: normalization")
 {
-	constexpr unsigned SIGNAL_L2 = 7;
-	constexpr unsigned N = 1 << SIGNAL_L2;
+	constexpr unsigned FFT_L2 = 8;
+	constexpr unsigned N = 1 << (FFT_L2 - 1);
 
 	std::vector<float> signal(N);
 	for (unsigned i = 0; i < N; ++i) {
@@ -193,15 +239,17 @@ TEST_CASE("autocorrelation: normalization")
 	std::vector<float> autocorrUnnormalized(N);
 
 	// Test with normalization (default)
-	autocorrelation<SIGNAL_L2, true>(std::span(signal), std::span(autocorrNormalized));
+	autocorrelation<FFT_L2, true>(std::span(signal), std::span(autocorrNormalized));
 
 	// Test without normalization
-	autocorrelation<SIGNAL_L2, false>(std::span(signal), std::span(autocorrUnnormalized));
+	autocorrelation<FFT_L2, false>(std::span(signal), std::span(autocorrUnnormalized));
 
-	// Unnormalized should be FFT_LEN times larger
-	constexpr unsigned FFT_LEN = 2 * (1 << SIGNAL_L2);
+	// Unnormalized should be FFT_LEN times larger (up to float rounding:
+	// the scale is applied at a different point in the computation)
+	constexpr unsigned FFT_LEN = 1 << FFT_L2;
+	const float tolerance = 1e-6f * autocorrNormalized[0];
 	for (unsigned i = 0; i < N; ++i) {
 		float expected = autocorrUnnormalized[i] / FFT_LEN;
-		CHECK(std::abs(autocorrNormalized[i] - expected) < 1e-5f);
+		CHECK(std::abs(autocorrNormalized[i] - expected) < tolerance);
 	}
 }

@@ -195,13 +195,10 @@ template<unsigned FFT_LEN_L2>
 	//   - So N <= FFT_LEN/2, and maxLag <= N/2 <= FFT_LEN/4
 	//   - Therefore maxLag + 1 < WORK_LEN, and signal.size() <= WORK_LEN
 
-	// Compute autocorrelation using the new autocorrelation<SIGNAL_LEN_L2> API
-	// SIGNAL_LEN_L2 = FFT_LEN_L2 - 1 because FFT_LEN = 2 * SIGNAL_LEN
+	// Autocorrelation, only for the lags 0..maxLag that YIN needs
 	std::array<float, WORK_LEN> autocorr_; // ok, uninitialized
-	auto autocorrFull = std::span(autocorr_).first(signal.size());
-	autocorrelation<FFT_LEN_L2 - 1>(signal, autocorrFull);
-	// Extract only the lags we need (0..maxLag)
-	auto autocorr = autocorrFull.first(maxLag + 1);
+	auto autocorr = std::span(autocorr_).first(maxLag + 1);
+	autocorrelation<FFT_LEN_L2>(signal, autocorr);
 
 	// Compute difference function
 	std::array<float, WORK_LEN> diff_; // ok, uninitialized
