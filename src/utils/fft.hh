@@ -75,6 +75,9 @@
 // the element type, instantiated with an 8-float vector type V8). Only the
 // loads, the transpose/store and the complex multiply are intrinsics. FMA is
 // used when available (__FMA__), it makes little difference.
+// The stride passes also have a V8 version of their inner loop. GCC's
+// auto-vectorized code for them is just as fast; clang's is ~1.5x slower, so
+// this is a workaround for clang and could be dropped if that improves.
 //
 // Size: FFT_LEN_L2 in 4 .. 16 → 16 .. 65536 real points, or 4 .. 15 →
 // 16 .. 32768 complex points. The complex length M must be at least 8 (leading
@@ -138,8 +141,8 @@ ALWAYS_INLINE void unroll(F&& f)
 }
 
 #ifdef __AVX2__
-// Vector of 8 floats, with just enough operations for dft8<V8>() and the
-// first pass.
+// Vector of 8 floats, with just enough operations for dft<R, V8>() and the
+// FFT passes.
 struct V8 {
 	__m256 v;
 	V8() = default;
@@ -177,6 +180,14 @@ ALWAYS_INLINE void cmul(V8& r, V8& i, V8 wr, V8 wi)
 	const V8 i2 = fmadd(r, wi, i * wr);
 	r = r2;
 	i = i2;
+}
+// p[0..15] = re0 im0 re1 im1 ...
+ALWAYS_INLINE void storeInterleaved(V8 re, V8 im, float* p)
+{
+	const __m256 lo = _mm256_unpacklo_ps(re.v, im.v); // r0 i0 r1 i1 | r4 i4 r5 i5
+	const __m256 hi = _mm256_unpackhi_ps(re.v, im.v); // r2 i2 r3 i3 | r6 i6 r7 i7
+	_mm256_storeu_ps(p,     _mm256_permute2f128_ps(lo, hi, 0x20));
+	_mm256_storeu_ps(p + 8, _mm256_permute2f128_ps(lo, hi, 0x31));
 }
 #endif
 
@@ -231,12 +242,12 @@ ALWAYS_INLINE void dft8(std::span<T, 8> r, std::span<T, 8> i)
 	});
 }
 
-template<unsigned R>
-ALWAYS_INLINE void dft(std::span<float, R> r, std::span<float, R> i)
+template<unsigned R, typename T = float>
+ALWAYS_INLINE void dft(std::span<T, R> r, std::span<T, R> i)
 {
-	if constexpr (R == 2) dft2<float>(r, i);
-	else if constexpr (R == 4) dft4<float>(r, i);
-	else if constexpr (R == 8) dft8<false, float>(r, i);
+	if constexpr (R == 2) dft2<T>(r, i);
+	else if constexpr (R == 4) dft4<T>(r, i);
+	else if constexpr (R == 8) dft8<false, T>(r, i);
 	else static_assert(false, "unsupported radix");
 }
 
@@ -618,6 +629,35 @@ private:
 				wi[j1 + 1] = twi[p * (int(R) - 1) + j1];
 			});
 			for (int qb = 0; qb < SB; ++qb) {
+#ifdef __AVX2__
+				// The 8 lanes of a block as one vector. Same computation as
+				// the scalar loop below.
+				std::array<V8, R> ar, ai;
+				unroll<R>([&](auto k) {
+					const int e = IA * (qb + SB * (p + k * m));
+					ar[k] = V8::load(xr + e);
+					ai[k] = V8::load(xi + e);
+				});
+				dft<R, V8>(ar, ai);
+				unroll<R>([&](auto j) {
+					const int e = OA * (qb + SB * (int(R) * p + j));
+					if constexpr (OUT_ILV) {
+						static_assert(m == 1);
+						if constexpr (j < int(R) / 2) {
+							storeInterleaved(ar[j], ai[j], yr + 2 * e);
+						}
+					} else if constexpr (OUT_POWER) {
+						static_assert(m == 1);
+						fmadd(ar[j], ar[j], ai[j] * ai[j]).store(yr + e);
+					} else {
+						if constexpr (!(m == 1 || j == 0)) {
+							cmul(ar[j], ai[j], V8(wr[j]), V8(wi[j]));
+						}
+						ar[j].store(yr + e);
+						ai[j].store(yi + e);
+					}
+				});
+#else
 				for (int l = 0; l < 8; ++l) {
 					std::array<float, R> ar, ai;
 					unroll<R>([&](auto k) {
@@ -625,7 +665,7 @@ private:
 						ar[k] = xr[e];
 						ai[k] = xi[e];
 					});
-					dft<R>(ar, ai);
+					dft<R, float>(ar, ai);
 					unroll<R>([&](auto j) {
 						const int e = OA * (qb + SB * (int(R) * p + j)) + l;
 						if constexpr (OUT_ILV) {
@@ -648,6 +688,7 @@ private:
 						}
 					});
 				}
+#endif
 			}
 		}
 	}
