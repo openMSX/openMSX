@@ -42,7 +42,8 @@
 //
 // Auto-vectorization
 // ------------------
-// Written as portable C++ so GCC/Clang can emit SIMD without intrinsics:
+// Written as portable C++ so GCC/Clang can emit SIMD without intrinsics
+// (with one exception, see "AVX2" below):
 //   * Split real/imag arrays (not arrays of structs) so loads/stores are
 //     contiguous floats and map to vector loads.
 //   * Stockham (out-of-place) passes: the inner loop runs over a contiguous
@@ -65,6 +66,16 @@
 //     as distinct __restrict pointers (and the loop is not inlined) so the
 //     compiler can vectorize without a run-time alias check.
 //
+// AVX2
+// ----
+// When compiled with AVX2 (__AVX2__), the first pass uses intrinsics: the
+// auto-vectorized 8×8 transpose needs more than twice the shuffles of the
+// hand-written one, and that pass is shuffle-bound. The butterflies and
+// twiddles are the same code as the portable path (dft8<> is a template over
+// the element type, instantiated with an 8-float vector type V8). Only the
+// loads, the transpose/store and the complex multiply are intrinsics. FMA is
+// used when available (__FMA__), it makes little difference.
+//
 // Size: FFT_LEN_L2 in 4 .. 16 → 16 .. 65536 real points, or 4 .. 15 →
 // 16 .. 32768 complex points. The complex length M must be at least 8 (leading
 // radix-8), and at least 16 for complex input. The first pass vectorizes 8
@@ -80,6 +91,10 @@
 #include <span>
 #include <type_traits>
 #include <utility>
+
+#ifdef __AVX2__
+#include <immintrin.h>
+#endif
 
 namespace fft {
 
@@ -122,20 +137,66 @@ ALWAYS_INLINE void unroll(F&& f)
 	unrollImpl(f, std::make_integer_sequence<int, N>{});
 }
 
-// Forward (e^-2πi) DFTs on split arrays, in place, natural order.
-ALWAYS_INLINE void dft2(std::span<float, 2> r, std::span<float, 2> i)
+#ifdef __AVX2__
+// Vector of 8 floats, with just enough operations for dft8<V8>() and the
+// first pass.
+struct V8 {
+	__m256 v;
+	V8() = default;
+	V8(__m256 v_) : v(v_) {}
+	explicit V8(float f) : v(_mm256_set1_ps(f)) {}
+	friend V8 operator+(V8 a, V8 b) { return _mm256_add_ps(a.v, b.v); }
+	friend V8 operator-(V8 a, V8 b) { return _mm256_sub_ps(a.v, b.v); }
+	friend V8 operator*(V8 a, V8 b) { return _mm256_mul_ps(a.v, b.v); }
+	friend V8 operator*(V8 a, float b) { return a * V8(b); }
+	friend V8 operator-(V8 a) { return _mm256_xor_ps(a.v, _mm256_set1_ps(-0.0f)); }
+	[[nodiscard]] static V8 load(const float* p) { return _mm256_loadu_ps(p); }
+	void store(float* p) const { _mm256_storeu_ps(p, v); }
+};
+// a * b - c,  a * b + c
+ALWAYS_INLINE V8 fmsub(V8 a, V8 b, V8 c)
 {
-	float r0 = r[0], i0 = i[0];
+#ifdef __FMA__
+	return _mm256_fmsub_ps(a.v, b.v, c.v);
+#else
+	return a * b - c;
+#endif
+}
+ALWAYS_INLINE V8 fmadd(V8 a, V8 b, V8 c)
+{
+#ifdef __FMA__
+	return _mm256_fmadd_ps(a.v, b.v, c.v);
+#else
+	return a * b + c;
+#endif
+}
+// (r + i·i) *= (wr + i·wi)
+ALWAYS_INLINE void cmul(V8& r, V8& i, V8 wr, V8 wi)
+{
+	const V8 r2 = fmsub(r, wr, i * wi);
+	const V8 i2 = fmadd(r, wi, i * wr);
+	r = r2;
+	i = i2;
+}
+#endif
+
+// Forward (e^-2πi) DFTs on split arrays, in place, natural order.
+// T is float, or V8 to do 8 independent DFTs at once.
+template<typename T>
+ALWAYS_INLINE void dft2(std::span<T, 2> r, std::span<T, 2> i)
+{
+	T r0 = r[0], i0 = i[0];
 	r[0] = r0 + r[1]; i[0] = i0 + i[1];
 	r[1] = r0 - r[1]; i[1] = i0 - i[1];
 }
 
-ALWAYS_INLINE void dft4(std::span<float, 4> r, std::span<float, 4> i)
+template<typename T>
+ALWAYS_INLINE void dft4(std::span<T, 4> r, std::span<T, 4> i)
 {
-	float t0r = r[0] + r[2], t0i = i[0] + i[2];
-	float t1r = r[0] - r[2], t1i = i[0] - i[2];
-	float t2r = r[1] + r[3], t2i = i[1] + i[3];
-	float t3r = r[1] - r[3], t3i = i[1] - i[3];
+	T t0r = r[0] + r[2], t0i = i[0] + i[2];
+	T t1r = r[0] - r[2], t1i = i[0] - i[2];
+	T t2r = r[1] + r[3], t2i = i[1] + i[3];
+	T t3r = r[1] - r[3], t3i = i[1] - i[3];
 	r[0] = t0r + t2r; i[0] = t0i + t2i;
 	r[2] = t0r - t2r; i[2] = t0i - t2i;
 	r[1] = t1r + t3i; i[1] = t1i - t3r;
@@ -143,11 +204,11 @@ ALWAYS_INLINE void dft4(std::span<float, 4> r, std::span<float, 4> i)
 }
 
 // HALF: inputs 4..7 are zero.
-template<bool HALF = false>
-ALWAYS_INLINE void dft8(std::span<float, 8> r, std::span<float, 8> i)
+template<bool HALF = false, typename T = float>
+ALWAYS_INLINE void dft8(std::span<T, 8> r, std::span<T, 8> i)
 {
 	constexpr float h = std::numbers::sqrt2_v<float> * 0.5f;
-	std::array<float, 4> ur, ui, vr, vi;
+	std::array<T, 4> ur, ui, vr, vi;
 	unroll<4>([&](auto k) {
 		if constexpr (HALF) {
 			ur[k] = r[k]; ui[k] = i[k];
@@ -158,12 +219,12 @@ ALWAYS_INLINE void dft8(std::span<float, 8> r, std::span<float, 8> i)
 		}
 	});
 	// v[k] *= e^(-iπk/4)
-	float v1r = (vr[1] + vi[1]) * h, v1i = (vi[1] - vr[1]) * h;
-	float v2r = vi[2],               v2i = -vr[2];
-	float v3r = (vi[3] - vr[3]) * h, v3i = (vr[3] + vi[3]) * -h;
+	T v1r = (vr[1] + vi[1]) * h, v1i = (vi[1] - vr[1]) * h;
+	T v2r = vi[2],               v2i = -vr[2];
+	T v3r = (vi[3] - vr[3]) * h, v3i = (vr[3] + vi[3]) * -h;
 	vr[1] = v1r; vi[1] = v1i; vr[2] = v2r; vi[2] = v2i; vr[3] = v3r; vi[3] = v3i;
-	dft4(ur, ui);
-	dft4(vr, vi);
+	dft4<T>(ur, ui);
+	dft4<T>(vr, vi);
 	unroll<4>([&](auto j) {
 		r[2 * j + 0] = ur[j]; i[2 * j + 0] = ui[j];
 		r[2 * j + 1] = vr[j]; i[2 * j + 1] = vi[j];
@@ -173,9 +234,9 @@ ALWAYS_INLINE void dft8(std::span<float, 8> r, std::span<float, 8> i)
 template<unsigned R>
 ALWAYS_INLINE void dft(std::span<float, R> r, std::span<float, R> i)
 {
-	if constexpr (R == 2) dft2(r, i);
-	else if constexpr (R == 4) dft4(r, i);
-	else if constexpr (R == 8) dft8(r, i);
+	if constexpr (R == 2) dft2<float>(r, i);
+	else if constexpr (R == 4) dft4<float>(r, i);
+	else if constexpr (R == 8) dft8<false, float>(r, i);
 	else static_assert(false, "unsupported radix");
 }
 
@@ -414,25 +475,107 @@ private:
 		});
 	}
 
+#ifdef __AVX2__
+	// 8×8 transpose of r[j] (lane l) and store: out[16 * l + j] = r[j][l].
+	// That is the blocked layout of one output block: row l is the 8 outputs
+	// of butterfly l (reals; the imaginary parts follow 8 floats later).
+	ALWAYS_INLINE static void transposeStore8x8(const std::array<V8, 8>& r, float* out)
+	{
+		// Standard 3-stage transpose: 32-bit unpack, 64-bit shuffle, 128-bit permute.
+		const __m256 t0 = _mm256_unpacklo_ps(r[0].v, r[1].v);
+		const __m256 t1 = _mm256_unpackhi_ps(r[0].v, r[1].v);
+		const __m256 t2 = _mm256_unpacklo_ps(r[2].v, r[3].v);
+		const __m256 t3 = _mm256_unpackhi_ps(r[2].v, r[3].v);
+		const __m256 t4 = _mm256_unpacklo_ps(r[4].v, r[5].v);
+		const __m256 t5 = _mm256_unpackhi_ps(r[4].v, r[5].v);
+		const __m256 t6 = _mm256_unpacklo_ps(r[6].v, r[7].v);
+		const __m256 t7 = _mm256_unpackhi_ps(r[6].v, r[7].v);
+		// u[l] (l < 4): low lane = column l of rows 0..3, high lane = column l+4
+		// u[l + 4]: the same for rows 4..7
+		const __m256 u0 = _mm256_shuffle_ps(t0, t2, 0x44);
+		const __m256 u1 = _mm256_shuffle_ps(t0, t2, 0xEE);
+		const __m256 u2 = _mm256_shuffle_ps(t1, t3, 0x44);
+		const __m256 u3 = _mm256_shuffle_ps(t1, t3, 0xEE);
+		const __m256 u4 = _mm256_shuffle_ps(t4, t6, 0x44);
+		const __m256 u5 = _mm256_shuffle_ps(t4, t6, 0xEE);
+		const __m256 u6 = _mm256_shuffle_ps(t5, t7, 0x44);
+		const __m256 u7 = _mm256_shuffle_ps(t5, t7, 0xEE);
+		_mm256_storeu_ps(out + 16 * 0, _mm256_permute2f128_ps(u0, u4, 0x20));
+		_mm256_storeu_ps(out + 16 * 1, _mm256_permute2f128_ps(u1, u5, 0x20));
+		_mm256_storeu_ps(out + 16 * 2, _mm256_permute2f128_ps(u2, u6, 0x20));
+		_mm256_storeu_ps(out + 16 * 3, _mm256_permute2f128_ps(u3, u7, 0x20));
+		_mm256_storeu_ps(out + 16 * 4, _mm256_permute2f128_ps(u0, u4, 0x31));
+		_mm256_storeu_ps(out + 16 * 5, _mm256_permute2f128_ps(u1, u5, 0x31));
+		_mm256_storeu_ps(out + 16 * 6, _mm256_permute2f128_ps(u2, u6, 0x31));
+		_mm256_storeu_ps(out + 16 * 7, _mm256_permute2f128_ps(u3, u7, 0x31));
+	}
+
+	// 8 interleaved re,im pairs at p -> re[0..7], im[0..7].
+	ALWAYS_INLINE static void loadInterleaved8(const float* p, V8& re, V8& im)
+	{
+		const __m256 lo = _mm256_loadu_ps(p);     // re0 im0 re1 im1 | re2 im2 re3 im3
+		const __m256 hi = _mm256_loadu_ps(p + 8); // re4 im4 re5 im5 | re6 im6 re7 im7
+		const __m256 r = _mm256_shuffle_ps(lo, hi, 0x88); // re0 re1 re4 re5 | re2 re3 re6 re7
+		const __m256 i = _mm256_shuffle_ps(lo, hi, 0xDD);
+		// swap the middle two 64-bit halves
+		re = _mm256_castpd_ps(_mm256_permute4x64_pd(_mm256_castps_pd(r), 0xD8));
+		im = _mm256_castpd_ps(_mm256_permute4x64_pd(_mm256_castps_pd(i), 0xD8));
+	}
+
+	// One block of 8 butterflies p = 8b .. 8b+7, as 8-wide vectors over p.
+	template<InputMode IN_MODE>
+	ALWAYS_INLINE static void firstPassBlock8(const float* __restrict in, int b, float* __restrict out)
+	{
+		constexpr bool HALF = IN_MODE == InputMode::HalfZeroPadded;
+		std::array<V8, 8> ar, ai;
+		unroll<8>([&](auto k) {
+			if constexpr (!HALF || k < 4) {
+				const int n0 = 8 * b + k * int(P0);
+				if constexpr (IN_MODE == InputMode::SplitComplex) {
+					ar[k] = V8::load(in + n0);
+					ai[k] = V8::load(in + int(M) + int(SPLIT_PAD) + n0);
+				} else {
+					loadInterleaved8(in + 2 * n0, ar[k], ai[k]);
+				}
+			}
+		});
+		dft8<HALF, V8>(ar, ai);
+		const auto& tw = twFirst<M>[b];
+		unroll<7>([&](auto j1) {
+			cmul(ar[j1 + 1], ai[j1 + 1], V8::load(tw[j1].re.data()), V8::load(tw[j1].im.data()));
+		});
+		transposeStore8x8(ar, out + LA * 8 * b);
+		transposeStore8x8(ai, out + LA * 8 * b + LB);
+	}
+#endif
+
 	// First pass: radix 8, stride 1, length M. Vectorized over the butterfly
 	// index p: the inner loop covers 8 consecutive p's (one twiddle block).
 	// M < 64 has a single, partial block.
 	template<InputMode IN_MODE>
 	static void firstPass(const float* __restrict in, float* __restrict out)
 	{
+		constexpr int NB = (int(P0) + 7) / 8;
+		constexpr int BL = std::min(int(P0), 8);
+#ifdef __AVX2__
+		if constexpr (BL == 8) {
+			for (int b = 0; b < NB; ++b) {
+				firstPassBlock8<IN_MODE>(in, b, out);
+			}
+			return;
+		}
+#endif
 		float* yr = out;
 		float* yi = out + LB;
 		const auto& tw = twFirst<M>;
 		constexpr bool HALF = IN_MODE == InputMode::HalfZeroPadded;
 		constexpr int A = LA;
-		constexpr int NB = (int(P0) + 7) / 8;
-		constexpr int BL = std::min(int(P0), 8);
 		for (int b = 0; b < NB; ++b) {
 			for (int l = 0; l < BL; ++l) {
 				const int p = 8 * b + l;
 				std::array<float, 8> ar, ai;
 				loadFirst<IN_MODE>(in, p, ar, ai);
-				dft8<HALF>(ar, ai);
+				dft8<HALF, float>(ar, ai);
 				yr[A * p] = ar[0];
 				yi[A * p] = ai[0];
 				unroll<7>([&](auto j1) {
