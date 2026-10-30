@@ -33,6 +33,7 @@ inline std::vector<double> expandInput(fft::InputMode mode, std::span<const floa
 			break;
 		case fft::InputMode::Complex:
 		case fft::InputMode::SplitComplex:
+		case fft::InputMode::SplitComplexHalf:
 			assert(false);
 			break;
 		}

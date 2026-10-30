@@ -53,10 +53,17 @@ static double fftError(uint32_t seed)
 	auto in = fft_reference::randomSignal(FFT::INPUT_LEN, seed);
 	std::vector<double> ref;
 	if constexpr (FFT::COMPLEX_IN) {
-		if constexpr (MODE == fft::InputMode::SplitComplex) {
+		if constexpr (fft::isSplit(MODE)) {
 			// re[0..N), gap, im[0..N) -> interleaved for the reference
-			std::vector<float> ilv(2 * N);
-			for (unsigned n = 0; n < N; ++n) {
+			if constexpr (fft::isHalfZero(MODE)) {
+				// the reference sees zeros, the FFT must not read these
+				for (unsigned n = N / 2; n < N; ++n) {
+					in[n] = in[N + fft::SPLIT_PAD + n] = NaN;
+				}
+			}
+			std::vector<float> ilv(2 * N, 0.0f);
+			const unsigned used = fft::isHalfZero(MODE) ? N / 2 : N;
+			for (unsigned n = 0; n < used; ++n) {
 				ilv[2 * n + 0] = in[n];
 				ilv[2 * n + 1] = in[N + fft::SPLIT_PAD + n];
 			}
@@ -206,11 +213,13 @@ TEST_CASE("fft: modes vs reference")
 	checkRef<4, fft::InputMode::Complex,        fft::OutputMode::Power>();
 	checkRef<4, fft::InputMode::SplitComplex,   fft::OutputMode::Complex>();
 	checkRef<4, fft::InputMode::SplitComplex,   fft::OutputMode::InterleavedFirstHalf>();
+	checkRef<4, fft::InputMode::SplitComplexHalf, fft::OutputMode::Complex>();
 	// Trailing radix-2 plan (M_L2 = 4) for real input.
 	checkRef<5, fft::InputMode::Full,           fft::OutputMode::Complex>();
 	// Boundary of the 8-wide first pass (M = 64): real L2=7 / complex L2=6.
 	checkRef<7, fft::InputMode::Full,           fft::OutputMode::Complex>();
 	checkRef<6, fft::InputMode::Complex,        fft::OutputMode::Complex>();
+	checkRef<6, fft::InputMode::SplitComplexHalf, fft::OutputMode::Complex>();
 	// The other input modes and the fused Power output with 8-wide blocks.
 	checkRef<9, fft::InputMode::HalfZeroPadded, fft::OutputMode::Power>();
 	checkRef<7, fft::InputMode::Complex,        fft::OutputMode::Power>();

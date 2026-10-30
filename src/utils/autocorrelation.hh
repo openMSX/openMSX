@@ -152,8 +152,10 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 	assert(L <= M);
 
 	using Fwd = fft::FFT<FFT_LEN_L2 - 1, fft::InputMode::SplitComplex, fft::OutputMode::Complex>;
+	using FwdHalf = fft::FFT<FFT_LEN_L2 - 1, fft::InputMode::SplitComplexHalf, fft::OutputMode::Complex>;
 	using Inv = fft::FFT<FFT_LEN_L2 - 1, fft::InputMode::SplitComplex, fft::OutputMode::InterleavedFirstHalf>;
 	static_assert(Fwd::WORK_LEN == F && Inv::WORK_LEN == F);
+	static_assert(FwdHalf::inputMayAliasOutput() == Fwd::inputMayAliasOutput());
 	// Split-complex FFT inputs have a gap between the re and im halves, so the
 	// buffers are a bit larger than the FFT work area (the first F floats).
 	constexpr unsigned PAD = fft::SPLIT_PAD;
@@ -165,6 +167,9 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 	auto& sigBuf = Fwd::inputMayAliasOutput() ? bufA : bufB;
 
 	// 1. de-interleave + zero pad: even samples -> [0, M), odd -> [M+PAD, 2M+PAD)
+	// z has (N+1)/2 samples: if N <= M its upper half is zero, which the
+	// SplitComplexHalf FFT doesn't read (so it doesn't have to be stored).
+	const bool half = N <= M;
 	{
 		float* ev = sigBuf.data();
 		float* od = sigBuf.data() + M + PAD;
@@ -176,11 +181,16 @@ void autocorrelation(std::span<const float> signal, std::span<float> output)
 		}
 		size_t ne = h;
 		if (N & 1) ev[ne++] = in[N - 1];
-		std::fill(ev + ne, ev + M, 0.0f);
-		std::fill(od + h,  od + M, 0.0f);
+		const size_t end = half ? M / 2 : M;
+		std::fill(ev + ne, ev + end, 0.0f);
+		std::fill(od + h,  od + end, 0.0f);
 	}
 	// Z (split) in bufA
-	Fwd::execute(split(sigBuf), work(bufA), work(bufB));
+	if (half) {
+		FwdHalf::execute(split(sigBuf), work(bufA), work(bufB));
+	} else {
+		Fwd::execute(split(sigBuf), work(bufA), work(bufB));
+	}
 
 	// 2. middle: bufA (Z, split without gap) -> bufB (D, split with gap)
 	autocorrelation_detail::middle<M, NORMALIZE>(bufA.data(), bufB.data());

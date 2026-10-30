@@ -27,6 +27,7 @@
 //   FFT_LEN complex samples, interleaved as re0,im0,re1,im1,... (Complex) or
 //   as two separate arrays re[0 .. N), im[0 .. N) (SplitComplex, the layout
 //   that OUT_MODE = Complex produces, so one FFT can feed the next).
+//   SplitComplexHalf is SplitComplex with x[N/2 .. N) zero (not read).
 //   Work buffers hold 2·FFT_LEN floats. With OUT_MODE = Complex the result is
 //   split: out[0 .. N) = Re X[k], out[N .. 2N) = Im X[k] (e^{-2πi} forward FFT).
 //
@@ -110,7 +111,19 @@ enum class InputMode {
 	Complex,        // FFT_LEN complex samples, interleaved re0,im0,re1,im1,...
 	SplitComplex,   // FFT_LEN complex samples, split: re[0..N), then im[0..N)
 	                // starting at offset N + SPLIT_PAD
+	SplitComplexHalf, // SplitComplex layout, but only the first FFT_LEN/2
+	                  // samples (of re and of im) are read; the rest is zero
 };
+// Input modes with the re/im halves in separate arrays.
+constexpr bool isSplit(InputMode m)
+{
+	return m == InputMode::SplitComplex || m == InputMode::SplitComplexHalf;
+}
+// Input modes whose second half is zero: the first pass skips those inputs.
+constexpr bool isHalfZero(InputMode m)
+{
+	return m == InputMode::HalfZeroPadded || m == InputMode::SplitComplexHalf;
+}
 // Gap (in floats) between the re and im halves of a SplitComplex input. One
 // cache line: without it both halves are a large power of two apart and the
 // two streams (and the re/im streams of a following pass) compete for the
@@ -340,8 +353,7 @@ template<unsigned FFT_LEN_L2, InputMode MODE = InputMode::Full,
 class FFT
 {
 public:
-	static constexpr bool COMPLEX_IN = MODE == InputMode::Complex ||
-	                                   MODE == InputMode::SplitComplex;
+	static constexpr bool COMPLEX_IN = MODE == InputMode::Complex || isSplit(MODE);
 	static constexpr bool ILV_OUT = OUT_MODE == OutputMode::InterleavedFirstHalf;
 	static_assert(!ILV_OUT || COMPLEX_IN);
 	// Complex FFT length M: 8 (leading radix-8 pass) .. 32768. Complex input
@@ -352,7 +364,7 @@ public:
 	// Complex arrays need 2 floats per sample; real-FFT modes reuse FFT_LEN.
 	static constexpr unsigned WORK_LEN = COMPLEX_IN ? (2 * FFT_LEN) : FFT_LEN;
 	static constexpr unsigned INPUT_LEN =
-		(MODE == InputMode::SplitComplex) ? (WORK_LEN + SPLIT_PAD) :
+		isSplit(MODE) ? (WORK_LEN + SPLIT_PAD) :
 		COMPLEX_IN ? WORK_LEN :
 		(MODE == InputMode::HalfZeroPadded) ? (FFT_LEN / 2) :
 		(MODE == InputMode::Symmetric) ? (FFT_LEN / 2 + 1) :
@@ -466,16 +478,15 @@ private:
 	                                    std::span<float, 8> ar, std::span<float, 8> ai)
 	{
 		// Not Symmetric: that is expanded by mirror() and then loaded as Full.
-		static_assert(IN_MODE == InputMode::Full || IN_MODE == InputMode::Complex ||
-		              IN_MODE == InputMode::SplitComplex ||
-		              IN_MODE == InputMode::HalfZeroPadded);
+		static_assert(IN_MODE != InputMode::Symmetric);
 		// Full: pack pairs of reals as complex. Complex: interleaved input.
-		// SplitComplex: separate re/im arrays (contiguous, no de-interleave).
-		// HalfZeroPadded: inputs 4..7 are zero; dft8<true> doesn't read them.
+		// SplitComplex(Half): separate re/im arrays (contiguous, no de-interleave).
+		// HalfZeroPadded, SplitComplexHalf: inputs 4..7 are zero; dft8<true>
+		// doesn't read them.
 		unroll<8>([&](auto k) {
-			if constexpr (IN_MODE != InputMode::HalfZeroPadded || k < 4) {
+			if constexpr (!isHalfZero(IN_MODE) || k < 4) {
 				const int n = p + k * int(P0);
-				if constexpr (IN_MODE == InputMode::SplitComplex) {
+				if constexpr (isSplit(IN_MODE)) {
 					ar[k] = in[n];
 					ai[k] = in[int(M) + int(SPLIT_PAD) + n];
 				} else {
@@ -537,12 +548,12 @@ private:
 	template<InputMode IN_MODE>
 	ALWAYS_INLINE static void firstPassBlock8(const float* __restrict in, int b, float* __restrict out)
 	{
-		constexpr bool HALF = IN_MODE == InputMode::HalfZeroPadded;
+		constexpr bool HALF = isHalfZero(IN_MODE);
 		std::array<V8, 8> ar, ai;
 		unroll<8>([&](auto k) {
 			if constexpr (!HALF || k < 4) {
 				const int n0 = 8 * b + k * int(P0);
-				if constexpr (IN_MODE == InputMode::SplitComplex) {
+				if constexpr (isSplit(IN_MODE)) {
 					ar[k] = V8::load(in + n0);
 					ai[k] = V8::load(in + int(M) + int(SPLIT_PAD) + n0);
 				} else {
@@ -579,7 +590,7 @@ private:
 		float* yr = out;
 		float* yi = out + LB;
 		const auto& tw = twFirst<M>;
-		constexpr bool HALF = IN_MODE == InputMode::HalfZeroPadded;
+		constexpr bool HALF = isHalfZero(IN_MODE);
 		constexpr int A = LA;
 		for (int b = 0; b < NB; ++b) {
 			for (int l = 0; l < BL; ++l) {
