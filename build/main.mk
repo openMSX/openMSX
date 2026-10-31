@@ -182,6 +182,18 @@ $(call BOOLCHECK,USE_SYMLINK)
 # Get CPU specific flags.
 TARGET_FLAGS+=$(shell $(PYTHON) build/cpu2flags.py $(OPENMSX_TARGET_CPU))
 
+# Default x86-64 microarchitecture level (AVX/AVX2). Applied before the flavour
+# so a flavour -march (super-opt's -march=native, x86-64-v1's -march=x86-64)
+# still wins.
+# Set OPENMSX_MARCH empty to disable, or to another level (x86-64-v2, native, ...).
+# OPENMSX_FLAVOUR=x86-64-v1 is the opt flavour pinned to the original baseline.
+ifeq ($(OPENMSX_TARGET_CPU),x86_64)
+OPENMSX_MARCH?=x86-64-v3
+ifneq ($(OPENMSX_MARCH),)
+CXXFLAGS+=-march=$(OPENMSX_MARCH)
+endif
+endif
+
 
 # Flavours
 # ========
