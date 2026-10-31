@@ -2,6 +2,7 @@
 
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
+#include "SDLProperties.hh"
 
 #include "StringOp.hh"
 #include "stl.hh"
@@ -119,13 +120,12 @@ TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize, int faceInde
 	FontInfo info;
 	info.file = LocalFileReference(filename);
 
-	SDL_PropertiesID props = SDL_CreateProperties();
-	SDL_SetStringProperty(props, TTF_PROP_FONT_CREATE_FILENAME_STRING,
+	SDLProperties props;
+	SDL_SetStringProperty(props.get(), TTF_PROP_FONT_CREATE_FILENAME_STRING,
 	                      info.file.getFilename().c_str());
-	SDL_SetFloatProperty(props, TTF_PROP_FONT_CREATE_SIZE_FLOAT, float(ptSize));
-	SDL_SetNumberProperty(props, TTF_PROP_FONT_CREATE_FACE_NUMBER, faceIndex);
-	auto* result = TTF_OpenFontWithProperties(props);
-	SDL_DestroyProperties(props);
+	SDL_SetFloatProperty(props.get(), TTF_PROP_FONT_CREATE_SIZE_FLOAT, float(ptSize));
+	SDL_SetNumberProperty(props.get(), TTF_PROP_FONT_CREATE_FACE_NUMBER, faceIndex);
+	auto* result = TTF_OpenFontWithProperties(props.get());
 
 	if (!result) {
 		throw MSXException(SDL_GetError());

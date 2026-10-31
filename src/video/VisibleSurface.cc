@@ -8,6 +8,7 @@
 #include "OffScreenSurface.hh"
 #include "PixelOperations.hh"
 #include "RenderSettings.hh"
+#include "SDLProperties.hh"
 #include "VideoSystem.hh"
 
 #include "BooleanSetting.hh"
@@ -220,15 +221,14 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 
 	assert(!window);
 	auto pos = display.retrieveWindowPosition();
-	SDL_PropertiesID props = SDL_CreateProperties();
-	SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, getDisplay().getWindowTitle().c_str());
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, pos.x);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, pos.y);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, size.x);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, size.y);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
-	window.reset(SDL_CreateWindowWithProperties(props));
-	SDL_DestroyProperties(props);
+	SDLProperties props;
+	SDL_SetStringProperty(props.get(), SDL_PROP_WINDOW_CREATE_TITLE_STRING, getDisplay().getWindowTitle().c_str());
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_X_NUMBER, pos.x);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_Y_NUMBER, pos.y);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, size.x);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, size.y);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
+	window.reset(SDL_CreateWindowWithProperties(props.get()));
 	if (!window) {
 		std::string err = SDL_GetError();
 		throw InitException("Could not create window: ", err);

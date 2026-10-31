@@ -1479,6 +1479,7 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\OffScreenSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SDLProperties.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SpriteChecker.hh" />
