@@ -3077,6 +3077,9 @@
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh">
       <Filter>video</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\video\SDLProperties.hh">
+      <Filter>video</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh">
       <Filter>video</Filter>
     </None>
