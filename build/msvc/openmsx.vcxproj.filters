@@ -102,7 +102,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.cc">
       <Filter>3rdparty\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl3.cc">
       <Filter>3rdparty\imgui</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.cc">
@@ -1652,7 +1652,7 @@
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3_loader.h">
       <Filter>3rdparty\imgui</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.h">
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl3.h">
       <Filter>3rdparty\imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_internal.h">
@@ -3075,6 +3075,9 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SDLProperties.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh">

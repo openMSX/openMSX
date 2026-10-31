@@ -11,6 +11,7 @@
 #include "HotKey.hh"
 #include "IntegerSetting.hh"
 #include "Interpreter.hh"
+#include "SDLKey.hh"
 #include "SymbolManager.hh"
 #include "TclObject.hh"
 #include "VideoSourceSetting.hh"
@@ -18,7 +19,7 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <variant>
@@ -312,11 +313,11 @@ TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view com
 		if (const auto* keyDown = std::get_if<KeyDownEvent>(&info.event)) {
 			auto modifiers = keyDown->getModifiers();
 			return tmpStrCat(
-				strCat_if(modifiers & KMOD_CTRL,  "CTRL+"),
-				strCat_if(modifiers & KMOD_SHIFT, "SHIFT+"),
-				strCat_if(modifiers & KMOD_ALT,   "ALT+"),
-				strCat_if(modifiers & KMOD_GUI,   "GUI+"),
-				SDL_GetKeyName(keyDown->getKeyCode()));
+				strCat_if(modifiers & SDL_KMOD_CTRL,  "CTRL+"),
+				strCat_if(modifiers & SDL_KMOD_SHIFT, "SHIFT+"),
+				strCat_if(modifiers & SDL_KMOD_ALT,   "ALT+"),
+				strCat_if(modifiers & SDL_KMOD_GUI,   "GUI+"),
+				SDLKey::toString(keyDown->getKeyCode()));
 		}
 	}
 	return TemporaryString{};
@@ -329,9 +330,9 @@ TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view com
 
 std::string getKeyChordName(ImGuiKeyChord keyChord)
 {
-	int keyCode = ImGuiKey2SDL(ImGuiKey(keyChord & ~ImGuiMod_Mask_));
-	const auto* name = SDL_GetKeyName(keyCode);
-	if (!name || (*name == '\0')) return "None";
+	auto keyCode = ImGuiKey2SDL(ImGuiKey(keyChord & ~ImGuiMod_Mask_));
+	if (keyCode == SDLK_UNKNOWN) return "None";
+	auto name = SDLKey::toString(keyCode);
 	return strCat(
 		(keyChord & ImGuiMod_Ctrl  ? "Ctrl+"sv  : ""sv),
 		(keyChord & ImGuiMod_Shift ? "Shift+"sv : ""sv),
@@ -353,7 +354,7 @@ std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name)
 		}
 	}();
 
-	SDL_Keycode keyCode = SDL_GetKeyFromName(std::string(key).c_str());
+	SDL_Keycode keyCode = SDLKey::keycodeFromString(std::string(key));
 	if (keyCode == SDLK_UNKNOWN) return {};
 
 	ImGuiKeyChord keyMods =

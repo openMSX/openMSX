@@ -10,7 +10,7 @@
 #include <optional>
 #include <vector>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace openmsx {
 
@@ -42,7 +42,7 @@ public:
 	~JoystickManager();
 
 	// Handle SDL joystick added/removed events
-	void add(int deviceIndex);
+	void add(int instanceId);
 	void remove(int instanceId);
 
 	// return the range of JoystickId's for which there is a corresponding SDL_Joystick

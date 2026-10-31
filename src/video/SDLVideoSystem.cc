@@ -170,7 +170,11 @@ void SDLVideoSystem::showCursor(Cursor cursor)
 		// Keep the crosshair around, it's likely needed again soon.
 		SDL_SetCursor(SDL_GetDefaultCursor());
 	}
-	SDL_ShowCursor((cursor == Cursor::HIDDEN) ? SDL_DISABLE : SDL_ENABLE);
+	if (cursor == Cursor::HIDDEN) {
+		SDL_HideCursor();
+	} else {
+		SDL_ShowCursor();
+	}
 	// Only let ImGui change the shape of the normal cursor.
 	if (cursor == Cursor::NORMAL) {
 		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
@@ -222,8 +226,7 @@ SDL_Cursor* SDLVideoSystem::getCrosshairCursor()
 		return false;
 	};
 
-	SDLSurfacePtr surf(SDL_CreateRGBSurfaceWithFormat(
-		0, size, size, 32, SDL_PIXELFORMAT_ARGB8888));
+	SDLSurfacePtr surf(SDL_CreateSurface(size, size, SDL_PIXELFORMAT_ARGB8888));
 	auto* pixels = static_cast<uint32_t*>(surf->pixels);
 	int pitch = surf->pitch / 4;
 	for (int y = 0; y < size; ++y) {
@@ -246,7 +249,7 @@ SDL_Cursor* SDLVideoSystem::getCrosshairCursor()
 
 bool SDLVideoSystem::getCursorEnabled()
 {
-	return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
+	return SDL_CursorVisible();
 }
 
 std::string SDLVideoSystem::getClipboardText()
@@ -261,7 +264,7 @@ std::string SDLVideoSystem::getClipboardText()
 
 void SDLVideoSystem::setClipboardText(zstring_view text)
 {
-	if (SDL_SetClipboardText(text.c_str()) != 0) {
+	if (!SDL_SetClipboardText(text.c_str())) {
 		const char* err = SDL_GetError();
 		SDL_ClearError();
 		throw CommandException(err);

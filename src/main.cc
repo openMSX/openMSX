@@ -17,7 +17,8 @@
 #include "random.hh"
 #include "setenv.hh" // setenv() for windows
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -45,10 +46,24 @@ static void initializeSDL()
 {
 	int flags = 0;
 	flags |= SDL_INIT_JOYSTICK;
-#ifndef NDEBUG
-	flags |= SDL_INIT_NOPARACHUTE;
+
+	// On Linux, prefer x11 over wayland, because Dear ImGui ViewPorts are
+	// not (yet) supported on Wayland.
+#ifdef __linux__
+	SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11,wayland");
 #endif
-	if (SDL_Init(flags) < 0) {
+	// Report the keycodes of the actual keyboard layout, like SDL2 did. By
+	// default SDL3 changes them for some layouts (e.g. the number row of
+	// French keyboards and the letters of non-Latin keyboards).
+	SDL_SetHint(SDL_HINT_KEYCODE_OPTIONS, "none");
+#ifdef _WIN32
+	// Let Windows scale the window on high-DPI displays, like with SDL2. By
+	// default SDL3 declares the process per-monitor DPI aware, which makes
+	// the window and GUI smaller there. (There's no SDL_HINT_* macro for
+	// this hint in SDL3, but SDL still reads it.)
+	SDL_SetHint("SDL_WINDOWS_DPI_AWARENESS", "unaware");
+#endif
+	if (!SDL_Init(flags)) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
 
@@ -124,7 +139,7 @@ static int main(int argc, char **argv)
 		exitCode = 1;
 	}
 	// Clean up.
-	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
+	if (SDL_WasInit(0)) {
 		SDL_Quit();
 	}
 
