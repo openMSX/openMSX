@@ -23,7 +23,7 @@ def _get_pkg_config(distroRoot):
 	elif distroRoot.startswith('derived/'):
 		toolsDir = '%s/../tools/bin' % distroRoot
 		for name in listdir(toolsDir):
-			if name.endswith('-pkg-config'):
+			if name.endswith('-pkgconf'):
 				return toolsDir + '/' + name
 		raise RuntimeError('No cross-pkg-config found in 3rdparty build')
 	else:
@@ -133,7 +133,7 @@ class Library(object):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
 			return 'unknown'
-		elif 'pkg-config' in configScript:
+		elif 'pkg-config' in configScript or 'pkgconf' in configScript:
 			return '`%s --modversion`' % configScript
 		else:
 			return '`%s --version`' % configScript
