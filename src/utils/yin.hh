@@ -21,6 +21,40 @@ template<typename T> [[nodiscard]] constexpr T square(T t)
 	return t * t;
 }
 
+// Helper: In-place inclusive prefix sum, v[i] = Σ v[j] for j=0..i
+//
+// A plain running sum is a serial chain of additions (one add latency per
+// element), which the compiler cannot reorder or vectorize. Instead split
+// 'v' into SEGS contiguous segments, scan them as independent chains (in
+// parallel on an out-of-order CPU), then add the sum of the preceding
+// segments to each segment. This rounds differently than the serial sum.
+inline void prefixSum(std::span<float> v)
+{
+	static constexpr size_t SEGS = 8;
+	const auto n = v.size();
+	const auto len = n / SEGS;
+	std::array<float, SEGS> acc = {};
+	for (auto i : xrange(len)) {
+		for (auto k : xrange(SEGS)) {
+			acc[k] += v[k * len + i];
+			v[k * len + i] = acc[k];
+		}
+	}
+	// The last segment also includes the remaining n % SEGS elements.
+	for (auto i : xrange(SEGS * len, n)) {
+		acc[SEGS - 1] += v[i];
+		v[i] = acc[SEGS - 1];
+	}
+	auto carry = 0.0f;
+	for (auto k : xrange(size_t(1), SEGS)) {
+		carry += acc[k - 1];
+		const auto end = (k == SEGS - 1) ? n : (k + 1) * len;
+		for (auto i : xrange(k * len, end)) {
+			v[i] += carry;
+		}
+	}
+}
+
 // Helper: Compute difference function d(τ) using autocorrelation
 //
 // d(τ) = Σ(x[n] - x[n+τ])²
@@ -50,23 +84,21 @@ template<size_t WORK_LEN>
 	// Total energy Σ x[n]² is the autocorrelation at lag 0.
 	const auto totalEnergy = autocorr[0];
 
-	// Running sums of x[n]² over the first and the last maxLag samples:
-	//   head[τ] = Σ x[n]² for n in [0, τ)   = total - energyRight(τ)
-	//   tail[τ] = Σ x[n]² for n in [N-τ, N) = total - energyLeft(τ)
-	// Only these two windows are needed, not a prefix sum over all N samples
-	// (which is a long serial dependency chain).
-	std::array<float, WORK_LEN> head; // ok, uninitialized
-	std::array<float, WORK_LEN> tail; // ok, uninitialized
-	head[0] = tail[0] = 0.0f;
+	// Running sum of x[n]² over the first and the last τ samples:
+	//   edge[τ] = Σ x[n]² for n in [0, τ) and in [N-τ, N)
+	//           = 2·total - energyLeft(τ) - energyRight(τ)
+	// Only these two windows of maxLag samples are needed, not a prefix sum
+	// over all N samples.
+	std::array<float, WORK_LEN> edge; // ok, uninitialized
 	for (auto lag : xrange(size_t(1), maxLag)) {
-		head[lag] = head[lag - 1] + square(signal[lag - 1]);
-		tail[lag] = tail[lag - 1] + square(signal[N - lag]);
+		edge[lag] = square(signal[lag - 1]) + square(signal[N - lag]);
 	}
+	prefixSum(std::span(edge).subspan(1, maxLag - 1));
 
-	// d(τ) = energyLeft + energyRight - 2·r(τ) = 2·total - tail[τ] - head[τ] - 2·r(τ)
+	// d(τ) = energyLeft + energyRight - 2·r(τ) = 2·total - edge[τ] - 2·r(τ)
 	diff[0] = 0.0f; // Perfect match at lag 0
 	for (auto lag : xrange(size_t(1), maxLag)) {
-		diff[lag] = 2.0f * (totalEnergy - autocorr[lag]) - tail[lag] - head[lag];
+		diff[lag] = 2.0f * (totalEnergy - autocorr[lag]) - edge[lag];
 	}
 
 	return totalEnergy;
@@ -89,18 +121,19 @@ template<size_t WORK_LEN>
                                                    std::span<float> diffNorm)
 {
 	assert(diff.size() == diffNorm.size());
+	assert(!diff.empty());
 	assert(WORK_LEN >= diff.size());
 
-	// First the running sum (inherently serial), then the division and the
-	// selection in separate loops that the compiler can vectorize. gcc does
-	// not vectorize a conditional division (it may trap), nor a conversion
-	// from a 64-bit integer, hence the max() and the int.
+	// First the running sums, then the division and the selection in
+	// separate loops that the compiler can vectorize. gcc does not
+	// vectorize a conditional division (it may trap), nor a conversion from
+	// a 64-bit integer, hence the max() and the int.
 	std::array<float, WORK_LEN> sums; // ok, uninitialized
-	auto runningSum = 0.0f;
+	sums[0] = 0.0f;
 	for (auto lag : xrange(size_t(1), diff.size())) {
-		runningSum += diff[lag];
-		sums[lag] = runningSum;
+		sums[lag] = diff[lag];
 	}
+	prefixSum(std::span(sums).subspan(1, diff.size() - 1));
 	diffNorm[0] = 1.0f; // Special case
 	for (auto lag : xrange(size_t(1), diff.size())) {
 		auto sum = std::max(sums[lag], std::numeric_limits<float>::denorm_min());
@@ -109,7 +142,7 @@ template<size_t WORK_LEN>
 	for (auto lag : xrange(size_t(1), diff.size())) {
 		diffNorm[lag] = (sums[lag] > 0.0f) ? diffNorm[lag] : 1.0f;
 	}
-	return runningSum;
+	return sums[diff.size() - 1];
 }
 
 // Helper: Find first minimum below threshold
