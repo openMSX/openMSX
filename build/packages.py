@@ -113,26 +113,26 @@ class PkgConfig(DownloadablePackage):
 			'6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591',
 		}
 
-class SDL2(DownloadablePackage):
+class SDL3(DownloadablePackage):
 	downloadURL = 'https://www.libsdl.org/release'
-	niceName = 'SDL2'
-	sourceName = 'SDL2'
-	version = '2.32.10'
-	fileLength = 7630262
+	niceName = 'SDL3'
+	sourceName = 'SDL3'
+	version = '3.4.18'
+	fileLength = 15651004
 	checksums = {
 		'sha256':
-			'5f5993c530f084535c65a6879e9b26ad441169b3e25d789d83287040a9ca5165',
+			'9c75cf16330322c217dedd2e0609f1124f1b54b8633e763467b4684d0f4334a3',
 		}
 
-class SDL2_ttf(DownloadablePackage):
+class SDL3_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
-	niceName = 'SDL2_ttf'
-	sourceName = 'SDL2_ttf'
-	version = '2.24.0'
-	fileLength = 13335900
+	niceName = 'SDL3_ttf'
+	sourceName = 'SDL3_ttf'
+	version = '3.2.2'
+	fileLength = 1545950
 	checksums = {
 		'sha256':
-			'0b2bf1e7b6568adbdbc9bb924643f79d9dedafe061fa1ed687d1d9ac4e453bfd',
+			'63547d58d0185c833213885b635a2c0548201cc8f301e6587c0be1a67e1e045d',
 		}
 
 class TCL(DownloadablePackage):
