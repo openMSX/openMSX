@@ -77,8 +77,10 @@ template<size_t WORK_LEN>
 //       = d(τ) · τ / Σd(j) for j=1..τ
 //
 // This is the key innovation of YIN that reduces octave errors.
-inline void cumulativeMeanNormalize(std::span<const float> diff,
-                                    std::span<float> diffNorm)
+//
+// Returns: Σd(j) for all lags j >= 1
+[[nodiscard]] inline float cumulativeMeanNormalize(std::span<const float> diff,
+                                                   std::span<float> diffNorm)
 {
 	assert(diff.size() == diffNorm.size());
 
@@ -94,6 +96,7 @@ inline void cumulativeMeanNormalize(std::span<const float> diff,
 		auto sum = diffNorm[lag];
 		diffNorm[lag] = (sum > 0.0f) ? (diff[lag] * float(lag) / sum) : 1.0f;
 	}
+	return runningSum;
 }
 
 // Helper: Find first minimum below threshold
@@ -215,7 +218,13 @@ template<unsigned FFT_LEN_L2>
 	// Cumulative mean normalization
 	std::array<float, LAG_LEN> diffNorm_; // ok, uninitialized
 	auto diffNorm = std::span(diffNorm_).first(maxLag + 1);
-	cumulativeMeanNormalize(diff, diffNorm);
+	auto diffSum = cumulativeMeanNormalize(diff, diffNorm);
+
+	// Early exit if the signal is (nearly) constant: then d(τ) = 0 for all
+	// lags, but computing it from the energy and the autocorrelation leaves
+	// rounding noise (up to about 2e-6 of the total energy) that can look
+	// like a perfect match at a random lag.
+	if (diffSum < 1e-5f * float(maxLag) * totalEnergy) return {};
 
 	// Find best lag (always returns a result, even if confidence is low)
 	auto bestLag = findBestLag(diffNorm, minLag, maxLag, threshold);
