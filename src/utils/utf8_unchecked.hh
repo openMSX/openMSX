@@ -68,7 +68,7 @@ template<typename octet_iterator>
 uint32_t next(octet_iterator& it)
 {
 	uint32_t cp = narrow_cast<uint8_t>(*it);
-	switch (utf8::internal::sequence_length(narrow_cast<uint8_t>(cp))) {
+	switch (utf8::sequence_length(narrow_cast<uint8_t>(cp))) {
 	case 1:
 		break;
 	case 2:
@@ -203,13 +203,13 @@ public:
 	[[nodiscard]] bool operator==(const iterator&) const = default;
 	iterator& operator++()
 	{
-		std::advance(it, internal::sequence_length(*it));
+		std::advance(it, sequence_length(*it));
 		return *this;
 	}
 	iterator operator++(int)
 	{
 		auto temp = *this;
-		std::advance(it, internal::sequence_length(*it));
+		std::advance(it, sequence_length(*it));
 		return temp;
 	}
 	iterator& operator--()
