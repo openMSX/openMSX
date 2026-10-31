@@ -83,7 +83,7 @@ TARGET_TRIPLE:=$(TARGET_TRIPLE)eabi
 endif
 endif
 
-export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkg-config
+export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkgconf
 
 # Ask the compiler for the names and locations of other toolchain components.
 # This works with GCC and Clang at least, so it should be pretty safe.
@@ -157,17 +157,17 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 	mkdir -p $(@D)
 	touch $@
 
-# Configure pkg-config.
+# Configure pkgconf.
+# It runs on the build machine, so don't use the cross compiler. It looks for
+# the .pc files of the libraries we build, and not for those of the system.
 $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PKG_CONFIG)/.extracted
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
-		--with-internal-glib \
-		--disable-host-tool \
+		--disable-shared \
 		--program-prefix=$(TARGET_TRIPLE)- \
 		--prefix=$(PWD)/$(TOOLS_DIR) \
-		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		CFLAGS="-Wno-error=int-conversion -std=gnu17" \
+		--with-pkg-config-dir=$(PWD)/$(INSTALL_DIR)/lib/pkgconfig \
 		CC= LD= AR= RANLIB= STRIP=
 
 # Configure SDL2.
