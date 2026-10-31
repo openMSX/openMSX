@@ -11,6 +11,7 @@
 #include <bit>
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <span>
 
 namespace yin {
@@ -79,22 +80,34 @@ template<size_t WORK_LEN>
 // This is the key innovation of YIN that reduces octave errors.
 //
 // Returns: Σd(j) for all lags j >= 1
+//
+// Preconditions:
+//   - diff.size() == diffNorm.size()
+//   - WORK_LEN >= diff.size() (for internal buffers)
+template<size_t WORK_LEN>
 [[nodiscard]] inline float cumulativeMeanNormalize(std::span<const float> diff,
                                                    std::span<float> diffNorm)
 {
 	assert(diff.size() == diffNorm.size());
+	assert(WORK_LEN >= diff.size());
 
-	// First the running sum (inherently serial) into diffNorm, then the
-	// division in a separate loop that the compiler can vectorize.
-	diffNorm[0] = 1.0f; // Special case
+	// First the running sum (inherently serial), then the division and the
+	// selection in separate loops that the compiler can vectorize. gcc does
+	// not vectorize a conditional division (it may trap), nor a conversion
+	// from a 64-bit integer, hence the max() and the int.
+	std::array<float, WORK_LEN> sums; // ok, uninitialized
 	auto runningSum = 0.0f;
 	for (auto lag : xrange(size_t(1), diff.size())) {
 		runningSum += diff[lag];
-		diffNorm[lag] = runningSum;
+		sums[lag] = runningSum;
+	}
+	diffNorm[0] = 1.0f; // Special case
+	for (auto lag : xrange(size_t(1), diff.size())) {
+		auto sum = std::max(sums[lag], std::numeric_limits<float>::denorm_min());
+		diffNorm[lag] = diff[lag] * float(int(lag)) / sum;
 	}
 	for (auto lag : xrange(size_t(1), diff.size())) {
-		auto sum = diffNorm[lag];
-		diffNorm[lag] = (sum > 0.0f) ? (diff[lag] * float(lag) / sum) : 1.0f;
+		diffNorm[lag] = (sums[lag] > 0.0f) ? diffNorm[lag] : 1.0f;
 	}
 	return runningSum;
 }
@@ -218,7 +231,7 @@ template<unsigned FFT_LEN_L2>
 	// Cumulative mean normalization
 	std::array<float, LAG_LEN> diffNorm_; // ok, uninitialized
 	auto diffNorm = std::span(diffNorm_).first(maxLag + 1);
-	auto diffSum = cumulativeMeanNormalize(diff, diffNorm);
+	auto diffSum = cumulativeMeanNormalize<LAG_LEN>(diff, diffNorm);
 
 	// Early exit if the signal is (nearly) constant: then d(τ) = 0 for all
 	// lags, but computing it from the energy and the autocorrelation leaves
