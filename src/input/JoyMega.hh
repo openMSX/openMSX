@@ -5,6 +5,7 @@
 
 #include "BooleanInput.hh"
 #include "MSXEventListener.hh"
+#include "Observer.hh"
 #include "StateChangeListener.hh"
 #include "StringSetting.hh"
 
@@ -21,6 +22,7 @@ class StateChangeDistributor;
 
 class JoyMega final : public JoystickDevice, private MSXEventListener
                     , private StateChangeListener
+                    , private Observer<JoystickManager>
 {
 public:
 	JoyMega(CommandController& commandController,
@@ -61,6 +63,8 @@ private:
 	// StateChangeListener
 	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime time) noexcept override;
+	// Observer<JoystickManager>
+	void update(const JoystickManager& manager) noexcept override;
 
 	void plugHelper2();
 	void checkTime(EmuTime time);

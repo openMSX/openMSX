@@ -66,10 +66,12 @@ JoyMega::JoyMega(CommandController& commandController_,
 	} catch (MSXException& /*e*/) {
 		configSetting.setValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 	}
+	joystickManager.attach(*this);
 }
 
 JoyMega::~JoyMega()
 {
+	joystickManager.detach(*this);
 	if (isPluggedIn()) {
 		JoyMega::unplugHelper(EmuTime::dummy());
 	}
@@ -238,6 +240,13 @@ void JoyMega::stopReplay(EmuTime time) noexcept
 		stateChangeDistributor.distributeNew<JoyMegaState>(
 			time, id, 0, release);
 	}
+}
+
+// Observer<JoystickManager>
+void JoyMega::update(const JoystickManager& /*manager*/) noexcept
+{
+	// A host joystick was added or removed: the default mapping may change.
+	configSetting.setDefaultValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 }
 
 template<typename Archive>

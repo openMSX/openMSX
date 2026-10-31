@@ -149,6 +149,15 @@ public:
 		checkFunc = std::move(checkFunc_);
 	}
 
+	/** Change the default value of this setting.
+	  * When the current value equals the old default value, the value
+	  * changes to the new default value as well. Such a value isn't saved
+	  * in 'settings.xml', so after a restart it would get the (new)
+	  * default value anyway. A value that differs from the old default
+	  * (e.g. explicitly set by the user) stays as it is.
+	  */
+	void setDefaultValue(const TclObject& newDefault);
+
 	// BaseSetting
 	void setValue(const TclObject& newValue) final;
 	[[nodiscard]] std::string_view getDescription() const final;
@@ -173,13 +182,14 @@ protected:
 private:
 	[[nodiscard]] GlobalCommandController& getGlobalCommandController() const;
 	void notify() const;
+	void updateSettingsConfig() const;
 
 private:
 	CommandController& commandController;
 	const static_string_view description;
 	std::function<void(TclObject&)> checkFunc;
 	TclObject value; // TODO can we share the underlying Tcl var storage?
-	const TclObject defaultValue;
+	TclObject defaultValue;
 	const Save save;
 };
 
