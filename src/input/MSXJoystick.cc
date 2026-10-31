@@ -60,10 +60,12 @@ MSXJoystick::MSXJoystick(CommandController& commandController_,
 	} catch (MSXException& /*e*/) {
 		configSetting.setValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 	}
+	joystickManager.attach(*this);
 }
 
 MSXJoystick::~MSXJoystick()
 {
+	joystickManager.detach(*this);
 	if (isPluggedIn()) {
 		MSXJoystick::unplugHelper(EmuTime::dummy());
 	}
@@ -185,6 +187,13 @@ void MSXJoystick::stopReplay(EmuTime time) noexcept
 		stateChangeDistributor.distributeNew<MSXJoyState>(
 			time, id, uint8_t(0), release);
 	}
+}
+
+// Observer<JoystickManager>
+void MSXJoystick::update(const JoystickManager& /*manager*/) noexcept
+{
+	// A host joystick was added or removed: the default mapping may change.
+	configSetting.setDefaultValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 }
 
 

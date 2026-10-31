@@ -96,18 +96,43 @@ void Setting::notify() const
 	//  - SettingsConfig (keeps values, also of not yet created settings)
 	// This method takes care of the last 3 in this list.
 	Subject<Setting>::notify();
-	auto base = getBaseName();
-	TclObject val = getValue();
 	commandController.getCliComm().updateFiltered(
-		CliComm::UpdateType::SETTING, base, val.getString());
+		CliComm::UpdateType::SETTING, getBaseName(), getValue().getString());
 
 	// Always keep SettingsConfig in sync.
+	updateSettingsConfig();
+}
+
+void Setting::updateSettingsConfig() const
+{
+	auto base = getBaseName();
 	auto& config = getGlobalCommandController().getSettingsConfig();
-	if (!needLoadSave() || (val == getDefaultValue())) {
+	if (!needLoadSave() || (value == defaultValue)) {
 		config.removeValueForSetting(base);
 	} else {
-		config.setValueForSetting(base, val.getString());
+		config.setValueForSetting(base, value.getString());
 	}
+}
+
+void Setting::setDefaultValue(const TclObject& newDefault)
+{
+	if (newDefault == defaultValue) return;
+
+	bool followDefault = value == defaultValue;
+	defaultValue = newDefault;
+	notifyPropertyChange();
+
+	if (followDefault) {
+		try {
+			setValue(defaultValue); // this also updates SettingsConfig
+			return;
+		} catch (MSXException&) {
+			// new default value not valid, just keep the current value
+		}
+	}
+	// The current value may now be equal to the new default (or not
+	// anymore), so the value in SettingsConfig may need to change.
+	updateSettingsConfig();
 }
 
 void Setting::notifyPropertyChange() const

@@ -5,6 +5,7 @@
 
 #include "BooleanInput.hh"
 #include "MSXEventListener.hh"
+#include "Observer.hh"
 #include "StateChangeListener.hh"
 #include "StringSetting.hh"
 
@@ -26,6 +27,7 @@ class StateChangeDistributor;
   */
 class ColecoJoystick final : public JoystickDevice, private MSXEventListener
                            , private StateChangeListener
+                           , private Observer<JoystickManager>
 {
 public:
 	ColecoJoystick(CommandController& commandController,
@@ -71,6 +73,8 @@ private:
 	// StateChangeListener
 	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime time) noexcept override;
+	// Observer<JoystickManager>
+	void update(const JoystickManager& manager) noexcept override;
 
 private:
 	static constexpr unsigned ALL_RELEASED = (1u << NUM_BUTTONS) - 1;

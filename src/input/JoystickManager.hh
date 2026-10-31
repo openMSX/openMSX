@@ -3,6 +3,7 @@
 
 #include "InfoTopic.hh"
 #include "JoystickId.hh"
+#include "Subject.hh"
 
 #include <cstdint>
 #include <memory>
@@ -18,7 +19,10 @@ class JoystickAxisMotionEvent;
 class FloatSetting;
 class Reactor;
 
-class JoystickManager {
+/** Keeps track of the connected host joysticks.
+  * Observers get notified when a joystick is added or removed.
+  */
+class JoystickManager : public Subject<JoystickManager> {
 public:
 	struct Info {
 		SDL_Joystick* joystick = nullptr;
