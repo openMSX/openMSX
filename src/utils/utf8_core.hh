@@ -40,6 +40,23 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8 {
 
+// Returns the length (in bytes) of the UTF-8 sequence that starts with the
+// given lead byte, or 0 if it isn't a valid lead byte.
+[[nodiscard]] constexpr unsigned sequence_length(uint8_t lead)
+{
+	if (lead < 0x80) {
+		return 1;
+	} else if ((lead >> 5) == 0x06) {
+		return 2;
+	} else if ((lead >> 4) == 0x0e) {
+		return 3;
+	} else if ((lead >> 3) == 0x1e) {
+		return 4;
+	} else {
+		return 0;
+	}
+}
+
 // Helper code - not intended to be directly called by the library users.
 // May be changed at any time
 namespace internal {
@@ -71,21 +88,6 @@ inline constexpr uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 {
 	return (cp <= CODE_POINT_MAX) && !is_surrogate(cp) &&
 	       (cp != one_of(0xfffeu, 0xffffu));
-}
-
-[[nodiscard]] constexpr unsigned sequence_length(uint8_t lead)
-{
-	if (lead < 0x80) {
-		return 1;
-	} else if ((lead >> 5) == 0x06) {
-		return 2;
-	} else if ((lead >> 4) == 0x0e) {
-		return 3;
-	} else if ((lead >> 3) == 0x1e) {
-		return 4;
-	} else {
-		return 0;
-	}
 }
 
 enum class utf_error : uint8_t {
