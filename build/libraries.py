@@ -188,8 +188,14 @@ class FreeType(Library):
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
-		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
-		return '`%s --version`' % configScript
+		def execute(cmd, log):
+			version = cmd.expand(log, cls.getHeaders(platform),
+				'FREETYPE_MAJOR',
+				'FREETYPE_MINOR',
+				'FREETYPE_PATCH',
+				)
+			return None if None in version else '%s.%s.%s' % version
+		return execute
 
 class GL(Library):
 	libName = 'GL'
