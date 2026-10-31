@@ -10,10 +10,12 @@ USE_SYMLINK:=true
 SET_WINDOW_ICON:=false
 
 ifeq ($(OPENMSX_TARGET_CPU),aarch64)
-TARGET_FLAGS+=-arch arm64
+OSX_ARCH:=arm64
 else
-TARGET_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
+OSX_ARCH:=$(OPENMSX_TARGET_CPU)
 endif
+TARGET_FLAGS+=-arch $(OSX_ARCH)
+CMAKE_TARGET_FLAGS+=-DCMAKE_OSX_ARCHITECTURES=$(OSX_ARCH)
 
 # File name extension of executables.
 EXEEXT:=
@@ -23,16 +25,15 @@ LIBRARYEXT:=.so
 # In theory it is possible to compile against an OS X version number lower
 # than the SDK version number, but in practice this doesn't seem to work
 # since libraries such as libxml2 can change soname between OS X versions.
-# Clang as shipped with Xcode requires OS X 10.7 or higher for compiling with
-# libc++, when compiling Clang and libc++ from source 10.6 works as well.
+# For OS X 10.9 or later Clang uses libc++ by default.
 #
 # Version 13.3 required for std::format
 OSX_VER:=13.3
 TARGET_FLAGS+=-mmacosx-version-min=$(OSX_VER)
+CMAKE_TARGET_FLAGS+=-DCMAKE_OSX_DEPLOYMENT_TARGET=$(OSX_VER)
 
-# Select Clang as the compiler and libc++ as the standard library.
+# Select Clang as the compiler.
 CXX:=clang++
-TARGET_FLAGS+=-stdlib=libc++
 
 # Enable automatic reference counting in Objective-C
 ifneq ($(3RDPARTY_FLAG),true)

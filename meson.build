@@ -41,8 +41,8 @@ endif
 # Dependencies
 # ============
 
-dep_sdl2 = dependency('SDL2')
-dep_sdl2_ttf = dependency('SDL2_ttf')
+dep_sdl3 = dependency('sdl3')
+dep_sdl3_ttf = dependency('sdl3-ttf')
 dep_png = dependency('libpng')
 dep_tcl = dependency('tcl', version: '>=8.6.0')
 dep_threads = dependency('threads')
@@ -165,7 +165,7 @@ main_exec = executable(
     implicit_include_directories: false,
     include_directories: [incdirs, '.'],
     dependencies: [
-        dep_alsa, dep_dl, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
+        dep_alsa, dep_dl, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl3, dep_sdl3_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
     ],
 )
@@ -182,7 +182,7 @@ test_exec = executable(
     implicit_include_directories: false,
     include_directories: [incdirs, '.', 'Contrib/catch2'],
     dependencies: [
-        dep_alsa, dep_dl, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
+        dep_alsa, dep_dl, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl3, dep_sdl3_ttf,
         dep_tcl, dep_theora, dep_threads, dep_vorbis, dep_zlib
     ],
 )
