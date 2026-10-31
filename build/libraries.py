@@ -262,6 +262,15 @@ class GLEW(Library):
 	dependsOn = ('GL', )
 
 	@classmethod
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		# The glew.pc that GLEW installs in our 3rd party build can't be
+		# used (wrong prefix, requires GLU), so only use pkg-config when
+		# linking dynamically.
+		if linkStatic:
+			return None
+		return '%s glew' % _get_pkg_config(distroRoot)
+
+	@classmethod
 	def getLibName(cls, platform):
 		if platform.startswith('mingw'):
 			return 'glew32'

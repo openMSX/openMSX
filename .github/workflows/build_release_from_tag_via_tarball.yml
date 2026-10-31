@@ -72,6 +72,11 @@ jobs:
 #            cpu: aarch64
 #            os: linux
 #            flavour: opt
+          - image: ubuntu-latest
+            name: Flatpak
+            cpu: x86_64
+            os: flatpak
+            flavour: opt
           - image: ubuntu-24.04
             name: Windows
             cpu: x86_64
