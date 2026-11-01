@@ -751,11 +751,14 @@ void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, std::s
 		manager.openFile->selectFile(
 			strCat("Select image for ", slotDisplayName),
 			hdFilter(),
-			[this, &group, mediaSlotName](const auto& fn) {
-				switchHdAction = [this, &group, mediaSlotName, fn] {
+			// Copy the name: these callbacks run later (after the file
+			// dialog and the confirmation), when the string that
+			// 'mediaSlotName' refers to may no longer exist.
+			[this, &group, name = std::string(mediaSlotName)](const auto& fn) {
+				switchHdAction = [this, &group, name, fn] {
 					group.edit.name = fn;
 					bool delayed = false;
-					this->insertMedia(mediaSlotName, group.edit, delayed);
+					this->insertMedia(name, group.edit, delayed);
 				};
 			},
 			currentImage.getString());
@@ -778,9 +781,10 @@ void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, std::stri
 		manager.openFile->selectFile(
 			strCat("Select CDROM image for ", slotDisplayName),
 			cdFilter(),
-			[this, &group, mediaSlotName](const auto& fn) {
+			// Copy the name, see paintHardDiskMenuContent().
+			[this, &group, name = std::string(mediaSlotName)](const auto& fn) {
 				group.edit.name = fn;
-				this->insertMedia(mediaSlotName, group.edit);
+				this->insertMedia(name, group.edit);
 			},
 			currentImage.getString());
 	}
@@ -797,9 +801,10 @@ void ImGuiMedia::paintLaserDiscMenuContent(std::string_view mediaSlotName, std::
 		manager.openFile->selectFile(
 				strCat("Select LaserDisc image for ", slotDisplayName),
 				buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
-				[this, mediaSlotName](const auto& fn) {
+				// Copy the name, see paintHardDiskMenuContent().
+				[this, name = std::string(mediaSlotName)](const auto& fn) {
 				laserdiscMediaInfo.edit.name = fn;
-				this->insertMedia(mediaSlotName, laserdiscMediaInfo.edit);
+				this->insertMedia(name, laserdiscMediaInfo.edit);
 				},
 				currentImage.getString());
 	}
