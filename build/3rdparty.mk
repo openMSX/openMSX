@@ -226,6 +226,8 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
+		--disable-tests \
+		--disable-tools \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
