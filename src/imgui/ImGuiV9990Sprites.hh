@@ -2,6 +2,8 @@
 #define IMGUI_V9990_SPRITES_HH
 
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "GLUtil.hh"
 #include "gl_vec.hh"
@@ -25,11 +27,6 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
-private:
-	void updateGridTex(gl::Texture& tex, int w, int h);
-	void updateCheckerTex();
-
-public:
 	bool show = true;
 
 private:
@@ -42,12 +39,9 @@ private:
 	int manualPatBase = 0;
 	int patternPalette = 0; // 0-3, palette used to show the sprite pattern table
 	int zoom = 0; // single zoom for all sections (0->1x, ..., 7->8x)
-	static constexpr int maxCheckerBoardSize = 255;
 	int checkerBoardSize = 4;
 	int boundingBoxOnAll = 0;
 	gl::vec4 gridColor{0.5f, 0.5f, 0.5f, 0.5f}; // RGBA
-	static constexpr gl::vec4 defaultCheckerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f};
-	static constexpr gl::vec4 defaultCheckerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f};
 	gl::vec4 checkerBoardColor1{defaultCheckerBoardColor1}; // RGBA
 	gl::vec4 checkerBoardColor2{defaultCheckerBoardColor2}; // RGBA
 	gl::vec4 boundingBoxColor  {1.0f, 0.0f, 0.0f, 0.8f}; // RGBA

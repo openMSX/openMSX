@@ -4,6 +4,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiV9990Utils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "MSXMotherBoard.hh"
 #include "V9990.hh"
@@ -44,38 +45,6 @@ void ImGuiV9990Sprites::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-// Grid texture for a single cell of (w x h) host pixels.
-void ImGuiV9990Sprites::updateGridTex(gl::Texture& tex, int w, int h)
-{
-	auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
-	MemBuffer<uint32_t> pixels(w * h);
-	for (auto y : xrange(h)) {
-		auto* line = &pixels[y * w];
-		for (auto x : xrange(w)) {
-			line[x] = (x == 0 || y == 0) ? gColor : 0;
-		}
-	}
-	if (!tex.get()) {
-		tex = gl::Texture(false, true); // no interpolation, with wrapping
-	}
-	tex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-}
-
-void ImGuiV9990Sprites::updateCheckerTex()
-{
-	std::array<uint32_t, 4> pixels;
-	pixels[0] = pixels[3] = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);
-	pixels[1] = pixels[2] = ImGui::ColorConvertFloat4ToU32(checkerBoardColor2);
-	if (!checkerTex.get()) {
-		checkerTex = gl::Texture(false, true); // no interpolation, with wrapping
-	}
-	checkerTex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-}
-
 // V9990 sprites, only available in P1 and P2 mode. Mirrors the logic in
 // V9990PxConverter (renderSprites()).
 // * 125 sprites, 16x16 pixels, 4bpp, attribute table at 0x3FE00 (4 bytes per
@@ -108,71 +77,28 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 		int shownPatBase = manualPatBase & patMask;
 		unsigned patBase = manPat ? unsigned(shownPatBase)
 		                          : unsigned(v9990->getSpritePatternAddress(isP1 ? P1 : P2));
+		auto patLabel = vdpIsPattern
+			? strCat("Pattern table: 0x", hex_string<5>(vdpPatBase))
+			: strCat("Pattern table: -");
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			im::Group([&]{
-				ImGui::TextUnformatted("V9990 settings"sv);
-				im::Disabled(manMode, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Display mode: ", v9990_gui::toString(vdpMode));
-				});
-				im::Disabled(manPat, [&]{
-					ImGui::AlignTextToFramePadding();
-					if (vdpIsPattern) {
-						ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
-					} else {
-						ImGui::TextUnformatted("Pattern table: -"sv);
-					}
-				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				ImGui::Checkbox("Manual override", &overrideAll);
-				HelpMarker("Interpret VRAM using a manually selected mode and/or sprite pattern table address.");
-				im::Group([&]{
-					im::Disabled(overrideAll, [&]{
-						ImGui::Checkbox("##o-mode", overrideAll ? &overrideAll : &overrideMode);
-						ImGui::Checkbox("##o-pat",  overrideAll ? &overrideAll : &overridePat);
-					});
-				});
-				ImGui::SameLine();
-				im::Group([&]{
-					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-						im::Disabled(!manMode, [&]{
-							ImGui::Combo("##mode", &manualMode, "P1\000P2\000");
-						});
-						im::Disabled(!manPat, [&]{
-							comboHexSequence<5>("##pat", &shownPatBase, 0x8000, isP1 ? 0x40000 : 0x80000, 0);
-							if (shownPatBase != (manualPatBase & patMask)) manualPatBase = shownPatBase;
-						});
-					});
-				});
-			});
+			overridableSettings("V9990 settings", "Pattern table: 0x00000", overrideAll, {
+				{tmpStrCat("Display mode: ", v9990_gui::toString(vdpMode)), &overrideMode, [&]{
+					ImGui::Combo("##mode", &manualMode, "P1\000P2\000");
+				}},
+				{patLabel, &overridePat, [&]{
+					comboHexSequence<5>("##pat", &shownPatBase, 0x8000, isP1 ? 0x40000 : 0x80000, 0);
+					if (shownPatBase != (manualPatBase & patMask)) manualPatBase = shownPatBase;
+				}},
+			}, "Interpret VRAM using a manually selected mode and/or sprite pattern table address.");
+
 			ImGui::SameLine();
 			ImGui::Dummy(ImVec2(25, 1));
 			ImGui::SameLine();
 			im::Group([&]{
-				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-				ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-				ImGui::Checkbox("grid", &grid);
-				ImGui::SameLine();
-				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", gridColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				});
-
-				ImGui::TextUnformatted("Checkerboard:"sv);
-				simpleToolTip("Used as background in all views");
-				ImGui::SameLine();
-				auto checkerBoardColorFlags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha;
-				ImGui::ColorEdit4("checkerboard color1", checkerBoardColor1.data(), checkerBoardColorFlags);
-				ImGui::SameLine();
-				ImGui::ColorEdit4("checkerboard color2", checkerBoardColor2.data(), checkerBoardColorFlags);
-				im::Indent([&]{
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
-					ImGui::InputInt("size", &checkerBoardSize);
-					checkerBoardSize = std::clamp(checkerBoardSize, 0, maxCheckerBoardSize);
-				});
+				zoomAndGridSettings(zoom, grid, gridColor);
+				checkerBoardSettings("Used as background in all views",
+				                     checkerBoardColor1, checkerBoardColor2, checkerBoardSize);
 			});
 		});
 		ImGui::Separator();
@@ -227,13 +153,6 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 		for (auto i : xrange(NUM_SPRITES)) sprites[i] = getSprite(i);
 
 		// clipboard helpers
-		auto copyDataPopup = [&](zstring_view text, function_ref<std::string()> supplier) {
-			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
-				if (ImGui::MenuItem(text.c_str())) {
-					ImGui::SetClipboardText(supplier().c_str());
-				}
-			});
-		};
 		// 16 lines of 8 bytes (16 pixels of 4 bits), one line per row
 		auto formatPatternData = [&](int pattern) {
 			auto addr = getPatternAddr(pattern, 0);
@@ -251,40 +170,22 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 		static constexpr auto sprSize = gl::vec2{16.0f, 16.0f};
 		auto zoomSprSize = zm * sprSize;
 		auto previewSize = 3.0f * zoomSprSize;
+		auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
 		if (grid) {
-			updateGridTex(gridTex, int(zoomSprSize.x), int(zoomSprSize.y));
-			updateGridTex(zoomGridTex, int(previewSize.x / 16.0f), int(previewSize.y / 16.0f));
+			updateGridTexture(gridTex, {int(zoomSprSize.x), int(zoomSprSize.y)}, gColor);
+			updateGridTexture(zoomGridTex, {int(previewSize.x / 16.0f), int(previewSize.y / 16.0f)}, gColor);
 		}
-		if (checkerBoardSize) updateCheckerTex();
-		auto drawChecker = [&](gl::vec2 size) {
-			if (!checkerBoardSize) return;
-			auto pos = ImGui::GetCursorPos();
-			ImGui::Image(checkerTex.getImGui(), size, {}, size / (4.0f * float(checkerBoardSize)));
-			ImGui::SetCursorPos(pos);
-		};
-		auto drawGrid = [&](gl::vec2 pos, const gl::Texture& tex, gl::vec2 size, gl::vec2 repeat) {
-			if (!grid) return;
-			ImGui::SetCursorPos(pos);
-			ImGui::Image(tex.getImGui(), size, {}, repeat);
-		};
+		if (checkerBoardSize) {
+			updateCheckerBoardTexture(checkerTex,
+			                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor1),
+			                          ImGui::ColorConvertFloat4ToU32(checkerBoardColor2));
+		}
+		const gl::Texture* gridOverlay = grid ? &gridTex : nullptr;
 		auto drawPreview = [&](const gl::Texture& tex, gl::vec2 uv1, gl::vec2 uv2) {
 			auto pos = ImGui::GetCursorPos();
-			drawChecker(previewSize);
-			ImGui::Image(tex.getImGui(), previewSize, uv1, uv2);
-			drawGrid(pos, zoomGridTex, previewSize, sprSize);
-		};
-		auto upload = [&](gl::Texture& tex, int w, int h, const uint32_t* data) {
-			if (!tex.get()) {
-				tex = gl::Texture(false, false); // no interpolation, no wrapping
-			}
-			tex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		};
-		// Height for the scrollable section children: the content height plus
-		// room for the horizontal scrollbar, so that showing the scrollbar
-		// does not trigger a vertical one.
-		auto childHeight = [](float contentHeight) {
-			return contentHeight + ImGui::GetStyle().ScrollbarSize;
+			drawCheckerBoard(checkerTex, previewSize, checkerBoardSize);
+			ImGui::SetCursorPos(pos);
+			imageWithGrid(tex, previewSize, uv1, uv2, grid ? &zoomGridTex : nullptr, sprSize);
 		};
 
 		// Sprite patterns, all shown with the same (selectable) palette
@@ -304,7 +205,7 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 					}
 				}
 			}
-			upload(patternTex, texW, texH, pixels.data());
+			updateTexture(patternTex, {texW, texH}, pixels);
 
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 7.0f);
 			ImGui::Combo("Palette", &patternPalette, v9990_gui::paletteStr);
@@ -312,20 +213,21 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 
 			auto patChars = gl::vec2{float(patsPerRow), float(patRows)};
 			auto fullSize = patChars * zoomSprSize;
-			im::Child("##pattern", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##pattern", {0, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-				drawChecker(fullSize);
-				ImGui::Image(patternTex.getImGui(), fullSize);
+				drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
+				ImGui::SetCursorPos(pos1);
+				imageWithGrid(patternTex, fullSize, {}, {1.0f, 1.0f}, gridOverlay, patChars);
 				bool hovered = false;
 				if (ImGui::IsItemHovered()) {
-					auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomSprSize);
+					auto gridPos = hoveredCell(scrnPos, zoomSprSize);
 					if ((0 <= gridPos.x) && (gridPos.x < patsPerRow) && (0 <= gridPos.y) && (gridPos.y < patRows)) {
 						hovered = true;
 						hoveredPattern = patsPerRow * gridPos.y + gridPos.x;
 					}
 				}
-				copyDataPopup("Copy pattern data to clipboard", [&]{
+				copyToClipboardPopup("CopySpriteDataPopup", "Copy pattern data to clipboard", [&]{
 					return formatPatternData(hoveredPattern);
 				});
 				if (hovered) {
@@ -339,7 +241,6 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 						drawPreview(patternTex, uv1, uv1 + recipChars);
 					});
 				}
-				drawGrid(pos1, gridTex, fullSize, patChars);
 			});
 		});
 		ImGui::Separator();
@@ -366,25 +267,26 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 					}
 				}
 			}
-			upload(attribTex, texW, texH, pixels.data());
+			updateTexture(attribTex, {texW, texH}, pixels);
 
 			auto sprChars = gl::vec2{float(COLUMNS), float(ROWS)};
 			auto fullSize = sprChars * zoomSprSize;
-			im::Child("##attrib", {0, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##attrib", {0, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-				drawChecker(fullSize);
-				ImGui::Image(attribTex.getImGui(), fullSize);
+				drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
+				ImGui::SetCursorPos(pos1);
+				imageWithGrid(attribTex, fullSize, {}, {1.0f, 1.0f}, gridOverlay, sprChars);
 				bool hovered = false;
 				if (ImGui::IsItemHovered()) {
-					auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomSprSize);
+					auto gridPos = hoveredCell(scrnPos, zoomSprSize);
 					int sprite = COLUMNS * gridPos.y + gridPos.x;
 					if ((0 <= gridPos.x) && (gridPos.x < COLUMNS) && (0 <= gridPos.y) && (sprite < NUM_SPRITES)) {
 						hovered = true;
 						hoveredSprite = sprite;
 					}
 				}
-				copyDataPopup("Copy sprite attribute data to clipboard", [&]{
+				copyToClipboardPopup("CopySpriteDataPopup", "Copy sprite attribute data to clipboard", [&]{
 					return formatAttribData(hoveredSprite);
 				});
 				if (hovered) {
@@ -405,7 +307,6 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 						              hex_string<2>(spr.rawX), ' ', hex_string<2>(spr.rawAttr));
 					});
 				}
-				drawGrid(pos1, gridTex, fullSize, sprChars);
 			});
 		});
 		ImGui::Separator();
@@ -440,69 +341,55 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 					if (enableLimitPerLine && (count == limit)) break;
 				}
 			}
-			if (!renderTex.get()) {
-				renderTex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			renderTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, LINES, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, screen.data());
+			updateTexture(renderTex, {width, LINES}, screen, true); // with wrapping
 
-			// bounding boxes, clipped to the screen, split when wrapping at y=256
-			struct Box { int x, y, w, h, sprite; };
-			std::vector<Box> boxes;
+			// bounding boxes, clipped to the screen, split when wrapping at y=256.
+			// 'boxes' includes disabled sprites (they still show a box when hovered);
+			// 'enabledBoxes' is what "on all sprites" draws.
+			std::vector<SpriteBox> boxes;
+			std::vector<SpriteBox> enabledBoxes;
 			for (const auto& [i, spr] : enumerate(sprites)) {
-				int x = std::max(spr.x, 0);
-				int xEnd = std::min(spr.x + 16, width);
-				if (x >= xEnd) continue;
+				int x = spr.x;
+				int w = 16;
+				if (!clipSpriteBoxSide(x, w, width)) continue;
+				auto add = [&](int y, int h) {
+					SpriteBox box{x, y, w, h, int(i), 0, 0, 0}; // the remaining fields are only for printSpriteBoxes()
+					boxes.push_back(box);
+					if (!spr.disabled) enabledBoxes.push_back(box);
+				};
 				int yEnd = spr.y + 16;
 				if (yEnd <= LINES) {
-					boxes.push_back({x, spr.y, xEnd - x, 16, int(i)});
+					add(spr.y, 16);
 				} else {
-					boxes.push_back({x, spr.y, xEnd - x, LINES - spr.y, int(i)});
-					boxes.push_back({x, 0, xEnd - x, yEnd - LINES, int(i)});
+					add(spr.y, LINES - spr.y);
+					add(0, yEnd - LINES);
 				}
 			}
 
 			auto fullSize = zm * gl::vec2{float(width), float(LINES)};
-			im::Child("##screen", {0.0f, childHeight(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##screen", {0.0f, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto* drawList = ImGui::GetWindowDrawList();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-				auto boxColor = ImGui::ColorConvertFloat4ToU32(boundingBoxColor);
-				auto drawBox = [&](const Box& b) {
-					gl::vec2 tl = scrnPos + gl::vec2{float(b.x), float(b.y)} * zm;
-					gl::vec2 br = tl + gl::vec2{float(b.w), float(b.h)} * zm;
-					drawList->AddRect(tl, br, boxColor);
-				};
+				auto topLeft = ImGui::GetCursorPos();
 
-				drawChecker(fullSize);
+				drawCheckerBoard(checkerTex, fullSize, checkerBoardSize);
+				ImGui::SetCursorPos(topLeft);
 				ImGui::Image(renderTex.getImGui(), fullSize);
 				bool hovered = ImGui::IsItemHovered();
-				auto hoverPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm);
+				auto hoverPos = hoveredCell(scrnPos, zm);
 				ImGui::SameLine();
 
 				im::Group([&]{
-					ImGui::Checkbox("Bounding box", &drawBoundingBox);
-					im::Indent([&]{
-						im::Disabled(!drawBoundingBox, [&]{
-							ImGui::ColorEdit4("color", boundingBoxColor.data(),
-								ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar);
-							ImGui::RadioButton("On hovered sprites", &boundingBoxOnAll, 0);
-							ImGui::RadioButton("On all sprites", &boundingBoxOnAll, 1);
-						});
-					});
+					spriteBoxSettings(drawBoundingBox, boundingBoxColor, boundingBoxOnAll);
 					ImGui::Checkbox("Max 16 sprites per line", &enableLimitPerLine);
 				});
 
 				if (hovered) {
 					auto [hx, hy] = hoverPos;
-					auto isHit = [&](const Box& b) {
-						return (b.x <= hx) && (hx < (b.x + b.w)) &&
-						       (b.y <= hy) && (hy < (b.y + b.h));
-					};
 					im::Tooltip([&]{
 						ImGui::StrCat("x,y=", hx, ',', hy);
 						for (const auto& b : boxes) {
-							if (!isHit(b)) continue;
+							if (!b.contains(hoverPos)) continue;
 							const auto& spr = sprites[b.sprite];
 							ImGui::Bullet();
 							ImGui::StrCat("sprite ", b.sprite, ": pat=", spr.pattern, " (0x", hex_string<2>(spr.pattern), ")\n"
@@ -511,17 +398,11 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 							              spr.disabled ? " disabled"sv : ""sv);
 						}
 					});
-					if (drawBoundingBox && (boundingBoxOnAll == 0)) {
-						for (const auto& b : boxes) {
-							if (isHit(b)) drawBox(b);
-						}
-					}
 				}
-
-				if (drawBoundingBox && (boundingBoxOnAll == 1)) {
-					for (const auto& b : boxes) {
-						if (!sprites[b.sprite].disabled) drawBox(b);
-					}
+				if (drawBoundingBox) {
+					const auto& shown = (boundingBoxOnAll == 1) ? enabledBoxes : boxes;
+					drawSpriteBoxes(drawList, scrnPos, zm, shown, boundingBoxColor,
+					                boundingBoxOnAll == 1, hovered, hoverPos);
 				}
 			});
 		});
