@@ -5,6 +5,7 @@
 #include "Command.hh"
 #include "EventListener.hh"
 #include "JoystickManager.hh"
+#include "ReadOnlySetting.hh"
 
 #include "SDLKey.hh"
 #include <SDL.h>
@@ -38,6 +39,14 @@ public:
 	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
 	void updateGrab(bool grab);
 
+	[[nodiscard]] BooleanSetting& getAutoMouseCapture() { return autoMouseCapture; }
+	[[nodiscard]] ReadOnlySetting& getMouseCaptureState() { return mouseCaptureState; }
+	[[nodiscard]] bool isMouseCaptureMode() const { return mouseCaptureMode; }
+	[[nodiscard]] bool isMouseCaptured() const { return mouseCaptured; }
+	void setMouseCaptureMode(bool enabled);
+	[[nodiscard]] bool captureMouse();
+	void releaseMouse();
+
 	/** Poll for SDL events and dispatch them.
 	  * @param timeoutMs If provided, wait up to this many milliseconds for
 	  *        the first event using SDL_WaitEventTimeout(). Subsequent
@@ -55,6 +64,7 @@ private:
 	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
 	void splitText(uint32_t timestamp, const char* utf8);
 	void setGrabInput(bool grab) const;
+	void updateMouseCaptureState();
 
 	// EventListener
 	bool signalEvent(const Event& event) override;
@@ -62,6 +72,10 @@ private:
 	EventDistributor& eventDistributor;
 	JoystickManager joystickManager;
 	BooleanSetting grabInput;
+	BooleanSetting autoMouseCapture;
+	ReadOnlySetting mouseCaptureState;
+	bool mouseCaptureMode = false;
+	bool mouseCaptured = false;
 
 	struct EscapeGrabCmd final : Command {
 		explicit EscapeGrabCmd(CommandController& commandController);

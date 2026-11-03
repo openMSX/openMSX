@@ -2,9 +2,12 @@
 
 #include "Event.hh"
 #include "EventDistributor.hh"
+#include "EventDelay.hh"
 #include "FileOperations.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "SDLKey.hh"
 
 #include "one_of.hh"
@@ -24,6 +27,10 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
 		false, Setting::Save::NO)
+	, autoMouseCapture(commandController, "auto_mouse_capture",
+		"Capture a connected MSX mouse on click; middle-click releases it", true)
+	, mouseCaptureState(commandController, "mouse_capture",
+		"Current mouse capture state: disabled, released or captured", TclObject("disabled"))
 	, escapeGrabCmd(commandController)
 {
 	eventDistributor.registerEventListener(EventType::WINDOW, *this);
@@ -338,7 +345,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		break;
 	case SDL_MOUSEMOTION:
 		event = MouseMotionEvent(evt);
-		if (auto* window = SDL_GL_GetCurrentWindow(); SDL_GetWindowGrab(window)) {
+		if (auto* window = SDL_GL_GetCurrentWindow(); window && !mouseCaptureMode && SDL_GetWindowGrab(window)) {
 			int w, h;
 			SDL_GetWindowSize(window, &w, &h);
 			int x, y;
@@ -450,8 +457,54 @@ void InputEventGenerator::handle(SDL_Event& evt)
 
 void InputEventGenerator::updateGrab(bool grab)
 {
+	// Relative mouse mode owns grabbing until explicitly released. In particular,
+	// a hidden host pointer must not let hovering a GUI widget release it.
+	if (mouseCaptureMode) return;
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 	setGrabInput(grab);
+}
+
+void InputEventGenerator::updateMouseCaptureState()
+{
+	mouseCaptureState.setReadOnlyValue(TclObject(
+		mouseCaptured ? "captured" : mouseCaptureMode ? "released" : "disabled"));
+}
+
+void InputEventGenerator::setMouseCaptureMode(bool enabled)
+{
+	if (enabled == mouseCaptureMode) return;
+	releaseMouse();
+	mouseCaptureMode = enabled;
+	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
+	if (enabled) setGrabInput(false);
+	updateMouseCaptureState();
+}
+
+bool InputEventGenerator::captureMouse()
+{
+	if (!mouseCaptureMode) return false;
+	if (mouseCaptured) return true;
+	auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId());
+	if (!window || SDL_GetKeyboardFocus() != window) return false;
+	if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0) return false;
+	mouseCaptured = true;
+	updateMouseCaptureState();
+	return true;
+}
+
+void InputEventGenerator::releaseMouse()
+{
+	if (!mouseCaptured) return;
+	mouseCaptured = false;
+	SDL_SetRelativeMouseMode(SDL_FALSE);
+	setGrabInput(false);
+	// Queue releases behind any pending MSX mouse events. Sending them through
+	// ImGui would swallow them; releasing the device directly would let delayed
+	// button-down events press the buttons again later.
+	if (auto* board = eventDistributor.getReactor().getMotherBoard()) {
+		board->getEventDelay().releaseMouseButtons();
+	}
+	updateMouseCaptureState();
 }
 
 bool InputEventGenerator::signalEvent(const Event& event)
@@ -459,6 +512,9 @@ bool InputEventGenerator::signalEvent(const Event& event)
 	std::visit(overloaded{
 		[&](const WindowEvent& e) {
 			const auto& evt = e.getSdlWindowEvent();
+			if (e.isMainWindow() && evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+				releaseMouse();
+			}
 			if (e.isMainWindow() &&
 			    evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
 				switch (escapeGrabState) {
@@ -491,14 +547,15 @@ bool InputEventGenerator::signalEvent(const Event& event)
 
 void InputEventGenerator::initializeGrab() const
 {
-	setGrabInput(grabInput.getBoolean());
+	setGrabInput(!mouseCaptureMode && grabInput.getBoolean());
 }
 
 void InputEventGenerator::setGrabInput(bool grab) const
 {
-	SDL_SetWindowGrab(SDL_GL_GetCurrentWindow(), grab ? SDL_TRUE : SDL_FALSE);
+	if (auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId())) {
+		SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
+	}
 }
-
 
 // class EscapeGrabCmd
 
@@ -512,6 +569,10 @@ void InputEventGenerator::EscapeGrabCmd::execute(
 	std::span<const TclObject> /*tokens*/, TclObject& /*result*/)
 {
 	auto& inputEventGenerator = OUTER(InputEventGenerator, escapeGrabCmd);
+	if (inputEventGenerator.mouseCaptureMode) {
+		inputEventGenerator.releaseMouse();
+		return;
+	}
 	if (inputEventGenerator.grabInput.getBoolean()) {
 		inputEventGenerator.escapeGrabState =
 			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;

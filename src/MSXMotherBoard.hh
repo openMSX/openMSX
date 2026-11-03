@@ -163,6 +163,7 @@ public:
 	[[nodiscard]] MSXCommandController& getMSXCommandController() { return *msxCommandController; }
 	[[nodiscard]] Scheduler& getScheduler() { return *scheduler; }
 	[[nodiscard]] MSXEventDistributor& getMSXEventDistributor() { return *msxEventDistributor; }
+	[[nodiscard]] EventDelay& getEventDelay() { return *eventDelay; }
 	[[nodiscard]] StateChangeDistributor& getStateChangeDistributor() { return *stateChangeDistributor; }
 	[[nodiscard]] CartridgeSlotManager& getSlotManager() { return *slotManager; }
 	[[nodiscard]] RealTime& getRealTime() { return *realTime; }
