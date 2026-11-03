@@ -18,9 +18,11 @@
 namespace openmsx {
 
 void overridableSettings(std::string_view title, std::string_view widestValue, bool& overrideAll,
-                         std::initializer_list<OverridableSetting> settings)
+                         std::initializer_list<OverridableSetting> settings,
+                         std::string_view help)
 {
-	auto isOverridden = [&](const OverridableSetting& s) { return overrideAll || *s.overridden; };
+	auto isOverridden = [&](const OverridableSetting& s) { return s.overridden && (overrideAll || *s.overridden); };
+	auto skipRow = [] { ImGui::Dummy({0.0f, ImGui::GetFrameHeight()}); };
 	im::Group([&]{
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(title);
@@ -39,9 +41,11 @@ void overridableSettings(std::string_view title, std::string_view widestValue, b
 	ImGui::SameLine();
 	im::Group([&]{
 		ImGui::Checkbox("Manual override", &overrideAll);
+		if (!help.empty()) HelpMarker(help);
 		im::Group([&]{
 			im::Disabled(overrideAll, [&]{
 				for (const auto& s : settings) {
+					if (!s.overridden) { skipRow(); continue; }
 					// while 'overrideAll' is set, show (and toggle) 'overrideAll' instead
 					im::ID(s.overridden, [&]{
 						ImGui::Checkbox("##override", overrideAll ? &overrideAll : s.overridden);
@@ -53,6 +57,7 @@ void overridableSettings(std::string_view title, std::string_view widestValue, b
 		im::Group([&]{
 			im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
 				for (const auto& s : settings) {
+					if (!s.overridden) { skipRow(); continue; }
 					im::Disabled(!isOverridden(s), s.editor);
 				}
 			});
@@ -387,7 +392,7 @@ void spriteBoxSettings(bool& draw, gl::vec4& color, int& onAll)
 	});
 }
 
-void drawSpriteBoxes(ImDrawList* drawList, gl::vec2 scrnPos, float zoom, std::span<const SpriteBox> boxes,
+void drawSpriteBoxes(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, std::span<const SpriteBox> boxes,
                      gl::vec4 color, bool onAll, bool hovered, gl::ivec2 hoverPos)
 {
 	auto boxColor = ImGui::ColorConvertFloat4ToU32(color);

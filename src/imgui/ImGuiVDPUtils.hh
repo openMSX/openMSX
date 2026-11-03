@@ -1,7 +1,7 @@
 #ifndef IMGUI_VDP_UTILS_HH
 #define IMGUI_VDP_UTILS_HH
 
-// Helpers shared between the viewers of the different VDPs (MSX VDP, SMS VDP).
+// Helpers shared between the viewers of the different VDPs (MSX VDP, SMS VDP, V9990).
 
 #include "function_ref.hh"
 #include "gl_vec.hh"
@@ -26,14 +26,16 @@ namespace openmsx {
 // in the overridableSettings() call itself (e.g. with tmpStrCat() values).
 struct OverridableSetting {
 	std::string_view vdpValue; // e.g. "Screen mode: screen 1", grayed out while overridden
-	bool* overridden;
+	bool* overridden; // nullptr: an informational row, without checkbox or editor
 	function_ref<void()> editor;
 	bool vdpValueUsed = true; // false: also gray out 'vdpValue' (e.g. it doesn't apply to the VDP's mode)
 };
 // 'title' heads the column with the VDP's values, which is at least as wide
-// as 'widestValue'. 'overrideAll' overrides all settings at once.
+// as 'widestValue'. 'overrideAll' overrides all settings at once. 'help', when
+// not empty, is a help marker next to the "Manual override" checkbox.
 void overridableSettings(std::string_view title, std::string_view widestValue, bool& overrideAll,
-                         std::initializer_list<OverridableSetting> settings);
+                         std::initializer_list<OverridableSetting> settings,
+                         std::string_view help = {});
 
 // The zoom combo box (1x-8x, stored as 0-7) and the grid checkbox and color.
 void zoomAndGridSettings(int& zoom, bool& grid, gl::vec4& gridColor);
@@ -184,10 +186,10 @@ struct SpriteBox {
 // hovered or on all sprites.
 void spriteBoxSettings(bool& draw, gl::vec4& color, int& onAll);
 
-// Outline the 'boxes' on the screen at 'scrnPos' (zoomed 'zoom' times): all
+// Outline the 'boxes' on the screen at 'scrnPos', scaled per axis by 'zoom': all
 // of them when 'onAll' is set, otherwise those under the mouse ('hoverPos',
 // only when 'hovered').
-void drawSpriteBoxes(ImDrawList* drawList, gl::vec2 scrnPos, float zoom, std::span<const SpriteBox> boxes,
+void drawSpriteBoxes(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, std::span<const SpriteBox> boxes,
                      gl::vec4 color, bool onAll, bool hovered, gl::ivec2 hoverPos);
 
 // A bullet with the attributes of each sprite whose box contains 'pos'. The

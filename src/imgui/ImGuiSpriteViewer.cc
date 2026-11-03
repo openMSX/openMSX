@@ -561,7 +561,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				});
 
 				if (drawBoundingBox) {
-					drawSpriteBoxes(drawList, scrnPos, float(zm), clippedBoxes, boundingBoxColor,
+					drawSpriteBoxes(drawList, scrnPos, gl::vec2{float(zm)}, clippedBoxes, boundingBoxColor,
 					                boundingBoxOnAll == 1, hovered, hoverPos);
 				}
 			});
