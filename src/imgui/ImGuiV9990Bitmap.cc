@@ -4,6 +4,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiV9990Utils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "MSXMotherBoard.hh"
 #include "V9990.hh"
@@ -20,7 +21,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <optional>
 
 namespace openmsx {
@@ -41,29 +41,6 @@ void ImGuiV9990Bitmap::save(ImGuiTextBuffer& buf)
 void ImGuiV9990Bitmap::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
-}
-
-void ImGuiV9990Bitmap::drawGrid(gl::vec2 pos, int zx, int zy, gl::vec2 msxSize, gl::vec2 size)
-{
-	if (!grid || (zx <= 1) || (zy <= 1)) return;
-
-	std::array<uint32_t, 16 * 16> pixels; // max zoom: 8x, with 2x scale factor
-	assert(zx * zy <= narrow<int>(pixels.size()));
-	auto color = ImGui::ColorConvertFloat4ToU32(gridColor);
-	for (auto y : xrange(zy)) {
-		auto* line = &pixels[y * zx];
-		for (auto x : xrange(zx)) {
-			line[x] = (x == 0 || y == 0) ? color : 0;
-		}
-	}
-	if (!gridTex.get()) {
-		gridTex = gl::Texture(false, true); // no interpolation, with wrapping
-	}
-	gridTex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-	ImGui::SetCursorPos(pos);
-	ImGui::Image(gridTex.getImGui(), size, gl::vec2{}, msxSize);
 }
 
 // V9990 modes that can be selected with manual override, and the color modes
@@ -205,89 +182,41 @@ void ImGuiV9990Bitmap::paint(MSXMotherBoard* motherBoard)
 		static const char* const modeStr = "P1\000P2\000B0\000B1\000B2\000B3\000B4\000B7\000";
 		static const char* const colorModeStr = "BP2\000BP4\000BP6\000BD8\000BYJK\000BYUV\000BD16\000";
 		static const char* const widthStr = "256\000512\0001024\0002048\000";
-		im::Group([&]{
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted("V9990 settings"sv);
-			im::Disabled(manMode, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Display mode: ", toString(vdpMode));
-			});
-			im::Disabled(manColorMode || isPattern, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Color mode: ", vdpIsPattern ? "-" : toString(vdpColorMode));
-			});
-			im::Disabled(manImageWidth || isPattern, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Image width: ", vdpImageWidth);
-			});
-			im::Disabled(manPalA, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Palette A: ", getComboString(vdpPaletteA, paletteStr));
-			});
-			im::Disabled(manPalB, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Palette B: ", getComboString(vdpPaletteB, paletteStr));
-			});
-		});
-		ImGui::SameLine();
-		im::Group([&]{
-			ImGui::Checkbox("Manual override", &overrideAll);
-			HelpMarker("Interpret VRAM using a manually selected mode, color mode, image width and/or palette offset.\n"
-			           "\n"
-			           "Palette A and B are the two halves of the palette offset register (R#13):\n"
-			           "* P1: palette of layer A and layer B\n"
-			           "* P2: palette of the even and odd bytes\n"
-			           "* BP4: only palette B is used (in B4/B7 only bit 2)\n"
-			           "* BP2: A and B together select the palette offset (in B4/B7 only bits 0-2)\n"
-			           "* other color modes don't use the palette offset");
-			im::Group([&]{
-				im::Disabled(overrideAll, [&]{
-					ImGui::Checkbox("##o-mode", overrideAll ? &overrideAll : &overrideMode);
-					im::Disabled(isPattern, [&]{
-						ImGui::Checkbox("##o-colorMode",  overrideAll ? &overrideAll : &overrideColorMode);
-						ImGui::Checkbox("##o-imageWidth", overrideAll ? &overrideAll : &overrideImageWidth);
-					});
-					ImGui::Checkbox("##o-paletteA", overrideAll ? &overrideAll : &overridePaletteA);
-					ImGui::Checkbox("##o-paletteB", overrideAll ? &overrideAll : &overridePaletteB);
+		overridableSettings("V9990 settings", "Palette A: 0 (0-15)", overrideAll, {
+			{tmpStrCat("Display mode: ", toString(vdpMode)), &overrideMode, [&]{
+				ImGui::Combo("##mode", &manualMode, modeStr);
+			}},
+			{tmpStrCat("Color mode: ", vdpIsPattern ? "-" : toString(vdpColorMode)), &overrideColorMode, [&]{
+				im::Disabled(isPattern, [&]{
+					ImGui::Combo("##colorMode", &manualColorMode, colorModeStr);
 				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-					im::Disabled(!manMode, [&]{
-						ImGui::Combo("##mode", &manualMode, modeStr);
-					});
-					im::Disabled(isPattern, [&]{
-						im::Disabled(!manColorMode, [&]{
-							ImGui::Combo("##colorMode", &manualColorMode, colorModeStr);
-						});
-						im::Disabled(!manImageWidth, [&]{
-							ImGui::Combo("##imageWidth", &manualImageWidth, widthStr);
-						});
-					});
-					im::Disabled(!manPalA, [&]{
-						ImGui::Combo("##paletteA", &manualPaletteA, paletteStr);
-					});
-					im::Disabled(!manPalB, [&]{
-						ImGui::Combo("##paletteB", &manualPaletteB, paletteStr);
-					});
+			}, !isPattern},
+			{tmpStrCat("Image width: ", vdpImageWidth), &overrideImageWidth, [&]{
+				im::Disabled(isPattern, [&]{
+					ImGui::Combo("##imageWidth", &manualImageWidth, widthStr);
 				});
-			});
-		});
+			}, !isPattern},
+			{tmpStrCat("Palette A: ", getComboString(vdpPaletteA, paletteStr)), &overridePaletteA, [&]{
+				ImGui::Combo("##paletteA", &manualPaletteA, paletteStr);
+			}},
+			{tmpStrCat("Palette B: ", getComboString(vdpPaletteB, paletteStr)), &overridePaletteB, [&]{
+				ImGui::Combo("##paletteB", &manualPaletteB, paletteStr);
+			}},
+		}, "Interpret VRAM using a manually selected mode, color mode, image width and/or palette offset.\n"
+		   "\n"
+		   "Palette A and B are the two halves of the palette offset register (R#13):\n"
+		   "* P1: palette of layer A and layer B\n"
+		   "* P2: palette of the even and odd bytes\n"
+		   "* BP4: only palette B is used (in B4/B7 only bit 2)\n"
+		   "* BP2: A and B together select the palette offset (in B4/B7 only bits 0-2)\n"
+		   "* other color modes don't use the palette offset");
 
 		ImGui::SameLine();
 		ImGui::Dummy(ImVec2(15, 1));
 		ImGui::SameLine();
 
 		im::Group([&]{
-			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-			ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-			ImGui::Checkbox("grid", &grid);
-			ImGui::SameLine();
-			im::Disabled(!grid, [&]{
-				ImGui::ColorEdit4("Grid color", gridColor.data(),
-					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-			});
+			zoomAndGridSettings(zoom, grid, gridColor);
 		});
 
 		ImGui::Separator();
@@ -335,27 +264,25 @@ void ImGuiV9990Bitmap::paintSingle(
 			                      width, x, y).color;
 		}
 	}
-	if (!bitmapTex.get()) {
-		bitmapTex = gl::Texture(false, false); // no interpolation, no wrapping
-	}
-	bitmapTex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	updateTexture(bitmapTex, {width, height}, pixels);
 
 	auto zm = gl::vec2(float(zx), float(zy));
 	auto msxSize = gl::vec2(float(width), float(height));
 	auto size = msxSize * zm;
 	auto availSize = gl::vec2(ImGui::GetContentRegionAvail()) - gl::vec2(0.0f, ImGui::GetTextLineHeightWithSpacing());
 	auto reqSize = size + gl::vec2(ImGui::GetStyle().ScrollbarSize);
+	const gl::Texture* gridOverlay = nullptr;
+	if (grid && (zx > 1) && (zy > 1)) {
+		updateGridTexture(gridTex, {zx, zy}, ImGui::ColorConvertFloat4ToU32(gridColor));
+		gridOverlay = &gridTex;
+	}
 	gl::vec2 scrnPos;
 	im::Child("##bitmap", min(availSize, reqSize), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		scrnPos = ImGui::GetCursorScreenPos();
-		auto pos = ImGui::GetCursorPos();
-		ImGui::Image(bitmapTex.getImGui(), size);
-		drawGrid(pos, zx, zy, msxSize, size);
+		imageWithGrid(bitmapTex, size, {}, {1.0f, 1.0f}, gridOverlay, msxSize);
 	});
 	if (ImGui::IsItemHovered()) {
-		auto [x, y] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm);
+		auto [x, y] = hoveredCell(scrnPos, zm);
 		if ((0 <= x) && (x < width) && (0 <= y) && (y < height)) {
 			auto pix = decodePixel(vram, palette64, mode, highRes, paletteOffset, width, x, y);
 			auto mono = [&](const auto& s) {
@@ -421,12 +348,7 @@ void ImGuiV9990Bitmap::paintP1(
 				out[2 * x + 1] = palette16[value & 0x0f];
 			}
 		}
-		if (!tex.get()) {
-			tex = gl::Texture(false, false); // no interpolation, no wrapping
-		}
-		tex.bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, LAYER_WIDTH, LAYER_LINES, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		updateTexture(tex, {LAYER_WIDTH, LAYER_LINES}, pixels);
 	};
 	uploadLayer(0, bitmapTex);
 	uploadLayer(1, bitmapTexB);
@@ -444,8 +366,13 @@ void ImGuiV9990Bitmap::paintP1(
 	auto reqSize = size + gl::vec2(ImGui::GetStyle().ScrollbarSize);
 	auto childSize = min(availSize, reqSize);
 
+	const gl::Texture* gridOverlay = nullptr;
+	if (grid) { // zx and zy are at least 2 in P1
+		updateGridTexture(gridTex, {zx, zy}, ImGui::ColorConvertFloat4ToU32(gridColor));
+		gridOverlay = &gridTex;
+	}
 	std::optional<int> hoveredLayer;
-	gl::vec2 hoveredPos;
+	gl::ivec2 hoveredPos;
 	auto drawLayer = [&](int layer, const gl::Texture& tex) {
 		im::Group([&]{
 			ImGui::StrCat("Layer ", layer ? 'B' : 'A',
@@ -453,13 +380,11 @@ void ImGuiV9990Bitmap::paintP1(
 			gl::vec2 scrnPos;
 			im::Child(layer ? "##layerB" : "##layerA", childSize, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				scrnPos = ImGui::GetCursorScreenPos();
-				auto pos = ImGui::GetCursorPos();
-				ImGui::Image(tex.getImGui(), size);
-				drawGrid(pos, zx, zy, msxSize, size);
+				imageWithGrid(tex, size, {}, {1.0f, 1.0f}, gridOverlay, msxSize);
 			});
 			if (ImGui::IsItemHovered()) {
 				hoveredLayer = layer;
-				hoveredPos = (gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm;
+				hoveredPos = hoveredCell(scrnPos, zm);
 			}
 		});
 	};
@@ -469,7 +394,7 @@ void ImGuiV9990Bitmap::paintP1(
 
 	if (hoveredLayer) {
 		int layer = *hoveredLayer;
-		auto [x, y] = trunc(hoveredPos);
+		auto [x, y] = hoveredPos;
 		if ((0 <= x) && (x < LAYER_WIDTH) && (0 <= y) && (y < LAYER_LINES)) {
 			unsigned addr = (layer ? LAYER_B_BASE : 0) + 128 * y + x / 2;
 			auto value = vram.readVRAMDirect(addr);

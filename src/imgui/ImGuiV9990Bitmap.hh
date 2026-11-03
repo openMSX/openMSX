@@ -37,7 +37,6 @@ private:
 	void paintSingle(V9990& v9990, std::span<const uint32_t, 64> palette64,
 	                 int mode, bool highRes, uint8_t paletteOffset,
 	                 int width, int zx, int zy);
-	void drawGrid(gl::vec2 pos, int zx, int zy, gl::vec2 msxSize, gl::vec2 size);
 
 public:
 	bool show = true;
