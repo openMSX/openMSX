@@ -102,9 +102,11 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 
 		bool isPattern = manMode || vdpIsPattern;
 		bool isP1 = manMode ? (manualMode == 0) : (vdpMode == P1);
-		// P1: 0x00000-0x38000, P2: 0x00000-0x78000, in steps of 0x8000
-		manualPatBase &= isP1 ? 0x38000 : 0x78000;
-		unsigned patBase = manPat ? unsigned(manualPatBase)
+		// P1: 0x00000-0x38000, P2: 0x00000-0x78000, in steps of 0x8000.
+		// Only mask the shown value: the stored one may be meant for P2.
+		int patMask = isP1 ? 0x38000 : 0x78000;
+		int shownPatBase = manualPatBase & patMask;
+		unsigned patBase = manPat ? unsigned(shownPatBase)
 		                          : unsigned(v9990->getSpritePatternAddress(isP1 ? P1 : P2));
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -140,7 +142,8 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 							ImGui::Combo("##mode", &manualMode, "P1\000P2\000");
 						});
 						im::Disabled(!manPat, [&]{
-							comboHexSequence<5>("##pat", &manualPatBase, 0x8000, isP1 ? 0x40000 : 0x80000, 0);
+							comboHexSequence<5>("##pat", &shownPatBase, 0x8000, isP1 ? 0x40000 : 0x80000, 0);
+							if (shownPatBase != (manualPatBase & patMask)) manualPatBase = shownPatBase;
 						});
 					});
 				});
