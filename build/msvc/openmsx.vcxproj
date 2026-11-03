@@ -1171,6 +1171,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSCCViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Utils.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWaveViewer.hh" />

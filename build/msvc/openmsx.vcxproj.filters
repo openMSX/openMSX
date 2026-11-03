@@ -2294,6 +2294,9 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.hh">
       <Filter>imgui</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Utils.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.hh">
       <Filter>imgui</Filter>
     </None>
