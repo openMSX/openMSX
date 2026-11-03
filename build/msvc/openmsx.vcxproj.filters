@@ -675,6 +675,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Bitmap.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -2292,6 +2295,9 @@
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Bitmap.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Utils.hh">

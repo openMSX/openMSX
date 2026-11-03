@@ -17,6 +17,7 @@
 #include "ImGuiTraceViewer.hh"
 #include "ImGuiSymbols.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiV9990Bitmap.hh"
 #include "ImGuiVdpRegs.hh"
 #include "ImGuiWatchExpr.hh"
 
@@ -196,6 +197,7 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 	buf.appendf("smsVdpTileViewers=%d\n", narrow<int>(smsVdpTileViewers.size()));
 	buf.appendf("smsVdpSpriteViewers=%d\n", narrow<int>(smsVdpSpriteViewers.size()));
 	buf.appendf("smsVdpRegsViewers=%d\n", narrow<int>(smsVdpRegsViewers.size()));
+	buf.appendf("v9990BitmapViewers=%d\n", narrow<int>(v9990BitmapViewers.size()));
 
 	saveCountPerDebuggable(buf, "hexEditor.", hexEditors);
 	saveCountPerDebuggable(buf, "debuggableBitmap.", debuggableBitmapViewers);
@@ -210,6 +212,7 @@ void ImGuiDebugger::loadStart()
 	smsVdpTileViewers.clear();
 	smsVdpSpriteViewers.clear();
 	smsVdpRegsViewers.clear();
+	v9990BitmapViewers.clear();
 	hexEditors.clear();
 	debuggableBitmapViewers.clear();
 }
@@ -253,6 +256,10 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	} else if (name == "smsVdpRegsViewers") {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			repeat(*r, [&] { openOrCreate(manager, smsVdpRegsViewers); });
+		}
+	} else if (name == "v9990BitmapViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, v9990BitmapViewers); });
 		}
 	} else if (name.starts_with(hexEditorPrefix)) {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
@@ -358,6 +365,11 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::MenuItem("SMS VDP register viewer")) {
 				openOrCreate(manager, smsVdpRegsViewers);
+			}
+		}
+		if (motherBoard && motherBoard->findDevice("Sunrise GFX9000")) {
+			if (ImGui::MenuItem("V9990 bitmap viewer")) {
+				openOrCreate(manager, v9990BitmapViewers);
 			}
 		}
 		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show);

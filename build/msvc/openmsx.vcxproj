@@ -538,6 +538,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSCCViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Bitmap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWaveViewer.cc" />
@@ -1171,6 +1172,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSCCViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Bitmap.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Utils.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.hh" />
