@@ -4,6 +4,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiV9990Utils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "MSXMotherBoard.hh"
 #include "V9990.hh"
@@ -17,9 +18,7 @@
 #include <imgui.h>
 
 #include <algorithm>
-#include <array>
 #include <optional>
-#include <ranges>
 #include <utility>
 
 namespace openmsx {
@@ -40,61 +39,6 @@ void ImGuiV9990Tiles::save(ImGuiTextBuffer& buf)
 void ImGuiV9990Tiles::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
-}
-
-void ImGuiV9990Tiles::initHexDigits()
-{
-	smallHexDigits = gl::Texture(false, false); // no interpolation, no wrapping
-
-	// font definition: 16 glyphs 0-9 A-F, each 5 x 8 pixels
-	static constexpr int charWidth = 5;
-	static constexpr int charHeight = 8;
-	static constexpr int totalWidth = 16 * charWidth;
-	static constexpr int totalSize = totalWidth * charHeight;
-	static constexpr std::string_view glyphs =
-		" ...  ...  ................................................  ........ .........."
-		".MMM...M. .MMM..MMM..M.M..MMM..MMM..MMM..MMM..MMM..MMM..MM....MM..MM...MMM..MMM."
-		".M.M..MM. ...M....M..M.M..M....M......M..M.M..M.M..M.M..M.M..M....M.M..M....M..."
-		".M.M...M.  .MM..MMM..M.M..MMM..MMM.  .M..MMM..MMM..MMM..MM...M.  .M.M..MMM..MMM."
-		".M.M. .M. .M.. ...M..MMM....M..M.M.  .M..M.M....M..M.M..M.M..M.  .M.M..M....M..."
-		".M.M. .M. .M......M....M....M..M.M.  .M..M.M....M..M.M..M.M..M....M.M..M....M.  "
-		".MMM. .M. .MMM..MMM.  .M..MMM..MMM.  .M..MMM..MMM..M.M..MM....MM..MM...MMM..M.  "
-		" ...  ... ..........  .............  ......................  ........ ........  ";
-	static_assert(glyphs.size() == totalSize);
-
-	// transform to 32-bit RGBA
-	std::array<uint32_t, totalSize> pixels;
-	for (auto [c, p] : std::views::zip(glyphs, pixels)) {
-		p = (c == ' ') ? ImColor(0.0f, 0.0f, 0.0f, 0.0f)  // transparent
-		  : (c == '.') ? ImColor(0.0f, 0.0f, 0.0f, 0.7f)  // black semi-transparent outline
-		               : ImColor(1.0f, 1.0f, 1.0f, 0.7f); // white semi-transparent
-	}
-
-	// and upload as a texture
-	smallHexDigits.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, totalWidth, charHeight, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-}
-
-// Grid texture for a single pattern of 8x8 V9990 pixels, zoomed by (zx x zy).
-void ImGuiV9990Tiles::updateGridTex(int zx, int zy)
-{
-	auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
-	auto gridWidth = 8 * zx;
-	auto gridHeight = 8 * zy;
-	MemBuffer<uint32_t> pixels(gridWidth * gridHeight);
-	for (auto y : xrange(gridHeight)) {
-		auto* line = &pixels[y * gridWidth];
-		for (auto x : xrange(gridWidth)) {
-			line[x] = (x == 0 || y == 0) ? gColor : 0;
-		}
-	}
-	if (!gridTex.get()) {
-		gridTex = gl::Texture(false, true); // no interpolation, with wrapping
-	}
-	gridTex.bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gridWidth, gridHeight, 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 }
 
 // V9990 P1 and P2 (pattern) modes. Mirrors the logic in V9990PxConverter.
@@ -131,70 +75,29 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 		int palB = manPalB ? manualPaletteB : vdpPaletteB;
 
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			im::Group([&]{
-				ImGui::TextUnformatted("V9990 settings"sv);
-				im::Disabled(manMode, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Display mode: ", v9990_gui::toString(vdpMode));
-				});
-				im::Disabled(manPalA, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Palette A: ", getComboString(vdpPaletteA, paletteStr));
-				});
-				im::Disabled(manPalB, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Palette B: ", getComboString(vdpPaletteB, paletteStr));
-				});
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Scroll A: (", v9990->getScrollAX(), ", ", v9990->getScrollAY(), ')');
-				im::Disabled(!isP1, [&]{
-					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Scroll B: (", v9990->getScrollBX(), ", ", v9990->getScrollBY(), ')');
-				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				ImGui::Checkbox("Manual override", &overrideAll);
-				HelpMarker("Interpret VRAM using a manually selected mode and/or palette offset.\n"
-				           "\n"
-				           "Palette A and B are the two halves of the palette offset register (R#13):\n"
-				           "* P1: palette of layer A and layer B\n"
-				           "* P2: palette of the even and odd bytes in the pattern data");
-				im::Group([&]{
-					im::Disabled(overrideAll, [&]{
-						ImGui::Checkbox("##o-mode",     overrideAll ? &overrideAll : &overrideMode);
-						ImGui::Checkbox("##o-paletteA", overrideAll ? &overrideAll : &overridePaletteA);
-						ImGui::Checkbox("##o-paletteB", overrideAll ? &overrideAll : &overridePaletteB);
-					});
-				});
-				ImGui::SameLine();
-				im::Group([&]{
-					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-						im::Disabled(!manMode, [&]{
-							ImGui::Combo("##mode", &manualMode, "P1\000P2\000");
-						});
-						im::Disabled(!manPalA, [&]{
-							ImGui::Combo("##paletteA", &manualPaletteA, paletteStr);
-						});
-						im::Disabled(!manPalB, [&]{
-							ImGui::Combo("##paletteB", &manualPaletteB, paletteStr);
-						});
-					});
-				});
-			});
+			overridableSettings("V9990 settings", "Scroll A: (0000, 0000)", overrideAll, {
+				{tmpStrCat("Display mode: ", v9990_gui::toString(vdpMode)), &overrideMode, [&]{
+					ImGui::Combo("##mode", &manualMode, "P1\000P2\000");
+				}},
+				{tmpStrCat("Palette A: ", getComboString(vdpPaletteA, paletteStr)), &overridePaletteA, [&]{
+					ImGui::Combo("##paletteA", &manualPaletteA, paletteStr);
+				}},
+				{tmpStrCat("Palette B: ", getComboString(vdpPaletteB, paletteStr)), &overridePaletteB, [&]{
+					ImGui::Combo("##paletteB", &manualPaletteB, paletteStr);
+				}},
+				{tmpStrCat("Scroll A: (", v9990->getScrollAX(), ", ", v9990->getScrollAY(), ')'), nullptr, []{}},
+				{tmpStrCat("Scroll B: (", v9990->getScrollBX(), ", ", v9990->getScrollBY(), ')'), nullptr, []{}, isP1},
+			}, "Interpret VRAM using a manually selected mode and/or palette offset.\n"
+			   "\n"
+			   "Palette A and B are the two halves of the palette offset register (R#13):\n"
+			   "* P1: palette of layer A and layer B\n"
+			   "* P2: palette of the even and odd bytes in the pattern data");
 
 			ImGui::SameLine();
 			ImGui::Dummy(ImVec2(25, 1));
 			ImGui::SameLine();
 			im::Group([&]{
-				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-				ImGui::Combo("Zoom", &zoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-				ImGui::Checkbox("grid", &grid);
-				ImGui::SameLine();
-				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", gridColor.data(),
-						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				});
+				zoomAndGridSettings(zoom, grid, gridColor);
 				ImGui::Checkbox("Name table overlay", &nameTableOverlay);
 				HelpMarker("Show the (hexadecimal) pattern number on top of each name table entry.\n"
 				           "Only shown when the zoom factor is large enough to fit 4 digits.");
@@ -226,12 +129,7 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 
 		MemBuffer<uint32_t> pixels(patTexWidth * patTexHeight);
 		auto uploadPatterns = [&](gl::Texture& tex) {
-			if (!tex.get()) {
-				tex = gl::Texture(false, false); // no interpolation, no wrapping
-			}
-			tex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patTexWidth, patTexHeight, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			updateTexture(tex, {patTexWidth, patTexHeight}, pixels);
 		};
 		if (isP1) {
 			for (int layer : {0, 1}) {
@@ -264,11 +162,14 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 		static constexpr auto charSize = gl::vec2{8.0f, 8.0f};
 		auto charZoom = zm * charSize;
 		auto zoomCharSize = gl::vec2(isP1 ? 12.0f : 6.0f, 12.0f) * charSize; // hovered size
-		if (grid) updateGridTex(zx, zy);
-		static constexpr gl::vec2 digitSize{5.0f, 8.0f};
-		bool showOverlay = nameTableOverlay && (charZoom.x >= 2.0f * digitSize.x) && (charZoom.y >= 2.0f * digitSize.y);
+		bool showOverlay = nameTableOverlay && (charZoom.x >= 2.0f * hexDigitSize.x) && (charZoom.y >= 2.0f * hexDigitSize.y);
 		if (showOverlay && !smallHexDigits.get()) {
-			initHexDigits();
+			smallHexDigits = createHexDigitsTexture();
+		}
+		const gl::Texture* gridOverlay = nullptr;
+		if (grid) {
+			updateGridTexture(gridTex, {8 * zx, 8 * zy}, ImGui::ColorConvertFloat4ToU32(gridColor));
+			gridOverlay = &gridTex;
 		}
 
 		auto layerName = [&](int layer) {
@@ -296,11 +197,8 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 			                      0, 31, {}, 4, {}, ", ", "%02X", manager.getInterpreter());
 		};
 		auto copyPatternPopup = [&] {
-			return im::PopupContextWindow("PatternCopyPopup", [&]{
-				if (ImGui::MenuItem("Copy pattern data to clipboard")) {
-					auto text = formatPatternData(hoveredPattern[0], unsigned(hoveredPattern[1]));
-					ImGui::SetClipboardText(text.c_str());
-				}
+			copyToClipboardPopup("PatternCopyPopup", "Copy pattern data to clipboard", [&]{
+				return formatPatternData(hoveredPattern[0], unsigned(hoveredPattern[1]));
 			});
 		};
 		auto printPatternInfo = [&](int layer, unsigned pattern) {
@@ -311,12 +209,7 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 		};
 		auto drawZoomedPattern = [&](int layer, unsigned pattern) {
 			auto [uv1, uv2] = getPatternUV(pattern);
-			auto pos = ImGui::GetCursorPos();
-			ImGui::Image(getPatternTex(layer).getImGui(), zoomCharSize, uv1, uv2);
-			if (grid) {
-				ImGui::SetCursorPos(pos);
-				ImGui::Image(gridTex.getImGui(), zoomCharSize, {}, charSize);
-			}
+			imageWithGrid(getPatternTex(layer), zoomCharSize, uv1, uv2, gridOverlay, charSize);
 		};
 
 		// Width of one layer when the layers are shown side-by-side.
@@ -334,7 +227,7 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 			// 40% of the available height (but at least 8 rows of patterns),
 			// leaving room for the name table, scroll for the rest.
 			auto maxHeight = std::max(0.4f * ImGui::GetContentRegionAvail().y, 8.0f * charZoom.y);
-			gl::vec2 childSize{layerWidth(size.x), std::min(size.y, maxHeight) + scrollbar};
+			gl::vec2 childSize{layerWidth(size.x), childHeightWithScrollbar(std::min(size.y, maxHeight))};
 			for (auto layer : xrange(numLayers)) {
 				if (layer) ImGui::SameLine();
 				im::Group([&]{
@@ -344,12 +237,11 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 						ImGui::StrCat("Palette ", palA, " (even bytes), ", palB, " (odd bytes)");
 					}
 					im::Child(layer ? "##patternB" : "##patternA", childSize, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
-						auto pos1 = ImGui::GetCursorPos();
 						gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-						ImGui::Image(getPatternTex(layer).getImGui(), size);
+						imageWithGrid(getPatternTex(layer), size, {}, {1.0f, 1.0f}, gridOverlay, patTexChars);
 						bool hovered = false;
 						if (ImGui::IsItemHovered()) {
-							auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+							auto gridPos = hoveredCell(scrnPos, charZoom);
 							if ((0 <= gridPos.x) && (gridPos.x < patsPerRow) && (0 <= gridPos.y) && (gridPos.y < patRows)) {
 								hovered = true;
 								hoveredPattern = {layer, gridPos.x + patsPerRow * gridPos.y};
@@ -363,10 +255,6 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 								drawZoomedPattern(layer, pattern);
 								printPatternInfo(layer, pattern);
 							});
-						}
-						if (grid) {
-							ImGui::SetCursorPos(pos1);
-							ImGui::Image(gridTex.getImGui(), size, {}, patTexChars);
 						}
 					});
 				});
@@ -390,7 +278,7 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 
 			// Use the remaining height of the window, but show at least 16 rows.
 			auto availHeight = ImGui::GetContentRegionAvail().y - ImGui::GetTextLineHeightWithSpacing();
-			auto height = std::min(hostSize.y + scrollbar, std::max(availHeight, 16.0f * charZoom.y));
+			auto height = std::min(childHeightWithScrollbar(hostSize.y), std::max(availHeight, 16.0f * charZoom.y));
 			gl::vec2 childSize{layerWidth(hostSize.x), height};
 
 			for (auto layer : xrange(numLayers)) {
@@ -408,34 +296,27 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 						gl::vec2 winSize = ImGui::GetWindowSize();
 						auto begin = clamp(trunc(scroll / charZoom), gl::ivec2{}, gl::ivec2{columns, rows});
 						auto end = clamp(trunc((scroll + winSize) / charZoom) + gl::ivec2{1}, gl::ivec2{}, gl::ivec2{columns, rows});
-						auto numChars = (end.x - begin.x) * (end.y - begin.y);
 
+						auto origin = scrnPos + charZoom * gl::vec2(begin);
+						auto num = end - begin;
 						drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
-						drawList->PushTexture(getPatternTex(layer).getImGui());
-						drawList->PrimReserve(6 * numChars, 4 * numChars);
-						for (auto row : xrange(begin.y, end.y)) {
-							for (auto column : xrange(begin.x, end.x)) {
-								gl::vec2 p1 = scrnPos + charZoom * gl::vec2{float(column), float(row)};
-								auto [uv1, uv2] = getPatternUV(getPattern(layer, column, row));
-								drawList->PrimRectUV(p1, p1 + charZoom, uv1, uv2, 0xffffffff);
-							}
-						}
-						drawList->PopTexture();
+						addTiles(drawList, getPatternTex(layer), origin, charZoom, num,
+						         [&](int column, int row) {
+							return getPatternUV(getPattern(layer, begin.x + column, begin.y + row));
+						});
 						if (showOverlay) {
+							// 4 hex digits in a 2x2 arrangement: the cells are too
+							// narrow for a row of 4 digits.
+							auto numDigits = 4 * num.x * num.y;
 							drawList->PushTexture(smallHexDigits.getImGui());
-							drawList->PrimReserve(4 * 6 * numChars, 4 * 4 * numChars);
-							static constexpr float texDigitWidth = 1.0f / 16.0f;
-							static constexpr gl::vec2 texDigitSize{texDigitWidth, 1.0f};
-							for (auto row : xrange(begin.y, end.y)) {
-								for (auto column : xrange(begin.x, end.x)) {
-									gl::vec2 p = scrnPos + charZoom * gl::vec2{float(column), float(row)};
-									auto pattern = getPattern(layer, column, row);
-									for (auto i : xrange(4)) { // 4 digits in a 2x2 arrangement
-										auto digit = (pattern >> (4 * (3 - i))) & 15;
-										gl::vec2 p1 = p + digitSize * gl::vec2{float(i & 1), float(i >> 1)};
-										gl::vec2 uv1{float(digit) * texDigitWidth, 0.0f};
-										drawList->PrimRectUV(p1, p1 + digitSize, uv1, uv1 + texDigitSize, 0xffffffff);
-									}
+							drawList->PrimReserve(6 * numDigits, 4 * numDigits);
+							gl::vec2 step{hexDigitSize.x, 0.0f};
+							for (auto row : xrange(num.y)) {
+								for (auto column : xrange(num.x)) {
+									auto p = origin + charZoom * gl::vec2{float(column), float(row)};
+									auto pattern = getPattern(layer, begin.x + column, begin.y + row);
+									addHexDigits(drawList, p, step, pattern >> 8, 2);
+									addHexDigits(drawList, p + gl::vec2{0.0f, hexDigitSize.y}, step, pattern & 0xff, 2);
 								}
 							}
 							drawList->PopTexture();
@@ -446,7 +327,7 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 						ImGui::Dummy(hostSize);
 						std::optional<gl::ivec2> gridPos;
 						if (ImGui::IsItemHovered()) {
-							auto p = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+							auto p = hoveredCell(scrnPos, charZoom);
 							if ((0 <= p.x) && (p.x < columns) && (0 <= p.y) && (p.y < rows)) {
 								gridPos = p;
 								hoveredPattern = {layer, int(getPattern(layer, p.x, p.y))};
@@ -464,9 +345,9 @@ void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 								printPatternInfo(layer, pattern);
 							});
 						}
-						if (grid) {
+						if (gridOverlay) {
 							ImGui::SetCursorPos(pos1);
-							ImGui::Image(gridTex.getImGui(), hostSize, {}, charsSize);
+							ImGui::Image(gridOverlay->getImGui(), hostSize, {}, charsSize);
 						}
 					});
 				});

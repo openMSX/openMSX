@@ -26,10 +26,6 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
-private:
-	void initHexDigits();
-	void updateGridTex(int zx, int zy);
-
 public:
 	bool show = true;
 
