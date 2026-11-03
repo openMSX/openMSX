@@ -43,6 +43,10 @@ public:
 	}
 	void sync2(EmuTime time);
 
+	/** The emulated time of the command engine's current VRAM write.
+	  */
+	[[nodiscard]] EmuTime getEngineTime() const { return engineTime; }
+
 	/** Set a value to one of the command registers
 	  */
 	void setCmdReg(uint8_t reg, uint8_t val, EmuTime time);

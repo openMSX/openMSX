@@ -1018,6 +1018,7 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
+		engineTime = limit; // time of the VRAM write (renderer sync)
 		if (bitsLeft) {
 			bitsLeft = 0;
 			partial = data;
@@ -1050,6 +1051,7 @@ void V9990CmdEngine::executeLMMC(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
+		engineTime = limit; // time of the VRAM write (renderer sync)
 		unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 		auto lut = Mode::getLogOpLUT(LOG);
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
@@ -1242,6 +1244,7 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
+		engineTime = limit; // time of the VRAM write (renderer sync)
 
 		unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 		uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
@@ -1711,6 +1714,7 @@ void V9990CmdEngine::executePOINT(EmuTime /*limit*/)
 template<typename Mode>
 void V9990CmdEngine::startPSET(EmuTime time)
 {
+	engineTime = time; // time of the VRAM write (renderer sync)
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto lut = Mode::getLogOpLUT(LOG);
 	Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);

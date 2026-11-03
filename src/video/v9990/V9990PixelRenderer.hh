@@ -46,10 +46,16 @@ public:
 	void updateScrollBX(EmuTime time) override;
 	void updateScrollAYLow(EmuTime time) override;
 	void updateScrollBYLow(EmuTime time) override;
+	void updateVRAM(EmuTime time) override;
 
 private:
 	void sync(EmuTime time, bool force = false);
 	void renderUntil(EmuTime time) override;
+
+	/** Render from the last sync position (lastX, lastY) up to the given
+	  * position. Only rasterizes, never syncs VRAM.
+	  */
+	void renderTo(int toX, int toY);
 
 	/** Type of drawing to do.
 	  */

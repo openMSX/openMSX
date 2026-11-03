@@ -14,6 +14,7 @@ public:
 	void frameStart(EmuTime time) override;
 	void frameEnd(EmuTime time) override;
 	void renderUntil(EmuTime time) override;
+	void updateVRAM(EmuTime time) override;
 	void updateDisplayEnabled(bool enabled, EmuTime time) override;
 	void setDisplayMode(V9990DisplayMode mode, EmuTime time) override;
 	void setColorMode(V9990ColorMode mode, EmuTime time) override;

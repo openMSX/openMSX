@@ -23,6 +23,10 @@ void V9990DummyRenderer::renderUntil(EmuTime /*time*/)
 {
 }
 
+void V9990DummyRenderer::updateVRAM(EmuTime /*time*/)
+{
+}
+
 void V9990DummyRenderer::updateDisplayEnabled(bool /*enabled*/,
                                               EmuTime /*time*/)
 {

@@ -117,6 +117,11 @@ public:
 	};
 	[[nodiscard]] GetPaletteResult getPalette(int index) const;
 
+	/** VRAM is about to change (called before the write is committed).
+	  * Gives the renderer the chance to draw with the old VRAM contents.
+	  */
+	void vramWillChange(EmuTime time);
+
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.
 	  * @return      Number of UC ticks.
