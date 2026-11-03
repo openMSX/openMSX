@@ -24,6 +24,9 @@ class ImGuiDisassembly;
 class ImGuiSMSVDPRegs;
 class ImGuiSMSVDPSprites;
 class ImGuiSMSVDPTiles;
+class ImGuiV9990Bitmap;
+class ImGuiV9990Sprites;
+class ImGuiV9990Tiles;
 class ImGuiSpriteViewer;
 class MSXCPUInterface;
 
@@ -92,6 +95,9 @@ private:
 	std::vector<std::unique_ptr<ImGuiSMSVDPTiles>> smsVdpTileViewers;
 	std::vector<std::unique_ptr<ImGuiSMSVDPSprites>> smsVdpSpriteViewers;
 	std::vector<std::unique_ptr<ImGuiSMSVDPRegs>> smsVdpRegsViewers;
+	std::vector<std::unique_ptr<ImGuiV9990Bitmap>> v9990BitmapViewers;
+	std::vector<std::unique_ptr<ImGuiV9990Tiles>> v9990TileViewers;
+	std::vector<std::unique_ptr<ImGuiV9990Sprites>> v9990SpriteViewers;
 	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
 	std::vector<std::unique_ptr<DebuggableBitmapViewer>> debuggableBitmapViewers; // sorted on 'getDebuggableName()'
 
