@@ -141,59 +141,6 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		int vdpAttBase = attBaseFor(vdpType);
 		int vdpLines = (vdpType == SMS) ? vdpYpixels : 192;
 		auto vramSize = 0x4000;
-
-		// Palette: TMS9918 colors (modes 0-3) or the 32 CRAM colors (mode 4;
-		// sprites always use palette 1 = entries 16-31). Filled once the
-		// shown type is known.
-		std::array<uint32_t, 32> palette{};
-		const auto colors = vdp.getPaletteColors();
-		auto toImColor = [](uint32_t rgb) {
-			return uint32_t(ImColor(int((rgb >> 16) & 0xff),
-			                        int((rgb >> 8) & 0xff),
-			                        int(rgb & 0xff)));
-		};
-
-		// Editable CRAM palette: click a swatch to pick one of the 64 colors
-		// of the chip.
-		auto drawCramEditor = [&]{
-			for (auto i : xrange(32)) {
-				auto cram = vdp.peekCram(i);
-				ImGui::PushID(i);
-				ImGui::ColorButton("##cram",
-					ImGui::ColorConvertU32ToFloat4(palette[i]),
-					ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoPicker, ImVec2(24.0f, 24.0f));
-				if (ImGui::IsItemHovered()) {
-					ImGui::SetTooltip("CRAM[%d] = 0x%02X (color 0x%02X)", i, cram, cram & 0x3f);
-				}
-				if (ImGui::IsItemClicked()) {
-					ImGui::OpenPopup("##cramColors");
-				}
-				if (ImGui::BeginPopup("##cramColors")) {
-					for (auto row : xrange(8)) {
-						for (auto column : xrange(8)) {
-							auto c = row * 8 + column;
-							ImGui::PushID(c);
-							ImGui::ColorButton("##color",
-								ImGui::ColorConvertU32ToFloat4(toImColor(colors[c])),
-								ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoPicker, ImVec2(24.0f, 24.0f));
-							ImGui::PopID();
-							if (ImGui::IsItemHovered()) {
-								ImGui::SetTooltip("color 0x%02X", c);
-							}
-							if (ImGui::IsItemClicked()) {
-								vdp.pokeCram(i, uint8_t(c));
-								ImGui::CloseCurrentPopup();
-							}
-							if (column != 7) ImGui::SameLine();
-						}
-					}
-					ImGui::EndPopup();
-				}
-				ImGui::PopID();
-				if ((i % 16) != 15) ImGui::SameLine();
-			}
-		};
-
 		bool manType   = overrideAll || overrideType;
 		bool manSize   = overrideAll || overrideSize;
 		bool manMag    = overrideAll || overrideMag;
@@ -271,15 +218,13 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		int patBase = manPat ? (manualPatBase & ~(patMult(type) - 1)) : patBaseFor(type);
 		int attBase = manAtt ? (manualAttBase & ~(attMult(type) - 1)) : attBaseFor(type);
 
-		for (auto i : xrange(32)) {
-			palette[i] = (type == SMS) ? toImColor(colors[vdp.peekCram(i) & 0x3f])
-			           : (i < 16)      ? toImColor(colors[64 + i])
-			                           : 0;
-		}
+		// Palette: TMS9918 colors (modes 0-3) or the 32 CRAM colors (mode 4;
+		// sprites always use palette 1 = entries 16-31).
+		auto palette = getSMSPalette(vdp, type == SMS);
 
 		if (type == SMS) {
 			ImGui::Separator();
-			im::TreeNode("CRAM", ImGuiTreeNodeFlags_DefaultOpen, drawCramEditor);
+			im::TreeNode("CRAM", ImGuiTreeNodeFlags_DefaultOpen, [&]{ drawSMSCramEditor(vdp); });
 		}
 		ImGui::Separator();
 

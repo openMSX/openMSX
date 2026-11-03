@@ -327,75 +327,12 @@ void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 		tables.tile1Mask = tile1Mask;
 		tables.tile2Mask = tile2Mask;
 
-		// Palette: the TMS9918-compatible modes use the 16 fixed TMS
-		// colors (entries 64-79 of the chip palette); mode 4 uses the 32
-		// CRAM colors (2 palettes of 16).
-		std::array<uint32_t, 32> palette{};
-		const auto colors = vdp.getPaletteColors();
-		if (mode == MODE4) {
-			for (auto i : xrange(32)) {
-				const uint32_t rgb = colors[vdp.peekCram(i) & 0x3f];
-				palette[i] = ImColor(int((rgb >> 16) & 0xff),
-				                     int((rgb >> 8) & 0xff),
-				                     int(rgb & 0xff));
-			}
-		} else {
-			for (auto i : xrange(16)) {
-				const uint32_t rgb = colors[64 + i];
-				palette[i] = ImColor(int((rgb >> 16) & 0xff),
-				                     int((rgb >> 8) & 0xff),
-				                     int(rgb & 0xff));
-			}
-			if (color0 < 16) palette[0] = palette[color0];
-		}
-
-		// Editable CRAM palette: click a swatch to pick one of the 64 colors
-		// of the chip.
-		auto drawCramEditor = [&]{
-			for (auto i : xrange(32)) {
-				auto cram = vdp.peekCram(i);
-				ImGui::PushID(i);
-				ImGui::ColorButton("##cram",
-					ImGui::ColorConvertU32ToFloat4(palette[i]),
-					ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoPicker, ImVec2(24.0f, 24.0f));
-				if (ImGui::IsItemHovered()) {
-					ImGui::SetTooltip("CRAM[%d] = 0x%02X (color 0x%02X)", i, cram, cram & 0x3f);
-				}
-				if (ImGui::IsItemClicked()) {
-					ImGui::OpenPopup("##cramColors");
-				}
-				if (ImGui::BeginPopup("##cramColors")) {
-					for (auto row : xrange(8)) {
-						for (auto column : xrange(8)) {
-							auto c = row * 8 + column;
-							const uint32_t rgb = colors[c];
-							ImGui::PushID(c);
-							ImGui::ColorButton("##color",
-								ImGui::ColorConvertU32ToFloat4(ImColor(int((rgb >> 16) & 0xff),
-								                                      int((rgb >> 8) & 0xff),
-								                                      int(rgb & 0xff))),
-								ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoPicker, ImVec2(24.0f, 24.0f));
-							ImGui::PopID();
-							if (ImGui::IsItemHovered()) {
-								ImGui::SetTooltip("color 0x%02X", c);
-							}
-							if (ImGui::IsItemClicked()) {
-								vdp.pokeCram(i, uint8_t(c));
-								ImGui::CloseCurrentPopup();
-							}
-							if (column != 7) ImGui::SameLine();
-						}
-					}
-					ImGui::EndPopup();
-				}
-				ImGui::PopID();
-				if ((i % 16) != 15) ImGui::SameLine();
-			}
-		};
+		auto palette = getSMSPalette(vdp, mode == MODE4);
+		if ((mode != MODE4) && (color0 < 16)) palette[0] = palette[color0];
 
 		if (mode == MODE4) {
 			ImGui::Separator();
-			im::TreeNode("CRAM", ImGuiTreeNodeFlags_DefaultOpen, drawCramEditor);
+			im::TreeNode("CRAM", ImGuiTreeNodeFlags_DefaultOpen, [&]{ drawSMSCramEditor(vdp); });
 		}
 
 		auto fgCol = manFgCol ? manualFgCol : vdpFgCol;
