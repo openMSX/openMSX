@@ -16,7 +16,6 @@
 #include <optional>
 #include <span>
 #include <string>
-#include <vector>
 
 namespace openmsx {
 
@@ -128,8 +127,7 @@ public:
 	  * newest to oldest. When activeOnly is true, completed runs are
 	  * ignored. Returns no value when no matching run exists.
 	  */
-	[[nodiscard]] std::optional<EmuTime> getBlockStart(
-		uint16_t pc, uint16_t sp, bool activeOnly = false) const;
+	[[nodiscard]] std::optional<EmuTime> getBlockStart(uint16_t pc, uint16_t sp) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -187,16 +185,15 @@ private:
 	 * Time is the run's start time (used by 'reverse blockstart'/step_back).
 	 */
 	struct BlockContext {
-		uint16_t pc = 0;
+		uint16_t pc = 0xFFFF;
 		uint16_t sp = 0;
 		EmuTime time = EmuTime::zero();
-		bool active = false;
 		template<typename Archive> void serialize(Archive& ar, unsigned /*version*/) {
-			ar.serialize("pc", pc, "sp", sp, "time", time, "active", active);
+			ar.serialize("pc", pc, "sp", sp, "time", time);
 		}
 	};
 	static constexpr unsigned MAX_BLOCK_CONTEXTS = 8;
-	std::vector<BlockContext> blockStack;
+	std::array<BlockContext, MAX_BLOCK_CONTEXTS + 1> blockStack;
 
 	std::atomic<bool> exitLoop = false;
 

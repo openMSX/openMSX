@@ -348,13 +348,12 @@ CPURegs& MSXCPU::getRegisters()
 	}
 }
 
-std::optional<EmuTime> MSXCPU::getBlockStart(
-	uint16_t pc, uint16_t sp, bool activeOnly) const
+std::optional<EmuTime> MSXCPU::getBlockStart(uint16_t pc, uint16_t sp) const
 {
-	if (z80Active || !r800) {
-		return z80->getBlockStart(pc, sp, activeOnly);
+	if (z80Active) {
+		return z80->getBlockStart(pc, sp);
 	} else {
-		return r800->getBlockStart(pc, sp, activeOnly);
+		return r800->getBlockStart(pc, sp);
 	}
 }
 

@@ -383,7 +383,7 @@ template<typename T> void CPUCore<T>::doReset(EmuTime time)
 	// single openMSX version.
 	T::setTime(time);
 
-	blockStack.clear(); // no block-repeat history survives reset
+	blockStack.fill(BlockContext{}); // no block-repeat history survives reset
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
@@ -4023,25 +4023,21 @@ template<typename T> II CPUCore<T>::out_byte_a() {
 template<typename T> void CPUCore<T>::noteBlockRepeatEntry()
 {
 	// At dispatch PC points at the second opcode byte (the ED prefix was
-	// already consumed); convert it to the instruction-start address used
-	// by 'reg PC' and the disassembler.
-	uint16_t pc = getPC() - 1;
+	// already consumed), but it doesn't matter since step_back already
+	// uses PC + 1.
+	uint16_t pc = getPC();
 	uint16_t sp = getSP();
-	auto activeIt = std::find_if(blockStack.rbegin(), blockStack.rend(),
-		[](const BlockContext& c) { return c.active; });
-	if ((activeIt != blockStack.rend()) &&
-	    (activeIt->pc == pc) && (activeIt->sp == sp)) {
+
+	if (blockStack[0].pc == pc && blockStack[0].sp == sp) {
+		// continuation of block instruction, don't do anything
 		return;
 	}
-	if (blockStack.size() >= MAX_BLOCK_CONTEXTS) {
-		// Drop the oldest completed entry first. Keep active contexts so a
-		// long outer block is not lost because of many nested inner blocks.
-		auto inactiveIt = std::find_if(blockStack.begin(), blockStack.end(),
-			[](const BlockContext& c) { return !c.active; });
-		blockStack.erase((inactiveIt != blockStack.end()) ? inactiveIt
-		                                                 : blockStack.begin());
-	}
-	blockStack.push_back({pc, sp, T::getTime(), true});
+
+	// shift right and copy to new space
+	std::shift_right(blockStack.begin(), blockStack.end(), 1);
+	blockStack[0].pc = pc;
+	blockStack[0].sp = sp;
+	blockStack[0].time = T::getTime();
 }
 
 // Called when a repeat opcode finishes its block (counter reached zero, or
@@ -4049,23 +4045,13 @@ template<typename T> void CPUCore<T>::noteBlockRepeatEntry()
 // but keeps it in the history so step_back can still find its start.
 template<typename T> void CPUCore<T>::noteBlockRepeatEnd()
 {
-	// Same first-byte convention as noteBlockRepeatEntry().
-	uint16_t pc = getPC() - 1;
-	uint16_t sp = getSP();
-	auto activeIt = std::find_if(blockStack.rbegin(), blockStack.rend(),
-		[](const BlockContext& c) { return c.active; });
-	if ((activeIt != blockStack.rend()) &&
-	    (activeIt->pc == pc) && (activeIt->sp == sp)) {
-		activeIt->active = false;
-	}
+	std::shift_left(blockStack.begin(), blockStack.end(), 1);
 }
 
-template<typename T> std::optional<EmuTime> CPUCore<T>::getBlockStart(
-	uint16_t pc, uint16_t sp, bool activeOnly) const
+template<typename T> std::optional<EmuTime> CPUCore<T>::getBlockStart(uint16_t pc, uint16_t sp) const
 {
 	// Newest (most recently entered) run first.
 	for (auto it = blockStack.rbegin(); it != blockStack.rend(); ++it) {
-		if (activeOnly && !it->active) continue;
 		if ((it->pc == pc) && (it->sp == sp)) {
 			return it->time;
 		}
@@ -4415,7 +4401,7 @@ template<typename T> template<Reg16 REG> II CPUCore<T>::muluw_hl_SS() {
 //  3 -> timing of the emulation changed (no changes in serialization)
 //  4 -> timing of the emulation changed again (see doc/internal/r800-call.txt)
 //  5 -> added serialization of nmiEdge
-//  6 -> added serialization of blockStack (PC, SP, start time and active flag)
+//  6 -> added serialization of blockStack (PC, SP, start time)
 template<typename T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
@@ -4439,11 +4425,7 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 		ar.serialize("nmiEdge", nmiEdge);
 	}
 
-	if (ar.versionBelow(version, 6)) {
-		// Older versions had no block-repeat context: forget any in-flight
-		// block (its resume will look like a fresh entry).
-		blockStack.clear();
-	} else {
+	if (ar.versionAtLeast(version, 6)) {
 		ar.serialize("blockStack", blockStack);
 	}
 

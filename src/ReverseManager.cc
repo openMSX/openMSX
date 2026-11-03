@@ -12,6 +12,7 @@
 #include "MSXCliComm.hh"
 #include "MSXCommandController.hh"
 #include "MSXCPU.hh"
+#include "CPURegs.hh"
 #include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -295,18 +296,17 @@ void ReverseManager::goTo(std::span<const TclObject> tokens)
 
 void ReverseManager::blockStart(std::span<const TclObject> tokens, TclObject& result)
 {
-	// usage: reverse blockstart <pc> <sp> [active]
+	// usage: reverse blockstart <pc>
 	// Returns the start time of the latest block-repeat execution entered
-	// with the given PC and SP. When 'active' is true, only runs that are
-	// still executing are considered. This reads the CPU's saved block
-	// history, so it works without reverse recording and after loading a
-	// snapshot.
+	// with the given PC and current SP. When 'active' is true, only runs
+	// that are still executing are considered. This reads the CPU's saved
+	// block history, so it works without reverse recording and after loading
+	// a snapshot.
 	auto& interp = motherBoard.getReactor().getInterpreter();
-	if ((tokens.size() != 4) && (tokens.size() != 5)) throw SyntaxError();
+	if (tokens.size() != 3) throw SyntaxError();
 	uint16_t pc = narrow_cast<uint16_t>(tokens[2].getInt(interp));
-	uint16_t sp = narrow_cast<uint16_t>(tokens[3].getInt(interp));
-	bool activeOnly = (tokens.size() == 5) && tokens[4].getBoolean(interp);
-	auto time = motherBoard.getCPU().getBlockStart(pc, sp, activeOnly);
+	uint16_t sp = motherBoard.getCPU().getRegisters().getSP();
+	auto time = motherBoard.getCPU().getBlockStart(pc, sp);
 	if (!time) {
 		throw CommandException(
 			"No block-repeat execution with this PC and SP.");
@@ -1007,7 +1007,6 @@ std::string ReverseManager::ReverseCmd::help(std::span<const TclObject> /*tokens
 	       "status              show various status info on reverse\n"
 	       "goback <n>          go back <n> seconds in time\n"
 	       "goto <time>         go to an absolute moment in time\n"
-	       "blockstart <pc> <sp> [active]  start time of the latest block-repeat execution entered with <pc> and <sp>\n"
 	       "viewonlymode <bool> switch viewonly mode on or off\n"
 	       "truncatereplay      stop replaying and remove all 'future' data\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
@@ -1020,7 +1019,6 @@ void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens)
 	if (tokens.size() == 2) {
 		static constexpr std::array subCommands = {
 			"start"sv, "stop"sv, "status"sv, "goback"sv, "goto"sv,
-			"blockstart"sv,
 			"savereplay"sv, "loadreplay"sv, "viewonlymode"sv,
 			"truncatereplay"sv,
 		};

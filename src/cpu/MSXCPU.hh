@@ -151,8 +151,7 @@ public:
 	[[nodiscard]] CPURegs& getRegisters();
 
 	/** See CPUCore::getBlockStart(). Queries the currently active CPU. */
-	[[nodiscard]] std::optional<EmuTime> getBlockStart(
-		uint16_t pc, uint16_t sp, bool activeOnly = false) const;
+	[[nodiscard]] std::optional<EmuTime> getBlockStart(uint16_t pc, uint16_t sp) const;
 
 	[[nodiscard]] auto* getZ80() { return z80.get(); }
 	[[nodiscard]] auto* getR800() { return r800.get(); }
