@@ -18,6 +18,7 @@
 #include "ImGuiSymbols.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiV9990Bitmap.hh"
+#include "ImGuiV9990Regs.hh"
 #include "ImGuiV9990Sprites.hh"
 #include "ImGuiV9990Tiles.hh"
 #include "ImGuiVdpRegs.hh"
@@ -202,6 +203,7 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 	buf.appendf("v9990BitmapViewers=%d\n", narrow<int>(v9990BitmapViewers.size()));
 	buf.appendf("v9990TileViewers=%d\n", narrow<int>(v9990TileViewers.size()));
 	buf.appendf("v9990SpriteViewers=%d\n", narrow<int>(v9990SpriteViewers.size()));
+	buf.appendf("v9990RegsViewers=%d\n", narrow<int>(v9990RegsViewers.size()));
 
 	saveCountPerDebuggable(buf, "hexEditor.", hexEditors);
 	saveCountPerDebuggable(buf, "debuggableBitmap.", debuggableBitmapViewers);
@@ -219,6 +221,7 @@ void ImGuiDebugger::loadStart()
 	v9990BitmapViewers.clear();
 	v9990TileViewers.clear();
 	v9990SpriteViewers.clear();
+	v9990RegsViewers.clear();
 	hexEditors.clear();
 	debuggableBitmapViewers.clear();
 }
@@ -274,6 +277,10 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	} else if (name == "v9990SpriteViewers") {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			repeat(*r, [&] { openOrCreate(manager, v9990SpriteViewers); });
+		}
+	} else if (name == "v9990RegsViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, v9990RegsViewers); });
 		}
 	} else if (name.starts_with(hexEditorPrefix)) {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
@@ -390,6 +397,9 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::MenuItem("V9990 sprite viewer")) {
 				openOrCreate(manager, v9990SpriteViewers);
+			}
+			if (ImGui::MenuItem("V9990 register viewer")) {
+				openOrCreate(manager, v9990RegsViewers);
 			}
 		}
 		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show);
