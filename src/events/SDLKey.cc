@@ -33,12 +33,10 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	// "POWER", "HELP", "MENU", "UNDO", "SYSREQ", "CLEAR",
 
 	// These (old) openMSX names are no longer supported:
-	// "BACK": the Android back button, nowadays SDL's "AC Back" key.
 	// "ZENKAKU_HENKAKU": SDL reports this key as the GRAVE scancode and
 	//    it never gets released, so it's ignored (see Keyboard.cc).
 	// "HIRAGANA_KATAKANA": SDL has no keycode for it (scancode
 	//    International 2), and it never gets released either.
-	// "HENKAN_MODE": nowadays called "HENKAN" (see below).
 
 	struct M {
 		std::string_view name;
@@ -101,6 +99,8 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 		M{"RALT",        SDLK_RALT},        // Right Alt
 		M{"RSUPER",      SDLK_RGUI},        // Right GUI    Right "Windows" key
 		M{"RMODE",       SDLK_MODE},        // ModeSwitch   "Alt Gr" key
+		M{"BACK",        SDLK_AC_BACK},     // AC Back      e.g. Android back button
+		M{"HENKAN_MODE", SDLK_HENKAN},      // Henkan       (Japanese keyboards)
 
 		// SDL2 names of keys that were renamed in SDL3 (the search is
 		// case-insensitive, but this table must be sorted in uppercase)

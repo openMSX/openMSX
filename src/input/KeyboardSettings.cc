@@ -18,6 +18,7 @@ namespace openmsx {
 		{"RCTRL",       SDLK_RCTRL},
 		{"HENKAN",      SDLK_HENKAN},
 		{"MUHENKAN",    SDLK_MUHENKAN},
+		{"HENKAN_MODE", SDLK_HENKAN}, // bw-compat
 		{"RSHIFT",      SDLK_RSHIFT},
 		{"RGUI",        SDLK_RGUI},
 		{"LGUI",        SDLK_LGUI},
