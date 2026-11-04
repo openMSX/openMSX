@@ -70,6 +70,22 @@ public:
 		return status;
 	}
 
+	/** Snapshot of the command parameter registers (R#32-R#54).
+	  * These are not kept in the V9990 register file: V9990::writeRegister()
+	  * forwards them straight to this engine, so the debugger has to read
+	  * them back from here. */
+	struct CmdRegs {
+		uint16_t SX, SY, DX, DY, NX, NY;
+		uint16_t WM, fgCol, bgCol, borderX;
+		uint8_t ARG, LOG, CMD;
+	};
+	[[nodiscard]] CmdRegs getCmdRegs(EmuTime time) const {
+		return {.SX = SX, .SY = SY, .DX = DX, .DY = DY, .NX = NX, .NY = NY,
+		        .WM = WM, .fgCol = fgCol, .bgCol = bgCol,
+		        .borderX = getBorderX(time),
+		        .ARG = ARG, .LOG = LOG, .CMD = CMD};
+	}
+
 	[[nodiscard]] uint16_t getBorderX(EmuTime time) const {
 		// note: used for both normal and debug read
 		const_cast<V9990CmdEngine*>(this)->sync(time);
