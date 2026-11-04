@@ -63,15 +63,10 @@ jobs:
             os: linux
             flavour: unittest
           - image: ubuntu-latest
-            name: Linux
+            name: Flatpak
             cpu: x86_64
-            os: linux
+            os: flatpak
             flavour: opt
-#          - image: ubuntu-latest
-#            name: Linux
-#            cpu: aarch64
-#            os: linux
-#            flavour: opt
           - image: ubuntu-24.04
             name: Windows
             cpu: x86_64
