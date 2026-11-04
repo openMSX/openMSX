@@ -64,6 +64,7 @@ V9990::V9990(const DeviceConfig& config)
 	, syncSetMode(*this)
 	, syncCmdEnd(*this)
 	, v9990RegDebug(*this)
+	, v9990StatusDebug(*this)
 	, v9990PalDebug(*this)
 	, irq(getMotherBoard(), getName() + ".IRQ")
 	, display(getReactor().getDisplay())
@@ -248,22 +249,8 @@ uint8_t V9990::peekIO(uint16_t port, EmuTime time) const
 	case INTERRUPT_FLAG:
 		return pendingIRQs;
 
-	case STATUS: {
-		unsigned left   = getLeftBorder();
-		unsigned right  = getRightBorder();
-		unsigned top    = getTopBorder();
-		unsigned bottom = getBottomBorder();
-		unsigned ticks = getUCTicksThisFrame(time);
-		unsigned x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
-		unsigned y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
-		bool hr = (x < left) || (right  <= x);
-		bool vr = (y < top)  || (bottom <= y);
-
-		return cmdEngine.getStatus(time) |
-		       (vr ? 0x40 : 0x00) |
-		       (hr ? 0x20 : 0x00) |
-		       (status & 0x06);
-	}
+	case STATUS:
+		return peekStatus(time);
 	case KANJI_ROM_1:
 	case KANJI_ROM_3:
 		// not used in Gfx9000
@@ -490,22 +477,35 @@ V9990::RegDebug::RegDebug(const V9990& v9990_)
 {
 }
 
-uint8_t V9990::RegDebug::read(unsigned address)
+uint8_t V9990::RegDebug::read(unsigned address, EmuTime time)
 {
-	auto& v9990 = OUTER(V9990, v9990RegDebug);
-	return v9990.regs[address];
-}
-
-void V9990::RegDebug::readBlock(unsigned start, std::span<uint8_t> output)
-{
-	auto& v9990 = OUTER(V9990, v9990RegDebug);
-	copy_to_range(std::span{v9990.regs}.subspan(start, output.size()), output);
+	const auto& v9990 = OUTER(V9990, v9990RegDebug);
+	return (address < CMD_PARAM_SRC_ADDRESS_0)
+	     ? v9990.regs[address]
+	     : v9990.peekCmdRegister(narrow<uint8_t>(address), time);
 }
 
 void V9990::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
 	v9990.writeRegister(narrow<uint8_t>(address), value, time);
+}
+
+// -------------------------------------------------------------------------
+// StatusDebug
+// -------------------------------------------------------------------------
+
+V9990::StatusDebug::StatusDebug(const V9990& v9990_)
+	: SimpleDebuggable(v9990_.getMotherBoard(),
+	                   v9990_.getName() + " status regs",
+	                   "V9990 status port P#5 and interrupt flag port P#6, as a read would return them now.", 2)
+{
+}
+
+uint8_t V9990::StatusDebug::read(unsigned address, EmuTime time)
+{
+	const auto& v9990 = OUTER(V9990, v9990StatusDebug);
+	return (address == 0) ? v9990.peekStatus(time) : v9990.peekInterruptFlag();
 }
 
 // -------------------------------------------------------------------------
@@ -556,13 +556,64 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 	// TODO check
 }
 
+bool V9990::isRegisterReadable(uint8_t reg)
+{
+	return (reg < regAccess.size()) && (regAccess[reg] & ALLOW_READ);
+}
+
+bool V9990::isRegisterWritable(uint8_t reg)
+{
+	return (reg < regAccess.size()) && (regAccess[reg] & ALLOW_WRITE);
+}
+
+uint8_t V9990::peekCmdRegister(uint8_t reg, EmuTime time) const
+{
+	// The masks match V9990CmdEngine::setCmdReg().
+	auto c = cmdEngine.getCmdRegs(time);
+	auto lo = [](uint16_t v) { return narrow_cast<uint8_t>(v & 0xFF); };
+	auto hi = [](uint16_t v, uint8_t mask) { return narrow_cast<uint8_t>((v >> 8) & mask); };
+	switch (reg) {
+		case 32: return lo(c.SX);      case 33: return hi(c.SX, 0x07);
+		case 34: return lo(c.SY);      case 35: return hi(c.SY, 0x0F);
+		case 36: return lo(c.DX);      case 37: return hi(c.DX, 0x07);
+		case 38: return lo(c.DY);      case 39: return hi(c.DY, 0x0F);
+		case 40: return lo(c.NX);      case 41: return hi(c.NX, 0x0F);
+		case 42: return lo(c.NY);      case 43: return hi(c.NY, 0x0F);
+		case 44: return c.ARG;         case 45: return c.LOG;
+		case 46: return lo(c.WM);      case 47: return hi(c.WM, 0xFF);
+		case 48: return lo(c.fgCol);   case 49: return hi(c.fgCol, 0xFF);
+		case 50: return lo(c.bgCol);   case 51: return hi(c.bgCol, 0xFF);
+		case 52: return c.CMD;
+		case 53: return lo(c.borderX); case 54: return hi(c.borderX, 0x07);
+		default: return 0; // R#55-R#63 don't exist
+	}
+}
+
+uint8_t V9990::peekStatus(EmuTime time) const
+{
+	unsigned left   = getLeftBorder();
+	unsigned right  = getRightBorder();
+	unsigned top    = getTopBorder();
+	unsigned bottom = getBottomBorder();
+	unsigned ticks = getUCTicksThisFrame(time);
+	unsigned x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
+	unsigned y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+	bool hr = (x < left) || (right  <= x);
+	bool vr = (y < top)  || (bottom <= y);
+
+	return cmdEngine.getStatus(time) |
+	       (vr ? 0x40 : 0x00) |
+	       (hr ? 0x20 : 0x00) |
+	       (status & 0x06);
+}
+
 uint8_t V9990::readRegister(uint8_t reg, EmuTime time) const
 {
 	// TODO sync(time) (if needed at all)
 	if (systemReset) return 255; // verified on real MSX
 
 	assert(reg < 64);
-	if (regAccess[reg] & ALLOW_READ) {
+	if (isRegisterReadable(reg)) {
 		if (reg < CMD_PARAM_BORDER_X_0) {
 			return regs[reg];
 		} else {
@@ -596,7 +647,7 @@ void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime time)
 	};
 
 	assert(reg < 64);
-	if (!(regAccess[reg] & ALLOW_WRITE)) {
+	if (!isRegisterWritable(reg)) {
 		// register not writable
 		invalidRegisterWriteCallback.execute(reg, val);
 		return;
