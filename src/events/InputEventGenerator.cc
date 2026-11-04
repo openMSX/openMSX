@@ -113,6 +113,9 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 		if (curr->type == SDL_EVENT_USER) {
 			continue;
 		}
+		if (curr->type == one_of(SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP)) {
+			curr->key.key = SDLKey::keycodeOrFromScancode(curr->key.key, curr->key.scancode);
+		}
 		if (pending) {
 			pending = false;
 			if ((prev->type == SDL_EVENT_KEY_DOWN) && (curr->type == SDL_EVENT_TEXT_INPUT)) {

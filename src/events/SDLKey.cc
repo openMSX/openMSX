@@ -32,10 +32,13 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	// "END", "PAGEDOWN", "RIGHT", "LEFT", "DOWN", "UP", "NUMLOCK",
 	// "POWER", "HELP", "MENU", "UNDO", "SYSREQ", "CLEAR",
 
-	// For these (old) openMSX names it's not clear which SDL2 keycode
-	// corresponds to it. So, at least for now, these are no longer
-	// supported.
-	// "BACK", "ZENKAKU_HENKAKU", "MUHENKAN", "HENKAN_MODE", "HIRAGANA_KATAKANA",
+	// These (old) openMSX names are no longer supported:
+	// "BACK": the Android back button, nowadays SDL's "AC Back" key.
+	// "ZENKAKU_HENKAKU": SDL reports this key as the GRAVE scancode and
+	//    it never gets released, so it's ignored (see Keyboard.cc).
+	// "HIRAGANA_KATAKANA": SDL has no keycode for it (scancode
+	//    International 2), and it never gets released either.
+	// "HENKAN_MODE": nowadays called "HENKAN" (see below).
 
 	struct M {
 		std::string_view name;
@@ -141,11 +144,28 @@ static std::optional<SDL_Keycode> getKeyFromSingleCharName(std::string_view name
 	return SDL_Keycode(('A' <= lead && lead <= 'Z') ? (lead - 'A' + 'a') : lead);
 }
 
+// Keys for which SDL has no keycode, and thus no name that it can parse back
+// (see SDLKey::keycodeOrFromScancode()). Only called when SDL_GetKeyFromName()
+// didn't find a keycode.
+static SDL_Keycode getKeyWithoutSdlKeycode(zstring_view name)
+{
+	// Our own names for some of them, see toString()
+	StringOp::casecmp cmp;
+	if (cmp(name, "HENKAN"))   return SDLK_HENKAN;
+	if (cmp(name, "MUHENKAN")) return SDLK_MUHENKAN;
+
+	// The SDL name of the scancode, e.g. "International 1"
+	return SDLKey::keycodeOrFromScancode(SDLK_UNKNOWN, SDL_GetScancodeFromName(name.c_str()));
+}
+
 SDL_Keycode SDLKey::keycodeFromString(zstring_view name)
 {
 	if (auto key = getKeyFromSingleCharName(name)) return *key;
 
 	auto result = SDL_GetKeyFromName(name.c_str());
+	if (result == SDLK_UNKNOWN) {
+		result = getKeyWithoutSdlKeycode(name);
+	}
 	if (result == SDLK_UNKNOWN) {
 		// for backwards compatibility
 		result = getKeyFromOldOpenmsxName(name);
@@ -254,6 +274,9 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 
 std::string SDLKey::toString(SDL_Keycode code)
 {
+	// SDL would name these e.g. "International 4", but can't parse that back
+	if (code == SDLK_HENKAN)   return "HENKAN";
+	if (code == SDLK_MUHENKAN) return "MUHENKAN";
 	// A keycode that is a character is named by that character itself
 	// (with 'a'-'z' in uppercase). This is how SDL2's 'SDL_GetKeyName()'
 	// names such keys. SDL3 instead uses the character that the key
