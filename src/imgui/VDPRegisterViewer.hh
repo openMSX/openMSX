@@ -56,7 +56,13 @@ struct RegFunction {
 		: subs(subs_), toolTip(toolTip_), displayRegs(displayRegs_) {}
 
 	[[nodiscard]] TemporaryString explain(uint32_t value, const Regs& regs) const {
-		return display ? display(value) : displayRegs(value, regs);
+		// msvc workaround, this doesn't compile:
+		//     return display ? display(value) : displayRegs(value, regs);
+		if (display) {
+			return display(value);
+		} else {
+			return displayRegs(value, regs);
+		}
 	}
 
 	// VDPRegisterViewer::drawSection() draws this item when 'subs[0].reg' or
