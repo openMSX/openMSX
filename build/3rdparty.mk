@@ -143,6 +143,8 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 # Configure pkgconf.
 # It runs on the build machine, so don't use the cross compiler. It looks for
 # the .pc files of the libraries we build, and not for those of the system.
+# On FreeBSD, SDL3 installs its .pc file in libdata/pkgconfig instead of
+# lib/pkgconfig.
 $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PKG_CONFIG)/.extracted
 	mkdir -p $(@D)
@@ -150,7 +152,7 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		--disable-shared \
 		--program-prefix=$(TARGET_TRIPLE)- \
 		--prefix=$(PWD)/$(TOOLS_DIR) \
-		--with-pkg-config-dir=$(PWD)/$(INSTALL_DIR)/lib/pkgconfig \
+		--with-pkg-config-dir=$(PWD)/$(INSTALL_DIR)/lib/pkgconfig:$(PWD)/$(INSTALL_DIR)/libdata/pkgconfig \
 		CC= LD= AR= RANLIB= STRIP=
 
 # Common flags for the libraries that are built with CMake.
