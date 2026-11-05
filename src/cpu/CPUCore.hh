@@ -13,6 +13,7 @@
 #include <array>
 #include <atomic>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string>
 
@@ -121,6 +122,16 @@ public:
 	[[nodiscard]] BooleanSetting& getFreqLockedSetting() { return freqLocked; }
 	[[nodiscard]] IntegerSetting& getFreqValueSetting()  { return freqValue; }
 
+	/** When the CPU is in the middle of a block-repeat instruction
+	  * (LDIR, CPIR, ...) at the current PC, return the time that
+	  * instruction started (its first iteration). Returns no value
+	  * otherwise, including when the CPU is at the first iteration.
+	  * On R800 the returned time can be a few cycles after the start
+	  * (but still within the first iteration): it includes the dynamic
+	  * penalties of fetching the opcode.
+	  */
+	[[nodiscard]] std::optional<EmuTime> getBlockStart() const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -162,6 +173,33 @@ private:
 	 * Set to false when the CPU jumps to the NMI handler address.
 	 */
 	bool nmiEdge = false;
+
+	/**
+	 * Block-repeat instructions that are currently executing, most
+	 * recent at index 0. More than one is possible when a block
+	 * instruction gets interrupted and the IRQ/NMI handler executes its
+	 * own block instruction. A run is pushed on its first iteration and
+	 * popped on its last. The (PC, SP) pair identifies a run: a resume
+	 * after an IRQ has the same pair, a nested run at the same PC has a
+	 * different SP.
+	 *
+	 * 'pc' is the address of the 2nd opcode byte (the value of PC during
+	 * the execution of the instruction). Unused entries have pc == -1,
+	 * that's never a valid PC. The last entry always stays unused. When
+	 * more than MAX_BLOCK_CONTEXTS runs are nested, the oldest is lost.
+	 */
+	struct BlockContext {
+		uint32_t pc = uint32_t(-1);
+		uint16_t sp = 0;
+		EmuTime time = EmuTime::zero();
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned /*version*/) {
+			ar.serialize("pc", pc, "sp", sp, "time", time);
+		}
+	};
+	static constexpr unsigned MAX_BLOCK_CONTEXTS = 8;
+	std::array<BlockContext, MAX_BLOCK_CONTEXTS + 1> blockStack;
 
 	std::atomic<bool> exitLoop = false;
 
@@ -449,6 +487,13 @@ private:
 	inline II otdr();
 	inline II otir();
 
+	// Bookkeeping for block-repeat instructions (LDIR/LDDR/CPIR/CPDR/
+	// INIR/INDR/OTIR/OTDR), used by 'reverse blockstart' / step_back.
+	// Entry is called on every iteration, End only on the last one.
+	inline void noteBlockRepeatEntry();
+	void pushBlockRepeat();
+	inline void noteBlockRepeatEnd();
+
 	template<int EE = 0> inline II nop();
 	inline II ccf();
 	inline II cpl();
@@ -477,8 +522,8 @@ private:
 
 class Z80TYPE;
 class R800TYPE;
-SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  5);
-SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 5); // keep these two the same
+SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  6);
+SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 6); // keep these two the same
 
 } // namespace openmsx
 

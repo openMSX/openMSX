@@ -11,6 +11,7 @@
 #include "Keyboard.hh"
 #include "MSXCliComm.hh"
 #include "MSXCommandController.hh"
+#include "MSXCPU.hh"
 #include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -290,6 +291,16 @@ void ReverseManager::goTo(std::span<const TclObject> tokens)
 
 	EmuTime target = EmuTime::zero() + EmuDuration::sec(t);
 	goTo(target, noVideo);
+}
+
+void ReverseManager::blockStart(std::span<const TclObject> tokens, TclObject& result)
+{
+	if (tokens.size() != 2) throw SyntaxError();
+	auto time = motherBoard.getCPU().getBlockStart();
+	if (!time) {
+		throw CommandException("Not in a block instruction.");
+	}
+	result = time->toDouble();
 }
 
 void ReverseManager::goTo(EmuTime target, bool noVideo)
@@ -957,6 +968,7 @@ void ReverseManager::ReverseCmd::execute(std::span<const TclObject> tokens, TclO
 		"debug",      [&]{ manager.debugInfo(result); },
 		"goback",     [&]{ manager.goBack(tokens); },
 		"goto",       [&]{ manager.goTo(tokens); },
+		"blockstart", [&]{ manager.blockStart(tokens, result); },
 		"savereplay", [&]{ manager.saveReplay(interp, tokens, result); },
 		"loadreplay", [&]{ manager.loadReplay(interp, tokens, result); },
 		"viewonlymode", [&]{
@@ -988,6 +1000,9 @@ std::string ReverseManager::ReverseCmd::help(std::span<const TclObject> /*tokens
 	       "truncatereplay      stop replaying and remove all 'future' data\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
 	       "loadreplay [-goto <begin|end|savetime|<n>>] [-viewonly] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
+
+	       // Internal only:
+	       //"blockstart          start time of the current block instruction (LDIR, ...)\n"
 }
 
 void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens) const
@@ -998,6 +1013,7 @@ void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens)
 			"start"sv, "stop"sv, "status"sv, "goback"sv, "goto"sv,
 			"savereplay"sv, "loadreplay"sv, "viewonlymode"sv,
 			"truncatereplay"sv,
+			// no tab-completion for blockstart (not useful interactively)
 		};
 		completeString(tokens, subCommands);
 	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {

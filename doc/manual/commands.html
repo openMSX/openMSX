@@ -3021,7 +3021,11 @@ current MSX model can be:</p>
     </tr>
     <tr>
       <td><code>step_back</code></td>
-      <td>Steps one instruction back in time</td>
+      <td>Steps one instruction back in time, block instructions like LDIR are treated as a single instruction</td>
+    </tr>
+    <tr>
+      <td><code>step_back_one</code></td>
+      <td>Like step_back, but only steps back one iteration of a block instruction</td>
     </tr>
     <tr>
       <td><code>symboltracer</code></td>
