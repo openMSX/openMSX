@@ -141,8 +141,8 @@ void MappedFileImpl::mapFile(LocalFile& file, bool is_const)
 {
 	auto prot = PROT_READ | (is_const ? 0 : PROT_WRITE);
 	auto flags = MAP_PRIVATE;
-	#ifndef __APPLE__
-	flags |= MAP_POPULATE; // MAP_POPULATE not supported on macOS
+	#ifdef MAP_POPULATE
+	flags |= MAP_POPULATE; // not available on all systems, e.g. not on macOS and FreeBSD
 	#endif
 
 	int fd = file.getFD();
