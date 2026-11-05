@@ -204,8 +204,10 @@ class GL(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		# On *BSD, OpenGL is in ports, not in the base system.
-		return not platform.endswith('bsd')
+		# On *BSD, OpenGL is in ports, not in the base system. But we can't
+		# build it ourselves, and a system that runs openMSX has it installed
+		# anyway (just like X11, which is in ports as well).
+		return True
 
 	@classmethod
 	def getHeaders(cls, platform):
