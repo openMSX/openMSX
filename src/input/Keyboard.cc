@@ -995,6 +995,18 @@ void Keyboard::changeKeyMatrixEvent(EmuTime time, uint8_t row, uint8_t newValue)
 }
 
 /*
+ * Text without a key: a key event without scancode, which InputEventGenerator
+ * makes from text input (see splitText() there). For example the text that an
+ * input method composes from a dead key and the next key, or the second and
+ * further characters of a text input event. The host never sends a release
+ * event for it.
+ */
+static bool isTextWithoutKey(const KeyEvent& keyEvent)
+{
+	return keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN;
+}
+
+/*
  * @return True iff a release event for the CODE/KANA key must be scheduled.
  */
 bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
@@ -1089,9 +1101,10 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		}
 		return false;
 	} else {
-		// To work around a Japanese keyboard Kanji mode bug. (Multi-character
-		// input makes a keydown event without keyrelease message.)
-		if (keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN) {
+		if (isTextWithoutKey(keyEvent) &&
+		    (mode != KeyboardSettings::MappingMode::CHARACTER)) {
+			// Text without a key (see isTextWithoutKey()) is only used
+			// in CHARACTER mode.
 			return false;
 		}
 		if ((keyEvent.getScanCode() == SDL_SCANCODE_GRAVE) && (hostKeyMap == HostKeyMap::JP)) {
@@ -1733,7 +1746,17 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime time)
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {
-			eventQueue.pop_front();
+			bool releaseText = (getType(event) == EventType::KEY_DOWN) &&
+			                   isTextWithoutKey(get_event<KeyEvent>(event));
+			eventQueue.pop_front(); // invalidates 'event'
+			if (releaseText) {
+				// The host never releases text without a key, so
+				// schedule a release ourselves, to be processed before
+				// any of the other events in the queue. Like the key
+				// release of a key without scancode, it releases the
+				// character that was pressed for it.
+				eventQueue.emplace_front(KeyUpEvent::create(SDLK_UNKNOWN));
+			}
 		} else {
 			// it's possible clear() has been called
 			// (indirectly from keyboard.processQueuedEvent())
