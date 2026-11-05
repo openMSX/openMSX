@@ -1,0 +1,3 @@
+# Runtime artifacts produced by the integration driver; not part of the suite.
+.stderr.log
+.userdata/

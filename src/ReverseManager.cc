@@ -11,6 +11,8 @@
 #include "Keyboard.hh"
 #include "MSXCliComm.hh"
 #include "MSXCommandController.hh"
+#include "MSXCPU.hh"
+#include "CPURegs.hh"
 #include "MSXMixer.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -290,6 +292,26 @@ void ReverseManager::goTo(std::span<const TclObject> tokens)
 
 	EmuTime target = EmuTime::zero() + EmuDuration::sec(t);
 	goTo(target, noVideo);
+}
+
+void ReverseManager::blockStart(std::span<const TclObject> tokens, TclObject& result)
+{
+	// usage: reverse blockstart <pc>
+	// Returns the start time of the latest block-repeat execution entered
+	// with the given PC and current SP. When 'active' is true, only runs
+	// that are still executing are considered. This reads the CPU's saved
+	// block history, so it works without reverse recording and after loading
+	// a snapshot.
+	auto& interp = motherBoard.getReactor().getInterpreter();
+	if (tokens.size() != 3) throw SyntaxError();
+	uint16_t pc = narrow_cast<uint16_t>(tokens[2].getInt(interp));
+	uint16_t sp = motherBoard.getCPU().getRegisters().getSP();
+	auto time = motherBoard.getCPU().getBlockStart(pc, sp);
+	if (!time) {
+		throw CommandException(
+			"No block-repeat execution with this PC and SP.");
+	}
+	result = time->toDouble();
 }
 
 void ReverseManager::goTo(EmuTime target, bool noVideo)
@@ -957,6 +979,7 @@ void ReverseManager::ReverseCmd::execute(std::span<const TclObject> tokens, TclO
 		"debug",      [&]{ manager.debugInfo(result); },
 		"goback",     [&]{ manager.goBack(tokens); },
 		"goto",       [&]{ manager.goTo(tokens); },
+		"blockstart", [&]{ manager.blockStart(tokens, result); },
 		"savereplay", [&]{ manager.saveReplay(interp, tokens, result); },
 		"loadreplay", [&]{ manager.loadReplay(interp, tokens, result); },
 		"viewonlymode", [&]{

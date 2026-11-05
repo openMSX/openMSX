@@ -275,16 +275,21 @@ proc step_over {} {
 	}
 }
 
+# Is the instruction at $address a block instruction?
+proc is_block_instr {addr} {
+    # ldir, cpir, inir, otir, lddr, cpdr, indr, otdr
+    expr {([peek16 $addr] & 0xf4ff) == 0xb0ed}
+}
 
 #
 # step_back
 #
-set_help_text step_back \
-{Step back. Go back in time till right before the last instruction was
-executed. Note that this operation is relatively slow (compared to the other
-step functions). Also the reverse feature must be enabled for this to work
-(normally it's enabled by default).}
-proc step_back {} {
+set_help_text step_back_one \
+{Step back one instruction. Go back in time till right before the last
+instruction was executed. Note that this operation is relatively slow
+(compared to the other step functions). Also the reverse feature must be
+enabled for this to work (normally it's enabled by default).}
+proc step_back_one {} {
 	# In the past this proc was implemented totally different. It's worth
 	# mentioning this old algorithm and explain why it wasn't good enough.
 	# The old algorithm went like this:
@@ -361,6 +366,25 @@ proc step_back {} {
 	reverse goto $curr
 }
 
+#
+# step_back
+#
+set_help_text step_back \
+{Step back. Go back in time till right before the last instruction was
+executed. Note that this operation is relatively slow (compared to the other
+step functions). Also the reverse feature must be enabled for this to work
+(normally it's enabled by default).
+
+Block instructions (LDIR, LDDR, CPIR, ...) are treated as a single instruction,
+so if the last instruction was part of such a run this jumps back to the start
+of that run. Note that this operation is relatively slow (compared to the other
+step functions). Also the reverse feature must be enabled for this to work
+(normally it's enabled by default).}
+proc step_back {} {
+	step_back_one
+	if {![is_block_instr [reg PC]]} return
+	catch {reverse goto [reverse blockstart [expr {[reg PC] + 1}]]}
+}
 
 #
 # skip one instruction
