@@ -7,6 +7,7 @@
 #include "utf8_checked.hh"
 
 #include <cerrno>
+#include <climits>
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
