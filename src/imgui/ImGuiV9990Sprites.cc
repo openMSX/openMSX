@@ -405,6 +405,25 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 					                boundingBoxOnAll == 1, hovered, hoverPos);
 				}
 			});
+
+			// Disabled sprites also take one of the 16 slots of a line, so count
+			// all sprites; when there are more than 16, the later ones are dropped.
+			std::array<float, LINES> perLine = {};
+			for (auto line : xrange(LINES)) {
+				for (const auto& spr : sprites) {
+					if (narrow_cast<uint8_t>(line - spr.y) < 16) ++perLine[line];
+				}
+			}
+			auto busiest = std::ranges::max_element(perLine);
+			auto overLimit = std::ranges::count_if(perLine, [](float n) { return n > 16.0f; });
+			ImGui::StrCat("Sprites per line: at most ", int(*busiest), " (line ", busiest - perLine.begin(),
+			              "), ", overLimit, " line", (overLimit == 1 ? "" : "s"), " over the limit of 16");
+			HelpMarker("The number of sprites on each display line (0-255), including disabled\n"
+			           "sprites: they are not drawn, but do take one of the 16 sprites per line.\n"
+			           "On lines with more than 16 sprites the higher sprite numbers are not drawn.");
+			ImGui::PlotHistogram("##perLine", perLine.data(), LINES, 0, nullptr,
+			                     0.0f, std::max(16.0f, *busiest),
+			                     gl::vec2{fullSize.x, 4.0f * ImGui::GetTextLineHeightWithSpacing()});
 		});
 	});
 }
