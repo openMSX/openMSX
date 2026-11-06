@@ -46,6 +46,7 @@ public:
 	void updateScrollBX(EmuTime time) override;
 	void updateScrollAYLow(EmuTime time) override;
 	void updateScrollBYLow(EmuTime time) override;
+	void updateLayerDisable(EmuTime time) override;
 
 private:
 	void sync(EmuTime time, bool force = false);
