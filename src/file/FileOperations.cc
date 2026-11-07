@@ -15,6 +15,7 @@
 #include <array>
 #include <cassert>
 #include <cerrno>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
@@ -164,6 +165,20 @@ int unlink(zstring_view path)
 	return _wunlink(utf8to16(path).c_str());
 #else
 	return ::unlink(path.c_str());
+#endif
+}
+
+void replaceFile(zstring_view source, zstring_view destination)
+{
+#ifdef _WIN32
+	if (!MoveFileExW(utf8to16(source).c_str(), utf8to16(destination).c_str(),
+	                 MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+		throw FileException("Couldn't replace ", destination, " (Windows error ", GetLastError(), ").");
+	}
+#else
+	if (::rename(source.c_str(), destination.c_str()) != 0) {
+		throw FileException("Couldn't replace ", destination, " (errno ", errno, ").");
+	}
 #endif
 }
 

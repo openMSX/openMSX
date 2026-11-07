@@ -19,6 +19,7 @@
           </sound>
           <rom/>
           <sramname>konamiultimatecollection.sram</sramname>
+          <flashname>konamiultimatecollection.sram.flash</flashname>
           <mappertype>KonamiUltimateCollection</mappertype>
         </ROM>
       </secondary>
