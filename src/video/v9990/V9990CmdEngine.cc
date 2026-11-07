@@ -792,11 +792,16 @@ void V9990CmdEngine::setCmdReg(uint8_t reg, uint8_t value, EmuTime time)
 	case 15: // write mask high
 		WM = uint16_t((WM & 0x00FF) | (value << 8));
 		break;
+	// Measured: once a SRCH sets BD, it stays set through other commands
+	// until FC is written. (The probe always wrote both bytes, so whether
+	// one byte alone clears it is not known.)
 	case 16: // Font color - FG low
 		fgCol = uint16_t((fgCol & 0xFF00) | (value << 0));
+		status &= ~BD;
 		break;
 	case 17: // Font color - FG high
 		fgCol = uint16_t((fgCol & 0x00FF) | (value << 8));
+		status &= ~BD;
 		break;
 	case 18: // Font color - BG low
 		bgCol = uint16_t((bgCol & 0xFF00) | (value << 0));
