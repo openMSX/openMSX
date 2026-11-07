@@ -15,9 +15,13 @@
        backside has 2 RJ-45 like connectors and a tone/pulse switch
        RGB out, CVBS out, printer port and 100W power out. No cassetteport.
 
-       It actually has a tiny keypad instead of normal keyboard. That is not
-       emulated. We emulate it as if a normal Japanese keyboard was connected,
-       like on the Sony HB-F500 or HB-F900.
+       It actually has a tiny keypad instead of normal keyboard, with only
+       these keys: CTRL STOP ESC : - F1 F2 F3 F4 F5 0-9 . BS, the cursor keys,
+       SPACE and RETURN. It can be replaced by the normal Sony keyboard
+       KBD-13 (as on the Sony HB-F500 or HB-F900), see
+       https://www.msx.org/wiki/Sony_HB-T600
+       The keypad is not emulated: we emulate the machine with that KBD-13
+       connected.
 
        All ROM dumps confirmed by Takamichi on his machine and thanks to him
        and Arjen Zeilemaker the modem ROM could be dumped as well and the modem
@@ -44,7 +48,6 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
-      <!-- <keyboard_type>jp_ansi_mini</keyboard_type> -->
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
