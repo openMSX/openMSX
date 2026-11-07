@@ -698,6 +698,32 @@ static constexpr array_with_enum_index<Keyboard::Matrix, bool> defaultCombinedSh
 	segaCombinedShiftFlag,
 };
 
+// The character keys (letters, digits, symbols) in the keycode tables are at
+// their position on an international MSX keyboard. Move them to their position
+// on the keyboard of this MSX, according to its unicode keymap. Only when that
+// key produces the character without modifiers (for letters SHIFT is fine as
+// well, e.g. on Sega keyboards lower case letters need SHIFT), otherwise the
+// key would produce a different character (e.g. '=' needs SHIFT on a Japanese
+// MSX) and the fixed position is as good a guess as any.
+static std::vector<KeyCodeMsxMapping> adaptToKeymap(
+	std::span<const KeyCodeMsxMapping> tab, const UnicodeKeymap& keymap)
+{
+	std::vector<KeyCodeMsxMapping> result(tab.begin(), tab.end());
+	for (auto& [keyCode, pos] : result) {
+		bool isPrintableAscii = (' ' < keyCode) && (keyCode < 0x7F);
+		if (!isPrintableAscii) continue;
+		auto keyInfo = keymap.get(keyCode);
+		if (!keyInfo.isValid()) continue;
+		bool isLetter = ('a' <= keyCode) && (keyCode <= 'z');
+		uint8_t allowedMods = isLetter ? KeyInfo::SHIFT_MASK : 0;
+		if ((keyInfo.modMask & ~allowedMods) == 0) {
+			pos = keyInfo.pos;
+		}
+	}
+	// the keycodes didn't change, so the result is still sorted
+	return result;
+}
+
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler_,
                    CommandController& commandController_,
@@ -740,6 +766,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 {
+	characterKeyCodeTab = adaptToKeymap(keyCodeTab, unicodeKeymap);
+
 	std::ranges::fill(keyMatrix,     255);
 	std::ranges::fill(cmdKeyMatrix,  255);
 	std::ranges::fill(typeKeyMatrix, 255);
@@ -1234,7 +1262,10 @@ void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 			process(mapping->msx);
 		}
 	} else {
-		if (const auto* mapping = binary_find(keyCodeTab, key.keycode, {}, &KeyCodeMsxMapping::hostKeyCode)) {
+		auto tab = (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::CHARACTER)
+		         ? std::span<const KeyCodeMsxMapping>(characterKeyCodeTab)
+		         : keyCodeTab;
+		if (const auto* mapping = binary_find(tab, key.keycode, {}, &KeyCodeMsxMapping::hostKeyCode)) {
 			process(mapping->msx);
 		}
 	}

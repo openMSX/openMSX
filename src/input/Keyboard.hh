@@ -149,6 +149,8 @@ private:
 	EventDistributor& eventDistributor;
 
 	std::span<const KeyCodeMsxMapping> keyCodeTab;
+	// keyCodeTab adapted to the keyboard layout of this MSX, for CHARACTER mode
+	std::vector<KeyCodeMsxMapping> characterKeyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
 	bool combinedShiftFlag;
 
