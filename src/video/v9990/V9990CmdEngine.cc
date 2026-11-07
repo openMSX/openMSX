@@ -1023,6 +1023,7 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					SX = 0; // SX is the X counter
 					endRect();
 					cmdReady(limit);
 				} else {
@@ -1051,6 +1052,7 @@ void V9990CmdEngine::executeLMMC(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					SX = 0; // SX is the X counter
 					endRect();
 					cmdReady(limit);
 				} else {
@@ -1088,6 +1090,7 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 			DX -= uint16_t(NX * dx);
 			DY += dy;
 			if (!--ANY) {
+				SX = 0; // SX is the X counter
 				endRect();
 				cmdReady(engineTime);
 				return;
@@ -1136,6 +1139,7 @@ void V9990CmdEngine::executeLMCM(EmuTime /*limit*/)
 				SX -= uint16_t(NX * dx);
 				SY += dy;
 				if (!--ANY) {
+					DX = 0; // DX is the X counter
 					endRect();
 					endAfterRead = true;
 				} else {
@@ -1229,6 +1233,7 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					SX = 0; // SX is the X counter
 					endRect();
 					cmdReady(limit);
 					return;
@@ -1554,6 +1559,7 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
+				SX = 0; // SX is the X counter
 				cmdReady(engineTime); // LINE leaves NY alone
 				break;
 			}
@@ -1571,6 +1577,7 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
+				SX = 0; // SX is the X counter
 				cmdReady(engineTime); // LINE leaves NY alone
 				break;
 			}
@@ -1615,7 +1622,7 @@ void V9990CmdEngine::executeSRCH(EmuTime limit)
 		}
 		if (((value & mask2) == (col & mask2)) ^ AEQ) {
 			status |= BD; // border detected
-			endDecNY();
+			endSRCH();
 			cmdReady(engineTime);
 			borderX = ASX;
 			break;
@@ -1623,7 +1630,7 @@ void V9990CmdEngine::executeSRCH(EmuTime limit)
 		ASX += TX;
 		if (ASX & width) {
 			status &= ~BD; // border not detected
-			endDecNY();
+			endSRCH();
 			cmdReady(engineTime);
 			borderX = ASX;
 			break;
@@ -1637,8 +1644,9 @@ void V9990CmdEngine::startPOINT(EmuTime /*time*/)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto d = Mode::point(vram, SX, SY, pitch);
-	// Measured: POINT ends like an LMCM of one row, NY is decremented
-	// twice.
+	// Measured: POINT ends like an LMCM of one row: DX (the X counter)
+	// ends at 0 and NY is decremented twice.
+	DX = 0;
 	NY = uint16_t((NY - 1) & 0xFFF);
 	endDecNY();
 
@@ -1677,6 +1685,7 @@ void V9990CmdEngine::startPSET(EmuTime time)
 
 	// TODO advance DX DY
 
+	SX = 0; // SX is the X counter
 	endDecNY();
 	cmdReady(time);
 }
@@ -1690,7 +1699,8 @@ void V9990CmdEngine::executePSET(EmuTime /*limit*/)
 void V9990CmdEngine::startADVN(EmuTime time)
 {
 	std::cout << "V9990: ADVN not yet implemented\n";
-	endDecNY(); // TODO dummy implementation
+	SX = 0; // TODO dummy implementation
+	endDecNY();
 	cmdReady(time);
 }
 
@@ -1838,7 +1848,9 @@ uint8_t V9990CmdEngine::peekCmdData(EmuTime time) const
 // (R#32-R#52 are write only; a program sees them when it starts the next
 // command without rewriting them all). The engine counts with the registers
 // themselves: NY is the row counter, and every command but LINE decrements
-// it once more at the end (STOP too).
+// it once more at the end (STOP too); SX is the X counter of commands that
+// don't read a source (LMMC, LMMV, CMMC, LINE, PSET, ADVN), DX that of
+// commands that don't draw (LMCM, POINT, SRCH). Both end at 0.
 void V9990CmdEngine::endDecNY()
 {
 	NY = uint16_t((NY - 1) & 0xFFF);
@@ -1848,6 +1860,13 @@ void V9990CmdEngine::endDecNY()
 void V9990CmdEngine::endRect()
 {
 	NY = 0xFFF;
+}
+
+// SRCH: DX ends at 0.
+void V9990CmdEngine::endSRCH()
+{
+	DX = 0;
+	endDecNY();
 }
 
 void V9990CmdEngine::cmdReady(EmuTime /*time*/)

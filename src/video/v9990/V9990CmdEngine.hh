@@ -347,6 +347,7 @@ private:
 	/** The command registers at the end of a command. */
 	void endDecNY();
 	void endRect();
+	void endSRCH();
 
 	/** For debugging: Print the info about the current command.
 	  */
