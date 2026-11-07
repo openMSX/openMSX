@@ -1,7 +1,7 @@
 #region: International
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number or DEADKEY<N>
-# <ROW>: row in keyboard matrix (hexadecimal: 0-B)
+# <ROW>: row in keyboard matrix (hexadecimal: 0-C)
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE
@@ -36,7 +36,7 @@
 00018, 13, CTRL        # ^X
 00019, 51, CTRL        # ^Y
 0001a, 03, CTRL        # ^Z
-0001b, 47, CTRL        # ^[ (no ESC key
+0001b, 47, CTRL        # ^[ (no ESC key)
 0001c, 65,             # Right (SDL maps ^\ to this code)
 0001d, 55,             # Left  (SDL maps ^] to this code)
 0001e, 66,             # Up    (SDL maps ^^ to this code)
@@ -236,7 +236,7 @@
 02663, 60, GRAPH       # ♣ (BLACK CLUB SUIT)
 02665, 40, GRAPH       # ♥ (BLACK HEART SUIT)
 02666, 50, GRAPH       # ♦ (BLACK DIAMOND SUIT)
-1f47e, 06, SHIFT GRAPH # 👾 (ALIEN MONSTER)
+1f47e, 06, GRAPH       # 👾 (ALIEN MONSTER)
 1fb82, 53, SHIFT GRAPH # 🮂 (UPPER ONE QUARTER BLOCK)
 1fbc5, 51, GRAPH       # 🯅 (STICK FIGURE)
 #
