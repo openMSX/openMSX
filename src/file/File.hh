@@ -37,7 +37,7 @@ public:
 	 * @throws FileNotFoundException if file not found
 	 * @throws FileException for other errors
 	 */
-	explicit File(zstring_view filename, OpenMode mode = OpenMode::NORMAL);
+	explicit File(zstring_view filename, OpenMode mode = OpenMode::NORMAL, zstring_view extension = {});
 
 	/** This constructor maps very closely on the fopen() libc function.
 	  * Compared to constructor above, it does not transparently
