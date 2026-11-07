@@ -35,7 +35,7 @@ MSX-Video-Characterset: SVI328.TXT
 00015, 45, CTRL        # ^U
 00016, 46, CTRL        # ^V
 00017, 47, CTRL        # ^W
-00018, 84,             # Select (is Select a unicode character?)
+00018, 50, CTRL        # ^X (the SVI SELECT key types nothing)
 00019, 51, CTRL        # ^Y
 0001a, 52, CTRL        # ^Z
 0001b, 64,             # Escape(SDL maps ESC and ^[ to this code)
