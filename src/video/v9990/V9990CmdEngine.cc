@@ -18,6 +18,7 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <iostream>
@@ -1529,7 +1530,11 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 void V9990CmdEngine::startLINE(EmuTime time)
 {
 	engineTime = time;
-	ASX = uint16_t((NX - 1) / 2);
+	// Measured with MJ 3, MI 1: the first Y step comes after the first
+	// pixel, one pixel earlier than with (NX - 1) / 2. This is the same
+	// for even MJ, earlier for odd MJ. (An alternative that also fits:
+	// (NX - 1) / 2 with 'ASX <= NY' below; MJ 4, MI 1 tells them apart.)
+	ASX = uint16_t(std::max<unsigned>(NX, 2) / 2 - 1);
 	ADX = DX;
 	ANX = 0;
 }
