@@ -25,10 +25,16 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>int</keyboard_type> <!-- Is actually Arabic... -->
+      <keyboard_type>ar_eu</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected> <!-- not sure -->
-      <code_kana_locks>true</code_kana_locks> <!-- has a LED for it that can be toggled with CODE key -->
+      <!-- The ar_eu unicodemap describes the Arabic mode (the default:
+           BASIC from the start menu), in which CODE is a lock key (with
+           a LED). When started with CTRL pressed, the machine is in
+           international mode instead: then CODE doesn't lock and the int
+           unicodemap fits.
+      -->
+      <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
 

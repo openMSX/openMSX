@@ -8,8 +8,80 @@
 #
 # Example characters in comments are encoded in UTF-8
 #
-# NOTE: for now, only the international mapping is supported and only the
-# Left-To-Right characters
+# This unicodemap describes the Arabic mode of these machines, which is
+# the default (BASIC from the start menu), with CODE as a lock key for
+# the Arabic characters. When started with CTRL pressed (until BASIC
+# appears), these machines are in international mode instead, with the
+# international character set: then the int unicodemap fits exactly.
+# (In international mode, CODE isn't a lock key, and this unicodemap
+# doesn't fit: typing on the host keyboard or with the type command
+# then gives wrong characters for many keys.)
+# In Arabic mode, the BASIC screen editor translates the keys itself, and
+# chooses the form of each Arabic letter (shaping) and the writing
+# direction: this unicodemap describes what the screen editor shows.
+# Programs that read the keyboard (e.g. with INKEY$) get other codes in
+# Arabic mode. Pressing CODE (switching between the Latin and Arabic
+# characters) also puts character 0xFF in the keyboard buffer.
+#
+# NOTE: the character set has some characters (like punctuation) in a
+# left to right and a right to left version, with the same Unicode code
+# point. Only the left to right versions are supported here.
+#
+# Based on a scan of all key matrix positions in the BASIC screen editor
+# of: Al Alamiah AX170 (AX170), Al Alamiah AX230 (AX230), Al Alamiah AX370
+# (AX370), Yamaha AX350II (AX350II). These machines type the same
+# characters, except for the keys below (modifiers + row and column in the
+# key matrix).
+#
+# Keys that type a character on some of these machines, and nothing on the
+# others; they are in this unicodemap:
+# - (none)
+#
+# Keys that type different things on these machines, or a BASIC keyword
+# (in quotes); they are left out of this unicodemap (a unicodemap per
+# machine could add the single characters among them, but not the
+# keywords):
+# - GRAPH+26: all: "asc("
+# - GRAPH+27: all: "beep"
+# - GRAPH+30: all: "chr$("
+# - GRAPH+31: all: "data"
+# - GRAPH+33: all: "files"
+# - GRAPH+34: all: "goto"
+# - GRAPH+35: all: "_hcopy"
+# - GRAPH+36: all: "input"
+# - GRAPH+40: all: "key"
+# - GRAPH+41: all: "load"
+# - GRAPH+42: all: "mid$("
+# - GRAPH+43: all: "next"
+# - GRAPH+44: all: "open"
+# - GRAPH+45: all: "print"
+# - GRAPH+47: all: "return"
+# - GRAPH+50: all: "save"
+# - GRAPH+51: all: "then"
+# - GRAPH+52: all: "using"
+# - GRAPH+53: all: "vpoke"
+# - GRAPH+54: all: "width"
+# - GRAPH+55: all: "xor"
+# - SHIFT+GRAPH+27: all: "bin$("
+# - SHIFT+GRAPH+30: all: "copy"
+# - SHIFT+GRAPH+31: all: "dir"
+# - SHIFT+GRAPH+33: all: "field"
+# - SHIFT+GRAPH+34: all: "gosub"
+# - SHIFT+GRAPH+35: all: "hex$("
+# - SHIFT+GRAPH+36: all: "if"
+# - SHIFT+GRAPH+40: all: "kill"
+# - SHIFT+GRAPH+41: all: "left$("
+# - SHIFT+GRAPH+42: all: "mod"
+# - SHIFT+GRAPH+43: all: "new"
+# - SHIFT+GRAPH+44: all: "on"
+# - SHIFT+GRAPH+45: all: "preset("
+# - SHIFT+GRAPH+47: all: "right$("
+# - SHIFT+GRAPH+50: all: "screen"
+# - SHIFT+GRAPH+51: all: "time"
+# - SHIFT+GRAPH+53: all: "vpeek("
+# - SHIFT+GRAPH+54: all: "wait"
+# - SHIFT+GRAPH+55: all: "_system"
+#
 
 MSX-Video-Characterset: MSXVIDAE.TXT
 
@@ -142,116 +214,214 @@ MSX-Video-Characterset: MSXVIDAE.TXT
 0007e, 21, SHIFT       # ~ (TILDE, left to right)
 0007f, 83,             # Delete
 000a0, 80,             # No-break space (&nbsp;)
-000a7, 55, GRAPH       # § (SECTION SIGN)
-000b0, 24, GRAPH       # ° (DEGREE SIGN)
-000e0, 51, GRAPH       # à (LATIN SMALL LETTER A WITH GRAVE)
-000e2, 27, GRAPH       # â (LATIN SMALL LETTER A WITH CIRCUMFLEX)
-000e7, 35, GRAPH       # ç (LATIN SMALL LETTER C WITH CEDILLA)
-000e8, 14, SHIFT GRAPH # è (LATIN SMALL LETTER E WITH GRAVE)
-000e9, 34, SHIFT GRAPH # é (LATIN SMALL LETTER E WITH ACUTE)
-000ea, 33, GRAPH       # ê (LATIN SMALL LETTER E WITH CIRCUMFLEX)
-000eb, 34, GRAPH       # ë (LATIN SMALL LETTER E WITH DIAERESIS)
-000ee, 47, GRAPH       # î (LATIN SMALL LETTER I WITH CIRCUMFLEX)
-000ef, 12, GRAPH       # ï (LATIN SMALL LETTER I WITH DIAERESIS)
-000f4, 56, GRAPH       # ô (LATIN SMALL LETTER O WITH CIRCUMFLEX)
-000f9, 43, GRAPH       # ù (LATIN SMALL LETTER U WITH GRAVE)
-000fb, 53, GRAPH       # û (LATIN SMALL LETTER U WITH CIRCUMFLEX)
-0060c, 32, CODE        # ، (ARABIC COMMA)
-0061b, 04, CODE        # ؛ (ARABIC SEMICOLON)
-0061f, 01, CODE        # ؟ (ARABIC QUESTION MARK)
-00621, 13, SHIFT GRAPH # ء (ARABIC LETTER HAMZA)
-00622, 45, SHIFT GRAPH # آ (ARABIC LETTER ALEF WITH MADDA ABOVE)
-00623, 02, CODE        # أ (ARABIC LETTER ALEF WITH HAMZA ABOVE)
-00624, 36, SHIFT GRAPH # ؤ (ARABIC LETTER WAW WITH HAMZA ABOVE)
-00625, 06, CODE        # إ (ARABIC LETTER ALEF WITH HAMZA BELOW)
-00626, 44, CODE        # ئ (ARABIC LETTER YEH WITH HAMZA ABOVE)
-00627, 10, SHIFT CODE  # ا (ARABIC LETTER ALEF)
-00628, 43, CODE        # ب (ARABIC LETTER BEH)
-00629, 21, SHIFT CODE  # ة (ARABIC LETTER TEH MARBUTA)
-0062a, 23, CODE        # ت (ARABIC LETTER TEH)
-0062b, 24, SHIFT CODE  # ث (ARABIC LETTER THEH)
-0062c, 56, SHIFT GRAPH # ج (ARABIC LETTER JEEM)
-0062d, 01, GRAPH       # ح (ARABIC LETTER HAH)
-0062e, 22, SHIFT GRAPH # خ (ARABIC LETTER KHAH)
-0062f, 21, CODE        # د (ARABIC LETTER DAL)
-00630, 42, CODE        # ذ (ARABIC LETTER THAL)
-00631, 10, CODE        # ر (ARABIC LETTER REH)
-00632, 15, SHIFT CODE  # ز (ARABIC LETTER ZAIN)
-00633, 35, SHIFT CODE  # س (ARABIC LETTER SEEN)
-00634, 40, SHIFT CODE  # ش (ARABIC LETTER SHEEN)
-00635, 41, SHIFT CODE  # ص (ARABIC LETTER SAD)
-00636, 17, SHIFT CODE  # ض (ARABIC LETTER DAD)
-00637, 17, CODE        # ط (ARABIC LETTER TAH)
-00638, 20, SHIFT CODE  # ظ (ARABIC LETTER ZAH)
-00639, 03, GRAPH       # ع (ARABIC LETTER AIN)
-0063a, 44, SHIFT GRAPH # غ (ARABIC LETTER GHAIN)
-00640, 13, GRAPH       # ـ (ARABIC TATWEEL)
-00641, 31, GRAPH       # ف (ARABIC LETTER FEH)
-00642, 41, SHIFT GRAPH # ق (ARABIC LETTER QAF)
-00643, 46, SHIFT GRAPH # ك (ARABIC LETTER KAF)
-00644, 32, GRAPH       # ل (ARABIC LETTER LAM)
-00645, 54, GRAPH       # م (ARABIC LETTER MEEM)
-00646, 50, SHIFT GRAPH # ن (ARABIC LETTER NOON)
-00647, 43, SHIFT GRAPH # ه (ARABIC LETTER HEH)
-00648, 13, CODE        # و (ARABIC LETTER WAW)
-00649, 16, SHIFT CODE  # ى (ARABIC LETTER ALEF MAKSURA)
-0064a, 53, SHIFT GRAPH # ي (ARABIC LETTER YEH)
-0064b, 23, GRAPH       # ً (ARABIC FATHATAN)
-0064c, 22, GRAPH       # ٌ (ARABIC DAMMATAN)
-0064d, 06, GRAPH       # ٍ (ARABIC KASRATAN)
-0064e, 06, SHIFT GRAPH # َ (ARABIC FATHA)
-0064f, 21, SHIFT GRAPH # ُ (ARABIC DAMMA)
-00650, 55, SHIFT GRAPH # ِ (ARABIC KASRA)
-00651, 07, GRAPH       # ّ (ARABIC SHADDA)
-00652, 02, SHIFT GRAPH # ْ (ARABIC SUKUN)
-00660, 52, SHIFT CODE  # ٠ (ARABIC-INDIC DIGIT ZERO)
-00661, 37, CODE        # ١ (ARABIC-INDIC DIGIT ONE)
-00662, 37, SHIFT CODE  # ٢ (ARABIC-INDIC DIGIT TWO)
-00663, 47, CODE        # ٣ (ARABIC-INDIC DIGIT THREE)
-00664, 33, CODE        # ٤ (ARABIC-INDIC DIGIT FOUR)
-00665, 53, CODE        # ٥ (ARABIC-INDIC DIGIT FIVE)
-00666, 51, CODE        # ٦ (ARABIC-INDIC DIGIT SIX)
-00667, 27, CODE        # ٧ (ARABIC-INDIC DIGIT SEVEN)
-00668, 05, CODE        # ٨ (ARABIC-INDIC DIGIT EIGHT)
-00669, 33, SHIFT CODE  # ٩ (ARABIC-INDIC DIGIT NINE)
-0066a, 57, CODE        # ٪ (ARABIC PERCENT SIGN)
-0fe77, 24, SHIFT GRAPH # ﹷ (ARABIC FATHA MEDIAL FORM)
-0fe79, 57, SHIFT GRAPH # ﹹ (ARABIC DAMMA MEDIAL FORM)
-0fe7b, 30, SHIFT GRAPH # ﹻ (ARABIC KASRA MEDIAL FORM)
-0fe7d, 03, SHIFT GRAPH # ﹽ (ARABIC SHADDA MEDIAL FORM)
-0fe7f, 26, SHIFT GRAPH # ﹿ (ARABIC SUKUN MEDIAL FORM)
-0fe82, 00, SHIFT CODE  # ﺂ (ARABIC LETTER ALEF WITH MADDA ABOVE FINAL FORM)
-0fe84, 16, CODE        # ﺄ (ARABIC LETTER ALEF WITH HAMZA ABOVE FINAL FORM)
-0fe88, 07, CODE        # ﺈ (ARABIC LETTER ALEF WITH HAMZA BELOW FINAL FORM)
-0fe8c, 36, CODE        # ﺌ (ARABIC LETTER YEH WITH HAMZA ABOVE MEDIAL FORM)
-0fe8e, 45, SHIFT CODE  # ﺎ (ARABIC LETTER ALEF FINAL FORM)
-0fe92, 45, CODE        # ﺒ (ARABIC LETTER BEH MEDIAL FORM)
-0fe98, 43, SHIFT CODE  # ﺘ (ARABIC LETTER TEH MEDIAL FORM)
-0fe9c, 24, CODE        # ﺜ (ARABIC LETTER THEH MEDIAL FORM)
-0fea0, 47, SHIFT GRAPH # ﺠ (ARABIC LETTER JEEM MEDIAL FORM)
-0fea4, 02, GRAPH       # ﺤ (ARABIC LETTER HAH MEDIAL FORM)
-0fea8, 01, SHIFT CODE  # ﺨ (ARABIC LETTER KHAH MEDIAL FORM)
-0feb4, 23, SHIFT GRAPH # ﺴ (ARABIC LETTER SEEN MEDIAL FORM)
-0feb8, 35, CODE        # ﺸ (ARABIC LETTER SHEEN MEDIAL FORM)
-0febc, 40, CODE        # ﺼ (ARABIC LETTER SAD MEDIAL FORM)
-0fec0, 41, CODE        # ﻀ (ARABIC LETTER DAD MEDIAL FORM)
-0feca, 31, SHIFT GRAPH # ﻊ (ARABIC LETTER AIN FINAL FORM)
-0fecb, 20, CODE        # ﻋ (ARABIC LETTER AIN INITIAL FORM)
-0fecc, 52, GRAPH       # ﻌ (ARABIC LETTER AIN MEDIAL FORM)
-0fece, 52, SHIFT GRAPH # ﻎ (ARABIC LETTER GHAIN FINAL FORM)
-0fecf, 44, GRAPH       # ﻏ (ARABIC LETTER GHAIN INITIAL FORM)
-0fed0, 26, GRAPH       # ﻐ (ARABIC LETTER GHAIN MEDIAL FORM)
-0fed4, 37, GRAPH       # ﻔ (ARABIC LETTER FEH MEDIAL FORM)
-0fed8, 41, GRAPH       # ﻘ (ARABIC LETTER QAF MEDIAL FORM)
-0fedc, 37, SHIFT GRAPH # ﻜ (ARABIC LETTER KAF MEDIAL FORM)
-0fee0, 46, GRAPH       # ﻠ (ARABIC LETTER LAM MEDIAL FORM)
-0fee4, 32, SHIFT GRAPH # ﻤ (ARABIC LETTER MEEM MEDIAL FORM)
-0fee8, 54, SHIFT GRAPH # ﻨ (ARABIC LETTER NOON MEDIAL FORM)
-0feec, 50, GRAPH       # ﻬ (ARABIC LETTER HEH MEDIAL FORM)
-0fef0, 00, CODE        # ﻰ (ARABIC LETTER ALEF MAKSURA FINAL FORM)
-0fef2, 35, SHIFT GRAPH # ﻲ (ARABIC LETTER YEH FINAL FORM)
-0fef4, 33, SHIFT GRAPH # ﻴ (ARABIC LETTER YEH MEDIAL FORM)
-0fef6, 12, CODE        # ﻶ (ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE FINAL FORM)
-0fef8, 15, CODE        # ﻸ (ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE FINAL FORM)
-0fefa, 04, GRAPH       # ﻺ (ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW FINAL FORM)
-0fefc, 10, GRAPH       # ﻼ (ARABIC LIGATURE LAM WITH ALEF FINAL FORM)
+000a7, 07, GRAPH       # § (SECTION SIGN)
+000b0, 00, GRAPH       # ° (DEGREE SIGN)
+000e0, 26, SHIFT GRAPH # à (LATIN SMALL LETTER A WITH GRAVE)
+000e2, --,             # â (LATIN SMALL LETTER A WITH CIRCUMFLEX) - can't be typed on these machines in Arabic mode
+000e7, --,             # ç (LATIN SMALL LETTER C WITH CEDILLA) - can't be typed on these machines in Arabic mode
+000e8, 32, SHIFT GRAPH # è (LATIN SMALL LETTER E WITH GRAVE)
+000e9, 32, GRAPH       # é (LATIN SMALL LETTER E WITH ACUTE)
+000ea, --,             # ê (LATIN SMALL LETTER E WITH CIRCUMFLEX) - can't be typed on these machines in Arabic mode
+000eb, --,             # ë (LATIN SMALL LETTER E WITH DIAERESIS) - can't be typed on these machines in Arabic mode
+000ee, --,             # î (LATIN SMALL LETTER I WITH CIRCUMFLEX) - can't be typed on these machines in Arabic mode
+000ef, --,             # ï (LATIN SMALL LETTER I WITH DIAERESIS) - can't be typed on these machines in Arabic mode
+000f4, --,             # ô (LATIN SMALL LETTER O WITH CIRCUMFLEX) - can't be typed on these machines in Arabic mode
+000f9, 52, SHIFT GRAPH # ù (LATIN SMALL LETTER U WITH GRAVE)
+000fb, --,             # û (LATIN SMALL LETTER U WITH CIRCUMFLEX) - can't be typed on these machines in Arabic mode
+0060c, 22, CODE        # ، (ARABIC COMMA)
+0061b, 21, CODE        # ؛ (ARABIC SEMICOLON)
+0061f, 24, SHIFT CODE  # ؟ (ARABIC QUESTION MARK)
+00621, 55, SHIFT CODE  # ء (ARABIC LETTER HAMZA)
+00622, 26, SHIFT CODE  # آ (ARABIC LETTER ALEF WITH MADDA ABOVE)
+00623, 35, SHIFT CODE  # أ (ARABIC LETTER ALEF WITH HAMZA ABOVE)
+00624, 42, SHIFT CODE  # ؤ (ARABIC LETTER WAW WITH HAMZA ABOVE)
+00625, 50, SHIFT CODE  # إ (ARABIC LETTER ALEF WITH HAMZA BELOW)
+00626, 31, SHIFT CODE  # ئ (ARABIC LETTER YEH WITH HAMZA ABOVE)
+00627, 35, CODE        # ا (ARABIC LETTER ALEF)
+00628, 33, CODE        # ب (ARABIC LETTER BEH)
+00629, 43, CODE        # ة (ARABIC LETTER TEH MARBUTA)
+0062a, 37, CODE        # ت (ARABIC LETTER TEH)
+0062b, 32, CODE        # ث (ARABIC LETTER THEH)
+0062c, 15, CODE        # ج (ARABIC LETTER JEEM)
+0062d, 45, CODE        # ح (ARABIC LETTER HAH)
+0062e, 44, CODE        # خ (ARABIC LETTER KHAH)
+0062f, 30, CODE        # د (ARABIC LETTER DAL)
+00630, 30, SHIFT CODE  # ذ (ARABIC LETTER THAL)
+00631, 53, CODE        # ر (ARABIC LETTER REH)
+00632, 53, SHIFT CODE  # ز (ARABIC LETTER ZAIN)
+00633, 50, CODE        # س (ARABIC LETTER SEEN)
+00634, 26, CODE        # ش (ARABIC LETTER SHEEN)
+00635, 54, CODE        # ص (ARABIC LETTER SAD)
+00636, 46, CODE        # ض (ARABIC LETTER DAD)
+00637, 57, CODE        # ط (ARABIC LETTER TAH)
+00638, 57, SHIFT CODE  # ظ (ARABIC LETTER ZAH)
+00639, 52, CODE        # ع (ARABIC LETTER AIN)
+0063a, 56, CODE        # غ (ARABIC LETTER GHAIN)
+00640, 41, SHIFT CODE  # ـ (ARABIC TATWEEL)
+00641, 51, CODE        # ف (ARABIC LETTER FEH)
+00642, 47, CODE        # ق (ARABIC LETTER QAF)
+00643, 17, CODE        # ك (ARABIC LETTER KAF)
+00644, 34, CODE        # ل (ARABIC LETTER LAM)
+00645, 41, CODE        # م (ARABIC LETTER MEEM)
+00646, 40, CODE        # ن (ARABIC LETTER NOON)
+00647, 36, CODE        # ه (ARABIC LETTER HEH)
+00648, 42, CODE        # و (ARABIC LETTER WAW)
+00649, 55, CODE        # ى (ARABIC LETTER ALEF MAKSURA)
+0064a, 31, CODE        # ي (ARABIC LETTER YEH)
+0064b, 47, SHIFT CODE  # ً (ARABIC FATHATAN)
+0064c, 32, SHIFT CODE  # ٌ (ARABIC DAMMATAN)
+0064d, 54, SHIFT CODE  # ٍ (ARABIC KASRATAN)
+0064e, 44, SHIFT CODE  # َ (ARABIC FATHA)
+0064f, 36, SHIFT CODE  # ُ (ARABIC DAMMA)
+00650, 52, SHIFT CODE  # ِ (ARABIC KASRA)
+00651, 51, SHIFT CODE  # ّ (ARABIC SHADDA)
+00652, 56, SHIFT CODE  # ْ (ARABIC SUKUN)
+00660, 00, CODE        # ٠ (ARABIC-INDIC DIGIT ZERO)
+00661, 01, CODE        # ١ (ARABIC-INDIC DIGIT ONE)
+00662, 02, CODE        # ٢ (ARABIC-INDIC DIGIT TWO)
+00663, 03, CODE        # ٣ (ARABIC-INDIC DIGIT THREE)
+00664, 04, CODE        # ٤ (ARABIC-INDIC DIGIT FOUR)
+00665, 05, CODE        # ٥ (ARABIC-INDIC DIGIT FIVE)
+00666, 06, CODE        # ٦ (ARABIC-INDIC DIGIT SIX)
+00667, 07, CODE        # ٧ (ARABIC-INDIC DIGIT SEVEN)
+00668, 10, CODE        # ٨ (ARABIC-INDIC DIGIT EIGHT)
+00669, 11, CODE        # ٩ (ARABIC-INDIC DIGIT NINE)
+0066a, 05, SHIFT CODE  # ٪ (ARABIC PERCENT SIGN)
+0fe70, 47, SHIFT CODE  # ﹰ (ARABIC FATHATAN ISOLATED FORM)
+0fe72, 32, SHIFT CODE  # ﹲ (ARABIC DAMMATAN ISOLATED FORM)
+0fe74, 54, SHIFT CODE  # ﹴ (ARABIC KASRATAN ISOLATED FORM)
+0fe76, 44, SHIFT CODE  # ﹶ (ARABIC FATHA ISOLATED FORM)
+0fe77, --,             # ﹷ (ARABIC FATHA MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ـَ
+0fe78, 36, SHIFT CODE  # ﹸ (ARABIC DAMMA ISOLATED FORM)
+0fe79, --,             # ﹹ (ARABIC DAMMA MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ـُ
+0fe7a, 52, SHIFT CODE  # ﹺ (ARABIC KASRA ISOLATED FORM)
+0fe7b, --,             # ﹻ (ARABIC KASRA MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ـِ
+0fe7c, 51, SHIFT CODE  # ﹼ (ARABIC SHADDA ISOLATED FORM)
+0fe7d, --,             # ﹽ (ARABIC SHADDA MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ـّ
+0fe7e, 56, SHIFT CODE  # ﹾ (ARABIC SUKUN ISOLATED FORM)
+0fe7f, --,             # ﹿ (ARABIC SUKUN MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ـْ
+0fe80, 55, SHIFT CODE  # ﺀ (ARABIC LETTER HAMZA ISOLATED FORM)
+0fe81, 26, SHIFT CODE  # ﺁ (ARABIC LETTER ALEF WITH MADDA ABOVE ISOLATED FORM)
+0fe82, --,             # ﺂ (ARABIC LETTER ALEF WITH MADDA ABOVE FINAL FORM) - the screen editor chooses this form itself (shaping): type آ
+0fe83, 35, SHIFT CODE  # ﺃ (ARABIC LETTER ALEF WITH HAMZA ABOVE ISOLATED FORM)
+0fe84, --,             # ﺄ (ARABIC LETTER ALEF WITH HAMZA ABOVE FINAL FORM) - the screen editor chooses this form itself (shaping): type أ
+0fe85, 42, SHIFT CODE  # ﺅ (ARABIC LETTER WAW WITH HAMZA ABOVE ISOLATED FORM)
+0fe86, 42, SHIFT CODE  # ﺆ (ARABIC LETTER WAW WITH HAMZA ABOVE FINAL FORM)
+0fe87, 50, SHIFT CODE  # ﺇ (ARABIC LETTER ALEF WITH HAMZA BELOW ISOLATED FORM)
+0fe88, --,             # ﺈ (ARABIC LETTER ALEF WITH HAMZA BELOW FINAL FORM) - the screen editor chooses this form itself (shaping): type إ
+0fe89, 31, SHIFT CODE  # ﺉ (ARABIC LETTER YEH WITH HAMZA ABOVE ISOLATED FORM)
+0fe8a, 31, SHIFT CODE  # ﺊ (ARABIC LETTER YEH WITH HAMZA ABOVE FINAL FORM)
+0fe8b, --,             # ﺋ (ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM) - the screen editor chooses this form itself (shaping): type ئ
+0fe8c, --,             # ﺌ (ARABIC LETTER YEH WITH HAMZA ABOVE MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ئ
+0fe8d, 35, CODE        # ﺍ (ARABIC LETTER ALEF ISOLATED FORM)
+0fe8e, --,             # ﺎ (ARABIC LETTER ALEF FINAL FORM) - the screen editor chooses this form itself (shaping): type ا
+0fe8f, 33, CODE        # ﺏ (ARABIC LETTER BEH ISOLATED FORM)
+0fe90, 33, CODE        # ﺐ (ARABIC LETTER BEH FINAL FORM)
+0fe91, --,             # ﺑ (ARABIC LETTER BEH INITIAL FORM) - the screen editor chooses this form itself (shaping): type ب
+0fe92, --,             # ﺒ (ARABIC LETTER BEH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ب
+0fe93, 43, CODE        # ﺓ (ARABIC LETTER TEH MARBUTA ISOLATED FORM)
+0fe94, 43, CODE        # ﺔ (ARABIC LETTER TEH MARBUTA FINAL FORM)
+0fe95, 37, CODE        # ﺕ (ARABIC LETTER TEH ISOLATED FORM)
+0fe96, 37, CODE        # ﺖ (ARABIC LETTER TEH FINAL FORM)
+0fe97, --,             # ﺗ (ARABIC LETTER TEH INITIAL FORM) - the screen editor chooses this form itself (shaping): type ت
+0fe98, --,             # ﺘ (ARABIC LETTER TEH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ت
+0fe99, 32, CODE        # ﺙ (ARABIC LETTER THEH ISOLATED FORM)
+0fe9a, 32, CODE        # ﺚ (ARABIC LETTER THEH FINAL FORM)
+0fe9b, --,             # ﺛ (ARABIC LETTER THEH INITIAL FORM) - the screen editor chooses this form itself (shaping): type ث
+0fe9c, --,             # ﺜ (ARABIC LETTER THEH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ث
+0fe9d, 15, CODE        # ﺝ (ARABIC LETTER JEEM ISOLATED FORM)
+0fe9e, 15, CODE        # ﺞ (ARABIC LETTER JEEM FINAL FORM)
+0fe9f, --,             # ﺟ (ARABIC LETTER JEEM INITIAL FORM) - the screen editor chooses this form itself (shaping): type ج
+0fea0, --,             # ﺠ (ARABIC LETTER JEEM MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ج
+0fea1, 45, CODE        # ﺡ (ARABIC LETTER HAH ISOLATED FORM)
+0fea2, 45, CODE        # ﺢ (ARABIC LETTER HAH FINAL FORM)
+0fea3, --,             # ﺣ (ARABIC LETTER HAH INITIAL FORM) - the screen editor chooses this form itself (shaping): type ح
+0fea4, --,             # ﺤ (ARABIC LETTER HAH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ح
+0fea5, 44, CODE        # ﺥ (ARABIC LETTER KHAH ISOLATED FORM)
+0fea6, 44, CODE        # ﺦ (ARABIC LETTER KHAH FINAL FORM)
+0fea7, --,             # ﺧ (ARABIC LETTER KHAH INITIAL FORM) - the screen editor chooses this form itself (shaping): type خ
+0fea8, --,             # ﺨ (ARABIC LETTER KHAH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type خ
+0fea9, 30, CODE        # ﺩ (ARABIC LETTER DAL ISOLATED FORM)
+0feaa, 30, CODE        # ﺪ (ARABIC LETTER DAL FINAL FORM)
+0feab, 30, SHIFT CODE  # ﺫ (ARABIC LETTER THAL ISOLATED FORM)
+0feac, 30, SHIFT CODE  # ﺬ (ARABIC LETTER THAL FINAL FORM)
+0fead, 53, CODE        # ﺭ (ARABIC LETTER REH ISOLATED FORM)
+0feae, 53, CODE        # ﺮ (ARABIC LETTER REH FINAL FORM)
+0feaf, 53, SHIFT CODE  # ﺯ (ARABIC LETTER ZAIN ISOLATED FORM)
+0feb0, 53, SHIFT CODE  # ﺰ (ARABIC LETTER ZAIN FINAL FORM)
+0feb1, 50, CODE        # ﺱ (ARABIC LETTER SEEN ISOLATED FORM)
+0feb2, 50, CODE        # ﺲ (ARABIC LETTER SEEN FINAL FORM)
+0feb3, --,             # ﺳ (ARABIC LETTER SEEN INITIAL FORM) - the screen editor chooses this form itself (shaping): type س
+0feb4, --,             # ﺴ (ARABIC LETTER SEEN MEDIAL FORM) - the screen editor chooses this form itself (shaping): type س
+0feb5, 26, CODE        # ﺵ (ARABIC LETTER SHEEN ISOLATED FORM)
+0feb6, 26, CODE        # ﺶ (ARABIC LETTER SHEEN FINAL FORM)
+0feb7, --,             # ﺷ (ARABIC LETTER SHEEN INITIAL FORM) - the screen editor chooses this form itself (shaping): type ش
+0feb8, --,             # ﺸ (ARABIC LETTER SHEEN MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ش
+0feb9, 54, CODE        # ﺹ (ARABIC LETTER SAD ISOLATED FORM)
+0feba, 54, CODE        # ﺺ (ARABIC LETTER SAD FINAL FORM)
+0febb, --,             # ﺻ (ARABIC LETTER SAD INITIAL FORM) - the screen editor chooses this form itself (shaping): type ص
+0febc, --,             # ﺼ (ARABIC LETTER SAD MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ص
+0febd, 46, CODE        # ﺽ (ARABIC LETTER DAD ISOLATED FORM)
+0febe, 46, CODE        # ﺾ (ARABIC LETTER DAD FINAL FORM)
+0febf, --,             # ﺿ (ARABIC LETTER DAD INITIAL FORM) - the screen editor chooses this form itself (shaping): type ض
+0fec0, --,             # ﻀ (ARABIC LETTER DAD MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ض
+0fec1, 57, CODE        # ﻁ (ARABIC LETTER TAH ISOLATED FORM)
+0fec2, 57, CODE        # ﻂ (ARABIC LETTER TAH FINAL FORM)
+0fec3, 57, CODE        # ﻃ (ARABIC LETTER TAH INITIAL FORM)
+0fec4, 57, CODE        # ﻄ (ARABIC LETTER TAH MEDIAL FORM)
+0fec5, 57, SHIFT CODE  # ﻅ (ARABIC LETTER ZAH ISOLATED FORM)
+0fec6, 57, SHIFT CODE  # ﻆ (ARABIC LETTER ZAH FINAL FORM)
+0fec7, 57, SHIFT CODE  # ﻇ (ARABIC LETTER ZAH INITIAL FORM)
+0fec8, 57, SHIFT CODE  # ﻈ (ARABIC LETTER ZAH MEDIAL FORM)
+0fec9, 52, CODE        # ﻉ (ARABIC LETTER AIN ISOLATED FORM)
+0feca, --,             # ﻊ (ARABIC LETTER AIN FINAL FORM) - the screen editor chooses this form itself (shaping): type ع
+0fecb, --,             # ﻋ (ARABIC LETTER AIN INITIAL FORM) - the screen editor chooses this form itself (shaping): type ع
+0fecc, --,             # ﻌ (ARABIC LETTER AIN MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ع
+0fecd, 56, CODE        # ﻍ (ARABIC LETTER GHAIN ISOLATED FORM)
+0fece, --,             # ﻎ (ARABIC LETTER GHAIN FINAL FORM) - the screen editor chooses this form itself (shaping): type غ
+0fecf, --,             # ﻏ (ARABIC LETTER GHAIN INITIAL FORM) - the screen editor chooses this form itself (shaping): type غ
+0fed0, --,             # ﻐ (ARABIC LETTER GHAIN MEDIAL FORM) - the screen editor chooses this form itself (shaping): type غ
+0fed1, 51, CODE        # ﻑ (ARABIC LETTER FEH ISOLATED FORM)
+0fed2, 51, CODE        # ﻒ (ARABIC LETTER FEH FINAL FORM)
+0fed3, --,             # ﻓ (ARABIC LETTER FEH INITIAL FORM) - the screen editor chooses this form itself (shaping): type ف
+0fed4, --,             # ﻔ (ARABIC LETTER FEH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ف
+0fed5, 47, CODE        # ﻕ (ARABIC LETTER QAF ISOLATED FORM)
+0fed6, 47, CODE        # ﻖ (ARABIC LETTER QAF FINAL FORM)
+0fed7, --,             # ﻗ (ARABIC LETTER QAF INITIAL FORM) - the screen editor chooses this form itself (shaping): type ق
+0fed8, --,             # ﻘ (ARABIC LETTER QAF MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ق
+0fed9, 17, CODE        # ﻙ (ARABIC LETTER KAF ISOLATED FORM)
+0feda, 17, CODE        # ﻚ (ARABIC LETTER KAF FINAL FORM)
+0fedb, --,             # ﻛ (ARABIC LETTER KAF INITIAL FORM) - the screen editor chooses this form itself (shaping): type ك
+0fedc, --,             # ﻜ (ARABIC LETTER KAF MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ك
+0fedd, 34, CODE        # ﻝ (ARABIC LETTER LAM ISOLATED FORM)
+0fede, 34, CODE        # ﻞ (ARABIC LETTER LAM FINAL FORM)
+0fedf, --,             # ﻟ (ARABIC LETTER LAM INITIAL FORM) - the screen editor chooses this form itself (shaping): type ل
+0fee0, --,             # ﻠ (ARABIC LETTER LAM MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ل
+0fee1, 41, CODE        # ﻡ (ARABIC LETTER MEEM ISOLATED FORM)
+0fee2, 41, CODE        # ﻢ (ARABIC LETTER MEEM FINAL FORM)
+0fee3, --,             # ﻣ (ARABIC LETTER MEEM INITIAL FORM) - the screen editor chooses this form itself (shaping): type م
+0fee4, --,             # ﻤ (ARABIC LETTER MEEM MEDIAL FORM) - the screen editor chooses this form itself (shaping): type م
+0fee5, 40, CODE        # ﻥ (ARABIC LETTER NOON ISOLATED FORM)
+0fee6, 40, CODE        # ﻦ (ARABIC LETTER NOON FINAL FORM)
+0fee7, --,             # ﻧ (ARABIC LETTER NOON INITIAL FORM) - the screen editor chooses this form itself (shaping): type ن
+0fee8, --,             # ﻨ (ARABIC LETTER NOON MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ن
+0fee9, 36, CODE        # ﻩ (ARABIC LETTER HEH ISOLATED FORM)
+0feea, 36, CODE        # ﻪ (ARABIC LETTER HEH FINAL FORM)
+0feeb, --,             # ﻫ (ARABIC LETTER HEH INITIAL FORM) - the screen editor chooses this form itself (shaping): type ه
+0feec, --,             # ﻬ (ARABIC LETTER HEH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ه
+0feed, 42, CODE        # ﻭ (ARABIC LETTER WAW ISOLATED FORM)
+0feee, 42, CODE        # ﻮ (ARABIC LETTER WAW FINAL FORM)
+0feef, 55, CODE        # ﻯ (ARABIC LETTER ALEF MAKSURA ISOLATED FORM)
+0fef0, --,             # ﻰ (ARABIC LETTER ALEF MAKSURA FINAL FORM) - the screen editor chooses this form itself (shaping): type ى
+0fef1, 31, CODE        # ﻱ (ARABIC LETTER YEH ISOLATED FORM)
+0fef2, --,             # ﻲ (ARABIC LETTER YEH FINAL FORM) - the screen editor chooses this form itself (shaping): type ي
+0fef3, --,             # ﻳ (ARABIC LETTER YEH INITIAL FORM) - the screen editor chooses this form itself (shaping): type ي
+0fef4, --,             # ﻴ (ARABIC LETTER YEH MEDIAL FORM) - the screen editor chooses this form itself (shaping): type ي
+0fef5, 43, SHIFT CODE  # ﻵ (ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE ISOLATED FORM)
+0fef6, 43, SHIFT CODE  # ﻶ (ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE FINAL FORM)
+0fef7, 27, SHIFT CODE  # ﻷ (ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE ISOLATED FORM)
+0fef8, 27, SHIFT CODE  # ﻸ (ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE FINAL FORM)
+0fef9, 34, SHIFT CODE  # ﻹ (ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW ISOLATED FORM)
+0fefa, 34, SHIFT CODE  # ﻺ (ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW FINAL FORM)
+0fefb, 27, CODE        # ﻻ (ARABIC LIGATURE LAM WITH ALEF ISOLATED FORM)
+0fefc, 27, CODE        # ﻼ (ARABIC LIGATURE LAM WITH ALEF FINAL FORM)
