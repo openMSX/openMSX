@@ -353,8 +353,10 @@ private:
 
 	void setCommandMode();
 
+	// NX and NY are 12-bit counters: 0 means 4096. (Measured for NX:
+	// an LMCM with NX 0 transfers 4096 pixels a row.)
 	[[nodiscard]] uint16_t getWrappedNX() const {
-		return NX ? NX : 2048;
+		return NX ? NX : 4096;
 	}
 	[[nodiscard]] uint16_t getWrappedNY() const {
 		return NY ? NY : 4096;
