@@ -1141,7 +1141,18 @@ void V9990CmdEngine::executeLMCM(EmuTime /*limit*/)
 		Type d = 0;
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			auto src = Mode::point(vram, SX, SY, pitch);
-			d |= Type(Mode::shift(src, SX, i) & Mode::shiftMask(i));
+			if constexpr (std::is_same_v<Mode, V9990P1>) {
+				// The first pixel loads the whole source byte, its
+				// nibbles swapped when needed; a second pixel
+				// replaces the other nibble. So when the transfer
+				// ends on the first pixel of a byte, the other
+				// nibble holds the source's other pixel (measured:
+				// F1h, not F0h).
+				auto rot = uint8_t((SX ^ i) & 1 ? (src << 4) | (src >> 4) : src);
+				d = (i == 0) ? rot : Type((d & ~Mode::shiftMask(i)) | (rot & Mode::shiftMask(i)));
+			} else {
+				d |= Type(Mode::shift(src, SX, i) & Mode::shiftMask(i));
+			}
 
 			uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 			SX += dx;
