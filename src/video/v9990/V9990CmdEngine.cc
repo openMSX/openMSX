@@ -1051,7 +1051,7 @@ void V9990CmdEngine::executeLMMC(EmuTime limit)
 				if (!--ANY) {
 					cmdReady(limit);
 				} else {
-					ANX = NX;
+					ANX = getWrappedNX();
 				}
 			}
 		}
