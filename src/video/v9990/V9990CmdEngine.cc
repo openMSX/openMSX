@@ -1663,11 +1663,7 @@ void V9990CmdEngine::startPSET(EmuTime time)
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto lut = Mode::getLogOpLUT(LOG);
 	Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG);
-
-	// TODO advance DX DY
-
-	SX = 0; // SX is the X counter
-	endDecNY();
+	advancePointer();
 	cmdReady(time);
 }
 
@@ -1679,10 +1675,21 @@ void V9990CmdEngine::executePSET(EmuTime /*limit*/)
 // ADVN
 void V9990CmdEngine::startADVN(EmuTime time)
 {
-	std::cout << "V9990: ADVN not yet implemented\n";
-	SX = 0; // TODO dummy implementation
-	endDecNY();
+	advancePointer();
 	cmdReady(time);
+}
+
+// End of PSET and ADVN, measured in P1: AYE (R#52 bit 2) steps DY by +1, or
+// by -1 with AYM (bit 3) too. AXE/AXM (bits 1-0) change nothing that was
+// seen (DX stays). SX ends at 0 and NY is decremented once.
+// TODO: what AXE/AXM move.
+void V9990CmdEngine::advancePointer()
+{
+	if (CMD & 0x04) {
+		DY = uint16_t((DY + ((CMD & 0x08) ? -1 : 1)) & 0xFFF);
+	}
+	SX = 0;
+	endDecNY();
 }
 
 void V9990CmdEngine::executeADVN(EmuTime /*limit*/)
