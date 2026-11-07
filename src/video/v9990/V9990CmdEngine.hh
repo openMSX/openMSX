@@ -86,10 +86,12 @@ public:
 		        .ARG = ARG, .LOG = LOG, .CMD = CMD};
 	}
 
+	/** R#53-R#54 (BX). On a real V9990 they read SX, which a SRCH leaves
+	  * at the X where it stopped. */
 	[[nodiscard]] uint16_t getBorderX(EmuTime time) const {
 		// note: used for both normal and debug read
 		const_cast<V9990CmdEngine*>(this)->sync(time);
-		return borderX;
+		return SX & 0x7FF;
 	}
 
 	/** Calculate an (under-)estimation for when the command will finish.
@@ -294,10 +296,6 @@ private:
 	unsigned dstAddress;
 	unsigned nbBytes;
 
-	/** The X coord of a border detected by SRCH
-	 */
-	uint16_t borderX;
-
 	/** counters
 	  */
 	uint16_t ASX, ADX, ANX, ANY;
@@ -338,6 +336,13 @@ private:
 	  */
 	void cmdReady(EmuTime time);
 
+	/** The command registers at the end of a command. */
+	void endDecNY();
+	void endRect();
+	void endBMLL();
+	void endSRCH();
+	void advancePointer();
+
 	/** For debugging: Print the info about the current command.
 	  */
 	void reportV9990Command() const;
@@ -347,14 +352,16 @@ private:
 
 	void setCommandMode();
 
+	// NX and NY are 12-bit counters: 0 means 4096. (Measured for NX:
+	// an LMCM with NX 0 transfers 4096 pixels a row.)
 	[[nodiscard]] uint16_t getWrappedNX() const {
-		return NX ? NX : 2048;
+		return NX ? NX : 4096;
 	}
 	[[nodiscard]] uint16_t getWrappedNY() const {
 		return NY ? NY : 4096;
 	}
 };
-SERIALIZE_CLASS_VERSION(V9990CmdEngine, 2);
+SERIALIZE_CLASS_VERSION(V9990CmdEngine, 3);
 
 } // namespace openmsx
 
