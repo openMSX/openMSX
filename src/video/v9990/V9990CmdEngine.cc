@@ -980,6 +980,7 @@ void V9990CmdEngine::update(const Setting& setting) noexcept
 // STOP
 void V9990CmdEngine::startSTOP(EmuTime time)
 {
+	endDecNY();
 	cmdReady(time);
 }
 
@@ -1022,6 +1023,7 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					endRect();
 					cmdReady(limit);
 				} else {
 					ANX = getWrappedNX();
@@ -1049,6 +1051,7 @@ void V9990CmdEngine::executeLMMC(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					endRect();
 					cmdReady(limit);
 				} else {
 					ANX = getWrappedNX();
@@ -1085,6 +1088,7 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 			DX -= uint16_t(NX * dx);
 			DY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1132,6 +1136,7 @@ void V9990CmdEngine::executeLMCM(EmuTime /*limit*/)
 				SX -= uint16_t(NX * dx);
 				SY += dy;
 				if (!--ANY) {
+					endRect();
 					endAfterRead = true;
 				} else {
 					ANX = getWrappedNX();
@@ -1183,6 +1188,7 @@ void V9990CmdEngine::executeLMMM(EmuTime limit)
 			DY += dy;
 			SY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1223,6 +1229,7 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					endRect();
 					cmdReady(limit);
 					return;
 				} else {
@@ -1237,7 +1244,10 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 void V9990CmdEngine::startCMMK(EmuTime time)
 {
 	std::cout << "V9990: CMMK not yet implemented\n";
-	cmdReady(time); // TODO dummy implementation
+	// TODO dummy implementation. A V9990 without a kanji ROM (measured)
+	// ends at once, with NY = FFFh.
+	endRect();
+	cmdReady(time);
 }
 
 void V9990CmdEngine::executeCMMK(EmuTime /*limit*/)
@@ -1283,6 +1293,7 @@ void V9990CmdEngine::executeCMMM(EmuTime limit)
 			DX -= uint16_t(NX * dx);
 			DY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1322,6 +1333,7 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 			DX -= uint16_t(NX * dx);
 			DY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1351,6 +1363,7 @@ void V9990CmdEngine::executeBMXL(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					endRect();
 					cmdReady(engineTime);
 					return;
 				} else {
@@ -1389,6 +1402,7 @@ void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 			SX -= uint16_t(NX * dx);
 			SY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1418,6 +1432,7 @@ void V9990CmdEngine::executeBMLX(EmuTime limit)
 				SY += dy;
 				if (!--ANY) {
 					vram.writeVRAMBx(dstAddress++, d);
+					endRect();
 					cmdReady(engineTime);
 					return;
 				} else {
@@ -1472,6 +1487,7 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 		srcAddress = (srcAddress + 1) & 0x3FFFF;
 		dstAddress = (dstAddress + 1) & 0x3FFFF;
 		if (!--nbBytes) {
+			endRect();
 			cmdReady(engineTime);
 			return;
 		}
@@ -1497,6 +1513,7 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 		srcAddress = (srcAddress + 1) & 0x7FFFF;
 		dstAddress = (dstAddress + 1) & 0x7FFFF;
 		if (!--nbBytes) {
+			endRect();
 			cmdReady(engineTime);
 			return;
 		}
@@ -1537,7 +1554,7 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
-				cmdReady(engineTime);
+				cmdReady(engineTime); // LINE leaves NY alone
 				break;
 			}
 		}
@@ -1554,7 +1571,7 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
-				cmdReady(engineTime);
+				cmdReady(engineTime); // LINE leaves NY alone
 				break;
 			}
 		}
@@ -1598,6 +1615,7 @@ void V9990CmdEngine::executeSRCH(EmuTime limit)
 		}
 		if (((value & mask2) == (col & mask2)) ^ AEQ) {
 			status |= BD; // border detected
+			endDecNY();
 			cmdReady(engineTime);
 			borderX = ASX;
 			break;
@@ -1605,6 +1623,7 @@ void V9990CmdEngine::executeSRCH(EmuTime limit)
 		ASX += TX;
 		if (ASX & width) {
 			status &= ~BD; // border not detected
+			endDecNY();
 			cmdReady(engineTime);
 			borderX = ASX;
 			break;
@@ -1618,6 +1637,10 @@ void V9990CmdEngine::startPOINT(EmuTime /*time*/)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto d = Mode::point(vram, SX, SY, pitch);
+	// Measured: POINT ends like an LMCM of one row, NY is decremented
+	// twice.
+	NY = uint16_t((NY - 1) & 0xFFF);
+	endDecNY();
 
 	if constexpr (Mode::BITS_PER_PIXEL != 16) {
 		data = uint8_t(d);
@@ -1654,6 +1677,7 @@ void V9990CmdEngine::startPSET(EmuTime time)
 
 	// TODO advance DX DY
 
+	endDecNY();
 	cmdReady(time);
 }
 
@@ -1666,7 +1690,8 @@ void V9990CmdEngine::executePSET(EmuTime /*limit*/)
 void V9990CmdEngine::startADVN(EmuTime time)
 {
 	std::cout << "V9990: ADVN not yet implemented\n";
-	cmdReady(time); // TODO dummy implementation
+	endDecNY(); // TODO dummy implementation
+	cmdReady(time);
 }
 
 void V9990CmdEngine::executeADVN(EmuTime /*limit*/)
@@ -1807,6 +1832,22 @@ uint8_t V9990CmdEngine::peekCmdData(EmuTime time) const
 {
 	const_cast<V9990CmdEngine*>(this)->sync(time);
 	return (status & TR) ? data : 0xFF;
+}
+
+// The command registers after a command, as measured on a real V9990 in P1
+// (R#32-R#52 are write only; a program sees them when it starts the next
+// command without rewriting them all). The engine counts with the registers
+// themselves: NY is the row counter, and every command but LINE decrements
+// it once more at the end (STOP too).
+void V9990CmdEngine::endDecNY()
+{
+	NY = uint16_t((NY - 1) & 0xFFF);
+}
+
+// End of a rectangle command: NY counted down to 0, then once more.
+void V9990CmdEngine::endRect()
+{
+	NY = 0xFFF;
 }
 
 void V9990CmdEngine::cmdReady(EmuTime /*time*/)
