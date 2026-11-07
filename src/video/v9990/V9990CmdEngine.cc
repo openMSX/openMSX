@@ -22,6 +22,7 @@
 #include <cassert>
 #include <iostream>
 #include <string_view>
+#include <type_traits>
 
 namespace openmsx {
 
@@ -342,8 +343,9 @@ inline uint8_t V9990CmdEngine::V9990P1::logOp(
 // stale lane byte at the same address. This is why the manual says that in
 // P1 the program must clear the WM byte of the side that isn't the transfer
 // destination. Verified against a real V9990 (Tecnobytes PowerGraph) with
-// the P1CMD/P1CMD2 probes: LMMV puts the FC byte of the target layer on its
-// lane; LMMM puts the source pixel shifted into its nibble, other nibble 0.
+// the P1CMD/P1CMD2 probes: LMMV puts its colour on the target lane (FC bits
+// 7-0 for either layer, see executeLMMV); LMMM puts the source pixel shifted
+// into its nibble, other nibble 0.
 // CPU writes through port P#0 do not touch this register; reset clears it.
 static inline void p1Write(
 	V9990VRAM& vram, unsigned addr, uint8_t nibbleMask, uint8_t newColor,
@@ -1085,9 +1087,13 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
+	// In P1, LMMV draws with FC bits 7-0 into either layer (measured on a
+	// real V9990: an LMMV into layer B ignores FC bits 15-8).
+	uint16_t color = std::is_same_v<Mode, V9990P1>
+	               ? uint16_t((fgCol & 0xFF) * 0x0101) : fgCol;
 	while (engineTime < limit) {
 		engineTime += delta;
-		Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
+		Mode::psetColor(vram, DX, DY, pitch, color, WM, lut, LOG, dataLatch);
 
 		DX += dx;
 		if (!--ANX) {
