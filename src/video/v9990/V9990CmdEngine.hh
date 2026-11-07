@@ -338,6 +338,10 @@ private:
 	  */
 	void cmdReady(EmuTime time);
 
+	/** The command registers at the end of a command. */
+	void endDecNY();
+	void endRect();
+
 	/** For debugging: Print the info about the current command.
 	  */
 	void reportV9990Command() const;
