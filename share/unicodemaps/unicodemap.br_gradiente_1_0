@@ -138,7 +138,6 @@ DEADKEY1, 25,
 0007b, 15, SHIFT       # { (LEFT CURLY BRACKET)
 0007c, 14, SHIFT       # | (VERTICAL LINE)
 0007d, 16, SHIFT       # } (RIGHT CURLY BRACKET)
-0007e, 21, GRAPH       # ~ (TILDE)
 0007e, 11, SHIFT CODE  # ~ (TILDE)
 0007f, 83,             # Delete
 000a0, 80,             # No-break space (&nbsp;)
