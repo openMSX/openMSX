@@ -349,6 +349,7 @@ private:
 	void endRect();
 	void endBMLL();
 	void endSRCH();
+	void advancePointer();
 
 	/** For debugging: Print the info about the current command.
 	  */
