@@ -22,6 +22,7 @@
 #include <cassert>
 #include <iostream>
 #include <string_view>
+#include <type_traits>
 
 namespace openmsx {
 
@@ -1062,9 +1063,13 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
+	// In P1, LMMV draws with FC bits 7-0 into either layer (measured on a
+	// real V9990: an LMMV into layer B ignores FC bits 15-8).
+	uint16_t color = std::is_same_v<Mode, V9990P1>
+	               ? uint16_t((fgCol & 0xFF) * 0x0101) : fgCol;
 	while (engineTime < limit) {
 		engineTime += delta;
-		Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG);
+		Mode::psetColor(vram, DX, DY, pitch, color, WM, lut, LOG);
 
 		DX += dx;
 		if (!--ANX) {
