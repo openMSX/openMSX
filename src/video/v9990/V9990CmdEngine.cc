@@ -1066,6 +1066,7 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 		if (!--ANX) {
 			DX -= uint16_t(NX * dx);
 			DY += dy;
+			SY += dy; // LMMV also steps SY, like LMMM
 			if (!--ANY) {
 				SX = 0; // SX is the X counter
 				endRect();
@@ -1227,7 +1228,9 @@ void V9990CmdEngine::startCMMK(EmuTime time)
 {
 	std::cout << "V9990: CMMK not yet implemented\n";
 	// TODO dummy implementation. A V9990 without a kanji ROM (measured)
-	// ends at once, with NY = FFFh.
+	// ends at once, but still steps DY by NY and ends with NY = FFFh.
+	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
+	DY = uint16_t((DY + getWrappedNY() * dy) & 0xFFF);
 	endRect();
 	cmdReady(time);
 }
@@ -1469,7 +1472,7 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 		srcAddress = (srcAddress + 1) & 0x3FFFF;
 		dstAddress = (dstAddress + 1) & 0x3FFFF;
 		if (!--nbBytes) {
-			endRect();
+			endBMLL();
 			cmdReady(engineTime);
 			return;
 		}
@@ -1495,7 +1498,7 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 		srcAddress = (srcAddress + 1) & 0x7FFFF;
 		dstAddress = (dstAddress + 1) & 0x7FFFF;
 		if (!--nbBytes) {
-			endRect();
+			endBMLL();
 			cmdReady(engineTime);
 			return;
 		}
@@ -1621,8 +1624,9 @@ void V9990CmdEngine::startPOINT(EmuTime /*time*/)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto d = Mode::point(vram, SX, SY, pitch);
-	// Measured: POINT ends like an LMCM of one row: DX (the X counter)
-	// ends at 0 and NY is decremented twice.
+	// Measured: POINT ends like an LMCM of one row: SY steps by one, DX
+	// (the X counter) ends at 0 and NY is decremented twice.
+	SY = uint16_t((SY + ((ARG & DIY) ? -1 : 1)) & 0xFFF);
 	DX = 0;
 	NY = uint16_t((NY - 1) & 0xFFF);
 	endDecNY();
@@ -1837,6 +1841,15 @@ void V9990CmdEngine::endDecNY()
 void V9990CmdEngine::endRect()
 {
 	NY = 0xFFF;
+}
+
+// BMLL: SY:SX and DY:DX are linear addresses, the copy steps them by NY
+// rows of 256 bytes (the low byte back at the start).
+void V9990CmdEngine::endBMLL()
+{
+	SY = uint16_t((SY + NY) & 0xFFF);
+	DY = uint16_t((DY + NY) & 0xFFF);
+	endRect();
 }
 
 // SRCH: DX ends at 0.
