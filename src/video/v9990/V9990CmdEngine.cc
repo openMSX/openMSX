@@ -759,7 +759,6 @@ void V9990CmdEngine::reset(EmuTime /*time*/)
 {
 	CMD = 0;
 	status = 0;
-	borderX = 0;
 	dataLatch = 0;
 	endAfterRead = false;
 }
@@ -1627,7 +1626,6 @@ void V9990CmdEngine::executeSRCH(EmuTime limit)
 			status |= BD; // border detected
 			endSRCH();
 			cmdReady(engineTime);
-			borderX = ASX;
 			break;
 		}
 		ASX += TX;
@@ -1635,7 +1633,6 @@ void V9990CmdEngine::executeSRCH(EmuTime limit)
 			status &= ~BD; // border not detected
 			endSRCH();
 			cmdReady(engineTime);
-			borderX = ASX;
 			break;
 		}
 	}
@@ -1882,9 +1879,11 @@ void V9990CmdEngine::endBMLL()
 	endRect();
 }
 
-// SRCH: DX ends at 0.
+// SRCH: SX is its X pointer and ends where the search stopped (the found
+// X, or one past the edge); DX ends at 0.
 void V9990CmdEngine::endSRCH()
 {
+	SX = uint16_t(ASX & 0x7FF);
 	DX = 0;
 	endDecNY();
 }
@@ -1965,6 +1964,7 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 // version 1: initial version
 // version 2: we forgot to serialize the time (or clock) member
 // version 3: added dataLatch (P1 data output register)
+// version 4: removed borderX (R#53-R#54 read SX)
 template<typename Archive>
 void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 {
@@ -1980,7 +1980,6 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	ar.serialize("srcAddress",   srcAddress,
 	             "dstAddress",   dstAddress,
 	             "nbBytes",      nbBytes,
-	             "borderX",      borderX,
 	             "ASX",          ASX,
 	             "ADX",          ADX,
 	             "ANX",          ANX,
@@ -2006,6 +2005,11 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 		ar.serialize("dataLatch", dataLatch);
 	} else {
 		dataLatch = 0;
+	}
+
+	if (ar.versionBelow(version, 4)) {
+		uint16_t borderX = 0; // was R#53-R#54, now read from SX
+		ar.serialize("borderX", borderX);
 	}
 
 	if constexpr (Archive::IS_LOADER) {

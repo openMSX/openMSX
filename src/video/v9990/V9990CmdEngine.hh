@@ -86,10 +86,12 @@ public:
 		        .ARG = ARG, .LOG = LOG, .CMD = CMD};
 	}
 
+	/** R#53-R#54 (BX). On a real V9990 they read SX, which a SRCH leaves
+	  * at the X where it stopped. */
 	[[nodiscard]] uint16_t getBorderX(EmuTime time) const {
 		// note: used for both normal and debug read
 		const_cast<V9990CmdEngine*>(this)->sync(time);
-		return borderX;
+		return SX & 0x7FF;
 	}
 
 	/** Calculate an (under-)estimation for when the command will finish.
@@ -294,10 +296,6 @@ private:
 	unsigned dstAddress;
 	unsigned nbBytes;
 
-	/** The X coord of a border detected by SRCH
-	 */
-	uint16_t borderX;
-
 	/** counters
 	  */
 	uint16_t ASX, ADX, ANX, ANY;
@@ -369,7 +367,7 @@ private:
 		return NY ? NY : 4096;
 	}
 };
-SERIALIZE_CLASS_VERSION(V9990CmdEngine, 3);
+SERIALIZE_CLASS_VERSION(V9990CmdEngine, 4);
 
 } // namespace openmsx
 
