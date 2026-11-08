@@ -704,17 +704,17 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    EventDistributor& eventDistributor_,
                    MSXEventDistributor& msxEventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   Matrix matrix,
+                   Matrix matrix_,
                    const DeviceConfig& config)
 	: Schedulable(scheduler_)
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, eventDistributor(eventDistributor_)
-	, keyCodeTab (defaultKeyCodeMappings [matrix])
-	, scanCodeTab(defaultScanCodeMappings[matrix])
-	, combinedShiftFlag(defaultCombinedShiftFlags[matrix])
-	, modifierPos(modifierPosForMatrix[matrix])
+	, keyCodeTab (defaultKeyCodeMappings [matrix_])
+	, scanCodeTab(defaultScanCodeMappings[matrix_])
+	, combinedShiftFlag(defaultCombinedShiftFlags[matrix_])
+	, modifierPos(modifierPosForMatrix[matrix_])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
@@ -728,9 +728,10 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(config.getChildData(
-		"keyboard_type", defaultKeymapForMatrix[matrix]))
+		"keyboard_type", defaultKeymapForMatrix[matrix_]))
+	, matrixType(matrix_)
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
-	, blockRow11(matrix == Matrix::MSX
+	, blockRow11(matrix_ == Matrix::MSX
 		&& !config.getChildDataAsBool("has_yesno_keys", false))
 	, keyGhosting(config.getChildDataAsBool("key_ghosting", true))
 	, keyGhostingSGCprotected(config.getChildDataAsBool(
