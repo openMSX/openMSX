@@ -700,21 +700,17 @@ static constexpr array_with_enum_index<Keyboard::Matrix, bool> defaultCombinedSh
 
 static std::string getKeyboardType(const DeviceConfig& config, Keyboard::Matrix matrix)
 {
-	// In the (near?) future all machine configs should have a
-	// <keyboard_type> tag. But keep supporting the default value for
-	// backwards compatibility with old savestates.
+	// Machine configs without a <keyboard_type> tag (the ColecoVision, and
+	// the configs in old savestates) use the default of their key matrix.
 	std::string keyboardType(
 		config.getChildData("keyboard_type", defaultKeymapForMatrix[matrix]));
 
-	// TODO in the (near?) future machine configs should NOT have
-	// <has_keypad> or <has_yesno_key> tags anymore. But to support old
-	// savestates we still parse these tags (they now alter the value of
-	// the <keyboard_type> tag).
-
-	 // Note: the old meaning of a missing <has_keypad> tag was: "assume it
-	 // is present". That conflicts with our desire to make this tag
-	 // optional in the future. But luckily there weren't too many (old)
-	 // machine configs which were missing this tag.
+	// Old savestates (and machine configs of users) can have <has_keypad>
+	// and <has_yesno_keys> tags instead of the _numpad and _yesno suffixes
+	// in the <keyboard_type> (e.g. 'jp_jis_numpad_yesno'): add the
+	// suffixes for them. A missing <has_keypad> tag counts as 'false',
+	// although for configs of old openMSX versions it means 'true' (only a
+	// few of those configs lack the tag).
 	if (config.getChildDataAsBool("has_keypad", false) &&
 	    !keyboardType.contains("_numpad")) {
 		keyboardType += "_numpad";
@@ -759,9 +755,6 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keybDebuggable(motherBoard)
 	, keyboardInfo(getKeyboardType(config, matrix_))
 	, matrixType(matrix_)
-	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
-	, blockRow11(matrix_ == Matrix::MSX
-		&& !config.getChildDataAsBool("has_yesno_keys", false))
 	, keyGhosting(config.getChildDataAsBool("key_ghosting", true))
 	, keyGhostingSGCprotected(config.getChildDataAsBool(
 		"key_ghosting_sgc_protected", true))
@@ -1226,16 +1219,45 @@ bool Keyboard::signalEvent(const Event& event)
 
 void Keyboard::processKeypadEnterKey(EmuTime time, bool down)
 {
-	if (!hasKeypad && !keyboardSettings.getAlwaysEnableKeypad()) {
-		// User entered on host keypad but this MSX model does not have one
-		// Ignore the keypress/release
-		return;
-	}
+	// (with the comma mode this is the NUMPAD_COMMA key, which not every
+	// MSX has, see processSdlKey())
 	processSdlKey(time,
 		keyboardSettings.getKpEnterMode() == KeyboardSettings::KpEnterMode::MSX_KP_COMMA ?
 		SDLKey::create(SDLK_KP_COMMA, SDL_SCANCODE_KP_COMMA, down) :
 		SDLKey::create(SDLK_KP_ENTER, SDL_SCANCODE_KP_ENTER, down));
 }
+
+// Host keys for MSX keys that not every MSX has: the numeric keypad, and the
+// CANCEL and EXECUTE keys. They are mapped by the name of the MSX key: if the
+// keyboard_info file of this MSX doesn't have that key, the host key does
+// nothing (except for the keypad when the kbd_numkeypad_always_enabled
+// setting is on: then the position in the key matrix table is used).
+struct NamedHostKey {
+	SDL_Keycode keycode;
+	SDL_Scancode scancode;
+	std::string_view msxKeyName;
+	bool keypad;
+};
+static constexpr std::array namedHostKeys = {
+	NamedHostKey{SDLK_KP_0,        SDL_SCANCODE_KP_0,        "NUMPAD_0",        true},
+	NamedHostKey{SDLK_KP_1,        SDL_SCANCODE_KP_1,        "NUMPAD_1",        true},
+	NamedHostKey{SDLK_KP_2,        SDL_SCANCODE_KP_2,        "NUMPAD_2",        true},
+	NamedHostKey{SDLK_KP_3,        SDL_SCANCODE_KP_3,        "NUMPAD_3",        true},
+	NamedHostKey{SDLK_KP_4,        SDL_SCANCODE_KP_4,        "NUMPAD_4",        true},
+	NamedHostKey{SDLK_KP_5,        SDL_SCANCODE_KP_5,        "NUMPAD_5",        true},
+	NamedHostKey{SDLK_KP_6,        SDL_SCANCODE_KP_6,        "NUMPAD_6",        true},
+	NamedHostKey{SDLK_KP_7,        SDL_SCANCODE_KP_7,        "NUMPAD_7",        true},
+	NamedHostKey{SDLK_KP_8,        SDL_SCANCODE_KP_8,        "NUMPAD_8",        true},
+	NamedHostKey{SDLK_KP_9,        SDL_SCANCODE_KP_9,        "NUMPAD_9",        true},
+	NamedHostKey{SDLK_KP_MULTIPLY, SDL_SCANCODE_KP_MULTIPLY, "NUMPAD_ASTERISK", true},
+	NamedHostKey{SDLK_KP_PLUS,     SDL_SCANCODE_KP_PLUS,     "NUMPAD_PLUS",     true},
+	NamedHostKey{SDLK_KP_DIVIDE,   SDL_SCANCODE_KP_DIVIDE,   "NUMPAD_SLASH",    true},
+	NamedHostKey{SDLK_KP_MINUS,    SDL_SCANCODE_KP_MINUS,    "NUMPAD_MINUS",    true},
+	NamedHostKey{SDLK_KP_COMMA,    SDL_SCANCODE_KP_COMMA,    "NUMPAD_COMMA",    true},
+	NamedHostKey{SDLK_KP_PERIOD,   SDL_SCANCODE_KP_PERIOD,   "NUMPAD_PERIOD",   true},
+	NamedHostKey{SDLK_LGUI,        SDL_SCANCODE_LGUI,        "CANCEL",          false},
+	NamedHostKey{SDLK_RGUI,        SDL_SCANCODE_RGUI,        "EXECUTE",         false},
+};
 
 /*
  * Process an SDL key press/release event. It concerns a
@@ -1247,14 +1269,25 @@ void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 {
 	auto process = [&](KeyMatrixPosition pos) {
 		assert(pos.isValid());
-		if (pos.getRow() == 11 && blockRow11) {
-			// do not process row 11 if we have no Yes/No keys
-			return;
-		}
 		updateKeyMatrix(time, key.down, pos);
 	};
 
-	if (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL) {
+	bool positional = keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL;
+	if (auto it = std::ranges::find_if(namedHostKeys, [&](const NamedHostKey& k) {
+			return positional ? (k.scancode == key.scancode) : (k.keycode == key.keycode);
+		});
+	    it != namedHostKeys.end()) {
+		if (auto pos = keyboardInfo.getMsxKeyPosition(it->msxKeyName); pos.isValid()) {
+			process(pos);
+			return;
+		}
+		if (!it->keypad || !keyboardSettings.getAlwaysEnableKeypad()) {
+			return; // this MSX doesn't have this key
+		}
+		// otherwise: the position in the key matrix table (below)
+	}
+
+	if (positional) {
 		if ((key.keycode == SDLK_RIGHTBRACKET) && (key.scancode == SDL_SCANCODE_BACKSLASH))
 		{
 			// host: Japanese keyboard "]" -> position as -> US keyboard "GRAVE"
@@ -1323,12 +1356,6 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 		(keyCode == one_of(SDLK_KP_PERIOD, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY,
 		                   SDLK_KP_MINUS,  SDLK_KP_PLUS));
 
-	if (isOnKeypad && !hasKeypad &&
-	    !keyboardSettings.getAlwaysEnableKeypad()) {
-		// User entered on host keypad but this MSX model does not have one
-		// Ignore the keypress/release
-		return false;
-	}
 #ifdef __APPLE__
 	bool positional = mode == KeyboardSettings::MappingMode::POSITIONAL;
 	if ((key.mod & SDL_KMOD_GUI) &&
@@ -1354,6 +1381,10 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			// combinations (e.g. digit on main keyboard or TAB/DEL).
 			// Use unicode to handle the more common combination and use direct
 			// matrix to matrix mapping for the exceptional cases (keypad).
+			// TODO: idea: in CHARACTER mode, on an MSX that doesn't have the
+			// keypad key (see namedHostKeys), use the unicode instead, so
+			// that the keypad still types its character (via another key)
+			// instead of nothing.
 			unicode = 0;
 		} else {
 			unicode = keyEvent.getUnicode();

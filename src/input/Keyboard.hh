@@ -85,7 +85,10 @@ public:
 	[[nodiscard]] Matrix getMatrix() const { return matrixType; }
 	/** Does the MSX have a numeric keypad (or is it enabled anyway)? */
 	[[nodiscard]] bool isKeypadEnabled() const {
-		return hasKeypad || keyboardSettings.getAlwaysEnableKeypad();
+		// (the keyboard_info file of a keyboard with a numeric keypad
+		// has all its keys, NUMPAD_0 etc.)
+		return keyboardInfo.getMsxKeyPosition("NUMPAD_0").isValid()
+		    || keyboardSettings.getAlwaysEnableKeypad();
 	}
 	[[nodiscard]] const KeyboardInfo& getKeyboardInfo() const { return keyboardInfo; }
 
@@ -315,12 +318,6 @@ private:
 
 	uint8_t msxModifiers = 0xff;
 
-	/** True iff keyboard includes a numeric keypad. */
-	const bool hasKeypad;
-	/** True iff changes to keyboard row 11 must be rejected.
-	  * On MSX, row 11 contains the (Japanese) Yes/No keys.
-	  */
-	const bool blockRow11;
 	/** True iff pressing multiple keys at once can add ghost key presses. */
 	const bool keyGhosting;
 	/** True iff Shift, Graph and Code are protected against key ghosting. */
