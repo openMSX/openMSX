@@ -334,7 +334,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 		if (ImGui::Button("Load symbol file...")) {
 			manager.openFile->selectFile(
 				"Select symbol file",
-				"Symbol files (*.sym *.map *.noi *.symbol *.publics *.sys){.sym,.map,.noi,.symbol,.publics,.sys}",
+				{{"Symbol files (*.sym *.map *.noi *.symbol *.publics *.sys)", "sym;map;noi;symbol;publics;sys"}},
 				[this, type = loadType](const std::string& filename) {
 					loadFile(filename, SymbolManager::LoadEmpty::NOT_ALLOWED, type, {}, {});
 				});

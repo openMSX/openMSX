@@ -350,7 +350,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 						}
 						if (ImGui::IsItemClicked()) {
 							manager.openFile->selectFile(
-								"Select image for icon", "PNG (*.png){.png}",
+								"Select image for icon", {{"PNG (*.png)", "png"}},
 								// 'iconInfo' may have changed before the callback runs
 								[this, row, which](const std::string& filename) {
 									if (row >= narrow<int>(iconInfo.size())) return;

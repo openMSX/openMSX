@@ -6,55 +6,55 @@
 #include <cstdint>
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace openmsx {
+
+struct FileFilter {
+	std::string name;    // e.g. "Disk images (*.dsk)"
+	std::string pattern; // e.g. "dsk;gz;zip", or "*" for all files
+};
 
 class ImGuiOpenFile final : public ImGuiPart
 {
 public:
-	enum class Painter : uint8_t {
-		MANAGER,
-		DISKMANIPULATOR,
-	};
-
 	using ImGuiPart::ImGuiPart;
 
-	void selectFile(const std::string& title, std::string filters,
+	// These open a native (OS) file dialog. The callback is invoked later
+	// (from paint()) when the user confirmed a selection. Only one dialog
+	// can be open at a time: requests made while a dialog is open are
+	// ignored. An "All files" filter is added when there's no "*" filter.
+	void selectFile(const std::string& title, std::vector<FileFilter> filters,
 	                const std::function<void(const std::string&)>& callback,
-	                zstring_view lastLocationHint = {},
-			Painter painter = Painter::MANAGER);
-	void selectNewFile(const std::string& title, std::string filters,
+	                zstring_view lastLocationHint = {});
+	void selectNewFile(const std::string& title, std::vector<FileFilter> filters,
 	                   const std::function<void(const std::string&)>& callback,
-	                   zstring_view lastLocationHint = {},
-	                   Painter painter = Painter::MANAGER);
+	                   zstring_view lastLocationHint = {});
 	void selectDirectory(const std::string& title,
 	                     const std::function<void(const std::string&)>& callback,
-	                     zstring_view lastLocationHint = {},
-	                     Painter painter = Painter::MANAGER);
+	                     zstring_view lastLocationHint = {});
 
 	[[nodiscard]] zstring_view iniName() const override { return "open file dialog"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
-
-	[[nodiscard]] bool mustPaint(Painter p) const { return p == activePainter; }
-	void doPaint();
+	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
-	void common(const std::string& title, const char* filters,
-                    const std::function<void(const std::string&)>& callback,
-                    zstring_view lastLocationHint,
-                    Painter painter,
-                    int extraFlags);
-	void setBookmarks();
+	struct Dialog;
+	enum class Type : uint8_t { OPEN_FILE, SAVE_FILE, OPEN_DIRECTORY };
+	void common(Type type, const std::string& title, std::vector<FileFilter> filters,
+	            const std::function<void(const std::string&)>& callback,
+	            zstring_view lastLocationHint);
 	[[nodiscard]] std::string getStartPath(zstring_view lastLocationHint);
 
 private:
 	std::map<std::string, std::string, std::less<>> lastPath;
 	std::string lastTitle;
 	std::function<void(const std::string&)> openFileCallback;
-	Painter activePainter = Painter::MANAGER;
-	bool chooseDirectory = false;
+	std::shared_ptr<Dialog> pending;
+	Type pendingType = Type::OPEN_FILE;
 };
 
 } // namespace openmsx

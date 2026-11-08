@@ -425,7 +425,7 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT)
 		ImGui::MenuItem("Select probes and traces", nullptr, &showSelect);
 		if (ImGui::MenuItem("Export as VCD ...")) {
 			manager.openFile->selectNewFile(
-				"Export to VCD", "VCD (*.vcd){.vcd}",
+				"Export to VCD", {{"VCD (*.vcd)", "vcd"}},
 				// Don't capture 'tracer': the machine may be gone when the callback runs
 				[this](const auto& fn) {
 					auto* motherBoard = manager.getReactor().getMotherBoard();

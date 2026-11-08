@@ -53,7 +53,7 @@
 #include "stl.hh"
 #include "strCat.hh"
 
-#include <CustomFont.ii> // icons for ImGuiFileDialog
+#include <CustomFont.ii> // icons
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
@@ -526,9 +526,6 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 	}
 	for (auto* part : parts) {
 		part->paint(motherBoard);
-	}
-	if (openFile->mustPaint(ImGuiOpenFile::Painter::MANAGER)) {
-		openFile->doPaint();
 	}
 
 	auto drawMenu = [&]{

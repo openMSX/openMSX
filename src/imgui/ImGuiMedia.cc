@@ -215,7 +215,7 @@ void ImGuiMedia::showMediaWindow(std::string_view mediaName)
 		}
 }
 
-static std::string buildFilter(std::string_view description, std::span<const std::string_view> extensions)
+static FileFilter buildFilter(std::string_view description, std::span<const std::string_view> extensions)
 {
 	auto formatExtensions = [&] -> std::string {
 		if (extensions.size() <= 3) {
@@ -226,35 +226,31 @@ static std::string buildFilter(std::string_view description, std::span<const std
 			return join(extensions, ',');
 		}
 	};
-	return strCat(
-		description, " (", formatExtensions(), "){",
-		join(std::views::transform(extensions,
-		                     [](const auto& ext) { return strCat('.', ext); }),
-		     ','),
-		",.gz,.zip}");
+	return {strCat(description, " (", formatExtensions(), ')'),
+	        strCat(join(extensions, ';'), ";gz;zip")};
 }
 
-std::string ImGuiMedia::diskFilter()
+FileFilter ImGuiMedia::diskFilter()
 {
 	return buildFilter("Disk images", DiskImageCLI::getExtensions());
 }
 
-static std::string romFilter()
+static FileFilter romFilter()
 {
 	return buildFilter("ROM images", MSXRomCLI::getExtensions());
 }
 
-static std::string cassetteFilter()
+static FileFilter cassetteFilter()
 {
 	return buildFilter("Tape images", CassettePlayerCLI::getExtensions());
 }
 
-static std::string hdFilter()
+static FileFilter hdFilter()
 {
 	return buildFilter("Hard disk images", std::array{"dsk"sv});
 }
 
-static std::string cdFilter()
+static FileFilter cdFilter()
 {
 	return buildFilter("CDROM images", std::array{"iso"sv});
 }
@@ -750,7 +746,7 @@ void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, std::s
 	if (ImGui::MenuItem("Select hard disk image...")) {
 		manager.openFile->selectFile(
 			strCat("Select image for ", slotDisplayName),
-			hdFilter(),
+			{hdFilter()},
 			// Copy the name: these callbacks run later (after the file
 			// dialog and the confirmation), when the string that
 			// 'mediaSlotName' refers to may no longer exist.
@@ -780,7 +776,7 @@ void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, std::stri
 	if (ImGui::MenuItem("Insert CDROM image...")) {
 		manager.openFile->selectFile(
 			strCat("Select CDROM image for ", slotDisplayName),
-			cdFilter(),
+			{cdFilter()},
 			// Copy the name, see paintHardDiskMenuContent().
 			[this, &group, name = std::string(mediaSlotName)](const auto& fn) {
 				group.edit.name = fn;
@@ -800,7 +796,7 @@ void ImGuiMedia::paintLaserDiscMenuContent(std::string_view mediaSlotName, std::
 	if (ImGui::MenuItem("Insert LaserDisc image...")) {
 		manager.openFile->selectFile(
 				strCat("Select LaserDisc image for ", slotDisplayName),
-				buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
+				{buildFilter("LaserDisc images", std::array{"ogv"sv})},
 				// Copy the name, see paintHardDiskMenuContent().
 				[this, name = std::string(mediaSlotName)](const auto& fn) {
 				laserdiscMediaInfo.edit.name = fn;
@@ -887,7 +883,7 @@ static float calcButtonWidth(std::string_view text1, const char* text2)
 }
 
 bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
-                             function_ref<std::string()> createFilter, zstring_view current,
+                             function_ref<FileFilter()> createFilter, zstring_view current,
                              function_ref<std::string(const std::string&)> displayFunc,
                              const std::function<void()>& createNewCallback)
 {
@@ -908,7 +904,7 @@ bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
 			interacted = true;
 			manager.openFile->selectFile(
 				title,
-				createFilter(),
+				{createFilter()},
 				[&](const auto& fn) {
 					group.edit.name = fn;
 					group.edit.romType = RomType::UNKNOWN; // also executed for other types than ROMs, but that's harmless
@@ -1004,7 +1000,7 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 				interacted = true;
 				manager.openFile->selectFile(
 					"Select disk IPS patch",
-					buildFilter("IPS patches", std::array<std::string_view, 1>{"ips"}),
+					{buildFilter("IPS patches", std::array{"ips"sv})},
 					[&](const std::string& ips) {
 						patchIndex = narrow<int>(item.ipsPatches.size());
 						item.ipsPatches.push_back(ips);
@@ -1297,7 +1293,7 @@ void ImGuiMedia::diskMenu(int i)
 						auto createNew = [&]{
 							manager.openFile->selectNewFile(
 								"Select name for new blank disk image",
-								"Disk images (*.dsk){.dsk}",
+								{{"Disk images (*.dsk)", "dsk"}},
 								[&](const auto& fn) {
 									group.edit.name = fn;
 									auto& diskManipulator = manager.getReactor().getDiskManipulator();
@@ -1323,7 +1319,7 @@ void ImGuiMedia::diskMenu(int i)
 						auto createNew = [&]{
 							manager.openFile->selectNewFile(
 								"Select name for new empty directory",
-								"",
+								{},
 								[&](const auto& fn) {
 									group.edit.name = fn;
 									try {
@@ -1520,7 +1516,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, status == CassettePlayer::State::RECORD, RenderRecord)) {
 				manager.openFile->selectNewFile(
 					"Select new wav file for record",
-					"Tape images (*.wav){.wav}",
+					{{"Tape images (*.wav)", "wav"}},
 					[&](const auto& fn) {
 						group.edit.name = fn;
 						manager.executeDelayed(makeTclList("cassetteplayer", "new", fn),

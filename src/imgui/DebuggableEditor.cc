@@ -291,7 +291,7 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
 				manager.openFile->selectNewFile(
-					strCat("Select output file for ", title), "",
+					strCat("Select output file for ", title), {},
 					// This editor may be gone when the callback runs
 					[&mgr = manager, title_ = title](const auto& fn) {
 						if (auto* editor = mgr.debugger->findHexEditor(title_)) {
