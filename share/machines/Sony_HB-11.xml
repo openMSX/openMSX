@@ -40,7 +40,6 @@ VDP: TMS9118NL
       </sound>
       <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <keyboard_type>jp_ansi</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- as checked by Peter -->
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>

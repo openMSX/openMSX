@@ -51,7 +51,6 @@ copied from the European V-20 configuration.
         <volume>16000</volume>
       </sound>
       <keyboard_type>fr</keyboard_type>
-      <has_keypad>false</has_keypad> <!-- TODO: check -->
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected> <!-- TODO: check -->
       <code_kana_locks>false</code_kana_locks> <!-- TODO: check -->
       <graph_locks>false</graph_locks> <!-- TODO: check -->

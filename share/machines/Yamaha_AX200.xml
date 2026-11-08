@@ -24,7 +24,6 @@
       </sound>
       <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <keyboard_type>ar</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <!-- The ar unicodemap describes the Arabic mode (the default:
            BASIC from the start menu), in which CODE is a lock key. When

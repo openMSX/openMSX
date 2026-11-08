@@ -21,7 +21,6 @@
       </sound>
       <io base="0xA8" num="4"/>
       <keyboard_type>br_gradiente_1_0_numpad</keyboard_type> <!-- rom-bios keyboard type indicates international but the actual mapping tables are brazilian -->
-      <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>

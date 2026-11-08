@@ -38,7 +38,6 @@
       </sound>
       <io base="0xA8" num="4"/>
       <keyboard_type>ar_eu</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <!-- The ar_eu unicodemap describes the Arabic mode (the default:
            BASIC from the start menu), in which CODE is a lock key. When

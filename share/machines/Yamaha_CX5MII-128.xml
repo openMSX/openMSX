@@ -28,7 +28,6 @@
            has the former; for the latter, use keyboard_type gb (and its own
            BIOS ROM, not dumped yet). -->
       <keyboard_type>int</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>

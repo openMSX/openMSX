@@ -51,7 +51,6 @@ PSG mask: AY8910-like
       </sound>
       <io base="0xA8" num="4"/>
       <keyboard_type>fr</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected> <!-- confirmed -->
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>

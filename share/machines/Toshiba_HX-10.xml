@@ -34,7 +34,6 @@ Toshiba TCX-1007
            HX-10F, HX-10I and HX-10SF have that accents key instead; for those,
            use keyboard_type int (and their own BIOS ROM, not dumped yet). -->
       <keyboard_type>int_pound</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
