@@ -37,6 +37,12 @@ public:
 	                     const std::function<void(const std::string&)>& callback,
 	                     zstring_view lastLocationHint = {});
 
+	// While a dialog is open, the rest of the GUI and the MSX should not get
+	// (mouse/keyboard) input.
+	[[nodiscard]] bool isDialogOpen() const { return pending != nullptr; }
+	// Stop waiting for the open dialog, its result will be ignored.
+	void abandonDialog();
+
 	[[nodiscard]] zstring_view iniName() const override { return "open file dialog"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
@@ -49,6 +55,7 @@ private:
 	            const std::function<void(const std::string&)>& callback,
 	            zstring_view lastLocationHint);
 	void showDialog(std::vector<FileFilter> filters, const std::string& location);
+	void paintWaitOverlay() const;
 	[[nodiscard]] std::string getStartPath(zstring_view lastLocationHint);
 
 private:

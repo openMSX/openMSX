@@ -400,6 +400,23 @@ bool ImGuiManager::signalEvent(const Event& event)
 			return false;
 		}
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
+		if (openFile->isDialogOpen()) {
+			// Block input for both ImGui and the MSX. Still pass key/button
+			// releases to ImGui, so that nothing remains pressed.
+			switch (sdlEvent.type) {
+			case SDL_EVENT_KEY_DOWN:
+				if (sdlEvent.key.key == SDLK_ESCAPE) openFile->abandonDialog();
+				return true;
+			case SDL_EVENT_MOUSE_MOTION: case SDL_EVENT_MOUSE_WHEEL:
+			case SDL_EVENT_MOUSE_BUTTON_DOWN: case SDL_EVENT_TEXT_INPUT:
+				return true;
+			case SDL_EVENT_KEY_UP: case SDL_EVENT_MOUSE_BUTTON_UP:
+				ImGui_ImplSDL3_ProcessEvent(&sdlEvent);
+				return true;
+			default:
+				break;
+			}
+		}
 		ImGui_ImplSDL3_ProcessEvent(&sdlEvent);
 		if ((io.WantCaptureMouse &&
 		     sdlEvent.type == one_of(SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_WHEEL,

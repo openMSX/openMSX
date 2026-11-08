@@ -7,6 +7,7 @@
 #include "MSXException.hh"
 
 #include "StringOp.hh"
+#include "gl_vec.hh"
 #include "narrow.hh"
 #include "stl.hh"
 #include "strCat.hh"
@@ -249,7 +250,10 @@ void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
 		std::scoped_lock lock(pending->mutex);
 		return std::exchange(pending->result, {});
 	}();
-	if (!result) return; // still open
+	if (!result) { // still open
+		paintWaitOverlay();
+		return;
+	}
 	auto& [file, filterIdx, error] = *result;
 	auto dialog = std::exchange(pending, nullptr);
 	auto callback = std::exchange(openFileCallback, {});
@@ -286,6 +290,42 @@ void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
 	lastPath[lastTitle] = (pendingType == Type::OPEN_DIRECTORY)
 	                    ? path : std::string(FileOperations::getDirName(path));
 	if (callback) callback(path);
+}
+
+// Native dialogs are not always modal (e.g. on Linux), and may even end up
+// behind the openMSX window. Show that we're waiting for the dialog.
+void ImGuiOpenFile::paintWaitOverlay() const
+{
+	auto dimColor = ImGui::GetColorU32(ImGuiCol_ModalWindowDimBg);
+	for (auto* viewport : ImGui::GetPlatformIO().Viewports) {
+		gl::vec2 pos = viewport->Pos;
+		gl::vec2 size = viewport->Size;
+		ImGui::GetForegroundDrawList(viewport)->AddRectFilled(pos, pos + size, dimColor);
+	}
+
+	auto* viewport = ImGui::GetMainViewport();
+	auto* drawList = ImGui::GetForegroundDrawList(viewport);
+#if defined(_WIN32) || defined(__APPLE__)
+	// The native dialog is modal: the openMSX window gets no input, so
+	// pressing Escape can't work.
+	const char* text = "Waiting for the file dialog to close...";
+#else
+	const char* text = "Waiting for the file dialog to close...\n"
+	                   "(press Escape to stop waiting)";
+#endif
+	gl::vec2 textSize = ImGui::CalcTextSize(text);
+	gl::vec2 padding = ImGui::GetStyle().WindowPadding;
+	gl::vec2 topLeft = gl::vec2(viewport->GetCenter()) - 0.5f * textSize;
+	drawList->AddRectFilled(topLeft - padding, topLeft + textSize + padding,
+	                        ImGui::GetColorU32(ImGuiCol_PopupBg), ImGui::GetStyle().WindowRounding);
+	drawList->AddText(topLeft, ImGui::GetColorU32(ImGuiCol_Text), text);
+}
+
+void ImGuiOpenFile::abandonDialog()
+{
+	// The SDL callback still shares (and later destroys) the Dialog object.
+	pending = nullptr;
+	openFileCallback = {};
 }
 
 } // namespace openmsx
