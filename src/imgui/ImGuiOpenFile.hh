@@ -25,7 +25,8 @@ public:
 	// These open a native (OS) file dialog. The callback is invoked later
 	// (from paint()) when the user confirmed a selection. Only one dialog
 	// can be open at a time: requests made while a dialog is open are
-	// ignored. An "All files" filter is added when there's no "*" filter.
+	// ignored. An "All files" filter is added when there's no "*" filter
+	// (except for save dialogs on macOS).
 	void selectFile(const std::string& title, std::vector<FileFilter> filters,
 	                const std::function<void(const std::string&)>& callback,
 	                zstring_view lastLocationHint = {});
@@ -47,6 +48,7 @@ private:
 	void common(Type type, const std::string& title, std::vector<FileFilter> filters,
 	            const std::function<void(const std::string&)>& callback,
 	            zstring_view lastLocationHint);
+	void showDialog(std::vector<FileFilter> filters, const std::string& location);
 	[[nodiscard]] std::string getStartPath(zstring_view lastLocationHint);
 
 private:

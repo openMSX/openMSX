@@ -166,12 +166,22 @@ void ImGuiOpenFile::common(Type type, const std::string& title, std::vector<File
                            zstring_view lastLocationHint)
 {
 	if (pending) return; // a dialog is already open
+#ifdef __APPLE__
+	// Without a "*" filter, the macOS save panel appends the extension itself
+	// (and then confirms overwriting the full name).
+	if (type == Type::OPEN_FILE) addAllFilesFilter(filters);
+#else
 	if (type != Type::OPEN_DIRECTORY) addAllFilesFilter(filters);
+#endif
 
 	lastTitle = title;
 	openFileCallback = callback;
 	pendingType = type;
+	showDialog(std::move(filters), toDialogLocation(getStartPath(lastLocationHint)));
+}
 
+void ImGuiOpenFile::showDialog(std::vector<FileFilter> filters, const std::string& location)
+{
 	pending = std::make_shared<Dialog>();
 	auto& dialog = *pending;
 	dialog.filters = std::move(filters);
@@ -184,12 +194,10 @@ void ImGuiOpenFile::common(Type type, const std::string& title, std::vector<File
 			return SDL_DialogFileFilter{f.name.c_str(), p.c_str()};
 		}));
 
-	auto location = toDialogLocation(getStartPath(lastLocationHint));
-
 	SDL_PropertiesID props = SDL_CreateProperties();
 	// Note: macOS probably doesn't show the title (the dialog is a sheet), and
 	// SDL has no property for the 'message' that could be shown instead.
-	SDL_SetStringProperty(props, SDL_PROP_FILE_DIALOG_TITLE_STRING, title.c_str());
+	SDL_SetStringProperty(props, SDL_PROP_FILE_DIALOG_TITLE_STRING, lastTitle.c_str());
 	SDL_SetPointerProperty(props, SDL_PROP_FILE_DIALOG_WINDOW_POINTER,
 	                       SDL_GetWindowFromID(WindowEvent::getMainWindowId()));
 	if (!location.empty()) {
@@ -201,7 +209,7 @@ void ImGuiOpenFile::common(Type type, const std::string& title, std::vector<File
 	}
 
 	auto sdlType = [&] {
-		switch (type) {
+		switch (pendingType) {
 			case Type::OPEN_FILE:      return SDL_FILEDIALOG_OPENFILE;
 			case Type::SAVE_FILE:      return SDL_FILEDIALOG_SAVEFILE;
 			case Type::OPEN_DIRECTORY: return SDL_FILEDIALOG_OPENFOLDER;
@@ -253,7 +261,7 @@ void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
 		return;
 	}
 
-	const auto& filters = dialog->filters;
+	auto& filters = dialog->filters;
 	// Only Windows reports the selected filter, otherwise assume the first one.
 	if (filterIdx < 0 || filterIdx >= narrow<int>(filters.size())) filterIdx = 0;
 
@@ -266,6 +274,13 @@ void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
 	    FileOperations::getExtension(FileOperations::getFilename(path)).empty()) {
 		if (auto ext = defaultExtension(filters[filterIdx].pattern); !ext.empty()) {
 			strAppend(path, '.', ext);
+			if (FileOperations::exists(path)) {
+				// The dialog only confirmed the name without extension. Show
+				// it again with the full name, so that it confirms overwriting.
+				openFileCallback = std::move(callback);
+				showDialog(std::move(filters), std::string(FileOperations::getNativePath(path)));
+				return;
+			}
 		}
 	}
 	lastPath[lastTitle] = (pendingType == Type::OPEN_DIRECTORY)
