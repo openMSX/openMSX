@@ -33,7 +33,6 @@
              00060, 13, GRAPH       # ` (GRAVE ACCENT)
            We were too lazy to add a whole unicodemap for this. -->
       <keyboard_type>de</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>

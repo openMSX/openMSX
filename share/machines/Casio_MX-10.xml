@@ -26,7 +26,6 @@
       </sound>
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_ansi</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- seems it is protected on the MX-101 which Peter Hanraets tested. TODO: check the MX-10 -->
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>

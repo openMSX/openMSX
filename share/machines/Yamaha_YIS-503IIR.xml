@@ -48,7 +48,6 @@ Yamaha SFG-01/05 regarding physical shape and how it connects to the MSX. -->
         <volume>16000</volume>
       </sound>
       <keyboard_type>ru</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>

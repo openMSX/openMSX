@@ -48,8 +48,7 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>false</key_ghosting>
-      <keyboard_type>int</keyboard_type>
-      <has_keypad>true</has_keypad>
+      <keyboard_type>int_numpad</keyboard_type>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>

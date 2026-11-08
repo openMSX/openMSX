@@ -50,7 +50,6 @@
       <keyboard_type>sega_int</keyboard_type>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>true</graph_locks>
-      <has_keypad>false</has_keypad>
       <!-- disable key ghosting until the ghosting code can handle non-MSX keyboards -->
       <key_ghosting>false</key_ghosting>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>

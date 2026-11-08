@@ -28,7 +28,6 @@ crystal: 3.579545 and 22.168 near the VDP (PAL = 22.168/5=4.4336).. not synced
       </sound>
       <io base="0xA8" num="8"/>  <!-- S-3527 mirrors, confirmed by hap -->
       <keyboard_type>gb</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>

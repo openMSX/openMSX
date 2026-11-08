@@ -30,7 +30,6 @@ crystal: same for cpu/vdp/psg
       </sound>
       <io base="0xA8" num="8"/> <!-- mirroring confirmed by hap -->
       <keyboard_type>de</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>

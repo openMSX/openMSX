@@ -65,8 +65,7 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>false</key_ghosting>
-      <keyboard_type>jp_ansi</keyboard_type>
-      <has_keypad>true</has_keypad>
+      <keyboard_type>jp_ansi_numpad</keyboard_type>
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>

@@ -49,7 +49,6 @@
       </sound>
       <key_ghosting>false</key_ghosting>
       <keyboard_type>int</keyboard_type>
-      <has_keypad>false</has_keypad>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>

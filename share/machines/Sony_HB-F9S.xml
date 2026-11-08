@@ -25,7 +25,6 @@
       </sound>
       <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
       <keyboard_type>es_numpad</keyboard_type>
-      <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>

@@ -40,7 +40,6 @@
         <volume>16000</volume>
       </sound>
       <keyboard_type>ar_fr</keyboard_type>
-      <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <!-- The ar_fr unicodemap describes the Arabic mode (the default:
            BASIC from the start menu), in which CODE is a lock key. When
