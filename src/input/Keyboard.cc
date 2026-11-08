@@ -835,12 +835,26 @@ std::span<const uint8_t, KeyMatrixPosition::NUM_ROWS> Keyboard::getKeys() const
 {
 	if (keysChanged) {
 		keysChanged = false;
-		std::span matrix = keyTypeCmd.isActive() ? typeKeyMatrix : userKeyMatrix;
-		for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
-			keyMatrix[row] = cmdKeyMatrix[row] & matrix[row];
-		}
-		if (keyGhosting) {
-			doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
+		if (keyTypeCmd.isActive()) {
+			// The 'type' command presses keys to type characters, ghost
+			// keys would add other characters (e.g. with SHIFT+GRAPH on
+			// machines without ghosting protection for SHIFT/GRAPH/CODE).
+			// So only the keys pressed with the keymatrix commands get
+			// ghosting, the typed keys are added afterwards.
+			std::ranges::copy(cmdKeyMatrix, keyMatrix.begin());
+			if (keyGhosting) {
+				doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
+			}
+			for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
+				keyMatrix[row] &= typeKeyMatrix[row];
+			}
+		} else {
+			for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
+				keyMatrix[row] = cmdKeyMatrix[row] & userKeyMatrix[row];
+			}
+			if (keyGhosting) {
+				doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
+			}
 		}
 	}
 	return keyMatrix;
