@@ -210,6 +210,9 @@ public:
 	[[nodiscard]] const XMLElement* findChildWithAttribute(std::string_view childName, std::string_view attrName, std::string_view attrValue) const;
 	[[nodiscard]] XMLElement* findChild(std::string_view childName);
 	[[nodiscard]] XMLElement* findChild(std::string_view childName, XMLElement*& hint);
+	// Unlink the first child with the given name (the memory stays owned by
+	// the XMLDocument). Returns false if there was no such child.
+	bool removeChild(std::string_view childName);
 	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;
 	[[nodiscard]] XMLElement& getChild(std::string_view childName);
 

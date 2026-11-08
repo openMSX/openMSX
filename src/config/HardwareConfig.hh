@@ -114,7 +114,7 @@ private:
 
 	friend struct SerializeConstructorArgs<HardwareConfig>;
 };
-SERIALIZE_CLASS_VERSION(HardwareConfig, 6);
+SERIALIZE_CLASS_VERSION(HardwareConfig, 7);
 
 template<> struct SerializeConstructorArgs<HardwareConfig>
 {
