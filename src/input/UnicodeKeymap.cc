@@ -114,6 +114,30 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadKey(unsigned n) const
 	return deadKeys[n];
 }
 
+std::optional<unsigned> UnicodeKeymap::getUnicode(KeyMatrixPosition pos, uint8_t modMask) const
+{
+	std::optional<unsigned> result;
+	for (const auto& e : mapData) { // sorted on unicode
+		if ((e.keyInfo.pos != pos) || (e.keyInfo.modMask != modMask)) continue;
+		if (msxChars) {
+			// the character the MSX character maps to (not an alias):
+			// it maps to an MSX character and back to itself
+			if (auto m = msxChars->unicodeToMsx(e.unicode);
+			    m && (msxChars->msxToUnicode(*m) == e.unicode)) {
+				return e.unicode;
+			}
+		}
+		result = e.unicode; // otherwise the highest code point
+	}
+	return result;
+}
+
+bool UnicodeKeymap::isDeadKey(KeyMatrixPosition pos) const
+{
+	assert(pos.isValid()); // (unused dead keys have an invalid position)
+	return contains(deadKeys, pos, &KeyInfo::pos);
+}
+
 void UnicodeKeymap::parseUnicodeKeyMapFile(std::string_view data)
 {
 	std::ranges::fill(relevantMods, 0);
