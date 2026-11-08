@@ -562,9 +562,9 @@ SymbolFile::Type SymbolManager::getTypeForFilter(std::string_view filter)
 		return AUTO_DETECT;
 	} else if (filter.starts_with("asMSX")) {
 		return ASMSX;
-	} else if (filter.starts_with("HiTechC link")) {
+	} else if (filter.starts_with("HiTech C link")) {
 		return LINKMAP;
-	} else if (filter.starts_with("HiTechC symbol")) {
+	} else if (filter.starts_with("HiTech C symbol")) {
 		return HTC;
 	} else if (filter.starts_with("NoICE")) {
 		return NOICE;
