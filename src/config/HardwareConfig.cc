@@ -470,6 +470,7 @@ SERIALIZE_ENUM(HardwareConfig::Type, configTypeInfo);
 // version 4: hold 'context' by-value instead of by-pointer
 // version 5: added hwconfig type info
 // version 6: switch from old to new XMLElement
+// version 7: ColecoVision configs no longer have a <has_keypad> tag
 template<typename Archive>
 void HardwareConfig::serialize(Archive& ar, unsigned version)
 {
@@ -484,6 +485,19 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		OldXMLElement elem;
 		ar.serialize("config", elem); // fills in getLastSerializedFileContext()
 		config.load(elem);
+	}
+	if constexpr (Archive::IS_LOADER) {
+		if (ar.versionBelow(version, 7)) {
+			// The ColecoVision controllers are not a keyboard with a
+			// numeric keypad: <has_keypad>true</has_keypad> would select
+			// the (non-existing) 'cvjoy_numpad' keyboard type. Without
+			// the tag it behaves as before (keypad enabled).
+			if (auto* devs = getConfig().findChild("devices")) {
+				for (auto* coleco : devs->getChildren("ColecoJoystick")) {
+					coleco->removeChild("has_keypad");
+				}
+			}
+		}
 	}
 	if (ar.versionAtLeast(version, 2)) {
 		if (ar.versionAtLeast(version, 4)) {

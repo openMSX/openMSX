@@ -38,7 +38,6 @@
       <io base="0x80" num="0x20" type="O"/>
       <io base="0xC0" num="0x20" type="O"/>
       <io base="0xE0" num="0x20" type="I"/>
-      <has_keypad>true</has_keypad>
       <key_ghosting>false</key_ghosting>
     </ColecoJoystick>
 

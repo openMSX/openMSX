@@ -47,6 +47,17 @@ XMLElement* XMLElement::findChild(std::string_view childName)
 	return nullptr;
 }
 
+bool XMLElement::removeChild(std::string_view childName)
+{
+	for (auto** childPtr = &firstChild; *childPtr; childPtr = &(*childPtr)->nextSibling) {
+		if ((*childPtr)->name == childName) {
+			*childPtr = (*childPtr)->nextSibling;
+			return true;
+		}
+	}
+	return false;
+}
+
 // Similar to above, but instead of starting the search from the start of the
 // list, start searching at 'hint'. This 'hint' parameter must be initialized
 // with 'firstChild', on each successful search this parameter is updated to
