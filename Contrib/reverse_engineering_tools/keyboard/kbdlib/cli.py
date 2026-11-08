@@ -389,7 +389,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--share', action='append',
-                    help='openMSX share directory with machines/ and unicodemaps/ '
+                    help='openMSX share directory with machines/ and keyboard_info/ '
                          '(can be given more than once; default: the one of this '
                          'source tree)')
     sub = ap.add_subparsers(dest='cmd', required=True)

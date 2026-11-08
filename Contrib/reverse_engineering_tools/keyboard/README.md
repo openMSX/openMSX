@@ -2,8 +2,8 @@
 
 These tools find out what each key of an emulated machine types, so that its
 keyboard can be described correctly in openMSX: the `keyboard_type` (which
-unicodemap in `share/unicodemaps`) and the other keyboard settings in its
-machine config. With them, you can:
+keyboard_info file in `share/keyboard_info`, which names the unicodemap and
+the character set) and the other keyboard settings in its machine config. With them, you can:
 
 - check which existing unicodemap fits a machine,
 - generate a new unicodemap if none fits,
@@ -54,7 +54,7 @@ scan results.
 The tools use the machine configs and unicodemaps of the source tree they are
 in (`share/` next to `Contrib/`), and make openMSX use them too. Use
 `--share DIR` (before the subcommand) for another complete share directory
-(with `machines/`, `extensions/`, `unicodemaps/` etc.).
+(with `machines/`, `extensions/`, `keyboard_info/` etc.).
 
 All commands are run in this directory, as `python3 kbdtool.py ...` (on
 Windows usually `py kbdtool.py ...`). Each subcommand has `--help`.
@@ -145,8 +145,8 @@ unicodemap; the existing configs have many examples of such comments.
 ### 4. Check the character set visually
 
 The scan gives character codes, and a character set mapping
-(`share/unicodemaps/character_set_mappings/*.TXT`, named in the
-`MSX-Video-Characterset:` line of each unicodemap) tells which Unicode
+(`share/keyboard_info/*.TXT`, named in the `MSX-Video-Characterset:` line
+of the keyboard_info files) tells which Unicode
 character each code is. Comparing codes can't show whether that mapping fits
 the font of the machine, so check it by eye:
 
@@ -168,12 +168,12 @@ Give scans of machines whose fonts are probably similar as `--known`.
 (also when shifted by some pixels: then marked "check"); `NEWSET.html` shows
 all 256 glyphs. Fill in the rest of `NEWSET.TXT` by looking at the glyphs
 (lines starting with `#0x` are still open), and put it in
-`share/unicodemaps/character_set_mappings/`. If the BASIC program of the
+`share/keyboard_info/`. If the BASIC program of the
 special pass couldn't be typed, scan again with `--charset NEWSET.TXT`.
 
 ### 5. If none fits: generate a new unicodemap
 
-    python3 kbdtool.py genmap scans/Brand_Model --base de --region "My region" --out ../../../share/unicodemaps/unicodemap.my
+    python3 kbdtool.py genmap scans/Brand_Model --base de --region "My region" --out ../../../share/keyboard_info/unicodemap.my
 
 `--base` is the unicodemap to take the character set from (or give
 `--charset`). The rules:
@@ -199,9 +199,11 @@ unicodemap then gets what they have in common, and the header lists the keys
 in which they differ. `--header FILE` adds your own text to the header,
 e.g. about the machines and the sources. Review the result. Compare it with
 the closest existing unicodemap (`diff`), and check the comments. Then
-regenerate after any change to the scans, rather than editing by hand. Put
-its name in `keyboard_type` in the machine config, and do step 4 again with
-it.
+regenerate after any change to the scans, rather than editing by hand. Then
+add a `share/keyboard_info/keyboard_info.my` file (start from the one of the
+closest keyboard): `UnicodeMap: my`, the `MSX-Video-Characterset:`, and the
+key names. Put its name in `keyboard_type` in the machine config, and do
+step 4 again with it.
 
 ### 6. Check typing
 
