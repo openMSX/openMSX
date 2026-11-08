@@ -353,7 +353,7 @@ static inline void p1Write(
 	dataLatch = uint16_t((dataLatch & ~(0xFF << lane)) | (newColor << lane));
 	for (unsigned l : {0u, 8u}) {
 		auto m = narrow_cast<uint8_t>((mask >> l) & nibbleMask);
-		if (l != lane && m == 0) continue;
+		if (m == 0) continue;
 		unsigned a = (addr & 0x3FFFF) | (l ? 0x40000 : 0);
 		auto d = narrow_cast<uint8_t>(dataLatch >> l);
 		auto old = vram.readVRAMDirect(a);
