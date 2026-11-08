@@ -10,6 +10,8 @@ Subcommands:
   compare    compare scans with a unicodemap
   bestmap    find the existing unicodemaps that fit a scan best
   genmap     generate a unicodemap from the scans of one or more machines
+  geninfo    generate the keyboard_info file (key names, character set) for
+             a unicodemap
   charset    draft a character set mapping (code -> Unicode) from the font
              of a scan, for a machine whose character set has none yet
   report     make an HTML page with the glyphs of the machine's font next to
@@ -30,7 +32,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
-from . import unicodemaps
+from . import keyinfo, unicodemaps
 from .matrices import MATRICES, BASIC_DEFAULTS, matrix_for_type
 from .recipes import recipe_for, key_positions
 from .unicodemaps import Charset, Scan, Unicodemap, charset_path, map_path
@@ -437,6 +439,7 @@ def main():
     p.set_defaults(func=cmd_typetest)
 
     unicodemaps.add_subcommands(sub)
+    keyinfo.add_subcommands(sub)
 
     args = ap.parse_args()
     if not args.share:
