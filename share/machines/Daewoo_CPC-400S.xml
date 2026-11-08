@@ -38,6 +38,13 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
+      <!-- The BIOS of this machine differs from the kr unicodemap in one
+           detail: GRAPH with the keys of ♠ ♥ ♣ ♦ ○ ● (character codes
+           0x80-0x85; row 2 column 4, row 2 column 0, row 1 column 7,
+           row 2 column 5, row 1 column 6 and row 2 column 1) types nothing,
+           and no other key or modifier combination types these
+           characters. So they can't be typed on this machine (e.g. with the
+           type command), although the font has them. -->
       <keyboard_type>kr</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
