@@ -1562,14 +1562,22 @@ uint8_t Keyboard::pressAscii(unsigned unicode, bool down)
 			// To fix both these problems (and possibly still undiscovered
 			// variations), I'm now extending the workaround to all characters
 			// that are typed via a key combination that includes GRAPH.
-			if (modMask & KeyInfo::GRAPH_MASK) {
+			//
+			// On machines where GRAPH is a lock key, GRAPH is not in
+			// modMask (the lock is already on at this point), but the same
+			// problem occurs with SHIFT + the other key. So: when the
+			// character needs GRAPH, first press all (non-lock) modifiers,
+			// and only then the other key.
+			if (keyInfo.modMask & KeyInfo::GRAPH_MASK) {
 				auto isPressed = [&](auto& key) {
 					return (typeKeyMatrix[key.getRow()] & key.getMask()) == 0;
 				};
-				if (!isPressed(modifierPos[KeyInfo::Modifier::GRAPH])) {
-					// GRAPH not yet pressed ->
-					//  first press it before adding the non-modifier key
-					releaseMask = TRY_AGAIN;
+				for (auto [i, mp] : enumerate(modifierPos)) {
+					if (((modMask >> i) & 1) && !isPressed(mp)) {
+						// modifier not yet pressed ->
+						//  first press it before adding the non-modifier key
+						releaseMask = TRY_AGAIN;
+					}
 				}
 			}
 			// press modifiers

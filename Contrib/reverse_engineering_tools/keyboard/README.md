@@ -281,11 +281,3 @@ scanned.
   `type` command and typing on the host keyboard in CHARACTER mode give
   the extra character too: see issue #2272.)
 - **STOP** is never pressed (it would stop the BASIC program).
-
-## Known issues
-
-- TODO (PR #2273): on machines where GRAPH is a lock key (`graph_locks`:
-  the Philips VG 8000 and VG 8010F), openMSX's `type` command sometimes
-  types a SHIFT+GRAPH graphic character as the character with code+64, e.g.
-  on the VG 8000 ♀ (SHIFT+GRAPH+20, code 12) as "L" (code 76). The scan
-  itself (which taps the lock key) gives the right characters.
