@@ -3,10 +3,11 @@
 These tools find out what each key of an emulated machine types, so that its
 keyboard can be described correctly in openMSX: the `keyboard_type` (which
 keyboard_info file in `share/keyboard_info`, which names the unicodemap and
-the character set) and the other keyboard settings in its machine config. With them, you can:
+the character set) and the other keyboard settings in its machine config.
+With them, you can:
 
 - check which existing unicodemap fits a machine,
-- generate a new unicodemap if none fits,
+- generate a new unicodemap and keyboard_info file if none fits,
 - check that typing on the host keyboard (and the `type` command) gives the
   right characters on the MSX.
 
@@ -199,11 +200,25 @@ unicodemap then gets what they have in common, and the header lists the keys
 in which they differ. `--header FILE` adds your own text to the header,
 e.g. about the machines and the sources. Review the result. Compare it with
 the closest existing unicodemap (`diff`), and check the comments. Then
-regenerate after any change to the scans, rather than editing by hand. Then
-add a `share/keyboard_info/keyboard_info.my` file (start from the one of the
-closest keyboard): `UnicodeMap: my`, the `MSX-Video-Characterset:`, and the
-key names. Put its name in `keyboard_type` in the machine config, and do
-step 4 again with it.
+regenerate after any change to the scans, rather than editing by hand.
+
+Then generate the keyboard_info file, which names the unicodemap, the
+character set and the keys of the key matrix:
+
+    python3 kbdtool.py geninfo my --base int_numpad --out ../../../share/keyboard_info/keyboard_info.my_numpad
+
+`--base` is the keyboard_info of the closest existing keyboard (with
+`_numpad` if the machine has a numeric keypad): the special keys (rows 6 and
+up on MSX) and the character set come from there (or give `--charset`). The
+names of the character keys come from the unicodemap: the character that the
+key types without modifiers (for a key with a digit on SHIFT: that digit),
+or DEADKEY<n>. A key that types nothing without modifiers keeps the name in
+`--base`; these are listed, and so are characters that have no name yet in
+`NAMES` in `kbdlib/keyinfo.py`: check them. To regenerate an existing file
+(e.g. after changing the unicodemap), give that file as `--base`.
+
+Put the name of the keyboard_info file (here `my_numpad`) in `keyboard_type`
+in the machine config, and do step 4 again with it.
 
 ### 6. Check typing
 
