@@ -22,6 +22,41 @@ ImGuiLayer::ImGuiLayer(ImGuiManager& manager_)
 {
 }
 
+// In fullscreen mode the window covers the whole display, including the area
+// that is normally reserved for a taskbar or panel. SDL still reports that
+// area as being outside the monitor's work area. Dear ImGui clamps popups
+// (e.g. the main menu) to the monitor's work area, which causes a gap below
+// the menu bar in fullscreen. Use the full display bounds in that case.
+static void updateMonitorWorkArea()
+{
+	auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId());
+	if (!window) return;
+
+	const SDL_DisplayID display = SDL_GetDisplayForWindow(window);
+	if (!display) return;
+
+	SDL_Rect mainRect;
+	if (!SDL_GetDisplayBounds(display, &mainRect)) return;
+
+	SDL_Rect workRect = mainRect;
+	if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) &&
+	    (!SDL_GetDisplayUsableBounds(display, &workRect) ||
+	     workRect.w <= 0 || workRect.h <= 0)) {
+		workRect = mainRect;
+	}
+
+	for (auto& monitor : ImGui::GetPlatformIO().Monitors) {
+		if (monitor.MainPos.x == float(mainRect.x) &&
+		    monitor.MainPos.y == float(mainRect.y) &&
+		    monitor.MainSize.x == float(mainRect.w) &&
+		    monitor.MainSize.y == float(mainRect.h)) {
+			monitor.WorkPos = ImVec2(float(workRect.x), float(workRect.y));
+			monitor.WorkSize = ImVec2(float(workRect.w), float(workRect.h));
+			break;
+		}
+	}
+}
+
 void ImGuiLayer::paint(OutputSurface& /*surface*/)
 {
 	manager.preNewFrame();
@@ -29,6 +64,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
+	updateMonitorWorkArea();
 	ImGui::NewFrame();
 
 	// Allow docking in main window
