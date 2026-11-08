@@ -347,6 +347,9 @@ inline uint8_t V9990CmdEngine::V9990P1::logOp(
 // the P1CMD/P1CMD2 probes: LMMV puts its colour on the target lane (FC bits
 // 7-0 for either layer, see executeLMMV); LMMM puts the source pixel shifted
 // into its nibble, other nibble 0.
+// A write that WM masks out completely on the target layer doesn't reach the
+// other layer either (measured with VDPEND: with WM = 00FFh, an LMMV into
+// layer B leaves layer A alone, whatever the other lane holds).
 // CPU writes through port P#0 do not touch this register; reset clears it.
 static inline void p1Write(
 	V9990VRAM& vram, unsigned addr, uint8_t nibbleMask, uint8_t newColor,
@@ -354,6 +357,7 @@ static inline void p1Write(
 {
 	unsigned lane = (addr & 0x40000) ? 8 : 0;
 	dataLatch = uint16_t((dataLatch & ~(0xFF << lane)) | (newColor << lane));
+	if (((mask >> lane) & nibbleMask) == 0) return;
 	for (unsigned l : {0u, 8u}) {
 		auto m = narrow_cast<uint8_t>((mask >> l) & nibbleMask);
 		if (m == 0) continue;
