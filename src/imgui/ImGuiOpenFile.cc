@@ -18,6 +18,7 @@
 #include <SDL3/SDL_video.h>
 #include <imgui.h>
 
+#include <algorithm>
 #include <mutex>
 #include <optional>
 #include <ranges>
@@ -30,6 +31,7 @@ struct ImGuiOpenFile::Dialog
 {
 	// SDL requires these to stay valid until the callback is invoked.
 	std::vector<FileFilter> filters;
+	std::vector<std::string> sdlPatterns;
 	std::vector<SDL_DialogFileFilter> sdlFilters;
 
 	struct Result {
@@ -74,6 +76,24 @@ static void addAllFilesFilter(std::vector<FileFilter>& filters)
 	if (!contains(filters, "*", &FileFilter::pattern)) {
 		filters.push_back({"All files (*)", "*"});
 	}
+}
+
+// SDL's zenity backend (and before SDL 3.4.6 also the xdg-portal backend)
+// matches extensions case-sensitively. So also add upper-case variants:
+// "rom;dsk" -> "rom;dsk;ROM;DSK".
+[[nodiscard]] static std::string toSdlPattern(std::string_view pattern)
+{
+	std::string result(pattern);
+#if !defined(_WIN32) && !defined(__APPLE__)
+	for (auto ext : StringOp::split_view<StringOp::EmptyParts::REMOVE>(pattern, ';')) {
+		std::string upper(ext);
+		std::ranges::transform(upper, upper.begin(), [](char c) {
+			return (('a' <= c) && (c <= 'z')) ? char(c - 'a' + 'A') : c;
+		});
+		if (upper != ext) strAppend(result, ';', upper);
+	}
+#endif
+	return result;
 }
 
 [[nodiscard]] static std::string_view defaultExtension(std::string_view pattern)
@@ -155,9 +175,14 @@ void ImGuiOpenFile::common(Type type, const std::string& title, std::vector<File
 	pending = std::make_shared<Dialog>();
 	auto& dialog = *pending;
 	dialog.filters = std::move(filters);
-	dialog.sdlFilters = to_vector(std::views::transform(dialog.filters, [](const auto& f) {
-		return SDL_DialogFileFilter{f.name.c_str(), f.pattern.c_str()};
+	dialog.sdlPatterns = to_vector(std::views::transform(dialog.filters, [](const auto& f) {
+		return toSdlPattern(f.pattern);
 	}));
+	dialog.sdlFilters = to_vector(std::views::transform(
+		std::views::zip(dialog.filters, dialog.sdlPatterns), [](const auto& fp) {
+			const auto& [f, p] = fp;
+			return SDL_DialogFileFilter{f.name.c_str(), p.c_str()};
+		}));
 
 	auto location = toDialogLocation(getStartPath(lastLocationHint));
 
