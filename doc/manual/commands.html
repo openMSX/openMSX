@@ -3918,7 +3918,7 @@ current MSX model can be:</p>
 
   <h3><a id="frequency">frequency</a></h3>
 
-  <p>Sets the sound mixer frequency. Sound hardware and sound APIs typically support a limited set of frequencies, such as 11025 Hz, 22050 Hz, 44100 Hz and 48000 Hz.</p>
+  <p>Sets the sound mixer frequency, from 11025 to 48000&nbsp;Hz. The default, 0 (auto), uses the frequency of the sound device, which gives the best sound that the device can play: the sound then only has to be resampled once, from the sound chips to the device. A higher value than the frequency of the device doesn't improve the sound (it has to be converted down to the frequency of the device again), a lower one loses the highest frequencies. With a sound device at more than 48000&nbsp;Hz, auto uses that frequency too, which costs more CPU time and makes the buffer of the <code><a class="internal" href="#samples">samples</a></code> setting shorter in time. Sound recordings (see <code><a class="internal" href="#record">record</a></code>) are made at this frequency too.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3929,6 +3929,12 @@ current MSX model can be:</p>
       <td><code>set frequency</code></td>
 
       <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set frequency 0</code></td>
+
+      <td>Use the frequency of the sound device (the default)</td>
     </tr>
 
     <tr>
