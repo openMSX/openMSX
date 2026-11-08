@@ -3,7 +3,7 @@ subcommands that work on them: compare, bestmap, genmap, charset, report.
 
 Terms:
   code      a character code in VRAM (what the screen shows); the character
-            set mapping (share/unicodemaps/character_set_mappings/*.TXT)
+            set mapping (share/keyboard_info/*.TXT)
             gives the Unicode character(s) for each code
   combo     a modifier combination as in the scans: 'none', 'SHIFT',
             'SHIFT+GRAPH', 'CTRL+SHIFT', ...
@@ -111,9 +111,13 @@ def base_letter(u):
         return ''.join(chr(int(x, 16)) for x in d[1:])
     return None
 
+# the directory in share/ with the unicodemaps, the keyboard_info files and the
+# character set mappings
+KBDIR = 'keyboard_info'
+
 def charset_path(share, name):
     for d in share:
-        p = os.path.join(d, 'unicodemaps', 'character_set_mappings', name)
+        p = os.path.join(d, KBDIR, name)
         if os.path.exists(p):
             return p
     return None
@@ -153,16 +157,41 @@ class Unicodemap:
             row, bit = (None, None) if pos == '--' else (int(pos[0], 16), int(pos[1]))
             self.entries.append(Entry(key, row, bit, combo_set(m.group(3)),
                                       (m.group(4) or '')[1:].strip(), line))
+        if self.charset is None:
+            # the character set is in the keyboard_info files that refer to
+            # this unicodemap (they all name the same one)
+            for info in sorted(glob.glob(os.path.join(os.path.dirname(path), 'keyboard_info.*'))):
+                i = keyboard_info(info)
+                if i.get('unicodemap') == self.name and i.get('charset'):
+                    self.charset = i['charset']
+                    break
 
     def keyed(self):
         """unicode -> Entry, for the entries with a key"""
         return {e.key: e for e in self.entries if e.typeable and isinstance(e.key, int)}
 
+def keyboard_info(path):
+    """A keyboard_info file -> {'unicodemap': name, 'charset': name}"""
+    out = {}
+    for line in open(path, encoding='utf-8'):
+        m = re.match(r'(UnicodeMap|MSX-Video-Characterset):\s*(\S+)', line)
+        if m:
+            out['unicodemap' if m.group(1) == 'UnicodeMap' else 'charset'] = m.group(2)
+    return out
+
 def map_path(share, name):
+    """The unicodemap for a keyboard type (the keyboard_type of a machine
+    config, e.g. jp_jis_numpad: via its keyboard_info file) or for a
+    unicodemap name."""
     if os.path.sep in name or name.startswith('.'):
         return name
     for d in share:
-        p = os.path.join(d, 'unicodemaps', 'unicodemap.' + name)
+        info = os.path.join(d, KBDIR, 'keyboard_info.' + name)
+        if os.path.exists(info):
+            name = keyboard_info(info).get('unicodemap', name)
+            break
+    for d in share:
+        p = os.path.join(d, KBDIR, 'unicodemap.' + name)
         if os.path.exists(p):
             return p
     sys.exit('unicodemap %s not found' % name)
@@ -170,7 +199,7 @@ def map_path(share, name):
 def all_maps(share):
     out = {}
     for d in share:
-        for p in sorted(glob.glob(os.path.join(d, 'unicodemaps', 'unicodemap.*'))):
+        for p in sorted(glob.glob(os.path.join(d, KBDIR, 'unicodemap.*'))):
             out.setdefault(os.path.basename(p)[len('unicodemap.'):], p)
     return out
 
@@ -351,7 +380,7 @@ def cmd_bestmap(args):
         best_ok = max(-r[1] for r in results)
         results = [r for r in results if -r[1] >= 0.8 * best_ok]
         print(scan.name)
-        configured = scan.meta['keyboard_type']
+        configured = Unicodemap(map_path(args.share, scan.meta['keyboard_type'])).name
         results.sort(key=lambda r: (r[0], r[1], r[2] != configured, r[2]))
         for bad, _, name, c in results[:args.top]:
             print('  %-18s wrong %3d  missing %3d  ok %3d%s' % (
@@ -636,9 +665,8 @@ def genmap(scans, cs, region, extra_header, mode):
                                    'in quotes), or something else that is not in this unicodemap:')
             hdr += listing(notes)
         hdr += ['#']
+    # (the character set goes in the keyboard_info file, not here)
     body = ['']
-    if cs.name:
-        body += ['MSX-Video-Characterset: %s' % cs.name, '']
     body += ['DEADKEY%d, %X%d,' % (i + 1, k[0], k[1]) for i, k in enumerate(dead)]
     body += [gen[u] for u in sorted(gen)]
     summary = '%d keyed characters, %d not typeable, %d keys left out' % (
