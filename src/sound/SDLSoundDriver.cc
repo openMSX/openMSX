@@ -37,13 +37,30 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	// Like with SDL2, the device starts paused and our callback provides
 	// the data whenever the device needs it. SDL converts the data to the
 	// format and frequency of the device, if needed.
-	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec,
+	// With wantedFreq 0 (auto), SDL chooses the format (the one of the
+	// device), and we produce the sound at that frequency: so that SDL
+	// doesn't have to resample it (on top of the resampling we already do
+	// from the frequencies of the sound chips).
+	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK,
+	                                   wantedFreq ? &spec : nullptr,
 	                                   audioCallbackHelper, this); // must be a static method
 	if (!stream) {
 		throw MSXException("Unable to open SDL audio: ", SDL_GetError());
 	}
+	if (wantedFreq == 0) {
+		SDL_AudioSpec chosen;
+		bool ok = SDL_GetAudioStreamFormat(stream, &chosen, nullptr);
+		if (ok) {
+			spec.freq = chosen.freq;
+			ok = SDL_SetAudioStreamFormat(stream, &spec, nullptr);
+		}
+		if (!ok) {
+			SDL_DestroyAudioStream(stream);
+			throw MSXException("Unable to set SDL audio format: ", SDL_GetError());
+		}
+	}
 
-	frequency = wantedFreq;
+	frequency = narrow<unsigned>(spec.freq);
 	// Like with SDL2, base our own buffer size on the 'samples' setting,
 	// not on the actual device buffer: e.g. WASAPI on Windows uses a much
 	// smaller device buffer (the period of the audio engine, typically
