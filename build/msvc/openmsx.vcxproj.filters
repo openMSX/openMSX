@@ -87,9 +87,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialog.cc">
-      <Filter>3rdparty\ImGuiFileDialog</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui.cc">
       <Filter>3rdparty\imgui</Filter>
     </ClCompile>
@@ -1650,12 +1647,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\CustomFont.h">
-      <Filter>3rdparty\ImGuiFileDialog</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialog.h">
-      <Filter>3rdparty\ImGuiFileDialog</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialogConfig.h">
       <Filter>3rdparty\ImGuiFileDialog</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imconfig.h">
