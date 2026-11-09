@@ -24,18 +24,23 @@ in combination with them.
 Setting name: keyboard_type
 Default value: int
 Description:
-Indicates which type of keyboard the MSX has. It is used to load a file that
-maps unicode characters to the appropriate key-combinations on the MSX.
-The file-name will be: unicodemaps/unicode.<keyboard_type>
+Indicates which type of keyboard the MSX has. It is the name of the file
+keyboard_info/keyboard_info.<keyboard_type>, which gives the names of the keys
+in the key matrix, the unicodemap (which maps unicode characters to the
+appropriate key-combinations on the MSX) and the character set.
+The name ends with _numpad if the MSX has a numeric keypad, and with _yesno if
+it has the CANCEL and EXECUTE keys, e.g. jp_jis_numpad_yesno.
+Key-presses on the host numeric keypad are mapped to the keys with the same
+name on the MSX's numeric keypad (NUMPAD_1 etc.), and the host's left and
+right Windows keys to CANCEL and EXECUTE. If the MSX doesn't have these keys,
+these key-presses are ignored. For the numeric keypad the user can overrule
+this with the kbd_numkeypad_always_enabled setting.
 
-Setting name: has_keypad
-Default value: true
+Setting names: has_keypad, has_yesno_keys
+Default value: false
 Description:
-Indicates if the emulated MSX model has a numeric keypad. If true, key-presses
-on the host numeric keypad will be mapped to corresponding key-presses on
-the MSX's numeric keypad.
-If false, key-presses on the host numeric keypad will be ignored. User can
-overrule this with a setting in the settings.xml file.
+Obsolete: use the keyboard_type instead. Only for old machine configs (and
+savestates): if true, _numpad or _yesno is appended to the keyboard_type.
 
 Setting name: code_kana_locks
 Default value: false

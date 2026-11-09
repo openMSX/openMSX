@@ -65,7 +65,6 @@ def machine_info(path):
         keyboard_type=text('keyboard_type', 'int'),
         code_kana_locks=text('code_kana_locks', 'false') == 'true',
         graph_locks=text('graph_locks', 'false') == 'true',
-        has_keypad=text('has_keypad', 'true') == 'true',
         vdp=vdp.text.strip() if vdp is not None and vdp.text else 'TMS99X8',
     )
 
