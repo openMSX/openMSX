@@ -102,16 +102,20 @@ class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'
 
-class PkgConfig(DownloadablePackage):
-	downloadURL = 'https://pkg-config.freedesktop.org/releases'
-	niceName = 'pkg-config'
-	sourceName = 'pkg-config'
-	version = '0.29.2'
-	fileLength = 2016830
+class PkgConf(DownloadablePackage):
+	downloadURL = 'https://distfiles.ariadne.space/pkgconf'
+	niceName = 'pkgconf'
+	sourceName = 'pkgconf'
+	version = '3.0.10'
+	fileLength = 626550
 	checksums = {
 		'sha256':
-			'6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591',
+			'd01a1b82f0884112d08c6dfad46f43f415d070a6a5a6aaa77ebf2674e973a9b5',
 		}
+
+	@classmethod
+	def getMakeName(cls):
+		return 'PKG_CONFIG'
 
 # When updating SDL3, check that it still reads the SDL_WINDOWS_DPI_AWARENESS
 # hint (see src/main.cc): it has no SDL_HINT_* macro, so it's not part of the
