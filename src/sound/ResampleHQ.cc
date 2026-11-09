@@ -407,7 +407,161 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 	ResampleCoeffs::instance().releaseCoeffs(double(ratio));
 }
 
-#ifdef __SSE2__
+// -- The inner loop: a dot-product between a row of the coefficient table and
+//    the (mono or interleaved-stereo) sample buffer.
+//
+// The table row is read in two ways:
+//  * 'forward':  out[ch] = sum(i=0..n-1) tab[i]     * buf[CHANNELS*i + ch]
+//  * 'reverse':  out[ch] = sum(i=0..n-1) tab[-1-i]  * buf[CHANNELS*i + ch]
+// In both cases we walk the table row with ascending addresses. Each call
+// typically needs a different row (the rows are 0.5-3KB and the full table is
+// up to 1.5MB, so it mostly streams from L2/L3), and the hardware prefetcher
+// handles ascending streams a lot better than descending ones. The sample
+// buffer is small and L1-hot, so for the 'reverse' case we reverse that one
+// instead.
+//
+// On gcc/clang we use vector extensions: 4-wide (SSE2, NEON) or 8-wide (AVX).
+// This generates code that is as good as hand written intrinsics, but it's
+// portable across x86 and ARM. Other compilers (MSVC) get SSE2 intrinsics, or
+// as a last resort a plain C++ loop.
+
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(RESAMPLE_HQ_NO_VECTOR_EXT)
+#define RESAMPLE_HQ_VECTOR_EXT 1
+#endif
+
+#ifdef RESAMPLE_HQ_VECTOR_EXT
+
+using Vec4 = float __attribute__((vector_size(16)));
+#ifdef __AVX__
+using Vec = float __attribute__((vector_size(32)));
+#else
+using Vec = Vec4;
+#endif
+static constexpr size_t VEC_LEN = sizeof(Vec) / sizeof(float);
+
+// reverse the order of the elements
+[[nodiscard]] static inline Vec4 vreverse(Vec4 v)
+{
+	return __builtin_shufflevector(v, v, 3, 2, 1, 0);
+}
+// duplicate each element: [a b c d] -> [a a b b] and [c c d d]
+[[nodiscard]] static inline Vec4 vdupLo(Vec4 v)
+{
+	return __builtin_shufflevector(v, v, 0, 0, 1, 1);
+}
+[[nodiscard]] static inline Vec4 vdupHi(Vec4 v)
+{
+	return __builtin_shufflevector(v, v, 2, 2, 3, 3);
+}
+// reversed duplicate: [a b c d] -> [d d c c] and [b b a a]
+[[nodiscard]] static inline Vec4 vdupRevLo(Vec4 v)
+{
+	return __builtin_shufflevector(v, v, 3, 3, 2, 2);
+}
+[[nodiscard]] static inline Vec4 vdupRevHi(Vec4 v)
+{
+	return __builtin_shufflevector(v, v, 1, 1, 0, 0);
+}
+// reduce to 4 elements (for Vec4: nothing to do)
+[[nodiscard, maybe_unused]] static inline Vec4 vfold(Vec4 v) { return v; }
+#ifdef __AVX__
+[[nodiscard]] static inline Vec vreverse(Vec v)
+{
+	return __builtin_shufflevector(v, v, 7, 6, 5, 4, 3, 2, 1, 0);
+}
+[[nodiscard]] static inline Vec vdupLo(Vec v)
+{
+	return __builtin_shufflevector(v, v, 0, 0, 1, 1, 2, 2, 3, 3);
+}
+[[nodiscard]] static inline Vec vdupHi(Vec v)
+{
+	return __builtin_shufflevector(v, v, 4, 4, 5, 5, 6, 6, 7, 7);
+}
+[[nodiscard]] static inline Vec vdupRevLo(Vec v)
+{
+	return __builtin_shufflevector(v, v, 7, 7, 6, 6, 5, 5, 4, 4);
+}
+[[nodiscard]] static inline Vec vdupRevHi(Vec v)
+{
+	return __builtin_shufflevector(v, v, 3, 3, 2, 2, 1, 1, 0, 0);
+}
+// 8 -> 4 elements: add the two halves
+[[nodiscard]] static inline Vec4 vfold(Vec v)
+{
+	return __builtin_shufflevector(v, v, 0, 1, 2, 3) +
+	       __builtin_shufflevector(v, v, 4, 5, 6, 7);
+}
+#endif
+
+// Process one vector of coefficients 'c' (= 'VEC_LEN' coefficients), starting
+// at coefficient-index 'i', accumulate into 'acc'.
+template<unsigned CHANNELS, bool REVERSE, typename V>
+static inline void vstep(V& acc0, V& acc1, V c, const float* buf, size_t n, size_t i)
+{
+	constexpr size_t L = sizeof(V) / sizeof(float);
+	if constexpr (CHANNELS == 1) {
+		if constexpr (!REVERSE) {
+			acc0 += c * unalignedLoad<V>(buf + i);
+		} else {
+			acc0 += vreverse(c) * unalignedLoad<V>(buf + (n - L - i));
+		}
+	} else {
+		// stereo: each coefficient is used for both the left and the
+		// right sample, so one vector of coefficients covers two
+		// vectors of (interleaved) samples.
+		if constexpr (!REVERSE) {
+			const float* b = buf + 2 * i;
+			acc0 += vdupLo(c) * unalignedLoad<V>(b);
+			acc1 += vdupHi(c) * unalignedLoad<V>(b + L);
+		} else {
+			const float* b = buf + 2 * (n - L - i);
+			acc0 += vdupRevLo(c) * unalignedLoad<V>(b);
+			acc1 += vdupRevHi(c) * unalignedLoad<V>(b + L);
+		}
+	}
+}
+
+template<unsigned CHANNELS, bool REVERSE>
+static inline void calcKernel(
+	const float* __restrict buf, const float* __restrict tab, size_t n,
+	float* __restrict out)
+{
+	assert((n % 4) == 0);
+	// In the 'reverse' case 'tab' points one-past-the-end of the row, so
+	// the row occupies tab[-n .. -1]. Rebase to walk it ascending.
+	const float* t = REVERSE ? (tab - n) : tab;
+
+	// Two independent accumulators (per channel-vector) hide the FP-add
+	// latency. For stereo 'vstep' already has two, for mono we alternate.
+	Vec acc0 = {}, acc1 = {}, acc2 = {}, acc3 = {};
+	size_t i = 0;
+	for (/**/; (i + 2 * VEC_LEN) <= n; i += 2 * VEC_LEN) {
+		vstep<CHANNELS, REVERSE>(acc0, acc1, unalignedLoad<Vec>(t + i          ), buf, n, i          );
+		vstep<CHANNELS, REVERSE>(acc2, acc3, unalignedLoad<Vec>(t + i + VEC_LEN), buf, n, i + VEC_LEN);
+	}
+	if ((i + VEC_LEN) <= n) {
+		vstep<CHANNELS, REVERSE>(acc0, acc1, unalignedLoad<Vec>(t + i), buf, n, i);
+		i += VEC_LEN;
+	}
+	Vec4 r0 = vfold(acc0 + acc2);
+	Vec4 r1 = vfold(acc1 + acc3);
+	if constexpr (VEC_LEN > 4) {
+		if (i < n) { // remaining 4 coefficients
+			vstep<CHANNELS, REVERSE>(r0, r1, unalignedLoad<Vec4>(t + i), buf, n, i);
+		}
+	}
+	if constexpr (CHANNELS == 1) {
+		out[0] = (r0[0] + r0[1]) + (r0[2] + r0[3]);
+	} else {
+		Vec4 r = r0 + r1; // [L R L R]
+		out[0] = r[0] + r[2];
+		out[1] = r[1] + r[3];
+	}
+}
+
+#elif defined(__SSE2__)
+
+// SSE2 intrinsics. Only used by compilers without vector extensions (MSVC).
 
 static inline __m128 reverse(__m128 x)
 {
@@ -540,6 +694,53 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 	_mm_store_ss(&out[1], shuffle<0x55>(s));
 }
 
+template<unsigned CHANNELS, bool REVERSE>
+static inline void calcKernel(
+	const float* __restrict buf, const float* __restrict tab, size_t n,
+	float* __restrict out)
+{
+	if constexpr (CHANNELS == 1) {
+		calcSseMono  <REVERSE>(buf, tab, n, out);
+	} else {
+		calcSseStereo<REVERSE>(buf, tab, n, out);
+	}
+}
+
+#else // no vector extensions, no SSE2
+
+// Plain C++ version, both mono and stereo. Four independent accumulators so
+// that the compiler can (partially) auto-vectorize.
+template<unsigned CHANNELS, bool REVERSE>
+static inline void calcKernel(
+	const float* __restrict buf, const float* __restrict tab, size_t n,
+	float* __restrict out)
+{
+	assert((n % 4) == 0);
+	for (auto ch : xrange(CHANNELS)) {
+		float r0 = 0.0f;
+		float r1 = 0.0f;
+		float r2 = 0.0f;
+		float r3 = 0.0f;
+		if constexpr (!REVERSE) {
+			for (size_t i = 0; i < n; i += 4) {
+				r0 += tab[i + 0] * buf[CHANNELS * (i + 0)];
+				r1 += tab[i + 1] * buf[CHANNELS * (i + 1)];
+				r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
+				r3 += tab[i + 3] * buf[CHANNELS * (i + 3)];
+			}
+		} else {
+			for (ptrdiff_t i = 0; i < ptrdiff_t(n); i += 4) {
+				r0 += tab[-i - 1] * buf[CHANNELS * (i + 0)];
+				r1 += tab[-i - 2] * buf[CHANNELS * (i + 1)];
+				r2 += tab[-i - 3] * buf[CHANNELS * (i + 2)];
+				r3 += tab[-i - 4] * buf[CHANNELS * (i + 3)];
+			}
+		}
+		out[ch] = r0 + r1 + r2 + r3;
+		++buf;
+	}
+}
+
 #endif
 
 template<unsigned CHANNELS>
@@ -558,60 +759,12 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		// first half, begin of row 't'
 		t = permute[t];
 		const float* tab = &table[t * filterLen];
-
-#ifdef __SSE2__
-		if constexpr (CHANNELS == 1) {
-			calcSseMono  <false>(buf, tab, filterLen, output);
-		} else {
-			calcSseStereo<false>(buf, tab, filterLen, output);
-		}
-		return;
-#endif
-
-		// c++ version, both mono and stereo
-		for (auto ch : xrange(CHANNELS)) {
-			float r0 = 0.0f;
-			float r1 = 0.0f;
-			float r2 = 0.0f;
-			float r3 = 0.0f;
-			for (size_t i = 0; i < filterLen; i += 4) {
-				r0 += tab[i + 0] * buf[CHANNELS * (i + 0)];
-				r1 += tab[i + 1] * buf[CHANNELS * (i + 1)];
-				r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
-				r3 += tab[i + 3] * buf[CHANNELS * (i + 3)];
-			}
-			output[ch] = r0 + r1 + r2 + r3;
-			++buf;
-		}
+		calcKernel<CHANNELS, false>(buf, tab, filterLen, output);
 	} else {
 		// 2nd half, end of row 'TAB_LEN - 1 - t'
 		t = permute[TAB_LEN - 1 - t];
 		const float* tab = &table[(t + 1) * filterLen];
-
-#ifdef __SSE2__
-		if constexpr (CHANNELS == 1) {
-			calcSseMono  <true>(buf, tab, filterLen, output);
-		} else {
-			calcSseStereo<true>(buf, tab, filterLen, output);
-		}
-		return;
-#endif
-
-		// c++ version, both mono and stereo
-		for (auto ch : xrange(CHANNELS)) {
-			float r0 = 0.0f;
-			float r1 = 0.0f;
-			float r2 = 0.0f;
-			float r3 = 0.0f;
-			for (ptrdiff_t i = 0; i < ptrdiff_t(filterLen); i += 4) {
-				r0 += tab[-i - 1] * buf[CHANNELS * (i + 0)];
-				r1 += tab[-i - 2] * buf[CHANNELS * (i + 1)];
-				r2 += tab[-i - 3] * buf[CHANNELS * (i + 2)];
-				r3 += tab[-i - 4] * buf[CHANNELS * (i + 3)];
-			}
-			output[ch] = r0 + r1 + r2 + r3;
-			++buf;
-		}
+		calcKernel<CHANNELS, true>(buf, tab, filterLen, output);
 	}
 }
 
