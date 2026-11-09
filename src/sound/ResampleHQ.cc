@@ -389,6 +389,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
 	, ratio(float(hostClock.getPeriod().toDouble() / getEmuClock().getPeriod().toDouble()))
+	, step(uint64_t((hostClock.getPeriod().toDouble() / getEmuClock().getPeriod().toDouble()) * 4294967296.0 + 0.5))
 	, permute(dummyPermute) // Any better way to do this? (that also works with debug-STL)
 {
 	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
@@ -745,16 +746,18 @@ static inline void calcKernel(
 
 template<unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(
-	float pos, float* __restrict output)
+	unsigned intPos, uint32_t fracPos, float* __restrict output)
 {
 	assert((filterLen & 3) == 0);
 
-	int bufIdx = int(pos) + bufStart;
+	unsigned bufIdx = intPos + bufStart;
 	assert((bufIdx + filterLen) <= bufEnd);
 	bufIdx *= CHANNELS;
 	const float* buf = &buffer[bufIdx];
 
-	auto t = size_t(lrintf(pos * TAB_LEN)) % TAB_LEN;
+	// Select the table row (sub-sample phase). Row 't' is centered at
+	// phase (t + 0.5) / TAB_LEN (see calcTable()), so take the floor.
+	auto t = size_t(fracPos >> (32 - TAB_BITS));
 	if (!(t & HALF_TAB_LEN)) {
 		// first half, begin of row 't'
 		t = permute[t];
@@ -826,11 +829,19 @@ bool ResampleHQ<CHANNELS>::generateOutputImpl(
 		// main processing loop
 		EmuTime host1 = hostClock.getFastAdd(1);
 		assert(host1 > emuClk.getTime());
-		auto pos = narrow_cast<float>(emuClk.getTicksTillDouble(host1));
-		assert(pos <= (ratio + 2));
+		// Position (in input samples, relative to 'bufStart') of the
+		// first output sample, as 32.32 fixed point. Advancing this with
+		// a fixed point 'step' keeps the position exact over the whole
+		// fragment. (A float 'pos += ratio' accumulated an error of up
+		// to ~1e-4 input samples over a 1024-sample fragment, that
+		// showed up as sidebands only 30-70dB below the signal.)
+		double pos0 = emuClk.getTicksTillDouble(host1);
+		assert(pos0 <= (ratio + 2));
+		auto pos = uint64_t(pos0 * 4294967296.0 + 0.5);
 		for (auto i : xrange(hostNum)) {
-			calcOutput(pos, &dataOut[i * CHANNELS]);
-			pos += ratio;
+			calcOutput(unsigned(pos >> 32), uint32_t(pos),
+			           &dataOut[i * CHANNELS]);
+			pos += step;
 		}
 	}
 	emuClk += emuNum;

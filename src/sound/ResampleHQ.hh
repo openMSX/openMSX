@@ -15,7 +15,8 @@ template<unsigned CHANNELS>
 class ResampleHQ final : public ResampleAlgo
 {
 public:
-	static constexpr size_t TAB_LEN = 4096;
+	static constexpr int TAB_BITS = 12; // number of (sub-sample) phases = 2^TAB_BITS
+	static constexpr size_t TAB_LEN = size_t(1) << TAB_BITS;
 	static constexpr size_t HALF_TAB_LEN = TAB_LEN / 2;
 
 public:
@@ -30,12 +31,13 @@ public:
 	                        EmuTime time) override;
 
 private:
-	void calcOutput(float pos, float* output);
+	void calcOutput(unsigned intPos, uint32_t fracPos, float* output);
 	void prepareData(unsigned emuNum);
 
 private:
 	const DynamicClock& hostClock;
 	const float ratio;
+	const uint64_t step; // 'ratio' as 32.32 fixed point
 	unsigned bufStart;
 	unsigned bufEnd;
 	unsigned nonzeroSamples = 0;
