@@ -220,6 +220,21 @@ or DEADKEY<n>. A key that types nothing without modifiers keeps the name in
 Put the name of the keyboard_info file (here `my_numpad`) in `keyboard_type`
 in the machine config, and do step 4 again with it.
 
+After a change to a keyboard_info file or a unicodemap, check all
+keyboard_info files:
+
+    python3 kbdtool.py checkinfo --scans scans
+
+It checks that the names of the character keys are what `geninfo` makes of
+them, and that no name occurs twice. With `--scans` (a directory with scans,
+of any machines) it also checks the names of the keys that don't type a
+character, against what the BIOS of the scanned machines does at that
+position: e.g. the key that gives code 13 must be RETURN (MSX) or ENTER
+(SVI), a key that types a text must be one of F1-F5 (see `key_codes` and
+`modifier_names` in `kbdlib/matrices.py`). That is a sanity check: when it
+reports something, look at the key cap (e.g. on a photo). It exits with
+status 1 if there are problems.
+
 ### 6. Check typing
 
     python3 kbdtool.py typetest Brand_Model

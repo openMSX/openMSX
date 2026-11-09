@@ -12,6 +12,8 @@ Subcommands:
   genmap     generate a unicodemap from the scans of one or more machines
   geninfo    generate the keyboard_info file (key names, character set) for
              a unicodemap
+  checkinfo  check the keyboard_info files (with scans: also the names of the
+             keys that don't type a character)
   charset    draft a character set mapping (code -> Unicode) from the font
              of a scan, for a machine whose character set has none yet
   report     make an HTML page with the glyphs of the machine's font next to

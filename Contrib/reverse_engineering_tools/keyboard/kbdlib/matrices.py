@@ -16,6 +16,13 @@ Two kinds of entries:
 
 The modifier names are the ones used in the unicodemaps: SHIFT, CTRL, GRAPH,
 CODE and CAPSLOCK.
+
+- What the BIOS/BASIC does with the keys that don't type a character, as
+  measured in the scans (special.txt, INKEY$): key_codes maps a code to the
+  names of the key in the keyboard_info files, modifier_names gives the names
+  of the modifier keys. (A key that types a text is a function key, F1-F5;
+  the texts themselves differ between BASIC versions.) checkinfo uses these
+  to check the names in the keyboard_info files.
 """
 
 # entries that a recipe can override (see recipes.py)
@@ -53,6 +60,13 @@ MSX = dict(
     buffer=0x3E00, counter=0x3DFF,
     # INKEY$ reads a keyboard buffer
     inkey_release=False,
+    # --- the BIOS codes of the keys that don't type a character ---
+    key_codes={8: {'BACKSPACE'}, 9: {'TAB'}, 11: {'HOME'}, 13: {'RETURN'},
+               18: {'INSERT'}, 24: {'SELECT'}, 27: {'ESCAPE'}, 28: {'RIGHT'},
+               29: {'LEFT'}, 30: {'UP'}, 31: {'DOWN'}, 32: {'SPACE'},
+               127: {'DELETE'}},
+    modifier_names={'SHIFT': {'SHIFT'}, 'CTRL': {'CTRL'}, 'GRAPH': {'GRAPH'},
+                    'CAPSLOCK': {'CAPSLOCK'}, 'CODE': {'CODE'}},
 )
 
 SVI = dict(
@@ -77,6 +91,13 @@ SVI = dict(
     screen_ignore=[0x00, 0xBF],
     buffer=0x3E00, counter=0x3DFF,
     inkey_release=False,
+    # --- the BIOS codes of the keys that don't type a character ---
+    # (SELECT and PRINT give no code; SHIFT+CLS is HOME)
+    key_codes={8: {'BACKSPACE'}, 9: {'TAB'}, 12: {'CLS'}, 13: {'ENTER'},
+               18: {'INSERT'}, 27: {'ESCAPE'}, 28: {'RIGHT'}, 29: {'LEFT'},
+               30: {'UP'}, 31: {'DOWN'}, 32: {'SPACE'}, 127: {'DELETE'}},
+    modifier_names={'SHIFT': {'SHIFT'}, 'CTRL': {'CTRL'}, 'GRAPH': {'LGRAPH'},
+                    'CODE': {'RGRAPH'}, 'CAPSLOCK': {'CAPSLOCK'}},
 )
 
 SEGA = dict(
@@ -109,6 +130,12 @@ SEGA = dict(
     buffer=0x1000, counter=0x0FFF,
     # INKEY$ has no keyboard buffer: it gives the key that is held now
     inkey_release=True,
+    # --- the BIOS codes of the keys that don't type a character ---
+    # (the HOME/CLR key gives 12, INS/DEL gives 8)
+    key_codes={8: {'INS'}, 12: {'HOME'}, 13: {'ENTER_CR'}, 28: {'RIGHT'},
+               29: {'LEFT'}, 30: {'UP'}, 31: {'DOWN'}, 32: {'SPACE'}},
+    modifier_names={'SHIFT': {'SHIFT'}, 'CTRL': {'CTRL'}, 'GRAPH': {'GRAPH'},
+                    'CODE': {'ENG_DIER_S', 'KANA'}},  # export / Japanese key cap
 )
 
 MATRICES = {'msx': MSX, 'svi': SVI, 'sega': SEGA}
