@@ -2041,12 +2041,6 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	} else {
 		dataLatch = 0;
 	}
-
-	if (ar.versionBelow(version, 4)) {
-		uint16_t borderX = 0; // was R#53-R#54, now read from SX
-		ar.serialize("borderX", borderX);
-	}
-
 	if constexpr (Archive::IS_LOADER) {
 		setCommandMode();
 	}
