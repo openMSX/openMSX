@@ -315,7 +315,7 @@ void VisibleSurface::updateCursor()
 	if (pauseSetting.getBoolean()) inputEventGenerator.releaseMouse();
 	if (inputEventGenerator.isMouseCaptureMode()) {
 		grab = false; // SDL relative mode owns capture, not the legacy timer.
-		videoSystem.showCursor(!inputEventGenerator.isMouseCaptured());
+		videoSystem.showCursor(inputEventGenerator.isMouseCaptured() ? VideoSystem::Cursor::HIDDEN : VideoSystem::Cursor::NORMAL);
 		return;
 	}
 	const auto& renderSettings = display.getRenderSettings();
@@ -339,7 +339,7 @@ void VisibleSurface::updateCursor()
 	inputEventGenerator.updateGrab(grab);
 	if (guiActive) {
 		// The GUI needs a pointer even when MSX pointer visibility is disabled.
-		videoSystem.showCursor(true);
+		videoSystem.showCursor(VideoSystem::Cursor::NORMAL);
 		return;
 	}
 	float delay = renderSettings.getPointerHideDelay();

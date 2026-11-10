@@ -413,17 +413,17 @@ void ImGuiManager::updateMouseCapture()
 std::optional<bool> ImGuiManager::handleMouseCapture(const SDL_Event& event)
 {
 	auto& input = reactor.getInputEventGenerator();
-	bool buttonEvent = event.type == one_of(SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP);
+	bool buttonEvent = event.type == one_of(SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP);
 	unsigned buttonMask = (buttonEvent && event.button.button > 0 && event.button.button <= 32)
 		? 1u << (event.button.button - 1) : 0;
 	if (suppressedMouseButtons & buttonMask) {
-		if (event.type == SDL_MOUSEBUTTONUP) suppressedMouseButtons &= ~buttonMask;
+		if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) suppressedMouseButtons &= ~buttonMask;
 		return true;
 	}
 	if (!input.isMouseCaptureMode()) return {};
 
 	if (input.isMouseCaptured()) {
-		if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_MIDDLE) {
+		if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_MIDDLE) {
 			suppressedMouseButtons |= buttonMask;
 			input.releaseMouse();
 			updateMouseCapture();
@@ -432,7 +432,7 @@ std::optional<bool> ImGuiManager::handleMouseCapture(const SDL_Event& event)
 		return false; // forward directly to the MSX, without feeding ImGui
 	}
 
-	if (event.type == SDL_MOUSEBUTTONDOWN &&
+	if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
 	    event.button.button == one_of(SDL_BUTTON_LEFT, SDL_BUTTON_MIDDLE) &&
 	    WindowEvent::isMainWindow(event.button.windowID) &&
 	    (event.button.button == SDL_BUTTON_MIDDLE ||
@@ -481,12 +481,12 @@ bool ImGuiManager::signalEvent(const Event& event)
 		}
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
 		updateMouseCapture();
-		bool mouseEvent = sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
-		                                        SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP);
+		bool mouseEvent = sdlEvent.type == one_of(SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_WHEEL,
+		                                        SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP);
 		auto& input = reactor.getInputEventGenerator();
 		if (mouseEvent) {
-			auto windowId = sdlEvent.type == SDL_MOUSEMOTION ? sdlEvent.motion.windowID
-			              : sdlEvent.type == SDL_MOUSEWHEEL ? sdlEvent.wheel.windowID
+			auto windowId = sdlEvent.type == SDL_EVENT_MOUSE_MOTION ? sdlEvent.motion.windowID
+			              : sdlEvent.type == SDL_EVENT_MOUSE_WHEEL ? sdlEvent.wheel.windowID
 			                                                 : sdlEvent.button.windowID;
 			if (!WindowEvent::isMainWindow(windowId)) input.releaseMouse();
 			if (auto consume = handleMouseCapture(sdlEvent)) return *consume;

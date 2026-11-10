@@ -390,7 +390,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		wholePixels(evt.motion.xrel, motionFractionX);
 		wholePixels(evt.motion.yrel, motionFractionY);
 		event = MouseMotionEvent(evt);
-		if (auto* window = SDL_GL_GetCurrentWindow(); window && !mouseCaptureMode && SDL_GetWindowGrab(window)) {
+		if (auto* window = SDL_GL_GetCurrentWindow(); window && !mouseCaptureMode && SDL_GetWindowMouseGrab(window)) {
 			int w, h;
 			SDL_GetWindowSize(window, &w, &h);
 			float x, y;
@@ -530,7 +530,7 @@ bool InputEventGenerator::captureMouse()
 	if (mouseCaptured) return true;
 	auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId());
 	if (!window || SDL_GetKeyboardFocus() != window) return false;
-	if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0) return false;
+	if (!SDL_SetWindowRelativeMouseMode(window, true)) return false;
 	mouseCaptured = true;
 	updateMouseCaptureState();
 	return true;
@@ -540,7 +540,9 @@ void InputEventGenerator::releaseMouse()
 {
 	if (!mouseCaptured) return;
 	mouseCaptured = false;
-	SDL_SetRelativeMouseMode(SDL_FALSE);
+	if (auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId())) {
+		SDL_SetWindowRelativeMouseMode(window, false);
+	}
 	setGrabInput(false);
 	// Queue releases behind any pending MSX mouse events. Sending them through
 	// ImGui would swallow them; releasing the device directly would let delayed
@@ -556,7 +558,7 @@ bool InputEventGenerator::signalEvent(const Event& event)
 	std::visit(overloaded{
 		[&](const WindowEvent& e) {
 			const auto& evt = e.getSdlWindowEvent();
-			if (e.isMainWindow() && evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+			if (e.isMainWindow() && evt.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
 				releaseMouse();
 			}
 			if (e.isMainWindow() &&
@@ -597,7 +599,7 @@ void InputEventGenerator::initializeGrab() const
 void InputEventGenerator::setGrabInput(bool grab) const
 {
 	if (auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId())) {
-		SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
+		SDL_SetWindowMouseGrab(window, grab);
 	}
 }
 

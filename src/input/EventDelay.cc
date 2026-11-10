@@ -70,10 +70,10 @@ void EventDelay::releaseMouseButtons()
 	for (unsigned button = 1; button <= 32; ++button) {
 		if (!(mouseButtons & (1u << (button - 1)))) continue;
 		SDL_Event event = {};
-		event.button.type = SDL_MOUSEBUTTONUP;
-		event.button.timestamp = SDL_GetTicks();
+		event.button.type = SDL_EVENT_MOUSE_BUTTON_UP;
+		event.button.timestamp = SDL_GetTicksNS();
 		event.button.button = uint8_t(button);
-		event.button.state = SDL_RELEASED;
+		event.button.down = false;
 		signalEvent(MouseButtonUpEvent(event));
 	}
 }
