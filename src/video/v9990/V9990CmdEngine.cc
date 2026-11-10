@@ -18,10 +18,12 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <iostream>
 #include <string_view>
+#include <type_traits>
 
 namespace openmsx {
 
@@ -342,8 +344,12 @@ inline uint8_t V9990CmdEngine::V9990P1::logOp(
 // stale lane byte at the same address. This is why the manual says that in
 // P1 the program must clear the WM byte of the side that isn't the transfer
 // destination. Verified against a real V9990 (Tecnobytes PowerGraph) with
-// the P1CMD/P1CMD2 probes: LMMV puts the FC byte of the target layer on its
-// lane; LMMM puts the source pixel shifted into its nibble, other nibble 0.
+// the P1CMD/P1CMD2 probes: LMMV puts its colour on the target lane (FC bits
+// 7-0 for either layer, see executeLMMV); LMMM puts the source pixel shifted
+// into its nibble, other nibble 0.
+// A write that WM masks out completely on the target layer doesn't reach the
+// other layer either (measured with VDPEND: with WM = 00FFh, an LMMV into
+// layer B leaves layer A alone, whatever the other lane holds).
 // CPU writes through port P#0 do not touch this register; reset clears it.
 static inline void p1Write(
 	V9990VRAM& vram, unsigned addr, uint8_t nibbleMask, uint8_t newColor,
@@ -351,6 +357,7 @@ static inline void p1Write(
 {
 	unsigned lane = (addr & 0x40000) ? 8 : 0;
 	dataLatch = uint16_t((dataLatch & ~(0xFF << lane)) | (newColor << lane));
+	if (((mask >> lane) & nibbleMask) == 0) return;
 	for (unsigned l : {0u, 8u}) {
 		auto m = narrow_cast<uint8_t>((mask >> l) & nibbleMask);
 		if (m == 0) continue;
@@ -759,7 +766,6 @@ void V9990CmdEngine::reset(EmuTime /*time*/)
 {
 	CMD = 0;
 	status = 0;
-	borderX = 0;
 	dataLatch = 0;
 	endAfterRead = false;
 }
@@ -816,11 +822,16 @@ void V9990CmdEngine::setCmdReg(uint8_t reg, uint8_t value, EmuTime time)
 	case 15: // write mask high
 		WM = uint16_t((WM & 0x00FF) | (value << 8));
 		break;
+	// Measured: once a SRCH sets BD, it stays set through other commands
+	// until FC is written. (The probe always wrote both bytes, so whether
+	// one byte alone clears it is not known.)
 	case 16: // Font color - FG low
 		fgCol = uint16_t((fgCol & 0xFF00) | (value << 0));
+		status &= ~BD;
 		break;
 	case 17: // Font color - FG high
 		fgCol = uint16_t((fgCol & 0x00FF) | (value << 8));
+		status &= ~BD;
 		break;
 	case 18: // Font color - BG low
 		bgCol = uint16_t((bgCol & 0xFF00) | (value << 0));
@@ -980,6 +991,7 @@ void V9990CmdEngine::update(const Setting& setting) noexcept
 // STOP
 void V9990CmdEngine::startSTOP(EmuTime time)
 {
+	endDecNY();
 	cmdReady(time);
 }
 
@@ -1006,6 +1018,7 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
+		engineTime = limit; // time of the VRAM write (renderer sync)
 		if (bitsLeft) {
 			bitsLeft = 0;
 			partial = data;
@@ -1022,6 +1035,8 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					SX = 0; // SX is the X counter
+					endRect();
 					cmdReady(limit);
 				} else {
 					ANX = getWrappedNX();
@@ -1036,6 +1051,7 @@ void V9990CmdEngine::executeLMMC(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
+		engineTime = limit; // time of the VRAM write (renderer sync)
 		unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 		auto lut = Mode::getLogOpLUT(LOG);
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
@@ -1049,9 +1065,11 @@ void V9990CmdEngine::executeLMMC(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					SX = 0; // SX is the X counter
+					endRect();
 					cmdReady(limit);
 				} else {
-					ANX = NX;
+					ANX = getWrappedNX();
 				}
 			}
 		}
@@ -1076,15 +1094,22 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
+	// In P1, LMMV draws with FC bits 7-0 into either layer (measured on a
+	// real V9990: an LMMV into layer B ignores FC bits 15-8).
+	uint16_t color = std::is_same_v<Mode, V9990P1>
+	               ? uint16_t((fgCol & 0xFF) * 0x0101) : fgCol;
 	while (engineTime < limit) {
 		engineTime += delta;
-		Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
+		Mode::psetColor(vram, DX, DY, pitch, color, WM, lut, LOG, dataLatch);
 
 		DX += dx;
 		if (!--ANX) {
 			DX -= uint16_t(NX * dx);
 			DY += dy;
+			SY += dy; // LMMV also steps SY, like LMMM
 			if (!--ANY) {
+				SX = 0; // SX is the X counter
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1123,7 +1148,18 @@ void V9990CmdEngine::executeLMCM(EmuTime /*limit*/)
 		Type d = 0;
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			auto src = Mode::point(vram, SX, SY, pitch);
-			d |= Type(Mode::shift(src, SX, i) & Mode::shiftMask(i));
+			if constexpr (std::is_same_v<Mode, V9990P1>) {
+				// The first pixel loads the whole source byte, its
+				// nibbles swapped when needed; a second pixel
+				// replaces the other nibble. So when the transfer
+				// ends on the first pixel of a byte, the other
+				// nibble holds the source's other pixel (measured:
+				// F1h, not F0h).
+				auto rot = uint8_t((SX ^ i) & 1 ? (src << 4) | (src >> 4) : src);
+				d = (i == 0) ? rot : Type((d & ~Mode::shiftMask(i)) | (rot & Mode::shiftMask(i)));
+			} else {
+				d |= Type(Mode::shift(src, SX, i) & Mode::shiftMask(i));
+			}
 
 			uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 			SX += dx;
@@ -1132,6 +1168,8 @@ void V9990CmdEngine::executeLMCM(EmuTime /*limit*/)
 				SX -= uint16_t(NX * dx);
 				SY += dy;
 				if (!--ANY) {
+					DX = 0; // DX is the X counter
+					endRect();
 					endAfterRead = true;
 				} else {
 					ANX = getWrappedNX();
@@ -1183,6 +1221,7 @@ void V9990CmdEngine::executeLMMM(EmuTime limit)
 			DY += dy;
 			SY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1205,6 +1244,7 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
+		engineTime = limit; // time of the VRAM write (renderer sync)
 
 		unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 		uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
@@ -1223,6 +1263,8 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					SX = 0; // SX is the X counter
+					endRect();
 					cmdReady(limit);
 					return;
 				} else {
@@ -1237,7 +1279,12 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 void V9990CmdEngine::startCMMK(EmuTime time)
 {
 	std::cout << "V9990: CMMK not yet implemented\n";
-	cmdReady(time); // TODO dummy implementation
+	// TODO dummy implementation. A V9990 without a kanji ROM (measured)
+	// ends at once, but still steps DY by NY and ends with NY = FFFh.
+	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
+	DY = uint16_t((DY + getWrappedNY() * dy) & 0xFFF);
+	endRect();
+	cmdReady(time);
 }
 
 void V9990CmdEngine::executeCMMK(EmuTime /*limit*/)
@@ -1283,6 +1330,7 @@ void V9990CmdEngine::executeCMMM(EmuTime limit)
 			DX -= uint16_t(NX * dx);
 			DY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1322,6 +1370,7 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 			DX -= uint16_t(NX * dx);
 			DY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1351,6 +1400,7 @@ void V9990CmdEngine::executeBMXL(EmuTime limit)
 				DX -= uint16_t(NX * dx);
 				DY += dy;
 				if (!--ANY) {
+					endRect();
 					cmdReady(engineTime);
 					return;
 				} else {
@@ -1389,6 +1439,7 @@ void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 			SX -= uint16_t(NX * dx);
 			SY += dy;
 			if (!--ANY) {
+				endRect();
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1418,6 +1469,7 @@ void V9990CmdEngine::executeBMLX(EmuTime limit)
 				SY += dy;
 				if (!--ANY) {
 					vram.writeVRAMBx(dstAddress++, d);
+					endRect();
 					cmdReady(engineTime);
 					return;
 				} else {
@@ -1472,6 +1524,7 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 		srcAddress = (srcAddress + 1) & 0x3FFFF;
 		dstAddress = (dstAddress + 1) & 0x3FFFF;
 		if (!--nbBytes) {
+			endBMLL();
 			cmdReady(engineTime);
 			return;
 		}
@@ -1497,6 +1550,7 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 		srcAddress = (srcAddress + 1) & 0x7FFFF;
 		dstAddress = (dstAddress + 1) & 0x7FFFF;
 		if (!--nbBytes) {
+			endBMLL();
 			cmdReady(engineTime);
 			return;
 		}
@@ -1507,7 +1561,11 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 void V9990CmdEngine::startLINE(EmuTime time)
 {
 	engineTime = time;
-	ASX = uint16_t((NX - 1) / 2);
+	// Measured with MJ 3, MI 1: the first Y step comes after the first
+	// pixel, one pixel earlier than with (NX - 1) / 2. This is the same
+	// for even MJ, earlier for odd MJ. (An alternative that also fits:
+	// (NX - 1) / 2 with 'ASX <= NY' below; MJ 4, MI 1 tells them apart.)
+	ASX = uint16_t(std::max<unsigned>(NX, 2) / 2 - 1);
 	ADX = DX;
 	ANX = 0;
 }
@@ -1537,7 +1595,8 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
-				cmdReady(engineTime);
+				SX = 0; // SX is the X counter
+				cmdReady(engineTime); // LINE leaves NY alone
 				break;
 			}
 		}
@@ -1554,7 +1613,8 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
-				cmdReady(engineTime);
+				SX = 0; // SX is the X counter
+				cmdReady(engineTime); // LINE leaves NY alone
 				break;
 			}
 		}
@@ -1598,15 +1658,15 @@ void V9990CmdEngine::executeSRCH(EmuTime limit)
 		}
 		if (((value & mask2) == (col & mask2)) ^ AEQ) {
 			status |= BD; // border detected
+			endSRCH();
 			cmdReady(engineTime);
-			borderX = ASX;
 			break;
 		}
 		ASX += TX;
 		if (ASX & width) {
 			status &= ~BD; // border not detected
+			endSRCH();
 			cmdReady(engineTime);
-			borderX = ASX;
 			break;
 		}
 	}
@@ -1618,6 +1678,12 @@ void V9990CmdEngine::startPOINT(EmuTime /*time*/)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto d = Mode::point(vram, SX, SY, pitch);
+	// Measured: POINT ends like an LMCM of one row: SY steps by one, DX
+	// (the X counter) ends at 0 and NY is decremented twice.
+	SY = uint16_t((SY + ((ARG & DIY) ? -1 : 1)) & 0xFFF);
+	DX = 0;
+	NY = uint16_t((NY - 1) & 0xFFF);
+	endDecNY();
 
 	if constexpr (Mode::BITS_PER_PIXEL != 16) {
 		data = uint8_t(d);
@@ -1648,12 +1714,11 @@ void V9990CmdEngine::executePOINT(EmuTime /*limit*/)
 template<typename Mode>
 void V9990CmdEngine::startPSET(EmuTime time)
 {
+	engineTime = time; // time of the VRAM write (renderer sync)
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto lut = Mode::getLogOpLUT(LOG);
 	Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
-
-	// TODO advance DX DY
-
+	advancePointer();
 	cmdReady(time);
 }
 
@@ -1665,8 +1730,21 @@ void V9990CmdEngine::executePSET(EmuTime /*limit*/)
 // ADVN
 void V9990CmdEngine::startADVN(EmuTime time)
 {
-	std::cout << "V9990: ADVN not yet implemented\n";
-	cmdReady(time); // TODO dummy implementation
+	advancePointer();
+	cmdReady(time);
+}
+
+// End of PSET and ADVN, measured in P1: AYE (R#52 bit 2) steps DY by +1, or
+// by -1 with AYM (bit 3) too. AXE/AXM (bits 1-0) change nothing that was
+// seen (DX stays). SX ends at 0 and NY is decremented once.
+// TODO: what AXE/AXM move.
+void V9990CmdEngine::advancePointer()
+{
+	if (CMD & 0x04) {
+		DY = uint16_t((DY + ((CMD & 0x08) ? -1 : 1)) & 0xFFF);
+	}
+	SX = 0;
+	endDecNY();
 }
 
 void V9990CmdEngine::executeADVN(EmuTime /*limit*/)
@@ -1809,6 +1887,42 @@ uint8_t V9990CmdEngine::peekCmdData(EmuTime time) const
 	return (status & TR) ? data : 0xFF;
 }
 
+// The command registers after a command, as measured on a real V9990 in P1
+// (R#32-R#52 are write only; a program sees them when it starts the next
+// command without rewriting them all). The engine counts with the registers
+// themselves: NY is the row counter, and every command but LINE decrements
+// it once more at the end (STOP too); SX is the X counter of commands that
+// don't read a source (LMMC, LMMV, CMMC, LINE, PSET, ADVN), DX that of
+// commands that don't draw (LMCM, POINT, SRCH). Both end at 0.
+void V9990CmdEngine::endDecNY()
+{
+	NY = uint16_t((NY - 1) & 0xFFF);
+}
+
+// End of a rectangle command: NY counted down to 0, then once more.
+void V9990CmdEngine::endRect()
+{
+	NY = 0xFFF;
+}
+
+// BMLL: SY:SX and DY:DX are linear addresses, the copy steps them by NY
+// rows of 256 bytes (the low byte back at the start).
+void V9990CmdEngine::endBMLL()
+{
+	SY = uint16_t((SY + NY) & 0xFFF);
+	DY = uint16_t((DY + NY) & 0xFFF);
+	endRect();
+}
+
+// SRCH: SX is its X pointer and ends where the search stopped (the found
+// X, or one past the edge); DX ends at 0.
+void V9990CmdEngine::endSRCH()
+{
+	SX = uint16_t(ASX & 0x7FF);
+	DX = 0;
+	endDecNY();
+}
+
 void V9990CmdEngine::cmdReady(EmuTime /*time*/)
 {
 	CMD = 0; // for deserialize
@@ -1885,6 +1999,7 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 // version 1: initial version
 // version 2: we forgot to serialize the time (or clock) member
 // version 3: added dataLatch (P1 data output register)
+// version 4: removed borderX (R#53-R#54 read SX)
 template<typename Archive>
 void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 {
@@ -1900,7 +2015,6 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	ar.serialize("srcAddress",   srcAddress,
 	             "dstAddress",   dstAddress,
 	             "nbBytes",      nbBytes,
-	             "borderX",      borderX,
 	             "ASX",          ASX,
 	             "ADX",          ADX,
 	             "ANX",          ANX,
@@ -1927,7 +2041,6 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	} else {
 		dataLatch = 0;
 	}
-
 	if constexpr (Archive::IS_LOADER) {
 		setCommandMode();
 	}

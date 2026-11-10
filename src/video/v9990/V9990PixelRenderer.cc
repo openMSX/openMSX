@@ -23,6 +23,7 @@
 #include "one_of.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -174,7 +175,11 @@ void V9990PixelRenderer::renderUntil(EmuTime time)
 			UNREACHABLE;
 		}
 	}();
+	renderTo(toX, toY);
+}
 
+void V9990PixelRenderer::renderTo(int toX, int toY)
+{
 	if ((toX == lastX) && (toY == lastY)) return;
 
 	// edges of the DISPLAY part of the vdp output
@@ -200,6 +205,28 @@ void V9990PixelRenderer::renderUntil(EmuTime time)
 
 	lastX = toX;
 	lastY = toY;
+}
+
+void V9990PixelRenderer::updateVRAM(EmuTime time)
+{
+	// Called just before a VRAM byte changes. Draw the lines the beam has
+	// already passed, so they use the old VRAM contents. Like
+	// PixelRenderer::updateVRAM() for the V99x8, this only rasterizes and
+	// never syncs VRAM (we may be called from inside the command engine).
+
+	// With the display off the output is border only, VRAM is not read.
+	if (!drawFrame || !displayEnabled ||
+	    accuracy == RenderSettings::Accuracy::SCREEN) {
+		return;
+	}
+	// A command engine loop can overshoot its sync limit by less than one
+	// step; clamp so we never go past the end of this frame.
+	int ticks = std::min(vdp.getUCTicksThisFrame(time),
+	                     V9990DisplayTiming::getUCTicksPerFrame(vdp.isPalTiming()));
+	// Whole lines only: at most one extra draw call per scanline. The line
+	// currently being drawn will use the new data (at most one line off).
+	int line = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+	if (line > lastY) renderTo(0, line);
 }
 
 void V9990PixelRenderer::subdivide(int fromX, int fromY, int toX, int toY,

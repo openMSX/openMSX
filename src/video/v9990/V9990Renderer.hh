@@ -49,6 +49,13 @@ public:
 	  */
 	virtual void renderUntil(EmuTime time) = 0;
 
+	/** VRAM is about to change at the given time: draw what the beam has
+	  * already passed using the old VRAM contents.
+	  * Must not sync VRAM (it is called from inside the command engine).
+	  * @param time The moment in emulated time the VRAM write occurs.
+	  */
+	virtual void updateVRAM(EmuTime time) = 0;
+
 	/** Informs the renderer of a VDP display enabled change.
 	 *  Both the regular border start/end and forced blanking by clearing
 	 *  the display enable bit are considered display enabled changes.

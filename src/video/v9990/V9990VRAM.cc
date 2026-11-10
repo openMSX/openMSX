@@ -49,8 +49,17 @@ uint8_t V9990VRAM::readVRAMCPU(unsigned address, EmuTime time)
 
 void V9990VRAM::writeVRAMCPU(unsigned address, uint8_t value, EmuTime time)
 {
-	sync(time);
-	data.write(mapAddress(address), value);
+	sync(time); // command engine first (it notifies the renderer as well)
+	unsigned addr = mapAddress(address);
+	if (data[addr] == value) return;
+	// Let the renderer draw what the beam already passed with the old data.
+	vdp.vramWillChange(time);
+	data.write(addr, value);
+}
+
+void V9990VRAM::cmdWriteWillChange()
+{
+	vdp.vramWillChange(cmdEngine->getEngineTime());
 }
 
 template<typename Archive>

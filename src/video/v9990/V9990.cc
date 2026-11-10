@@ -398,9 +398,19 @@ void V9990::writeIO(uint16_t port, uint8_t val, EmuTime time)
 // Schedulable
 // -------------------------------------------------------------------------
 
+void V9990::vramWillChange(EmuTime time)
+{
+	renderer->updateVRAM(time);
+}
+
 void V9990::execVSync(EmuTime time)
 {
-	// Transition from one frame to the next
+	// Transition from one frame to the next.
+	// First run the command engine up to the frame boundary, so that its
+	// VRAM writes are reported to the renderer within the frame they
+	// belong to (even when this frame is skipped, in which case frameEnd()
+	// doesn't sync VRAM).
+	vram.sync(time);
 	renderer->frameEnd(time);
 	frameStart(time);
 }
