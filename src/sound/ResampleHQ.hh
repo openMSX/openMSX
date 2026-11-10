@@ -3,7 +3,6 @@
 
 #include "ResampleAlgo.hh"
 #include <cstdint>
-#include <span>
 #include <vector>
 
 namespace openmsx {
@@ -15,7 +14,13 @@ template<unsigned CHANNELS>
 class ResampleHQ final : public ResampleAlgo
 {
 public:
-	static constexpr int TAB_BITS = 12; // number of (sub-sample) phases = 2^TAB_BITS
+	// The coefficient table has 2^TAB_BITS rows (sub-sample phases), of
+	// which only the first half is stored (the 2nd half is the mirror
+	// image). The output is linearly interpolated between the two rows
+	// that enclose the exact phase. 128 rows is enough to keep the
+	// interpolation error below -99dBFS for all our sample rates (so
+	// better than 16-bit).
+	static constexpr int TAB_BITS = 7;
 	static constexpr size_t TAB_LEN = size_t(1) << TAB_BITS;
 	static constexpr size_t HALF_TAB_LEN = TAB_LEN / 2;
 
@@ -44,7 +49,6 @@ private:
 	unsigned filterLen;
 	std::vector<float> buffer;
 	float* table;
-	std::span<const int16_t, HALF_TAB_LEN> permute;
 };
 
 } // namespace openmsx

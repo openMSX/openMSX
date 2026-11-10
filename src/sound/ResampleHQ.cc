@@ -65,21 +65,19 @@ public:
 	ResampleCoeffs& operator=(ResampleCoeffs&&) = delete;
 
 	static ResampleCoeffs& instance();
-	void getCoeffs(double ratio, std::span<const int16_t, HALF_TAB_LEN>& permute, float*& table, unsigned& filterLen);
+	void getCoeffs(double ratio, float*& table, unsigned& filterLen);
 	void releaseCoeffs(double ratio);
 
 private:
 	using Table = MemBuffer<float, SSE_ALIGNMENT>;
-	using PermuteTable = MemBuffer<int16_t>; // array<int16_t, HALF_TAB_LEN>
 
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
 
-	static Table calcTable(double ratio, std::span<int16_t, HALF_TAB_LEN> permute, unsigned& filterLen);
+	static Table calcTable(double ratio, unsigned& filterLen);
 
 	struct Element {
 		double ratio;
-		PermuteTable permute; // need stable address (can't directly use std::array)
 		Table table;
 		unsigned filterLen;
 		unsigned count;
@@ -98,12 +96,10 @@ ResampleCoeffs& ResampleCoeffs::instance()
 	return resampleCoeffs;
 }
 
-void ResampleCoeffs::getCoeffs(
-	double ratio, std::span<const int16_t, HALF_TAB_LEN>& permute, float*& table, unsigned& filterLen)
+void ResampleCoeffs::getCoeffs(double ratio, float*& table, unsigned& filterLen)
 {
 	if (auto it = std::ranges::find(cache, ratio, &Element::ratio);
 	    it != end(cache)) {
-		permute   = std::span<int16_t, HALF_TAB_LEN>{it->permute};
 		table     = it->table.data();
 		filterLen = it->filterLen;
 		it->count++;
@@ -112,10 +108,7 @@ void ResampleCoeffs::getCoeffs(
 	Element elem;
 	elem.ratio = ratio;
 	elem.count = 1;
-	elem.permute = PermuteTable(HALF_TAB_LEN);
-	auto perm = std::span<int16_t, HALF_TAB_LEN>{elem.permute};
-	elem.table = calcTable(ratio, perm, elem.filterLen);
-	permute   = perm;
+	elem.table = calcTable(ratio, elem.filterLen);
 	table     = elem.table.data();
 	filterLen = elem.filterLen;
 	cache.push_back(std::move(elem));
@@ -130,201 +123,6 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 	}
 }
 
-// -- Permutation stuff --
-//
-// The rows in the resample coefficient table are not visited sequentially.
-// Instead, depending on the resample-ratio, we take fixed non-integer jumps
-// from one row to the next.
-//
-// In reality the table has 4096 rows (of which only 2048 are actually stored).
-// But for simplicity I'll here work out examples for a table with only 16 rows
-// (of which 8 are stored).
-//
-// Let's first assume a jump of '5.2'. This means that after we've used row
-// 'r', the next row we need is 'r + 5.2'. Of course row numbers must be
-// integers, so a jump of 5.2 actually means that 80% of the time we advance 5
-// rows and 20% of the time we advance 6 rows.
-//
-// The rows in the (full) table are circular. This means that once we're past
-// row 15 (in this example) we restart at row 0. So rows 'wrap' past the end
-// (modulo arithmetic). We also only store the 1st half of the table, the
-// entries for the 2nd half are 'folded' back to the 1st half according to the
-// formula: y = 15 - x.
-//
-// Let's now calculate the possible transitions. If we're currently on row '0',
-// the next row will be either '5' (80% chance) or row '6' (20% chance). When
-// we're on row '5' the next most likely row will be '10', but after folding
-// '10' becomes '15-10 = 5' (so 5 goes to itself (80% chance)). Row '10' most
-// likely goes to '15', after folding we get that '5' goes to '0'. Row '15'
-// most likely goes to '20', and after wrapping and folding that becomes '0'
-// goes to '4'. Calculating this for all rows gives:
-//   0 -> 5 or 4 (80%)   0 -> 6 or 5 (20%)
-//   1 -> 6 or 3         1 -> 7 or 4
-//   2 -> 7 or 2         2 -> 7 or 3
-//   3 -> 7 or 1         3 -> 6 or 2
-//   4 -> 6 or 0         4 -> 5 or 1
-//   5 -> 5 or 0         5 -> 4 or 0
-//   6 -> 4 or 1         6 -> 3 or 0
-//   7 -> 3 or 2         7 -> 2 or 1
-// So every row has 4 possible successors (2 more and 2 less likely). Possibly
-// some of these 4 are the same, or even the same as the starting row. Note
-// that if row x goes to row y (x->y) then also y->x, this turns out to be true
-// in general.
-//
-// For cache efficiency it's best if rows that are needed after each other in
-// time are also stored sequentially in memory (both before or after is fine).
-// Clearly storing the rows in numeric order will not read the memory
-// sequentially. For this specific example we could stores the rows in the
-// order:
-//    2, 7, 3, 1, 6, 4, 0, 5
-// With this order all likely transitions are sequential. The less likely
-// transitions are not. But I don't believe there exists an order that's good
-// for both the likely and the unlikely transitions. Do let me know if I'm
-// wrong.
-//
-// In this example the transitions form a single chain (it turns out this is
-// often the case). But for example for a step-size of 4.3 we get
-//   0 -> 4 or 3 (70%)   0 -> 5 or 4 (30%)
-//   1 -> 5 or 2         1 -> 6 or 3
-//   2 -> 6 or 1         2 -> 7 or 2
-//   3 -> 7 or 0         3 -> 7 or 1
-//   4 -> 7 or 0         4 -> 6 or 0
-//   5 -> 6 or 1         5 -> 5 or 0
-//   6 -> 5 or 2         6 -> 4 or 1
-//   7 -> 4 or 3         7 -> 3 or 2
-// Only looking at the more likely transitions, we get 2 cycles of length 4:
-//   0, 4, 7, 3
-//   1, 5, 6, 2
-//
-// So the previous example gave a single chain with 2 clear end-points. Now we
-// have 2 separate cycles. It turns out that for any possible step-size we
-// either get a single chain or k cycles of size N/k. (So e.g. a chain of
-// length 5 plus a cycle of length 3 is impossible. Also 1 cycle of length 4
-// plus 2 cycles of length 2 is impossible). To be honest I've only partially
-// mathematically proven this, but at least I've verified it for N=16 and
-// N=4096 for all possible step-sizes.
-//
-// To linearize a chain in memory there are only 2 (good) possibilities: start
-// at either end-point. But to store a cycle any point is as good as any other.
-// Also the order in which to store the cycles themselves can still be chosen.
-//
-// Let's come back to the example with step-size 4.3. If we linearize this as
-//   | 0, 4, 7, 3 | 1, 5, 6, 2 |
-// then most of the more likely transitions are sequential. The exceptions are
-//     0 <-> 3   and   1 <-> 2
-// but those are unavoidable with cycles. In return 2 of the less likely
-// transitions '3 <-> 1' are now sequential. I believe this is the best
-// possible linearization (better said: there are other linearizations that are
-// equally good, but none is better). But do let me know if you find a better
-// one!
-//
-// For step-size '8.4' an optimal(?) linearization seems to be
-//   | 0, 7 | 1, 6 | 2, 5 | 3, 4 |
-// For step-size '7.9' the order is:
-//   | 7, 0 | 6, 1 | 5, 2 | 4, 3 |
-// And for step-size '3.8':
-//   | 7, 4, 0, 3 | 6, 5, 1, 2 |
-//
-// I've again not (fully) mathematically proven it, but it seems we can
-// optimally(?) linearize cycles by:
-// * if likely step < unlikely step:
-//    pick unassigned rows from 0 to N/2-1, and complete each cycle
-// * if likely step > unlikely step:
-//    pick unassigned rows from N/2-1 to 0, and complete each cycle
-//
-// The routine calcPermute() below calculates these optimal(?) linearizations.
-// More in detail it calculates a permutation table: the i-th element in this
-// table tells where in memory the i-th logical row of the original (half)
-// resample coefficient table is physically stored.
-
-static constexpr unsigned N = TAB_LEN;
-static constexpr unsigned N1 = N - 1;
-static constexpr unsigned N2 = N / 2;
-
-static constexpr unsigned mapIdx(unsigned x)
-{
-	unsigned t = x & N1; // first wrap
-	return (t < N2) ? t : N1 - t; // then fold
-}
-
-static constexpr std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
-{
-	return {mapIdx(x + step), mapIdx(N1 - x + step)};
-}
-
-static void calcPermute(double ratio, std::span<int16_t, HALF_TAB_LEN> permute)
-{
-	double r2 = ratio * N;
-	double fract = Math::fract(r2);
-	auto step = narrow_cast<unsigned>(floor(r2));
-	bool incr = [&] {
-		if (fract > 0.5) {
-			// mostly (> 50%) take steps of 'floor(r2) + 1'
-			step += 1;
-			return false; // assign from high to low
-		} else {
-			// mostly take steps of 'floor(r2)'
-			return true; // assign from low to high
-		}
-	}();
-
-	// initially set all as unassigned
-	std::ranges::fill(permute, -1);
-
-	unsigned restart = incr ? 0 : N2 - 1;
-	unsigned curr = restart;
-	// check for chain (instead of cycles)
-	if (incr) {
-		for (auto i : xrange(N2)) {
-			auto [nxt1, nxt2] = next(i, step);
-			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
-		}
-	} else {
-		for (unsigned i = N2 - 1; int(i) >= 0; --i) {
-			auto [nxt1, nxt2] = next(i, step);
-			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
-		}
-	}
-
-	// assign all rows (in chain of cycle(s))
-	unsigned cnt = 0;
-	while (true) {
-		assert(permute[curr] == -1);
-		assert(cnt < N2);
-		permute[curr] = narrow<int16_t>(cnt++);
-
-		auto [nxt1, nxt2] = next(curr, step);
-		if (permute[nxt1] == -1) {
-			curr = nxt1;
-			continue;
-		} else if (permute[nxt2] == -1) {
-			curr = nxt2;
-			continue;
-		}
-
-		// finished chain or cycle
-		if (cnt == N2) break; // done
-
-		// continue with next cycle
-		while (permute[restart] != -1) {
-			if (incr) {
-				++restart;
-				assert(restart != N2);
-			} else {
-				assert(restart != 0);
-				--restart;
-			}
-		}
-		curr = restart;
-	}
-
-#ifdef DEBUG
-	std::array<int16_t, N2> testPerm;
-	ranges::iota(testPerm, int16_t(0));
-	assert(std::is_permutation(permute.begin(), permute.end(), testPerm.begin()));
-#endif
-}
-
 static constexpr double getCoeff(FilterIndex index)
 {
 	double fraction = index.fractionAsDouble();
@@ -333,11 +131,8 @@ static constexpr double getCoeff(FilterIndex index)
 	       fraction * (double(coeffs[indx + 1]) - double(coeffs[indx]));
 }
 
-ResampleCoeffs::Table ResampleCoeffs::calcTable(
-	double ratio, std::span<int16_t, HALF_TAB_LEN> permute, unsigned& filterLen)
+ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLen)
 {
-	calcPermute(ratio, permute);
-
 	double floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
 	double normFactor = floatIncr / INDEX_INC;
 	auto increment = FilterIndex(floatIncr);
@@ -348,11 +143,18 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	int idx_cnt = max_idx - min_idx + 1;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (narrow<int>(filterLen) - idx_cnt) / 2;
-	Table table(HALF_TAB_LEN * filterLen);
+	// Row 't' holds the filter for (sub-sample) phase (t + 0.5) / TAB_LEN.
+	// Rows are stored in order, so the two rows that enclose some phase
+	// are adjacent in memory. Only the rows of the first half are
+	// calculated (row TAB_LEN-1-t is row t mirrored), plus one extra row
+	// on both sides (rows -1 and HALF_TAB_LEN) so that the two rows are
+	// _always_ adjacent (see calcOutput()). Element 0 of the table is the
+	// start of row -1.
+	Table table((HALF_TAB_LEN + 2) * filterLen);
 	std::ranges::fill(std::span{table}, 0.0f);
 
 	for (auto t : xrange(HALF_TAB_LEN)) {
-		float* tab = &table[permute[t] * filterLen];
+		float* tab = &table[(t + 1) * filterLen];
 		double lastPos = (double(t) + 0.5) / TAB_LEN;
 		FilterIndex startFilterIndex(lastPos * floatIncr);
 
@@ -378,10 +180,28 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 			bufIndex -= 1;
 		} while (filterIndex > FilterIndex(0));
 	}
+
+	// Row HALF_TAB_LEN is row HALF_TAB_LEN-1 mirrored.
+	{
+		const float* src = &table[HALF_TAB_LEN * filterLen];
+		float* dst = &table[(HALF_TAB_LEN + 1) * filterLen];
+		for (auto i : xrange(filterLen)) {
+			dst[i] = src[filterLen - 1 - i];
+		}
+	}
+	// Row -1 is the mirror of row TAB_LEN, which is row 0 applied one
+	// sample later: row 0 reversed and shifted by one tap. This drops the
+	// outermost tap of the window, but that coefficient is ~1e-7 (-137dB).
+	{
+		const float* src = &table[1 * filterLen];
+		float* dst = &table[0];
+		for (auto i : xrange(filterLen - 1)) {
+			dst[i] = src[filterLen - 2 - i];
+		}
+		dst[filterLen - 1] = 0.0f;
+	}
 	return table;
 }
-
-static const std::array<int16_t, HALF_TAB_LEN> dummyPermute = {};
 
 template<unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(
@@ -390,9 +210,8 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	, hostClock(hostClock_)
 	, ratio(float(hostClock.getPeriod().toDouble() / getEmuClock().getPeriod().toDouble()))
 	, step(uint64_t((hostClock.getPeriod().toDouble() / getEmuClock().getPeriod().toDouble()) * 4294967296.0 + 0.5))
-	, permute(dummyPermute) // Any better way to do this? (that also works with debug-STL)
 {
-	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
+	ResampleCoeffs::instance().getCoeffs(double(ratio), table, filterLen);
 
 	// fill buffer with 'enough' zero's
 	unsigned extra = filterLen + 1 + narrow_cast<int>(ratio) + 1;
@@ -522,41 +341,45 @@ static inline void vstep(V& acc0, V& acc1, V c, const float* buf, size_t n, size
 	}
 }
 
+// Dot-product of the sample buffer with two consecutive table rows: the row
+// at 'tab' and the row directly following it in memory. The sample loads are
+// shared between the two rows, so this costs ~1.5x a single dot-product.
+// In the 'reverse' case 'tab' points to one-past-the-end of the first row and
+// both rows are read backwards (see the comment above).
 template<unsigned CHANNELS, bool REVERSE>
-static inline void calcKernel(
+static inline void calcKernel2(
 	const float* __restrict buf, const float* __restrict tab, size_t n,
-	float* __restrict out)
+	float* __restrict out0, float* __restrict out1)
 {
 	assert((n % 4) == 0);
-	// In the 'reverse' case 'tab' points one-past-the-end of the row, so
-	// the row occupies tab[-n .. -1]. Rebase to walk it ascending.
-	const float* t = REVERSE ? (tab - n) : tab;
+	// In the 'reverse' case 'tab' points one-past-the-end of the first row.
+	const float* t0 = REVERSE ? (tab - n) : tab;
+	const float* t1 = t0 + n;
 
-	// Two independent accumulators (per channel-vector) hide the FP-add
-	// latency. For stereo 'vstep' already has two, for mono we alternate.
-	Vec acc0 = {}, acc1 = {}, acc2 = {}, acc3 = {};
+	Vec a0 = {}, a1 = {}, b0 = {}, b1 = {};
 	size_t i = 0;
-	for (/**/; (i + 2 * VEC_LEN) <= n; i += 2 * VEC_LEN) {
-		vstep<CHANNELS, REVERSE>(acc0, acc1, unalignedLoad<Vec>(t + i          ), buf, n, i          );
-		vstep<CHANNELS, REVERSE>(acc2, acc3, unalignedLoad<Vec>(t + i + VEC_LEN), buf, n, i + VEC_LEN);
+	for (/**/; (i + VEC_LEN) <= n; i += VEC_LEN) {
+		vstep<CHANNELS, REVERSE>(a0, a1, unalignedLoad<Vec>(t0 + i), buf, n, i);
+		vstep<CHANNELS, REVERSE>(b0, b1, unalignedLoad<Vec>(t1 + i), buf, n, i);
 	}
-	if ((i + VEC_LEN) <= n) {
-		vstep<CHANNELS, REVERSE>(acc0, acc1, unalignedLoad<Vec>(t + i), buf, n, i);
-		i += VEC_LEN;
-	}
-	Vec4 r0 = vfold(acc0 + acc2);
-	Vec4 r1 = vfold(acc1 + acc3);
+	Vec4 ra0 = vfold(a0), ra1 = vfold(a1);
+	Vec4 rb0 = vfold(b0), rb1 = vfold(b1);
 	if constexpr (VEC_LEN > 4) {
 		if (i < n) { // remaining 4 coefficients
-			vstep<CHANNELS, REVERSE>(r0, r1, unalignedLoad<Vec4>(t + i), buf, n, i);
+			vstep<CHANNELS, REVERSE>(ra0, ra1, unalignedLoad<Vec4>(t0 + i), buf, n, i);
+			vstep<CHANNELS, REVERSE>(rb0, rb1, unalignedLoad<Vec4>(t1 + i), buf, n, i);
 		}
 	}
 	if constexpr (CHANNELS == 1) {
-		out[0] = (r0[0] + r0[1]) + (r0[2] + r0[3]);
+		out0[0] = (ra0[0] + ra0[1]) + (ra0[2] + ra0[3]);
+		out1[0] = (rb0[0] + rb0[1]) + (rb0[2] + rb0[3]);
 	} else {
-		Vec4 r = r0 + r1; // [L R L R]
-		out[0] = r[0] + r[2];
-		out[1] = r[1] + r[3];
+		Vec4 ra = ra0 + ra1; // [L R L R]
+		Vec4 rb = rb0 + rb1;
+		out0[0] = ra[0] + ra[2];
+		out0[1] = ra[1] + ra[3];
+		out1[0] = rb[0] + rb[2];
+		out1[1] = rb[1] + rb[3];
 	}
 }
 
@@ -742,6 +565,19 @@ static inline void calcKernel(
 	}
 }
 
+
+#endif
+
+#ifndef RESAMPLE_HQ_VECTOR_EXT
+// Simple (not shared-load) version for the non-vector-extension paths.
+template<unsigned CHANNELS, bool REVERSE>
+static inline void calcKernel2(
+	const float* __restrict buf, const float* __restrict tab, size_t n,
+	float* __restrict out0, float* __restrict out1)
+{
+	calcKernel<CHANNELS, REVERSE>(buf, tab, n, out0);
+	calcKernel<CHANNELS, REVERSE>(buf, tab + n, n, out1); // 2nd row (or its end)
+}
 #endif
 
 template<unsigned CHANNELS>
@@ -752,22 +588,35 @@ void ResampleHQ<CHANNELS>::calcOutput(
 
 	unsigned bufIdx = intPos + bufStart;
 	assert((bufIdx + filterLen) <= bufEnd);
-	bufIdx *= CHANNELS;
-	const float* buf = &buffer[bufIdx];
+	const float* buf = &buffer[bufIdx * CHANNELS];
 
-	// Select the table row (sub-sample phase). Row 't' is centered at
-	// phase (t + 0.5) / TAB_LEN (see calcTable()), so take the floor.
-	auto t = size_t(fracPos >> (32 - TAB_BITS));
-	if (!(t & HALF_TAB_LEN)) {
-		// first half, begin of row 't'
-		t = permute[t];
-		const float* tab = &table[t * filterLen];
-		calcKernel<CHANNELS, false>(buf, tab, filterLen, output);
+	// Row 't' of the table holds the filter for phase (t + 0.5) / TAB_LEN.
+	// Linearly interpolate between the two rows 'r' and 'r+1' whose phases
+	// enclose the requested phase: r = floor(phase * TAB_LEN - 0.5), which
+	// is in the range [-1, TAB_LEN-1]. The top TAB_BITS bits of the
+	// (shifted) fraction give 'r', the remaining bits the weight 'w'.
+	constexpr uint32_t HALF_ROW = uint32_t(1) << (31 - TAB_BITS);
+	constexpr uint32_t W_MASK = (uint32_t(1) << (32 - TAB_BITS)) - 1;
+	constexpr float W_SCALE = 1.0f / float(uint64_t(1) << (32 - TAB_BITS));
+	uint32_t u = fracPos - HALF_ROW; // wraps for fracPos < HALF_ROW -> r = -1
+	int r = (fracPos < HALF_ROW) ? -1 : int(u >> (32 - TAB_BITS));
+	float w = float(u & W_MASK) * W_SCALE;
+
+	// Only the first half of the rows is stored (table[0] is row -1):
+	// row TAB_LEN-1-t is stored row t read backwards (the 'reverse'
+	// kernel). Thanks to the two extra rows -1 and HALF_TAB_LEN the two
+	// rows are adjacent in memory in both halves.
+	float a[CHANNELS], b[CHANNELS];
+	if (r < int(HALF_TAB_LEN)) {
+		// rows r, r+1, both stored
+		calcKernel2<CHANNELS, false>(buf, &table[(r + 1) * filterLen], filterLen, a, b);
 	} else {
-		// 2nd half, end of row 'TAB_LEN - 1 - t'
-		t = permute[TAB_LEN - 1 - t];
-		const float* tab = &table[(t + 1) * filterLen];
-		calcKernel<CHANNELS, true>(buf, tab, filterLen, output);
+		// rows r, r+1 are stored rows m, m-1 (mirrored), with m = TAB_LEN-1-r
+		int m = int(TAB_LEN) - 1 - r;
+		calcKernel2<CHANNELS, true>(buf, &table[(m + 1) * filterLen], filterLen, b, a);
+	}
+	for (auto ch : xrange(CHANNELS)) {
+		output[ch] = a[ch] + w * (b[ch] - a[ch]);
 	}
 }
 
