@@ -66,10 +66,12 @@ JoyMega::JoyMega(CommandController& commandController_,
 	} catch (MSXException& /*e*/) {
 		configSetting.setValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 	}
+	joystickManager.attach(*this);
 }
 
 JoyMega::~JoyMega()
 {
+	joystickManager.detach(*this);
 	if (isPluggedIn()) {
 		JoyMega::unplugHelper(EmuTime::dummy());
 	}
@@ -85,19 +87,13 @@ void JoyMega::checkJoystickConfig(const TclObject& newValue)
 		throw CommandException("Need an even number of elements");
 	}
 	for (decltype(n) i = 0; i < n; i += 2) {
-		static constexpr std::array<std::string_view, 12> keys = {
-			// order is important!
-			"UP", "DOWN", "LEFT", "RIGHT",
-			"A", "B", "C", "START",
-			"X", "Y", "Z", "SELECT",
-		};
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
-		auto it = std::ranges::find(keys, key);
-		if (it == keys.end()) {
+		auto it = std::ranges::find(keyNames, key);
+		if (it == keyNames.end()) {
 			throw CommandException(
-				"Invalid key: must be one of ", join(keys, ", "));
+				"Invalid key: must be one of ", join(keyNames, ", "));
 		}
-		auto idx = std::distance(keys.begin(), it);
+		auto idx = std::distance(keyNames.begin(), it);
 
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		for (auto j : xrange(value.getListLength(interp))) {
@@ -153,13 +149,12 @@ void JoyMega::unplugHelper(EmuTime /*time*/)
 
 
 // JoystickDevice
-uint8_t JoyMega::read(EmuTime time)
+uint8_t JoyMega::peek(EmuTime time) const
 {
 	// See http://segaretro.org/Control_Pad_(Mega_Drive)
 	// and http://frs.badcoffee.info/hardware/joymega-en.html
 	// for a detailed description of the MegaDrive joystick.
-	checkTime(time);
-	switch (cycle) {
+	switch (getCycle(time)) {
 	case 0: case 2: case 4:
 		// up/down/left/right/b/c
 		return (status & 0x00f) | ((status & 0x060) >> 1);
@@ -195,10 +190,13 @@ void JoyMega::write(uint8_t value, EmuTime time)
 
 void JoyMega::checkTime(EmuTime time)
 {
-	if ((time - lastTime) > EmuDuration::usec(1500)) {
-		// longer than 1.5ms since last write -> reset cycle
-		cycle = 0;
-	}
+	cycle = getCycle(time);
+}
+
+uint8_t JoyMega::getCycle(EmuTime time) const
+{
+	// longer than 1.5ms since last write -> reset cycle
+	return ((time - lastTime) > EmuDuration::usec(1500)) ? 0 : cycle;
 }
 
 // MSXEventListener
@@ -242,6 +240,13 @@ void JoyMega::stopReplay(EmuTime time) noexcept
 		stateChangeDistributor.distributeNew<JoyMegaState>(
 			time, id, 0, release);
 	}
+}
+
+// Observer<JoystickManager>
+void JoyMega::update(const JoystickManager& /*manager*/) noexcept
+{
+	// A host joystick was added or removed: the default mapping may change.
+	configSetting.setDefaultValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 }
 
 template<typename Archive>

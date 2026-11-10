@@ -1,5 +1,6 @@
 #include "DebuggableEditor.hh"
 
+#include "DebuggableBitmapViewer.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiDebugger.hh"
 #include "ImGuiManager.hh"
@@ -124,6 +125,7 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	im::ScopedFont sf(manager.fontMono);
 
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
+	if (gotoAddr) ImGui::SetNextWindowFocus();
 
 	im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
@@ -363,24 +365,6 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 	return std::nullopt;
 }
 
-[[nodiscard]] static std::expected<unsigned, std::string> parseAddressExpr(
-	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp)
-{
-	if (str.empty()) return 0;
-
-	// TODO linear search, probably OK for now, but can be improved if it turns out to be a problem
-	// Note: limited to 16-bit, but larger values trigger an errors and are then handled below, so that's fine
-	if (auto addr = symbolManager.parseSymbolOrValue(str)) {
-		return *addr;
-	}
-
-	try {
-		return TclObject(str).eval(interp).getInt(interp);
-	} catch (CommandException& e) {
-		return std::unexpected(e.getMessage());
-	}
-}
-
 [[nodiscard]] static std::string formatData(uint8_t val)
 {
 	return strCat(hex_string<2, HexCase::upper>(val));
@@ -418,7 +402,12 @@ void DebuggableEditor::scrollAddr(const Sizes& s, Debuggable& debuggable, unsign
 void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize)
 {
 	const auto& style = ImGui::GetStyle();
-	if (updateAddr) {
+	if (gotoAddr) {
+		if (addrMode == EXPRESSION) addrExpr = strCat("0x", formatAddr(s, *gotoAddr));
+		scrollAddr(s, debuggable, memSize, *gotoAddr, true);
+		dataEditingTakeFocus = true;
+		gotoAddr.reset();
+	} else if (updateAddr) {
 		updateAddr = false;
 		scrollAddr(s, debuggable, memSize, currentAddr, true);
 	} else {
@@ -821,6 +810,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::Separator();
 		if (ImGui::MenuItem("Export...")) {
 			showExportWindow = true;
+		}
+		if (ImGui::MenuItem(tmpStrCat("Open bitmap viewer at 0x", formatAddr(s, currentAddr)).c_str())) {
+			debugger->openBitmapViewer(getDebuggableName()).setOffset(currentAddr);
 		}
 	});
 	im::Popup("NotFound", [&]{

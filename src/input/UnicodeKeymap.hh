@@ -128,6 +128,16 @@ public:
 	[[nodiscard]] KeyInfo get(unsigned unicode) const;
 	[[nodiscard]] KeyInfo getDeadKey(unsigned n) const;
 
+	/** The reverse of get(): the character that the key at 'pos' types
+	  * with exactly the modifiers in 'modMask'. When the unicodemap has
+	  * several characters for that key and modifiers (e.g. a backslash as
+	  * alias on the yen key), the one that the character set maps the MSX
+	  * character to, or without character set the highest code point.
+	  */
+	[[nodiscard]] std::optional<unsigned> getUnicode(KeyMatrixPosition pos, uint8_t modMask) const;
+	/** Is the key at 'pos' one of the dead keys? */
+	[[nodiscard]] bool isDeadKey(KeyMatrixPosition pos) const;
+
 	/** Returns a mask in which a bit is set iff the corresponding modifier
 	  * is relevant for the given key. A modifier is considered relevant if
 	  * there is at least one mapping entry for the key that requires the

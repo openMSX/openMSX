@@ -139,6 +139,45 @@ public:
 		return mode == one_of(V9990DisplayMode::B0, V9990DisplayMode::B2, V9990DisplayMode::B4);
 	}
 
+	/** Can this control register be read / written through the normal
+	  * register port? Mirrors the access table the V9990 enforces, so the
+	  * debugger can grey out registers instead of keeping its own copy.
+	  */
+	[[nodiscard]] static bool isRegisterReadable(uint8_t reg);
+	[[nodiscard]] static bool isRegisterWritable(uint8_t reg);
+
+	/** Read a control register without any side effects.
+	  * Unlike readIO(REGISTER_DATA) this also works for write-only
+	  * registers and while in 'systemReset' mode. Meant for the debugger.
+	  */
+	[[nodiscard]] uint8_t peekRegister(uint8_t reg) const {
+		assert(reg < 64);
+		return regs[reg];
+	}
+
+	/** Write a control register, with the normal side effects.
+	  * Meant for the debugger.
+	  */
+	void changeRegister(uint8_t reg, uint8_t value, EmuTime time) {
+		writeRegister(reg, value, time);
+	}
+
+	/** Read a command parameter register R#32-R#63 without side effects.
+	  * These are not kept in the register file but in the command engine.
+	  * Meant for the debugger.
+	  */
+	[[nodiscard]] uint8_t peekCmdRegister(uint8_t reg, EmuTime time) const;
+
+	/** Get the status byte as it would be read through port P#5, without
+	  * any side effects. Meant for the debugger.
+	  */
+	[[nodiscard]] uint8_t peekStatus(EmuTime time) const;
+
+	/** Get the interrupt flags as read through port P#6. Meant for the debugger. */
+	[[nodiscard]] uint8_t peekInterruptFlag() const {
+		return pendingIRQs;
+	}
+
 	/** Should this frame be superimposed?
 	  * This is a combination of bit 5 (YSE) in R#8 and the presence of an
 	  * external video source (see setExternalVideoSource()). Though
@@ -520,10 +559,14 @@ private:
 
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(const V9990& v9990);
-		[[nodiscard]] uint8_t read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
-		void readBlock(unsigned start, std::span<uint8_t> output) override;
 	} v9990RegDebug;
+
+	struct StatusDebug final : SimpleDebuggable {
+		explicit StatusDebug(const V9990& v9990);
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+	} v9990StatusDebug;
 
 	struct PalDebug final : SimpleDebuggable {
 		explicit PalDebug(const V9990& v9990);

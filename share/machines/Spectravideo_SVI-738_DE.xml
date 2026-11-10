@@ -22,6 +22,16 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
+      <!-- The BIOS of this machine differs from the de unicodemap in one
+           detail: on the accent key (the dead key, row 1, column 3), GRAPH
+           gives ` (GRAVE ACCENT) and SHIFT+GRAPH gives ' (APOSTROPHE),
+           the other way around. So typing one of these two characters
+           (e.g. with the type command) gives the other one on this
+           machine. A unicodemap for this machine would be the de one with
+           these two lines instead:
+             00027, 13, SHIFT GRAPH # ' (APOSTROPHE)
+             00060, 13, GRAPH       # ` (GRAVE ACCENT)
+           We were too lazy to add a whole unicodemap for this. -->
       <keyboard_type>de</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>

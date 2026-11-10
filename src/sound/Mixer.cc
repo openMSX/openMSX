@@ -12,6 +12,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -46,11 +47,18 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 		"master volume", 75, 0, 100)
 	, frequencySetting(
 		commandController, "frequency",
-		"mixer frequency", 44100, 11025, 48000)
+		"mixer frequency, or 0 (auto) for the frequency of the sound device",
+		0, 0, 48000)
 	, samplesSetting(
 		commandController, "samples",
 		"mixer samples", defaultSamples, 64, 8192)
 {
+	// 0 means auto, other values from 11025 to 48000
+	frequencySetting.setChecker([&interp = commandController.getInterpreter()](TclObject& newValue) {
+		int val = newValue.getInt(interp); // may throw
+		newValue = (val == 0) ? 0 : std::clamp(val, 11025, 48000);
+	});
+
 	muteSetting       .attach(*this);
 	frequencySetting  .attach(*this);
 	samplesSetting    .attach(*this);

@@ -6,10 +6,12 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "xrange.hh"
 
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <functional>
 
 namespace openmsx {
 
@@ -19,6 +21,27 @@ VRAMWindow::VRAMWindow(Ram& vram)
 	: data(vram.data())
 	// sizeMask will be initialized shortly by the VDPVRAM class
 {
+}
+
+
+uint8_t VDPVRAM::debugRead(unsigned address, EmuTime time)
+{
+	address &= sizeMask;
+	if (cmdWriteWindow.isInside(address)) {
+		cmdEngine->sync(time);
+	}
+	return data[address];
+}
+
+void VDPVRAM::debugReadBlock(unsigned start, std::span<uint8_t> output, EmuTime time,
+                             bool cmdWrites, auto transform)
+{
+	if (cmdWrites) {
+		cmdEngine->sync(time);
+	}
+	for (auto i : xrange(output.size())) {
+		output[i] = data[transform(unsigned(start + i)) & sizeMask];
+	}
 }
 
 
@@ -44,18 +67,41 @@ VDPVRAM::LogicalVRAMDebuggable::LogicalVRAMDebuggable(const VDP& vdp_)
 {
 }
 
+[[nodiscard]] static constexpr unsigned planarAddress(unsigned address)
+{
+	return ((address << 16) | (address >> 1)) & 0x1FFFF;
+}
+
 unsigned VDPVRAM::LogicalVRAMDebuggable::transform(unsigned address)
 {
 	const auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
-	return vram.vdp.getDisplayMode().isPlanar()
-	     ? ((address << 16) | (address >> 1)) & 0x1FFFF
-	     : address;
+	return vram.vdp.getDisplayMode().isPlanar() ? planarAddress(address) : address;
 }
 
 uint8_t VDPVRAM::LogicalVRAMDebuggable::read(unsigned address, EmuTime time)
 {
 	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
-	return vram.cpuRead(transform(address), time);
+	return vram.debugRead(transform(address), time);
+}
+
+void VDPVRAM::LogicalVRAMDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
+{
+	assert(start + output.size() <= getSize());
+	if (output.empty()) return;
+	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
+	auto time = getMotherBoard().getCurrentTime();
+	auto last = unsigned(start + output.size() - 1);
+	if (vram.vdp.getDisplayMode().isPlanar()) {
+		// planarAddress() maps an even address 'a' to 'a / 2', an odd one to '0x10000 + a / 2'
+		bool cmdWrites =
+			(((start + 1) / 2 <= last / 2) &&
+			 vram.cmdWritesInside((start + 1) / 2, last / 2)) ||
+			(((start | 1) <= last) &&
+			 vram.cmdWritesInside(0x10000 + start / 2, 0x10000 + (last - 1) / 2));
+		vram.debugReadBlock(start, output, time, cmdWrites, planarAddress);
+	} else {
+		vram.debugReadBlock(start, output, time, vram.cmdWritesInside(start, last), std::identity{});
+	}
 }
 
 void VDPVRAM::LogicalVRAMDebuggable::write(
@@ -80,7 +126,17 @@ VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(
 uint8_t VDPVRAM::PhysicalVRAMDebuggable::read(unsigned address, EmuTime time)
 {
 	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
-	return vram.cpuRead(address, time);
+	return vram.debugRead(address, time);
+}
+
+void VDPVRAM::PhysicalVRAMDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
+{
+	assert(start + output.size() <= getSize());
+	if (output.empty()) return;
+	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
+	auto last = unsigned(start + output.size() - 1);
+	vram.debugReadBlock(start, output, getMotherBoard().getCurrentTime(),
+	                    vram.cmdWritesInside(start, last), std::identity{});
 }
 
 void VDPVRAM::PhysicalVRAMDebuggable::write(

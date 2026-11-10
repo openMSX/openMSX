@@ -82,6 +82,13 @@ public:
 	 */
 	[[nodiscard]] std::span<const uint8_t, KeyMatrixPosition::NUM_ROWS> getKeys() const;
 
+	[[nodiscard]] Matrix getMatrix() const { return matrixType; }
+	/** Does the MSX have a numeric keypad (or is it enabled anyway)? */
+	[[nodiscard]] bool isKeypadEnabled() const {
+		return hasKeypad || keyboardSettings.getAlwaysEnableKeypad();
+	}
+	[[nodiscard]] const UnicodeKeymap& getUnicodeKeymap() const { return unicodeKeymap; }
+
 	void transferHostKeyMatrix(const Keyboard& source);
 	void setFocus(bool newFocus, EmuTime time);
 
@@ -143,6 +150,7 @@ private:
 
 	std::span<const KeyCodeMsxMapping> keyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
+	bool combinedShiftFlag;
 
 	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos;
 
@@ -276,6 +284,7 @@ private:
 	} keybDebuggable;
 
 	UnicodeKeymap unicodeKeymap;
+	const Matrix matrixType;
 
 	// Remembers the last unicode for a key-press-scancode. To be used later
 	// on the corresponding key-release, because those don't have unicode info.
@@ -325,6 +334,10 @@ private:
 	HostKeyMap hostKeyMap = HostKeyMap::UNKNOWN;
 
 	bool focus = true;
+
+	/** Flag for tracking the combined state (OR) of left and right Shift keys */
+	bool leftShiftPressed= false;
+	bool rightShiftPressed = false;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 5);
 

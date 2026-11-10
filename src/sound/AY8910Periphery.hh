@@ -16,19 +16,28 @@ class AY8910Periphery
 {
 public:
 	/** Reads the state of the peripheral on port A.
-	  * Since the AY8910 doesn't have control lines for the I/O ports,
-	  * a peripheral is not aware that it is read, which means that
-	  * "peek" and "read" are equivalent.
+	  * Only peripherals for which reading has an effect (e.g. it records
+	  * a state change) need to override this.
 	  * @param time The moment in time the peripheral's state is read.
 	  *   On subsequent calls, the time will always be increasing.
 	  * @return the value read; unconnected bits should be 1
 	  */
-	[[nodiscard]] virtual uint8_t readA(EmuTime /*time*/) {
-		return 0xff;
+	[[nodiscard]] virtual uint8_t readA(EmuTime time) {
+		return peekA(time);
 	}
 
 	/** Similar to readA, but reads port B. */
-	[[nodiscard]] virtual uint8_t readB(EmuTime /*time*/) {
+	[[nodiscard]] virtual uint8_t readB(EmuTime time) {
+		return peekB(time);
+	}
+
+	/** Returns the same value as readA, but without side effects. */
+	[[nodiscard]] virtual uint8_t peekA(EmuTime /*time*/) const {
+		return 0xff;
+	}
+
+	/** Similar to peekA, but peeks port B. */
+	[[nodiscard]] virtual uint8_t peekB(EmuTime /*time*/) const {
 		return 0xff;
 	}
 

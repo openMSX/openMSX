@@ -49,6 +49,31 @@ template <std::floating_point T>
 	return x;                              // code.
 }
 
+/** Is there an x in the range [first, last] with (x & mask) == value?
+  * So with the bits of 'mask' equal to those of 'value', the other bits free.
+  */
+[[nodiscard]] constexpr bool rangeContainsMatch(uint32_t first, uint32_t last, uint32_t mask, uint32_t value)
+{
+	assert(first <= last);
+	if (value & ~mask) return false;
+
+	// Find the smallest x >= first that matches.
+	uint32_t diff = (first ^ value) & mask;
+	if (diff == 0) return true;
+	uint32_t top = std::bit_floor(diff); // the highest masked bit where 'first' differs
+	uint32_t low = floodRight(top);
+	if (value & top) {
+		// 'first' has a 0 there: set it, the lower bits as small as possible
+		return ((first & ~low) | (value & low)) <= last;
+	}
+	// 'first' has a 1 there: carry into the lowest free 0-bit above it
+	uint32_t carries = ~mask & ~first & ~low;
+	if (carries == 0) return false;
+	uint32_t carry = uint32_t(1) << std::countr_zero(carries);
+	uint32_t lowCarry = floodRight(carry);
+	return ((first & ~lowCarry) | carry | (value & lowCarry)) <= last;
+}
+
 /** Clip x to range [-32768,32767].
   * Optimized for the case when no clipping is needed.
   */

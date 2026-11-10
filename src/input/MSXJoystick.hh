@@ -5,10 +5,12 @@
 
 #include "BooleanInput.hh"
 #include "MSXEventListener.hh"
+#include "Observer.hh"
 #include "StateChangeListener.hh"
 #include "StringSetting.hh"
 
 #include <array>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -20,6 +22,7 @@ class StateChangeDistributor;
 
 class MSXJoystick final : public JoystickDevice, private MSXEventListener
                         , private StateChangeListener
+                        , private Observer<JoystickManager>
 {
 public:
 	MSXJoystick(CommandController& commandController,
@@ -30,6 +33,11 @@ public:
 	~MSXJoystick() override;
 
 	[[nodiscard]] static TclObject getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager);
+
+	// keys in the Tcl config dict, in the order of the 'status' bits
+	static constexpr std::array<std::string_view, 6> keyNames = {
+		"UP", "DOWN", "LEFT", "RIGHT", "A", "B",
+	};
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -44,7 +52,7 @@ private:
 	void unplugHelper(EmuTime time) override;
 
 	// MSXJoystickDevice
-	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 
 	// MSXEventListener
@@ -53,6 +61,8 @@ private:
 	// StateChangeListener
 	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime time) noexcept override;
+	// Observer<JoystickManager>
+	void update(const JoystickManager& manager) noexcept override;
 
 private:
 	CommandController& commandController;

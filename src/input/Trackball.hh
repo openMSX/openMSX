@@ -28,7 +28,12 @@ private:
 	void createTrackballStateChange(EmuTime time,
 		int deltaX, int deltaY, uint8_t press, uint8_t release);
 
+	struct CurrentDelta {
+		int8_t x, y;
+		EmuTime lastSync;
+	};
 	void syncCurrentWithTarget(EmuTime time);
+	[[nodiscard]] CurrentDelta calcCurrentDelta(EmuTime time) const;
 
 	// Pluggable
 	[[nodiscard]] zstring_view getName() const override;
@@ -38,6 +43,7 @@ private:
 
 	// JoystickDevice
 	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 
 	// MSXEventListener

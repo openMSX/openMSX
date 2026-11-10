@@ -1,5 +1,6 @@
 #include "ColecoJoystickIO.hh"
 
+#include "ColecoJoystick.hh"
 #include "JoystickPort.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -39,19 +40,40 @@ void ColecoJoystickIO::reset(EmuTime /*time*/)
 	joyMode = 0;
 }
 
+const ColecoJoystick* ColecoJoystickIO::getColecoJoystick(int joyPort) const
+{
+	const auto* port = dynamic_cast<const JoystickPort*>(ports[joyPort]);
+	if (!port) return nullptr;
+	return dynamic_cast<const ColecoJoystick*>(&port->getPlugged());
+}
+
+byte ColecoJoystickIO::readIO(uint16_t port, EmuTime time)
+{
+	const int joyPort = (port >> 1) & 1;
+	return portValue(joyPort, ports[joyPort]->read(time));
+}
+
 byte ColecoJoystickIO::peekIO(uint16_t port, EmuTime time) const
 {
 	const int joyPort = (port >> 1) & 1;
-	const byte joyStatus = ports[joyPort]->read(time);
+	return portValue(joyPort, ports[joyPort]->peek(time));
+}
+
+byte ColecoJoystickIO::portValue(int joyPort, byte joyStatus) const
+{
 	auto keys = keyboard.getKeys();
 
 	if (joyMode == 0) {
-		// Combine keypad rows, convert to high-active and drop unused bits.
+		// Combine keypad rows of the key matrix and the keypad of a
+		// plugged-in ColecoVision controller, convert to high-active and
+		// drop unused bits.
 		// Note: The keypad can only return one button press, but I don't know
 		//       what happens if you press two buttons at once.
-		unsigned keypadStatus = ~(
-			keys[joyPort * 2 + 2] | (keys[joyPort * 2 + 3] << 8)
-			) & 0xFFF;
+		unsigned keypad = keys[joyPort * 2 + 2] | (keys[joyPort * 2 + 3] << 8);
+		if (const auto* cj = getColecoJoystick(joyPort)) {
+			keypad &= cj->getKeypad();
+		}
+		unsigned keypadStatus = ~keypad & 0xFFF;
 		static constexpr std::array<byte, 13> keyEnc = {
 			0xF, 0xA, 0xD, 0x7, 0xC, 0x2, 0x3, 0xE, 0x5, 0x1, 0xB, 0x9, 0x6
 		};
@@ -73,11 +95,6 @@ byte ColecoJoystickIO::peekIO(uint16_t port, EmuTime time) const
 		// Combine with row 0/1 of keyboard matrix.
 		return value & (keys[joyPort] | ~0x4F);
 	}
-}
-
-byte ColecoJoystickIO::readIO(uint16_t port, EmuTime time)
-{
-	return peekIO(port, time);
 }
 
 void ColecoJoystickIO::writeIO(uint16_t port, byte /*value*/, EmuTime /*time*/)

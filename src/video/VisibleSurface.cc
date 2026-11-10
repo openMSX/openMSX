@@ -6,7 +6,9 @@
 #include "GLSnow.hh"
 #include "GLUtil.hh"
 #include "OffScreenSurface.hh"
+#include "PixelOperations.hh"
 #include "RenderSettings.hh"
+#include "SDLProperties.hh"
 #include "VideoSystem.hh"
 
 #include "BooleanSetting.hh"
@@ -31,7 +33,7 @@
 
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdl3.h>
 
 #include <bit>
 #include <cassert>
@@ -82,7 +84,7 @@ VisibleSurface::VisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #endif
 
-	int flags = SDL_WINDOW_OPENGL;
+	SDL_WindowFlags flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	auto size = display.getWindowSize();
 	createSurface(size, flags);
@@ -95,7 +97,7 @@ VisibleSurface::VisibleSurface(
 	}
 
 	// Setup ImGui Platform/Renderer backends
-	ImGui_ImplSDL2_InitForOpenGL(window.get(), glContext);
+	ImGui_ImplSDL3_InitForOpenGL(window.get(), glContext);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
 	// From the glew documentation:
@@ -155,7 +157,8 @@ VisibleSurface::VisibleSurface(
 	for (auto type : {EventType::MOUSE_MOTION,
 	                  EventType::MOUSE_BUTTON_DOWN,
 	                  EventType::MOUSE_BUTTON_UP,
-	                  EventType::IMGUI_ACTIVE}) {
+	                  EventType::IMGUI_ACTIVE,
+	                  EventType::WINDOW}) {
 		eventDistributor.registerEventListener(type, *this);
 	}
 }
@@ -167,10 +170,10 @@ VisibleSurface::~VisibleSurface()
 	renderSettings.getVSyncSetting().detach(vSyncObserver);
 
 	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplSDL2_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
 
 	gl::context.reset();
-	SDL_GL_DeleteContext(glContext);
+	SDL_GL_DestroyContext(glContext);
 
 	// store last known position for when we recreate it
 	// the window gets recreated when changing renderers, for instance.
@@ -179,7 +182,8 @@ VisibleSurface::~VisibleSurface()
 		display.storeWindowPosition(*pos);
 	}
 
-	for (auto type : {EventType::IMGUI_ACTIVE,
+	for (auto type : {EventType::WINDOW,
+	                  EventType::IMGUI_ACTIVE,
 	                  EventType::MOUSE_BUTTON_UP,
 	                  EventType::MOUSE_BUTTON_DOWN,
 	                  EventType::MOUSE_MOTION}) {
@@ -210,32 +214,35 @@ void VisibleSurface::setWindowPosition(gl::ivec2 pos)
 // TODO: The video subsystem is not de-initialized on errors.
 //       While it would be consistent to do so, doing it in this class is
 //       not ideal since the init doesn't happen here.
-void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
+void VisibleSurface::createSurface(gl::ivec2 size, SDL_WindowFlags flags)
 {
 	if (getDisplay().getRenderSettings().getFullScreen()) {
-		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 #ifdef __APPLE__
 	// See VisibleSurface::setViewPort() for why only macos (for now).
-	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
 	assert(!window);
 	auto pos = display.retrieveWindowPosition();
-	window.reset(SDL_CreateWindow(
-			getDisplay().getWindowTitle().c_str(),
-			pos.x, pos.y,
-			size.x, size.y,
-			flags));
+	SDLProperties props;
+	SDL_SetStringProperty(props.get(), SDL_PROP_WINDOW_CREATE_TITLE_STRING, getDisplay().getWindowTitle().c_str());
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_X_NUMBER, pos.x);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_Y_NUMBER, pos.y);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, size.x);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, size.y);
+	SDL_SetNumberProperty(props.get(), SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
+	window.reset(SDL_CreateWindowWithProperties(props.get()));
 	if (!window) {
 		std::string err = SDL_GetError();
 		throw InitException("Could not create window: ", err);
 	}
+	// SDL3 may apply the window state (e.g. fullscreen) asynchronously,
+	// but we need the final size right away (see setViewPort()).
+	SDL_SyncWindow(window.get());
 
 	updateWindowTitle();
-
-	// prefer linear filtering (instead of nearest neighbour)
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	// set icon
 	if constexpr (OPENMSX_SET_WINDOW_ICON) {
@@ -250,20 +257,21 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 				e.getMessage());
 #endif
 			PixelOperations pixelOps;
-			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
-				const_cast<char*>(openMSX_icon.pixel_data),
+			iconSurf.reset(SDL_CreateSurfaceFrom(
 				narrow<int>(openMSX_icon.width),
 				narrow<int>(openMSX_icon.height),
-				narrow<int>(openMSX_icon.bytes_per_pixel * 8),
-				narrow<int>(openMSX_icon.bytes_per_pixel * openMSX_icon.width),
-				pixelOps.getRmask(),
-				pixelOps.getGmask(),
-				pixelOps.getBmask(),
-				pixelOps.getAmask()));
+				SDL_GetPixelFormatForMasks(
+					narrow<int>(openMSX_icon.bytes_per_pixel * 8),
+					pixelOps.getRmask(),
+					pixelOps.getGmask(),
+					pixelOps.getBmask(),
+					pixelOps.getAmask()),
+				const_cast<char*>(openMSX_icon.pixel_data),
+				narrow<int>(openMSX_icon.bytes_per_pixel * openMSX_icon.width)));
 #ifndef _WIN32
 		}
 #endif
-		SDL_SetColorKey(iconSurf.get(), SDL_TRUE, 0);
+		SDL_SetSurfaceColorKey(iconSurf.get(), true, 0);
 		SDL_SetWindowIcon(window.get(), iconSurf.get());
 	}
 }
@@ -276,12 +284,24 @@ void VisibleSurface::update(const Setting& /*setting*/) noexcept
 void VisibleSurface::executeRT()
 {
 	// timer expired, hide cursor
-	videoSystem.showCursor(false);
+	videoSystem.showCursor(VideoSystem::Cursor::HIDDEN);
 	inputEventGenerator.updateGrab(grab);
 }
 
 bool VisibleSurface::signalEvent(const Event& event)
 {
+	if (getType(event) == EventType::WINDOW) {
+		// SDL3 may report the final size of the window only later, even
+		// after SDL_SyncWindow() (e.g. when switching to fullscreen on
+		// GNOME it first reports the size without the top bar), so
+		// update the viewport when it changes.
+		const auto& e = get_event<WindowEvent>(event);
+		if (e.isMainWindow() &&
+		    e.getSdlWindowEvent().type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+			fullScreenUpdated((SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) != 0);
+		}
+		return false;
+	}
 	if (getType(event) == EventType::IMGUI_ACTIVE) {
 		guiActive = get_event<ImGuiActiveEvent>(event).getActive();
 	}
@@ -302,6 +322,14 @@ void VisibleSurface::updateCursor()
 	grab = !guiActive && !pauseSetting.getBoolean() &&
 	       (renderSettings.getFullScreen() ||
 	        inputEventGenerator.getGrabInput().getBoolean());
+	if (display.isCrosshairCursorRequested() && !guiActive && window) {
+		// The host cursor is the aim point (e.g. of a light gun), so
+		// keep it visible, also in fullscreen and grab-input mode. (No
+		// crosshair before the window exists: its size depends on it.)
+		inputEventGenerator.updateGrab(grab);
+		videoSystem.showCursor(VideoSystem::Cursor::CROSSHAIR);
+		return;
+	}
 	if (grab) {
 		// always hide cursor in fullscreen or grab-input mode, but do it
 		// after the derived class is constructed to avoid an SDL bug.
@@ -316,9 +344,9 @@ void VisibleSurface::updateCursor()
 	}
 	float delay = renderSettings.getPointerHideDelay();
 	if (delay == 0.0f) {
-		videoSystem.showCursor(false);
+		videoSystem.showCursor(VideoSystem::Cursor::HIDDEN);
 	} else {
-		videoSystem.showCursor(true);
+		videoSystem.showCursor(VideoSystem::Cursor::NORMAL);
 		if (delay > 0.0f) {
 			scheduleRT(int(delay * 1e6f)); // delay in s, schedule in us
 		}
@@ -328,17 +356,27 @@ void VisibleSurface::updateCursor()
 bool VisibleSurface::setFullScreen(bool fullscreen)
 {
 	auto flags = SDL_GetWindowFlags(window.get());
-	// Note: SDL_WINDOW_FULLSCREEN_DESKTOP also has the SDL_WINDOW_FULLSCREEN
-	//       bit set.
 	if (bool currentState = (flags & SDL_WINDOW_FULLSCREEN) != 0;
 	    currentState == fullscreen) {
 		// already wanted stated
 		return true;
 	}
 
-	if (SDL_SetWindowFullscreen(window.get(),
-			fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0) {
+	// Note: without a fullscreen display mode (SDL_SetWindowFullscreenMode())
+	//       this is a borderless window covering the desktop, like SDL2's
+	//       SDL_WINDOW_FULLSCREEN_DESKTOP.
+	if (!SDL_SetWindowFullscreen(window.get(), fullscreen)) {
 		return false; // error, try re-creating the window
+	}
+	// SDL3 may apply this asynchronously, wait for it (see setViewPort()).
+	SDL_SyncWindow(window.get());
+	if (!fullscreen) {
+		// While fullscreen, SDL3 ignores size changes (e.g. from
+		// resize()). SDL2 applied them when leaving fullscreen, so set
+		// the size again.
+		auto size = display.getWindowSize();
+		SDL_SetWindowSize(window.get(), size.x, size.y);
+		SDL_SyncWindow(window.get());
 	}
 	fullScreenUpdated(fullscreen);
 	return true; // success
@@ -348,6 +386,7 @@ void VisibleSurface::resize()
 {
 	auto size = display.getWindowSize();
 	SDL_SetWindowSize(window.get(), size.x, size.y);
+	SDL_SyncWindow(window.get()); // see setFullScreen()
 
 	bool fullScreen = display.getRenderSettings().getFullScreen();
 	setViewPort(size, fullScreen);
@@ -363,9 +402,11 @@ std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
 {
 	if (SDL_GetMouseFocus() != window.get()) return {};
 
-	int mouseX, mouseY;
+	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
-	return gl::ivec2{mouseX, mouseY};
+	// KEEP-SDL2: SDL3 uses float coordinates, SDL2 used whole window
+	// coordinates
+	return gl::ivec2{int(mouseX), int(mouseY)};
 }
 
 gl::vec2 VisibleSurface::getMsxPixelSize() const
@@ -446,7 +487,7 @@ void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 	// vsync is enabled, we attempt adaptive vsync.
 	int interval = syncSetting.getBoolean() ? -1 : 0;
 
-	if ((SDL_GL_SetSwapInterval(interval) < 0) && (interval == -1)) {
+	if (!SDL_GL_SetSwapInterval(interval) && (interval == -1)) {
 		// "Adaptive vsync" is not supported by all drivers. SDL
 		// documentation suggests to fallback to "regular vsync" in
 		// that case.
@@ -458,12 +499,12 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 {
 	gl::ivec2 physicalSize = [&] {
 #ifndef __APPLE__
-		// On macos we set 'SDL_WINDOW_ALLOW_HIGHDPI', and in that case
-		// it's required to use SDL_GL_GetDrawableSize(), but then this
+		// On macos we set 'SDL_WINDOW_HIGH_PIXEL_DENSITY', and in that case
+		// it's required to use SDL_GetWindowSizeInPixels(), but then this
 		// 'full screen'-workaround/hack is counter-productive.
 		if (!fullScreen) {
 			// ??? When switching  back from full screen to windowed mode,
-			// SDL_GL_GetDrawableSize() still returns the dimensions of the
+			// SDL_GetWindowSizeInPixels() still returns the dimensions of the
 			// full screen window ??? Is this a bug ???
 			// But we know that in windowed mode, physical and logical size
 			// must be the same, so enforce that.
@@ -472,7 +513,7 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 #endif
 		(void)fullScreen;
 		int w, h;
-		SDL_GL_GetDrawableSize(window.get(), &w, &h);
+		SDL_GetWindowSizeInPixels(window.get(), &w, &h);
 		return gl::ivec2(w, h);
 	}();
 

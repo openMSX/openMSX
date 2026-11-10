@@ -59,6 +59,15 @@ uint8_t JoyTap::read(EmuTime time)
 	return value;
 }
 
+uint8_t JoyTap::peek(EmuTime time) const
+{
+	uint8_t value = 255;
+	for (const auto& s : slaves) {
+		value &= s->peek(time);
+	}
+	return value;
+}
+
 void JoyTap::write(uint8_t value, EmuTime time)
 {
 	for (auto& s : slaves) {

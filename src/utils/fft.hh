@@ -1,0 +1,819 @@
+#ifndef FFT_HH
+#define FFT_HH
+
+// Power-of-two FFT for real or complex input (float).
+//
+// Overview
+// --------
+// The computational core is always a complex M-point FFT (Stockham auto-sort,
+// decimation-in-frequency, forward transform with the e^{-2πi} convention).
+// Real-valued input modes pack N = 2M real samples into those M complex
+// values, run the same core, then unpack to a real-FFT spectrum. Complex
+// input mode is that core directly: M = N = FFT_LEN complex samples.
+//
+// Real input (Full / HalfZeroPadded / Symmetric)
+// ---------------------------------------------
+//   z[n] = x[2n] + i·x[2n+1],  n = 0 .. M-1.
+//   After the complex FFT of z, unpack recovers X from the pair Z[k], Z[M-k]
+//   (the usual real-FFT post-process; equivalent to the classic even/odd form
+//   X[k] = E[k] + W^k O[k] with W = e^{-2πi/N}). Packed layout (OUT_MODE =
+//   Complex):
+//     out[0 .. M]     = Re X[0 .. M]     (DC .. Nyquist)
+//     out[M+1 .. N-1] = Im X[1 .. M-1]
+//   Symmetric input yields a purely real spectrum; only out[0 .. M] is returned.
+//
+// Complex input (InputMode::Complex / SplitComplex)
+// -------------------------------------------------
+//   FFT_LEN complex samples, interleaved as re0,im0,re1,im1,... (Complex) or
+//   as two separate arrays re[0 .. N), im[0 .. N) (SplitComplex, the layout
+//   that OUT_MODE = Complex produces, so one FFT can feed the next).
+//   SplitComplexHalf is SplitComplex with x[N/2 .. N) zero (not read).
+//   Work buffers hold 2·FFT_LEN floats. With OUT_MODE = Complex the result is
+//   split: out[0 .. N) = Re X[k], out[N .. 2N) = Im X[k] (e^{-2πi} forward FFT).
+//
+// Output modes
+// ------------
+//   Complex — spectrum as above (packed real-FFT layout, or split complex).
+//   Power   — |X[k]|^2. For real input: k = 0 .. N/2 (N/2+1 values).
+//             For complex input: k = 0 .. N-1 (N values). Fused into unpack
+//             (real input) or the last FFT pass (complex input).
+//   InterleavedFirstHalf — complex input only: X[0 .. N/2) interleaved as
+//             re0,im0,re1,im1,... (N floats). The last pass skips the upper
+//             half of each butterfly, so this is cheaper than a full pass.
+//
+// Auto-vectorization
+// ------------------
+// Written as portable C++ so GCC/Clang can emit SIMD without intrinsics
+// (with one exception, see "AVX2" below):
+//   * Split real/imag arrays (not arrays of structs) so loads/stores are
+//     contiguous floats and map to vector loads.
+//   * Stockham (out-of-place) passes: the inner loop runs over a contiguous
+//     stride of length >= 8. Twiddles are broadcast; no in-register shuffles
+//     in those passes. Indices are signed int so the compiler can prove
+//     non-wrapping address arithmetic.
+//   * Blocked intermediate layout: each cache line holds 8 reals then 8 imags
+//     of the same 8 complex indices. That avoids L1 set conflicts when several
+//     streams are spaced by a large power of two. The last pass writes split
+//     Re/Im halves for unpack.
+//   * First pass (radix-8): vectorizes over the butterfly index p. It must
+//     deinterleave the interleaved input and transpose an 8×8 block into the
+//     blocked layout — that pass is shuffle-bound; later passes are not.
+//   * Small radix loops (load / twiddle / store) are force-unrolled via
+//     fft::unroll<N> so the compiler sees straight-line code and constant
+//     indices (usable in if constexpr).
+//   * Twiddle tables are constexpr and laid out so the hot loops read
+//     sequential (or broadcast) floats.
+//   * Unpack writes several streams into one buffer; those streams are passed
+//     as distinct __restrict pointers (and the loop is not inlined) so the
+//     compiler can vectorize without a run-time alias check.
+//
+// AVX2
+// ----
+// When compiled with AVX2 (__AVX2__), the first pass uses intrinsics: the
+// auto-vectorized 8×8 transpose needs more than twice the shuffles of the
+// hand-written one, and that pass is shuffle-bound. The butterflies and
+// twiddles are the same code as the portable path (dft8<> is a template over
+// the element type, instantiated with an 8-float vector type V8). Only the
+// loads, the transpose/store and the complex multiply are intrinsics. FMA is
+// used when available (__FMA__), it makes little difference.
+// The stride passes also have a V8 version of their inner loop. GCC's
+// auto-vectorized code for them is just as fast; clang's is ~1.5x slower, so
+// this is a workaround for clang and could be dropped if that improves.
+//
+// Size: FFT_LEN_L2 in 4 .. 16 → 16 .. 65536 real points, or 4 .. 15 →
+// 16 .. 32768 complex points. The complex length M must be at least 8 (leading
+// radix-8), and at least 16 for complex input. The first pass vectorizes 8
+// butterflies at a time, so M < 64 runs it as a single partial (scalar) block.
+
+#include "cstd.hh"
+#include "inline.hh"
+#include "stl.hh"
+
+#include <algorithm>
+#include <array>
+#include <numbers>
+#include <span>
+#include <type_traits>
+#include <utility>
+
+#ifdef __AVX2__
+#include <immintrin.h>
+#endif
+
+namespace fft {
+
+// Input shape / specialization.
+enum class InputMode {
+	Full,           // All FFT_LEN real samples
+	HalfZeroPadded, // First FFT_LEN/2 samples; second half is zero
+	Symmetric,      // First FFT_LEN/2+1 samples; even extension x[N-k]=x[k]
+	                // (e.g. N=8: [a,b,c,d,e] → [a,b,c,d,e,d,c,b])
+	Complex,        // FFT_LEN complex samples, interleaved re0,im0,re1,im1,...
+	SplitComplex,   // FFT_LEN complex samples, split: re[0..N), then im[0..N)
+	                // starting at offset N + SPLIT_PAD
+	SplitComplexHalf, // SplitComplex layout, but only the first FFT_LEN/2
+	                  // samples (of re and of im) are read; the rest is zero
+};
+// Input modes with the re/im halves in separate arrays.
+constexpr bool isSplit(InputMode m)
+{
+	return m == InputMode::SplitComplex || m == InputMode::SplitComplexHalf;
+}
+// Input modes whose second half is zero: the first pass skips those inputs.
+constexpr bool isHalfZero(InputMode m)
+{
+	return m == InputMode::HalfZeroPadded || m == InputMode::SplitComplexHalf;
+}
+// Gap (in floats) between the re and im halves of a SplitComplex input. One
+// cache line: without it both halves are a large power of two apart and the
+// two streams (and the re/im streams of a following pass) compete for the
+// same L1 sets.
+inline constexpr unsigned SPLIT_PAD = 16;
+
+// What execute() writes into the output buffer.
+enum class OutputMode {
+	Complex, // Full spectrum (packed real-FFT layout, or split Re/Im for
+	         // Complex input). Symmetric real input: only the real parts.
+	Power,   // |X[k]|^2 (see file comment for the k-range).
+	InterleavedFirstHalf, // Complex input only: X[0 .. N/2), interleaved re,im.
+};
+
+template<typename F, int... Is>
+ALWAYS_INLINE void unrollImpl(F& f, std::integer_sequence<int, Is...>)
+{
+	(f(std::integral_constant<int, Is>{}), ...);
+}
+
+// Calls f(std::integral_constant<int, I>{}) for I = 0 .. N-1, in order.
+// The calls are expanded at compile time, so 'I' can be used in constant
+// expressions (e.g. 'if constexpr') and the loop is always unrolled.
+template<int N, typename F>
+ALWAYS_INLINE void unroll(F&& f)
+{
+	unrollImpl(f, std::make_integer_sequence<int, N>{});
+}
+
+#ifdef __AVX2__
+// Vector of 8 floats, with just enough operations for dft<R, V8>() and the
+// FFT passes.
+struct V8 {
+	__m256 v;
+	V8() = default;
+	V8(__m256 v_) : v(v_) {}
+	explicit V8(float f) : v(_mm256_set1_ps(f)) {}
+	friend V8 operator+(V8 a, V8 b) { return _mm256_add_ps(a.v, b.v); }
+	friend V8 operator-(V8 a, V8 b) { return _mm256_sub_ps(a.v, b.v); }
+	friend V8 operator*(V8 a, V8 b) { return _mm256_mul_ps(a.v, b.v); }
+	friend V8 operator*(V8 a, float b) { return a * V8(b); }
+	friend V8 operator-(V8 a) { return _mm256_xor_ps(a.v, _mm256_set1_ps(-0.0f)); }
+	[[nodiscard]] static V8 load(const float* p) { return _mm256_loadu_ps(p); }
+	void store(float* p) const { _mm256_storeu_ps(p, v); }
+};
+// a * b - c,  a * b + c
+ALWAYS_INLINE V8 fmsub(V8 a, V8 b, V8 c)
+{
+#ifdef __FMA__
+	return _mm256_fmsub_ps(a.v, b.v, c.v);
+#else
+	return a * b - c;
+#endif
+}
+ALWAYS_INLINE V8 fmadd(V8 a, V8 b, V8 c)
+{
+#ifdef __FMA__
+	return _mm256_fmadd_ps(a.v, b.v, c.v);
+#else
+	return a * b + c;
+#endif
+}
+// (r + i·i) *= (wr + i·wi)
+ALWAYS_INLINE void cmul(V8& r, V8& i, V8 wr, V8 wi)
+{
+	const V8 r2 = fmsub(r, wr, i * wi);
+	const V8 i2 = fmadd(r, wi, i * wr);
+	r = r2;
+	i = i2;
+}
+// p[0..15] = re0 im0 re1 im1 ...
+ALWAYS_INLINE void storeInterleaved(V8 re, V8 im, float* p)
+{
+	const __m256 lo = _mm256_unpacklo_ps(re.v, im.v); // r0 i0 r1 i1 | r4 i4 r5 i5
+	const __m256 hi = _mm256_unpackhi_ps(re.v, im.v); // r2 i2 r3 i3 | r6 i6 r7 i7
+	_mm256_storeu_ps(p,     _mm256_permute2f128_ps(lo, hi, 0x20));
+	_mm256_storeu_ps(p + 8, _mm256_permute2f128_ps(lo, hi, 0x31));
+}
+#endif
+
+// Forward (e^-2πi) DFTs on split arrays, in place, natural order.
+// T is float, or V8 to do 8 independent DFTs at once.
+template<typename T>
+ALWAYS_INLINE void dft2(std::span<T, 2> r, std::span<T, 2> i)
+{
+	T r0 = r[0], i0 = i[0];
+	r[0] = r0 + r[1]; i[0] = i0 + i[1];
+	r[1] = r0 - r[1]; i[1] = i0 - i[1];
+}
+
+template<typename T>
+ALWAYS_INLINE void dft4(std::span<T, 4> r, std::span<T, 4> i)
+{
+	T t0r = r[0] + r[2], t0i = i[0] + i[2];
+	T t1r = r[0] - r[2], t1i = i[0] - i[2];
+	T t2r = r[1] + r[3], t2i = i[1] + i[3];
+	T t3r = r[1] - r[3], t3i = i[1] - i[3];
+	r[0] = t0r + t2r; i[0] = t0i + t2i;
+	r[2] = t0r - t2r; i[2] = t0i - t2i;
+	r[1] = t1r + t3i; i[1] = t1i - t3r;
+	r[3] = t1r - t3i; i[3] = t1i + t3r;
+}
+
+// HALF: inputs 4..7 are zero.
+template<bool HALF = false, typename T = float>
+ALWAYS_INLINE void dft8(std::span<T, 8> r, std::span<T, 8> i)
+{
+	constexpr float h = std::numbers::sqrt2_v<float> * 0.5f;
+	std::array<T, 4> ur, ui, vr, vi;
+	unroll<4>([&](auto k) {
+		if constexpr (HALF) {
+			ur[k] = r[k]; ui[k] = i[k];
+			vr[k] = r[k]; vi[k] = i[k];
+		} else {
+			ur[k] = r[k] + r[k + 4]; ui[k] = i[k] + i[k + 4];
+			vr[k] = r[k] - r[k + 4]; vi[k] = i[k] - i[k + 4];
+		}
+	});
+	// v[k] *= e^(-iπk/4)
+	T v1r = (vr[1] + vi[1]) * h, v1i = (vi[1] - vr[1]) * h;
+	T v2r = vi[2],               v2i = -vr[2];
+	T v3r = (vi[3] - vr[3]) * h, v3i = (vr[3] + vi[3]) * -h;
+	vr[1] = v1r; vi[1] = v1i; vr[2] = v2r; vi[2] = v2i; vr[3] = v3r; vi[3] = v3i;
+	dft4<T>(ur, ui);
+	dft4<T>(vr, vi);
+	unroll<4>([&](auto j) {
+		r[2 * j + 0] = ur[j]; i[2 * j + 0] = ui[j];
+		r[2 * j + 1] = vr[j]; i[2 * j + 1] = vi[j];
+	});
+}
+
+template<unsigned R, typename T = float>
+ALWAYS_INLINE void dft(std::span<T, R> r, std::span<T, R> i)
+{
+	if constexpr (R == 2) dft2<T>(r, i);
+	else if constexpr (R == 4) dft4<T>(r, i);
+	else if constexpr (R == 8) dft8<false, T>(r, i);
+	else static_assert(false, "unsupported radix");
+}
+
+struct CosSin { float c, s; };
+
+// cos and sin of 2πk/N for the first octant, k = 0 .. N/8, computed in double
+// at compile time. For angles <= π/4, 3 iterations already give correctly
+// rounded floats.
+constexpr double twoPi = 2.0 * std::numbers::pi;
+template<unsigned N>
+inline constexpr auto octant = []{
+	std::array<CosSin, N / 8 + 1> t = {};
+	for (unsigned k = 0; k <= N / 8; ++k) {
+		t[k] = {float(cstd::cos<3>(twoPi * k / N)),
+		        float(cstd::sin<3>(twoPi * k / N))};
+	}
+	return t;
+}();
+
+// cos and sin of 2πk/N. Every angle maps onto the first octant by an exact
+// (integer) symmetry, so only N/8 + 1 angles are evaluated per N. That is
+// cheaper and more accurate than reducing the angle in floating point.
+template<unsigned N>
+constexpr CosSin unitRoot(unsigned k)
+{
+	if constexpr (N < 8) {
+		return unitRoot<8>(k * (8 / N));
+	} else {
+		k %= N;
+		if (k > N / 2) { auto [c, s] = unitRoot<N>(N - k);     return {c, -s}; }
+		if (k > N / 4) { auto [c, s] = unitRoot<N>(N / 2 - k); return {-c, s}; }
+		if (k > N / 8) { auto [c, s] = unitRoot<N>(N / 4 - k); return {s, c}; }
+		return octant<N>[k];
+	}
+}
+
+// Twiddle tables. They depend only on the transform sizes (not on the input
+// or output mode), so they live at namespace scope and are shared by all
+// FFT<> instantiations that need them.
+
+// First pass of an M-point complex FFT (radix 8, M/8 butterflies p):
+// w_M^(p*j) for j = 1..7. The pass is vectorized over p, so the twiddles are
+// grouped per block of 8 consecutive p's: t[p / 8][j - 1].re/im[p % 8].
+struct TwBlock { std::array<float, 8> re, im; };
+template<unsigned M>
+alignas(64) inline constexpr auto twFirst = []{
+	constexpr unsigned P0 = M / 8;
+	std::array<std::array<TwBlock, 7>, (P0 + 7) / 8> t = {};
+	for (unsigned b = 0; b < t.size(); ++b) {
+		for (unsigned j = 1; j < 8; ++j) {
+			auto& [re, im] = t[b][j - 1];
+			for (unsigned l = 0; l < std::min(P0, 8u); ++l) {
+				const auto [c, s] = unitRoot<M>((8 * b + l) * j);
+				re[l] =  c;
+				im[l] = -s;
+			}
+		}
+	}
+	return t;
+}();
+
+// Later pass with radix R at current length LEN: w_LEN^(p*j), j = 1..R-1,
+// p-major (broadcast in the inner loop).
+template<unsigned R, unsigned LEN, bool IMAG>
+alignas(64) inline constexpr auto twStride = []{
+	std::array<float, (LEN / R) * (R - 1)> t = {};
+	for (unsigned p = 0; p < LEN / R; ++p) {
+		for (unsigned j = 1; j < R; ++j) {
+			const auto [c, s] = unitRoot<LEN>(p * j);
+			t[p * (R - 1) + j - 1] = IMAG ? -s : c;
+		}
+	}
+	return t;
+}();
+
+// Real-FFT unpack for N = 2M real points: cos, sin(2πk/N) / 2, k = 1 .. M/2.
+template<unsigned M, bool SIN>
+alignas(64) inline constexpr auto twUnpack = []{
+	std::array<float, M / 2> t = {};
+	for (unsigned k = 1; k <= M / 2; ++k) {
+		const auto [c, s] = unitRoot<2 * M>(k);
+		t[k - 1] = 0.5f * (SIN ? s : c);
+	}
+	return t;
+}();
+
+template<unsigned FFT_LEN_L2, InputMode MODE = InputMode::Full,
+         OutputMode OUT_MODE = OutputMode::Complex,
+         unsigned... RADICES_L2>
+class FFT
+{
+public:
+	static constexpr bool COMPLEX_IN = MODE == InputMode::Complex || isSplit(MODE);
+	static constexpr bool ILV_OUT = OUT_MODE == OutputMode::InterleavedFirstHalf;
+	static_assert(!ILV_OUT || COMPLEX_IN);
+	// Complex FFT length M: 8 (leading radix-8 pass) .. 32768. Complex input
+	// needs M >= 16, so that there is a stride pass to fuse Power output into.
+	static_assert(FFT_LEN_L2 >= 4);
+	static_assert((COMPLEX_IN ? FFT_LEN_L2 : FFT_LEN_L2 - 1) <= 15);
+	static constexpr unsigned FFT_LEN = 1 << FFT_LEN_L2;
+	// Complex arrays need 2 floats per sample; real-FFT modes reuse FFT_LEN.
+	static constexpr unsigned WORK_LEN = COMPLEX_IN ? (2 * FFT_LEN) : FFT_LEN;
+	static constexpr unsigned INPUT_LEN =
+		isSplit(MODE) ? (WORK_LEN + SPLIT_PAD) :
+		COMPLEX_IN ? WORK_LEN :
+		(MODE == InputMode::HalfZeroPadded) ? (FFT_LEN / 2) :
+		(MODE == InputMode::Symmetric) ? (FFT_LEN / 2 + 1) :
+		FFT_LEN;
+	static constexpr unsigned OUTPUT_LEN =
+		(OUT_MODE == OutputMode::Power) ? (COMPLEX_IN ? FFT_LEN : FFT_LEN / 2 + 1) :
+		ILV_OUT ? FFT_LEN :
+		COMPLEX_IN ? WORK_LEN :
+		(MODE == InputMode::Symmetric) ? (FFT_LEN / 2 + 1) :
+		FFT_LEN;
+
+	// 'output' and 'tmpBuf' must each hold WORK_LEN floats. The returned span
+	// aliases the first OUTPUT_LEN elements of 'output'. Prefer 64-byte
+	// aligned buffers (e.g. alignas(64) std::array) for SIMD loads.
+	// 'input' is only read by the first pass, which writes a single work
+	// buffer: 'input' may alias the other one (see inputMayAliasOutput()).
+	static std::span<float, OUTPUT_LEN> execute(std::span<const float, INPUT_LEN> input,
+	                                            std::span<float, WORK_LEN> output,
+	                                            std::span<float, WORK_LEN> tmpBuf)
+	{
+		// Ping-pong between the two buffers. For real input the last pass
+		// lands in tmpBuf, followed by an out-of-place unpack; for complex
+		// input it writes output directly.
+		const std::array<float*, 2> bufs = {output.data(), tmpBuf.data()};
+		float* first = bufs[bufIdx(0)];
+		if constexpr (MODE == InputMode::Symmetric) {
+			// Expand even symmetry into the other buffer, then run the Full
+			// first pass (contiguous loads vectorize; on-the-fly remap does not).
+			float* full = bufs[1 - bufIdx(0)];
+			mirror(input.data(), full);
+			firstPass<InputMode::Full>(full, first);
+		} else {
+			firstPass<MODE>(input.data(), first);
+		}
+		laterPasses<1, M / 8, 8>(bufs); // after the radix-8 first pass
+		if constexpr (!COMPLEX_IN) {
+			unpack(tmpBuf.data(), output.data());
+		}
+		return std::span<float, OUTPUT_LEN>(output.data(), OUTPUT_LEN);
+	}
+
+	// Which of the two buffers passed to execute() may alias the input:
+	// true = 'output', false = 'tmpBuf'. (The first pass writes the other.)
+	static constexpr bool inputMayAliasOutput() { return bufIdx(0) == 1; }
+
+private:
+	static constexpr unsigned N = FFT_LEN;
+	// Complex FFT length: N for Complex input, N/2 when packing a real FFT.
+	static constexpr unsigned M = COMPLEX_IN ? N : N / 2;
+	static constexpr unsigned M_L2 = COMPLEX_IN ? FFT_LEN_L2 : FFT_LEN_L2 - 1;
+
+	// Radix plan for the complex FFT: first pass is radix-8, the rest either
+	// given explicitly or radix-4 (plus a final radix-8 when that fits, or a
+	// trailing radix-2 when only one bit remains). Calls emit(log2(R)) for
+	// each pass, in order.
+	static constexpr auto planPasses = [](auto emit) {
+		emit(3);
+		if constexpr (sizeof...(RADICES_L2) > 0) {
+			(emit(RADICES_L2), ...);
+		} else {
+			constexpr unsigned left0 = M_L2 - 3;
+			// Prefer a trailing radix-8 when the remainder is odd and large
+			// enough; otherwise finish with radix-4s and at most one radix-2.
+			if constexpr ((left0 & 1) && left0 >= 3) {
+				for (unsigned i = 0; i < (left0 - 3) / 2; ++i) emit(2);
+				emit(3);
+			} else {
+				for (unsigned i = 0; i < left0 / 2; ++i) emit(2);
+				if constexpr (left0 & 1) emit(1);
+			}
+		}
+	};
+	static constexpr unsigned NUM_PASSES = []{
+		unsigned n = 0;
+		planPasses([&](unsigned) { ++n; });
+		return n;
+	}();
+	static constexpr auto radicesL2 = []{
+		std::array<unsigned, NUM_PASSES> r = {};
+		unsigned n = 0;
+		planPasses([&](unsigned l2) { r[n++] = l2; });
+		return r;
+	}();
+	static_assert(sum(radicesL2) == M_L2);
+
+	static constexpr bool POWER = OUT_MODE == OutputMode::Power;
+
+	// Pass t (0 = first pass) writes bufs[bufIdx(t)] (0 = output, 1 = tmpBuf).
+	static constexpr unsigned LAST_IDX = COMPLEX_IN ? 0 : 1;
+	static constexpr unsigned bufIdx(unsigned t) { return (LAST_IDX + NUM_PASSES - 1 - t) & 1; }
+
+	// Intermediate layout: blocks of 8 reals + 8 imags (cache line). Element
+	// e = 8*eb + l lives at re = A*eb + l, im = B + A*eb + l. The last stride
+	// pass writes split layout (B = M) for unpack or the complex output.
+	static constexpr int LA = 16, LB = 8;          // blocked
+	static constexpr int LA_SPLIT = 8, LB_SPLIT = int(M); // separate halves
+
+	static constexpr unsigned P0 = M / 8; // first-pass butterflies
+
+	// Even extension: [a,b,c,d,e] → [a,b,c,d,e,d,c,b]. The second half is the
+	// reverse of the interior (not of the whole first half).
+	static void mirror(const float* __restrict in, float* __restrict full)
+	{
+		std::copy_n(in, M + 1, full);
+		std::reverse_copy(in + 1, in + M, full + M + 1);
+	}
+
+	// Load the 8 inputs of first-pass butterfly p.
+	template<InputMode IN_MODE>
+	ALWAYS_INLINE static void loadFirst(const float* __restrict in, int p,
+	                                    std::span<float, 8> ar, std::span<float, 8> ai)
+	{
+		// Not Symmetric: that is expanded by mirror() and then loaded as Full.
+		static_assert(IN_MODE != InputMode::Symmetric);
+		// Full: pack pairs of reals as complex. Complex: interleaved input.
+		// SplitComplex(Half): separate re/im arrays (contiguous, no de-interleave).
+		// HalfZeroPadded, SplitComplexHalf: inputs 4..7 are zero; dft8<true>
+		// doesn't read them.
+		unroll<8>([&](auto k) {
+			if constexpr (!isHalfZero(IN_MODE) || k < 4) {
+				const int n = p + k * int(P0);
+				if constexpr (isSplit(IN_MODE)) {
+					ar[k] = in[n];
+					ai[k] = in[int(M) + int(SPLIT_PAD) + n];
+				} else {
+					ar[k] = in[2 * n + 0];
+					ai[k] = in[2 * n + 1];
+				}
+			}
+		});
+	}
+
+#ifdef __AVX2__
+	// 8×8 transpose of r[j] (lane l) and store: out[16 * l + j] = r[j][l].
+	// That is the blocked layout of one output block: row l is the 8 outputs
+	// of butterfly l (reals; the imaginary parts follow 8 floats later).
+	ALWAYS_INLINE static void transposeStore8x8(const std::array<V8, 8>& r, float* out)
+	{
+		// Standard 3-stage transpose: 32-bit unpack, 64-bit shuffle, 128-bit permute.
+		const __m256 t0 = _mm256_unpacklo_ps(r[0].v, r[1].v);
+		const __m256 t1 = _mm256_unpackhi_ps(r[0].v, r[1].v);
+		const __m256 t2 = _mm256_unpacklo_ps(r[2].v, r[3].v);
+		const __m256 t3 = _mm256_unpackhi_ps(r[2].v, r[3].v);
+		const __m256 t4 = _mm256_unpacklo_ps(r[4].v, r[5].v);
+		const __m256 t5 = _mm256_unpackhi_ps(r[4].v, r[5].v);
+		const __m256 t6 = _mm256_unpacklo_ps(r[6].v, r[7].v);
+		const __m256 t7 = _mm256_unpackhi_ps(r[6].v, r[7].v);
+		// u[l] (l < 4): low lane = column l of rows 0..3, high lane = column l+4
+		// u[l + 4]: the same for rows 4..7
+		const __m256 u0 = _mm256_shuffle_ps(t0, t2, 0x44);
+		const __m256 u1 = _mm256_shuffle_ps(t0, t2, 0xEE);
+		const __m256 u2 = _mm256_shuffle_ps(t1, t3, 0x44);
+		const __m256 u3 = _mm256_shuffle_ps(t1, t3, 0xEE);
+		const __m256 u4 = _mm256_shuffle_ps(t4, t6, 0x44);
+		const __m256 u5 = _mm256_shuffle_ps(t4, t6, 0xEE);
+		const __m256 u6 = _mm256_shuffle_ps(t5, t7, 0x44);
+		const __m256 u7 = _mm256_shuffle_ps(t5, t7, 0xEE);
+		_mm256_storeu_ps(out + 16 * 0, _mm256_permute2f128_ps(u0, u4, 0x20));
+		_mm256_storeu_ps(out + 16 * 1, _mm256_permute2f128_ps(u1, u5, 0x20));
+		_mm256_storeu_ps(out + 16 * 2, _mm256_permute2f128_ps(u2, u6, 0x20));
+		_mm256_storeu_ps(out + 16 * 3, _mm256_permute2f128_ps(u3, u7, 0x20));
+		_mm256_storeu_ps(out + 16 * 4, _mm256_permute2f128_ps(u0, u4, 0x31));
+		_mm256_storeu_ps(out + 16 * 5, _mm256_permute2f128_ps(u1, u5, 0x31));
+		_mm256_storeu_ps(out + 16 * 6, _mm256_permute2f128_ps(u2, u6, 0x31));
+		_mm256_storeu_ps(out + 16 * 7, _mm256_permute2f128_ps(u3, u7, 0x31));
+	}
+
+	// 8 interleaved re,im pairs at p -> re[0..7], im[0..7].
+	ALWAYS_INLINE static void loadInterleaved8(const float* p, V8& re, V8& im)
+	{
+		const __m256 lo = _mm256_loadu_ps(p);     // re0 im0 re1 im1 | re2 im2 re3 im3
+		const __m256 hi = _mm256_loadu_ps(p + 8); // re4 im4 re5 im5 | re6 im6 re7 im7
+		const __m256 r = _mm256_shuffle_ps(lo, hi, 0x88); // re0 re1 re4 re5 | re2 re3 re6 re7
+		const __m256 i = _mm256_shuffle_ps(lo, hi, 0xDD);
+		// swap the middle two 64-bit halves
+		re = _mm256_castpd_ps(_mm256_permute4x64_pd(_mm256_castps_pd(r), 0xD8));
+		im = _mm256_castpd_ps(_mm256_permute4x64_pd(_mm256_castps_pd(i), 0xD8));
+	}
+
+	// One block of 8 butterflies p = 8b .. 8b+7, as 8-wide vectors over p.
+	template<InputMode IN_MODE>
+	ALWAYS_INLINE static void firstPassBlock8(const float* __restrict in, int b, float* __restrict out)
+	{
+		constexpr bool HALF = isHalfZero(IN_MODE);
+		std::array<V8, 8> ar, ai;
+		unroll<8>([&](auto k) {
+			if constexpr (!HALF || k < 4) {
+				const int n0 = 8 * b + k * int(P0);
+				if constexpr (isSplit(IN_MODE)) {
+					ar[k] = V8::load(in + n0);
+					ai[k] = V8::load(in + int(M) + int(SPLIT_PAD) + n0);
+				} else {
+					loadInterleaved8(in + 2 * n0, ar[k], ai[k]);
+				}
+			}
+		});
+		dft8<HALF, V8>(ar, ai);
+		const auto& tw = twFirst<M>[b];
+		unroll<7>([&](auto j1) {
+			cmul(ar[j1 + 1], ai[j1 + 1], V8::load(tw[j1].re.data()), V8::load(tw[j1].im.data()));
+		});
+		transposeStore8x8(ar, out + LA * 8 * b);
+		transposeStore8x8(ai, out + LA * 8 * b + LB);
+	}
+#endif
+
+	// First pass: radix 8, stride 1, length M. Vectorized over the butterfly
+	// index p: the inner loop covers 8 consecutive p's (one twiddle block).
+	// M < 64 has a single, partial block.
+	template<InputMode IN_MODE>
+	static void firstPass(const float* __restrict in, float* __restrict out)
+	{
+		constexpr int NB = (int(P0) + 7) / 8;
+		constexpr int BL = std::min(int(P0), 8);
+#ifdef __AVX2__
+		if constexpr (BL == 8) {
+			for (int b = 0; b < NB; ++b) {
+				firstPassBlock8<IN_MODE>(in, b, out);
+			}
+			return;
+		}
+#endif
+		float* yr = out;
+		float* yi = out + LB;
+		const auto& tw = twFirst<M>;
+		constexpr bool HALF = isHalfZero(IN_MODE);
+		constexpr int A = LA;
+		for (int b = 0; b < NB; ++b) {
+			for (int l = 0; l < BL; ++l) {
+				const int p = 8 * b + l;
+				std::array<float, 8> ar, ai;
+				loadFirst<IN_MODE>(in, p, ar, ai);
+				dft8<HALF, float>(ar, ai);
+				yr[A * p] = ar[0];
+				yi[A * p] = ai[0];
+				unroll<7>([&](auto j1) {
+					constexpr int j = j1 + 1;
+					const float wr = tw[b][j1].re[l];
+					const float wi = tw[b][j1].im[l];
+					yr[A * p + j] = ar[j] * wr - ai[j] * wi;
+					yi[A * p + j] = ar[j] * wi + ai[j] * wr;
+				});
+			}
+		}
+	}
+
+	// Later passes: radix R, current length LEN, stride STRIDE (LEN * STRIDE == M).
+	// Source is always blocked; destination is blocked except on the LAST pass,
+	// which writes separate real/imag halves (or |Z|^2 for complex input with
+	// Power output, or the interleaved lower half for InterleavedFirstHalf).
+	template<unsigned R, unsigned LEN, unsigned STRIDE, bool LAST>
+	static void stridePass(const float* __restrict src, float* __restrict dst)
+	{
+		static_assert(LEN * STRIDE == M);
+		static_assert(STRIDE % 8 == 0);
+		constexpr int OA = LAST ? LA_SPLIT : LA;
+		constexpr int OB = LAST ? LB_SPLIT : LB;
+		[[maybe_unused]] constexpr bool OUT_POWER = LAST && COMPLEX_IN && POWER;
+		constexpr bool OUT_ILV = LAST && ILV_OUT;
+		const float* xr = src;
+		const float* xi = src + LB;
+		float* yr = dst;
+		float* yi = dst + OB;
+		const float* twr = twStride<R, LEN, false>.data();
+		const float* twi = twStride<R, LEN, true>.data();
+		constexpr int m = LEN / R;
+		constexpr int SB = STRIDE / 8; // stride in blocks of 8
+		constexpr int IA = LA;
+		for (int p = 0; p < m; ++p) {
+			std::array<float, R> wr, wi;
+			unroll<R - 1>([&](auto j1) {
+				wr[j1 + 1] = twr[p * (int(R) - 1) + j1];
+				wi[j1 + 1] = twi[p * (int(R) - 1) + j1];
+			});
+			for (int qb = 0; qb < SB; ++qb) {
+#ifdef __AVX2__
+				// The 8 lanes of a block as one vector. Same computation as
+				// the scalar loop below.
+				std::array<V8, R> ar, ai;
+				unroll<R>([&](auto k) {
+					const int e = IA * (qb + SB * (p + k * m));
+					ar[k] = V8::load(xr + e);
+					ai[k] = V8::load(xi + e);
+				});
+				dft<R, V8>(ar, ai);
+				unroll<R>([&](auto j) {
+					const int e = OA * (qb + SB * (int(R) * p + j));
+					if constexpr (OUT_ILV) {
+						static_assert(m == 1);
+						if constexpr (j < int(R) / 2) {
+							storeInterleaved(ar[j], ai[j], yr + 2 * e);
+						}
+					} else if constexpr (OUT_POWER) {
+						static_assert(m == 1);
+						fmadd(ar[j], ar[j], ai[j] * ai[j]).store(yr + e);
+					} else {
+						if constexpr (!(m == 1 || j == 0)) {
+							cmul(ar[j], ai[j], V8(wr[j]), V8(wi[j]));
+						}
+						ar[j].store(yr + e);
+						ai[j].store(yi + e);
+					}
+				});
+#else
+				for (int l = 0; l < 8; ++l) {
+					std::array<float, R> ar, ai;
+					unroll<R>([&](auto k) {
+						const int e = IA * (qb + SB * (p + k * m)) + l;
+						ar[k] = xr[e];
+						ai[k] = xi[e];
+					});
+					dft<R, float>(ar, ai);
+					unroll<R>([&](auto j) {
+						const int e = OA * (qb + SB * (int(R) * p + j)) + l;
+						if constexpr (OUT_ILV) {
+							// Last pass (m == 1): e is the natural index
+							// q + STRIDE * j; only j < R/2 is below M/2.
+							static_assert(m == 1);
+							if constexpr (j < int(R) / 2) {
+								yr[2 * e + 0] = ar[j];
+								yr[2 * e + 1] = ai[j];
+							}
+						} else if constexpr (OUT_POWER) {
+							static_assert(m == 1); // last pass: no twiddles
+							yr[e] = ar[j] * ar[j] + ai[j] * ai[j];
+						} else if constexpr (m == 1 || j == 0) {
+							yr[e] = ar[j];
+							yi[e] = ai[j];
+						} else {
+							yr[e] = ar[j] * wr[j] - ai[j] * wi[j];
+							yi[e] = ar[j] * wi[j] + ai[j] * wr[j];
+						}
+					});
+				}
+#endif
+			}
+		}
+	}
+
+	// Run passes PASS .. NUM_PASSES-1 at current length LEN and stride STRIDE.
+	template<unsigned PASS, unsigned LEN, unsigned STRIDE>
+	static void laterPasses(std::span<float* const, 2> bufs)
+	{
+		if constexpr (PASS < NUM_PASSES) {
+			constexpr unsigned R = 1u << radicesL2[PASS];
+			stridePass<R, LEN, STRIDE, (PASS + 1 == NUM_PASSES)>(bufs[bufIdx(PASS - 1)], bufs[bufIdx(PASS)]);
+			laterPasses<PASS + 1, LEN / R, STRIDE * R>(bufs);
+		}
+	}
+
+	// Real-input unpack: X[k] = E[k] + W^k O[k], X[M-k] = conj(E[k] - W^k O[k]).
+	static constexpr unsigned UK = M / 2; // k = 1 .. M/2
+
+	// One unpack pair: from Z[k] and Z[M-k] compute bins k and M-k.
+	// c, s = cos, sin(2πk/N) / 2; valid for any 0 < k < M.
+	// Writes out[k], out[M-k], out[M+k], out[2M-k] via oLo[i], oLoR[-i],
+	// oHi[i], oHiR[-i] (see unpackRange).
+	ALWAYS_INLINE static void unpackPair(
+		float zkr, float zki, float zmr, float zmi, float c, float s,
+		float* oLo, float* oLoR, float* oHi, float* oHiR, int i)
+	{
+		const float er = 0.5f * (zkr + zmr);
+		const float sr = zki + zmi;
+		const float dr = zmr - zkr;
+		const float br = sr * c + dr * s;
+		const float xr1 = er + br; // Re X[k]
+		const float xr2 = er - br; // Re X[M-k]
+		if constexpr (MODE == InputMode::Symmetric) {
+			// The spectrum is real.
+			oLo[i]   = POWER ? xr1 * xr1 : xr1;
+			oLoR[-i] = POWER ? xr2 * xr2 : xr2;
+			return;
+		}
+		const float ei = 0.5f * (zki - zmi);
+		const float bi = dr * c - sr * s;
+		const float im1 = ei + bi; // Im X[k]
+		const float im2 = bi - ei; // Im X[M-k]
+		if constexpr (POWER) {
+			oLo[i]   = xr1 * xr1 + im1 * im1;
+			oLoR[-i] = xr2 * xr2 + im2 * im2;
+		} else {
+			oLo[i]   = xr1;
+			oLoR[-i] = xr2;
+			oHi[i]   = im1;
+			oHiR[-i] = im2;
+		}
+	}
+
+	// Unpack k = BEGIN .. END-1. The four output streams are separate
+	// restrict pointers into 'out', each pointing to the element for
+	// k = BEGIN: out + BEGIN, out + M - BEGIN, out + M + BEGIN, out + 2M - BEGIN.
+	// Their accessed ranges don't overlap, but with a single 'out' pointer
+	// clang can't prove that. Not inlined: clang loses the restrict guarantee
+	// for the loop after inlining.
+	template<int BEGIN, int END>
+	NEVER_INLINE static void unpackRange(
+		const float* __restrict zr, const float* __restrict zi,
+		float* __restrict oLo, float* __restrict oLoR,
+		float* __restrict oHi, float* __restrict oHiR,
+		const float* __restrict twc, const float* __restrict tws)
+	{
+		for (int k = BEGIN; k < END; ++k) {
+			unpackPair(zr[k], zi[k], zr[M - k], zi[M - k], twc[k - 1], tws[k - 1],
+			           oLo, oLoR, oHi, oHiR, k - BEGIN);
+		}
+	}
+	template<int BEGIN, int END>
+	ALWAYS_INLINE static void unpackRange(
+		const float* zr, const float* zi, float* out, const float* twc, const float* tws)
+	{
+		unpackRange<BEGIN, END>(zr, zi, out + BEGIN, out + M - BEGIN, out + M + BEGIN, out + 2 * M - BEGIN,
+		                        twc, tws);
+	}
+
+	static void unpack(const float* __restrict z, float* __restrict out)
+	{
+		const float* zr = z;
+		const float* zi = z + M;
+		// k = 0 and M: X[0] = zr[0] + zi[0], X[M] = zr[0] - zi[0] (both real)
+		// k = M/2:     X[M/2] = zr[M/2] - i·zi[M/2]  (Im = -zi[M/2])
+		const float x0 = zr[0] + zi[0];
+		const float xm = zr[0] - zi[0];
+		if constexpr (POWER) {
+			out[0] = x0 * x0;
+			out[M] = xm * xm;
+			out[M / 2] = (MODE == InputMode::Symmetric)
+				? zr[M / 2] * zr[M / 2]
+				: zr[M / 2] * zr[M / 2] + zi[M / 2] * zi[M / 2];
+		} else {
+			out[0] = x0;
+			out[M] = xm;
+			out[M / 2] = zr[M / 2];
+			if constexpr (MODE != InputMode::Symmetric) {
+				out[M + M / 2] = -zi[M / 2];
+			}
+		}
+		const float* twc = twUnpack<M, false>.data();
+		const float* tws = twUnpack<M, true>.data();
+		if constexpr (UK >= 16) {
+			// Main loop k = 1 .. UK-8 (a multiple of 8), then the last 7 bins
+			// as one 8-wide block that redoes k = UK-8 (same values).
+			unpackRange<1, int(UK) - 7>(zr, zi, out, twc, tws);
+			unpackRange<int(UK) - 8, int(UK)>(zr, zi, out, twc, tws);
+		} else {
+			unpackRange<1, int(UK)>(zr, zi, out, twc, tws);
+		}
+	}
+};
+
+} // namespace fft
+
+#endif

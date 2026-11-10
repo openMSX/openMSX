@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <concepts>
+#include <expected>
 #include <functional>
 #include <span>
 #include <string>
@@ -24,6 +25,8 @@
 #include <utility>
 
 using namespace std::literals;
+
+namespace gl { class Texture; }
 
 namespace ImGui {
 
@@ -144,7 +147,9 @@ class FloatSetting;
 class HotKey;
 class ImGuiManager;
 class IntegerSetting;
+class Interpreter;
 class Setting;
+class SymbolManager;
 class VideoSourceSetting;
 
 struct EnumToolTip {
@@ -177,6 +182,37 @@ void simpleToolTip(std::invocable<> auto descFunc)
 
 void HelpMarkerNewLine(std::string_view desc);
 void HelpMarker(std::string_view desc, float spacing = -1.0f);
+
+// A color button that opens a color picker (without alpha), which also has a
+// button to restore 'defaultColor'.
+void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& defaultColor);
+
+[[nodiscard]] inline const char* yesNo(bool b) { return b ? "yes" : "no"; }
+
+// Height for a child window with a horizontal scrollbar: the content height
+// plus room for that scrollbar, so that showing it does not also trigger a
+// vertical scrollbar.
+[[nodiscard]] inline float childHeightWithScrollbar(float contentHeight)
+{
+	return contentHeight + ImGui::GetStyle().ScrollbarSize;
+}
+
+// The cell under the mouse, of a grid of cells of 'cellSize' pixels whose top
+// left corner is at 'scrnPos' (in screen coordinates).
+[[nodiscard]] inline gl::ivec2 hoveredCell(gl::vec2 scrnPos, gl::vec2 cellSize)
+{
+	return trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / cellSize);
+}
+
+// Context menu (right-click) popup for the current window, with a single item
+// 'text' that copies the string returned by 'supplier' to the clipboard.
+// Returns whether the popup is open.
+bool copyToClipboardPopup(const char* popupId, zstring_view text, function_ref<std::string()> supplier);
+
+// Accepts a decimal or hexadecimal value, a symbol name, or a Tcl expression.
+// An empty string evaluates to 0.
+[[nodiscard]] std::expected<unsigned, std::string> parseAddressExpr(
+	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp);
 
 // Generate a distinct color for each given index.
 // Obviously the more colors you request, the less distinct each color pair will be.
@@ -301,6 +337,36 @@ const char* getComboString(int item, const char* itemsSeparatedByZeros);
 
 std::string formatTime(std::optional<double> time);
 float calculateFade(float current, float target, float period);
+
+// Upload 'size' RGBA pixels to 'tex'. A null texture is created first (without
+// interpolation, and with wrapping when 'wrap' is set).
+void updateTexture(gl::Texture& tex, gl::ivec2 size, std::span<const uint32_t> pixels, bool wrap = false);
+
+// Texture for a grid overlay: a single cell of 'cellSize' pixels, with 'color'
+// on its top row and left column and transparent elsewhere. The texture wraps,
+// so drawing it with UVs {0, 0}-{nx, ny} shows nx x ny cells. A null texture is
+// created first.
+void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color);
+
+// The default colors of a checkerboard background.
+inline constexpr gl::vec4 defaultCheckerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
+inline constexpr gl::vec4 defaultCheckerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
+// Texture for a checkerboard background: 2x2 pixels that wrap. A null texture
+// is created first.
+void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color2);
+// Draw that texture as an image of 'size' pixels, with 'checkerBoardSize'
+// setting the size of the squares. Draws nothing when 'checkerBoardSize' is 0.
+void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSize);
+
+// Draw the 'uv1'-'uv2' part of 'tex' as an image of 'size' pixels. When
+// 'gridTex' is not null, also draw that (wrapping) grid texture on top of it,
+// showing 'gridCells' cells.
+void imageWithGrid(const gl::Texture& tex, gl::vec2 size, gl::vec2 uv1, gl::vec2 uv2,
+                   const gl::Texture* gridTex, gl::vec2 gridCells);
+
+// Crosshair marker (e.g. for the raster beam position): a rectangle of
+// 2 * 'halfSize' around 'center', with a short line on each side.
+void addCrosshair(ImDrawList* drawList, gl::vec2 center, gl::vec2 halfSize, ImU32 color, float thickness);
 
 template<int HexDigits>
 void comboHexSequence(const char* label, int* value, int mult, int max, int offset) {

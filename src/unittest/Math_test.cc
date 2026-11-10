@@ -109,6 +109,33 @@ TEST_CASE("Math::floodRight")
 	CHECK(Math::floodRight(uint16_t(0x2512)) == uint16_t(0x3FFF));
 }
 
+TEST_CASE("Math::rangeContainsMatch")
+{
+	auto bruteForce = [](uint32_t first, uint32_t last, uint32_t mask, uint32_t value) {
+		for (uint32_t x = first; x <= last; ++x) {
+			if ((x & mask) == value) return true;
+		}
+		return false;
+	};
+	// all 5-bit cases, also shifted to the top bits (carries beyond bit 31)
+	for (uint32_t mask = 0; mask < 32; ++mask) {
+		for (uint32_t value = 0; value < 32; ++value) {
+			for (uint32_t first = 0; first < 32; ++first) {
+				for (uint32_t last = first; last < 32; ++last) {
+					bool expected = bruteForce(first, last, mask, value);
+					INFO("first=" << first << " last=" << last << " mask=" << mask << " value=" << value);
+					REQUIRE(Math::rangeContainsMatch(first, last, mask, value) == expected);
+					REQUIRE(Math::rangeContainsMatch(first << 27, (last << 27) | 0x7FFFFFF,
+					                                 mask << 27, value << 27) == expected);
+				}
+			}
+		}
+	}
+	CHECK( Math::rangeContainsMatch(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF));
+	CHECK(!Math::rangeContainsMatch(0xFFFFFFFE, 0xFFFFFFFF, 0x00000003, 0x00000000));
+	CHECK( Math::rangeContainsMatch(0, 0xFFFFFFFF, 0x0003FFFF, 0x00012345));
+}
+
 TEST_CASE("Math::div_mod_floor")
 {
 	auto test = [](int D, int d, int q, int r) {

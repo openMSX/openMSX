@@ -2,6 +2,8 @@
 #define IMGUI_SPRITE_VIEWER_HH
 
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "GLUtil.hh"
 #include "gl_vec.hh"
@@ -47,8 +49,8 @@ private:
 	int checkerBoardSize = 4;
 	int boundingBoxOnAll = 0;
 	gl::vec4 gridColor{0.5f, 0.5f, 0.5f, 0.5f}; // RGBA
-	gl::vec4 checkerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
-	gl::vec4 checkerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
+	gl::vec4 checkerBoardColor1{defaultCheckerBoardColor1}; // RGBA
+	gl::vec4 checkerBoardColor2{defaultCheckerBoardColor2}; // RGBA
 	gl::vec4 boundingBoxColor  {1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
 	bool grid = true;
 	bool drawBoundingBox = true;
@@ -84,7 +86,7 @@ private:
 		PersistentElementMax{"lines",            &ImGuiSpriteViewer::manualLines, 3},
 		PersistentElementMax{"zoom",             &ImGuiSpriteViewer::zoom, 8},
 		PersistentElement{"showGrid",            &ImGuiSpriteViewer::grid},
-		PersistentElementMax{"checkerBoardSize", &ImGuiSpriteViewer::checkerBoardSize, 256},
+		PersistentElementMax{"checkerBoardSize", &ImGuiSpriteViewer::checkerBoardSize, maxCheckerBoardSize + 1},
 		PersistentElementMax{"boundingBoxOnAll", &ImGuiSpriteViewer::boundingBoxOnAll, 2},
 		PersistentElement{"gridColor",           &ImGuiSpriteViewer::gridColor},
 		PersistentElement{"checkerBoardColor1",  &ImGuiSpriteViewer::checkerBoardColor1},

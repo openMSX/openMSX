@@ -94,7 +94,7 @@ proc record_chunks {args} {
 			if {[llength $args] != 1} {
 				error "Too many arguments. Stop is just stop."
 			}
-			if {![info exists record_chunks::iteration]} {
+			if {![info exists iteration]} {
 				error "No recording in progress..."
 			}
 			after cancel $next_after_id

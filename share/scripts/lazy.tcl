@@ -12,7 +12,8 @@ register_lazy "_disasm.tcl" {
 	peek peek8 peek_u8 peek_s8 peek16 peek16_LE peek16_BE peek_u16
 	peek_u16_LE peek_u16_BE peek_s16 peek_s16_LE peek_s16_BE
 	poke poke8 poke16 poke16_LE poke16_BE dpoke disasm run_to step_over
-	step_back step_out step_in step skip_instruction toggle_breaked}
+	step_back step_back_one step_out step_in step skip_instruction
+	toggle_breaked}
 register_lazy "_example_tools.tcl" {get_screen copy_screen_to_clipboard listing get_color_count toggle_tron}
 register_lazy "_filepool.tcl" {filepool get_paths_for_type}
 register_lazy "_guess_title.tcl" {guess_title guess_rom_title guess_rom_device}
@@ -77,7 +78,7 @@ register_lazy "_utils.tcl" {
 	file_completion filename_clean get_next_numbered_filename}
 register_lazy "_vdp.tcl" {
 	getcolor setcolor get_screen_mode get_screen_mode_number vdpreg vdpregs
-	v9990regs vpeek vpoke palette vdpvramaddress vdpstatus
+	v9990reg v9990regs vpeek vpoke palette vdpvramaddress vdpstatus
 	get_frame_duration}
 register_lazy "_vdp_access_test.tcl" toggle_vdp_access_test
 register_lazy "_vdp_busy.tcl" toggle_vdp_busy

@@ -3,29 +3,45 @@
 
 #include "zstring_view.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
 
+// SDL has no keycode, and thus no SDLK_ constant, for these Japanese keys. We
+// use the keycode derived from their scancode instead, see
+// SDLKey::keycodeOrFromScancode().
+#if defined(SDLK_HENKAN) || defined(SDLK_MUHENKAN)
+#error "SDL now defines SDLK_HENKAN or SDLK_MUHENKAN: use those instead of our own definitions below, and check whether SDLKey::keycodeOrFromScancode() is still needed"
+#endif
+#define SDLK_HENKAN   SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_INTERNATIONAL4)
+#define SDLK_MUHENKAN SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_INTERNATIONAL5)
+
 namespace openmsx {
 
 // The combination of:
-//   SDL_Keysym: to indicate a specific key (key+scancode) and modifiers
-//   bool:       to indicate up/down
+//   SDL_Scancode, SDL_Keycode and SDL_Keymod: to indicate a specific key and modifiers
+//   bool:                                     to indicate up/down
 struct SDLKey {
-	SDL_Keysym sym;
+	SDL_Scancode scancode;
+	SDL_Keycode keycode;
+	SDL_Keymod mod;
 	bool down; // down=press / up=release
 
-	[[nodiscard]] static SDLKey create(SDL_Keycode code, SDL_Scancode scancode, bool down, uint16_t mod = 0) {
-		SDL_Keysym sym;
-		sym.scancode = scancode; // scancode needs for POSITIONAL mapping mode
-		sym.sym = code;
-		sym.mod = mod;
-		sym.unused = 0; // unicode
-		return {.sym = sym, .down = down};
+	// SDL has no keycode for some keys (e.g. the Japanese Henkan key). For
+	// those, use a keycode derived from the scancode, so that these keys can
+	// still be bound or used as host key.
+	[[nodiscard]] static SDL_Keycode keycodeOrFromScancode(SDL_Keycode keycode, SDL_Scancode scancode) {
+		return ((keycode == SDLK_UNKNOWN) && (scancode != SDL_SCANCODE_UNKNOWN))
+		     ? SDL_Keycode(SDL_SCANCODE_TO_KEYCODE(scancode))
+		     : keycode;
+	}
+
+	[[nodiscard]] static SDLKey create(SDL_Keycode code, SDL_Scancode scancode, bool down, SDL_Keymod mod = SDL_KMOD_NONE) {
+		// scancode is needed for POSITIONAL mapping mode
+		return {.scancode = scancode, .keycode = code, .mod = mod, .down = down};
 	}
 
 	[[nodiscard]] static SDLKey createDown(SDL_Keycode code, SDL_Scancode scancode) {
@@ -35,7 +51,7 @@ struct SDLKey {
 	[[nodiscard]] static std::optional<SDLKey> fromString(std::string_view name);
 	[[nodiscard]] static SDL_Keycode keycodeFromString(zstring_view name);
 
-	// only uses the 'sym.sym', 'sym.mod' and 'down' fields (ignores sym.scancode and 'sym.unicode')
+	// only uses the 'keycode', 'mod' and 'down' fields (ignores 'scancode')
 	[[nodiscard]] std::string toString() const;
 	[[nodiscard]] static std::string toString(SDL_Keycode code);
 };

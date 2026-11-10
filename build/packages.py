@@ -46,22 +46,22 @@ class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
 	sourceName = 'freetype'
-	version = '2.13.3'
-	fileLength = 4063324
+	version = '2.15.0'
+	fileLength = 4262480
 	checksums = {
 		'sha256':
-			'5c3a8e78f7b24c20b25b54ee575d6daa40007a5f4eea2845861c3409b3021747',
+			'9186627467a616d9a9e3e574748ac0c45fa77398e6364edef3041a8ba8d92f64',
 		}
 
 class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
 	sourceName = 'glew'
-	version = '2.2.0'
-	fileLength = 835861
+	version = '2.3.1'
+	fileLength = 866060
 	checksums = {
 		'sha256':
-			'd4fc82893cfb00109578d0a1a2337fb8ca335b3ceccf97b97e5cc7f08e4353e1',
+			'b64790f94b926acd7e8f84c5d6000a86cb43967bd1e688b03089079799c9e889',
 		}
 
 	@classmethod
@@ -72,11 +72,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.6.44'
-	fileLength = 1545850
+	version = '1.6.59'
+	fileLength = 1589315
 	checksums = {
 		'sha256':
-			'8c25a7792099a0089fa1cc76c94260d0bb3f1ec52b93671b572f8bb61577b732',
+			'86a3e4b501f7f50e392c4e456ea158893e9a595b1c63eb88c7bb9f6cf8772dad',
 		}
 
 	@classmethod
@@ -87,11 +87,11 @@ class OGG(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/ogg'
 	niceName = 'libogg'
 	sourceName = 'libogg'
-	version = '1.3.5'
-	fileLength = 593071
+	version = '1.3.6'
+	fileLength = 604469
 	checksums = {
 		'sha256':
-			'0eb4b4b9420a0f51db142ba3f9c64b333f826532dc0f48c6410ae51f4799b664',
+			'83e6704730683d004d20e21b8f7f55dcb3383cdf84c0daedf30bde175f774638',
 		}
 
 	@classmethod
@@ -113,37 +113,40 @@ class PkgConfig(DownloadablePackage):
 			'6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591',
 		}
 
-class SDL2(DownloadablePackage):
+# When updating SDL3, check that it still reads the SDL_WINDOWS_DPI_AWARENESS
+# hint (see src/main.cc): it has no SDL_HINT_* macro, so it's not part of the
+# documented API.
+class SDL3(DownloadablePackage):
 	downloadURL = 'https://www.libsdl.org/release'
-	niceName = 'SDL2'
-	sourceName = 'SDL2'
-	version = '2.32.10'
-	fileLength = 7630262
+	niceName = 'SDL3'
+	sourceName = 'SDL3'
+	version = '3.4.18'
+	fileLength = 15651004
 	checksums = {
 		'sha256':
-			'5f5993c530f084535c65a6879e9b26ad441169b3e25d789d83287040a9ca5165',
+			'9c75cf16330322c217dedd2e0609f1124f1b54b8633e763467b4684d0f4334a3',
 		}
 
-class SDL2_ttf(DownloadablePackage):
+class SDL3_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
-	niceName = 'SDL2_ttf'
-	sourceName = 'SDL2_ttf'
-	version = '2.22.0'
-	fileLength = 14314901
+	niceName = 'SDL3_ttf'
+	sourceName = 'SDL3_ttf'
+	version = '3.2.2'
+	fileLength = 1545950
 	checksums = {
 		'sha256':
-			'd48cbd1ce475b9e178206bf3b72d56b66d84d44f64ac05803328396234d67723',
+			'63547d58d0185c833213885b635a2c0548201cc8f301e6587c0be1a67e1e045d',
 		}
 
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
-	version = '8.6.15'
-	fileLength = 11765231
+	version = '8.6.18'
+	fileLength = 11816279
 	checksums = {
 		'sha256':
-			'861e159753f2e2fbd6ec1484103715b0be56be3357522b858d3cbb5f893ffef1',
+			'14f9af32b1767ff718477a8f974ad03c34341097e6b43f4ce54644ee974e268e',
 		}
 
 	@classmethod
@@ -158,11 +161,11 @@ class Theora(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/theora'
 	niceName = 'libtheora'
 	sourceName = 'libtheora'
-	version = '1.1.1'
-	fileLength = 2111877
+	version = '1.2.0'
+	fileLength = 2535283
 	checksums = {
 		'sha256':
-			'40952956c47811928d1e7922cda3bc1f427eb75680c3c37249c91e949054916b',
+			'279327339903b544c28a92aeada7d0dcfd0397b59c2f368cc698ac56f515906e',
 		}
 
 	@classmethod
@@ -188,11 +191,11 @@ class ZLib(DownloadablePackage):
 	downloadURL = 'https://zlib.net/fossils/'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.3.1'
-	fileLength = 1512791
+	version = '1.3.2'
+	fileLength = 1502830
 	checksums = {
 		'sha256':
-			'9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23',
+			'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16',
 		}
 
 # Build a dictionary of packages using introspection.

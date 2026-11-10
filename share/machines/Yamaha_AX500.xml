@@ -52,6 +52,12 @@
       <keyboard_type>ar</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <!-- The ar unicodemap describes the Arabic mode (the default:
+           BASIC from the start menu), in which CODE is a lock key. When
+           started with CTRL pressed (until BASIC appears), the machine
+           is in international mode instead: then CODE doesn't lock and
+           the int unicodemap fits.
+      -->
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks> <!-- not sure, doesn't seem to matter in international BASIC and has no effect in Arabic basic -->
     </PPI>

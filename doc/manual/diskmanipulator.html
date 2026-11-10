@@ -71,6 +71,8 @@
 
     <li><a class="internal" href="#create">create</a></li>
 
+    <li><a class="internal" href="#delete">delete</a></li>
+
     <li><a class="internal" href="#dir">dir</a></li>
 
     <li><a class="internal" href="#export">export</a></li>
@@ -82,6 +84,8 @@
     <li><a class="internal" href="#mkdir">mkdir</a></li>
 
     <li><a class="internal" href="#partition">partition</a></li>
+
+    <li><a class="internal" href="#rename">rename</a></li>
 
     <li><a class="internal" href="#savedsk">savedsk</a></li>
   </ol>
@@ -149,6 +153,23 @@
     <li>M or m -&gt; size in megabytes</li>
   </ul>
 
+  <h3><a id="delete">delete</a></h3>
+
+  <div class="subsectiontitle">
+    syntax:
+  </div>
+
+  <p><code>diskmanipulator delete &lt;disk name&gt; &lt;MSX
+  entry&gt;</code></p>
+
+  <div class="subsectiontitle">
+    explanation:
+  </div>
+
+  <p>This will delete the given file or directory from the current working
+  directory (see <code><a class="internal" href="#chdir">chdir</a></code>). A
+  directory is deleted together with everything in it.</p>
+
   <h3><a id="dir">dir</a></h3>
 
   <div class="subsectiontitle">
@@ -209,7 +230,7 @@
     syntax:
   </div>
 
-  <p><code>diskmanipulator import &lt;disk name&gt; &lt;host
+  <p><code>diskmanipulator import &lt;disk name&gt; [-overwrite] &lt;host
   directory|host file&gt; ...</code></p>
 
   <div class="subsectiontitle">
@@ -222,7 +243,9 @@
   <code>&lt;host directory&gt;</code> into the inserted disk. Multiple files and
   directories can be specified at the same time. The place were the
   files will be added in the MSX directory structure is selected
-  by the <code><a class="internal" href="#chdir">chdir</a></code> command.</p>
+  by the <code><a class="internal" href="#chdir">chdir</a></code> command.
+  Files and directories that already exist on the MSX disk are not
+  overwritten, unless the <code>-overwrite</code> option is given.</p>
 
   <p>If you want to use wildcards when importing files, you will have to use
   the Tcl <a class="external" href="http://www.tcl.tk/man/tcl8.5/TclCmd/glob.htm">
@@ -264,46 +287,70 @@
   All the needed parent directories will be created if they do not
   yet exist.</p>
 
-  <h3><a id="savedsk">savedsk</a></h3>
+  <h3><a id="partition">partition</a></h3>
 
   <div class="subsectiontitle">
     syntax:
   </div>
 
   <p><code>diskmanipulator partition &lt;disk name&gt;
-    [&lt;size|option&gt; ...]</code></p>
-  
-    <div class="subsectiontitle">
-      explanation:
-    </div>
-  
-    <p>You can (re)partition existing disk images using this command.</p>
-  
-    <p>As many partitions as specified will be created, using one of the
-    following partition table formats according to the option given:</p>
-  
-    <ul>
-      <li><code>-dos1</code>: Standard MBR, Beer IDE 1.9 and Nextor compatible.
-          Max 4 partitions.</li>
-      <li><code>-dos2</code> (default): Sunrise IDE MBR, Sunrise IDE compatible.
-          Max 31 partitions.</li>
-      <li><code>-nextor</code>: Standard MBR / EBR, Nextor compatible.
-          Max 256 partitions.</li>
-    </ul>
-  
-    <p>After partitioning each partition will also be formatted appropriately,
-    see <a href="#format">format</a> for more details on that.</p>
-  
-    <p>You can specify the disk/partition sizes by using the following
-    postfixes:</p>
-  
-    <ul>
-      <li>S or s -&gt; size in sectors</li>
-      <li>B or b -&gt; size in bytes</li>
-      <li>K or k -&gt; size in kilobytes (default)</li>
-      <li>M or m -&gt; size in megabytes</li>
-    </ul>
-  
+  [&lt;size|option&gt; ...]</code></p>
+
+  <div class="subsectiontitle">
+    explanation:
+  </div>
+
+  <p>You can (re)partition existing disk images using this command.</p>
+
+  <p>As many partitions as specified will be created, using one of the
+  following partition table formats according to the option given:</p>
+
+  <ul>
+    <li><code>-dos1</code>: Standard MBR, Beer IDE 1.9 and Nextor compatible.
+        Max 4 partitions.</li>
+    <li><code>-dos2</code> (default): Sunrise IDE MBR, Sunrise IDE compatible.
+        Max 31 partitions.</li>
+    <li><code>-nextor</code>: Standard MBR / EBR, Nextor compatible.
+        Max 256 partitions.</li>
+  </ul>
+
+  <p>After partitioning each partition will also be formatted appropriately,
+  see <a class="internal" href="#format">format</a> for more details on that.</p>
+
+  <p>You can specify the disk/partition sizes by using the following
+  postfixes:</p>
+
+  <ul>
+    <li>S or s -&gt; size in sectors</li>
+    <li>B or b -&gt; size in bytes</li>
+    <li>K or k -&gt; size in kilobytes (default)</li>
+    <li>M or m -&gt; size in megabytes</li>
+  </ul>
+
+  <h3><a id="rename">rename</a></h3>
+
+  <div class="subsectiontitle">
+    syntax:
+  </div>
+
+  <p><code>diskmanipulator rename &lt;disk name&gt; &lt;old&gt;
+  &lt;new&gt;</code></p>
+
+  <div class="subsectiontitle">
+    explanation:
+  </div>
+
+  <p>This will rename the file or directory <code>&lt;old&gt;</code> in the
+  current working directory (see <code><a class="internal"
+  href="#chdir">chdir</a></code>) to <code>&lt;new&gt;</code>. An entry with
+  the new name may not already exist.</p>
+
+  <h3><a id="savedsk">savedsk</a></h3>
+
+  <div class="subsectiontitle">
+    syntax:
+  </div>
+
   <p><code>diskmanipulator savedsk &lt;disk name&gt;
   &lt;dskfilename&gt;</code></p>
 

@@ -63,10 +63,12 @@ JoyHandle::JoyHandle(CommandController& commandController_,
 	} catch (MSXException& /*e*/) {
 		configSetting.setValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 	}
+	joystickManager.attach(*this);
 }
 
 JoyHandle::~JoyHandle()
 {
+	joystickManager.detach(*this);
 	if (isPluggedIn()) {
 		JoyHandle::unplugHelper(EmuTime::dummy());
 	}
@@ -83,17 +85,13 @@ void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 		throw CommandException("Need an even number of elements");
 	}
 	for (unsigned i = 0; i < n; i += 2) {
-		static constexpr std::array keys = {
-			// order is important!
-			"UP"sv, "DOWN"sv, "LEFT"sv, "RIGHT"sv, "A"sv, "B"sv, "WHEEL"sv
-		};
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
-		auto it = std::ranges::find(keys, key);
-		if (it == keys.end()) {
+		auto it = std::ranges::find(keyNames, key);
+		if (it == keyNames.end()) {
 			throw CommandException(
-				"Invalid key: must be one of ", join(keys, ", "));
+				"Invalid key: must be one of ", join(keyNames, ", "));
 		}
-		auto idx = std::distance(keys.begin(), it);
+		auto idx = std::distance(keyNames.begin(), it);
 
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		for (auto j : xrange(value.getListLength(interp))) {
@@ -157,7 +155,7 @@ void JoyHandle::resetWheelCache()
 }
 
 // MSXJoystickDevice
-uint8_t JoyHandle::read(EmuTime time)
+uint8_t JoyHandle::peek(EmuTime time) const
 {
 	Clock<2> clock(EmuTime::zero()); // ticks at 2Hz
 	uint8_t cycle = clock.getTicksTill(time) & 1;
@@ -238,6 +236,13 @@ void JoyHandle::stopReplay(EmuTime time) noexcept
 		stateChangeDistributor.distributeNew<JoyHandleState>(
 			time, id, uint8_t(0), release, 0.0f);
 	}
+}
+
+// Observer<JoystickManager>
+void JoyHandle::update(const JoystickManager& /*manager*/) noexcept
+{
+	// A host joystick was added or removed: the default mapping may change.
+	configSetting.setDefaultValue(getDefaultConfig(JoystickId(id - 1), joystickManager));
 }
 
 

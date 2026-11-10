@@ -98,7 +98,13 @@ template<> class Probe<void> final : public ProbeBase
 {
 public:
 	Probe(Debugger& debugger, std::string name, static_string_view description);
-	void signal() const;
+
+	// Note: this is deliberately defined inline (and not in Probe.cc) so
+	// that calling it from a hot code path (e.g. the CPU emulation loop)
+	// doesn't cost a function call when no observer is interested.
+	void signal() const {
+		if (anyObservers()) notify();
+	}
 
 private:
 	[[nodiscard]] TclObject getValue() const override;

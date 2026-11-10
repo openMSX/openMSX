@@ -15,6 +15,7 @@
 #include "unreachable.hh"
 #include "utf8_unchecked.hh"
 
+#include <cmath>
 #include <utility>
 
 namespace openmsx {
@@ -53,12 +54,27 @@ void InputEventGenerator::wait()
 	}
 }
 
+void InputEventGenerator::startTextInput()
+{
+	// KEEP-SDL2: SDL3 only sends text input events (which we need for the
+	// unicode value of key presses, see poll()) while text input is
+	// started for a window. SDL2 did this by default. The ImGui backend
+	// stops text input again when an ImGui text field loses focus, so
+	// check this regularly.
+	auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId());
+	if (!window || SDL_TextInputActive(window)) return;
+	SDL_StartTextInput(window);
+	eventDistributor.distributeEvent(TextInputStartedEvent());
+}
+
 void InputEventGenerator::poll(std::optional<int> timeoutMs)
 {
+	startTextInput();
+
 	// Heuristic to emulate the old SDL1 behavior:
 	//
 	// SDL1 had a unicode field on each KEYDOWN event. In SDL2 that
-	// information is moved to the (new) SDL_TEXTINPUT events.
+	// information is moved to the (new) SDL_EVENT_TEXT_INPUT events.
 	//
 	// Though our MSX keyboard emulation code needs to relate KEYDOWN
 	// events with the associated unicode. We try to mimic this by the
@@ -79,7 +95,7 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 	// - on Mac the timestamps mostly did not match
 	// So we removed this constraint.
 	//
-	// We also split SDL_TEXTINPUT events into (possibly) multiple KEYDOWN
+	// We also split SDL_EVENT_TEXT_INPUT events into (possibly) multiple KEYDOWN
 	// events because a single event type makes it easier to handle higher
 	// priority listeners that can block the event for lower priority
 	// listener (console > hotkey > msx).
@@ -99,14 +115,17 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 	};
 
 	while (getNextEvent()) {
-		// Ignore SDL_USEREVENT, used to wake SDL_WaitEventTimeout from other
+		// Ignore SDL_EVENT_USER, used to wake SDL_WaitEventTimeout from other
 		// threads (see Reactor::enterMainLoop).
-		if (curr->type == SDL_USEREVENT) {
+		if (curr->type == SDL_EVENT_USER) {
 			continue;
+		}
+		if (curr->type == one_of(SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP)) {
+			curr->key.key = SDLKey::keycodeOrFromScancode(curr->key.key, curr->key.scancode);
 		}
 		if (pending) {
 			pending = false;
-			if ((prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
+			if ((prev->type == SDL_EVENT_KEY_DOWN) && (curr->type == SDL_EVENT_TEXT_INPUT)) {
 				const char* utf8 = curr->text.text;
 				auto unicode = utf8::unchecked::next(utf8);
 				handleKeyDown(prev->key, unicode);
@@ -119,7 +138,7 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 				handle(*prev);
 			}
 		}
-		if (curr->type == SDL_KEYDOWN) {
+		if (curr->type == SDL_EVENT_KEY_DOWN) {
 			pending = true;
 			std::swap(curr, prev);
 		} else {
@@ -214,7 +233,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(unsigne
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(SDLKey key, bool repeat)
 {
 	unsigned buttonMask = [&] {
-		switch (key.sym.sym) {
+		switch (key.keycode) {
 		using enum OsdControlEvent::Button;
 		case SDLK_LEFT:   return 1 << std::to_underlying(LEFT);
 		case SDLK_RIGHT:  return 1 << std::to_underlying(RIGHT);
@@ -248,8 +267,22 @@ static constexpr Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
 		: mod;
 }
 
-void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
+// KEEP-SDL2: With many layouts on Linux (X11 keysym ISO_Level3_Shift), SDL3
+// reports the AltGr key as SDLK_MODE, and SDL_KMOD_MODE while it's held. SDL2
+// reported it as SDLK_RALT and SDL_KMOD_RALT, so do the same (e.g. for the MSX
+// CODE key).
+static void altGrAsRightAlt(SDL_KeyboardEvent& key)
 {
+	if (SDL_GetKeyFromScancode(SDL_SCANCODE_RALT, SDL_KMOD_NONE, true) != SDLK_MODE) return;
+	if (key.scancode == SDL_SCANCODE_RALT) key.key = SDLK_RALT;
+	if (key.mod & SDL_KMOD_MODE) {
+		key.mod = SDL_Keymod((key.mod & ~SDL_KMOD_MODE) | SDL_KMOD_RALT);
+	}
+}
+
+void InputEventGenerator::handleKeyDown(SDL_KeyboardEvent key, uint32_t unicode)
+{
+	altGrAsRightAlt(key);
 	/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
 		event = JoystickButtonDownEvent(0, 0);
 		triggerOsdControlEventsFromJoystickButtonEvent(
@@ -264,21 +297,21 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		memcpy(&evt.key, &key, sizeof(key));
-		evt.key.keysym.mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
-		evt.key.keysym.unused = unicode;
+		evt.key.mod = normalizeModifier(key.key, key.mod);
+		evt.key.reserved = unicode;
 		Event event = KeyDownEvent(evt);
-		triggerOsdControlEventsFromKeyEvent({.sym = key.keysym, .down = true}, key.repeat);
+		triggerOsdControlEventsFromKeyEvent(SDLKey::create(key.key, key.scancode, true, key.mod), key.repeat);
 		eventDistributor.distributeEvent(std::move(event));
 	}
 }
 
-void InputEventGenerator::splitText(uint32_t timestamp, const char* utf8)
+void InputEventGenerator::splitText(uint64_t timestamp, const char* utf8)
 {
 	while (true) {
 		auto unicode = utf8::unchecked::next(utf8);
 		if (unicode == 0) return;
 		eventDistributor.distributeEvent(
-			KeyDownEvent::create(timestamp, unicode));
+			KeyDownEvent::create_for_unicode(timestamp, unicode));
 	}
 }
 
@@ -286,8 +319,8 @@ void InputEventGenerator::handle(SDL_Event& evt)
 {
 	// This is different between e.g. KDE and GNOME (and probably others)
 	// Sometimes SDL sends both:
-	// * SDL_QUIT and
-	// * SDL_WINDOWEVENT_CLOSE-for-the-main-window.
+	// * SDL_EVENT_QUIT and
+	// * SDL_EVENT_WINDOW_CLOSE_REQUESTED-for-the-main-window.
 	// Sometimes only one of these events. For both events openMSX should
 	// exit, but we should only react to the first of these events, not
 	// both.
@@ -299,7 +332,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 
 	std::optional<Event> event;
 	switch (evt.type) {
-	case SDL_KEYUP:
+	case SDL_EVENT_KEY_UP:
 		// Virtual joystick of SDL Android port does not have joystick
 		// buttons. It has however up to 6 virtual buttons that can be
 		// mapped to SDL keyboard events. Two of these virtual buttons
@@ -316,39 +349,51 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			triggerOsdControlEventsFromJoystickButtonEvent(1, true);
 			androidButtonB = false;
 		} else*/ {
+			altGrAsRightAlt(evt.key);
 			SDL_Event e;
 			e.key = SDL_KeyboardEvent{};
 			memcpy(&e.key, &evt.key, sizeof(evt.key));
-			e.key.keysym.mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
+			e.key.mod = normalizeModifier(evt.key.key, evt.key.mod);
+			e.key.reserved = 0; // unicode
 			event = KeyUpEvent(e);
 			bool down = false;
 			bool repeat = false;
-			triggerOsdControlEventsFromKeyEvent({.sym = e.key.keysym, .down = down}, repeat);
+			triggerOsdControlEventsFromKeyEvent(SDLKey::create(e.key.key, e.key.scancode, down, e.key.mod), repeat);
 		}
 		break;
-	case SDL_KEYDOWN:
+	case SDL_EVENT_KEY_DOWN:
 		handleKeyDown(evt.key, 0);
 		break;
 
-	case SDL_KEYMAPCHANGED:
+	case SDL_EVENT_KEYMAP_CHANGED:
 		event = KeyMapChangedEvent();
 		break;
 
-	case SDL_MOUSEBUTTONUP:
+	case SDL_EVENT_MOUSE_BUTTON_UP:
 		event = MouseButtonUpEvent(evt);
 		break;
-	case SDL_MOUSEBUTTONDOWN:
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		event = MouseButtonDownEvent(evt);
 		break;
-	case SDL_MOUSEWHEEL:
+	case SDL_EVENT_MOUSE_WHEEL:
 		event = MouseWheelEvent(evt);
 		break;
-	case SDL_MOUSEMOTION:
+	case SDL_EVENT_MOUSE_MOTION: {
+		// KEEP-SDL2: SDL3 reports the relative motion with sub-pixel
+		// precision. Like SDL2, only pass on whole pixels, and keep the
+		// remaining fraction for the next event.
+		auto wholePixels = [](float& rel, float& fraction) {
+			fraction += rel;
+			rel = std::trunc(fraction);
+			fraction -= rel;
+		};
+		wholePixels(evt.motion.xrel, motionFractionX);
+		wholePixels(evt.motion.yrel, motionFractionY);
 		event = MouseMotionEvent(evt);
 		if (auto* window = SDL_GL_GetCurrentWindow(); window && !mouseCaptureMode && SDL_GetWindowGrab(window)) {
 			int w, h;
 			SDL_GetWindowSize(window, &w, &h);
-			int x, y;
+			float x, y;
 			SDL_GetMouseState(&x, &y);
 			// There seems to be a bug in Windows in which the mouse can be locked on the right edge
 			// only when moving fast to the right (not so fast actually) when grabbing is enabled
@@ -362,27 +407,28 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			// The value of 10 below is a heuristic value which seems to balance all factors
 			// such as font size and the overall size of gui elements
 			// and the speed of crossing virtual barriers
-			static constexpr int MARGIN = 10;
-			int xn = std::clamp(x, MARGIN, w - 1 - MARGIN);
-			int yn = std::clamp(y, MARGIN, h - 1 - MARGIN);
+			static constexpr float MARGIN = 10;
+			float xn = std::clamp(x, MARGIN, w - 1 - MARGIN);
+			float yn = std::clamp(y, MARGIN, h - 1 - MARGIN);
 			if (xn != x || yn != y) SDL_WarpMouseInWindow(window, xn, yn);
 		}
 		break;
-	case SDL_JOYBUTTONUP:
+	}
+	case SDL_EVENT_JOYSTICK_BUTTON_UP:
 		if (joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickButtonUpEvent(evt);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				evt.jbutton.button, false);
 		}
 		break;
-	case SDL_JOYBUTTONDOWN:
+	case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
 		if (joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickButtonDownEvent(evt);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				evt.jbutton.button, true);
 		}
 		break;
-	case SDL_JOYAXISMOTION: {
+	case SDL_EVENT_JOYSTICK_AXIS_MOTION: {
 		if (auto joyId = joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickAxisMotionEvent(evt);
 
@@ -395,51 +441,49 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		}
 		break;
 	}
-	case SDL_JOYHATMOTION:
+	case SDL_EVENT_JOYSTICK_HAT_MOTION:
 		if (auto joyId = joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickHatEvent(evt);
 			triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
 		}
 		break;
 
-	case SDL_JOYDEVICEADDED:
+	case SDL_EVENT_JOYSTICK_ADDED:
 		joystickManager.add(evt.jdevice.which);
 		break;
 
-	case SDL_JOYDEVICEREMOVED:
+	case SDL_EVENT_JOYSTICK_REMOVED:
 		joystickManager.remove(evt.jdevice.which);
 		break;
 
-	case SDL_TEXTINPUT:
+	case SDL_EVENT_TEXT_INPUT:
 		splitText(evt.text.timestamp, evt.text.text);
 		event = TextEvent(evt);
 		break;
 
-	case SDL_WINDOWEVENT:
-		switch (evt.window.event) {
-		case SDL_WINDOWEVENT_CLOSE:
-			if (WindowEvent::isMainWindow(evt.window.windowID)) {
-				event = quitOnce();
-				break;
-			}
-			[[fallthrough]];
-		default:
+	case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+		if (WindowEvent::isMainWindow(evt.window.windowID)) {
+			event = quitOnce();
+		} else {
 			event = WindowEvent(evt);
-			break;
 		}
 		break;
 
-	case SDL_DROPFILE:
+	case SDL_EVENT_DROP_FILE:
 		event = FileDropEvent(
-			FileOperations::getConventionalPath(evt.drop.file));
-		SDL_free(evt.drop.file);
+			FileOperations::getConventionalPath(evt.drop.data));
 		break;
 
-	case SDL_QUIT:
+	case SDL_EVENT_QUIT:
 		event = quitOnce();
 		break;
 
 	default:
+		// SDL2 had a single window event type, SDL3 has a range of them.
+		// Pass all of them on (e.g. ImGui needs them for its viewports).
+		if ((SDL_EVENT_WINDOW_FIRST <= evt.type) && (evt.type <= SDL_EVENT_WINDOW_LAST)) {
+			event = WindowEvent(evt);
+		}
 		break;
 	}
 
@@ -516,18 +560,18 @@ bool InputEventGenerator::signalEvent(const Event& event)
 				releaseMouse();
 			}
 			if (e.isMainWindow() &&
-			    evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
+			    evt.type == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
 				switch (escapeGrabState) {
 					case ESCAPE_GRAB_WAIT_CMD:
 						// nothing
 						break;
 					case ESCAPE_GRAB_WAIT_LOST:
-						if (evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+						if (evt.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
 							escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
 						}
 						break;
 					case ESCAPE_GRAB_WAIT_GAIN:
-						if (evt.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+						if (evt.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
 							escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 						}
 						setGrabInput(true);

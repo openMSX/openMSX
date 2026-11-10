@@ -88,9 +88,12 @@ public:
 	// RTSchedulable
 	void executeRT() override;
 
-private:
+	/** Show, hide or change the host cursor, depending on fullscreen,
+	  * grab-input, pointer_hide_delay, ImGui and crosshair requests. */
 	void updateCursor();
-	void createSurface(gl::ivec2 size, unsigned flags);
+
+private:
+	void createSurface(gl::ivec2 size, SDL_WindowFlags flags);
 	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 private:

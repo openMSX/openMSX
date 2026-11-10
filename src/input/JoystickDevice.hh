@@ -15,8 +15,15 @@ public:
 	 *   7    6       5         4         3       2      1     0
 	 * | xx | xx | BUTTON_B | BUTTON_A | RIGHT | LEFT | DOWN | UP  |
 	 * | xx | xx | pin7     | pin6     | pin4  | pin3 | pin2 | pin1|
+	 * Only devices for which reading has an effect (e.g. it records a
+	 * state change) need to override this.
 	 */
-	[[nodiscard]] virtual uint8_t read(EmuTime time) = 0;
+	[[nodiscard]] virtual uint8_t read(EmuTime time) { return peek(time); }
+
+	/**
+	 * Returns the same value as read(), but without side effects.
+	 */
+	[[nodiscard]] virtual uint8_t peek(EmuTime time) const = 0;
 
 	/**
 	 * Write a value to the joystick device. The bits in the written
@@ -35,7 +42,7 @@ public:
 	 * pin 9 : GND
 	 */
 
-	// use in the read() method
+	// use in the peek() and read() methods
 	static constexpr uint8_t JOY_UP      = 0x01;
 	static constexpr uint8_t JOY_DOWN    = 0x02;
 	static constexpr uint8_t JOY_LEFT    = 0x04;

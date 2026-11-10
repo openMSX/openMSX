@@ -277,14 +277,15 @@ proc step_over {} {
 
 
 #
-# step_back
+# step_back_one
 #
-set_help_text step_back \
+set_help_text step_back_one \
 {Step back. Go back in time till right before the last instruction was
-executed. Note that this operation is relatively slow (compared to the other
-step functions). Also the reverse feature must be enabled for this to work
-(normally it's enabled by default).}
-proc step_back {} {
+executed. Unlike step_back, this goes back only a single iteration of a block
+instruction (LDIR, LDDR, CPIR, ...). Note that this operation is relatively
+slow (compared to the other step functions). Also the reverse feature must be
+enabled for this to work (normally it's enabled by default).}
+proc step_back_one {} {
 	# In the past this proc was implemented totally different. It's worth
 	# mentioning this old algorithm and explain why it wasn't good enough.
 	# The old algorithm went like this:
@@ -361,6 +362,30 @@ proc step_back {} {
 	reverse goto $curr
 }
 
+#
+# step_back
+#
+set_help_text step_back \
+{Step back. Go back in time till right before the last instruction was
+executed. Block instructions (LDIR, LDDR, CPIR, ...) are treated as a single
+instruction: when the last instruction was such a block instruction, go back
+to right before its first iteration. See also step_back_one. Note that this
+operation is relatively slow (compared to the other step functions). Also the
+reverse feature must be enabled for this to work (normally it's enabled by
+default).}
+proc step_back {} {
+	step_back_one
+	# If we ended up in the middle of a block instruction, go back further
+	# to the start of that instruction. The CPU only knows that start time
+	# when we're not already at the first iteration, in that case we're done.
+	if {[catch {reverse blockstart} t]} return
+	reverse goto $t
+	# On R800 that start time can be a few cycles after the start of the
+	# instruction (opcode fetch penalties), then 'reverse goto' stops after
+	# the first iteration instead.
+	if {[dict get [reverse status] current] > $t} step_back_one
+}
+
 
 #
 # skip one instruction
@@ -396,6 +421,7 @@ namespace export run_to
 namespace export toggle_breaked
 namespace export step_over
 namespace export step_back
+namespace export step_back_one
 namespace export step_out
 namespace export step_in
 namespace export step

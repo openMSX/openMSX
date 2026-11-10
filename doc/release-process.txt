@@ -11,12 +11,11 @@ Preparing for a release
 - Tell all developers to commit only fixes.
 - Sync with most recent C-BIOS release.
 - Check that the "staticbindist" build still works, in particular on
-  win32 and Mac OS X. This should be clear from the GitHub Actions at
+  Windows and macOS. This should be clear from the GitHub Actions at
   https://github.com/openMSX/openMSX/actions
 - Verify the documentation is up-to-date.
   Currently most documentation is in "doc/manual".
 - Write release notes in "doc/release-notes.txt".
-- Add the change list to "doc/release-history.txt".
 
 Note: An alternative approach would be to create a branch dedicated to the
       release and continue accepting any kind of commit on "master".
@@ -26,33 +25,54 @@ Note: An alternative approach would be to create a branch dedicated to the
 Creating a release candidate
 ----------------------------
 
-- If you're creating the very first release candidate for this release,
-  use a version number that ends with -rc1, so 1.2.3-rc1. Only the final
-  release will be without the -rc suffix (in both tag and version
-  numbers.)
-- Edit the version number in build/version.py:
-    packageVersionNumber = '1.2.3'
-  And set releaseFlag to True.
-  Additionally, increase the androidReleaseVersionCode with 1.
-  And update the copyright year in build/version.py
-- Update the release date in "doc/release-notes.txt" and
-  "doc/release-history.txt".
+The examples below use version 1.2.3. A release candidate gets a suffix like
+"-rc1" in the version number and "_RC1" in the tag. Only the final release is
+without such a suffix.
+
+- Edit build/version.py:
+  - Set the version number:
+      packageVersionNumber = '1.2.3'
+  - Set the suffix, for the first release candidate:
+      packageVersionSuffix = '-rc1'
+    For the final release, set it back to an empty string.
+  - Set releaseFlag to True.
+  - Increase androidReleaseVersionCode with 1.
+  - Set releaseYear to the current year, if it isn't already.
+- Update the title and release date in "doc/release-notes.txt", e.g.
+    Release Notes for openMSX 1.2.3-RC1 (2026-10-31)
+- Add the release notes to "doc/release-history.txt": copy the text of
+  "doc/release-notes.txt" up to and including the list of changes, with a
+  title like "openMSX 1.2.3-RC1 (2026-10-31)". For the final release, replace
+  that release candidate entry with the final release notes.
 - Don't forget to commit and push all these last changes before tagging!
+- Check that the version information matches the tag you're going to create:
+    build/check_release.py RELEASE_1_2_3_RC1 HEAD
+  (The release workflow does this check again on the tag itself.)
 - Tag the git archive:
-    git tag -a RELEASE_1_2_3 -m "Tagging release 1.2.3."
+    git tag -a RELEASE_1_2_3_RC1 -m "Tagging release 1.2.3-RC1."
     git push --tags
-- Create the distribution tar.gz file based on the new tag:
-    build/gitdist.py RELEASE_1_2_3
-- Save the created file somewhere you can find it again:
-    mv derived/dist/openmsx-1.2.3.tar.gz <some_dir>/
-  This is the release candidate.
-- On GitHub Actions do a build based on the tagged code for platforms
-  that can be built there: (note that the Windows build will NOT include
-  Catapult!):
+  For the final release:
+    git tag -a RELEASE_1_2_3 -m "Tagging release 1.2.3."
+- On GitHub Actions, run the release workflow for the new tag:
   https://github.com/openMSX/openMSX/actions/workflows/build_release_from_tag_via_tarball.yml
-  click open "Run workflow" at the top right and for "Release tag to
-  build" fill in "RELEASE_1_2_3" and click "Run workflow".
-- NOTE: for a Windows build, you also need a RC of Catapult!
+  Click open "Run workflow" at the top right, fill in the tag (e.g.
+  "RELEASE_1_2_3_RC1") at "Release tag to build" and click "Run workflow".
+  This workflow:
+  - checks that the tag matches the version number, suffix and release flag
+    in build/version.py, the title of doc/release-notes.txt and an entry in
+    doc/release-history.txt (build/check_release.py), and stops if not
+  - creates the distribution tarball (build/gitdist.py) from the tag
+  - builds the binaries for all platforms that can be built there from that
+    tarball. The Windows (Visual C++) build includes Catapult, taken from the
+    latest wxCatapult CI build.
+  - creates a draft release on GitHub for the tag (or reuses an existing one),
+    with the release notes as description and all built files (including the
+    tarball) attached. A release candidate (a tag ending in _RC<n>) is marked
+    as pre-release.
+- For your own sanity check (see below), you can also create the tarball
+  locally:
+    build/gitdist.py RELEASE_1_2_3_RC1
+  The result ends up in "derived/dist/".
 
 Sanity check on release candidate
 ---------------------------------
@@ -64,13 +84,13 @@ This is a small check to be performed by the release coordinator.
       unset OPENMSX_FLAVOUR   (and any other OPENMSX_ flags you have set)
       make
   * Test installation:
-      su
-      make install
+      sudo make install
 - Start openmsx with your usual config.
 - Verify the version number in the title bar.
 
-If the sanity check is passed, distribute tar.gz to fellow developers and
-testers.
+If the sanity check is passed, distribute the release candidate to fellow
+developers and testers, e.g. by publishing the draft release as a
+pre-release (see below).
 
 Full test of release candidate
 ------------------------------
@@ -95,25 +115,19 @@ tag, such that the released code is based on exactly the tagged code.
 Make the release public
 -----------------------
 
-Put the release on GitHub (refer to
-https://help.github.com/articles/creating-releases/):
+The release workflow (see above) created a draft release on GitHub. Finish it
+(refer to https://docs.github.com/en/repositories/releasing-projects-on-github):
 - Make sure you're logged in
-- Go to https://github.com/openMSX/openMSX/releases. Click "Draft a new
-  release"
-- Select the tag version you made above: RELEASE_1_2_3
-- Type 'openMSX' and the release number of the new release at "Release
-  title":
-  openMSX 1.2.3
-- At the "Describe this release" box, describe the release, e.g. take the
-  first few paragraphs of the release notes (before the list of changes
-  starts).
-- At "Attach binaries" select the files to upload, including our own
-  tarballs.
-  In short: all the files we used to upload for an SF.net release.
-  Upload the relevant binaries that came out of the GitHub Actions build done
-  based on the tarball, as described above. For some reason, these results are
-  zipped or get an extra zip extension. Make sure to unzip (e.g. the dmg files)
-  or strip the extra .zip file extension (e.g. the Linux build).
+- Go to https://github.com/openMSX/openMSX/releases and edit the draft
+  release for the tag, e.g. RELEASE_1_2_3
+- Check the title, which the workflow derives from the tag, e.g.
+  "openMSX 1.2.3" or "openMSX 1.2.3-RC1".
+- The description contains the full release notes. Shorten it to the first
+  few paragraphs (before the list of changes starts), if you like.
+- Check that all expected files are attached.
+- Check that a release candidate is marked as pre-release (the workflow does
+  that), and for the final release check "Set as the latest release".
+- Publish the release.
 - Note: GitHub also generates a tarball and a zip file. Just ignore it for
   now. Do not use these in any links on our website or somewhere else.
   They contain a lot of unnecessary stuff.
@@ -122,6 +136,7 @@ Announce:
 - Post change list to msx.org.
 - Post news item on web site.
 - Post news item on our Facebook page.
+- Post an announcement on our Discord server.
 - Post news and/or change list to openmsx-devel and openmsx-user
   mailinglists (at least one packager uses it to get a trigger)
 

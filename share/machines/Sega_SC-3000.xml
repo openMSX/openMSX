@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sega</manufacturer>
+    <code>SC-3000 (Int)</code>
+    <release_year>1983</release_year>
+    <description>Home computer with hardware similar to MSX. This model has a PAL VDP and an international keyboard. To program in BASIC, add the BASIC Level III A PAL cartridge (extension Sega_BASIC_Level_IIIA_PAL).</description>
+    <type>SC-3000</type>
+    <region>int</region>
+  </info>
+
+  <slotmap>
+    <map page="0" slot="1"/>
+    <map page="1" slot="1"/>
+    <map page="2" slot="1"/>
+    <!-- TODO: A cart can take over page 3, for example RAM from the cart is used instead of main RAM. -->
+    <map page="3" slot="0"/>
+  </slotmap>
+
+  <devices overlap_warning="false">
+
+    <SG1000Pause id="pause"/>
+
+    <VDP id="VDP">
+      <version>TMS9929A</version>
+      <io base="0x00" num="0x40"/>
+      <io base="0x80" num="0x40"/>
+      <!-- TODO: What saturation value would be accurate? -->
+    </VDP>
+
+    <SNPSG id="PSG">
+      <type>SN76489AN</type>
+      <io base="0x00" num="0x80" type="O"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+    </SNPSG>
+
+    <SG1000Joystick id="joysticks">
+      <io base="0xC0" num="0x40" type="I"/>
+    </SG1000Joystick>
+
+    <SC3000PPI id="PPI">
+      <io base="0x00" num="0x20"/>
+      <io base="0x40" num="0x20"/>
+      <io base="0x80" num="0x20"/>
+      <io base="0xC0" num="0x20"/>
+      <keyboard_type>sega_int</keyboard_type>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>true</graph_locks>
+      <has_keypad>false</has_keypad>
+      <!-- disable key ghosting until the ghosting code can handle non-MSX keyboards -->
+      <key_ghosting>false</key_ghosting>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+    </SC3000PPI>
+
+    <primary slot="0">
+      <RAM id="Main RAM">
+        <size>2048</size>
+        <mem base="0xC000" size="0x4000"/>
+      </RAM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+  </devices>
+
+</msxconfig>

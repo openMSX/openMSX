@@ -823,7 +823,9 @@ bool EmulatedEsp32::tcpPollConnection(Connection* conn, int connIdx)
 	if (haveClient) {
 		FD_SET(conn->clientSock, &rfds);
 	}
-	struct timeval tv = {5, 0}; // 5 ms poll interval (also bounds shutdown latency)
+	// 5 ms poll interval: it also bounds how long freeConnection() waits
+	// for this thread to stop (TCP_CLOSE/ABORT, MSX reset, power down).
+	struct timeval tv = {0, 5000};
 #ifdef _WIN32
 	if (int sel = select(0, &rfds,
 	                     inHandshake ? &wfds : nullptr, nullptr, &tv);
@@ -877,6 +879,8 @@ void EmulatedEsp32::tcpAcceptClient(Connection* conn) const
 	}
 	// No client attached yet: attach this one
 	sock_setNonBlocking(ns);
+	// Send small packets right away, like active connections do
+	sock_setIntOption(ns, IPPROTO_TCP, TCP_NODELAY);
 	// macOS/BSD only: suppress SIGPIPE when sending to a peer that reset
 	// the connection (Linux uses MSG_NOSIGNAL instead). Not inherited by
 	// accept().
@@ -978,7 +982,7 @@ void EmulatedEsp32::logTlsError(OpenSSL::ErrorCode code) const
 // (the remote side closed the connection, or TLS failed).
 bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 {
-	std::array<uint8_t, 1024> buf;
+	std::array<uint8_t, 2048> buf; // one full TCP_RCV
 	ptrdiff_t n = 0;
 	if (conn->ssl) {
 		// TLS: decrypt; a clean TLS close is a close_notify, a real
@@ -1022,7 +1026,7 @@ bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 // selectable again).
 void EmulatedEsp32::tcpDrainSsl(Connection* conn, int connIdx)
 {
-	std::array<uint8_t, 1024> buf;
+	std::array<uint8_t, 2048> buf; // one full TCP_RCV
 	for (;;) {
 		auto r = conn->ssl->read(buf);
 		if (!r) {
@@ -1048,7 +1052,7 @@ void EmulatedEsp32::tcpDrainSsl(Connection* conn, int connIdx)
 // dropped.
 void EmulatedEsp32::tcpReadClient(Connection* conn) const
 {
-	std::array<uint8_t, 1024> buf;
+	std::array<uint8_t, 2048> buf; // one full TCP_RCV
 	auto n = sockRecv(conn->clientSock, buf);
 	if (n < 0) {
 		conn->clientEof = true;

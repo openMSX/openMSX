@@ -8,7 +8,7 @@
 #include "ReadOnlySetting.hh"
 
 #include "SDLKey.hh"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cstdint>
 #include <optional>
@@ -60,9 +60,10 @@ public:
 	void initializeGrab() const;
 
 private:
+	void startTextInput();
 	void handle(SDL_Event& evt);
-	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
-	void splitText(uint32_t timestamp, const char* utf8);
+	void handleKeyDown(SDL_KeyboardEvent key, uint32_t unicode);
+	void splitText(uint64_t timestamp, const char* utf8);
 	void setGrabInput(bool grab) const;
 	void updateMouseCaptureState();
 
@@ -100,6 +101,10 @@ private:
 private:
 	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 	bool sendQuit = false; // only send QuitEvent once
+
+	// fractional part of the relative mouse motion, not yet passed on
+	float motionFractionX = 0.0f;
+	float motionFractionY = 0.0f;
 
 	// only for Android
 	static inline bool androidButtonA = false;

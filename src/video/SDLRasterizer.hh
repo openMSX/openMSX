@@ -17,7 +17,6 @@ namespace openmsx {
 class Display;
 class VDP;
 class VDPVRAM;
-class OutputSurface;
 class RawFrame;
 class RenderSettings;
 class Setting;
@@ -33,8 +32,7 @@ public:
 	using Pixel = uint32_t;
 
 	SDLRasterizer(
-		VDP& vdp, Display& display, OutputSurface& screen,
-		std::unique_ptr<PostProcessor> postProcessor);
+		VDP& vdp, Display& display, std::unique_ptr<PostProcessor> postProcessor);
 	SDLRasterizer(const SDLRasterizer&) = delete;
 	SDLRasterizer(SDLRasterizer&&) = delete;
 	SDLRasterizer& operator=(const SDLRasterizer&) = delete;
@@ -67,6 +65,13 @@ public:
 		int displayX, int displayY,
 		int displayWidth, int displayHeight) override;
 	[[nodiscard]] bool isRecording() const override;
+
+	/** First VDP line (counted from the start of the frame) that is stored
+	  * in the RawFrame: our frame has 240 lines while the VDP has 262 or 313.
+	  */
+	[[nodiscard]] static constexpr int getLineRenderTop(bool isPal) {
+		return isPal ? 59 - 14 : 32 - 14;
+	}
 
 private:
 	inline void renderBitmapLine(std::span<Pixel> buf, unsigned vramLine);
@@ -102,10 +107,6 @@ private:
 	/** The VRAM whose contents are rendered.
 	  */
 	VDPVRAM& vram;
-
-	/** The surface which is visible to the user.
-	  */
-	OutputSurface& screen;
 
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.

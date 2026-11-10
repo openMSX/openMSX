@@ -19,8 +19,8 @@ public:
 	 */
 	virtual void unmute() = 0;
 
-	/** Returns the actual sample frequency. This might be different
-	  * from the requested frequency ('frequency' setting).
+	/** Returns the actual sample frequency: the one of the 'frequency'
+	  * setting, or with 0 (auto) the one of the sound device.
 	  */
 	[[nodiscard]] virtual unsigned getFrequency() const = 0;
 

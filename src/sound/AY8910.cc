@@ -500,6 +500,17 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	detunePercent .attach(*this);
 }
 
+void AY8910::setClockFrequency(float frequency, EmuTime time)
+{
+	outputFreq = frequency / 8;
+	auto rate = unsigned(std::lrint(outputFreq));
+	if (getInputRate() != rate) {
+		updateStream(time);
+		setInputRate(rate);
+		createResampler();
+	}
+}
+
 AY8910::~AY8910()
 {
 	vibratoPercent.detach(*this);
@@ -521,6 +532,12 @@ void AY8910::reset(EmuTime time)
 }
 
 
+// TODO some AY8910 models have 1F as mask for registers 1, 3, 5
+static constexpr std::array<uint8_t, 16> regMask = {
+	0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
+	0x1f, 0x1f ,0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
+};
+
 uint8_t AY8910::readRegister(unsigned reg, EmuTime time)
 {
 	if (reg >= 16) return 255;
@@ -536,12 +553,6 @@ uint8_t AY8910::readRegister(unsigned reg, EmuTime time)
 		}
 		break;
 	}
-
-	// TODO some AY8910 models have 1F as mask for registers 1, 3, 5
-	static constexpr std::array<uint8_t, 16> regMask = {
-		0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
-		0x1f, 0x1f ,0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
-	};
 	return isAY8910 ? regs[reg] & regMask[reg]
 	                : regs[reg];
 }
@@ -552,16 +563,17 @@ uint8_t AY8910::peekRegister(unsigned reg, EmuTime time) const
 	switch (reg) {
 	case AY_PORTA:
 		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { // input
-			return periphery.readA(time);
+			return periphery.peekA(time);
 		}
 		break;
 	case AY_PORTB:
 		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { // input
-			return periphery.readB(time);
+			return periphery.peekB(time);
 		}
 		break;
 	}
-	return regs[reg];
+	return isAY8910 ? regs[reg] & regMask[reg]
+	                : regs[reg];
 }
 
 
@@ -977,8 +989,8 @@ AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& 
 
 uint8_t AY8910::Debuggable::read(unsigned address, EmuTime time)
 {
-	auto& ay8910 = OUTER(AY8910, debuggable);
-	return ay8910.readRegister(address, time);
+	const auto& ay8910 = OUTER(AY8910, debuggable);
+	return ay8910.peekRegister(address, time);
 }
 
 void AY8910::Debuggable::write(unsigned address, uint8_t value, EmuTime time)

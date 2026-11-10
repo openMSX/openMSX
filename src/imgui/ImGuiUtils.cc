@@ -5,19 +5,30 @@
 #include "KeyMappings.hh"
 
 #include "BooleanSetting.hh"
+#include "CommandException.hh"
 #include "EnumSetting.hh"
 #include "FloatSetting.hh"
 #include "HotKey.hh"
 #include "IntegerSetting.hh"
+#include "Interpreter.hh"
+#include "SDLKey.hh"
+#include "SymbolManager.hh"
+#include "TclObject.hh"
 #include "VideoSourceSetting.hh"
+
+#include "GLUtil.hh"
+
+#include "xrange.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
+#include <array>
 #include <variant>
+#include <vector>
 
 namespace openmsx {
 
@@ -33,6 +44,50 @@ void HelpMarkerNewLine(std::string_view desc)
 {
 	ImGui::TextDisabledUnformatted("(?)");
 	simpleToolTip(desc);
+}
+
+void colorEditWithReset(const char* id, gl::vec4& color, const gl::vec4& defaultColor)
+{
+	ImGui::PushID(id);
+	if (ImGui::ColorButton("##color", ImVec4(color.x, color.y, color.z, color.w),
+			ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoTooltip)) {
+		ImGui::OpenPopup("##picker");
+	}
+	im::Popup("##picker", [&]{
+		ImGui::ColorPicker4("##picker", color.data(), ImGuiColorEditFlags_NoAlpha);
+		ImGui::Separator();
+		if (ImGui::Button("Reset to default")) {
+			color = defaultColor;
+		}
+	});
+	ImGui::PopID();
+}
+
+bool copyToClipboardPopup(const char* popupId, zstring_view text, function_ref<std::string()> supplier)
+{
+	return im::PopupContextWindow(popupId, [&]{
+		if (ImGui::MenuItem(text.c_str())) {
+			ImGui::SetClipboardText(supplier().c_str());
+		}
+	});
+}
+
+std::expected<unsigned, std::string> parseAddressExpr(
+	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp)
+{
+	if (str.empty()) return 0;
+
+	// TODO linear search, probably OK for now, but can be improved if it turns out to be a problem
+	// Note: limited to 16-bit, but larger values trigger an errors and are then handled below, so that's fine
+	if (auto addr = symbolManager.parseSymbolOrValue(str)) {
+		return *addr;
+	}
+
+	try {
+		return TclObject(str).eval(interp).getInt(interp);
+	} catch (CommandException& e) {
+		return std::unexpected(e.getMessage());
+	}
 }
 
 void ConfirmDialog::execute()
@@ -283,6 +338,62 @@ float calculateFade(float current, float target, float period)
 	}
 }
 
+void updateTexture(gl::Texture& tex, gl::ivec2 size, std::span<const uint32_t> pixels, bool wrap)
+{
+	assert(pixels.size() >= size_t(size.x) * size_t(size.y));
+	if (!tex.get()) {
+		tex = gl::Texture(false, wrap); // no interpolation
+	}
+	tex.bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
+	             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+}
+
+void updateGridTexture(gl::Texture& tex, gl::ivec2 cellSize, uint32_t color)
+{
+	// Reused, so that the viewers don't allocate it every frame (the GUI
+	// only runs on the main thread).
+	static std::vector<uint32_t> pixels;
+	pixels.assign(size_t(cellSize.x) * size_t(cellSize.y), 0);
+	for (auto x : xrange(cellSize.x)) pixels[x] = color;
+	for (auto y : xrange(cellSize.y)) pixels[y * cellSize.x] = color;
+	updateTexture(tex, cellSize, pixels, true); // with wrapping
+}
+
+void updateCheckerBoardTexture(gl::Texture& tex, uint32_t color1, uint32_t color2)
+{
+	std::array<uint32_t, 2 * 2> pixels = {color1, color2, color2, color1};
+	updateTexture(tex, {2, 2}, pixels, true); // with wrapping
+}
+
+void drawCheckerBoard(const gl::Texture& tex, gl::vec2 size, int checkerBoardSize)
+{
+	if (checkerBoardSize == 0) return;
+	ImGui::Image(tex.getImGui(), size, {}, size / (4.0f * float(checkerBoardSize)));
+}
+
+void imageWithGrid(const gl::Texture& tex, gl::vec2 size, gl::vec2 uv1, gl::vec2 uv2,
+                   const gl::Texture* gridTex, gl::vec2 gridCells)
+{
+	auto pos = ImGui::GetCursorPos();
+	ImGui::Image(tex.getImGui(), size, uv1, uv2);
+	if (gridTex) {
+		ImGui::SetCursorPos(pos);
+		ImGui::Image(gridTex->getImGui(), size, {}, gridCells);
+	}
+}
+
+void addCrosshair(ImDrawList* drawList, gl::vec2 center, gl::vec2 halfSize, ImU32 color, float thickness)
+{
+	auto zm1 = 1.5f * halfSize;
+	auto zm3 = 3.5f * halfSize;
+	drawList->AddRect(center - halfSize, center + halfSize, color, 0.0f, thickness);
+	drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
+	drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
+	drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
+	drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+}
+
 TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view command)
 {
 	for (const auto& info : hotkey.getGlobalBindings()) {
@@ -290,11 +401,11 @@ TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view com
 		if (const auto* keyDown = std::get_if<KeyDownEvent>(&info.event)) {
 			auto modifiers = keyDown->getModifiers();
 			return tmpStrCat(
-				strCat_if(modifiers & KMOD_CTRL,  "CTRL+"),
-				strCat_if(modifiers & KMOD_SHIFT, "SHIFT+"),
-				strCat_if(modifiers & KMOD_ALT,   "ALT+"),
-				strCat_if(modifiers & KMOD_GUI,   "GUI+"),
-				SDL_GetKeyName(keyDown->getKeyCode()));
+				strCat_if(modifiers & SDL_KMOD_CTRL,  "CTRL+"),
+				strCat_if(modifiers & SDL_KMOD_SHIFT, "SHIFT+"),
+				strCat_if(modifiers & SDL_KMOD_ALT,   "ALT+"),
+				strCat_if(modifiers & SDL_KMOD_GUI,   "GUI+"),
+				SDLKey::toString(keyDown->getKeyCode()));
 		}
 	}
 	return TemporaryString{};
@@ -307,9 +418,9 @@ TemporaryString getShortCutForCommand(const HotKey& hotkey, std::string_view com
 
 std::string getKeyChordName(ImGuiKeyChord keyChord)
 {
-	int keyCode = ImGuiKey2SDL(ImGuiKey(keyChord & ~ImGuiMod_Mask_));
-	const auto* name = SDL_GetKeyName(keyCode);
-	if (!name || (*name == '\0')) return "None";
+	auto keyCode = ImGuiKey2SDL(ImGuiKey(keyChord & ~ImGuiMod_Mask_));
+	if (keyCode == SDLK_UNKNOWN) return "None";
+	auto name = SDLKey::toString(keyCode);
 	return strCat(
 		(keyChord & ImGuiMod_Ctrl  ? "Ctrl+"sv  : ""sv),
 		(keyChord & ImGuiMod_Shift ? "Shift+"sv : ""sv),
@@ -331,7 +442,7 @@ std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name)
 		}
 	}();
 
-	SDL_Keycode keyCode = SDL_GetKeyFromName(std::string(key).c_str());
+	SDL_Keycode keyCode = SDLKey::keycodeFromString(std::string(key));
 	if (keyCode == SDLK_UNKNOWN) return {};
 
 	ImGuiKeyChord keyMods =

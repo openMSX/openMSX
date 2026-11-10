@@ -293,6 +293,32 @@ private:
 };
 
 
+class ColecoJoyState final : public StateChangeBase
+{
+public:
+	ColecoJoyState() = default; // for serialize
+	ColecoJoyState(EmuTime time_, uint8_t id_,
+	               unsigned press_, unsigned release_)
+		: StateChangeBase(time_)
+		, press(press_), release(release_), id(id_) {}
+
+	[[nodiscard]] auto getId()       const { return id; }
+	[[nodiscard]] auto getPress()    const { return press; }
+	[[nodiscard]] auto getRelease()  const { return release; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChangeBase>(*this);
+		ar.serialize("id",      id,
+		             "press",   press,
+		             "release", release);
+	}
+private:
+	unsigned press, release;
+	uint8_t id;
+};
+
+
 class PaddleState final : public StateChangeBase
 {
 public:
@@ -337,6 +363,31 @@ public:
 private:
 	uint8_t x, y;
 	bool touch, button;
+};
+
+
+/** Light sensor and trigger of a light gun (see LightGun), as the joystick
+  * port bits. The sensor output is computed from the rendered frame, which
+  * isn't reproducible during replay, so it's recorded as well. */
+class LightGunState final : public StateChangeBase
+{
+public:
+	LightGunState() = default; // for serialize
+	LightGunState(EmuTime time_, uint8_t id_, uint8_t status_)
+		: StateChangeBase(time_), id(id_), status(status_) {}
+
+	[[nodiscard]] auto getId()     const { return id; }
+	[[nodiscard]] auto getStatus() const { return status; }
+
+	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.template serializeBase<StateChangeBase>(*this);
+		ar.serialize("id",     id,
+		             "status", status);
+	}
+private:
+	uint8_t id = 0;
+	uint8_t status = 0;
 };
 
 
@@ -402,7 +453,9 @@ using StateChange = std::variant<
 	TouchpadState,
 	MouseState,
 	JoyMegaState,
-	JoyHandleState
+	JoyHandleState,
+	LightGunState,
+	ColecoJoyState
 >;
 
 inline auto getTime(const StateChange& event)
@@ -426,7 +479,9 @@ template<> struct Serializer<StateChange> : VariantSerializer<StateChange> {
 		{"TouchpadState",       index<TouchpadState>      },
 		{"MouseState",          index<MouseState>         },
 		{"JoyMegaState",        index<JoyMegaState>       },
-		{"JoyHandleState",      index<JoyHandleState>     }
+		{"JoyHandleState",      index<JoyHandleState>     },
+		{"LightGunState",       index<LightGunState>      },
+		{"ColecoJoyState",      index<ColecoJoyState>     }
 	});
 	static constexpr std::span<const enum_string<size_t>> info() {
 		return stateChangeInfo;

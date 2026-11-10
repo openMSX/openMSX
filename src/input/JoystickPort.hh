@@ -14,7 +14,8 @@ class JoystickPortIf
 {
 public:
 	virtual ~JoystickPortIf() = default;
-	[[nodiscard]] virtual uint8_t read(EmuTime time) = 0;
+	[[nodiscard]] virtual uint8_t read(EmuTime time) { return peek(time); }
+	[[nodiscard]] virtual uint8_t peek(EmuTime time) const = 0;
 	virtual void write(uint8_t value, EmuTime time) = 0;
 protected:
 	JoystickPortIf() = default;
@@ -34,6 +35,7 @@ public:
 	void plug(Pluggable& device, EmuTime time) override;
 
 	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
@@ -50,7 +52,7 @@ private:
 class DummyJoystickPort final : public JoystickPortIf
 {
 public:
-	[[nodiscard]] uint8_t read(EmuTime time) override;
+	[[nodiscard]] uint8_t peek(EmuTime time) const override;
 	void write(uint8_t value, EmuTime time) override;
 };
 

@@ -11,6 +11,7 @@
 #include <bit>
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <span>
 
 namespace yin {
@@ -20,18 +21,54 @@ template<typename T> [[nodiscard]] constexpr T square(T t)
 	return t * t;
 }
 
+// Helper: In-place inclusive prefix sum, v[i] = Σ v[j] for j=0..i
+//
+// A plain running sum is a serial chain of additions (one add latency per
+// element), which the compiler cannot reorder or vectorize. Instead split
+// 'v' into SEGS contiguous segments, scan them as independent chains (in
+// parallel on an out-of-order CPU), then add the sum of the preceding
+// segments to each segment. This rounds differently than the serial sum.
+inline void prefixSum(std::span<float> v)
+{
+	static constexpr size_t SEGS = 8;
+	const auto n = v.size();
+	const auto len = n / SEGS;
+	std::array<float, SEGS> acc = {};
+	for (auto i : xrange(len)) {
+		for (auto k : xrange(SEGS)) {
+			acc[k] += v[k * len + i];
+			v[k * len + i] = acc[k];
+		}
+	}
+	// The last segment also includes the remaining n % SEGS elements.
+	for (auto i : xrange(SEGS * len, n)) {
+		acc[SEGS - 1] += v[i];
+		v[i] = acc[SEGS - 1];
+	}
+	auto carry = 0.0f;
+	for (auto k : xrange(size_t(1), SEGS)) {
+		carry += acc[k - 1];
+		const auto end = (k == SEGS - 1) ? n : (k + 1) * len;
+		for (auto i : xrange(k * len, end)) {
+			v[i] += carry;
+		}
+	}
+}
+
 // Helper: Compute difference function d(τ) using autocorrelation
 //
 // d(τ) = Σ(x[n] - x[n+τ])²
 //      = Σx[n]² + Σx[n+τ]² - 2·Σx[n]·x[n+τ]
 //      = energyLeft(τ) + energyRight(τ) - 2·r(τ)
+//   energyLeft(τ)  = Σ x[n]² for n in [0, N-τ) = total - Σ x[n]² for n in [N-τ, N)
+//   energyRight(τ) = Σ x[n]² for n in [τ, N)   = total - Σ x[n]² for n in [0, τ)
 //
 // Returns: Total energy of the signal (sum of all squared samples)
 //
 // Preconditions:
 //   - autocorr.size() == diff.size()
-//   - diff.size() <= signal.size()
-//   - WORK_LEN >= signal.size() (for internal cumSumSq buffer)
+//   - diff.size() <= signal.size() / 2 + 1
+//   - WORK_LEN >= diff.size() (for internal buffers)
 template<size_t WORK_LEN>
 [[nodiscard]] inline float computeDifferenceFunction(
 	std::span<const float> signal,
@@ -39,34 +76,29 @@ template<size_t WORK_LEN>
 	std::span<float> diff)
 {
 	assert(autocorr.size() == diff.size());
-	assert(diff.size() <= signal.size());
+	assert(diff.size() <= signal.size() / 2 + 1);
 	const auto N = signal.size();
 	const auto maxLag = diff.size();
-	assert(WORK_LEN >= N);
+	assert(WORK_LEN >= maxLag);
 
-	// Internal work buffer for cumulative sum of squares
-	std::array<float, WORK_LEN> cumSumSq; // ok, uninitialized
+	// Total energy Σ x[n]² is the autocorrelation at lag 0.
+	const auto totalEnergy = autocorr[0];
 
-	// Precompute cumulative sum of squares
-	// cumSumSq[i] = Σ signal[j]² for j=0..i (inclusive)
-	cumSumSq[0] = square(signal[0]);
-	for (auto i : xrange(size_t(1), N)) {
-		cumSumSq[i] = cumSumSq[i - 1] + square(signal[i]);
-	}
-	const auto totalEnergy = cumSumSq[N - 1];
-
-	// Compute difference function
-	diff[0] = 0.0f; // Perfect match at lag 0
-
+	// Running sum of x[n]² over the first and the last τ samples:
+	//   edge[τ] = Σ x[n]² for n in [0, τ) and in [N-τ, N)
+	//           = 2·total - energyLeft(τ) - energyRight(τ)
+	// Only these two windows of maxLag samples are needed, not a prefix sum
+	// over all N samples.
+	std::array<float, WORK_LEN> edge; // ok, uninitialized
 	for (auto lag : xrange(size_t(1), maxLag)) {
-		// energyLeft = Σ signal[n]² for n in [0, N-lag)
-		auto energyLeft = cumSumSq[N - lag - 1];
+		edge[lag] = square(signal[lag - 1]) + square(signal[N - lag]);
+	}
+	prefixSum(std::span(edge).subspan(1, maxLag - 1));
 
-		// energyRight = Σ signal[n]² for n in [lag, N)
-		auto energyRight = totalEnergy - cumSumSq[lag - 1];
-
-		// d(τ) = energyLeft + energyRight - 2·r(τ)
-		diff[lag] = energyLeft + energyRight - 2.0f * autocorr[lag];
+	// d(τ) = energyLeft + energyRight - 2·r(τ) = 2·total - edge[τ] - 2·r(τ)
+	diff[0] = 0.0f; // Perfect match at lag 0
+	for (auto lag : xrange(size_t(1), maxLag)) {
+		diff[lag] = 2.0f * (totalEnergy - autocorr[lag]) - edge[lag];
 	}
 
 	return totalEnergy;
@@ -78,22 +110,39 @@ template<size_t WORK_LEN>
 //       = d(τ) · τ / Σd(j) for j=1..τ
 //
 // This is the key innovation of YIN that reduces octave errors.
-inline void cumulativeMeanNormalize(std::span<const float> diff,
-                                    std::span<float> diffNorm)
+//
+// Returns: Σd(j) for all lags j >= 1
+//
+// Preconditions:
+//   - diff.size() == diffNorm.size()
+//   - WORK_LEN >= diff.size() (for internal buffers)
+template<size_t WORK_LEN>
+[[nodiscard]] inline float cumulativeMeanNormalize(std::span<const float> diff,
+                                                   std::span<float> diffNorm)
 {
 	assert(diff.size() == diffNorm.size());
+	assert(!diff.empty());
+	assert(WORK_LEN >= diff.size());
 
-	diffNorm[0] = 1.0f; // Special case
-
-	auto runningSum = 0.0f;
+	// First the running sums, then the division and the selection in
+	// separate loops that the compiler can vectorize. gcc does not
+	// vectorize a conditional division (it may trap), nor a conversion from
+	// a 64-bit integer, hence the max() and the int.
+	std::array<float, WORK_LEN> sums; // ok, uninitialized
+	sums[0] = 0.0f;
 	for (auto lag : xrange(size_t(1), diff.size())) {
-		runningSum += diff[lag];
-		if (runningSum > 0.0f) {
-			diffNorm[lag] = diff[lag] * float(lag) / runningSum;
-		} else {
-			diffNorm[lag] = 1.0f;
-		}
+		sums[lag] = diff[lag];
 	}
+	prefixSum(std::span(sums).subspan(1, diff.size() - 1));
+	diffNorm[0] = 1.0f; // Special case
+	for (auto lag : xrange(size_t(1), diff.size())) {
+		auto sum = std::max(sums[lag], std::numeric_limits<float>::denorm_min());
+		diffNorm[lag] = diff[lag] * float(int(lag)) / sum;
+	}
+	for (auto lag : xrange(size_t(1), diff.size())) {
+		diffNorm[lag] = (sums[lag] > 0.0f) ? diffNorm[lag] : 1.0f;
+	}
+	return sums[diff.size() - 1];
 }
 
 // Helper: Find first minimum below threshold
@@ -188,33 +237,40 @@ template<unsigned FFT_LEN_L2>
 	size_t minLag, size_t maxLag, float threshold)
 {
 	static constexpr unsigned FFT_LEN = 1 << FFT_LEN_L2;
-	static constexpr unsigned WORK_LEN = FFT_LEN / 2;
-	// FFT requires full FFT_LEN, but YIN working buffers only need WORK_LEN
-	// because:
-	//   - FFT_LEN >= 2*N (chosen to be next power of 2 above 2*N)
-	//   - So N <= FFT_LEN/2, and maxLag <= N/2 <= FFT_LEN/4
-	//   - Therefore maxLag + 1 < WORK_LEN, and signal.size() <= WORK_LEN
+	// Buffer size, given N + maxLag <= FFT_LEN (see detectPitch()) and
+	// 1 <= maxLag <= N/2: maxLag + 1 <= FFT_LEN / 2.
+	static constexpr unsigned LAG_LEN = FFT_LEN / 2;
+	assert(signal.size() + maxLag <= FFT_LEN);
+	assert(minLag < maxLag);
+	if (maxLag >= LAG_LEN || minLag >= maxLag) [[unlikely]] {
+		// Cannot happen (see detectPitch()), but makes the index ranges
+		// below provably in bounds, also for the compiler.
+		return {};
+	}
 
-	// Compute autocorrelation using the new autocorrelation<SIGNAL_LEN_L2> API
-	// SIGNAL_LEN_L2 = FFT_LEN_L2 - 1 because FFT_LEN = 2 * SIGNAL_LEN
-	std::array<float, WORK_LEN> autocorr_; // ok, uninitialized
-	auto autocorrFull = std::span(autocorr_).first(signal.size());
-	autocorrelation<FFT_LEN_L2 - 1>(signal, autocorrFull);
-	// Extract only the lags we need (0..maxLag)
-	auto autocorr = autocorrFull.first(maxLag + 1);
+	// Autocorrelation, only for the lags 0..maxLag that YIN needs
+	std::array<float, LAG_LEN> autocorr_; // ok, uninitialized
+	auto autocorr = std::span(autocorr_).first(maxLag + 1);
+	autocorrelation<FFT_LEN_L2>(signal, autocorr);
 
 	// Compute difference function
-	std::array<float, WORK_LEN> diff_; // ok, uninitialized
+	std::array<float, LAG_LEN> diff_; // ok, uninitialized
 	auto diff = std::span(diff_).first(maxLag + 1);
-	auto totalEnergy = computeDifferenceFunction<WORK_LEN>(signal, autocorr, diff);
+	auto totalEnergy = computeDifferenceFunction<LAG_LEN>(signal, autocorr, diff);
 
 	// Early exit if signal is essentially silence
 	if (totalEnergy < 1e-10f) return {};
 
 	// Cumulative mean normalization
-	std::array<float, WORK_LEN> diffNorm_; // ok, uninitialized
+	std::array<float, LAG_LEN> diffNorm_; // ok, uninitialized
 	auto diffNorm = std::span(diffNorm_).first(maxLag + 1);
-	cumulativeMeanNormalize(diff, diffNorm);
+	auto diffSum = cumulativeMeanNormalize<LAG_LEN>(diff, diffNorm);
+
+	// Early exit if the signal is (nearly) constant: then d(τ) = 0 for all
+	// lags, but computing it from the energy and the autocorrelation leaves
+	// rounding noise (up to about 2e-6 of the total energy) that can look
+	// like a perfect match at a random lag.
+	if (diffSum < 1e-5f * float(maxLag) * totalEnergy) return {};
 
 	// Find best lag (always returns a result, even if confidence is low)
 	auto bestLag = findBestLag(diffNorm, minLag, maxLag, threshold);
@@ -274,11 +330,18 @@ template<unsigned FFT_LEN_L2>
 	assert(N >= 2);
 	assert(maxLag > minLag);
 
-	// Determine FFT size: next power of 2 that's at least 2*N
-	const auto fftLenL2 = narrow<unsigned>(std::bit_width(2 * N - 1));
+	// Determine FFT size: the autocorrelation via FFT is circular, so lags
+	// up to maxLag are only correct when N + maxLag <= FFT_LEN. Since
+	// maxLag <= N/2 this is at most 1.5 N, typically one power of 2 below
+	// the 2N that would be needed for all lags. Very short signals use the
+	// smallest supported FFT length (32).
+	const auto fftLenL2 = std::max(5u, narrow<unsigned>(std::bit_width(N + maxLag - 1)));
 
 	// Dispatch to appropriate FFT size
 	switch (fftLenL2) {
+	case  5: return detectPitchImpl< 5>(signal, sampleRate, minLag, maxLag, threshold);
+	case  6: return detectPitchImpl< 6>(signal, sampleRate, minLag, maxLag, threshold);
+	case  7: return detectPitchImpl< 7>(signal, sampleRate, minLag, maxLag, threshold);
 	case  8: return detectPitchImpl< 8>(signal, sampleRate, minLag, maxLag, threshold);
 	case  9: return detectPitchImpl< 9>(signal, sampleRate, minLag, maxLag, threshold);
 	case 10: return detectPitchImpl<10>(signal, sampleRate, minLag, maxLag, threshold);

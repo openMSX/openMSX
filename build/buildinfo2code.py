@@ -10,7 +10,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir, insta
         joinpath(dirname(__file__), 'platform-%s.mk' % targetPlatform),
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'LDFLAGS', 'TARGET_FLAGS',
-				'OPENMSX_TARGET_CPU'),
+				'OPENMSX_TARGET_CPU', 'CMAKE_TARGET_FLAGS', 'CMAKE_COMPILE_FLAGS'),
 			''
 			)
 		)

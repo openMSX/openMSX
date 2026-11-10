@@ -102,6 +102,12 @@ byte SVIPSG::readA(EmuTime time)
 	            ((ports[0]->read(time) & 0x0F) << 0));
 }
 
+byte SVIPSG::peekA(EmuTime time) const
+{
+	return byte(((ports[1]->peek(time) & 0x0F) << 4) |
+	            ((ports[0]->peek(time) & 0x0F) << 0));
+}
+
 void SVIPSG::writeB(byte value, EmuTime /*time*/)
 {
 	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, (value & 0x20) != 0);

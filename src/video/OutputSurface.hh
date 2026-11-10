@@ -1,7 +1,6 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
-#include "PixelOperations.hh"
 #include "gl_vec.hh"
 
 #include <cassert>
@@ -36,31 +35,6 @@ public:
 	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }
 	[[nodiscard]] gl::ivec2 getViewSize()   const { return m_viewSize; }
 	[[nodiscard]] gl::vec2  getViewScale()  const { return m_viewScale; }
-
-	/** Returns the pixel value for the given RGB color.
-	  * No effort is made to ensure that the returned pixel value is not the
-	  * color key for this output surface.
-	  */
-	[[nodiscard]] uint32_t mapRGB(gl::vec3 rgb) const
-	{
-		return mapRGB255(gl::ivec3(rgb * 255.0f));
-	}
-
-	/** Same as mapRGB, but RGB components are in range [0..255].
-	 */
-	[[nodiscard]] uint32_t mapRGB255(gl::ivec3 rgb) const
-	{
-		auto [r, g, b] = rgb;
-		PixelOperations pixelOps;
-		return pixelOps.combine(r, g, b);
-	}
-
-	/** Returns the color key for this output surface.
-	  */
-	[[nodiscard]] Pixel getKeyColor() const
-	{
-		return 0x00000000; // alpha = 0
-	}
 
 	/** Save the content of this OutputSurface to a PNG file.
 	  * @throws MSXException If creating the PNG file fails.

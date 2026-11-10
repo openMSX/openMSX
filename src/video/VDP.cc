@@ -1205,8 +1205,7 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 	switch (reg) {
 	case 0:
 		spriteChecker->sync(time);
-		spriteChecker->checkStatusEarly(time);
-		return statusReg0;
+		return spriteChecker->peekStatusEarly(time);
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
 			return statusReg1 | (irqHorizontal.getState() ? 1:0);
@@ -1261,7 +1260,12 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 
 uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 {
-	uint8_t ret = peekStatusReg(reg, time);
+	uint8_t ret = [&] {
+		if (reg != 0) return peekStatusReg(reg, time);
+		spriteChecker->sync(time);
+		spriteChecker->checkStatusEarly(time);
+		return statusReg0;
+	}();
 	switch (reg) {
 	case 0:
 		spriteChecker->resetStatus();

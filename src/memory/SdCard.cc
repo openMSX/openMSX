@@ -45,6 +45,16 @@ SdCard::SdCard(const DeviceConfig& config)
 
 SdCard::~SdCard() = default;
 
+bool SdCard::isPresent() const
+{
+	return hd != nullptr;
+}
+
+bool SdCard::isWriteProtected() const
+{
+	return hd && hd->isWriteProtected();
+}
+
 // helper methods for 'transfer' to avoid duplication
 uint8_t SdCard::readCurrentByteFromCurrentSector()
 {

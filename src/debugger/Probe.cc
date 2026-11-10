@@ -25,11 +25,6 @@ Probe<void>::Probe(Debugger& debugger_, std::string name_,
 {
 }
 
-void Probe<void>::signal() const
-{
-	notify();
-}
-
 TclObject Probe<void>::getValue() const
 {
 	return {};

@@ -7,7 +7,6 @@
 #include "gl_vec.hh"
 
 #include <cstdint>
-#include <optional>
 #include <span>
 #include <string>
 
@@ -51,8 +50,8 @@ private:
 	bool bitmapGrid = true;
 	bool rasterBeam = false;
 
-	std::optional<gl::Texture> bitmapTex; // TODO also deallocate when needed
-	std::optional<gl::Texture> bitmapGridTex;
+	gl::Texture bitmapTex    {gl::Null{}}; // TODO also deallocate when needed
+	gl::Texture bitmapGridTex{gl::Null{}};
 
 	int showCmdOverlay = 0; // 0->none, 1->in-progress, 2->also finished
 	gl::vec4 colorSrcDone{0.0f, 1.0f, 0.0f, 0.66f};

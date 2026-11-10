@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-uint8_t DummyJoystick::read(EmuTime /*time*/)
+uint8_t DummyJoystick::peek(EmuTime /*time*/) const
 {
 	return 0x3F;
 }

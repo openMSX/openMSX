@@ -2713,6 +2713,7 @@ VDPCmdEngine::FormatCmdResult VDPCmdEngine::formatCommand(const VDPCmdEngine::Cm
 		auto y = int(r.dy) + (diy ? -int(ny2) : int(ny2));
 		result.str = strCat("LINE (", r.dx, ',', r.dy, ")"
 		                        "-(",    x, ',',    y, "),", r.col, logOp);
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, nx2 + 1, ny2 + 1, dix, diy, mode, false);
 		break;
 	}
 	case 8:

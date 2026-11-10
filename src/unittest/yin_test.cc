@@ -55,6 +55,20 @@ TEST_CASE("YIN: silence")
 	CHECK(approx_rel(err, 1.0f, 0.05f));
 }
 
+TEST_CASE("YIN: constant")
+{
+	// e.g. a PSG channel with tone and noise disabled
+	for (auto size : {800, 1765, 1985, 2279, 4096}) {
+		for (auto level : {-0.5f, 0.05f, 0.25f, 0.5f, 0.9f}) {
+			auto signal = std::vector<float>(size, level);
+
+			auto [freq, err] = run(signal);
+			CHECK(approx_abs(freq, 0.0f, 1.0f));
+			CHECK(approx_rel(err, 1.0f, 0.05f));
+		}
+	}
+}
+
 TEST_CASE("YIN: sine")
 {
 	auto generateSine = [](float frequency) {

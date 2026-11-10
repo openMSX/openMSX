@@ -200,7 +200,7 @@ void CassettePlayer::autoRun()
 		// H_READ is used by some firmwares; we need to hook the
 		// H_MAIN that happens immediately after H_READ.
 		"    set cmd \"openmsx::auto_run_cb $next\"\n"
-		"    set openmsx::auto_run_bp [debug set_bp ", H_MAIN, " 1 \"$cmd\"]\n"
+		"    set auto_run_bp [debug set_bp ", H_MAIN, " 1 \"$cmd\"]\n"
 		"  }\n"
 
 		"  if {[info exists auto_run_bp]} {debug remove_bp $auto_run_bp\n}\n"

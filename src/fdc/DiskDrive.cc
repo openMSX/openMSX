@@ -51,7 +51,7 @@ bool DummyDrive::getMotor() const
 	return false;
 }
 
-bool DummyDrive::indexPulse(EmuTime /*time*/)
+bool DummyDrive::indexPulse(EmuTime /*time*/) const
 {
 	return false;
 }

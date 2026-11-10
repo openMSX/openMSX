@@ -1,6 +1,7 @@
 #include "ImGuiRasterViewer.hh"
 
 #include "ImGuiTraceViewer.hh"
+#include "ImGuiUtils.hh"
 
 #include "MSXMotherBoard.hh"
 #include "RawFrame.hh"
@@ -264,21 +265,9 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 	im::Child("##display", min(availSize, reqSize), {}, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		scrnPos = ImGui::GetCursorScreenPos();
 
-		auto makeAndBindTex = [&](gl::Texture& tex) {
-			if (!tex.get()) {
-				tex = gl::Texture(false, true); // no interpolation, with wrapping
-			}
-			tex.bind();
-		};
-
-		gl::vec4 checkerBoardColor1{0.2f, 0.2f, 0.2f, 0.8f}; // RGBA
-		gl::vec4 checkerBoardColor2{0.4f, 0.4f, 0.4f, 0.8f}; // RGBA
-		auto col1 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor1);
-		auto col2 = ImGui::ColorConvertFloat4ToU32(checkerBoardColor2);
-		std::array<Pixel, 4> pixels = {col1, col2, col2, col1};
-		makeAndBindTex(checkerTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		updateCheckerBoardTexture(checkerTex,
+		                          ImGui::ColorConvertFloat4ToU32(defaultCheckerBoardColor1),
+		                          ImGui::ColorConvertFloat4ToU32(defaultCheckerBoardColor2));
 
 		// align checkerboard pattern with MSX pixel (0,0) (when set-adjust is 0)
 		static constexpr float checkerBoardSize = 8.0f;
@@ -332,9 +321,7 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 		if (borderWidth == 320) any320 = true;
 		std::ranges::replace(allLineWidths, 1, borderWidth);
 
-		makeAndBindTex(viewTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VISIBLE_PIXELS_PER_LINE, numVisibleLines, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pixelBuffer.data());
+		updateTexture(viewTex, {VISIBLE_PIXELS_PER_LINE, numVisibleLines}, pixelBuffer, true); // with wrapping
 
 		auto* drawList = ImGui::GetWindowDrawList();
 		auto colorForLine = [&](int line) {
@@ -399,32 +386,12 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 		}
 
 		if (showGrid) {
-			std::array<Pixel, (2 * MAX_ZOOM) * (2 * MAX_ZOOM)> pixels_;
 			auto color = ImGui::ColorConvertFloat4ToU32(gridColor);
-			auto makeGridUnit = [&](int nx, int ny) {
-				auto pixels2 = std::span(pixels_).subspan(0, nx * ny);
-				for (auto yy : xrange(ny)) {
-					auto line = pixels2.subspan(yy * nx, nx);
-					for (auto xx : xrange(nx)) {
-						line[xx] = (xx == 0 || yy == 0) ? color : 0;
-					}
-				}
-			};
 			if (any320) {
-				int nx = 2 * zoom;
-				int ny = 2 * zoom;
-				makeGridUnit(nx, ny);
-				makeAndBindTex(gridTex320);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nx, ny, 0,
-					GL_RGBA, GL_UNSIGNED_BYTE, pixels_.data());
+				updateGridTexture(gridTex320, {2 * zoom, 2 * zoom}, color);
 			}
 			if (any640 && (zoom > 1)) {
-				int nx = zoom;
-				int ny = 2 * zoom;
-				makeGridUnit(nx, ny);
-				makeAndBindTex(gridTex640);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nx, ny, 0,
-					GL_RGBA, GL_UNSIGNED_BYTE, pixels_.data());
+				updateGridTexture(gridTex640, {zoom, 2 * zoom}, color);
 			}
 			foreach_run(lineWidths, [&](size_t i, size_t n, unsigned width) {
 				assert(width == one_of(320u, 640u));
@@ -556,7 +523,7 @@ void ImGuiRasterViewer::paintDisplay(MSXMotherBoard& motherBoard)
 		}
 	});
 	if (ImGui::IsItemHovered()) {
-		auto [tx, vy] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / (gl::vec2(0.5f, 2.0f) * float(zoom)));
+		auto [tx, vy] = hoveredCell(scrnPos, gl::vec2(0.5f, 2.0f) * float(zoom));
 		if (0 <= tx && tx < VDP::TICKS_PER_LINE &&
 		    0 <= vy && vy < numLines) {
 			int vx = tx / 2;
@@ -626,17 +593,8 @@ gl::vec2 ImGuiRasterViewer::drawCrosshair(
 {
 	auto [center, halfPixel] = vdpToScreenCoord(vdpPos, scrnTopLeft, zoom, lineWidths);
 
-	auto thickness = float(zoom) * 0.5f;
-	gl::vec2 zm = halfPixel;
-	auto zm1 = 1.5f * zm;
-	auto zm3 = 3.5f * zm;
-	auto* drawList = ImGui::GetWindowDrawList();
-	auto color = ImGui::ColorConvertFloat4ToU32(color_);
-	drawList->AddRect(center - zm, center + zm, color, 0.0f, thickness);
-	drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
-	drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
-	drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
-	drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+	addCrosshair(ImGui::GetWindowDrawList(), center, halfPixel,
+	             ImGui::ColorConvertFloat4ToU32(color_), float(zoom) * 0.5f);
 	return center;
 }
 

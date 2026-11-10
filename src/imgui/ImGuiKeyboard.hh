@@ -3,6 +3,9 @@
 
 #include "ImGuiPart.hh"
 
+#include <string>
+#include <vector>
+
 namespace openmsx {
 
 class ImGuiKeyboard final : public ImGuiPart
@@ -19,6 +22,11 @@ public:
 	bool show = false;
 
 private:
+	// The labels of the keys are calculated once per machine (they come
+	// from its unicodemap, which doesn't change during its lifetime).
+	std::string labelsMachineID;
+	std::vector<std::string> labels; // in the order of the key table
+
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiKeyboard::show}
 	};

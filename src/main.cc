@@ -16,14 +16,18 @@
 #include "one_of.hh"
 #include "random.hh"
 #include "setenv.hh" // setenv() for windows
+#include "strCat.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <exception>
 #include <iostream>
+#include <string>
+#include <string_view>
 #ifdef _WIN32
 #include "win32-arggen.hh"
 #endif
@@ -45,10 +49,46 @@ static void initializeSDL()
 {
 	int flags = 0;
 	flags |= SDL_INIT_JOYSTICK;
-#ifndef NDEBUG
-	flags |= SDL_INIT_NOPARACHUTE;
+
+	// On Linux and the BSDs, prefer x11 over wayland, because Dear ImGui
+	// ViewPorts are not (yet) supported on Wayland. SDL only tries the
+	// drivers in this list, so add the others (e.g. kmsdrm) as fallback,
+	// like SDL2 did. But not dummy, evdev and offscreen: SDL only uses these
+	// when the hint mentions them.
+#ifdef __unix__
+	std::string videoDrivers = "x11,wayland";
+	for (int i = 0, n = SDL_GetNumVideoDrivers(); i < n; ++i) {
+		std::string_view name = SDL_GetVideoDriver(i);
+		if (name != one_of("x11", "wayland", "dummy", "evdev", "offscreen")) {
+			strAppend(videoDrivers, ',', name);
+		}
+	}
+	SDL_SetHint(SDL_HINT_VIDEO_DRIVER, videoDrivers.c_str());
 #endif
-	if (SDL_Init(flags) < 0) {
+	// Deliberately NOT like SDL2: use SDL3's default keycode options. Set
+	// them explicitly, so this doesn't change when SDL changes its default
+	// (the SDL_KEYCODE_OPTIONS environment variable still overrides it). So
+	// the letter keys of non-Latin layouts (e.g. Russian) report Latin keycodes,
+	// and the number row of French layouts reports digits. With the
+	// keycodes of the actual layout (like SDL2), everything based on
+	// keycodes works worse on such keyboards: Ctrl+key on the MSX, the KEY
+	// mapping mode, layout independent bindings and GUI shortcuts (e.g.
+	// Ctrl+C). Text input, and thus typing on the MSX in CHARACTER mode, is
+	// not affected. Only bindings on e.g. 'й' or '&' must now use 'Q' or '1'.
+	SDL_SetHint(SDL_HINT_KEYCODE_OPTIONS, "french_numbers,latin_letters");
+	// KEEP-SDL2: We always keep text input started (see
+	// InputEventGenerator::startTextInput()). Without this hint, SDL3 then
+	// shows an on-screen keyboard when there's no physical keyboard (e.g.
+	// on a Steam Deck). SDL2 didn't do that.
+	SDL_SetHint(SDL_HINT_ENABLE_SCREEN_KEYBOARD, "0");
+#ifdef _WIN32
+	// KEEP-SDL2: Let Windows scale the window on high-DPI displays, like
+	// with SDL2. By default SDL3 declares the process per-monitor DPI
+	// aware, which makes the window and GUI smaller there. (There's no
+	// SDL_HINT_* macro for this hint in SDL3, but SDL still reads it.)
+	SDL_SetHint("SDL_WINDOWS_DPI_AWARENESS", "unaware");
+#endif
+	if (!SDL_Init(flags)) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
 
@@ -124,7 +164,7 @@ static int main(int argc, char **argv)
 		exitCode = 1;
 	}
 	// Clean up.
-	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
+	if (SDL_WasInit(0)) {
 		SDL_Quit();
 	}
 

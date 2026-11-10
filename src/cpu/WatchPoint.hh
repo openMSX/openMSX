@@ -75,7 +75,7 @@ public:
 	{
 		auto len = a.getListLength(interp);
 		if (len != one_of(1u, 2u)) {
-			throw CommandException("Invalid address: must be a single address, or a begin/end pair");
+			throw CommandException("Invalid address: must be a single address, or a {begin end} pair");
 		}
 		auto begin = a.getListIndex(interp, 0);
 		auto end = (len == 2) ? a.getListIndex(interp, 1) : TclObject{};

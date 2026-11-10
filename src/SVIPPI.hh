@@ -44,6 +44,8 @@ private:
 	void writeC0(uint4_t value, EmuTime time) override;
 	void writeC1(uint4_t value, EmuTime time) override;
 
+	[[nodiscard]] uint8_t combinePortA(uint8_t joy1, uint8_t joy2, EmuTime time) const;
+
 private:
 	CassettePortInterface& cassettePort;
 	I8255 i8255;

@@ -34,6 +34,7 @@
 
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -773,47 +774,44 @@ uint8_t MSXCPUInterface::peekMem(uint16_t address, EmuTime time) const
 	}
 }
 
-// Similar to peekSlottedMem(), but can read a whole block at once
-void MSXCPUInterface::peekSlottedMemBlock(unsigned address, std::span<uint8_t> output, EmuTime time) const
+// Read a block per cache line: copied from 'getCacheLine(lineAddress)' when
+// that returns a cache line, otherwise byte per byte with 'peek(address)'.
+static void peekBlock(unsigned address, std::span<uint8_t> output,
+                      std::invocable<unsigned> auto getCacheLine,
+                      std::invocable<unsigned> auto peek)
 {
-	auto getCacheLine = [&]() -> const uint8_t* {
-		uint8_t primSlot = (address & 0xC0000) >> 18;
-		bool exp = isExpanded(primSlot);
-		uint16_t offset = (address & (0xFFFF & CacheLine::HIGH)); // includes page
-		if ((offset == (0xFFFF & CacheLine::HIGH)) && exp) {
-			return nullptr;
-		} else {
-			uint8_t subSlot = exp ? ((address & 0x30000) >> 16) : 0;
-			uint8_t page = (address & 0x0C000) >> 14;
-			return slotLayout[primSlot][subSlot][page]->getReadCacheLine(offset);
-		}
-	};
-	auto processChunk = [&](size_t start, size_t n) {
-		assert(start < CacheLine::SIZE);
-		assert((start + n) <= CacheLine::SIZE);
-
-		if (const auto* line = getCacheLine()) {
+	while (!output.empty()) {
+		unsigned start = address & CacheLine::LOW;
+		auto n = std::min<size_t>(output.size(), CacheLine::SIZE - start);
+		if (const uint8_t* line = getCacheLine(address - start)) {
 			copy_to_range(std::span{line + start, n}, output);
 		} else {
 			for (auto i : xrange(n)) {
-				output[i] = peekSlottedMem(narrow<unsigned>(address + i), time);
+				output[i] = peek(narrow<unsigned>(address + i));
 			}
 		}
 		output = output.subspan(n);
-		address += n;
-	};
+		address += narrow<unsigned>(n);
+	}
+}
 
-	if (auto l = address & CacheLine::LOW) { // start not aligned on cacheline boundary
-		auto n = std::min<size_t>(output.size(), CacheLine::SIZE - l);
-		processChunk(l, n);
-	}
-	while (output.size() >= CacheLine::SIZE) { // full cachelines
-		processChunk(0, CacheLine::SIZE);
-	}
-	if (auto n = output.size()) { // trailing partial cache line
-		processChunk(0, n);
-	}
-	assert(output.empty()); // fully processed
+// Similar to peekSlottedMem(), but can read a whole block at once
+void MSXCPUInterface::peekSlottedMemBlock(unsigned address, std::span<uint8_t> output, EmuTime time) const
+{
+	peekBlock(address, output,
+		[&](unsigned line) -> const uint8_t* {
+			uint8_t primSlot = (line & 0xC0000) >> 18;
+			bool exp = isExpanded(primSlot);
+			uint16_t offset = (line & 0xFFFF); // includes page
+			if ((offset == (0xFFFF & CacheLine::HIGH)) && exp) {
+				return nullptr;
+			} else {
+				uint8_t subSlot = exp ? ((line & 0x30000) >> 16) : 0;
+				uint8_t page = (line & 0x0C000) >> 14;
+				return slotLayout[primSlot][subSlot][page]->getReadCacheLine(offset);
+			}
+		},
+		[&](unsigned addr) { return peekSlottedMem(addr, time); });
 }
 
 uint8_t MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime time) const
@@ -1147,6 +1145,28 @@ uint8_t MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime time)
 {
 	const auto& interface = OUTER(MSXCPUInterface, memoryDebug);
 	return interface.peekMem(narrow<uint16_t>(address), time);
+}
+
+void MSXCPUInterface::MemoryDebug::readBlock(unsigned start, std::span<uint8_t> output)
+{
+	assert(start + output.size() <= getSize());
+	const auto& interface = OUTER(MSXCPUInterface, memoryDebug);
+	auto time = getMotherBoard().getCurrentTime();
+	peekBlock(start, output,
+		[&](unsigned line) -> const uint8_t* {
+			if ((line == (0xFFFF & CacheLine::HIGH)) &&
+			    interface.isExpanded(interface.primarySlotState[3])) {
+				return nullptr; // contains the sub-slot register
+			}
+			return interface.visibleDevices[line >> 14]->getReadCacheLine(narrow<uint16_t>(line));
+		},
+		[&](unsigned address) { return interface.peekMem(narrow<uint16_t>(address), time); });
+
+#ifdef DEBUG
+	for (auto i : xrange(output.size())) {
+		assert(output[i] == read(narrow<unsigned>(start + i), time));
+	}
+#endif
 }
 
 void MSXCPUInterface::MemoryDebug::write(unsigned address, uint8_t value,

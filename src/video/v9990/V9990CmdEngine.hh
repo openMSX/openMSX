@@ -70,6 +70,22 @@ public:
 		return status;
 	}
 
+	/** Snapshot of the command parameter registers (R#32-R#54).
+	  * These are not kept in the V9990 register file: V9990::writeRegister()
+	  * forwards them straight to this engine, so the debugger has to read
+	  * them back from here. */
+	struct CmdRegs {
+		uint16_t SX, SY, DX, DY, NX, NY;
+		uint16_t WM, fgCol, bgCol, borderX;
+		uint8_t ARG, LOG, CMD;
+	};
+	[[nodiscard]] CmdRegs getCmdRegs(EmuTime time) const {
+		return {.SX = SX, .SY = SY, .DX = DX, .DY = DY, .NX = NX, .NY = NY,
+		        .WM = WM, .fgCol = fgCol, .bgCol = bgCol,
+		        .borderX = getBorderX(time),
+		        .ARG = ARG, .LOG = LOG, .CMD = CMD};
+	}
+
 	[[nodiscard]] uint16_t getBorderX(EmuTime time) const {
 		// note: used for both normal and debug read
 		const_cast<V9990CmdEngine*>(this)->sync(time);
@@ -111,10 +127,10 @@ private:
 		static uint8_t logOp(std::span<const uint8_t, 256 * 256> lut, uint8_t src, uint8_t dst);
 		static void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 		static void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 	};
 
 	class V9990P2 {
@@ -132,10 +148,10 @@ private:
 		static uint8_t logOp(std::span<const uint8_t, 256 * 256> lut, uint8_t src, uint8_t dst);
 		static void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 		static void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 	};
 
 	class V9990Bpp2 {
@@ -153,10 +169,10 @@ private:
 		static uint8_t logOp(std::span<const uint8_t, 256 * 256> lut, uint8_t src, uint8_t dst);
 		static void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 		static void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 	};
 
 	class V9990Bpp4 {
@@ -174,10 +190,10 @@ private:
 		static uint8_t logOp(std::span<const uint8_t, 256 * 256> lut, uint8_t src, uint8_t dst);
 		static void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 		static void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 	};
 
 	class V9990Bpp8 {
@@ -195,10 +211,10 @@ private:
 		static uint8_t logOp(std::span<const uint8_t, 256 * 256> lut, uint8_t src, uint8_t dst);
 		static void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 		static void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 	};
 
 	class V9990Bpp16 {
@@ -216,10 +232,10 @@ private:
 		static uint16_t logOp(std::span<const uint8_t, 256 * 256> lut, uint16_t src, uint16_t dst, bool transp);
 		static void pset(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 		static void psetColor(
 			V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op);
+			uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& dataLatch);
 	};
 
 	void startSTOP  (EmuTime time);
@@ -292,6 +308,12 @@ private:
 	uint16_t WM, fgCol, bgCol;
 	uint8_t ARG, LOG, CMD;
 
+	/** P1: the engine's 16-bit data output register (low byte: VRAM0 lane,
+	  * high byte: VRAM1 lane). A P1 write loads only the target lane, but
+	  * both chips are written through WM, see p1Write().
+	  */
+	uint16_t dataLatch = 0;
+
 	unsigned cmdMode; // TODO keep this up-to-date (now it's calculated at the start of a command)
 
 	/** Status bits
@@ -338,7 +360,7 @@ private:
 		return NY ? NY : 4096;
 	}
 };
-SERIALIZE_CLASS_VERSION(V9990CmdEngine, 2);
+SERIALIZE_CLASS_VERSION(V9990CmdEngine, 3);
 
 } // namespace openmsx
 

@@ -375,6 +375,7 @@ private:
 	struct MemoryDebug final : SimpleDebuggable {
 		explicit MemoryDebug(MSXMotherBoard& motherBoard);
 		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void readBlock(unsigned start, std::span<uint8_t> output) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} memoryDebug;
 

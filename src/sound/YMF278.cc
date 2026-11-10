@@ -40,6 +40,7 @@
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 
 #include <algorithm>
@@ -1068,6 +1069,24 @@ uint8_t YMF278::DebugMemory::read(unsigned address)
 {
 	const auto& ymf278 = OUTER(YMF278, debugMemory);
 	return ymf278.readMem(address);
+}
+
+void YMF278::DebugMemory::readBlock(unsigned start, std::span<uint8_t> output)
+{
+	assert(start + output.size() <= getSize());
+	const auto& ymf278 = OUTER(YMF278, debugMemory);
+	while (!output.empty()) {
+		auto offset = start % k128;
+		auto n = std::min(output.size(), k128 - offset);
+		auto out = output.first(n);
+		if (auto chunk = ymf278.memPtrs[start / k128].asOptional()) {
+			copy_to_range(chunk->subspan(offset, n), out);
+		} else {
+			std::ranges::fill(out, 0xFF);
+		}
+		output = output.subspan(n);
+		start += narrow<unsigned>(n);
+	}
 }
 
 void YMF278::DebugMemory::write(unsigned address, uint8_t value)

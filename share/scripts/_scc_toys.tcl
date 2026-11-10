@@ -309,7 +309,7 @@ proc toggle_scc_editor {} {
 		return ""
 	}
 
-	bind -layer scc_editor "mouse button1 down" {scc_toys::checkclick}
+	bind -layer scc_editor -msx "mouse button1 down" {scc_toys::checkclick}
 	activate_input_layer scc_editor
 
 	osd create rectangle scc \

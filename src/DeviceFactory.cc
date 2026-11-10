@@ -16,6 +16,7 @@
 #include "ESE_RAM.hh"
 #include "ESE_SCC.hh"
 #include "FraelSwitchableROM.hh"
+#include "Franky.hh"
 #include "GoudaSCSI.hh"
 #include "JVCMSXMIDI.hh"
 #include "MSXAudio.hh"
@@ -39,6 +40,7 @@
 #include "MSXMirrorDevice.hh"
 #include "MSXModem.hh"
 #include "MSXMoonSound.hh"
+#include "MSXMakoto.hh"
 #include "MSXMusic.hh"
 #include "MSXOPL3Cartridge.hh"
 #include "MSXPPI.hh"
@@ -79,6 +81,7 @@
 #include "SVIPSG.hh"
 #include "SVIPrinterPort.hh"
 #include "SanyoFDC.hh"
+#include "SdMapperV1.hh"
 #include "SensorKid.hh"
 #include "SpectravideoFDC.hh"
 #include "SunriseIDE.hh"
@@ -205,6 +208,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<MSXYamahaSFG>(conf);
 	} else if (type == "MoonSound") {
 		result = std::make_unique<MSXMoonSound>(conf);
+	} else if (type == "Makoto") {
+		result = std::make_unique<MSXMakoto>(conf);
 	} else if (type == "DalSoRiR2") {
 		result = std::make_unique<DalSoRiR2>(conf);
 	} else if (type == "OPL3Cartridge") {
@@ -318,6 +323,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<CanonWordProcessor>(conf);
 	} else if (type == "MegaFlashRomSCCPlusSD") {
 		result = std::make_unique<MegaFlashRomSCCPlusSD>(conf);
+	} else if (type == "SdMapperV1") {
+		result = std::make_unique<SdMapperV1>(conf);
 	} else if (type == "MusicalMemoryMapper") {
 		result = std::make_unique<MusicalMemoryMapper>(conf);
 	} else if (type == "Carnivore2") {
@@ -328,6 +335,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		// Ignore for now. We might want to create a real device for it later.
 	} else if (type == "MSXPiDevice") {
 		result = std::make_unique<MSXPiDevice>(conf);
+	} else if (type == "Franky") {
+		result = std::make_unique<Franky>(conf);
 	} else {
 		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");

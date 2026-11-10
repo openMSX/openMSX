@@ -75,7 +75,7 @@ bool DriveMultiplexer::getMotor() const
 	return motor;
 }
 
-bool DriveMultiplexer::indexPulse(EmuTime time)
+bool DriveMultiplexer::indexPulse(EmuTime time) const
 {
 	return drive[selected]->indexPulse(time);
 }

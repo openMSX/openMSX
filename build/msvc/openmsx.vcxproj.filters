@@ -102,7 +102,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.cc">
       <Filter>3rdparty\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl3.cc">
       <Filter>3rdparty\imgui</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.cc">
@@ -540,6 +540,15 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc">
       <Filter>ide</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\BitmapDecoder.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\BitmapDecoderSettings.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\DebuggableBitmapViewer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -627,6 +636,18 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSlotMap.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPRegs.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPSprites.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPTiles.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPUtils.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -654,6 +675,21 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Bitmap.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Regs.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Sprites.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Tiles.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -670,6 +706,18 @@
       <Filter>input</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\EventDelay.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Gunstick.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\LightGun.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\LightGunSensor.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\TerminatorLaser.cc">
       <Filter>input</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc">
@@ -1305,6 +1353,24 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\Franky.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDP.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPCore.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPDummyRenderer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPPixelRenderer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SMSVDPSDLRasterizer.cc">
+      <Filter>video</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
@@ -1566,12 +1632,16 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\SdMapperV1.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Yamanooto.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SVIPSG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SVIFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\CircuitDesignerRDDongle.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SpeedManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.cc" />
@@ -1600,7 +1670,7 @@
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3_loader.h">
       <Filter>3rdparty\imgui</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.h">
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl3.h">
       <Filter>3rdparty\imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_internal.h">
@@ -2095,6 +2165,15 @@
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh">
       <Filter>ide</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\BitmapDecoder.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\BitmapDecoderSettings.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\DebuggableBitmapViewer.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.hh">
       <Filter>imgui</Filter>
     </None>
@@ -2188,6 +2267,18 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSlotMap.hh">
       <Filter>imgui</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPRegs.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPSprites.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPTiles.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSMSVDPUtils.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.hh">
       <Filter>imgui</Filter>
     </None>
@@ -2215,6 +2306,24 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.hh">
       <Filter>imgui</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Bitmap.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Regs.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Sprites.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Tiles.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiV9990Utils.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVDPUtils.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.hh">
       <Filter>imgui</Filter>
     </None>
@@ -2224,6 +2333,9 @@
     <None Include="$(OpenMSXSrcDir)\imgui\Shortcuts.hh">
       <Filter>imgui</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\VDPRegisterViewer.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh">
       <Filter>input</Filter>
     </None>
@@ -2231,6 +2343,21 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\Gunstick.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\GunstickSensor.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\LightGun.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\LightGunSensor.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\TerminatorLaser.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh">
@@ -2953,6 +3080,9 @@
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh">
       <Filter>video</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\video\Monitor3D.hh">
+      <Filter>video</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh">
       <Filter>video</Filter>
     </None>
@@ -2987,6 +3117,9 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SDLProperties.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh">
@@ -3035,6 +3168,30 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\Franky.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDP.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPCore.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPDummyRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPPixelRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPRasterizer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPRenderer.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SMSVDPSDLRasterizer.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990.hh">
@@ -3299,6 +3456,9 @@
     <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\SdMapperV1.hh">
+      <Filter>memory</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\Yamanooto.hh" />
@@ -3308,6 +3468,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\input\CircuitDesignerRDDongle.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\ColecoJoystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomColecoMegaCart.hh" />

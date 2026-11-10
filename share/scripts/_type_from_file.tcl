@@ -46,7 +46,7 @@ proc type_from_file {args} {
 
 	# open file
 	set f [open $filename "r"]
-	fconfigure $f -translation binary -encoding binary
+	fconfigure $f -translation binary
 
 	set the_text [read $f]
 	close $f

@@ -17,7 +17,6 @@
 #include "TclObject.hh"
 #include "WatchPoint.hh"
 
-#include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -303,9 +302,9 @@ void Debugger::Cmd::readBlock(std::span<const TclObject> tokens, TclObject& resu
 		throw CommandException("Invalid size");
 	}
 
-	MemBuffer<byte> buf(num);
-	device.readBlock(addr, buf);
-	result = std::span{buf}; // makes a copy
+	result.setBinary(num, [&](std::span<uint8_t> buf) {
+		device.readBlock(addr, buf);
+	});
 }
 
 void Debugger::Cmd::write(std::span<const TclObject> tokens, TclObject& /*result*/)
@@ -1307,7 +1306,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"debug watchpoint create [<property-name> <property-value>]...\n"
 		"  Create a new watchpoint with given properties. The following properties are supported:\n"
 		"  -type       one of 'read_io', 'write_io', 'read_mem', 'write_mem'\n"
-		"  -address    the address(es) where the watchpoint should trigger, can be a single address or a begin/end-pair\n"
+		"  -address    the address(es) where the watchpoint should trigger, can be a single address or a {begin end} pair\n"
 		"              " + addressNote +
 		"  -condition  a Tcl expression that must evaluate to true for the watchpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the watchpoint triggers (default = 'debug break')\n"

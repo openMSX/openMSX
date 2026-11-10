@@ -55,23 +55,35 @@
   <code>TMPDIR</code>, <code>TMP</code> or <code>TEMP</code> (in that order).
   </p>
 
-  <p>On Windows (which does not support UNIX domain sockets), the socket is a
-  normal TCP socket. The port number is random between 9938 and 9958. This is done
-  to enforce applications to deal with multiple running openMSX processes. The
-  port number will be put in the following text file:</p>
+  <p>On Windows, openMSX uses a TCP socket on localhost instead. The port
+  number is random between 9938 and 10001. This is done to enforce applications
+  to deal with multiple running openMSX processes. The port number will be put
+  in the file <code>socket.&lt;pid&gt;</code> in the folder
+  <code>openmsx-default</code> in your temp folder (<code>%TMP%</code>), normally:</p>
 
   <div class="commandline">
-  %USERPROFILE%\Documents and Settings\&lt;username&gt;\Local Settings\Temp\openmsx-default\socket.&lt;pid&gt;
+  C:\Users\&lt;user name&gt;\AppData\Local\Temp\openmsx-default\socket.&lt;pid&gt;
   </div>
 
-  <p>or, when <code>%USERPROFILE%</code> does not exist:</p>
-
-  <p>
-  <code>%TMPDIR%\openmsx-default</code>, or<br/>
-  <code>%TMP%\openmsx-default</code>, or<br/>
-  <code>%TEMP%\openmsx-default</code>, or as a last resort:<br/>
-  <code>C:\WINDOWS\TEMP</code>
-  </p>
+  <p>Unlike a UNIX domain socket, a TCP socket can be connected to by any
+  process on the computer, also by processes of other users. As the commands
+  sent to openMSX can for instance read and write files, openMSX only accepts
+  connections from the same Windows user that is running openMSX. This is
+  checked with <a class="external"
+  href="https://learn.microsoft.com/en-us/windows/win32/secauthn/sspi">SSPI</a>:
+  directly after connecting, the client must authenticate itself using the SSPI
+  <a class="external"
+  href="https://learn.microsoft.com/en-us/windows/win32/secauthn/microsoft-negotiate">Negotiate</a>
+  package. The client starts, and each token is sent as a 4-byte big-endian
+  length followed by the token data. Only after a successful authentication,
+  openMSX accepts the XML input described below; otherwise it closes the
+  connection. An example implementation in C++ can be found in
+  <code>src/openmsx/SspiNegotiateClient.cpp</code> of the old, separate <a
+  class="external" href="https://github.com/openMSX/debugger">openMSX
+  debugger</a> (no longer maintained, as its functionality is now part of the
+  openMSX GUI). If your
+  application starts openMSX itself, it is easier to use a named pipe
+  (<code>-control pipe</code>, see above), which does not need this.</p>
 
   <p>After connecting, openMSX expects XML input on the channel and it will
   also give you output. This is explained in the next section.</p>
@@ -96,8 +108,9 @@
   <p>This first output is the opening tag (<code>&lt;openmsx-output&gt;</code>).
   All messages that are normally printed on stdout in the
   terminal from which you start openMSX are in a <code>&lt;log&gt;</code> tag.
-  The level can be "info" or "warning" and the message is in the text node
-  itself.
+  The level can be "info", "warning", "error" or "progress" (for long
+  operations, then the message ends with the percentage done) and the message
+  is in the text node itself.
   </p>
 
   <p>
@@ -221,6 +234,10 @@ get messages such as:
     <tr>
       <td><code>connector</code></td>
       <td>connectors changed (add/remove)</td>
+    </tr>
+    <tr>
+      <td><code>debug</code></td>
+      <td>breakpoints, watchpoints or conditions changed (add/remove), the name is their ID</td>
     </tr>
   </table>
 

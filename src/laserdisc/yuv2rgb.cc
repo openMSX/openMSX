@@ -2,15 +2,16 @@
 
 #include "RawFrame.hh"
 
-#include "Math.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
-#include <bit>
 #include <cassert>
-#include <concepts>
 #include <cstdint>
-#ifdef __SSE2__
+
+#ifdef __AVX2__
+#include <immintrin.h>
+#elif defined(__SSE2__)
 #include <emmintrin.h>
 #endif
 
@@ -18,331 +19,241 @@ namespace openmsx::yuv2rgb {
 
 using Pixel = uint32_t;
 
-#ifdef __SSE2__
+// ITU-R BT.601, limited range (Y in [16..235], Cb/Cr in [16..240]). Both
+// color spaces supported by Theora (Rec. 470M and Rec. 470BG) use this matrix.
+static constexpr double Kr = 0.299;
+static constexpr double Kb = 0.114;
+static constexpr double Kg = 1.0 - Kr - Kb;
+static constexpr double SCALE_Y = 255.0 / 219.0;
+static constexpr double SCALE_C = 255.0 / 224.0;
+static constexpr double COEF_Y  = SCALE_Y;
+static constexpr double COEF_RV = SCALE_C * 2.0 * (1.0 - Kr);
+static constexpr double COEF_GU = SCALE_C * 2.0 * (1.0 - Kb) * Kb / Kg;
+static constexpr double COEF_GV = SCALE_C * 2.0 * (1.0 - Kr) * Kr / Kg;
+static constexpr double COEF_BU = SCALE_C * 2.0 * (1.0 - Kb);
 
-/*
- * This implementation of yuv420 to rgb is based upon the corresponding routine
- * from Mono. See this blog entry:
- *	http://blog.sublimeintervention.com/archive/2008/Mar-21.html
- * Source code:
- *	http://anonsvn.mono-project.com/viewvc/trunk/moon/src/yuv-converter.cpp?revision=136072
- * This code is GPL2 (only)
- *
- * Copyright 2008 Novell, Inc. (http://www.novell.com)
- *
- * There are other implementations:
- *  - ffmpeg
- *  - mythtv
- *  - pcsx2
- * I have not done a comparison of these implementations.
- */
-
-/* R = 1.164 * (Y - 16) + 1.596 * (V - 128)
- * G = 1.164 * (Y - 16) - 0.813 * (V - 128) - 0.391 * (U - 128)
- * B = 1.164 * (Y - 16)                     + 2.018 * (U - 128)
- *   OR
- * R = 1.164 * Y + 1.596 * V             - 222.921
- * G = 1.164 * Y - 0.813 * V - 0.391 * U + 135.576
- * B = 1.164 * Y             + 2.018 * U - 276.836
- */
-static inline void yuv2rgb_sse2(
-	const uint8_t* u_ , const uint8_t* v_,
-	const uint8_t* y0_, const uint8_t* y1_,
-	Pixel* out0_, Pixel* out1_)
+// All calculations are done in 16-bit fixed point with F fractional bits:
+//   luma term:    mulhi_u16(Y << 8, CY)             = Y * COEF_Y * 2^F
+//   chroma terms: mulhi_s16((C - 128) << 8, coef)  = (C - 128) * coef * 2^F
+// COEF_BU * 2^F * 256 doesn't fit in int16, so for blue the coefficient is
+// halved and the result is doubled. With F=5 all intermediate values fit in
+// int16. All results are within +/-1 of the exactly rounded result (~99.2% are
+// identical).
+static constexpr int F = 5;
+[[nodiscard]] static constexpr int16_t toFixed(double c, int scale)
 {
-	// This routine calculates 32x2 RGBA pixels. Each output pixel uses a
-	// unique corresponding input Y value, but a group of 2x2 ouput pixels
-	// shares the same U and V input value.
-	const auto* u    = std::bit_cast<const __m128i*>(u_);
-	const auto* v    = std::bit_cast<const __m128i*>(v_);
-	const auto* y0   = std::bit_cast<const __m128i*>(y0_);
-	const auto* y1   = std::bit_cast<const __m128i*>(y1_);
-	      auto* out0 = std::bit_cast<      __m128i*>(out0_);
-	      auto* out1 = std::bit_cast<      __m128i*>(out1_);
+	double x = c * (1 << F) * scale;
+	return int16_t(x < 0.0 ? x - 0.5 : x + 0.5);
+}
+static constexpr uint16_t CY  = uint16_t(toFixed(COEF_Y, 256));
+static constexpr int16_t  CRV = toFixed( COEF_RV, 256);
+static constexpr int16_t  CGU = toFixed(-COEF_GU, 256);
+static constexpr int16_t  CGV = toFixed(-COEF_GV, 256);
+static constexpr int16_t  CBU = toFixed( COEF_BU, 128);
+// Offset for (Y - 16), plus rounding. Values found by exhaustive search.
+static constexpr int16_t KR = -580;
+static constexpr int16_t KG = -579;
+static constexpr int16_t KB = -579;
 
-	// constants
-	const __m128i ZERO    = _mm_setzero_si128();
-	const __m128i ALPHA   = _mm_set1_epi16(    -1); // 0xFFFF
-	const __m128i RED_V   = _mm_set1_epi16(   102); // 102/64 =  1.59
-	const __m128i GREEN_U = _mm_set1_epi16(   -25); // -25/64 = -0.39
-	const __m128i GREEN_V = _mm_set1_epi16(   -52); // -52/64 = -0.81
-	const __m128i BLUE_U  = _mm_set1_epi16(   129); // 129/64 =  2.02
-	const __m128i COEF_Y  = _mm_set1_epi16(    74); //  74/64 =  1.16
-	const __m128i CNST_R  = _mm_set1_epi16(  -223); // -222.921
-	const __m128i CNST_G  = _mm_set1_epi16(   136); //  135.576
-	const __m128i CNST_B  = _mm_set1_epi16(  -277); // -276.836
-	const __m128i Y_MASK  = _mm_set1_epi16(0x00FF);
+// Each code path defines convertBlock(), which converts a block of BLOCK x 2
+// pixels (and the corresponding BLOCK/2 x 1 chroma samples).
+#ifdef __AVX2__
 
-	// left
-	__m128i u0f  = _mm_loadu_si128(u);
-	__m128i v0f  = _mm_loadu_si128(v);
-	__m128i u07  = _mm_unpacklo_epi8(u0f, ZERO);
-	__m128i v07  = _mm_unpacklo_epi8(v0f, ZERO);
-	__m128i mr07 = _mm_srai_epi16(_mm_mullo_epi16(v07, RED_V), 6);
-	__m128i sg07 = _mm_mullo_epi16(v07, GREEN_V);
-	__m128i tg07 = _mm_mullo_epi16(u07, GREEN_U);
-	__m128i mg07 = _mm_srai_epi16(_mm_adds_epi16(sg07, tg07), 6);
-	__m128i mb07 = _mm_srli_epi16(_mm_mullo_epi16(u07, BLUE_U), 6); // logical shift
-	__m128i dr07 = _mm_adds_epi16(mr07, CNST_R);
-	__m128i dg07 = _mm_adds_epi16(mg07, CNST_G);
-	__m128i db07 = _mm_adds_epi16(mb07, CNST_B);
+static constexpr int BLOCK = 64;
 
-	// block top,left
-	__m128i y00_0f    = _mm_loadu_si128(y0 + 0);
-	__m128i y00_even  = _mm_and_si128(y00_0f, Y_MASK);
-	__m128i y00_odd   = _mm_srli_epi16(y00_0f, 8);
-	__m128i dy00_even = _mm_srai_epi16(_mm_mullo_epi16(y00_even, COEF_Y), 6);
-	__m128i dy00_odd  = _mm_srai_epi16(_mm_mullo_epi16(y00_odd,  COEF_Y), 6);
-	__m128i r00_even  = _mm_adds_epi16(dr07, dy00_even);
-	__m128i g00_even  = _mm_adds_epi16(dg07, dy00_even);
-	__m128i b00_even  = _mm_adds_epi16(db07, dy00_even);
-	__m128i r00_odd   = _mm_adds_epi16(dr07, dy00_odd);
-	__m128i g00_odd   = _mm_adds_epi16(dg07, dy00_odd);
-	__m128i b00_odd   = _mm_adds_epi16(db07, dy00_odd);
-	__m128i r00_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(r00_even, r00_even),
-	                                      _mm_packus_epi16(r00_odd,  r00_odd));
-	__m128i g00_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(g00_even, g00_even),
-	                                      _mm_packus_epi16(g00_odd,  g00_odd));
-	__m128i b00_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b00_even, b00_even),
-	                                      _mm_packus_epi16(b00_odd,  b00_odd));
-	__m128i rb00_07   = _mm_unpacklo_epi8(r00_0f, b00_0f);
-	__m128i rb00_8f   = _mm_unpackhi_epi8(r00_0f, b00_0f);
-	__m128i ga00_07   = _mm_unpacklo_epi8(g00_0f, ALPHA);
-	__m128i ga00_8f   = _mm_unpackhi_epi8(g00_0f, ALPHA);
-	__m128i rgba00_03 = _mm_unpacklo_epi8(rb00_07, ga00_07);
-	__m128i rgba00_47 = _mm_unpackhi_epi8(rb00_07, ga00_07);
-	__m128i rgba00_8b = _mm_unpacklo_epi8(rb00_8f, ga00_8f);
-	__m128i rgba00_cf = _mm_unpackhi_epi8(rb00_8f, ga00_8f);
-	_mm_storeu_si128(out0 + 0, rgba00_03);
-	_mm_storeu_si128(out0 + 1, rgba00_47);
-	_mm_storeu_si128(out0 + 2, rgba00_8b);
-	_mm_storeu_si128(out0 + 3, rgba00_cf);
-
-	// block bottom,left
-	__m128i y10_0f    = _mm_loadu_si128(y1 + 0);
-	__m128i y10_even  = _mm_and_si128(y10_0f, Y_MASK);
-	__m128i y10_odd   = _mm_srli_epi16(y10_0f, 8);
-	__m128i dy10_even = _mm_srai_epi16(_mm_mullo_epi16(y10_even, COEF_Y), 6);
-	__m128i dy10_odd  = _mm_srai_epi16(_mm_mullo_epi16(y10_odd,  COEF_Y), 6);
-	__m128i r10_even  = _mm_adds_epi16(dr07, dy10_even);
-	__m128i g10_even  = _mm_adds_epi16(dg07, dy10_even);
-	__m128i b10_even  = _mm_adds_epi16(db07, dy10_even);
-	__m128i r10_odd   = _mm_adds_epi16(dr07, dy10_odd);
-	__m128i g10_odd   = _mm_adds_epi16(dg07, dy10_odd);
-	__m128i b10_odd   = _mm_adds_epi16(db07, dy10_odd);
-	__m128i r10_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(r10_even, r10_even),
-	                                      _mm_packus_epi16(r10_odd,  r10_odd));
-	__m128i g10_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(g10_even, g10_even),
-	                                      _mm_packus_epi16(g10_odd,  g10_odd));
-	__m128i b10_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b10_even, b10_even),
-	                                      _mm_packus_epi16(b10_odd,  b10_odd));
-	__m128i rb10_07   = _mm_unpacklo_epi8(r10_0f, b10_0f);
-	__m128i rb10_8f   = _mm_unpackhi_epi8(r10_0f, b10_0f);
-	__m128i ga10_07   = _mm_unpacklo_epi8(g10_0f, ALPHA);
-	__m128i ga10_8f   = _mm_unpackhi_epi8(g10_0f, ALPHA);
-	__m128i rgba10_03 = _mm_unpacklo_epi8(rb10_07, ga10_07);
-	__m128i rgba10_47 = _mm_unpackhi_epi8(rb10_07, ga10_07);
-	__m128i rgba10_8b = _mm_unpacklo_epi8(rb10_8f, ga10_8f);
-	__m128i rgba10_cf = _mm_unpackhi_epi8(rb10_8f, ga10_8f);
-	_mm_storeu_si128(out1 + 0, rgba10_03);
-	_mm_storeu_si128(out1 + 1, rgba10_47);
-	_mm_storeu_si128(out1 + 2, rgba10_8b);
-	_mm_storeu_si128(out1 + 3, rgba10_cf);
-
-	// right
-	__m128i u8f  = _mm_unpackhi_epi8(u0f, ZERO);
-	__m128i v8f  = _mm_unpackhi_epi8(v0f, ZERO);
-	__m128i mr8f = _mm_srai_epi16(_mm_mullo_epi16(v8f, RED_V), 6);
-	__m128i sg8f = _mm_mullo_epi16(v8f, GREEN_V);
-	__m128i tg8f = _mm_mullo_epi16(u8f, GREEN_U);
-	__m128i mg8f = _mm_srai_epi16(_mm_adds_epi16(sg8f, tg8f), 6);
-	__m128i mb8f = _mm_srli_epi16(_mm_mullo_epi16(u8f, BLUE_U), 6); // logical shift
-	__m128i dr8f = _mm_adds_epi16(mr8f, CNST_R);
-	__m128i dg8f = _mm_adds_epi16(mg8f, CNST_G);
-	__m128i db8f = _mm_adds_epi16(mb8f, CNST_B);
-
-	// block top,right
-	__m128i y01_0f    = _mm_loadu_si128(y0 + 1);
-	__m128i y01_even  = _mm_and_si128(y01_0f, Y_MASK);
-	__m128i y01_odd   = _mm_srli_epi16(y01_0f, 8);
-	__m128i dy01_even = _mm_srai_epi16(_mm_mullo_epi16(y01_even, COEF_Y), 6);
-	__m128i dy01_odd  = _mm_srai_epi16(_mm_mullo_epi16(y01_odd,  COEF_Y), 6);
-	__m128i r01_even  = _mm_adds_epi16(dr8f, dy01_even);
-	__m128i g01_even  = _mm_adds_epi16(dg8f, dy01_even);
-	__m128i b01_even  = _mm_adds_epi16(db8f, dy01_even);
-	__m128i r01_odd   = _mm_adds_epi16(dr8f, dy01_odd);
-	__m128i g01_odd   = _mm_adds_epi16(dg8f, dy01_odd);
-	__m128i b01_odd   = _mm_adds_epi16(db8f, dy01_odd);
-	__m128i r01_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(r01_even, r01_even),
-	                                      _mm_packus_epi16(r01_odd,  r01_odd));
-	__m128i g01_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(g01_even, g01_even),
-	                                      _mm_packus_epi16(g01_odd,  g01_odd));
-	__m128i b01_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b01_even, b01_even),
-	                                      _mm_packus_epi16(b01_odd,  b01_odd));
-	__m128i rb01_07   = _mm_unpacklo_epi8(r01_0f, b01_0f);
-	__m128i rb01_8f   = _mm_unpackhi_epi8(r01_0f, b01_0f);
-	__m128i ga01_07   = _mm_unpacklo_epi8(g01_0f, ALPHA);
-	__m128i ga01_8f   = _mm_unpackhi_epi8(g01_0f, ALPHA);
-	__m128i rgba01_03 = _mm_unpacklo_epi8(rb01_07, ga01_07);
-	__m128i rgba01_47 = _mm_unpackhi_epi8(rb01_07, ga01_07);
-	__m128i rgba01_8b = _mm_unpacklo_epi8(rb01_8f, ga01_8f);
-	__m128i rgba01_cf = _mm_unpackhi_epi8(rb01_8f, ga01_8f);
-	_mm_storeu_si128(out0 + 4, rgba01_03);
-	_mm_storeu_si128(out0 + 5, rgba01_47);
-	_mm_storeu_si128(out0 + 6, rgba01_8b);
-	_mm_storeu_si128(out0 + 7, rgba01_cf);
-
-	// block bottom,right
-	__m128i y11_0f    = _mm_loadu_si128(y1 + 1);
-	__m128i y11_even  = _mm_and_si128(y11_0f, Y_MASK);
-	__m128i y11_odd   = _mm_srli_epi16(y11_0f, 8);
-	__m128i dy11_even = _mm_srai_epi16(_mm_mullo_epi16(y11_even, COEF_Y), 6);
-	__m128i dy11_odd  = _mm_srai_epi16(_mm_mullo_epi16(y11_odd,  COEF_Y), 6);
-	__m128i r11_even  = _mm_adds_epi16(dr8f, dy11_even);
-	__m128i g11_even  = _mm_adds_epi16(dg8f, dy11_even);
-	__m128i b11_even  = _mm_adds_epi16(db8f, dy11_even);
-	__m128i r11_odd   = _mm_adds_epi16(dr8f, dy11_odd);
-	__m128i g11_odd   = _mm_adds_epi16(dg8f, dy11_odd);
-	__m128i b11_odd   = _mm_adds_epi16(db8f, dy11_odd);
-	__m128i r11_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(r11_even, r11_even),
-	                                      _mm_packus_epi16(r11_odd,  r11_odd));
-	__m128i g11_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(g11_even, g11_even),
-	                                      _mm_packus_epi16(g11_odd,  g11_odd));
-	__m128i b11_0f    = _mm_unpackhi_epi8(_mm_packus_epi16(b11_even, b11_even),
-	                                      _mm_packus_epi16(b11_odd,  b11_odd));
-	__m128i rb11_07   = _mm_unpacklo_epi8(r11_0f, b11_0f);
-	__m128i rb11_8f   = _mm_unpackhi_epi8(r11_0f, b11_0f);
-	__m128i ga11_07   = _mm_unpacklo_epi8(g11_0f, ALPHA);
-	__m128i ga11_8f   = _mm_unpackhi_epi8(g11_0f, ALPHA);
-	__m128i rgba11_03 = _mm_unpacklo_epi8(rb11_07, ga11_07);
-	__m128i rgba11_47 = _mm_unpackhi_epi8(rb11_07, ga11_07);
-	__m128i rgba11_8b = _mm_unpacklo_epi8(rb11_8f, ga11_8f);
-	__m128i rgba11_cf = _mm_unpackhi_epi8(rb11_8f, ga11_8f);
-	_mm_storeu_si128(out1 + 4, rgba11_03);
-	_mm_storeu_si128(out1 + 5, rgba11_47);
-	_mm_storeu_si128(out1 + 6, rgba11_8b);
-	_mm_storeu_si128(out1 + 7, rgba11_cf);
+static inline void convertPixels(__m256i Y, Pixel* out, __m256i R, __m256i G, __m256i B)
+{
+	__m256i yt = _mm256_mulhi_epu16(Y, _mm256_set1_epi16(int16_t(CY)));
+	__m256i r = _mm256_srai_epi16(_mm256_add_epi16(yt, R), F);
+	__m256i g = _mm256_srai_epi16(_mm256_add_epi16(yt, G), F);
+	__m256i b = _mm256_srai_epi16(_mm256_add_epi16(yt, B), F);
+	__m256i rb = _mm256_packus_epi16(r, b);
+	__m256i g0 = _mm256_packus_epi16(g, _mm256_setzero_si256());
+	__m256i rg = _mm256_unpacklo_epi8(rb, g0);
+	__m256i b0 = _mm256_unpackhi_epi8(rb, g0);
+	_mm256_storeu_si256(reinterpret_cast<__m256i*>(out + 0), _mm256_unpacklo_epi16(rg, b0));
+	_mm256_storeu_si256(reinterpret_cast<__m256i*>(out + 8), _mm256_unpackhi_epi16(rg, b0));
 }
 
-static inline void convertHelperSSE2(
-	const th_ycbcr_buffer& buffer, RawFrame& output)
+// Converts 32x2 pixels, u and v contain the 16 chroma samples as (C - 128) << 8.
+// All 16-bit vectors use lane order [px0-3, px8-11 | px4-7, px12-15], then the
+// in-lane pack/unpack sequence in convertPixels() produces the pixels in
+// natural order.
+static inline void convertBlock32(
+	__m256i u, __m256i v, const uint8_t* pY0, const uint8_t* pY1,
+	Pixel* out0, Pixel* out1)
 {
-	const int    width      = buffer[0].width;
-	const size_t y_stride   = buffer[0].stride;
-	const size_t uv_stride2 = buffer[1].stride / 2;
+	const __m256i perm = _mm256_setr_epi32(0, 2, 4, 6, 1, 3, 5, 7);
 
-	assert((width % 32) == 0);
-	assert((buffer[0].height % 2) == 0);
+	__m256i R = _mm256_add_epi16(_mm256_mulhi_epi16(v, _mm256_set1_epi16(CRV)), _mm256_set1_epi16(KR));
+	__m256i G = _mm256_add_epi16(_mm256_add_epi16(_mm256_mulhi_epi16(u, _mm256_set1_epi16(CGU)),
+	                                              _mm256_mulhi_epi16(v, _mm256_set1_epi16(CGV))),
+	                             _mm256_set1_epi16(KG));
+	__m256i B = _mm256_mulhi_epi16(u, _mm256_set1_epi16(CBU));
+	B = _mm256_add_epi16(_mm256_add_epi16(B, B), _mm256_set1_epi16(KB));
+	// horizontally duplicate the chroma terms
+	__m256i R0 = _mm256_unpacklo_epi16(R, R), R1 = _mm256_unpackhi_epi16(R, R);
+	__m256i G0 = _mm256_unpacklo_epi16(G, G), G1 = _mm256_unpackhi_epi16(G, G);
+	__m256i B0 = _mm256_unpacklo_epi16(B, B), B1 = _mm256_unpackhi_epi16(B, B);
 
-	for (int y = 0; y < buffer[0].height; y += 2) {
-		const uint8_t* pY1 = buffer[0].data + (y + 0) * y_stride;
-		const uint8_t* pY2 = buffer[0].data + (y + 1) * y_stride;
-		const uint8_t* pCb = buffer[1].data + (y + 0) * uv_stride2;
-		const uint8_t* pCr = buffer[2].data + (y + 0) * uv_stride2;
-		auto out0 = output.getLineDirect(y + 0);
-		auto out1 = output.getLineDirect(y + 1);
+	auto doRow = [&](const uint8_t* pY, Pixel* out) {
+		__m256i Y = _mm256_permutevar8x32_epi32(
+			_mm256_loadu_si256(reinterpret_cast<const __m256i*>(pY)), perm);
+		const __m256i zero = _mm256_setzero_si256();
+		convertPixels(_mm256_unpacklo_epi8(zero, Y), out +  0, R0, G0, B0); // Y << 8
+		convertPixels(_mm256_unpackhi_epi8(zero, Y), out + 16, R1, G1, B1);
+	};
+	doRow(pY0, out0);
+	doRow(pY1, out1);
+}
 
-		for (int x = 0; x < width; x += 32) {
-			// convert a block of (32 x 2) pixels
-			yuv2rgb_sse2(pCb, pCr, pY1, pY2, &out0[x], &out1[x]);
-			pCb += 16;
-			pCr += 16;
-			pY1 += 32;
-			pY2 += 32;
+static inline void convertBlock(
+	const uint8_t* pY0, const uint8_t* pY1, const uint8_t* pCb, const uint8_t* pCr,
+	Pixel* out0, Pixel* out1)
+{
+	// Load 32 chroma samples (as C - 128) and shuffle them so that the low and
+	// high halves of each lane give the lane order required by convertBlock32().
+	auto loadC = [](const uint8_t* p) {
+		__m256i c = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(p));
+		c = _mm256_xor_si256(c, _mm256_set1_epi8(int8_t(0x80)));
+		c = _mm256_shuffle_epi8(c, _mm256_setr_epi8(
+			0, 1, 4, 5, 8, 9, 12, 13, 2, 3, 6, 7, 10, 11, 14, 15,
+			0, 1, 4, 5, 8, 9, 12, 13, 2, 3, 6, 7, 10, 11, 14, 15));
+		return _mm256_permute4x64_epi64(c, 0xd8);
+	};
+	__m256i cb = loadC(pCb);
+	__m256i cr = loadC(pCr);
+	const __m256i zero = _mm256_setzero_si256();
+	convertBlock32(_mm256_unpacklo_epi8(zero, cb), _mm256_unpacklo_epi8(zero, cr),
+	               pY0 +  0, pY1 +  0, out0 +  0, out1 +  0);
+	convertBlock32(_mm256_unpackhi_epi8(zero, cb), _mm256_unpackhi_epi8(zero, cr),
+	               pY0 + 32, pY1 + 32, out0 + 32, out1 + 32);
+}
+
+#elif defined(__SSE2__)
+
+static constexpr int BLOCK = 32;
+
+static inline void convertPixels(__m128i Y, Pixel* out, __m128i R, __m128i G, __m128i B)
+{
+	__m128i yt = _mm_mulhi_epu16(Y, _mm_set1_epi16(int16_t(CY)));
+	__m128i r = _mm_srai_epi16(_mm_add_epi16(yt, R), F);
+	__m128i g = _mm_srai_epi16(_mm_add_epi16(yt, G), F);
+	__m128i b = _mm_srai_epi16(_mm_add_epi16(yt, B), F);
+	__m128i rb = _mm_packus_epi16(r, b);
+	__m128i g0 = _mm_packus_epi16(g, _mm_setzero_si128());
+	__m128i rg = _mm_unpacklo_epi8(rb, g0);
+	__m128i b0 = _mm_unpackhi_epi8(rb, g0);
+	_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 0), _mm_unpacklo_epi16(rg, b0));
+	_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 4), _mm_unpackhi_epi16(rg, b0));
+}
+
+static inline void convertBlock(
+	const uint8_t* pY0, const uint8_t* pY1, const uint8_t* pCb, const uint8_t* pCr,
+	Pixel* out0, Pixel* out1)
+{
+	const __m128i zero = _mm_setzero_si128();
+	auto loadC = [&](const uint8_t* p) { // (C - 128) << 8
+		__m128i c = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(p));
+		return _mm_xor_si128(_mm_unpacklo_epi8(zero, c), _mm_set1_epi16(int16_t(0x8000)));
+	};
+	for (int x = 0; x < 32; x += 16) {
+		__m128i u = loadC(pCb + x / 2);
+		__m128i v = loadC(pCr + x / 2);
+		__m128i R = _mm_add_epi16(_mm_mulhi_epi16(v, _mm_set1_epi16(CRV)), _mm_set1_epi16(KR));
+		__m128i G = _mm_add_epi16(_mm_add_epi16(_mm_mulhi_epi16(u, _mm_set1_epi16(CGU)),
+		                                        _mm_mulhi_epi16(v, _mm_set1_epi16(CGV))),
+		                          _mm_set1_epi16(KG));
+		__m128i B = _mm_mulhi_epi16(u, _mm_set1_epi16(CBU));
+		B = _mm_add_epi16(_mm_add_epi16(B, B), _mm_set1_epi16(KB));
+		// horizontally duplicate the chroma terms
+		__m128i R0 = _mm_unpacklo_epi16(R, R), R1 = _mm_unpackhi_epi16(R, R);
+		__m128i G0 = _mm_unpacklo_epi16(G, G), G1 = _mm_unpackhi_epi16(G, G);
+		__m128i B0 = _mm_unpacklo_epi16(B, B), B1 = _mm_unpackhi_epi16(B, B);
+
+		auto doRow = [&](const uint8_t* pY, Pixel* out) {
+			__m128i Y = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pY + x));
+			convertPixels(_mm_unpacklo_epi8(zero, Y), out + x + 0, R0, G0, B0); // Y << 8
+			convertPixels(_mm_unpackhi_epi8(zero, Y), out + x + 8, R1, G1, B1);
+		};
+		doRow(pY0, out0);
+		doRow(pY1, out1);
+	}
+}
+
+#else
+
+static constexpr int BLOCK = 32;
+
+[[nodiscard]] static inline int16_t mulhi(int16_t a, int16_t b)
+{
+	return int16_t((int32_t(a) * b) >> 16);
+}
+[[nodiscard]] static inline uint16_t mulhi(uint16_t a, uint16_t b)
+{
+	return uint16_t((uint32_t(a) * b) >> 16);
+}
+[[nodiscard]] static inline uint8_t clip(int16_t x)
+{
+	return uint8_t(std::clamp<int16_t>(x, 0, 255));
+}
+
+// Written in a way that auto-vectorizes well. Note: the explicit truncations
+// to int16_t matter, otherwise the compiler must use 32-bit arithmetic.
+static inline void convertBlock(
+	const uint8_t* pY0, const uint8_t* pY1, const uint8_t* pCb, const uint8_t* pCr,
+	Pixel* out0, Pixel* out1)
+{
+	std::array<int16_t, 32> R, G, B; // horizontally duplicated chroma terms
+	for (auto i : xrange(16)) {
+		auto u = int16_t((pCb[i] - 128) * 256);
+		auto v = int16_t((pCr[i] - 128) * 256);
+		R[2 * i] = R[2 * i + 1] = int16_t(mulhi(v, CRV) + KR);
+		G[2 * i] = G[2 * i + 1] = int16_t(mulhi(u, CGU) + mulhi(v, CGV) + KG);
+		B[2 * i] = B[2 * i + 1] = int16_t(2 * mulhi(u, CBU) + KB);
+	}
+	auto doRow = [&](const uint8_t* pY, Pixel* out) {
+		for (auto i : xrange(32)) {
+			auto yt = int16_t(mulhi(uint16_t(pY[i] << 8), CY));
+			auto r = int16_t(int16_t(yt + R[i]) >> F);
+			auto g = int16_t(int16_t(yt + G[i]) >> F);
+			auto b = int16_t(int16_t(yt + B[i]) >> F);
+			auto lo = uint16_t(clip(r) | (clip(g) << 8));
+			auto hi = uint16_t(clip(b));
+			out[i] = Pixel(lo) | (Pixel(hi) << 16);
 		}
-
-		output.setLineWidth(y + 0, width);
-		output.setLineWidth(y + 1, width);
-	}
+	};
+	doRow(pY0, out0);
+	doRow(pY1, out1);
 }
 
-#endif // __SSE2__
+#endif
 
-static constexpr int PREC = 15;
-static constexpr int COEF_Y  = int(1.164 * (1 << PREC) + 0.5); // prefer to use lrint() to round
-static constexpr int COEF_RV = int(1.596 * (1 << PREC) + 0.5); // but that's not (yet) constexpr
-static constexpr int COEF_GU = int(0.391 * (1 << PREC) + 0.5); // in current versions of c++
-static constexpr int COEF_GV = int(0.813 * (1 << PREC) + 0.5);
-static constexpr int COEF_BU = int(2.018 * (1 << PREC) + 0.5);
-
-struct Coefs {
-	std::array<int, 256> gu;
-	std::array<int, 256> gv;
-	std::array<int, 256> bu;
-	std::array<int, 256> rv;
-	std::array<int, 256> y;
-};
-
-[[nodiscard]] static constexpr Coefs getCoefs()
-{
-	Coefs coefs = {};
-	for (auto i : xrange(256)) {
-		coefs.gu[i] = -COEF_GU * (i - 128);
-		coefs.gv[i] = -COEF_GV * (i - 128);
-		coefs.bu[i] =  COEF_BU * (i - 128);
-		coefs.rv[i] =  COEF_RV * (i - 128);
-		coefs.y[i]  =  COEF_Y  * (i -  16) + (PREC / 2);
-	}
-	return coefs;
-}
-
-[[nodiscard]] static inline Pixel calc(
-	int y, int ruv, int guv, int buv)
-{
-	uint8_t r = Math::clipIntToByte((y + ruv) >> PREC);
-	uint8_t g = Math::clipIntToByte((y + guv) >> PREC);
-	uint8_t b = Math::clipIntToByte((y + buv) >> PREC);
-	return (r << 0) | (g << 8) | (b << 16);
-}
-
-static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output)
+void convert(const th_ycbcr_buffer& buffer, RawFrame& output)
 {
 	assert(buffer[1].width  * 2 == buffer[0].width);
 	assert(buffer[1].height * 2 == buffer[0].height);
 
-	static constexpr Coefs coefs = getCoefs();
-
 	const int    width      = buffer[0].width;
 	const size_t y_stride   = buffer[0].stride;
 	const size_t uv_stride2 = buffer[1].stride / 2;
+	assert((width % 64) == 0);
 
 	for (int y = 0; y < buffer[0].height; y += 2) {
-		const uint8_t* pY  = buffer[0].data + y * y_stride;
+		const uint8_t* pY0 = buffer[0].data + y * y_stride;
+		const uint8_t* pY1 = pY0 + y_stride;
 		const uint8_t* pCb = buffer[1].data + y * uv_stride2;
 		const uint8_t* pCr = buffer[2].data + y * uv_stride2;
-		auto out0 = output.getLineDirect(y + 0);
-		auto out1 = output.getLineDirect(y + 1);
+		Pixel* out0 = output.getLineDirect(y + 0).data();
+		Pixel* out1 = output.getLineDirect(y + 1).data();
 
-		for (int x = 0; x < width; x += 2, pY += 2, ++pCr, ++pCb) {
-			int ruv = coefs.rv[*pCr];
-			int guv = coefs.gu[*pCb] + coefs.gv[*pCr];
-			int buv = coefs.bu[*pCb];
-
-			int Y00 = coefs.y[pY[0]];
-			out0[x + 0] = calc(Y00, ruv, guv, buv);
-
-			int Y01 = coefs.y[pY[1]];
-			out0[x + 1] = calc(Y01, ruv, guv, buv);
-
-			int Y10 = coefs.y[pY[y_stride + 0]];
-			out1[x + 0] = calc(Y10, ruv, guv, buv);
-
-			int Y11 = coefs.y[pY[y_stride + 1]];
-			out1[x + 1] = calc(Y11, ruv, guv, buv);
+		for (int x = 0; x < width; x += BLOCK) {
+			convertBlock(pY0 + x, pY1 + x, pCb + x / 2, pCr + x / 2, out0 + x, out1 + x);
 		}
 
 		output.setLineWidth(y + 0, width);
 		output.setLineWidth(y + 1, width);
 	}
-}
-
-void convert(const th_ycbcr_buffer& input, RawFrame& output)
-{
-#ifdef __SSE2__
-		convertHelperSSE2(input, output);
-		return;
-#endif
-		convertHelper(input, output);
 }
 
 } // namespace openmsx::yuv2rgb

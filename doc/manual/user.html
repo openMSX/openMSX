@@ -73,6 +73,7 @@
 					<li><a class="internal" href="#beeride">5.4.2 Beer IDE</a></li>
 					<li><a class="internal" href="#scsi">5.4.3 SCSI devices</a></li>
 					<li><a class="internal" href="#sd">5.4.4 MegaFlashROM SCC+ SD</a></li>
+					<li><a class="internal" href="#sdmapperv1">5.4.5 SD Mapper v1</a></li>
 				</ol>
 			</li>
 
@@ -99,7 +100,10 @@
 			<li><a class="internal" href="#ninjatap">6.8 Ninja Tap</a></li>
 			<li><a class="internal" href="#tetris2dongle">6.9 Tetris II Special Edition dongle</a></li>
 			<li><a class="internal" href="#msxpaddle">6.10 MSX Paddle</a></li>
-			<li><a class="internal" href="#circuitdesignerdongle">6.11 Circuit Designer RD dongle</a></li>
+			<li><a class="internal" href="#circuitdesignerrddongle">6.11 Circuit Designer RD dongle</a></li>
+			<li><a class="internal" href="#gunstick">6.12 Gunstick</a></li>
+			<li><a class="internal" href="#terminatorlaser">6.13 ASCII Plus-X Terminator Laser</a></li>
+			<li><a class="internal" href="#joyhandle">6.14 Panasonic FS-JH1 Joy Handle</a></li>
 		</ol>
 	</li>
 
@@ -142,6 +146,7 @@
 				</ol>
 			</li>
 			<li><a class="internal" href="#sdcdb">9.6 SDCC Debugger</a></li>
+			<li><a class="internal" href="#traceviewer">9.7 Trace Viewer and Raster Beam Viewer</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">10. Contact Info</a></li>
@@ -596,8 +601,8 @@ The Main menu bar contains the following top level menus:
 </p>
 <dl>
 <dt>Machine</dt>
-<dd>Selecting the different machines (computer models)</dd>
-<dd>Saving and loading of setups, i.e. machines including whatever the user put into it.</dd>
+<dd>Selecting the different machines (computer models), also from a list of recently used ones</dd>
+<dd>Saving and loading of setups, i.e. machines including whatever the user put into it, and a quick setup editor.</dd>
 <dd>Triggering machine reset and enable or disable power</dd>
 <dt>Media</dt>
 <dd>Inserting and removing media: ROM or extension cartridges, disks, cassette
@@ -610,10 +615,11 @@ printers, joysticks, mice, dongles, MIDI equipment, ...</dd>
 <dt>Tools</dt>
 <dd>Several tools that can make your life easier, like virtual keyboard,
 copying and pasting, audio and video capture, disk manipulation/management,
-trainers and cheats, audio chip tools and gadgets, etc..</dd>
+trainers and cheats, audio chip tools and gadgets, a plotter viewer, slot map and
+I/O port overviews, etc..</dd>
 <dt>Settings</dt>
 <dd>A collection of the most important settings for Video, Sound,
-Speed, Input, the GUI and Misc settings.</dd>
+Speed, Input, the GUI and (when it is plugged in) the MSX plotter.</dd>
 <dd>An uncategorized alphabetical list with all available settings.</dd>
 <dt>Debugger</dt>
 <dd>A set of powerful debugging tools for the developer. Practically all
@@ -655,7 +661,7 @@ state &rarr; Reverse/replay settings &rarr; Show reverse bar</span>.</dd>
 <dd>Appear in the lower left corner by default.</dd>
 <dd>Most icons fade out by default (so typically nothing would be visible).</dd>
 <dd>Can be configured via <span class="menu-reference">Main menu bar &rarr;
-Settings &rarr; Misc &rarr; Configure OSD icons</span>.</dd>
+Settings &rarr; GUI &rarr; Configure OSD icons</span>.</dd>
 <dd>Similar to the reverse bar: (un)select "Hide title" and/or "Allow move",
 and drag the icons to a new location, possibly outside the main openMSX window,
 possibly docked to another window.</dd>
@@ -664,7 +670,7 @@ possibly docked to another window.</dd>
 <dd>Shows up at the bottom of the main openMSX window and contains some
 information about the currently running machine and emulation performance.</dd>
 <dd>Disabled by default, can be enabled via <span class="menu-reference">Main
-menu bar &rarr; Settings &rarr; Misc &rarr; Show status bar</span>.</dd>
+menu bar &rarr; Settings &rarr; GUI &rarr; Status bar &rarr; Show</span>.</dd>
 </dl>
 
 <h3><a id="guiadvanced">4.4 Advanced topics</a></h3>
@@ -960,7 +966,8 @@ with openMSX. There is no specific support for this.
 <p>
 openMSX has a special command to perform file imports and
 exports, with support for normal disk images, Sunrise IDE harddisk images with partitions (FAT12
-only), and Nextor harddisk images with partitions (FAT12 and FAT16).
+only), and Nextor harddisk images with partitions (FAT12 and FAT16). Besides
+IDE harddisks, this also works for SCSI harddisks and SD cards.
 <p>
 <p>
 In the GUI, you can find this tool under <span class="menu-reference">Main menu
@@ -1065,7 +1072,7 @@ only save to new cassette images in WAV format.
 The Sunrise IDE interface was the first one to be emulated in openMSX, so by now it's thoroughly supported.
 Later support for two types of SCSI interfaces was added:
 the Gouda/Novaxis SCSI interface and the MEGA-SCSI, followed by support for
-the MegaFlashROM SCC+ SD, the Carnivore 2, and the Beer IDE interfaces. Not all harddisk management tools may support these newer mass storage devices.
+the MegaFlashROM SCC+ SD, the Carnivore 2, the Beer IDE and the SD Mapper v1 interfaces. Not all harddisk management tools may support these newer mass storage devices.
 </p>
 
 <p>
@@ -1279,8 +1286,7 @@ href="https://web.archive.org/web/20200315110709/http://members.chello.nl/m.delo
 <h4><a id="sd">5.4.4 MegaFlashROM SCC+ SD</a></h4>
 
 <p>
-Currently there is only one SD interface emulated: the MegaFlashROM SCC+ SD.
-All features of this cartridge are emulated in the sense that all software currently
+All features of the MegaFlashROM SCC+ SD are emulated in the sense that all software currently
 working with it, runs on openMSX too. It is not emulated accurately
 enough to rely on it for development.
 </p>
@@ -1331,6 +1337,32 @@ href="diskmanipulator.html">diskmanipulator</a></code> with the
 <code>-nextor</code> option to partition and to import files, similar to what
 is explained above <a class="internal" href="#ide">in the Sunrise IDE
 section</a>.
+</p>
+
+<h4><a id="sdmapperv1">5.4.5 SD Mapper v1</a></h4>
+
+<p>
+The SD Mapper v1 by Fabio Belavenuto is a cartridge with two SD card slots,
+128kB of flash ROM (normally containing a Nextor driver) and 512kB of RAM,
+that can be used as memory mapper or as MegaRAM.
+</p>
+
+<p>
+Like with the MegaFlashROM SCC+ SD, the initial content of the flash ROM is
+loaded from a ROM file in your systemroms folder (<code>sdmapper.rom</code>,
+with driver 1.0.7 and Nextor 2.1.2), but only if there is no persistent file
+for the flash ROM yet. Without it, the flash ROM starts empty.
+</p>
+
+<p>
+The SD card slots appear as "Hard Disk A/B", so you can use the <a
+class="external" href="commands.html#hd">hda/hdb</a> commands and the
+<code>-hda</code> and <code>-hdb</code> command-line parameters to select the
+images. By default, both SD cards are 32MB in size, which you can change by
+editing <code>share/extensions/SD_Mapper_v1.xml</code>. To get files on the SD
+cards, you can use <code><a class="external"
+href="diskmanipulator.html">diskmanipulator</a></code> with the
+<code>-nextor</code> option, just like for the MegaFlashROM SCC+ SD.
 </p>
 
 <h3><a id="laserdisc">5.5 Running Laserdisc software</a></h3>
@@ -1412,23 +1444,26 @@ Windows, Linux or BSD), the second column for Apple Macintosh computers:
   <tr> <td>right</td>          <td>cursor right</td>            <td>D</td>           </tr>
   <tr> <td>fire left</td>      <td>space, R-CTRL</td>           <td>L-CTRL</td>      </tr>
   <tr> <td>fire right</td>     <td>L-ALT, R-ALT, R-SHIFT</td>   <td>L-SHIFT</td>     </tr>
-  <tr> <td>1</td>              <td>1, numpad 1</td>             <td>R</td>           </tr>
-  <tr> <td>2</td>              <td>2, numpad 2</td>             <td>T</td>           </tr>
-  <tr> <td>3</td>              <td>3, numpad 3</td>             <td>Y</td>           </tr>
+  <tr> <td>1</td>              <td>1, numpad 1</td>             <td>V</td>           </tr>
+  <tr> <td>2</td>              <td>2, numpad 2</td>             <td>B</td>           </tr>
+  <tr> <td>3</td>              <td>3, numpad 3</td>             <td>N</td>           </tr>
   <tr> <td>4</td>              <td>4, numpad 4</td>             <td>F</td>           </tr>
   <tr> <td>5</td>              <td>5, numpad 5</td>             <td>G</td>           </tr>
   <tr> <td>6</td>              <td>6, numpad 6</td>             <td>H</td>           </tr>
-  <tr> <td>7</td>              <td>7, numpad 7</td>             <td>V</td>           </tr>
-  <tr> <td>8</td>              <td>8, numpad 8</td>             <td>B</td>           </tr>
-  <tr> <td>9</td>              <td>9, numpad 9</td>             <td>N</td>           </tr>
+  <tr> <td>7</td>              <td>7, numpad 7</td>             <td>R</td>           </tr>
+  <tr> <td>8</td>              <td>8, numpad 8</td>             <td>T</td>           </tr>
+  <tr> <td>9</td>              <td>9, numpad 9</td>             <td>Y</td>           </tr>
   <tr> <td>0</td>              <td>0, numpad 0</td>             <td>U</td>           </tr>
   <tr> <td>*</td>              <td>-, numpad *, numpad -</td>   <td>J</td>           </tr>
   <tr> <td>#</td>              <td>=, numpad /, numpad +</td>   <td>M</td>           </tr>
 </table>
 
 <p>
-Host joysticks can also be used for directions and the fire buttons, but the
-keys from the telephone-style keypad can only be entered via the host keyboard.
+Host joysticks can also be used for directions and the fire buttons. To also
+use the telephone-style keypad from a host controller, plug a
+<code>colecojoystick1</code> or <code>colecojoystick2</code> into the
+joystick ports instead and configure it under <span class="menu-reference">Main
+menu bar &rarr; Settings &rarr; Input &rarr; Configure MSX joysticks</span>.
 </p>
 
 <h4><a id="emukeymapping">6.1.3 Emulator Functions Key Mapping</a></h4>
@@ -1519,7 +1554,10 @@ bar &rarr; Settings &rarr; Input &rarr; Keyboard mapping mode</span>.
 <p>
 If you have a controller or joystick connected to your PC, you can map its
 input to one of the emulated MSX joystick (like) devices, internally called <code>msxjoystick1</code>,
-<code>msxjoystick2</code>, <code>joymega1</code> and <code>joymega2</code>.
+<code>msxjoystick2</code>, <code>joymega1</code>, <code>joymega2</code>,
+<code>joyhandle1</code> and <code>joyhandle2</code> (the Panasonic FS-JH1 Joy
+Handle). On ColecoVision machines, there are also the ColecoVision controllers
+<code>colecojoystick1</code> and <code>colecojoystick2</code>.
 </p>
 
 <p>
@@ -1529,12 +1567,13 @@ devices</a> on how to connect these devices to your emulated machine.
 
 <p>
 The mapping of your host devices (host controllers, joysticks or keyboard) to
-these 4 emulated MSX joysticks is fully configurable. The easiest way is to use
+these emulated joysticks is fully configurable. The easiest way is to use
 the GUI menu for that under <span class="menu-reference">Main menu bar &rarr;
 Settings &rarr; Input &rarr; Configure MSX joysticks</span>. You can also do it
 in the console with the  <a class="external"
 href="commands.html#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a>
-settings.
+settings (and similarly <code>joyhandle&lt;n&gt;_config</code> and
+<code>colecojoystick&lt;n&gt;_config</code>).
 </p>
 
 <p>
@@ -1722,6 +1761,70 @@ href="commands.html#plugunplug">plug</a> joyportb circuit-designer-rd-dongle
 </code>.
 </p>
 
+<h3><a id="gunstick">6.12 Gunstick</a></h3>
+
+<p>
+The Gunstick from MHT Ingenieros is a light gun that was sold in Spain for MSX
+(and other computers). openMSX emulates it with the mouse: the mouse pointer is
+the aim point and the left mouse button is the trigger. Most games expect it in
+joystick port A (but Guillermo Tell wants it in port B). To plug it in, use the
+<span class="menu-reference">Main menu bar &rarr; Connectors</span> menu or the
+console command <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyporta gunstick</code>. While the
+Gunstick is plugged in, the mouse pointer is shown as a crosshair, also in full
+screen mode.
+</p>
+
+<p>
+The real gun has a light sensor (on pin 2, the 'down' direction) and the
+trigger (on pin 6, button A). Games blank the screen, draw the targets in white
+and then check whether the sensor sees light. openMSX emulates the sensor by
+looking at the picture that is being drawn at the moment the MSX reads the
+joystick port. Like the real gun (as measured by NYYRIKKI), the sensor sees a
+circle of about 5 pixels around the aim point, reacts about one line after the
+beam drew something bright there and then keeps signalling light for about 26
+lines. Limitations:
+</p>
+<ul>
+<li>With the "none" renderer the gun never sees light.</li>
+<li>Only the normal MSX VDP is supported, not the V9990 (GFX9000).</li>
+</ul>
+
+<p>
+Games that are known to work: Target Plus and Mike Gunner (Dinamic), Guillermo
+Tell (Opera Soft) and Duck Hunt (Karoshi, MSXdev 2004).
+</p>
+
+<h3><a id="terminatorlaser">6.13 ASCII Plus-X Terminator Laser</a></h3>
+
+<p>
+The Plus-X Terminator Laser from ASCII is another light gun for MSX. It is
+emulated like the <a class="internal" href="#gunstick">Gunstick</a>, with the
+mouse and the same light sensor model, and it has the same limitations. Only
+the pins differ: the light sensor is on pin 6 (button A, high while it sees
+light) and the trigger on pin 7 (button B). So games for one gun don't work
+with the other one. To plug it in, use the <span class="menu-reference">Main
+menu bar &rarr; Connectors</span> menu or the console command <code><a
+class="external" href="commands.html#plugunplug">plug</a> joyporta
+terminatorlaser</code>.
+</p>
+
+<p>
+Games that are known to work: Dungeon Hunter (ASCII).
+</p>
+
+<h3><a id="joyhandle">6.14 Panasonic FS-JH1 Joy Handle</a></h3>
+
+<p>
+The Joy Handle is a steering wheel controller, which came together with the
+Konami game A1 Spirit. Its wheel can be mapped to an
+analog axis of your host controller, see the <a class="internal"
+href="#joystick">Joystick</a> section. To plug it in, use the <span
+class="menu-reference">Main menu bar &rarr; Connectors</span> menu or the
+console command <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyporta joyhandle1</code>.
+</p>
+
 <h2><a id="video">7. Video</a></h2>
 
 <p>
@@ -1733,9 +1836,9 @@ Because of all this, openMSX runs best with a hardware accelerated
 OpenGL library. See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
 So, again, be aware that openMSX requires both your video
-card and video driver to support at least OpenGL 2.0. Sometimes you need to
+card and video driver to support at least OpenGL 2.1. Sometimes you need to
 upgrade your driver to make it work. If your videocard or driver don't support
-OpenGL 2.0, openMSX will not start up and report an error.
+OpenGL 2.1, openMSX will not start up and report an error.
 </p>
 
 <p>
@@ -2048,7 +2151,8 @@ audio is uncompressed.
 The recorded AVI file will not suffer from any hiccups, even if the emulation
 ran too slow when you recorded it. The current video source (see previous
 section) is recorded and the sound is recorded with the current <code><a
-class="external" href="commands.html#frequency">frequency</a></code> setting.
+class="external" href="commands.html#frequency">frequency</a></code> setting
+(by default the frequency of the sound device).
 If you change the <code><a class="external"
 href="commands.html#frequency">frequency</a></code> setting during recording,
 or, more importantly, if the software changes from PAL (50 Hz) to NTSC (60 Hz)
@@ -2711,6 +2815,38 @@ openMSX includes the SDCC Debugger called sdcdb, a Tcl script that mimics GDB (G
 
 <p>A SDCDB breakpoint is a regular breakpoint and it can be listed with the <code>debug breakpoint list</code> command. When a breakpoint is triggered, you can inspect the source code around it with command <code>sdcdb info</code>. There are two commands that executes code step by step. The first is <code>sdcdb step</code>, which executes C code line by line and goes inside function calls. It is equivalent to the <code>step_in</code> command from the console. The second is <code>sdcdb next</code>, which executes C code line by line but doesn't go inside function calls. It is equivalent to the <code>step_over</code> command from the console. The useful <code>sdcdb laddress &lt;address&gt;</code> will display source code under the given memory address since sdcdb is aware of the program's source code, like GDB. You can type <code>help sdcdb</code> for more details or check out the comments in <code>sdcdb.tcl</code> script for more examples.</p>
 
+<h3><a id="traceviewer">9.7 Trace Viewer and Raster Beam Viewer</a></h3>
+
+<p>
+The Trace Viewer (<span class="menu-reference">Main menu bar &rarr; Debugger
+&rarr; Probe/Trace viewer</span>) shows events in the emulated MSX on a
+timeline, optionally with associated data. This helps to answer questions
+like: how much time passes between the VDP generating an interrupt and the Z80
+responding to it? When is the VDP busy executing commands, and can my program
+keep it busier? When is my function called, and with which parameters?
+</p>
+
+<p>
+The events come from builtin probes (currently for interrupts and the VDP
+command engine) and from your own traces. A trace is typically added from a
+breakpoint or watchpoint with the <code><a class="external"
+href="commands.html#debug-trace">debug trace add</a></code> command, e.g. to log
+register A each time a function is called. Some scripts set up traces for you,
+e.g. <code>cpu_trace</code> (executed instructions and register values) and
+<code>symboltracer</code> (calls of all functions from a symbol file). With
+markers in the graph you can measure the time between events. The Help menu of
+the Trace Viewer has more details and an example.
+</p>
+
+<p>
+The Raster Beam Viewer (<span class="menu-reference">Main menu bar &rarr;
+Debugger &rarr; Raster beam viewer</span>) shows the MSX screen while it is
+being built up, with the current position of the raster beam and where the
+VBLANK and line interrupts will occur. This is especially useful while
+stepping through code in the debugger. It can also show the trace events of the
+last frame, so you can see where on the screen something happened.
+</p>
+
 <h2><a id="contact">10. Contact Info</a></h2>
 
 <p>
@@ -2724,20 +2860,6 @@ If you encounter problems, you have several options:
 
 <ol>
 <li>
-Go to our IRC channel: <a class="external"
-href="ircs://irc.libera.chat:6697/#openMSX"><code>#openMSX</code> on
-<code>libera.chat</code></a>
-and ask your question there. Also reachable via <a class="external"
-href="https://web.libera.chat/#openMSX">webchat</a>! If you don't get a reply
-immediately, please stick around for a while, or use one of the other contact
-options. The majority of the developers lives in time zone GMT+1. You may get
-no response if you contact them in the middle of the night... </li>
-<li>
-Post a message on <a class="external"
-href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on
-MRC</a>.
-</li>
-<li>
 Create a new issue in the
 <a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX
 issue tracker</a>
@@ -2745,7 +2867,29 @@ on GitHub.
 You need a (free) log-in on GitHub to get access.
 </li>
 <li>
-Contact us and other users via one of the mailing lists. If you're a regular
+Post a message on <a class="external"
+href="https://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on
+MRC</a>.
+</li>
+<li>
+Go to our IRC channel: <a class="external"
+href="ircs://irc.libera.chat:6697/#openMSX"><code>#openMSX</code> on
+<code>libera.chat</code></a>
+and ask your question there. Also reachable via <a class="external"
+href="https://web.libera.chat/#openMSX">webchat</a>! If you don't get a reply
+immediately, please stick around for a while, or use one of the other contact
+options. The majority of the developers live in time zone GMT+1. You may get
+no response if you contact them in the middle of their night...
+</li>
+<li>
+Join us on <a class="external" href="https://discord.gg/JV56gzh2qG">Discord</a>.
+The best place to ask your question there is the <code>#openmsx-irc-bridge</code>
+channel, which is connected to our IRC channel.
+</li>
+<li>
+Contact us and other users via one of the mailing lists. Note that these are
+hardly used anymore, so you will probably get a faster reply via one of the
+options above. If you're a regular
 user and want to discuss openMSX and possible problems, join our
 <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly, post a message to the

@@ -4,6 +4,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiVDPUtils.hh"
 
 #include "DisplayMode.hh"
 #include "VDP.hh"
@@ -165,69 +166,32 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			assert(false); return "ERROR";
 		};
 
-		static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
 		bool manualMode   = overrideAll || overrideMode;
 		bool manualPage   = overrideAll || overridePage;
 		bool manualLines  = overrideAll || overrideLines;
 		bool manualColor0 = overrideAll || overrideColor0;
-		im::Group([&]{
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted("VDP settings");
-			auto pos = ImGui::GetCursorPos();
-			ImGui::Dummy(ImGui::CalcTextSize("Screen mode: non-bitmap"));
-			ImGui::SetCursorPos(pos);
-			im::Disabled(manualMode, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
-			});
-			im::Disabled(manualPage, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Display page: ", vdpPage);
-			});
-			im::Disabled(manualLines, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Visible lines: ", vdpLines ? 212 : 192);
-			});
-			im::Disabled(manualColor0, [&]{
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Str));
-			});
-			// TODO interlace
-		});
-		ImGui::SameLine();
-		im::Group([&]{
-			ImGui::Checkbox("Manual override", &overrideAll);
-			im::Group([&]{
-				im::Disabled(overrideAll, [&]{
-					ImGui::Checkbox("##mode",   overrideAll ? &overrideAll : &overrideMode);
-					ImGui::Checkbox("##page",   overrideAll ? &overrideAll : &overridePage);
-					ImGui::Checkbox("##lines",  overrideAll ? &overrideAll : &overrideLines);
-					ImGui::Checkbox("##color0", overrideAll ? &overrideAll : &overrideColor0);
+		// TODO interlace
+		overridableSettings("VDP settings", "Screen mode: non-bitmap", overrideAll, {
+			{tmpStrCat("Screen mode: ", modeToStr(vdpMode)), &overrideMode, [&]{
+				ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
+			}},
+			{tmpStrCat("Display page: ", vdpPage), &overridePage, [&]{
+				// note: 'mode', not 'bitmapScrnMode'
+				int mode = manualMode ? bitmapScrnMode : vdpMode;
+				int numPages = mode <= SCR6 ? 4 : 2; // TODO extended VRAM
+				if (bitmapPage >= numPages) bitmapPage = numPages - 1;
+				if (bitmapPage < 0) bitmapPage = numPages;
+				ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
+				if (bitmapPage == numPages) bitmapPage = -1;
+			}},
+			{tmpStrCat("Visible lines: ", vdpLines ? 212 : 192), &overrideLines, [&]{
+				im::Disabled(bitmapPage < 0, [&]{
+					ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
 				});
-			});
-			ImGui::SameLine();
-			im::Group([&]{
-				im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-					im::Disabled(!manualMode, [&]{
-						ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
-					});
-					im::Disabled(!manualPage, [&]{
-						// note: 'mode', not 'bitmapScrnMode'
-						int mode = manualMode ? bitmapScrnMode : vdpMode;
-						int numPages = mode <= SCR6 ? 4 : 2; // TODO extended VRAM
-						if (bitmapPage >= numPages) bitmapPage = numPages - 1;
-						if (bitmapPage < 0) bitmapPage = numPages;
-						ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
-						if (bitmapPage == numPages) bitmapPage = -1;
-					});
-					im::Disabled(!manualLines || bitmapPage < 0, [&]{
-						ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
-					});
-					im::Disabled(!manualColor0, [&]{
-						ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
-					});
-				});
-			});
+			}},
+			{tmpStrCat("Replace color 0: ", getComboString(vdpColor0, color0Items)), &overrideColor0, [&]{
+				ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Items);
+			}},
 		});
 
 		ImGui::SameLine();
@@ -253,35 +217,14 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		rasterBeamPos.x /= divX;
 
 		im::Group([&]{
-			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
-			ImGui::Combo("Palette", &manager.palette->whichPalette, "VDP\000Custom\000Fixed\000");
-			if (ImGui::Button("Open palette editor")) {
-				manager.palette->window.raise();
-			}
+			manager.palette->drawSelector();
 			ImGui::Separator();
-			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-			ImGui::Combo("Zoom", &bitmapZoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-			ImGui::Checkbox("grid", &bitmapGrid);
-			ImGui::SameLine();
-			im::Disabled(!bitmapGrid, [&]{
-				ImGui::ColorEdit4("Grid color", bitmapGridColor.data(),
-					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-			});
+			zoomAndGridSettings(bitmapZoom, bitmapGrid, bitmapGridColor);
 			ImGui::Separator();
-			ImGui::Checkbox("beam", &rasterBeam);
-			ImGui::SameLine();
-			im::Disabled(!rasterBeam, [&]{
-				ImGui::ColorEdit4("raster beam color", rasterBeamColor.data(),
-					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-				ImGui::SameLine();
-				im::Font(manager.fontMono, [&]{
-					ImGui::StrCat('(',  dec_string<4>(rasterBeamPos.x),
-					              ',', dec_string<4>(rasterBeamPos.y), ')');
-				});
-			});
-			HelpMarker("Position of the raster beam, expressed in MSX coordinates.\n"
-			           "Left/top border have negative x/y-coordinates.\n"
-			           "Only practically useful when emulation is paused.");
+			rasterBeamSettings(rasterBeam, rasterBeamColor, rasterBeamPos, manager.fontMono,
+				"Position of the raster beam, expressed in MSX coordinates.\n"
+				"Left/top border have negative x/y-coordinates.\n"
+				"Only practically useful when emulation is paused.");
 		});
 
 		// VDP block command overlay settings
@@ -360,12 +303,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		MemBuffer<uint32_t> pixels(512 * 256 * 4); // max size: screen 6/7, show all pages
 		renderBitmap(vram.getData(), palette, mode, height, page,
 				pixels.data());
-		if (!bitmapTex) {
-			bitmapTex.emplace(false, false); // no interpolation, no wrapping
-		}
-		bitmapTex->bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		updateTexture(bitmapTex, {width, height}, pixels);
 		int zx = (1 + bitmapZoom) * divX;
 		int zy = (1 + bitmapZoom) * 2;
 		auto zm = gl::vec2(float(zx), float(zy));
@@ -378,37 +316,17 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		im::Child("##bitmap", min(availSize, reqSize), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			scrnPos = ImGui::GetCursorScreenPos();
 			auto pos = ImGui::GetCursorPos();
-			ImGui::Image(bitmapTex->getImGui(), size);
+			ImGui::Image(bitmapTex.getImGui(), size);
 
 			if (bitmapGrid && (zx > 1) && (zy > 1)) {
-				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
-				for (auto y : xrange(zy)) {
-					auto* line = &pixels[y * zx];
-					for (auto x : xrange(zx)) {
-						line[x] = (x == 0 || y == 0) ? color : 0;
-					}
-				}
-				if (!bitmapGridTex) {
-					bitmapGridTex.emplace(false, true); // no interpolation, with wrapping
-				}
-				bitmapGridTex->bind();
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
-						GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+				updateGridTexture(bitmapGridTex, {zx, zy},
+				                  ImGui::ColorConvertFloat4ToU32(bitmapGridColor));
 				ImGui::SetCursorPos(pos);
-				ImGui::Image(bitmapGridTex->getImGui(), size, gl::vec2{}, msxSize);
+				ImGui::Image(bitmapGridTex.getImGui(), size, gl::vec2{}, msxSize);
 			}
 			auto* drawList = ImGui::GetWindowDrawList();
 			if (rasterBeam) {
-				auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
-				auto color = ImGui::ColorConvertFloat4ToU32(rasterBeamColor);
-				auto thickness = zm.y * 0.5f;
-				auto zm1 = 1.5f * zm;
-				auto zm3 = 3.5f * zm;
-				drawList->AddRect(center - zm, center + zm, color, 0.0f, thickness);
-				drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
-				drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
-				drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
-				drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+				addRasterBeam(drawList, scrnPos, zm, gl::vec2(rasterBeamPos), rasterBeamColor);
 			}
 
 			// draw the VDP command overlay
@@ -446,7 +364,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::IsItemHovered() && (mode != OTHER)) {
-			auto [x, y] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm);
+			auto [x, y] = hoveredCell(scrnPos, zm);
 			if ((0 <= x) && (x < width) && (0 <= y) && (y < height)) {
 				auto dec3 = [&](int d) {
 					im::ScopedFont sf(manager.fontMono);

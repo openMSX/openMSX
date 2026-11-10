@@ -30,7 +30,7 @@ void RomNeo8::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 	if ((address & 1) == 0) {
 		blockReg[region] = uint16_t((blockReg[region] & 0xFF00) | value);
 	} else {
-		blockReg[region] = uint16_t((blockReg[region] & 0x00FF) | ((value & 0b1111) << 8));
+		blockReg[region] = uint16_t((blockReg[region] & 0x00FF) | ((value & 0b111111) << 8));
 	}
 	setRom(region, blockReg[region]);
 }

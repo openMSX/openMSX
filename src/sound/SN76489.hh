@@ -5,6 +5,7 @@
 #include "SimpleDebuggable.hh"
 
 #include <array>
+#include <string_view>
 
 namespace openmsx {
 
@@ -26,7 +27,11 @@ namespace openmsx {
 class SN76489 final : public ResampledSoundDevice
 {
 public:
-	explicit SN76489(const DeviceConfig& config);
+	/** @param name Sound device name used for the volume/balance/mute
+	  *     settings and the debuggable (made unique by the mixer).
+	  */
+	explicit SN76489(const DeviceConfig& config,
+	                 std::string_view name = "SN76489");
 	~SN76489();
 
 	// ResampledSoundDevice

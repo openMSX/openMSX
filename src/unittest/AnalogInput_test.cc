@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include "AnalogInput.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 using namespace openmsx;
 
@@ -62,7 +62,7 @@ TEST_CASE("AnalogInput: capture")
 
 	SECTION("mouse") {
 		sdl.motion = SDL_MouseMotionEvent{};
-		sdl.motion.type = SDL_MOUSEMOTION;
+		sdl.motion.type = SDL_EVENT_MOUSE_MOTION;
 		sdl.motion.xrel = 0;
 		sdl.motion.yrel = 0;
 		sdl.motion.x = 30;
@@ -77,7 +77,7 @@ TEST_CASE("AnalogInput: capture")
 	}
 	SECTION("joystick") {
 		sdl.jaxis = SDL_JoyAxisEvent{};
-		sdl.jaxis.type = SDL_JOYAXISMOTION;
+		sdl.jaxis.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
 		sdl.jaxis.which = 2;
 		sdl.jaxis.axis = 1;
 		sdl.jaxis.value = 32000;
@@ -95,7 +95,7 @@ TEST_CASE("AnalogInput: match")
 	SDL_Event sdl;
 
 	sdl.motion = SDL_MouseMotionEvent{};
-	sdl.motion.type = SDL_MOUSEMOTION;
+	sdl.motion.type = SDL_EVENT_MOUSE_MOTION;
 	sdl.motion.xrel = 0;
 	sdl.motion.yrel = 1; // small movement
 	sdl.motion.x = 30;
@@ -115,7 +115,7 @@ TEST_CASE("AnalogInput: match")
 	auto mouseRight = MouseMotionEvent(sdl);
 
 	sdl.jaxis = SDL_JoyAxisEvent{};
-	sdl.jaxis.type = SDL_JOYAXISMOTION;
+	sdl.jaxis.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
 	sdl.jaxis.which = 0;
 	sdl.jaxis.axis = 1;
 	sdl.jaxis.value = 1; // not fully center

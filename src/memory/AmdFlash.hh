@@ -453,6 +453,18 @@ namespace AmdFlashChip
 		.misc{.readyPin = true},
 	}};
 
+	// AMD AM29F010
+	static constexpr ValidatedChip AM29F010 = {{
+		.autoSelect{.manufacturer = AMD, .device{0x20}},
+		.geometry{
+			DeviceInterface::x8, {
+				{.count = 8, .size = 0x4000},
+			},
+		},
+		.erase{.duration = EmuDuration::msec(1000)},
+		.program{.duration = EmuDuration::usec(14)},
+	}};
+
 	// Microchip SST39SF010  (128kB, 32 x 4kB sectors)
 	static constexpr ValidatedChip SST39SF010 = {{
 		.autoSelect{.manufacturer = SST, .device{0xB5}},

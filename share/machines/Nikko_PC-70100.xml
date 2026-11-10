@@ -39,7 +39,7 @@
       <keyboard_type>jp_jis</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
-      <code_kana_locks>false</code_kana_locks>
+      <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
 
@@ -49,6 +49,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <keyboardlayout>JIS</keyboardlayout>
       <type>AY8910</type>
       <sound>
         <volume>21000</volume>

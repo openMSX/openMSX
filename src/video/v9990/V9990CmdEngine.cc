@@ -333,30 +333,52 @@ inline uint8_t V9990CmdEngine::V9990P1::logOp(
 	return lut[256 * dst + src];
 }
 
+// A P1 write goes out on the 16-bit data bus of both VRAM chips (VRAM0 = layer
+// A, VRAM1 = layer B) at the same address. The engine only loads the byte
+// lane of the target chip into its data output register; the other lane
+// keeps whatever it held from an earlier command write to that chip. Both
+// chips are written through WM (R#46 for VRAM0, R#47 for VRAM1) and the
+// nibble mask of the target pixel, so with WM = FFFFh the other layer gets the
+// stale lane byte at the same address. This is why the manual says that in
+// P1 the program must clear the WM byte of the side that isn't the transfer
+// destination. Verified against a real V9990 (Tecnobytes PowerGraph) with
+// the P1CMD/P1CMD2 probes: LMMV puts the FC byte of the target layer on its
+// lane; LMMM puts the source pixel shifted into its nibble, other nibble 0.
+// CPU writes through port P#0 do not touch this register; reset clears it.
+static inline void p1Write(
+	V9990VRAM& vram, unsigned addr, uint8_t nibbleMask, uint8_t newColor,
+	uint16_t mask, uint16_t& dataLatch)
+{
+	unsigned lane = (addr & 0x40000) ? 8 : 0;
+	dataLatch = uint16_t((dataLatch & ~(0xFF << lane)) | (newColor << lane));
+	for (unsigned l : {0u, 8u}) {
+		auto m = narrow_cast<uint8_t>((mask >> l) & nibbleMask);
+		if (m == 0) continue;
+		unsigned a = (addr & 0x3FFFF) | (l ? 0x40000 : 0);
+		auto d = narrow_cast<uint8_t>(dataLatch >> l);
+		auto old = vram.readVRAMDirect(a);
+		vram.writeVRAMDirect(a, uint8_t((old & ~m) | (d & m)));
+	}
+}
+
 inline void V9990CmdEngine::V9990P1::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& dataLatch)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto dstColor = vram.readVRAMDirect(addr);
-	auto newColor = logOp(lut, srcColor, dstColor);
-	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
-	uint8_t mask2 = mask1 & shiftMask(x);
-	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
-	vram.writeVRAMDirect(addr, result);
+	auto newColor = logOp(lut, srcColor & shiftMask(x), dstColor);
+	p1Write(vram, addr, shiftMask(x), newColor, mask, dataLatch);
 }
 inline void V9990CmdEngine::V9990P1::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& dataLatch)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
 	auto dstColor = vram.readVRAMDirect(addr);
 	auto newColor = logOp(lut, srcColor, dstColor);
-	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
-	uint8_t mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
-	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
-	vram.writeVRAMDirect(addr, result);
+	p1Write(vram, addr, shiftMask(x), newColor, mask, dataLatch);
 }
 
 // P2 --------------------------------------------------------------
@@ -403,7 +425,7 @@ inline uint8_t V9990CmdEngine::V9990P2::logOp(
 
 inline void V9990CmdEngine::V9990P2::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto dstColor = vram.readVRAMDirect(addr);
@@ -416,7 +438,7 @@ inline void V9990CmdEngine::V9990P2::pset(
 
 inline void V9990CmdEngine::V9990P2::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
@@ -471,7 +493,7 @@ inline uint8_t V9990CmdEngine::V9990Bpp2::logOp(
 
 inline void V9990CmdEngine::V9990Bpp2::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto dstColor = vram.readVRAMDirect(addr);
@@ -484,7 +506,7 @@ inline void V9990CmdEngine::V9990Bpp2::pset(
 
 inline void V9990CmdEngine::V9990Bpp2::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
@@ -539,7 +561,7 @@ inline uint8_t V9990CmdEngine::V9990Bpp4::logOp(
 
 inline void V9990CmdEngine::V9990Bpp4::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto dstColor = vram.readVRAMDirect(addr);
@@ -552,7 +574,7 @@ inline void V9990CmdEngine::V9990Bpp4::pset(
 
 inline void V9990CmdEngine::V9990Bpp4::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
@@ -606,7 +628,7 @@ inline uint8_t V9990CmdEngine::V9990Bpp8::logOp(
 
 inline void V9990CmdEngine::V9990Bpp8::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto dstColor = vram.readVRAMDirect(addr);
@@ -618,7 +640,7 @@ inline void V9990CmdEngine::V9990Bpp8::pset(
 
 inline void V9990CmdEngine::V9990Bpp8::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
+	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
@@ -677,7 +699,7 @@ inline uint16_t V9990CmdEngine::V9990Bpp16::logOp(
 
 inline void V9990CmdEngine::V9990Bpp16::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op)
+	uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto dstColor = uint16_t(vram.readVRAMDirect(addr + 0x00000) +
@@ -690,7 +712,7 @@ inline void V9990CmdEngine::V9990Bpp16::pset(
 
 inline void V9990CmdEngine::V9990Bpp16::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
-	uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op)
+	uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op, uint16_t& /*dataLatch*/)
 {
 	auto addr = addressOf(x, y, pitch);
 	auto dstColor = uint16_t(vram.readVRAMDirect(addr + 0x00000) +
@@ -738,6 +760,7 @@ void V9990CmdEngine::reset(EmuTime /*time*/)
 	CMD = 0;
 	status = 0;
 	borderX = 0;
+	dataLatch = 0;
 	endAfterRead = false;
 }
 
@@ -991,7 +1014,7 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 			auto value = uint16_t((data << 8) | partial);
 			unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 			auto lut = V9990Bpp16::getLogOpLUT(LOG);
-			V9990Bpp16::pset(vram, DX, DY, pitch, value, WM, lut, LOG);
+			V9990Bpp16::pset(vram, DX, DY, pitch, value, WM, lut, LOG, dataLatch);
 			uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 			DX += dx;
 			if (!--ANX) {
@@ -1017,7 +1040,7 @@ void V9990CmdEngine::executeLMMC(EmuTime limit)
 		auto lut = Mode::getLogOpLUT(LOG);
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			uint8_t d = Mode::shift(data, i, DX);
-			Mode::pset(vram, DX, DY, pitch, d, WM, lut, LOG);
+			Mode::pset(vram, DX, DY, pitch, d, WM, lut, LOG, dataLatch);
 
 			uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 			DX += dx;
@@ -1055,7 +1078,7 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 	auto lut = Mode::getLogOpLUT(LOG);
 	while (engineTime < limit) {
 		engineTime += delta;
-		Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG);
+		Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 
 		DX += dx;
 		if (!--ANX) {
@@ -1150,7 +1173,7 @@ void V9990CmdEngine::executeLMMM(EmuTime limit)
 		engineTime += delta;
 		auto src = Mode::point(vram, SX, SY, pitch);
 		src = Mode::shift(src, SX, DX);
-		Mode::pset(vram, DX, DY, pitch, src, WM, lut, LOG);
+		Mode::pset(vram, DX, DY, pitch, src, WM, lut, LOG, dataLatch);
 
 		DX += dx;
 		SX += dx;
@@ -1193,7 +1216,7 @@ void V9990CmdEngine::executeCMMC(EmuTime limit)
 			data <<= 1;
 
 			uint16_t src = bit ? fgCol : bgCol;
-			Mode::psetColor(vram, DX, DY, pitch, src, WM, lut, LOG);
+			Mode::psetColor(vram, DX, DY, pitch, src, WM, lut, LOG, dataLatch);
 
 			DX += dx;
 			if (!--ANX) {
@@ -1253,7 +1276,7 @@ void V9990CmdEngine::executeCMMM(EmuTime limit)
 		data <<= 1;
 
 		uint16_t color = bit ? fgCol : bgCol;
-		Mode::psetColor(vram, DX, DY, pitch, color, WM, lut, LOG);
+		Mode::psetColor(vram, DX, DY, pitch, color, WM, lut, LOG, dataLatch);
 
 		DX += dx;
 		if (!--ANX) {
@@ -1293,7 +1316,7 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 		auto src = uint16_t(vram.readVRAMBx(srcAddress + 0) +
 		                    vram.readVRAMBx(srcAddress + 1) * 256);
 		srcAddress += 2;
-		V9990Bpp16::pset(vram, DX, DY, pitch, src, WM, lut, LOG);
+		V9990Bpp16::pset(vram, DX, DY, pitch, src, WM, lut, LOG, dataLatch);
 		DX += dx;
 		if (!--ANX) {
 			DX -= uint16_t(NX * dx);
@@ -1322,7 +1345,7 @@ void V9990CmdEngine::executeBMXL(EmuTime limit)
 		uint8_t d = vram.readVRAMBx(srcAddress++);
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			auto d2 = Mode::shift(d, i, DX);
-			Mode::pset(vram, DX, DY, pitch, d2, WM, lut, LOG);
+			Mode::pset(vram, DX, DY, pitch, d2, WM, lut, LOG, dataLatch);
 			DX += dx;
 			if (!--ANX) {
 				DX -= uint16_t(NX * dx);
@@ -1504,7 +1527,7 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 		// X-Axis is major direction.
 		while (engineTime < limit) {
 			engineTime += delta;
-			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG);
+			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 
 			ADX += TX;
 			if (ASX < NY) {
@@ -1522,7 +1545,7 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 		// Y-Axis is major direction.
 		while (engineTime < limit) {
 			engineTime += delta;
-			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG);
+			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 			DY += TY;
 			if (ASX < NY) {
 				ASX += NX;
@@ -1627,7 +1650,7 @@ void V9990CmdEngine::startPSET(EmuTime time)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto lut = Mode::getLogOpLUT(LOG);
-	Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG);
+	Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 
 	// TODO advance DX DY
 
@@ -1861,6 +1884,7 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 
 // version 1: initial version
 // version 2: we forgot to serialize the time (or clock) member
+// version 3: added dataLatch (P1 data output register)
 template<typename Archive>
 void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 {
@@ -1898,6 +1922,11 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	             "bitsLeft",     bitsLeft,
 	             "partial",      partial,
 	             "endAfterRead", endAfterRead);
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("dataLatch", dataLatch);
+	} else {
+		dataLatch = 0;
+	}
 
 	if constexpr (Archive::IS_LOADER) {
 		setCommandMode();

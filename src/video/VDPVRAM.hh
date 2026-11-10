@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <span>
 
 namespace openmsx {
 
@@ -310,6 +311,14 @@ public:
 	  */
 	[[nodiscard]] bool isInside(unsigned address) const {
 		return (address & combiMask) == baseAddr;
+	}
+
+	/** Is isInside(address & addressMask) for any address in the range
+	  * [first, last]?
+	  */
+	[[nodiscard]] bool intersects(unsigned first, unsigned last, unsigned addressMask) const {
+		return isEnabled() &&
+		       Math::rangeContainsMatch(first, last, combiMask & addressMask, baseAddr);
 	}
 
 	/** Notifies the observer of this window of a VRAM change,
@@ -640,6 +649,7 @@ private:
 	public:
 		explicit LogicalVRAMDebuggable(const VDP& vdp);
 		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void readBlock(unsigned start, std::span<uint8_t> output) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	private:
 		unsigned transform(unsigned address);
@@ -652,8 +662,22 @@ private:
 	struct PhysicalVRAMDebuggable final : SimpleDebuggable {
 		PhysicalVRAMDebuggable(const VDP& vdp, unsigned actualSize);
 		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void readBlock(unsigned start, std::span<uint8_t> output) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} physicalVRAMDebug;
+
+	/** Like cpuRead(), but without stealing an access slot from the command
+	  * engine: reading a debuggable must not influence the emulation.
+	  */
+	[[nodiscard]] uint8_t debugRead(unsigned address, EmuTime time);
+	/** debugRead() of 'transform(start + i)' for each byte of 'output'.
+	  * 'cmdWrites': whether 'cmdWriteWindow' contains any of these addresses.
+	  */
+	void debugReadBlock(unsigned start, std::span<uint8_t> output, EmuTime time,
+	                    bool cmdWrites, auto transform);
+	[[nodiscard]] bool cmdWritesInside(unsigned first, unsigned last) const {
+		return cmdWriteWindow.intersects(first, last, sizeMask);
+	}
 
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.

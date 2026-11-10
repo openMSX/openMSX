@@ -1,0 +1,599 @@
+#include "ImGuiSMSVDPTiles.hh"
+
+#include "Franky.hh"
+#include "SMSVDP.hh"
+
+#include "ImGuiCpp.hh"
+#include "ImGuiManager.hh"
+#include "ImGuiSMSVDPUtils.hh"
+#include "ImGuiUtils.hh"
+#include "ImGuiVDPUtils.hh"
+
+#include "MSXMotherBoard.hh"
+
+#include "one_of.hh"
+#include "ranges.hh"
+#include "xrange.hh"
+
+#include <imgui.h>
+
+#include <array>
+#include <utility>
+
+namespace openmsx {
+
+using namespace std::literals;
+
+ImGuiSMSVDPTiles::ImGuiSMSVDPTiles(ImGuiManager& manager_, size_t index)
+	: ImGuiPart(manager_)
+	, title(strCat("SMS VDP tile viewer", strCat_if(index, " (", index + 1, ')')))
+{
+}
+
+void ImGuiSMSVDPTiles::save(ImGuiTextBuffer& buf)
+{
+	savePersistent(buf, *this, persistentElements);
+}
+
+void ImGuiSMSVDPTiles::loadLine(std::string_view name, zstring_view value)
+{
+	loadOnePersistent(name, value, *this, persistentElements);
+}
+
+// Render the pattern table to a texture, mirroring SMSVDPCore::drawScanlineMode*.
+void ImGuiSMSVDPTiles::renderPatterns(const PatternParams& params,
+                                      std::span<const uint32_t, 32> palette,
+                                      std::span<const uint8_t, 0x4000> vram,
+                                      const VramTables& tables,
+                                      std::span<uint32_t> output)
+{
+	auto read = [&](unsigned address) { return vram[address & 0x3fff]; };
+	auto readColor = [&](unsigned address) {
+		return params.overrideColorTable ? params.overrideColorValue : read(address);
+	};
+	auto patByte = [&](unsigned i) { return read(tables.patBase + i); };
+	auto colByte = [&](unsigned i) { return readColor(tables.colBase + i); };
+	auto palette16 = palette.first<16>();
+	switch (params.mode) {
+	case ImGuiSMSVDPTiles::TEXT:
+		renderTextPatterns(patByte, palette[params.fgCol], palette[params.bgCol], output);
+		break;
+	case ImGuiSMSVDPTiles::GRAPHIC1:
+		renderGraphic1Patterns(patByte, colByte, palette16, output);
+		break;
+	case ImGuiSMSVDPTiles::GRAPHIC2: {
+		// Rows 24-31 of the name table address a fourth bank (row / 8 == 3).
+		// The chip never scans those lines; the 32-row override is what shows them.
+		// The table masks apply to the pattern number (byte index / 8).
+		auto masked = [](unsigned i, unsigned mask) { return i & ((mask << 3) | 7); };
+		renderGraphic2Patterns(
+			[&](unsigned i) { return read(tables.patBase + masked(i, tables.patMask)); },
+			[&](unsigned i) { return readColor(tables.colBase + masked(i, tables.colMask)); },
+			palette16, params.graphic2Banks, output);
+		break;
+	}
+	case ImGuiSMSVDPTiles::MULTICOLOR:
+		renderMulticolorPatterns(patByte, palette16, output);
+		break;
+	case ImGuiSMSVDPTiles::MODE4:
+		// 512 patterns x 2 palettes, stacked: 32x32 characters (256x256).
+		// The tile-number masks mirror SMSVDPCore::tile1SelectMode4 /
+		// tile2SelectMode4 (they only differ from the identity on SMS1).
+		for (auto pal : xrange(2)) {
+			for (auto patNum : xrange(512)) {
+				auto charRow = (patNum / 32) + 16 * pal;
+				auto charCol = patNum % 32;
+				auto tile1 = unsigned(patNum) & tables.tile1Mask;
+				auto tile2 = unsigned(patNum) & tables.tile2Mask;
+				for (auto y : xrange(8)) {
+					auto addr0 = tile1 * 32 + y * 4;
+					auto addr2 = tile2 * 32 + y * 4;
+					auto pens = mode4Pens(read(addr0 + 0), read(addr0 + 1),
+					                      read(addr2 + 2), read(addr2 + 3));
+					for (auto x : xrange(8)) {
+						output[(charRow * 8 + y) * 256 + charCol * 8 + x] =
+							palette[16 * pal + pens[x]];
+					}
+				}
+			}
+		}
+		break;
+	default:
+		output[0] = getColor(imColor::GRAY);
+		break;
+	}
+}
+
+void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
+{
+	if (!show || !motherBoard) return;
+	ImGui::SetNextWindowSize({692, 886}, ImGuiCond_FirstUseEver);
+	im::Window(title.c_str(), &show, [&]{
+		auto* franky = dynamic_cast<Franky*>(motherBoard->findDevice("Franky"));
+		if (!franky) return;
+		auto& vdp = franky->getVdp();
+		const auto vram = vdp.getVram();
+		std::array<uint8_t, 10> reg; // R#0-R#9 (R#8/R#9 are used for the beam mapping)
+		for (auto i : xrange(10)) reg[i] = vdp.peekReg(i);
+
+		int vdpMode = [&] {
+			switch (vdp.peekMode()) {
+			case 0: return GRAPHIC1;
+			case 1: return TEXT;
+			case 2: return GRAPHIC2;
+			case 3: return MULTICOLOR;
+			case 4: return MODE4;
+			default: return OTHER;
+			}
+		}();
+		auto modeToStr = [](int mode) {
+			if (mode == GRAPHIC1)   return "graphics I";
+			if (mode == TEXT)       return "text";
+			if (mode == GRAPHIC2)   return "graphics II";
+			if (mode == MULTICOLOR) return "multicolor";
+			if (mode == MODE4)      return "mode 4";
+			if (mode == OTHER)      return "non-character";
+			assert(false); return "ERROR";
+		};
+		auto patMult = [](int mode) { return 1 << (mode == GRAPHIC2 ? 13 : 11); };
+		auto colMult = [](int mode) { return 1 << (mode == GRAPHIC2 ? 13 : 6); };
+		int vdpFgCol = reg[7] >> 4;
+		int vdpBgCol = reg[7] & 0x0f;
+		// In the TMS9918-compatible modes pen 0 is drawn in the backdrop
+		// color (R#7 low nibble).
+		int vdpColor0 = vdpBgCol;
+		// Table bases as the chip derives them from the registers in mode 'm'.
+		// The settings readout uses the chip's mode, the tables use the
+		// mode that is shown (these differ when the mode is overridden).
+		auto patBaseFor = [&](int m) {
+			return (m == MODE4)    ? 0
+			     : (m == GRAPHIC2) ? ((reg[4] & 0x04) << 11)
+			                       : ((reg[4] << 11) & 0x3fff);
+		};
+		auto colBaseFor = [&](int m) {
+			return (m == MODE4)    ? 0
+			     : (m == GRAPHIC2) ? ((reg[3] & 0x80) << 6)
+			                       : ((reg[3] << 6) & 0x3fff);
+		};
+		auto namBaseFor = [&](int m) {
+			return (m == MODE4)
+				? ((vdp.peekYPixels() != 192) ? (((reg[2] & 0x0c) << 10) | 0x0700)
+				                              : ((reg[2] << 10) & 0x3800))
+				: ((reg[2] & 0x0f) << 10);
+		};
+		int vdpPatBase = patBaseFor(vdpMode);
+		int vdpColBase = colBaseFor(vdpMode);
+		int vdpNamBase = namBaseFor(vdpMode);
+		int vdpYpixels = vdp.peekYPixels();
+		int vdpLines = vdpYpixels; // visible lines (192/224/240)
+		// In mode 4 with 224/240 lines, the name table is at a 4kB aligned
+		// address + 0x700.
+		auto namMult = [&](int mode) {
+			return (mode != MODE4) ? 0x400 : (vdpYpixels == 192) ? 0x800 : 0x1000;
+		};
+		auto namOffset = [&](int mode) {
+			return ((mode == MODE4) && (vdpYpixels != 192)) ? 0x700 : 0;
+		};
+		int vramSize = 0x4000;
+		bool sms1 = vdp.getVariant() == SMSVDPCore::Variant::SMS1;
+		// Mode-4 tile-number masks (identity on SMS2).
+		unsigned tile1Mask = sms1 ? unsigned((reg[3] << 1) | 1) : 0x1ff;
+		unsigned tile2Mask = sms1 ? unsigned(((reg[4] & 0x07) << 6) | 0x3f) : 0x1ff;
+		unsigned nameRowMask = sms1 ? unsigned(((reg[2] & 0x01) << 10) | 0x3bff) : 0xffff;
+
+		bool manMode   = overrideAll || overrideMode;
+		bool manFgCol  = overrideAll || overrideFgCol;
+		bool manBgCol  = overrideAll || overrideBgCol;
+		bool manPat    = overrideAll || overridePat;
+		bool manCol    = overrideAll || overrideCol;
+		bool manNam    = overrideAll || overrideNam;
+		bool manRows   = overrideAll || overrideRows;
+		bool manColor0 = overrideAll || overrideColor0;
+
+		int mode = manMode ? manualMode : vdpMode;
+
+		auto [beamX, beamY] = vdp.getRasterPosition();
+		if (mode == MODE4) {
+			// Map the beam to the (scrolled) position in the name table, like
+			// SMSVDPCore::drawScanlineMode4: screen x shows name-table x minus
+			// R#8, screen y shows name-table y plus R#9. R#0 bit 6 locks the
+			// top 16 lines horizontally, bit 7 the rightmost 8 columns vertically.
+			const int scrollMod = (vdpYpixels == 192) ? 224 : 256;
+			const int xScroll = (((reg[0] & 0x40) != 0) && (beamY < 16)) ? 0 : reg[8];
+			const int screenColumn = (beamX - (xScroll & 7)) >> 3;
+			const int yScroll = (((reg[0] & 0x80) != 0) && (screenColumn > 23)) ? 0 : reg[9];
+			beamX = (beamX - xScroll) % 256;
+			if (beamX < 0) beamX += 256;
+			beamY = (beamY + yScroll) % scrollMod;
+			if (beamY < 0) beamY += scrollMod;
+		}
+		gl::vec2 rasterBeamPos{float(beamX), float(beamY)};
+		if (mode == TEXT) rasterBeamPos.x -= 8.0f; // 40 columns of 6 pixels
+
+		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			// The editors are gated on the mode actually shown. manualMode
+			// stays at its default when the mode itself is not overridden, so
+			// a chip in text mode would otherwise keep them disabled.
+			overridableSettings("SMS VDP settings", "Screen mode: graphics II", overrideAll, {
+				{tmpStrCat("Screen mode: ", modeToStr(vdpMode)), &overrideMode, [&]{
+					im::Combo("##mode", modeToStr(manualMode), [&]{
+						if (ImGui::Selectable("graphics I"))  manualMode = GRAPHIC1;
+						if (ImGui::Selectable("text"))        manualMode = TEXT;
+						if (ImGui::Selectable("graphics II")) manualMode = GRAPHIC2;
+						if (ImGui::Selectable("multicolor"))  manualMode = MULTICOLOR;
+						if (ImGui::Selectable("mode 4"))      manualMode = MODE4;
+					});
+				}},
+				// Foreground and background are only used in text mode.
+				{tmpStrCat("Foreground color: ", vdpFgCol), &overrideFgCol, [&]{
+					im::Disabled(mode != TEXT, [&]{ ImGui::Combo("##fgCol", &manualFgCol, colorItems); });
+				}},
+				{tmpStrCat("Background color: ", vdpBgCol), &overrideBgCol, [&]{
+					im::Disabled(mode != TEXT, [&]{ ImGui::Combo("##bgCol", &manualBgCol, colorItems); });
+				}},
+				{.vdpValue = tmpStrCat("Pattern table: 0x", hex_string<4>(vdpPatBase)),
+				 .overridden = &overridePat,
+				 .editor = [&]{
+					im::Disabled(mode == MODE4, [&]{
+						comboHexSequence<4>("##pattern", &manualPatBase, patMult(mode), vramSize, 0);
+					});
+				 },
+				 .vdpValueUsed = vdpMode != MODE4},
+				// Only graphics I and II have a color table.
+				{.vdpValue = tmpStrCat("Color table: 0x", hex_string<4>(vdpColBase)),
+				 .overridden = &overrideCol,
+				 .editor = [&]{
+					im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
+						comboHexSequence<4>("##color", &manualColBase, colMult(mode), vramSize, 0);
+					});
+				 },
+				 .vdpValueUsed = vdpMode != MODE4},
+				{tmpStrCat("Name table: 0x", hex_string<4>(vdpNamBase)), &overrideNam, [&]{
+					comboHexSequence<4>("##name", &manualNamBase, namMult(mode), vramSize, namOffset(mode));
+				}},
+				{tmpStrCat("Visible rows: ", vdpLines / 8), &overrideRows, [&]{
+					im::Disabled(mode == MODE4, [&]{ ImGui::Combo("##rows", &manualRows, "24\00032\000"); });
+				}},
+				{.vdpValue = tmpStrCat("Replace color 0: ", getComboString(vdpColor0, color0Items)),
+				 .overridden = &overrideColor0,
+				 .editor = [&]{
+					im::Disabled(mode == MODE4, [&]{
+						ImGui::Combo("##Color 0 replacement", &manualColor0, color0Items);
+					});
+				 },
+				 .vdpValueUsed = vdpMode != MODE4},
+			});
+
+			ImGui::SameLine();
+			ImGui::Dummy(ImVec2(25, 1));
+			ImGui::SameLine();
+			im::Group([&]{
+				zoomAndGridSettings(zoom, grid, gridColor);
+				ImGui::Checkbox("Name table overlay", &nameTableOverlay);
+
+				im::Disabled(mode != one_of(GRAPHIC1, GRAPHIC2), [&]{
+					ImGui::Checkbox("Override color table", &overrideColorTable);
+				});
+				HelpMarker("Ignore the content of the color table and instead use this value for everything.\n"
+				           "Could be useful to visualize the patterns when the color table has the same value for fg and bg.");
+				im::DisabledIndent(!overrideColorTable || (mode != one_of(GRAPHIC1, GRAPHIC2)), [&]{
+					comboFgBgColor(overrideColorValue);
+				});
+
+				im::Disabled(mode != MODE4, [&]{
+					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
+					ImGui::Combo("Pattern palette", &patternPalette, "0\0001\000");
+				});
+
+				ImGui::Separator();
+				rasterBeamSettings(rasterBeam, rasterBeamColor, {beamX, beamY}, manager.fontMono,
+					"Position of the raster beam, expressed in Sega VDP pixels.\n"
+					"(0,0) is the top-left of the active display area.\n"
+					"In mode 4 the position is mapped through the horizontal\n"
+					"and vertical scroll registers, so it points at the tile\n"
+					"currently being displayed.\n"
+					"Only practically useful when emulation is paused.");
+			});
+		});
+		int color0 = manColor0 ? manualColor0 : vdpColor0;
+
+		// The combos above only align the manual bases while they're shown.
+		VramTables tables;
+		tables.namBase = manNam ? unsigned((manualNamBase & ~(namMult(mode) - 1)) | namOffset(mode))
+		                        : unsigned(namBaseFor(mode));
+		if (mode == MODE4) {
+			// Mode 4 has no pattern/color table base registers: the tile
+			// number indexes the pattern table at 0x0000.
+			tables.patBase = 0;
+			tables.patMask = 0x1ff;
+			tables.colBase = 0;
+			tables.colMask = 0;
+		} else if (manPat) {
+			tables.patBase = unsigned(manualPatBase & ~(patMult(mode) - 1));
+			tables.patMask = (mode == GRAPHIC2) ? 0x3ff : 0xff;
+		} else {
+			tables.patBase = unsigned(patBaseFor(mode));
+			tables.patMask = (mode == GRAPHIC2) ? unsigned(((reg[4] & 0x03) << 8) | 0xff) : 0xff;
+		}
+		if (mode != MODE4) {
+			if (manCol) {
+				tables.colBase = unsigned(manualColBase & ~(colMult(mode) - 1));
+				tables.colMask = (mode == GRAPHIC2) ? 0x3ff : 0;
+			} else {
+				tables.colBase = unsigned(colBaseFor(mode));
+				tables.colMask = (mode == GRAPHIC2) ? unsigned(((reg[3] & 0x7f) << 3) | 0x07) : 0;
+			}
+		}
+		tables.tile1Mask = tile1Mask;
+		tables.tile2Mask = tile2Mask;
+
+		auto palette = getSMSPalette(vdp, mode == MODE4);
+		if ((mode != MODE4) && (color0 < 16)) palette[0] = palette[color0];
+
+		if (mode == MODE4) {
+			ImGui::Separator();
+			im::TreeNode("CRAM", ImGuiTreeNodeFlags_DefaultOpen, [&]{ drawSMSCramEditor(vdp); });
+		}
+
+		auto fgCol = manFgCol ? manualFgCol : vdpFgCol;
+		auto bgCol = manBgCol ? manualBgCol : vdpBgCol;
+
+		int zx = (1 + zoom) * 2;
+		int zy = (1 + zoom) * 2;
+		gl::vec2 zm{float(zx), float(zy)};
+
+		// Render the patterns to a texture, we need this both to display
+		// the name-table and the pattern-table.
+		// Graphics II name-table rows 24-31 use a fourth pattern bank.
+		int graphic2Banks = (mode == GRAPHIC2 && manRows && (manualRows == 1)) ? 4 : 3;
+		auto patternTexSize = [&] -> gl::ivec2 {
+			if (mode == TEXT)       return {192,  64}; // 8 rows of 32 characters, each 6x8 pixels
+			if (mode == GRAPHIC1)   return {256,  64}; // 8 rows of 32 characters, each 8x8 pixels
+			if (mode == GRAPHIC2)   return {256, 64 * graphic2Banks};
+			if (mode == MULTICOLOR) return { 64,  64}; // 8 rows of 32 characters, each 2x2 pixels, all this 4 times
+			if (mode == MODE4)      return {256, 256}; // 512 patterns x 2 palettes (32x32 characters)
+			return {1, 1}; // OTHER -> dummy
+		}();
+		auto patternTexChars = [&] -> gl::vec2 {
+			if (mode == MULTICOLOR) return {32.0f, 32.0f};
+			if (mode == GRAPHIC2)   return {32.0f, float(8 * graphic2Banks)};
+			if (mode == MODE4)      return {32.0f, 32.0f};
+			return {32.0f, 8.0f};
+		}();
+		auto recipPatTexChars = recip(patternTexChars);
+		auto patternDisplaySize = [&] -> gl::ivec2 {
+			if (mode == TEXT)       return {192,  64};
+			if (mode == GRAPHIC2)   return {256, 64 * graphic2Banks};
+			if (mode == MULTICOLOR) return {256, 256};
+			if (mode == MODE4)      return {256, 128}; // 512 tiles of one palette
+			return {256,  64}; // GRAPHIC1, OTHER
+		}();
+		// UVs of one pattern in the pattern texture; mode 4 stacks the two
+		// palettes and supports the per-tile h/v flip.
+		auto patternUV = [&](unsigned pattern, unsigned paletteBit, bool hflip, bool vflip)
+			-> std::pair<gl::vec2, gl::vec2>
+		{
+			if (mode == MODE4) {
+				auto patCol = float(pattern % 32);
+				auto patRow = float(pattern / 32) + 16.0f * float(paletteBit);
+				gl::vec2 uv1{patCol * (1.0f / 32.0f), patRow * (1.0f / 32.0f)};
+				gl::vec2 uv2 = uv1 + gl::vec2{1.0f / 32.0f, 1.0f / 32.0f};
+				if (hflip) std::swap(uv1.x, uv2.x);
+				if (vflip) std::swap(uv1.y, uv2.y);
+				return {uv1, uv2};
+			}
+			auto patRow = pattern / 32;
+			auto patCol = pattern % 32;
+			gl::vec2 uv1 = gl::vec2{float(patCol), float(patRow)} * recipPatTexChars;
+			gl::vec2 uv2 = uv1 + recipPatTexChars;
+			return {uv1, uv2};
+		};
+		// The pattern-table view shows one palette (mode 4) or the whole texture.
+		auto patternViewUV = (mode == MODE4)
+			? std::pair{gl::vec2{0.0f, float(patternPalette * 16) * (1.0f / 32.0f)},
+			            gl::vec2{1.0f, float(patternPalette * 16 + 16) * (1.0f / 32.0f)}}
+			: std::pair{gl::vec2{}, gl::vec2{1.0f, 1.0f}};
+		auto gridTiling = (mode == MODE4) ? gl::vec2{32.0f, 16.0f} : patternTexChars;
+		std::array<uint32_t, 256 * 256> pixels; // max size for GRAPHIC2/MODE4
+		PatternParams params{mode, fgCol, bgCol, overrideColorTable,
+		                     uint8_t(overrideColorValue), graphic2Banks};
+		renderPatterns(params, palette, vram, tables, pixels);
+		updateTexture(patternTex, patternTexSize, pixels);
+
+		// create grid texture
+		auto charWidth = (mode == TEXT) ? 6 : 8;
+		auto charSize = gl::vec2{float(charWidth), 8.0f};
+		auto charZoom = zm * charSize;
+		auto zoomCharSize = gl::vec2(12.0f, 12.0f) * charSize; // hovered size
+		if (grid) {
+			updateGridTexture(gridTex, {charWidth * zx, 8 * zy},
+			                  ImGui::ColorConvertFloat4ToU32(gridColor));
+		}
+		if (nameTableOverlay && !smallHexDigits.get()) {
+			smallHexDigits = createHexDigitsTexture();
+		}
+
+		static constexpr int addrDigits = 4; // 16kB VRAM
+		auto patternAddress = [&](unsigned pattern) { // modes 0-3
+			return (tables.patBase + ((pattern & tables.patMask) << 3)) & 0x3fff;
+		};
+		// Mode 4 takes bit planes 0-1 from tile1 and planes 2-3 from tile2;
+		// they only differ on SMS1 (SMSVDPCore::tile1SelectMode4/tile2SelectMode4).
+		auto mode4Tiles = [&](unsigned pattern) {
+			return std::pair{pattern & tile1Mask, pattern & tile2Mask};
+		};
+		auto colorAddress = [&](unsigned pattern) {
+			if (mode == GRAPHIC1) return (tables.colBase + (pattern >> 3)) & 0x3fff;
+			return (tables.colBase + ((pattern & tables.colMask) << 3)) & 0x3fff;
+		};
+		auto printPatternColorAddress = [&](unsigned pattern) {
+			if (mode == MODE4) {
+				auto [tile1, tile2] = mode4Tiles(pattern);
+				if (tile1 == tile2) {
+					printAddressRange("Pattern", tile1 * 32, 32, addrDigits);
+				} else {
+					printAddressRange("Pattern (planes 0-1)", tile1 * 32, 32, addrDigits);
+					printAddressRange("Pattern (planes 2-3)", tile2 * 32, 32, addrDigits);
+				}
+			} else {
+				printAddressRange("Pattern", patternAddress(pattern), 8, addrDigits);
+				if (mode == GRAPHIC1) {
+					// one color byte for 8 patterns
+					printAddress("Color", colorAddress(pattern), addrDigits);
+				} else if (mode == GRAPHIC2) {
+					printAddressRange("Color", colorAddress(pattern), 8, addrDigits);
+				}
+			}
+		};
+		auto formatBinaryData = [&](unsigned address, unsigned count) {
+			return formatVramData([&](unsigned addr) { return vram[addr & 0x3fff]; }, address, count);
+		};
+		auto formatPatternData = [&](unsigned pattern) {
+			if (mode == MODE4) {
+				auto [tile1, tile2] = mode4Tiles(pattern);
+				return formatVramData([&](unsigned i) { return vram[((i & 2) ? tile2 : tile1) * 32 + i]; }, 0, 32);
+			}
+			return formatBinaryData(patternAddress(pattern), 8);
+		};
+		auto getPatternFromGrid = [&] {
+			return gridPosition.x + 32 * gridPosition.y;
+		};
+		auto copyPatternColorPopup = [&] {
+			auto pattern = getPatternFromGrid();
+			return copyPatternDataPopup(mode == one_of(GRAPHIC1, GRAPHIC2),
+				[&]{ return formatPatternData(pattern); },
+				[&]{ return formatBinaryData(colorAddress(pattern), (mode == GRAPHIC1) ? 1 : 8); });
+		};
+		auto drawGrid = [&] {
+			auto pat = getPatternFromGrid();
+			printPatternNr(pat);
+			auto [uv1, uv2] = patternUV(pat, unsigned(patternPalette), false, false);
+			imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
+			printPatternColorAddress(pat);
+		};
+		ImGui::Separator();
+		im::TreeNode("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			auto size = gl::vec2(patternDisplaySize) * zm;
+			im::Child("##pattern", {0, childHeightWithScrollbar(size.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+				auto pos1 = ImGui::GetCursorPos();
+				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
+				ImGui::Image(patternTex.getImGui(), size, patternViewUV.first, patternViewUV.second);
+				bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
+				if (hovered) {
+					gridPosition = hoveredCell(scrnPos, charZoom);
+				}
+				copyPatternColorPopup();
+				if (hovered) {
+					ImGui::BeginTooltip();
+					drawGrid();
+					ImGui::EndTooltip();
+				}
+				if (grid) {
+					ImGui::SetCursorPos(pos1);
+					ImGui::Image(gridTex.getImGui(), size,
+						{}, gridTiling);
+				}
+			});
+		});
+		ImGui::Separator();
+		im::TreeNode("Name Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			// Mode 4 shows the scroll map (28 rows, or 32 in 224/240-line
+			// mode). Modes 0-3 show the 24 rows the chip displays; 32 shows
+			// the rest of the 1 kB name-table slot.
+			float rows = (mode == MODE4) ? ((vdpYpixels == 192) ? 28.0f : 32.0f)
+			                             : ((manRows && (manualRows == 1)) ? 32.0f : 24.0f);
+			auto columns = (mode == TEXT) ? 40 : 32;
+			auto charsSize = gl::vec2(float(columns), rows); // (x * y) number of characters
+			auto msxSize = charSize * charsSize; // (x * y) number of VDP pixels
+			auto hostSize = msxSize * zm; // (x * y) number of host pixels
+
+			im::Child("##name", {0.0f, childHeightWithScrollbar(hostSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
+				auto* drawList = ImGui::GetWindowDrawList();
+
+				struct TileEntry {
+					unsigned tile = 0;
+					bool hflip = false;
+					bool vflip = false;
+					unsigned palette = 0; // mode 4: 0/1
+				};
+				auto getEntry = [&](unsigned column, unsigned row) -> TileEntry {
+					TileEntry entry;
+					if (mode == MODE4) {
+						// Like SMSVDPCore::drawScanlineMode4: 16-bit entries
+						// (the name-row mirroring only differs from the
+						// identity on SMS1).
+						auto nameRow = (row << 6) & nameRowMask;
+						auto address = (tables.namBase + nameRow + 2 * column) & 0x3fff;
+						auto data = unsigned(vram[address] | (vram[(address + 1) & 0x3fff] << 8));
+						entry.tile = data & 0x1ff;
+						entry.hflip = (data & 0x200) != 0;
+						entry.vflip = (data & 0x400) != 0;
+						entry.palette = (data & 0x800) ? 1 : 0;
+					} else {
+						// Note: like SMSVDPCore::drawScanlineMode1 (and MAME),
+						// the text mode name table uses a row-stride of 32.
+						auto name = vram[(tables.namBase + 32 * row + column) & 0x3fff];
+						if (mode == GRAPHIC2)        entry.tile = unsigned(name) + 256 * (row / 8);
+						else if (mode == MULTICOLOR) entry.tile = unsigned(name) + 256 * (row % 4);
+						else                         entry.tile = unsigned(name);
+					}
+					return entry;
+				};
+
+				if (mode == OTHER) {
+					drawList->AddRectFilled(scrnPos, scrnPos + hostSize, getColor(imColor::GRAY));
+				} else {
+					gl::ivec2 numChars{columns, int(ceilf(rows))};
+					drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
+					addTiles(drawList, patternTex, scrnPos, charZoom, numChars, [&](int column, int row) {
+						auto entry = getEntry(column, row);
+						return patternUV(entry.tile, entry.palette, entry.hflip, entry.vflip);
+					});
+					if (nameTableOverlay) {
+						// Mode 4 tile numbers are 9-bit, so they need three hex
+						// digits (the mode 4 cells are at least 16 pixels wide,
+						// so three 5-pixel digits fit); the TMS modes use two.
+						const int numDigits = (mode == MODE4) ? 3 : 2;
+						addHexNumbers(drawList, smallHexDigits, scrnPos, charZoom, numChars, {hexDigitSize.x, 0.0f}, numDigits,
+						              [&](int column, int row) { return getEntry(column, row).tile; });
+					}
+					drawList->PopClipRect();
+				}
+				if (rasterBeam) {
+					addRasterBeam(drawList, scrnPos, zm, rasterBeamPos, rasterBeamColor);
+				}
+
+				auto pos1 = ImGui::GetCursorPos();
+				ImGui::Dummy(hostSize);
+				bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
+				if (hovered) {
+					auto gridPos = hoveredCell(scrnPos, charZoom);
+					ImGui::BeginTooltip();
+					ImGui::StrCat("Column: ", gridPos.x, " Row: ", gridPos.y);
+					auto entry = getEntry(gridPos.x, gridPos.y);
+					printPatternNr(entry.tile);
+					auto [uv1, uv2] = patternUV(entry.tile, entry.palette, entry.hflip, entry.vflip);
+					imageWithGrid(patternTex, zoomCharSize, uv1, uv2, grid ? &gridTex : nullptr, charSize);
+					if (mode == MODE4) {
+						auto nameRow = (unsigned(gridPos.y) << 6) & nameRowMask;
+						printAddressRange("Name", (tables.namBase + nameRow + 2 * unsigned(gridPos.x)) & 0x3fff, 2, addrDigits);
+					} else {
+						// the name table row stride is 32, also for the
+						// 40-column text mode (like SMSVDPCore/MAME)
+						auto nameIndex = 32 * gridPos.y + gridPos.x;
+						printAddress("Name", (tables.namBase + nameIndex) & 0x3fff, addrDigits);
+					}
+					printPatternColorAddress(entry.tile);
+					ImGui::EndTooltip();
+				}
+				if (grid) {
+					ImGui::SetCursorPos(pos1);
+					ImGui::Image(gridTex.getImGui(), hostSize, {}, charsSize);
+				}
+			});
+		});
+	});
+}
+
+} // namespace openmsx

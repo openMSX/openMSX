@@ -36,6 +36,7 @@ public:
 	[[nodiscard]] uint8_t peekRegister(unsigned reg, EmuTime time) const;
 	void writeRegister(unsigned reg, uint8_t value, EmuTime time);
 	void reset(EmuTime time);
+	void setClockFrequency(float frequency, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

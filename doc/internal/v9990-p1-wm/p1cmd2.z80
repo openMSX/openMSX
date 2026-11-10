@@ -1,0 +1,396 @@
+; P1CMD2: as P1CMD, but the write mask follows the destination layer
+; (R#46 = FFh, R#47 = 00h for layer A; 00h, FFh for layer B).
+; P1 command-engine probe for a real V9990: how LMMM/LMMV coordinates map
+; to VRAM in P1, with R#6 = 05h (XIMM 512) and with R#6 = 01h (XIMM 256).
+; MSX-DOS .COM (P1CMD.COM); any key returns to DOS. MSX1-safe.
+;
+; Screen: left half = layer A pattern area x 0-127, right half = layer B
+; pattern area x 0-127, both lines 0-211 (one tile row = 8 lines). Grey ramp
+; palette: pixel value v -> brightness 2v.
+;
+; Lines   0- 7  REF: CPU-written, pixel = x & 15 (layer A left, layer B right)
+; R#6 = 05h:
+; Lines  16-23  T1 LMMM A(0,0) -> A(0,16)      64x8
+; Lines  32-39  T2 LMMM A(0,0) -> A(1,32)      64x8 (odd DX)
+; Lines  48-55  T3 LMMM A(0,0) -> B(512,48)    64x8 (right half)
+; Lines  64-71  T4 LMMV A(0,64)  64x8 colour 9
+; Lines  80-87  T5 LMMV B(512,80) 64x8 colour 12 (right half)
+; Lines  96-103 T6 LMMM B(512,0) -> A(0,96)    64x8 (read layer B)
+; R#6 = 01h: the same six at lines 128, 144, 160, 176, 192, 208.
+; A test whose CE never clears gets a white 8x8 block at x 120 (layer A).
+
+V9_VRAM         equ     60h
+V9_PAL          equ     61h
+V9_DATA         equ     63h
+V9_SEL          equ     64h
+V9_STAT         equ     65h
+V9_SYS          equ     67h
+V9_OUT          equ     6Fh
+
+        output  "P1CMD2.COM"
+        org     0100h
+
+START:
+        di
+        ; reset the V9990
+        ld      a,2
+        out     (V9_SYS),a
+        xor     a
+        out     (V9_SYS),a
+        out     (V9_OUT),a
+        ld      hl,REGS
+REG_LP:
+        ld      a,(hl)
+        cp      0FFh
+        jr      z,REG_DONE
+        out     (V9_SEL),a
+        inc     hl
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        jr      REG_LP
+REG_DONE:
+        ; palette: grey ramp, 64 entries (4 banks the same)
+        ld      a,14
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      d,4
+PAL_BANK:
+        ld      e,0
+PAL_LP:
+        ld      a,e
+        add     a,a
+        out     (V9_PAL),a
+        out     (V9_PAL),a
+        out     (V9_PAL),a
+        inc     e
+        ld      a,e
+        cp      16
+        jr      nz,PAL_LP
+        dec     d
+        jr      nz,PAL_BANK
+        ; clear layer A lines 0-255 and layer B lines 0-255 (32 KB each)
+        ld      e,0
+        ld      hl,0
+        call    WADDR
+        call    CLR32K
+        ld      e,4
+        ld      hl,0
+        call    WADDR
+        call    CLR32K
+        ; name tables: A at 7C000h, B at 7E000h (64x64 entries, 2 bytes)
+        ld      e,7
+        ld      hl,0C000h
+        call    WADDR
+        call    NT_A
+        ld      e,7
+        ld      hl,0E000h
+        call    WADDR
+        call    NT_B
+        ; REF: lines 0-7, x 0-63, pixel = x & 15, in layer A and layer B
+        ld      e,0
+        call    REF
+        ld      e,4
+        call    REF
+        ; the tests, R#6 = 05h
+        ld      a,05h
+        ld      (R6V),a
+        ld      a,0
+        ld      (YB),a
+        call    TESTS
+        ld      a,01h
+        ld      (R6V),a
+        ld      a,112
+        ld      (YB),a
+        call    TESTS
+        ; display: R#6 = 05h, display on, sprites off
+        ld      a,6
+        out     (V9_SEL),a
+        ld      a,05h
+        out     (V9_DATA),a
+        ld      a,8
+        out     (V9_SEL),a
+        ld      a,0C2h
+        out     (V9_DATA),a
+        ei
+        ld      c,08h                   ; BDOS: console input, no echo
+        call    5
+        ld      a,10h
+        out     (V9_OUT),a              ; the courtesy value on exit
+        ld      c,00h                   ; BDOS: back to DOS
+        jp      5
+
+; E = bits 18-16, HL = bits 15-0: VRAM write pointer
+WADDR:
+        xor     a
+        out     (V9_SEL),a
+        ld      a,l
+        out     (V9_DATA),a
+        ld      a,h
+        out     (V9_DATA),a
+        ld      a,e
+        out     (V9_DATA),a
+        ret
+
+CLR32K:
+        ld      bc,8000h
+CLR_LP:
+        xor     a
+        out     (V9_VRAM),a
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,CLR_LP
+        ret
+
+; Layer A name table: rows 0-26, cols 0-15 = tile 32r + c (pattern area
+; x 8c, lines 8r); cols 16-63 = tile 1023 (zero: layer B shows through).
+NT_A:
+        ld      d,0                     ; row
+NTA_ROW:
+        ld      e,0                     ; col
+NTA_COL:
+        ld      a,e
+        cp      16
+        jr      nc,NTA_Z
+        ld      a,d
+        rrca
+        rrca
+        rrca
+        ld      c,a
+        and     0E0h
+        or      e
+        out     (V9_VRAM),a             ; low: 32r + c
+        ld      a,c
+        and     1Fh
+        out     (V9_VRAM),a
+        jr      NTA_NX
+NTA_Z:
+        ld      a,0FFh
+        out     (V9_VRAM),a
+        ld      a,03h
+        out     (V9_VRAM),a
+NTA_NX:
+        inc     e
+        ld      a,e
+        cp      64
+        jr      nz,NTA_COL
+        inc     d
+        ld      a,d
+        cp      64
+        jr      nz,NTA_ROW
+        ret
+
+; Layer B name table: cols 16-31 = tile 32r + (c-16); the rest tile 1023.
+NT_B:
+        ld      d,0
+NTB_ROW:
+        ld      e,0
+NTB_COL:
+        ld      a,e
+        sub     16
+        jr      c,NTB_Z
+        cp      16
+        jr      nc,NTB_Z
+        ld      b,a
+        ld      a,d
+        rrca
+        rrca
+        rrca
+        ld      c,a
+        and     0E0h
+        or      b
+        out     (V9_VRAM),a
+        ld      a,c
+        and     1Fh
+        out     (V9_VRAM),a
+        jr      NTB_NX
+NTB_Z:
+        ld      a,0FFh
+        out     (V9_VRAM),a
+        ld      a,03h
+        out     (V9_VRAM),a
+NTB_NX:
+        inc     e
+        ld      a,e
+        cp      64
+        jr      nz,NTB_COL
+        inc     d
+        ld      a,d
+        cp      64
+        jr      nz,NTB_ROW
+        ret
+
+; E = bank bits (0: layer A, 4: layer B): lines 0-7, bytes 0-31 = 01h 23h
+; 45h ... EFh (pixel = x & 15).
+REF:
+        ld      d,0                     ; line
+REF_LN:
+        push    de
+        ld      a,d
+        rrca                            ; line * 128
+        and     80h
+        ld      l,a
+        ld      a,d
+        srl     a
+        ld      h,a
+        call    WADDR
+        ld      b,32
+        ld      c,01h
+REF_B:
+        ld      a,c
+        out     (V9_VRAM),a
+        add     a,22h
+        ld      c,a
+        djnz    REF_B
+        pop     de
+        inc     d
+        ld      a,d
+        cp      8
+        jr      nz,REF_LN
+        ret
+
+; The six tests at Y base (YB), with R#6 = (R6V).
+TESTS:
+        ld      a,6
+        out     (V9_SEL),a
+        ld      a,(R6V)
+        out     (V9_DATA),a
+        ld      ix,TLIST
+        ld      b,6
+T_LP:
+        push    bc
+        ; block: SX SY DX DY NX NY (words), FC, opcode
+        ld      hl,CMDB
+        ld      a,(ix+0)
+        ld      (hl),a
+        inc     hl
+        ld      a,(ix+1)
+        ld      (hl),a                  ; SX
+        inc     hl
+        xor     a
+        ld      (hl),a
+        inc     hl
+        ld      (hl),a                  ; SY 0
+        inc     hl
+        ld      a,(ix+2)
+        ld      (hl),a
+        inc     hl
+        ld      a,(ix+3)
+        ld      (hl),a                  ; DX
+        inc     hl
+        ld      a,(YB)
+        add     a,(ix+4)
+        ld      (hl),a
+        inc     hl
+        xor     a
+        ld      (hl),a                  ; DY = YB + offset
+        inc     hl
+        ld      (hl),64
+        inc     hl
+        ld      (hl),a                  ; NX 64
+        inc     hl
+        ld      (hl),8
+        inc     hl
+        ld      (hl),a                  ; NY 8
+        inc     hl
+        ld      (hl),a                  ; ARG 0
+        inc     hl
+        ld      (hl),0Ch                ; LOP: WC = SC
+        inc     hl
+        ld      a,(ix+3)
+        and     2                       ; DX bit 9: layer B
+        ld      a,0FFh
+        jr      z,WM_A
+        cpl
+WM_A:
+        ld      (hl),a                  ; R#46: VRAM0 (layer A)
+        inc     hl
+        cpl
+        ld      (hl),a                  ; R#47: VRAM1 (layer B)
+        inc     hl
+        ld      a,(ix+6)
+        ld      (hl),a
+        inc     hl
+        ld      (hl),a                  ; FC
+        ; R#32-49, then R#52
+        ld      a,32
+        out     (V9_SEL),a
+        ld      hl,CMDB
+        ld      bc,18*256+V9_DATA
+        otir
+        ld      a,52
+        out     (V9_SEL),a
+        ld      a,(ix+7)
+        out     (V9_DATA),a
+        ; wait for CE, bounded
+        ld      bc,0
+T_WAIT:
+        in      a,(V9_STAT)
+        rra
+        jr      nc,T_DONE
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,T_WAIT
+        call    MARK                    ; CE stuck: white block, engine stopped
+T_DONE:
+        ld      de,8
+        add     ix,de
+        pop     bc
+        djnz    T_LP
+        ret
+
+; White 8x8 at layer A x 120, the test's DY; stops the engine.
+MARK:
+        ld      a,52
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      a,(YB)
+        add     a,(ix+4)
+        ld      d,a
+        ld      b,8
+MK_LN:
+        push    bc
+        push    de
+        ld      a,d
+        rrca
+        and     80h
+        or      60                      ; byte 60 = x 120
+        ld      l,a
+        ld      a,d
+        srl     a
+        ld      h,a
+        ld      e,0
+        call    WADDR
+        ld      a,0FFh
+        out     (V9_VRAM),a
+        out     (V9_VRAM),a
+        out     (V9_VRAM),a
+        out     (V9_VRAM),a
+        pop     de
+        pop     bc
+        inc     d
+        djnz    MK_LN
+        ret
+
+REGS:
+        db      6,05h, 7,00h, 8,42h, 9,00h, 13,00h, 15,00h, 16,00h
+        db      17,0, 18,0, 19,0, 20,0, 21,0, 22,0, 23,0, 24,0
+        db      25,00h, 26,0, 27,0, 28,0
+        db      0FFh
+
+; SX lo, SX hi, DX lo, DX hi, DY offset, (pad), FC byte, opcode
+TLIST:
+        db      0,0,    0,0,   16, 0, 00h, 40h ; T1 LMMM A->A
+        db      0,0,    1,0,   32, 0, 00h, 40h ; T2 LMMM A->A odd DX
+        db      0,0,    0,2,   48, 0, 00h, 40h ; T3 LMMM A->B
+        db      0,0,    0,0,   64, 0, 99h, 20h ; T4 LMMV A colour 9
+        db      0,0,    0,2,   80, 0, 0CCh,20h ; T5 LMMV B colour 12
+        db      0,2,    0,0,   96, 0, 00h, 40h ; T6 LMMM B->A
+
+R6V:    db      0
+YB:     db      0
+CMDB:   ds      18

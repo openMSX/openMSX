@@ -374,7 +374,7 @@ void RealDrive::execMotorTimeout(EmuTime time)
 	doSetMotor(false, time);
 }
 
-bool RealDrive::indexPulse(EmuTime time)
+bool RealDrive::indexPulse(EmuTime time) const
 {
 	// Tested on real NMS8250:
 	//  Only when there's a disk inserted and when the motor is spinning

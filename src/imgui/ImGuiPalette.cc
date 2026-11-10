@@ -116,6 +116,15 @@ std::array<uint32_t, 16> ImGuiPalette::getPalette(const VDP* vdp) const
 	return result;
 }
 
+void ImGuiPalette::drawSelector()
+{
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
+	ImGui::Combo("Palette", &whichPalette, "VDP\000Custom\000Fixed\000");
+	if (ImGui::Button("Open palette editor")) {
+		window.raise();
+	}
+}
+
 void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 {
 	if (!window.open) return;
