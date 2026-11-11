@@ -21,13 +21,23 @@ class ResampleCoeffs
 {
 public:
 	// The prototype filter, see the comments in ResampleHQ.cc.
-	static constexpr int INDEX_INC = 128; // table units per input sample
-	static constexpr int HALF_LEN = 2462; // the filter is zero for |x| > HALF_LEN
+	static constexpr double BETA = (100.3 + 0.5) / 10.0; // Kaiser window parameter
+	// The original libsamplerate design:
+	static constexpr int INDEX_INC = 128; // table units per (output) sample
+	static constexpr int HALF_LEN = 2462; // window span, in table units
 	static constexpr double FUDGE = 1.0 + 850136.0 / 4194304.0;
 	static constexpr double PERIOD = FUDGE * INDEX_INC; // distance between zero crossings
-	static constexpr double BETA = (100.3 + 0.5) / 10.0; // Kaiser window parameter
+	// fudge(L) = 1 / (1 - FUDGE_C / L), calibrated to the original design
+	static constexpr double FUDGE_C = (1.0 - 1.0 / FUDGE) * HALF_LEN / INDEX_INC; // = 3.2416
 
-	/** The prototype filter (Kaiser windowed sinc), 'x' in table units. */
+	/** Kaiser windowed sinc: zero for |x| > halfSpan, zero crossings
+	  * at multiples of 'period'. Not normalized. */
+	[[nodiscard]] static double proto(double x, double halfSpan, double period);
+	/** The sinc period for a window with the given half-span (both in
+	  * output samples), such that the stop band starts at Nyquist. */
+	[[nodiscard]] static double fudge(double halfSpan);
+	/** The original libsamplerate prototype filter, 'x' in table units.
+	  * (Only used by the unit test.) */
 	[[nodiscard]] static double coeff(double x);
 
 	ResampleCoeffs(const ResampleCoeffs&) = delete;

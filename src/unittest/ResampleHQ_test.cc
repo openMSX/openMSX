@@ -75,6 +75,13 @@ TEST_CASE("ResampleCoeffs, prototype properties")
 		}
 		CHECK(std::abs(sum - RC::INDEX_INC) < 1e-9);
 	}
+	SECTION("fudge(): reproduces the original design, wider window -> higher cutoff") {
+		double L0 = double(RC::HALF_LEN) / RC::INDEX_INC;
+		CHECK(std::abs(RC::fudge(L0) - RC::FUDGE) < 1e-12);
+		CHECK(RC::fudge(1.1 * L0) < RC::FUDGE);
+		CHECK(RC::fudge(0.9 * L0) > RC::FUDGE);
+		CHECK(RC::fudge(1e9) > 1.0); // cutoff is always below Nyquist
+	}
 }
 
 // Magnitude response (in dB, relative to DC) of a FIR filter at frequency 'f'
@@ -91,7 +98,7 @@ static double response(std::span<const float> taps, double f, double rate)
 	return 20.0 * std::log10(std::hypot(re, im) / dc);
 }
 
-static void testTable(double inputRate, unsigned expectedFilterLen)
+static void testTable(double inputRate, unsigned expectedFilterLen, double expectedMinus3dB)
 {
 	constexpr double HOST = 44100.0;
 	constexpr size_t H = ResampleHQ<1>::HALF_TAB_LEN;
@@ -101,7 +108,7 @@ static void testTable(double inputRate, unsigned expectedFilterLen)
 	float* table; unsigned filterLen;
 	coeffs.getCoeffs(ratio, table, filterLen);
 	REQUIRE(filterLen == expectedFilterLen);
-	REQUIRE((filterLen % 4) == 0);
+	REQUIRE((filterLen % 8) == 0);
 
 	// table[0] is row -1, row 't' is at (t + 1) * filterLen, there are
 	// HALF_TAB_LEN + 2 rows in total
@@ -112,7 +119,7 @@ static void testTable(double inputRate, unsigned expectedFilterLen)
 			auto r = row(t);
 			double sum = 0.0;
 			for (auto c : r) sum += c;
-			CHECK(std::abs(sum - 1.0) < 2e-6);
+			CHECK(std::abs(sum - 1.0) < 1e-5); // ~5e-6: leakage at the input rate
 			if (t < int(H)) {
 				auto n = row(t + 1);
 				double maxDiff = 0.0;
@@ -145,10 +152,10 @@ static void testTable(double inputRate, unsigned expectedFilterLen)
 		for (double f = 0.01 * ref; f <= 0.34 * ref; f += 0.01 * ref) {
 			CHECK(std::abs(response(r, f, inputRate)) < 0.01); // pass band
 		}
-		CHECK(std::abs(response(r, 0.40122 * ref, inputRate) - (-3.0)) < 0.05); // -3dB
+		CHECK(std::abs(response(r, expectedMinus3dB * ref, inputRate) - (-3.0)) < 0.05); // -3dB
 		if (ratio > 1.0) {
 			for (double f = 0.5 * ref; f <= 0.5 * inputRate; f += 0.001 * inputRate) {
-				CHECK(response(r, f, inputRate) < -98.0); // stop band
+				CHECK(response(r, f, inputRate) < -97.5); // stop band
 			}
 		}
 	}
@@ -164,7 +171,9 @@ static void testTable(double inputRate, unsigned expectedFilterLen)
 
 TEST_CASE("ResampleCoeffs, tables")
 {
-	SECTION("PSG")    { testTable(223722.0, 196); } // downsample 5.07x
-	SECTION("OPLL")   { testTable( 49716.0,  44); } // downsample 1.13x
-	SECTION("VLM5030") { testTable( 8135.0,  40); } // upsample
+	// The -3dB points follow from the window span, see the comments in
+	// ResampleHQ.cc (0.4036 * 44100 = 17.8kHz etc.)
+	SECTION("PSG")     { testTable(223722.0, 200, 0.4036); } // downsample 5.07x
+	SECTION("OPLL")    { testTable( 49716.0,  48, 0.4107); } // downsample 1.13x
+	SECTION("VLM5030") { testTable(  8135.0,  40, 0.4050); } // upsample
 }
