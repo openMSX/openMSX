@@ -6,10 +6,14 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
+#include "InputEventGenerator.hh"
+#include "JoystickManager.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "ReverseManager.hh"
 #include "SDLKey.hh"
+#include "StringOp.hh"
 #include "StateChange.hh"
 #include "StateChangeDistributor.hh"
 #include "TclArgParser.hh"
@@ -736,6 +740,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, eventDistributor(eventDistributor_)
+	, joystickManager(motherBoard.getReactor().getInputEventGenerator().getJoystickManager())
 	, keyCodeTab (defaultKeyCodeMappings [matrix_])
 	, scanCodeTab(defaultScanCodeMappings[matrix_])
 	, combinedShiftFlag(defaultCombinedShiftFlags[matrix_])
@@ -774,6 +779,16 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	// keyboard can have unwanted side effects
 
 	eventDistributor.registerEventListener(EventType::KEYMAP_CHANGED, *this);
+
+	auto& keyMappingSetting = keyboardSettings.getKeyMappingSetting();
+	keyMappingSetting.setChecker([this](const TclObject& newValue) {
+		parseKeyMapping(newValue);
+	});
+	try {
+		parseKeyMapping(keyMappingSetting.getValue());
+	} catch (MSXException&) {
+		keyMappingSetting.setValue(keyMappingSetting.getDefaultValue());
+	}
 
 	motherBoard.registerKeyboard(*this);
 }
@@ -923,15 +938,187 @@ void Keyboard::setFocus(bool newFocus, EmuTime time)
 void Keyboard::signalMSXEvent(const Event& event,
                               EmuTime time) noexcept
 {
-	if (getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
-		const auto& keyEvent = get_event<KeyEvent>(event);
-		if (keyEvent.getRepeat()) return;
+	bool isKeyEvent = getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP);
+	if (isKeyEvent && get_event<KeyEvent>(event).getRepeat()) return;
+
+	// Host inputs in the user's key mapping (also joystick and mouse
+	// buttons) are used for that only.
+	if (processKeyMapping(event, time)) return;
+
+	if (isKeyEvent) {
 		// Ignore possible console on/off events:
 		// we do not re-scan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
 		msxKeyEventQueue.process_asap(time, event);
 	}
+}
+
+// The kbd_key_mapping setting: a dict with as keys an MSX key name, a
+// combination of names joined with '+', or MATRIX_<row>_<bit>, and as values a
+// list of host inputs (BooleanInput). Names that this MSX doesn't have make the
+// entry ignored, so only the syntax is checked.
+void Keyboard::parseKeyMapping(const TclObject& value)
+{
+	std::vector<KeyMapping> newMappings;
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> newRemovedDefaults = {};
+
+	auto& interp = commandController.getInterpreter();
+	auto n = value.getListLength(interp);
+	if (n & 1) {
+		throw CommandException("Need an even number of elements");
+	}
+	for (decltype(n) i = 0; i < n; i += 2) {
+		KeyMapping mapping;
+		bool haveAllKeys = true;
+		std::string_view names = value.getListIndex(interp, i + 0).getString();
+		for (auto name : StringOp::split_view(names, '+')) {
+			if (name.empty() || !std::ranges::all_of(name, [](char c) {
+					return (('A' <= c) && (c <= 'Z')) || (('a' <= c) && (c <= 'z')) ||
+					       (('0' <= c) && (c <= '9')) || (c == '_');
+				})) {
+				throw CommandException("Invalid MSX key name: \"", names, '"');
+			}
+			if (auto pos = getMappedKeyPosition(name); pos.isValid()) {
+				mapping.keys.push_back(pos);
+			} else {
+				haveAllKeys = false;
+			}
+		}
+		if (names.empty() || names.back() == '+') {
+			throw CommandException("Invalid MSX key name: \"", names, '"');
+		}
+
+		for (const auto& input : parseBooleanInputList(interp, value.getListIndex(interp, i + 1))) {
+			mapping.inputs.push_back({input});
+		}
+
+		if (!haveAllKeys) continue; // this MSX doesn't have (all) these keys
+		if (mapping.keys.size() == 1) {
+			// the entry replaces the default host keys of this MSX key
+			auto pos = mapping.keys.front();
+			newRemovedDefaults[pos.getRow()] |= pos.getMask();
+		}
+		newMappings.push_back(std::move(mapping));
+	}
+
+	// only change the mapping when parsing was fully successful
+	releaseMappedKeys(getCurrentTime());
+	keyMappings = std::move(newMappings);
+	removedDefaults = newRemovedDefaults;
+}
+
+// A key name of this MSX, or MATRIX_<row>_<bit>.
+KeyMatrixPosition Keyboard::getMappedKeyPosition(std::string_view name) const
+{
+	if (name.starts_with("MATRIX_")) {
+		auto rowBit = name.substr(7);
+		if (auto sep = rowBit.find('_'); sep != std::string_view::npos) {
+			auto row = StringOp::stringToBase<10, unsigned>(rowBit.substr(0, sep));
+			auto bit = StringOp::stringToBase<10, unsigned>(rowBit.substr(sep + 1));
+			if (row && bit &&
+			    (*row < KeyMatrixPosition::NUM_ROWS) &&
+			    (*bit < KeyMatrixPosition::NUM_COLS)) {
+				return {*row, *bit};
+			}
+		}
+		return {};
+	}
+	return keyboardInfo.getMsxKeyPosition(name);
+}
+
+/*
+ * Process a host input for the user's key mapping.
+ * @return True iff the event is used by the key mapping (then it must not be
+ *         processed further).
+ */
+bool Keyboard::processKeyMapping(const Event& event, EmuTime time)
+{
+	if (keyMappings.empty()) return false;
+
+	// In CHARACTER mode a host key that types a character keeps typing it.
+	bool ignorePress = false;
+	if (getType(event) == EventType::KEY_DOWN) {
+		ignorePress = getCharacter(get_event<KeyEvent>(event)).first != 0;
+	}
+
+	auto getJoyDeadThreshold = [&](JoystickId joyId) {
+		return joystickManager.getJoyDeadThreshold(joyId);
+	};
+	bool used = false;
+	for (auto& mapping : keyMappings) {
+		for (auto& in : mapping.inputs) {
+			auto onOff = match(in.input, event, getJoyDeadThreshold);
+			if (!onOff) continue;
+			if (*onOff) {
+				if (ignorePress) continue;
+				used = true;
+			} else {
+				// (a release is only used after a press that was)
+				if (!in.active) continue;
+				used = true;
+			}
+			in.active = *onOff;
+		}
+	}
+	if (!used) return false;
+
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> newDown = {};
+	for (const auto& mapping : keyMappings) {
+		if (std::ranges::any_of(mapping.inputs, &KeyMapping::Input::active)) {
+			for (auto pos : mapping.keys) {
+				newDown[pos.getRow()] |= pos.getMask();
+			}
+		}
+	}
+	setMappedKeys(time, newDown);
+	return true;
+}
+
+// Press and release MSX keys, so that the keys pressed via the key mapping
+// become 'newDown' (a set bit is a pressed key).
+void Keyboard::setMappedKeys(EmuTime time, const std::array<uint8_t, KeyMatrixPosition::NUM_ROWS>& newDown)
+{
+	for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
+		uint8_t changed = mappedKeysDown[row] ^ newDown[row];
+		for (auto bit : xrange(KeyMatrixPosition::NUM_COLS)) {
+			if (changed & (1 << bit)) {
+				pressMappedKey(time, KeyMatrixPosition(row, bit), (newDown[row] >> bit) & 1);
+			}
+		}
+	}
+	mappedKeysDown = newDown;
+}
+
+void Keyboard::pressMappedKey(EmuTime time, KeyMatrixPosition pos, bool down)
+{
+	// The lock keys keep their lock state, like with the host lock keys.
+	using enum KeyInfo::Modifier;
+	if (pos == modifierPos[CODE]) {
+		processCodeKanaChange(time, down);
+	} else if (pos == modifierPos[GRAPH]) {
+		processGraphChange(time, down);
+	} else {
+		if (down && (pos == modifierPos[CAPS])) {
+			locksOn ^= KeyInfo::CAPS_MASK;
+		}
+		updateKeyMatrix(time, down, pos);
+	}
+}
+
+// Release the MSX keys pressed via the key mapping, and forget which of its
+// inputs are active (when the mapping changes, or on focus loss).
+void Keyboard::releaseMappedKeys(EmuTime time)
+{
+	setMappedKeys(time, {});
+	for (auto& mapping : keyMappings) {
+		for (auto& in : mapping.inputs) in.active = false;
+	}
+}
+
+bool Keyboard::isDefaultRemoved(KeyMatrixPosition pos) const
+{
+	return pos.isValid() && (removedDefaults[pos.getRow()] & pos.getMask());
 }
 
 void Keyboard::signalStateChange(const StateChange& event)
@@ -957,6 +1144,7 @@ void Keyboard::syncHostKeyMatrix(EmuTime time)
 		// Only clear when !focus so that stopReplay() can preserve held keys.
 		leftShiftPressed = false;
 		rightShiftPressed = false;
+		releaseMappedKeys(time);
 	}
 	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
 		changeKeyMatrixEvent(time, uint8_t(row), hkm);
@@ -1109,7 +1297,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		for (auto n : xrange(3)) {
 			if (key.keycode == keyboardSettings.getDeadKeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
-				if (deadKey.isValid()) {
+				if (deadKey.isValid() && !isDefaultRemoved(deadKey.pos)) {
 					updateKeyMatrix(time, down, deadKey.pos);
 					return false;
 				}
@@ -1117,13 +1305,15 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		}
 	}
 
-	if (key.keycode == SDLK_CAPSLOCK) {
+	// (the kbd_key_mapping setting can remove these default host keys)
+	using enum KeyInfo::Modifier;
+	if ((key.keycode == SDLK_CAPSLOCK) && !isDefaultRemoved(modifierPos[CAPS])) {
 		processCapslockEvent(time, down);
 		return false;
-	} else if (key.keycode == keyboardSettings.getCodeKanaHostKey()) {
+	} else if ((key.keycode == keyboardSettings.getCodeKanaHostKey()) && !isDefaultRemoved(modifierPos[CODE])) {
 		processCodeKanaChange(time, down);
 		return false;
-	} else if (key.keycode == SDLK_LALT) {
+	} else if ((key.keycode == SDLK_LALT) && !isDefaultRemoved(modifierPos[GRAPH])) {
 		processGraphChange(time, down);
 		return false;
 	// KEYPAD_RETURN and KEYPAD_COMMA exist at the same physical position on the host side.
@@ -1269,6 +1459,8 @@ void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 {
 	auto process = [&](KeyMatrixPosition pos) {
 		assert(pos.isValid());
+		// (the kbd_key_mapping setting can remove the default host keys)
+		if (isDefaultRemoved(pos)) return;
 		updateKeyMatrix(time, key.down, pos);
 	};
 
@@ -1345,24 +1537,15 @@ void Keyboard::updateKeyMatrix(EmuTime time, bool down, KeyMatrixPosition pos)
  */
 bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent)
 {
-	auto mode = keyboardSettings.getMappingMode();
-
-	auto keyCode = keyEvent.getKeyCode();
 	auto scanCode = keyEvent.getScanCode();
 	auto key = keyEvent.getKey();
 
-	bool isOnKeypad =
-		(SDLK_KP_1 <= keyCode && keyCode <= SDLK_KP_0) || // note order is 1-9,0
-		(keyCode == one_of(SDLK_KP_PERIOD, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY,
-		                   SDLK_KP_MINUS,  SDLK_KP_PLUS));
-
 #ifdef __APPLE__
-	bool positional = mode == KeyboardSettings::MappingMode::POSITIONAL;
+	bool positional = keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL;
 	if ((key.mod & SDL_KMOD_GUI) &&
 	    (( positional && (keyEvent.getScanCode() == SDL_SCANCODE_I)) ||
-	     (!positional && (keyCode == SDLK_I)))) {
+	     (!positional && (key.keycode == SDLK_I)))) {
 		// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
-		keyCode = SDLK_INSERT;
 		key.keycode = SDLK_INSERT;
 		key.scancode = SDL_SCANCODE_INSERT;
 		key.mod &= ~SDL_KMOD_GUI;
@@ -1370,43 +1553,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 #endif
 
 	if (down) {
-		UnicodeKeymap::KeyInfo keyInfo;
-		unsigned unicode;
-		if (isOnKeypad ||
-		    mode == one_of(KeyboardSettings::MappingMode::KEY,
-		                   KeyboardSettings::MappingMode::POSITIONAL)) {
-			// User entered a key on numeric keypad or the driver is in
-			// KEY/POSITIONAL mapping mode.
-			// First option (keypad) maps to same unicode as some other key
-			// combinations (e.g. digit on main keyboard or TAB/DEL).
-			// Use unicode to handle the more common combination and use direct
-			// matrix to matrix mapping for the exceptional cases (keypad).
-			// TODO: idea: in CHARACTER mode, on an MSX that doesn't have the
-			// keypad key (see namedHostKeys), use the unicode instead, so
-			// that the keypad still types its character (via another key)
-			// instead of nothing.
-			unicode = 0;
-		} else {
-			unicode = keyEvent.getUnicode();
-			if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
-				// Control character in C0 or C1 range.
-				// Use SDL's interpretation instead.
-				unicode = 0;
-			} else if (utf8::is_pua(unicode)) {
-				// Code point in Private Use Area: undefined by Unicode,
-				// so we rely on SDL's interpretation instead.
-				// For example the Mac's cursor keys are in this range.
-				unicode = 0;
-			} else {
-				const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
-				keyInfo = unicodeKeymap.get(unicode);
-				if (!keyInfo.isValid()) {
-					// Unicode does not exist in our mapping; try to process
-					// the key using its keycode instead.
-					unicode = 0;
-				}
-			}
-		}
+		auto [unicode, keyInfo] = getCharacter(keyEvent);
 
 		// Remember which unicode character is currently derived
 		// from this SDL key. It must be stored here (during key-press)
@@ -1461,6 +1608,56 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 		}
 		return false;
 	}
+}
+
+/*
+ * The character that a host key press types on the MSX, with the MSX key
+ * combination for it. Or 0 when the key is mapped by its keycode instead: in
+ * KEY and POSITIONAL mode, for a key without a character (or one this MSX
+ * can't type), and for the numeric keypad.
+ */
+std::pair<unsigned, KeyInfo> Keyboard::getCharacter(const KeyEvent& keyEvent) const
+{
+	auto keyCode = keyEvent.getKeyCode();
+	bool isOnKeypad =
+		(SDLK_KP_1 <= keyCode && keyCode <= SDLK_KP_0) || // note order is 1-9,0
+		(keyCode == one_of(SDLK_KP_PERIOD, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY,
+		                   SDLK_KP_MINUS,  SDLK_KP_PLUS));
+	if (isOnKeypad ||
+	    keyboardSettings.getMappingMode() == one_of(KeyboardSettings::MappingMode::KEY,
+	                                                KeyboardSettings::MappingMode::POSITIONAL)) {
+		// User entered a key on numeric keypad or the driver is in
+		// KEY/POSITIONAL mapping mode.
+		// First option (keypad) maps to same unicode as some other key
+		// combinations (e.g. digit on main keyboard or TAB/DEL).
+		// Use unicode to handle the more common combination and use direct
+		// matrix to matrix mapping for the exceptional cases (keypad).
+		// TODO: idea: in CHARACTER mode, on an MSX that doesn't have the
+		// keypad key (see namedHostKeys), use the unicode instead, so
+		// that the keypad still types its character (via another key)
+		// instead of nothing.
+		return {0, {}};
+	}
+	unsigned unicode = keyEvent.getUnicode();
+	if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
+		// Control character in C0 or C1 range.
+		// Use SDL's interpretation instead.
+		return {0, {}};
+	}
+	if (utf8::is_pua(unicode)) {
+		// Code point in Private Use Area: undefined by Unicode,
+		// so we rely on SDL's interpretation instead.
+		// For example the Mac's cursor keys are in this range.
+		return {0, {}};
+	}
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
+	auto keyInfo = unicodeKeymap.get(unicode);
+	if (!keyInfo.isValid()) {
+		// Unicode does not exist in our mapping; try to process
+		// the key using its keycode instead.
+		return {0, {}};
+	}
+	return {unicode, keyInfo};
 }
 
 void Keyboard::processCmd(Interpreter& interp, std::span<const TclObject> tokens, bool up)

@@ -4,6 +4,7 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "SDLKey.hh"
+#include "StringSetting.hh"
 
 #include <array>
 #include <cassert>
@@ -43,6 +44,9 @@ public:
 	[[nodiscard]] bool getAutoToggleCodeKanaLock() const {
 		return autoToggleCodeKanaLock.getBoolean();
 	}
+	[[nodiscard]] StringSetting& getKeyMappingSetting() {
+		return keyMapping;
+	}
 #if defined(_WIN32)
 	[[nodiscard]] bool getDisableIME() const {
 		return disableIME.getBoolean();
@@ -57,6 +61,7 @@ private:
 	BooleanSetting alwaysEnableKeypad;
 	BooleanSetting traceKeyPresses;
 	BooleanSetting autoToggleCodeKanaLock;
+	StringSetting keyMapping;
 #if defined(_WIN32)
 	BooleanSetting disableIME;
 #endif

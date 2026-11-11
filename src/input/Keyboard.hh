@@ -3,6 +3,7 @@
 
 #include "KeyboardSettings.hh"
 #include "KeyboardInfo.hh"
+#include "BooleanInput.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 
@@ -40,6 +41,7 @@ class MSXEventDistributor;
 class StateChangeDistributor;
 class TclObject;
 class Interpreter;
+class JoystickManager;
 
 struct KeyCodeMsxMapping {
 	SDL_Keycode hostKeyCode;
@@ -122,6 +124,15 @@ private:
 	void releaseKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos);
 	void changeKeyMatrixEvent (EmuTime time, uint8_t row, uint8_t newValue);
 
+	void parseKeyMapping(const TclObject& value);
+	[[nodiscard]] KeyMatrixPosition getMappedKeyPosition(std::string_view name) const;
+	bool processKeyMapping(const Event& event, EmuTime time);
+	void setMappedKeys(EmuTime time, const std::array<uint8_t, KeyMatrixPosition::NUM_ROWS>& newDown);
+	void pressMappedKey(EmuTime time, KeyMatrixPosition pos, bool down);
+	void releaseMappedKeys(EmuTime time);
+	[[nodiscard]] bool isDefaultRemoved(KeyMatrixPosition pos) const;
+	[[nodiscard]] std::pair<unsigned, UnicodeKeymap::KeyInfo> getCharacter(const KeyEvent& keyEvent) const;
+
 	void processCapslockEvent(EmuTime time, bool down);
 	void processCodeKanaChange(EmuTime time, bool down);
 	void processGraphChange(EmuTime time, bool down);
@@ -150,6 +161,7 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 	EventDistributor& eventDistributor;
+	JoystickManager& joystickManager;
 
 	std::span<const KeyCodeMsxMapping> keyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
@@ -269,6 +281,23 @@ private:
 #endif
 
 	KeyboardSettings keyboardSettings;
+
+	/** The user's mapping of host inputs to MSX keys (the kbd_key_mapping
+	  * setting), for the keys that this MSX has. */
+	struct KeyMapping {
+		struct Input {
+			BooleanInput input;
+			bool active = false;
+		};
+		std::vector<KeyMatrixPosition> keys; // pressed together
+		std::vector<Input> inputs;
+	};
+	std::vector<KeyMapping> keyMappings;
+	/** The MSX keys pressed via the key mapping (a set bit is a pressed key). */
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> mappedKeysDown = {};
+	/** The MSX keys of which the key mapping removes the default host keys
+	  * (a set bit for such a key). */
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> removedDefaults = {};
 
 	class MsxKeyEventQueue final : public Schedulable {
 	public:

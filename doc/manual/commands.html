@@ -135,6 +135,7 @@
         <li><a class="internal" href="#kbd_deadkey2_host_key">kbd_deadkey2_host_key</a></li>
         <li><a class="internal" href="#kbd_deadkey3_host_key">kbd_deadkey3_host_key</a></li>
         <li><a class="internal" href="#kbd_disable_IME">kbd_disable_IME</a></li>
+        <li><a class="internal" href="#kbd_key_mapping">kbd_key_mapping</a></li>
         <li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
         <li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
         <li><a class="internal" href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></li>
@@ -4652,6 +4653,71 @@ current MSX model can be:</p>
       <td><code>set kbd_disable_IME off</code></td>
 
       <td>Keep the IME of the host enabled</td>
+    </tr>
+  </table>
+
+
+  <h3><a id="kbd_key_mapping">kbd_key_mapping</a></h3>
+
+  <p>Maps host inputs to MSX keys, e.g. a joystick button to an MSX function
+  key, or the host cursor keys to the Q, A, O and P keys. The value of this
+  setting is a Tcl dictionary. Its keys are MSX key names (see <a
+  class="internal" href="#msx_key_position">msx_key_position</a> for the names
+  of the current MSX), a combination of key names joined with <code>+</code>
+  (e.g. <code>SHIFT+F1</code>, which is F6 on an MSX), or
+  <code>MATRIX_&lt;row&gt;_&lt;bit&gt;</code> for a position in the keyboard
+  matrix (e.g. <code>MATRIX_4_6</code>). The values are lists of host inputs,
+  in the same syntax as for the <a class="internal"
+  href="#msxjoystickN_config">msxjoystick&lt;n&gt;_config</a> settings:
+  host keys, joystick buttons, axes and hats, and mouse buttons
+  (<code>mouse button&lt;n&gt;</code>). The default value is empty.</p>
+
+  <ul>
+    <li>An entry replaces the default host keys of that MSX key (e.g. the host
+    F8 key for the MSX STOP key): with an empty list the MSX key gets no host
+    key.</li>
+    <li>A host input in this setting is only used for it (e.g. a host cursor
+    key mapped to Q no longer presses the MSX cursor key). But in the
+    <code>CHARACTER</code> <a class="internal"
+    href="#kbd_mapping_mode">mapping mode</a>, a host key that types a
+    character keeps typing it.</li>
+    <li>An entry with a key that the current MSX doesn't have is ignored.</li>
+    <li>A combination of keys is pressed and released together.</li>
+    <li>For game controls, use <code>MATRIX_&lt;row&gt;_&lt;bit&gt;</code>: a
+    game reads positions in the matrix. A key name is the same key on every
+    keyboard, but not always at the same position in the matrix (e.g. on an
+    AZERTY keyboard).</li>
+  </ul>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>dict set kbd_key_mapping F1 {{joy1 button4}}</code></td>
+      <td>Joystick button 4 presses the MSX F1 key</td>
+    </tr>
+    <tr>
+      <td><code>dict set kbd_key_mapping SHIFT+F1 {{joy1 button5}}</code></td>
+      <td>Joystick button 5 presses SHIFT and F1 (F6)</td>
+    </tr>
+    <tr>
+      <td><code>dict set kbd_key_mapping STOP {{keyb F8} {keyb End}}</code></td>
+      <td>Both the F8 and the End key press the MSX STOP key</td>
+    </tr>
+    <tr>
+      <td><code>dict set kbd_key_mapping SELECT {}</code></td>
+      <td>The host F7 key no longer presses the MSX SELECT key</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_key_mapping {MATRIX_4_6 {{keyb Up}} MATRIX_2_6 {{keyb Down}} MATRIX_4_4 {{keyb Left}} MATRIX_4_5 {{keyb Right}}}</code></td>
+      <td>The host cursor keys press the keys at the positions of Q, A, O and P
+      on the international MSX keyboard</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_key_mapping {}</code></td>
+      <td>Back to the default mapping</td>
     </tr>
   </table>
 

@@ -77,6 +77,14 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		"kbd_auto_toggle_code_kana_lock",
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
 		true)
+	, keyMapping(commandController,
+		"kbd_key_mapping",
+		"Host inputs that press MSX keys: a dict of MSX key names (or a combination of names "
+		"joined with '+', or MATRIX_<row>_<bit>) with a list of host inputs (the syntax of the "
+		"msxjoystick<n>_config settings) for each. An entry replaces the default host keys of "
+		"that MSX key, an empty list removes them. In CHARACTER mode, host keys that type a "
+		"character keep typing it.",
+		"")
 #if defined(_WIN32)
 	, disableIME(commandController,
 		"kbd_disable_IME",
