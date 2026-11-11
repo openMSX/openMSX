@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <ranges>
 #include <string_view>
 
@@ -413,6 +414,63 @@ void printSpriteBoxes(std::span<const SpriteBox> boxes, gl::ivec2 pos, int patte
 		ImGui::StrCat("sprite ", b.sprite, ": pat=", b.pattern, " (0x", hex_string(Digits{size_t(patternDigits)}, b.pattern), ")\n"
 		              "x,y=", b.vramX, ',', b.vramY, " (0x", hex_string<2>(b.vramX), ",0x", hex_string<2>(b.vramY), ')');
 	}
+}
+
+void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int limit, float zoom)
+{
+	if (!show) return;
+	float width = 5.0f * ImGui::GetFontSize();
+	assert(!counts.empty());
+	int busiest = *std::ranges::max_element(counts);
+	float scale = width / float(std::max(busiest, 2 * limit));
+	gl::vec2 size{width, zoom * float(counts.size())};
+	gl::vec2 pos = ImGui::GetCursorScreenPos();
+	ImGui::InvisibleButton("##spritesPerLine", size);
+
+	auto* drawList = ImGui::GetWindowDrawList();
+	drawList->AddRectFilled(pos, pos + size, ImGui::GetColorU32(ImGuiCol_FrameBg));
+	auto normalCol = ImGui::GetColorU32(ImGuiCol_PlotHistogram);
+	auto overCol = getColor(imColor::ERROR);
+	// one rectangle per run of lines with the same count, nothing for 0
+	for (size_t y = 0; y < counts.size(); /**/) {
+		auto n = counts[y];
+		auto end = y + 1;
+		while ((end < counts.size()) && (counts[end] == n)) ++end;
+		if (n) {
+			drawList->AddRectFilled(pos + gl::vec2{0.0f, zoom * float(y)},
+			                        pos + gl::vec2{scale * float(n), zoom * float(end)},
+			                        (n > limit) ? overCol : normalCol);
+		}
+		y = end;
+	}
+	float limitX = pos.x + scale * float(limit);
+	drawList->AddLine({limitX, pos.y}, {limitX, pos.y + size.y}, ImGui::GetColorU32(ImGuiCol_Text, 0.5f));
+
+	if (ImGui::IsItemHovered()) {
+		auto line = int((ImGui::GetMousePos().y - pos.y) / zoom);
+		if ((0 <= line) && (line < int(counts.size()))) {
+			int n = counts[line];
+			im::Tooltip([&]{ ImGui::StrCat(n, " sprite", (n == 1 ? "" : "s"), " on line ", line); });
+		}
+	}
+	ImGui::SameLine();
+}
+
+void spritesPerLineSettings(bool& show, std::span<const uint8_t> counts, int limit,
+                            std::string_view extraHelp)
+{
+	ImGui::Checkbox("Sprites per line", &show);
+	HelpMarker(tmpStrCat("The number of sprites on each display line. On lines with more than ", limit,
+	                     " sprites the higher sprite numbers are not drawn.", extraHelp));
+	if (!show) return;
+	assert(!counts.empty());
+	im::Indent([&]{
+		auto busiest = std::ranges::max_element(counts);
+		auto overLimit = std::ranges::count_if(counts, [&](uint8_t n) { return n > limit; });
+		ImGui::StrCat("max: ", int(*busiest), " sprite", (*busiest == 1 ? "" : "s"),
+		              ", on line ", busiest - counts.begin());
+		ImGui::StrCat(overLimit, " line", (overLimit == 1 ? "" : "s"), " over the limit");
+	});
 }
 
 } // namespace openmsx

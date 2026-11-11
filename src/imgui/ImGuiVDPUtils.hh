@@ -196,6 +196,19 @@ void drawSpriteBoxes(ImDrawList* drawList, gl::vec2 scrnPos, gl::vec2 zoom, std:
 // pattern number is also shown as 'patternDigits' hex digits.
 void printSpriteBoxes(std::span<const SpriteBox> boxes, gl::ivec2 pos, int patternDigits);
 
+// The number of sprites on each line of the 'Rendered sprites' screen ('counts',
+// one per line), as a vertical histogram at the cursor position, each line
+// 'zoom' pixels tall, so that it lines up with that screen. Lines with more
+// than 'limit' sprites are drawn in another color; hovering shows the count.
+// The next item comes on the same line. Draws nothing when 'show' is false.
+void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int limit, float zoom);
+
+// The "Sprites per line" checkbox, and when checked a summary of 'counts': the
+// busiest line and the number of lines over 'limit'. 'extraHelp' is added to
+// the help marker (e.g. which sprites are counted).
+void spritesPerLineSettings(bool& show, std::span<const uint8_t> counts, int limit,
+                            std::string_view extraHelp = {});
+
 } // namespace openmsx
 
 #endif

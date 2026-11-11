@@ -48,6 +48,7 @@ private:
 	bool grid = true;
 	bool drawBoundingBox = true;
 	bool enableLimitPerLine = true;
+	bool showSpritesPerLine = false;
 
 	// The hovered pattern/sprite, remembered for the copy popups.
 	int hoveredPattern = 0;
@@ -77,7 +78,8 @@ private:
 		PersistentElement   {"checkerBoardColor2",  &ImGuiV9990Sprites::checkerBoardColor2},
 		PersistentElement   {"boundingBox",         &ImGuiV9990Sprites::drawBoundingBox},
 		PersistentElement   {"boundingBoxColor",    &ImGuiV9990Sprites::boundingBoxColor},
-		PersistentElement   {"spritesPerLineLimit", &ImGuiV9990Sprites::enableLimitPerLine}
+		PersistentElement   {"spritesPerLineLimit", &ImGuiV9990Sprites::enableLimitPerLine},
+		PersistentElement   {"spritesPerLine",      &ImGuiV9990Sprites::showSpritesPerLine}
 	};
 };
 
