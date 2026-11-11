@@ -77,6 +77,26 @@ static constexpr int CPU_REQUEST_DELAY = 29;
   * cycles -- needs 6. */
 static constexpr int CPU_READ_SAMPLE_DELAY = 9;
 
+/** A read of a status register at about the moment the VDP sets a flag in it
+  * that the read clears (F in S#0, and FH in S#1 when the line interrupt is
+  * enabled) loses the flag: the read returns 0 for it, the flag stays 0 and
+  * there is no interrupt. This happens for reads (openMSX's I/O timestamps)
+  * from 'before' VDP cycles before to 'after' VDP cycles after the moment
+  * openMSX sets the flag. Measured on a V9958 (Panasonic FS-A1GT, and a
+  * Philips NMS 8250 whose V9938 was replaced by a V9958) and a V9938 (Sony
+  * HB-F700D), see https://github.com/openMSX/openMSX/issues/2244 and
+  * doc/internal/vdp-status-race. The TMS99xx VDPs weren't measured; they are
+  * assumed to behave like the V9938. */
+struct FlagLostWindow { int before, after; };
+static constexpr FlagLostWindow F_LOST_V9958 = { 7, 14};
+static constexpr FlagLostWindow F_LOST_V9938 = {13, 15};
+static constexpr FlagLostWindow FH_LOST      = {21,  6};
+
+static FlagLostWindow getFLostWindow(const VDP& vdp)
+{
+	return vdp.hasYJK() ? F_LOST_V9958 : F_LOST_V9938;
+}
+
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
   * command engine that slot anyway, to a dummy read, if it arrives this many
   * cycles before it. */
@@ -134,6 +154,10 @@ VDP::VDP(const DeviceConfig& config)
 	, slotTableEndSyncTime(getCurrentTime())
 	, vScanSyncTime(getCurrentTime())
 	, hScanSyncTime(getCurrentTime())
+	, statusReg0ReadTime(EmuTime::zero())
+	, fSetTime(EmuTime::zero())
+	, statusReg1ReadTime(EmuTime::zero())
+	, fhSetTime(EmuTime::zero())
 	, tooFastCallback(
 		getCommandController(),
 		getName() + ".too_fast_vram_access_callback",
@@ -482,18 +506,23 @@ void VDP::execVScan(EmuTime time)
 	}
 	isDisplayArea = false;
 
-	// Vertical scanning occurs.
-	statusReg0 |= 0x80;
-	if (controlRegs[1] & 0x20) {
-		irqVertical.set();
+	// Vertical scanning occurs, unless S#0 was read just before.
+	if ((time - statusReg0ReadTime) >= VDPClock::duration(getFLostWindow(*this).before)) {
+		statusReg0 |= 0x80;
+		fSetTime = time;
+		if (controlRegs[1] & 0x20) {
+			irqVertical.set();
+		}
 	}
 }
 
-void VDP::execHScan()
+void VDP::execHScan(EmuTime time)
 {
-	// Horizontal scanning occurs.
-	if (controlRegs[0] & 0x10) {
+	// Horizontal scanning occurs, unless S#1 was read just before.
+	if ((controlRegs[0] & 0x10) &&
+	    ((time - statusReg1ReadTime) >= VDPClock::duration(FH_LOST.before))) {
 		irqHorizontal.set();
+		fhSetTime = time;
 	}
 }
 
@@ -1268,12 +1297,20 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 	}();
 	switch (reg) {
 	case 0:
+		if ((time - fSetTime) < VDPClock::duration(getFLostWindow(*this).after)) {
+			ret &= ~0x80; // F was set just before this read: it's lost
+		}
+		statusReg0ReadTime = time;
 		spriteChecker->resetStatus();
 		statusReg0 &= ~0x80;
 		irqVertical.reset();
 		break;
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
+			if ((time - fhSetTime) < VDPClock::duration(FH_LOST.after)) {
+				ret &= ~0x01; // FH was set just before this read: it's lost
+			}
+			statusReg1ReadTime = time;
 			irqHorizontal.reset();
 		}
 		break;
@@ -2351,6 +2388,13 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		// what was already pending.
 		lineCountResetSyncTime = frameStartTime.getTime();
 		scheduleLineCountReset(getCurrentTime());
+	}
+
+	if (ar.versionAtLeast(serVersion, 15)) {
+		ar.serialize("statusReg0ReadTime", statusReg0ReadTime,
+		             "fSetTime",           fSetTime,
+		             "statusReg1ReadTime", statusReg1ReadTime,
+		             "fhSetTime",          fhSetTime);
 	}
 
 	if (ar.versionAtLeast(serVersion, 11)) {
