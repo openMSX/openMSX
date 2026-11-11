@@ -1,0 +1,1 @@
+W= 40  Z= 60  ticks= 2621447  frames= 614.37421320477  interrupts= 578  handlerF= 468  mainF= 107 
