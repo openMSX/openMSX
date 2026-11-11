@@ -365,7 +365,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		im::TreeNode("Rendered sprites", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			std::array<uint8_t, 256> spriteCount = {}; // zero initialize
+			std::array<uint8_t, 256> spriteCount = {}; // zero initialize, not capped at the limit
 			std::array<std::array<SpriteChecker::SpriteInfo, 32 + 1>, 256> spriteBuffer; // uninitialized
 			std::array<SpriteBox, 32> spriteBoxes; // uninitialized
 
@@ -417,9 +417,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							spr.x = narrow<int16_t>(xx);
 							spr.colorAttrib = attr;
 
-							spriteCount[y] = count + 1;
 							spriteBuffer[y][count + 1].colorAttrib = 0; // sentinel (mode 2)
 						}
+						spriteCount[y] = count + 1;
 						++y; // wraps 256->0
 					}
 				}
@@ -438,7 +438,8 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			std::array<uint32_t, 256 * 256> screen; // TODO screen6 striped colors
 			memset(screen.data(), 0, sizeof(uint32_t) * 256 * lines); // transparent
 			for (auto line : xrange(lines)) {
-				auto count = spriteCount[line];
+				auto count = enableLimitPerLine ? std::min(spriteCount[line], spriteLimit)
+				                                : spriteCount[line];
 				if (count == 0) continue;
 				auto lineBuf = subspan<256>(screen, 256 * line);
 
@@ -539,6 +540,8 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				bool hovered = ImGui::IsItemHovered();
 				auto hoverPos = hoveredCell(scrnPos, gl::vec2(float(zm)));
 				ImGui::SameLine();
+				auto visibleLines = std::span(spriteCount).first(lines);
+				spritesPerLineHistogram(showSpritesPerLine, visibleLines, spriteLimit, float(zm));
 
 				im::Group([&]{
 					spriteBoxSettings(drawBoundingBox, boundingBoxColor, boundingBoxOnAll);
@@ -550,6 +553,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						auto stopStr = tmpStrCat("Stop at y=", stopY);
 						ImGui::Checkbox(stopStr.c_str(), &enableStopY);
 					}
+					spritesPerLineSettings(showSpritesPerLine, visibleLines, spriteLimit);
 
 					if (hovered) {
 						ImGui::Separator();
