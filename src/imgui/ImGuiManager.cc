@@ -519,6 +519,11 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 	updateParts();
 
 	auto* motherBoard = reactor.getMotherBoard();
+	if (motherBoard && !motherBoard->getMachineConfig()) {
+		// An empty machine (made by 'create_machine', without a
+		// machine loaded in it) has no devices: show it as no machine.
+		motherBoard = nullptr;
+	}
 	for (auto* part : parts) {
 		part->paint(motherBoard);
 	}

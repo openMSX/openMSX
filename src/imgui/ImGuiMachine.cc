@@ -792,7 +792,11 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 	if (showQuickSetupEditor) {
 		ImGui::SetNextWindowSize(ImVec2(0, 0)); // 0,0 will auto-size based on content
 		im::Window("Quick Setup Editor", &showQuickSetupEditor, [&]{
-			showSetupOverviewEdit(*motherBoard);
+			if (motherBoard) {
+				showSetupOverviewEdit(*motherBoard);
+			} else {
+				ImGui::TextUnformatted("No machine present.");
+			}
 		});
 	}
 }

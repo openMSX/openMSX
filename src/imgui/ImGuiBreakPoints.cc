@@ -650,7 +650,8 @@ void ImGuiBreakPoints::refreshSymbols()
 	for (auto& bp : MSXCPUInterface::getBreakPoints()) {
 		bp.evaluateAddress(interp);
 	}
-	if (auto* motherBoard = manager.getReactor().getMotherBoard()) {
+	if (auto* motherBoard = manager.getReactor().getMotherBoard();
+	    motherBoard && motherBoard->getMachineConfig()) {
 		auto& cpuInterface = motherBoard->getCPUInterface();
 		for (auto& wp : cpuInterface.getWatchPoints()) {
 			auto sc = getScopedChange(wp, cpuInterface);

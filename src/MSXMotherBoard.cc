@@ -764,7 +764,9 @@ void MSXMotherBoard::exitCPULoopAsync()
 
 void MSXMotherBoard::exitCPULoopSync()
 {
-	getCPU().exitCPULoopSync();
+	if (getMachineConfig()) {
+		getCPU().exitCPULoopSync();
+	}
 }
 
 MSXDevice* MSXMotherBoard::findDevice(std::string_view name)
