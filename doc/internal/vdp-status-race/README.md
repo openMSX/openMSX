@@ -16,6 +16,7 @@ interrupt. Software that polls S#0 for F misses frames because of this.
 | `irqtest.asm`, `irqtest.bas` | Checks whether the interrupt is lost too (turboR only). |
 | `clktest.asm`, `clktest.bas` | Measures the ratio between the CPU clock and the VDP clock. |
 | `autoexec.bas` | Runs the clock test and the three `vdprace` modes without any input (used on the HB-F700D). |
+| `slottest.asm`, `slottest.bas` | `vdprace` plus an option to switch the display off; runs the two tests of the last paragraph below. (In openMSX its FH and VR edges are one Z80 cycle later than those of `vdprace.asm`.) |
 | `results/` | The result files of the real machines. |
 
 Assemble with sjasmplus (`sjasmplus vdprace.asm` writes `VDPRACE.BIN`), put
@@ -139,3 +140,56 @@ Two HR phase measurements (64 samples each) exactly 313 lines (71364 CPU
 cycles) apart; each cycle of difference is 14 ppm. In openMSX the difference
 is 0. FS-A1GT: 0.19 cycles (3 ppm), NMS 8250: 8.27 cycles (116 ppm), HB-F700D:
 0.
+
+## A model that fits
+
+All results so far fit this model: a read of a status register is two steps
+inside the VDP.
+
+1. **Latch:** at the start of the read, the VDP takes the value that the CPU
+   gets.
+2. **Clear:** a fixed time later, it clears the flags that the read clears:
+   about 20 VDP cycles on the V9958 for F, 25 to 28 for FH, about 28 on the
+   V9938 for F.
+
+A flag set between those two moments isn't in the value the CPU gets, and is
+cleared anyway. This explains:
+
+- **Sharp windows:** inside it the flag is always lost, outside it never.
+- **Width:** it doesn't depend on the CPU's read pulse (the NMS 8250's is one
+  Z80 cycle shorter than the FS-A1GT's, the window is the same), so the clear
+  isn't tied to the end of /RD. The VDP samples /CSx on its own clock (see
+  section 8.2 of `../vdp-vram-timing/2026-measurement-analysis.md`), so a
+  fixed internal delay gives the same window every time.
+- **The interrupt:** if F was set just before the read, the interrupt line is
+  still active when the Z80 samples /INT at the end of that IN instruction,
+  because the clear only comes about 3.3 Z80 cycles after the read started.
+  So the interrupt is accepted, and the handler finds F cleared (`irqtest`:
+  about 110 times). If F is set inside the window, the line is only active
+  between the setting and the clear, and the Z80 usually doesn't see it: the
+  interrupt is lost too.
+
+**A check with VR.** VR is latched by a read in the same way, so in the VR
+results (mode 2) the edge is the read whose latch falls exactly when VR
+rises. In the F results (mode 0), the end of the window is the read whose
+latch falls exactly when F is set. Their difference is how long after VR the
+VDP sets F, and any drift or delay of the test program cancels:
+
+| Machine | F set after VR rises |
+|---------|----------------------|
+| FS-A1GT (V9958) | 5.9 VDP cycles |
+| modified NMS 8250 (V9958) | 4.4 VDP cycles |
+| HB-F700D (V9938) | about 10 ± 3 |
+
+The two V9958 machines agree to within 1.5 VDP cycles, although one of them
+drifts 116 ppm. (openMSX sets VR and F at the same moment.)
+
+The delay doesn't depend on the VDP's access slots (see `../vdp-vram-timing/`)
+at that moment: `slottest.bas` on the FS-A1GT (`results/fs-a1gt-slot-*.txt`)
+gives the same F window with the display off (3.25 Z80 cycles, against 3.4
+with the display on), and the same FH window when FH is set in a border line,
+line 200 (4.4 against 4.2 for line 191). So it's a fixed delay per flag and
+per chip.
+
+This is a model of what is visible from the CPU, not a description of the
+chip.
