@@ -51,6 +51,7 @@ public:
 
 private:
 	void sync(EmuTime time, bool force = false);
+	[[nodiscard]] static bool readsPalette(V9990ColorMode mode);
 	void renderUntil(EmuTime time) override;
 
 	/** Type of drawing to do.

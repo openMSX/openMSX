@@ -280,13 +280,43 @@ void V9990PixelRenderer::updatePalette(int index, uint8_t r, uint8_t g, uint8_t 
 	}
 	rasterizer->setPalette(index, r, g, b, ys);
 }
+
+// Does a picture dot of this colour mode take its colour from the palette?
+// (The border always does.)
+bool V9990PixelRenderer::readsPalette(V9990ColorMode mode)
+{
+	using enum V9990ColorMode;
+	switch (mode) {
+	case PP: case BP2: case BP4: case BP6:
+		return true;
+	case BD8: case BD16: case BYJK: case BYUV:
+		// Measured: the picture never snows, BD8's all-zero dots
+		// included.
+		// TODO sprites and cursors read the palette, so their dots
+		//      should snow in these modes too (not tested).
+		return false;
+	case BYJKP: case BYUVP:
+		// Measured: the palette dots (VD3 = 1) snow, the YJK/YUV dots
+		// beside them don't.
+		// TODO V9990::getColorMode() never returns these modes (YAE,
+		//      R#13 bit 5, isn't implemented), so they show as BYJK and
+		//      BYUV. Once it is, snow only on the palette dots.
+		return false;
+	}
+	UNREACHABLE;
+}
+
 // Measured on a real V9990 (Tecnobytes PowerGraph, B1, NTSC): every byte
 // written to the palette data port while the beam is in the picture or the
 // border puts a dot at the beam's position, of the colour being written. It
 // doesn't matter which entry is written, whether any pixel uses it, or
 // whether the value changes. Writes during the horizontal or vertical blank
-// show nothing. The colour is taken as the written entry's colour after the
-// byte (all tests wrote equal R, G and B); the dot as one dot wide.
+// show nothing. Only a dot whose colour comes out of the palette snows: the
+// border (the backdrop) in every colour mode and the picture in the
+// paletted modes (P1, P2, BP2, BP4, BP6). The picture of the direct-colour
+// modes (BD8, BD16, BYJK, BYUV) stays clean. The colour is taken as the
+// written entry's colour after the byte (all tests wrote equal R, G and B);
+// the dot as one dot wide.
 void V9990PixelRenderer::paletteSnow(int index, EmuTime time)
 {
 	if (!drawFrame || !paletteSnowSetting->getBoolean()) return;
@@ -301,6 +331,10 @@ void V9990PixelRenderer::paletteSnow(int index, EmuTime time)
 	};
 	if (!visible(x, vdp.getHorizontalTiming()) ||
 	    !visible(y, vdp.getVerticalTiming())) return;
+
+	bool inPicture = vdp.isDisplayEnabled() &&
+	                 (vdp.getLeftBorder() <= x) && (x < vdp.getRightBorder());
+	if (inPicture && !readsPalette(vdp.getColorMode())) return;
 
 	auto [r, g, b, ys] = vdp.getPalette(index);
 	rasterizer->drawSnow(x, y, r, g, b);
