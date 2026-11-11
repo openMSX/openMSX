@@ -1360,7 +1360,6 @@
     <None Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleAlgo.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleBlip.hh" />
-    <None Include="$(OpenMSXSrcDir)\sound\ResampleCoeffs.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleHQ.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleTrivial.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SamplePlayer.hh" />

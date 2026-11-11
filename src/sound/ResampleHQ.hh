@@ -2,6 +2,10 @@
 #define RESAMPLEHQ_HH
 
 #include "ResampleAlgo.hh"
+
+#include "MemBuffer.hh"
+#include "aligned.hh"
+
 #include <cstdint>
 #include <vector>
 
@@ -9,6 +13,48 @@ namespace openmsx {
 
 class DynamicClock;
 class ResampledSoundDevice;
+
+/** The coefficient tables of ResampleHQ, one per resample-ratio, shared
+  * between all ResampleHQ objects with the same ratio.
+  */
+class ResampleCoeffs
+{
+public:
+	// The prototype filter, see the comments in ResampleHQ.cc.
+	static constexpr int INDEX_INC = 128; // table units per input sample
+	static constexpr int HALF_LEN = 2462; // the filter is zero for |x| > HALF_LEN
+	static constexpr double FUDGE = 1.0 + 850136.0 / 4194304.0;
+	static constexpr double PERIOD = FUDGE * INDEX_INC; // distance between zero crossings
+	static constexpr double BETA = (100.3 + 0.5) / 10.0; // Kaiser window parameter
+
+	/** The prototype filter (Kaiser windowed sinc), 'x' in table units. */
+	[[nodiscard]] static double coeff(double x);
+
+	ResampleCoeffs(const ResampleCoeffs&) = delete;
+	ResampleCoeffs(ResampleCoeffs&&) = delete;
+	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
+	ResampleCoeffs& operator=(ResampleCoeffs&&) = delete;
+
+	[[nodiscard]] static ResampleCoeffs& instance();
+	void getCoeffs(double ratio, float*& table, unsigned& filterLen);
+	void releaseCoeffs(double ratio);
+
+private:
+	using Table = MemBuffer<float, SSE_ALIGNMENT>;
+
+	ResampleCoeffs() = default;
+	~ResampleCoeffs();
+
+	[[nodiscard]] static Table calcTable(double ratio, unsigned& filterLen);
+
+	struct Element {
+		double ratio;
+		Table table;
+		unsigned filterLen;
+		unsigned count;
+	};
+	std::vector<Element> cache; // typically 1-4 entries -> unsorted vector
+};
 
 template<unsigned CHANNELS>
 class ResampleHQ final : public ResampleAlgo

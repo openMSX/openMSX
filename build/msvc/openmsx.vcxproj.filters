@@ -2780,9 +2780,6 @@
     <None Include="$(OpenMSXSrcDir)\sound\ResampleBlip.hh">
       <Filter>sound</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\sound\ResampleCoeffs.ii">
-      <Filter>sound</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\sound\ResampleHQ.hh">
       <Filter>sound</Filter>
     </None>

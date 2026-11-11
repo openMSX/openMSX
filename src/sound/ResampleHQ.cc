@@ -13,7 +13,6 @@
 
 #include "ResampledSoundDevice.hh"
 
-#include "FixedPoint.hh"
 #include "Math.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
@@ -24,12 +23,11 @@
 #include "xrange.hh"
 
 #include <algorithm>
-#include <array>
 #include <bit>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <iterator>
+#include <numbers>
 #include <vector>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -37,53 +35,90 @@
 
 namespace openmsx {
 
-// Letting the compiler deduce the (type and) size of the std::array works fine
-// with gcc, msvc and clang-11 but is broken from clang-12 onwards. More
-// specifically it only works for sizes upto 256. For more details see:
-//   https://www.mail-archive.com/llvm-bugs@lists.llvm.org/msg50598.html
-//   https://reviews.llvm.org/D86936
-// As a workaround we do hardcode the (type and) size here:
-//static constexpr std::array coeffs = {
-static constexpr std::array<float, 2463 + 1> coeffs = {
-	#include "ResampleCoeffs.ii"
-};
-
-using FilterIndex = FixedPoint<16>;
-
-static constexpr int INDEX_INC = 128;
-static constexpr int COEFF_LEN = int(std::size(coeffs) - 1);
-static constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
 static constexpr size_t TAB_LEN      = ResampleHQ<1>::TAB_LEN;
 static constexpr size_t HALF_TAB_LEN = ResampleHQ<1>::HALF_TAB_LEN;
 
-class ResampleCoeffs
+// -- The prototype filter --
+//
+// ResampleHQ is derived from libsamplerate (aka Secret Rabbit Code, by Erik de
+// Castro Lopo), more specifically from its SRC_SINC_FASTEST converter. That
+// converter linearly interpolates its coefficients from a table of 2463 values
+// ('fastest_coeffs.h', generated in 2002 and unchanged since; a copy of it used
+// to be included here as 'ResampleCoeffs.ii'). The header of that file is all
+// that documents how it was made: "f = make_filter (8, 128, 100.3)". In 2019
+// libsamplerate published the Octave scripts behind that, but those no longer
+// reproduce the table exactly (they generate an even number of taps, the table
+// has an odd number; the script's own readme shows different numbers). The
+// essence of those scripts (generate_filter.m) is:
+//
+//   N = fix(4 * cycles * fudge * increment)      % increment = 128
+//   m = -((N-1)/2) : ((N-1)/2)
+//   f = sinc(m / fudge / increment) .* kaiser(N, (atten + 0.5) / 10)
+//   f = increment * f / sum(f)
+//
+// where 'fudge' is found by bisection (make_filter.m) such that the stop band
+// (as measured on the FFT of 'f') starts exactly at 0.5 / increment, i.e. at
+// the Nyquist frequency of the output. The parameters below were instead
+// obtained by fitting this formula to the table itself (see also the unit
+// test). They reproduce the table to 6e-14 (its float values to 3e-8):
+//
+//   N     = 4925 taps (odd, so the center tap is the maximum), half length 2463
+//   fudge = 1.2026882171630 = 1 + 850136 / 2^22  (a 20 step bisection result)
+//   beta  = (100.3 + 0.5) / 10 = 10.08
+//
+// So the prototype is a Kaiser windowed sinc, defined for |x| <= HALF_LEN in
+// 'table units': INDEX_INC (128) units correspond to one input sample when
+// not downsampling. The zero crossings of the sinc are PERIOD = fudge * 128
+// units apart, so the cutoff frequency is 1 / (2 * fudge) = 0.416 of the
+// (output) sample rate, 18.3kHz for 44.1kHz. The Kaiser window (span 2462
+// units, 19.2 sample periods) widens the transition band such that the stop
+// band (-100dB) starts at the Nyquist frequency; the pass band is flat to
+// ~15.8kHz (-0.1dB) and -3dB at 17.7kHz.
+//
+// Instead of (linearly) interpolating in a table we now evaluate this formula
+// directly. It's only needed when a resampler for a new ratio is created
+// (~12k evaluations for a PSG, ~1ms). That removes one interpolation step and
+// lowers the noise floor at low frequencies by 10-20dB (measured).
+
+// Modified Bessel function of the first kind, order 0.
+[[nodiscard]] static double besselI0(double x)
 {
-public:
-	ResampleCoeffs(const ResampleCoeffs&) = delete;
-	ResampleCoeffs(ResampleCoeffs&&) = delete;
-	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
-	ResampleCoeffs& operator=(ResampleCoeffs&&) = delete;
+	// Power series, converges fast for the arguments we need (x <= 10.08).
+	double sum = 1.0, term = 1.0;
+	double y = x * x * 0.25;
+	for (int k = 1; k < 500; ++k) {
+		term *= y / double(k * k);
+		sum += term;
+		if (term < sum * 1e-17) break;
+	}
+	return sum;
+}
 
-	static ResampleCoeffs& instance();
-	void getCoeffs(double ratio, float*& table, unsigned& filterLen);
-	void releaseCoeffs(double ratio);
+[[nodiscard]] static double protoUnscaled(double x)
+{
+	assert(x >= 0.0);
+	if (x > ResampleCoeffs::HALF_LEN) return 0.0;
+	double a = x * (1.0 / ResampleCoeffs::HALF_LEN);
+	double window = besselI0(ResampleCoeffs::BETA * std::sqrt(1.0 - a * a));
+	double u = x * (1.0 / ResampleCoeffs::PERIOD);
+	double sinc = (u == 0.0) ? 1.0 : std::sin(std::numbers::pi * u) / (std::numbers::pi * u);
+	return sinc * window;
+}
 
-private:
-	using Table = MemBuffer<float, SSE_ALIGNMENT>;
-
-	ResampleCoeffs() = default;
-	~ResampleCoeffs();
-
-	static Table calcTable(double ratio, unsigned& filterLen);
-
-	struct Element {
-		double ratio;
-		Table table;
-		unsigned filterLen;
-		unsigned count;
-	};
-	std::vector<Element> cache; // typically 1-4 entries -> unsorted vector
-};
+double ResampleCoeffs::coeff(double x)
+{
+	// Normalize like the libsamplerate table: the sum over all N taps (at
+	// integer positions) equals INDEX_INC. (The division by I0(beta) of
+	// the Kaiser window is absorbed in this factor as well.)
+	static const double scale = [] {
+		double sum = protoUnscaled(0.0);
+		for (int i = 1; i <= HALF_LEN; ++i) {
+			sum += 2.0 * protoUnscaled(double(i));
+		}
+		return INDEX_INC / sum;
+	}();
+	return protoUnscaled(std::abs(x)) * scale;
+}
 
 ResampleCoeffs::~ResampleCoeffs()
 {
@@ -123,26 +158,21 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 	}
 }
 
-static constexpr double getCoeff(FilterIndex index)
-{
-	double fraction = index.fractionAsDouble();
-	int indx = index.toInt();
-	return double(coeffs[indx]) +
-	       fraction * (double(coeffs[indx + 1]) - double(coeffs[indx]));
-}
-
 ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLen)
 {
-	double floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
-	double normFactor = floatIncr / INDEX_INC;
-	auto increment = FilterIndex(floatIncr);
-	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
+	// When downsampling (ratio > 1) the filter is stretched by 'ratio', so
+	// that its cutoff frequency follows the (lower) output sample rate.
+	// Consecutive input samples are then 'incr' table units apart.
+	double incr = (ratio > 1.0) ? (INDEX_INC / ratio) : INDEX_INC;
+	double normFactor = incr / INDEX_INC; // the stretched filter has a larger sum
 
-	int min_idx = -maxFilterIndex.divAsInt(increment);
-	int max_idx = 1 + (maxFilterIndex - (increment - FilterIndex(floatIncr))).divAsInt(increment);
-	int idx_cnt = max_idx - min_idx + 1;
+	// For any phase in [0, 1) the taps with a non-zero coefficient are at
+	// relative input sample positions [-K, K+1].
+	int K = int(HALF_LEN / incr);
+	int idx_cnt = 2 * K + 2;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
-	min_idx -= (narrow<int>(filterLen) - idx_cnt) / 2;
+	int min_idx = -K - (narrow<int>(filterLen) - idx_cnt) / 2;
+
 	// Row 't' holds the filter for (sub-sample) phase (t + 0.5) / TAB_LEN.
 	// Rows are stored in order, so the two rows that enclose some phase
 	// are adjacent in memory. Only the rows of the first half are
@@ -151,34 +181,15 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLe
 	// _always_ adjacent (see calcOutput()). Element 0 of the table is the
 	// start of row -1.
 	Table table((HALF_TAB_LEN + 2) * filterLen);
-	std::ranges::fill(std::span{table}, 0.0f);
-
 	for (auto t : xrange(HALF_TAB_LEN)) {
 		float* tab = &table[(t + 1) * filterLen];
-		double lastPos = (double(t) + 0.5) / TAB_LEN;
-		FilterIndex startFilterIndex(lastPos * floatIncr);
-
-		FilterIndex filterIndex(startFilterIndex);
-		int coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
-		filterIndex += increment * coeffCount;
-		int bufIndex = -coeffCount;
-		do {
-			tab[bufIndex - min_idx] =
-				float(getCoeff(filterIndex) * normFactor);
-			filterIndex -= increment;
-			bufIndex += 1;
-		} while (filterIndex >= FilterIndex(0));
-
-		filterIndex = increment - startFilterIndex;
-		coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
-		filterIndex += increment * coeffCount;
-		bufIndex = 1 + coeffCount;
-		do {
-			tab[bufIndex - min_idx] =
-				float(getCoeff(filterIndex) * normFactor);
-			filterIndex -= increment;
-			bufIndex -= 1;
-		} while (filterIndex > FilterIndex(0));
+		double phase = (double(t) + 0.5) / TAB_LEN;
+		for (auto j : xrange(filterLen)) {
+			// distance (in table units) between input sample
+			// 'j + min_idx' and the output position 'phase'
+			double dist = (double(j) + min_idx - phase) * incr;
+			tab[j] = float(coeff(dist) * normFactor);
+		}
 	}
 
 	// Row HALF_TAB_LEN is row HALF_TAB_LEN-1 mirrored.
