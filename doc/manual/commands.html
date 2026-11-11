@@ -1542,7 +1542,7 @@
   <h4>examples:</h4>
   <table>
     <tr>
-      <td><code>set oldID [machineID]</code></td>
+      <td><code>set oldID [activate_machine]</code></td>
       <td>get the current machineID</td>
     </tr>
     <tr>
@@ -1550,7 +1550,7 @@
       <td>create a new machineID</td>
     </tr>
     <tr>
-      <td><code>$newID::load_machine Philips_NMS_8250</code></td>
+      <td><code>${newID}::load_machine Philips_NMS_8250</code></td>
       <td>load an MSX2 configuration in that new machineID</td>
     </tr>
     <tr>
@@ -2453,10 +2453,6 @@ current MSX model can be:</p>
   <p>Load a previously saved machine in a new machine-ID, next to the already available machines. See the section on <code><a class="internal" href="#machines">activate_machine</a></code>.</p>
 
   <table>
-    <tr>
-      <td><code>restore_machine</code></td>
-      <td>Load state from last saved state in default directory</td>
-    </tr>
     <tr>
       <td><code>restore_machine &lt;filename&gt;</code></td>
       <td>Load state from indicated file</td>
