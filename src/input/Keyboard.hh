@@ -3,6 +3,7 @@
 
 #include "KeyboardSettings.hh"
 #include "KeyboardInfo.hh"
+#include "BooleanInput.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 
@@ -11,12 +12,15 @@
 #include "RecordedCommand.hh"
 #include "Schedulable.hh"
 #include "SimpleDebuggable.hh"
+#include "StringSetting.hh"
 #include "serialize_meta.hh"
 
 #include <array>
 #include <cstdint>
 #include <deque>
+#include <optional>
 #include <span>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -40,6 +44,7 @@ class MSXEventDistributor;
 class StateChangeDistributor;
 class TclObject;
 class Interpreter;
+class JoystickManager;
 
 struct KeyCodeMsxMapping {
 	SDL_Keycode hostKeyCode;
@@ -122,10 +127,16 @@ private:
 	void releaseKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos);
 	void changeKeyMatrixEvent (EmuTime time, uint8_t row, uint8_t newValue);
 
-	void processCapslockEvent(EmuTime time, bool down);
+	void parseKeyMapping(const TclObject& value);
+	[[nodiscard]] std::pair<KeyMatrixPosition, bool> getMappedKeyPosition(std::string_view name) const;
+	bool processKeyMapping(const Event& event, EmuTime time);
+	void setMappedKeys(EmuTime time, const std::array<uint8_t, KeyMatrixPosition::NUM_ROWS>& newDown);
+	void pressMappedKey(EmuTime time, KeyMatrixPosition pos, bool down);
+	void releaseMappedKeys(EmuTime time);
+	[[nodiscard]] std::pair<unsigned, UnicodeKeymap::KeyInfo> getCharacter(const KeyEvent& keyEvent) const;
+
 	void processCodeKanaChange(EmuTime time, bool down);
 	void processGraphChange(EmuTime time, bool down);
-	void processKeypadEnterKey(EmuTime time, bool down);
 	void processSdlKey(EmuTime time, SDLKey key);
 	bool processQueuedEvent(const Event& event, EmuTime time);
 	bool processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent);
@@ -150,12 +161,12 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 	EventDistributor& eventDistributor;
+	JoystickManager& joystickManager;
 
 	std::span<const KeyCodeMsxMapping> keyCodeTab;
 	// keyCodeTab adapted to the keyboard layout of this MSX, for CHARACTER mode
 	std::vector<KeyCodeMsxMapping> characterKeyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
-	bool combinedShiftFlag;
 
 	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos;
 
@@ -272,6 +283,28 @@ private:
 
 	KeyboardSettings keyboardSettings;
 
+	/** The mapping of host inputs to the MSX keys that have the same name
+	  * on all keyboards of this computer family (the
+	  * kbd_key_mapping_<family> setting). Not for a machine without a
+	  * keyboard. */
+	std::optional<StringSetting> keyMappingSetting;
+	struct KeyMapping {
+		struct Input {
+			BooleanInput input;
+			bool active = false;
+		};
+		std::string msxKeyName;
+		KeyMatrixPosition key;
+		// only when kbd_numkeypad_always_enabled is on (a keypad key
+		// that this MSX doesn't have)
+		bool onlyWithKeypadEnabled = false;
+		std::vector<Input> inputs;
+	};
+	/** The entries of the setting for the keys that this MSX has. */
+	std::vector<KeyMapping> keyMappings;
+	/** The MSX keys pressed via the key mapping (a set bit is a pressed key). */
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> mappedKeysDown = {};
+
 	class MsxKeyEventQueue final : public Schedulable {
 	public:
 		MsxKeyEventQueue(Scheduler& scheduler, Interpreter& interp);
@@ -349,8 +382,6 @@ private:
 	bool focus = true;
 
 	/** Flag for tracking the combined state (OR) of left and right Shift keys */
-	bool leftShiftPressed= false;
-	bool rightShiftPressed = false;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 5);
 

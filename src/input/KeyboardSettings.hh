@@ -3,10 +3,7 @@
 
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "SDLKey.hh"
 
-#include <array>
-#include <cassert>
 #include <cstdint>
 
 namespace openmsx {
@@ -16,21 +13,10 @@ class CommandController;
 class KeyboardSettings
 {
 public:
-	enum class KpEnterMode : uint8_t { MSX_KP_COMMA, MSX_ENTER };
 	enum class MappingMode : uint8_t { KEY, CHARACTER, POSITIONAL };
 
 	explicit KeyboardSettings(CommandController& commandController);
 
-	[[nodiscard]] SDL_Keycode getDeadKeyHostKey(unsigned n) const {
-		assert(n < 3);
-		return deadKeyHostKey[n].getEnum();
-	}
-	[[nodiscard]] SDL_Keycode getCodeKanaHostKey() const {
-		return codeKanaHostKey.getEnum();
-	}
-	[[nodiscard]] KpEnterMode getKpEnterMode() const {
-		return kpEnterMode.getEnum();
-	}
 	[[nodiscard]] MappingMode getMappingMode() const {
 		return mappingMode.getEnum();
 	}
@@ -50,9 +36,6 @@ public:
 #endif
 
 private:
-	std::array<EnumSetting<SDL_Keycode>, 3> deadKeyHostKey;
-	EnumSetting<SDL_Keycode> codeKanaHostKey;
-	EnumSetting<KpEnterMode> kpEnterMode;
 	EnumSetting<MappingMode> mappingMode;
 	BooleanSetting alwaysEnableKeypad;
 	BooleanSetting traceKeyPresses;

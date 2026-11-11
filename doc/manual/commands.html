@@ -130,14 +130,10 @@
         <li><a class="internal" href="#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config/joyhandle&lt;n&gt;_config/colecojoystick&lt;n&gt;_config</a></li>
         <li><a class="internal" href="#joystickN_deadzone">joystick&lt;n&gt;_deadzone / joystick&lt;n&gt;_midpoint / joystick&lt;n&gt;_saturation</a></li>
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
-        <li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
-        <li><a class="internal" href="#kbd_deadkey1_host_key">kbd_deadkey1_host_key</a></li>
-        <li><a class="internal" href="#kbd_deadkey2_host_key">kbd_deadkey2_host_key</a></li>
-        <li><a class="internal" href="#kbd_deadkey3_host_key">kbd_deadkey3_host_key</a></li>
         <li><a class="internal" href="#kbd_disable_IME">kbd_disable_IME</a></li>
+        <li><a class="internal" href="#kbd_key_mapping">kbd_key_mapping_msx/kbd_key_mapping_svi/kbd_key_mapping_sega</a></li>
         <li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
         <li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
-        <li><a class="internal" href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></li>
         <li><a class="internal" href="#kbd_trace_key_presses">kbd_trace_key_presses</a></li>
         <li><a class="internal" href="#led">led_&lt;name&gt;</a></li>
         <li><a class="internal" href="#limitsprites">limitsprites</a></li>
@@ -4489,158 +4485,6 @@ current MSX model can be:</p>
   </div>
 
 
-  <h3><a id="kbd_code_kana_host_key">kbd_code_kana_host_key</a></h3>
-
-  <p>Host key that maps to the MSX CODE/KANA key. By default right-ALT (RALT) key.</p>
-  <p>It is especially useful for
-  people with AZERTY host keyboard, on which the RALT key has a special function; on
-  azerty keyboards it is called the ALT-GR key and not the right-ALT key and it's used to
-  enter some special characters (some keys are tagged with 3 characters; normal, key+SHIFT, key+ALT-GR).</p>
-  <p>It is also useful for people with a Japanese (jp106) keyboard; they can map the HENKAN key (which is similar to the KANA Lock on Japanese MSX models) to the CODE/KANA key.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set&nbsp;kbd_code_kana_host_key</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;kbd_code_kana_host_key&nbsp;MENU</code></td>
-
-      <td>Binds the <a class="external" href="http://en.wikipedia.org/wiki/Menu_key">MENU key</a> on the host keyboard to the MSX CODE/KANA key</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;kbd_code_kana_host_key&nbsp;HENKAN</code></td>
-
-      <td>Binds the Henkan key of a Japanese host keyboard to the MSX CODE/KANA key</td>
-    </tr>
-  </table>
-
-
-  <h3><a id="kbd_deadkey1_host_key">kbd_deadkey1_host_key</a></h3>
-
-  <p>Host key that maps to the (1st) dead key. By default right-CTRL (RCTRL) key.</p>
-  <p>Some MSX models have one dead key that can be used to enter accented characters. For example the MSX
-  models sold in the Netherlands have a dead key that has following four accents printed on it: ` &#xb4; ^ &#xa8;.
-  On the other hand, the Brazilian Gradiente Expert XP-800 has following four accents on its
-  dead key: ` &#xb4; ^ <sup>~</sup>.</p>
-  <p>There are also some MSX models with multiple dead keys like for example the Brazilian Gradiente Expert Plus,
-  which has two dead keys and the different Sharp Hotbit models that have three dead keys. On such machines,
-  this setting is for the first dead key which can be used to enter following two accents: &#xb4; `.</p>
-  <p>In order to enter an accented character on the MSX, you first have to press and release the dead key, optionally
-  together with SHIFT, CODE or CODE+SHIFT and then the correct character. The combination with CODE or CODE+SHIFT is
-  only relevant for the MSX models with a single dead key that can be used to enter four different accents.</p>
-  <p>Following table shows for example how to
-  enter respectively &#xf9;, &#xfa;, &#xfb; or &#xfc; on the MSX models sold in the Netherlands:</p>
-  <table>
-	  <tr><th>Key presses</th><th>Character</th></tr>
-	  <tr><td>DEAD_KEY1 followed by u</td><td>&#xf9;</td></tr>
-	  <tr><td>DEAD_KEY1+SHIFT followed by u</td><td>&#xfa;</td></tr>
-	  <tr><td>DEAD_KEY1+CODE followed by u</td><td>&#xfb;</td></tr>
-	  <tr><td>DEAD_KEY1+SHIFT+CODE followed by u</td><td>&#xfc;</td></tr>
-  </table>
-  <p>In order to use the dead key in openMSX, you must map an appropriate host key to the DEAD_KEY1 of the MSX and
-  another one to the CODE key of the MSX with respectively this <code>kbd_deadkey1_host_key</code> setting and the above
-  documented <code><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></code> setting.</p>
-  <p>Note that especially the last key combination (DEAD_KEY1+SHIFT+CODE) can be impossible to enter on some
-  host systems; depending on the host operating system, keyboard type and keyboard driver it may be impossible
-  for the host system to send a combination of three keys at once to an application like openMSX. Unfortunately
-  openMSX or its developers can't do anything about that.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set&nbsp;kbd_deadkey1_host_key</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;kbd_deadkey1_host_key&nbsp;PAGEUP</code></td>
-
-      <td>Binds the PAGEUP key on the host keyboard to the 1st dead key</td>
-    </tr>
-  </table>
-  <p>Note that to use for example PAGEUP as 1st dead key you will have to unbind it from the <code>go_back_one_step</code>
-   command in the console; by default openMSX has bound the PAGEUP key to the <code>go_back_one_step</code> command and such
-   a binding takes precedence over keyboard mappings, so if you want to use PAGEUP as the 1st dead key you will have
-   to enter following additional command in the console: <code>unbind PAGEUP</code>.</p>
-
-
-  <h3><a id="kbd_deadkey2_host_key">kbd_deadkey2_host_key</a></h3>
-
-  <p>Host key that maps to the 2nd dead key. By default Page Up (PAGEUP) key.</p>
-  <p>This is only applicable to MSX models that have at least two dead keys, like the Brazilian Hotbit models
-  or the Brazilian Gradiente Expert Plus or other Gradiente models with Gradiente basic version 1.1.</p>
-  <p>On the Hotbit models, the second dead key can be used to enter accent &#xa8; while on the Gradiente 1.1
-  models, the second dead key can be used to enter following accents: <sup>~</sup> ^.</p>
-  <p>It can be used in the same manner as the first dead key, explained in previous section.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set&nbsp;kbd_deadkey2_host_key</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;kbd_deadkey2_host_key&nbsp;PAGEDOWN</code></td>
-
-      <td>Binds the PAGEDOWN key on the host keyboard to the 2nd dead key</td>
-    </tr>
-  </table>
-  <p>Note that to use for example PAGEUP or PAGEDOWN as a dead key you will have to unbind them from the
-   default functions in openMSX using the console; by default openMSX has bound the PAGEUP key to the
-   <code>go_back_one_step</code> command and the PAGEDOWN key to the <code>go_forward_one_step</code> command. Such a binding
-   takes precedence over keyboard mappings, so if you want to use PAGEUP or PAGEDOWN as the second dead key
-   you will have to enter following additional commands in the console: <code>unbind PAGEUP</code> or
-  <code>unbind PAGEDOWN</code>.</p>
-
-
-  <h3><a id="kbd_deadkey3_host_key">kbd_deadkey3_host_key</a></h3>
-
-  <p>Host key that maps to the 3rd dead key. By default Page Down (PAGEDOWN) key.</p>
-  <p>This is only applicable to MSX models with at least three dead keys, like the Sharp Hotbit models.</p>
-  <p>On the Hotbit models, the third dead key can be used to enter following two accents: <sup>~</sup> ^.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set&nbsp;kbd_deadkey3_host_key</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;kbd_deadkey3_host_key&nbsp;RCTRL</code></td>
-
-      <td>Binds the Right CTRL (RCTRL) key on the host keyboard to the 3rd dead key</td>
-    </tr>
-  </table>
-  <p>Note that to use for example PAGEDOWN (default setting!) as the 3rd dead key you will have to unbind
-   it from the <code>go_forward_one_step</code> command in openMSX using the console; by default openMSX has bound
-   the PAGEUP key to the <code>go_back_one_step</code> command. It is a very useful setting for many openMSX users when
-   playing games but unfortunately it conflicts with the default set-up for the third dead key. Such a command
-   binding takes precedence over keyboard mappings, so if you want to use PAGEDOWN as the third dead key you
-   will have to enter following additional command in the console: <code>unbind PAGEDOWN</code>.</p>
-
-
   <h3><a id="kbd_disable_IME">kbd_disable_IME</a></h3>
 
   <p>Only on Windows: disable the IME (Input Method Editor) of the host, to
@@ -4661,6 +4505,128 @@ current MSX model can be:</p>
       <td><code>set kbd_disable_IME off</code></td>
 
       <td>Keep the IME of the host enabled</td>
+    </tr>
+  </table>
+
+
+  <h3><a id="kbd_key_mapping">kbd_key_mapping_msx/kbd_key_mapping_svi/kbd_key_mapping_sega</a></h3>
+
+  <p>Maps host inputs to MSX keys. There is one setting per computer family:
+  <code>kbd_key_mapping_msx</code> for MSX machines,
+  <code>kbd_key_mapping_svi</code> for the Spectravideo SVI-318 and SVI-328,
+  and <code>kbd_key_mapping_sega</code> for the Sega SC-3000 and SK-1100. Only
+  the setting of the current machine exists.</p>
+
+  <p>The value is a Tcl dictionary. Its keys are MSX key names (see <a
+  class="internal" href="#msx_key_position">msx_key_position</a> for the names
+  of the current MSX), or <code>MATRIX_&lt;row&gt;_&lt;bit&gt;</code> for a
+  position in the keyboard matrix (e.g. <code>MATRIX_4_6</code>). The values
+  are lists of host inputs, in the same syntax as for the <a class="internal"
+  href="#msxjoystickN_config">msxjoystick&lt;n&gt;_config</a> settings: host
+  keys, joystick buttons, axes and hats, and mouse buttons (<code>mouse
+  button&lt;n&gt;</code>). To press several MSX keys with one host input (e.g.
+  SHIFT and F1 for F6), put that host input in the entries of all of them.</p>
+
+  <p>The default value contains the keys that have the same name on all
+  keyboards of the computer family: e.g. host F8 for the MSX STOP key, host F7
+  for SELECT, the cursor keys, the modifier keys, the numeric keypad (host
+  keypad Enter for the comma on the MSX keypad), right ALT for CODE, right CTRL
+  and Page Up and Page Down for the (up to three) dead keys. Use <code>unset
+  kbd_key_mapping_msx</code> (etc.) to go back to the default.</p>
+
+  <ul>
+    <li>The letters, digits and symbols have built-in host keys as well, which
+    depend on the <a class="internal" href="#kbd_mapping_mode">mapping
+    mode</a>; they can't be removed. A host key that is in this setting is only
+    used for it: e.g. the host cursor keys mapped to Q, A, O and P don't press
+    the MSX cursor keys anymore, unless they're also in the entries of the
+    cursor keys.</li>
+    <li>In the <code>CHARACTER</code> mapping mode, a host key that types a
+    character keeps typing it.</li>
+    <li>An entry with a key that the current machine doesn't have is
+    ignored.</li>
+    <li>To find the name of a host key: set <a class="internal"
+    href="#kbd_trace_key_presses">kbd_trace_key_presses</a> on and press
+    the key (<code>keyName</code> in the output).</li>
+    <li>A key name is the same key on every keyboard, but not always at the
+    same position in the matrix (e.g. Q and A on an AZERTY keyboard). That's
+    fine for a program that reads characters (via the BIOS), and for a
+    program that reads the matrix itself on the keyboard it was written for.
+    But e.g. a game written for an international keyboard checks the
+    positions of Q and A on that keyboard, also on an AZERTY MSX: then use
+    <code>MATRIX_&lt;row&gt;_&lt;bit&gt;</code>.</li>
+    <li>Commands that are bound to host keys (see <a class="internal"
+    href="#bind">bind</a>) take precedence: e.g. to use Page Up or Page Down
+    for a dead key, first unbind them from <code>go_back_one_step</code> and
+    <code>go_forward_one_step</code> with <code>unbind PAGEUP</code> and
+    <code>unbind PAGEDOWN</code>.</li>
+  </ul>
+
+  <p>About the dead keys: some MSX models have one or more dead keys to type
+  accented characters. For example the MSX models sold in the Netherlands
+  have one dead key with the accents ` &#xb4; ^ &#xa8;: DEADKEY1 followed by u
+  types &#xf9;, with SHIFT &#xfa;, with CODE &#xfb; and with SHIFT+CODE
+  &#xfc;. The Brazilian Gradiente Expert Plus has two dead keys, the Sharp
+  Hotbit models have three. Note that some host systems can't send a
+  combination of three keys at once.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx SELECT {{keyb F11}}]</code></td>
+      <td>The host F11 key presses the MSX SELECT key, instead of F7</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx F1 {{keyb F1} {joy1 button4}}]</code></td>
+      <td>Joystick button 4 presses the MSX F1 key as well</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx SHIFT {{keyb Left Shift} {keyb Right Shift} {joy1 button5}} F1 {{keyb F1} {joy1 button5}}]</code></td>
+      <td>Joystick button 5 presses SHIFT and F1 (F6)</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx CODE {{keyb Menu}}]</code></td>
+      <td>The context menu key instead of right ALT for the CODE key, e.g. when right ALT is ALT-GR, needed to type characters. On a Japanese host keyboard, <code>keyb HENKAN</code> may be a good choice.</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx Q {{joy1 -axis1}} A {{joy1 +axis1}} O {{joy1 -axis0}} P {{joy1 +axis0}}]</code></td>
+      <td>The joystick presses the Q, A, O and P keys, as used by some Spectrum conversions; the host keyboard keeps working for these keys</td>
+    </tr>
+    <tr>
+      <td><code>unset kbd_key_mapping_msx</code></td>
+      <td>Back to the default mapping</td>
+    </tr>
+  </table>
+
+  <p><a id="kbd_code_kana_host_key"></a><a id="kbd_deadkey1_host_key"></a><a
+  id="kbd_deadkey2_host_key"></a><a id="kbd_deadkey3_host_key"></a><a
+  id="kbd_numkeypad_enter_key"></a>Up to openMSX 22.0, some of these
+  mappings had settings of their own. For those who used them, this is how to
+  make the same mapping with this setting:</p>
+
+  <table>
+    <tr>
+      <th>Old setting</th>
+      <th>The same with this setting</th>
+    </tr>
+    <tr>
+      <td><code>set kbd_code_kana_host_key HENKAN</code></td>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx CODE {{keyb HENKAN}}]</code><br/>
+      (on the SVI this is the <code>RGRAPH</code> key, on the Sega SC-3000
+      <code>ENG_DIER_S</code> or <code>KANA</code>)</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_deadkey1_host_key PAGEUP</code><br/>
+      (also <code>kbd_deadkey2_host_key</code>, <code>kbd_deadkey3_host_key</code>)</td>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx DEADKEY1 {{keyb PageUp}}]</code><br/>
+      (<code>DEADKEY2</code>, <code>DEADKEY3</code>)</td>
+    </tr>
+    <tr>
+      <td><code>set kbd_numkeypad_enter_key ENTER</code></td>
+      <td><code>set kbd_key_mapping_msx [dict replace $kbd_key_mapping_msx NUMPAD_COMMA {{keyb Keypad ,}} RETURN {{keyb Return} {keyb Keypad Enter}}]</code></td>
     </tr>
   </table>
 
@@ -4739,39 +4705,6 @@ current MSX model can be:</p>
       <td><code>set kbd_numkeypad_always_enabled on</code></td>
 
       <td>Enables numeric keypad, even if the emulated MSX does not have one</td>
-    </tr>
-  </table>
-
-
-  <h3><a id="kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></h3>
-
-  <p>There is a subtle difference between numeric keypad of MSX computers and
-  of most host computers; the MSX computers have a '.' and a ',' on the numeric
-  keypad. On the other hand, the host computers have a '.' and an 'ENTER' key
-  on the keypad.</p>
-
-  <p>In some respect it is logical that the 'ENTER' key on the host numeric
-  keypad is mapped to the 'normal' MSX 'ENTER' key. On the other hand, that
-  would make it impossible to enter the ',' on the MSX numeric keypad.
-  Therefore, the user can choose whether the host numeric keypad ENTER key
-  should be mapped to the MSX numeric keypad ',' (which is the default) or to
-  the main 'ENTER' key.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set&nbsp;kbd_numkeypad_enter_key</code></td>
-
-      <td>Shows the current value</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;kbd_numkeypad_enter_key&nbsp;ENTER</code></td>
-
-      <td>Maps the keypad enter key to the main 'ENTER' key, instead of the comma key on the MSX keypad</td>
     </tr>
   </table>
 

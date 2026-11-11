@@ -6,10 +6,14 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
+#include "InputEventGenerator.hh"
+#include "JoystickManager.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "ReverseManager.hh"
 #include "SDLKey.hh"
+#include "StringOp.hh"
 #include "StateChange.hh"
 #include "StateChangeDistributor.hh"
 #include "TclArgParser.hh"
@@ -114,6 +118,9 @@ static constexpr array_with_enum_index<Keyboard::Matrix, ModifierArray> modifier
 
 /** Keyboard bindings ****************************************/
 
+// The built-in host keys of the character keys (letters, digits, symbols), by
+// matrix position. The other MSX keys are in the default value of the key
+// mapping setting, see the DefaultKeyMapping tables below.
 struct MsxKeyScanMapping {
 	KeyMatrixPosition msx;
 	std::array<SDL_Keycode, 3> hostKeyCodes;
@@ -171,24 +178,6 @@ static constexpr auto extractScanCodeMapping(GetMapping getMapping)
 	std::ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
 	return result;
 }
-template<typename GetMapping>
-static constexpr auto extractCombinedShiftFlag(GetMapping getMapping)
-{
-	constexpr auto mapping = getMapping();
-	constexpr size_t N = count(mapping, &MsxKeyScanMapping::hostKeyCodes);
-	std::array<KeyCodeMsxMapping, N> result;
-	for (const auto& m : mapping) {
-		bool lshift = false;
-		bool rshift = false;
-		for (const auto& k : m.hostKeyCodes) {
-			if (k == SDLK_LSHIFT) lshift = true;
-			if (k == SDLK_RSHIFT) rshift = true;
-			if (lshift && rshift) return true;
-		}
-	}
-	return false;
-}
-
 static constexpr auto getMSXMapping()
 {
 	// MSX Key-Matrix table
@@ -266,55 +255,6 @@ static constexpr auto getMSXMapping()
 		M{P{0x55}, K{SDLK_X},           S{SDL_SCANCODE_X}},
 		M{P{0x56}, K{SDLK_Y},           S{SDL_SCANCODE_Y}},
 		M{P{0x57}, K{SDLK_Z},           S{SDL_SCANCODE_Z}},
-
-		M{P{0x60}, K{SDLK_LSHIFT, SDLK_RSHIFT}, S{SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}},
-		M{P{0x61}, K{SDLK_LCTRL},       S{SDL_SCANCODE_LCTRL}},
-		M{P{0x62}, K{SDLK_LALT},        S{SDL_SCANCODE_LALT}}, // GRAPH
-		M{P{0x63}, K{SDLK_CAPSLOCK},    S{SDL_SCANCODE_CAPSLOCK}},
-		M{P{0x64}, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}}, // CODE
-		M{P{0x65}, K{SDLK_F1},          S{SDL_SCANCODE_F1}},
-		M{P{0x66}, K{SDLK_F2},          S{SDL_SCANCODE_F2}},
-		M{P{0x67}, K{SDLK_F3},          S{SDL_SCANCODE_F3}},
-
-		M{P{0x70}, K{SDLK_F4},          S{SDL_SCANCODE_F4}},
-		M{P{0x71}, K{SDLK_F5},          S{SDL_SCANCODE_F5}},
-		M{P{0x72}, K{SDLK_ESCAPE},      S{SDL_SCANCODE_ESCAPE}},
-		M{P{0x73}, K{SDLK_TAB},         S{SDL_SCANCODE_TAB}},
-		M{P{0x74}, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
-		M{P{0x75}, K{SDLK_BACKSPACE},   S{SDL_SCANCODE_BACKSPACE}},
-		M{P{0x76}, K{SDLK_F7},          S{SDL_SCANCODE_F7}}, // SELECT
-		M{P{0x77}, K{SDLK_RETURN,         SDLK_KP_ENTER},
-				   S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
-
-		M{P{0x80}, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
-		M{P{0x81}, K{SDLK_HOME},        S{SDL_SCANCODE_HOME}},
-		M{P{0x82}, K{SDLK_INSERT},      S{SDL_SCANCODE_INSERT}},
-		M{P{0x83}, K{SDLK_DELETE},      S{SDL_SCANCODE_DELETE}},
-		M{P{0x84}, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
-		M{P{0x85}, K{SDLK_UP},          S{SDL_SCANCODE_UP}},
-		M{P{0x86}, K{SDLK_DOWN},        S{SDL_SCANCODE_DOWN}},
-		M{P{0x87}, K{SDLK_RIGHT},       S{SDL_SCANCODE_RIGHT}},
-
-		M{P{0x90}, K{SDLK_KP_MULTIPLY}, S{SDL_SCANCODE_KP_MULTIPLY}},
-		M{P{0x91}, K{SDLK_KP_PLUS},     S{SDL_SCANCODE_KP_PLUS}},
-		M{P{0x92}, K{SDLK_KP_DIVIDE},   S{SDL_SCANCODE_KP_DIVIDE}},
-		M{P{0x93}, K{SDLK_KP_0},        S{SDL_SCANCODE_KP_0}},
-		M{P{0x94}, K{SDLK_KP_1},        S{SDL_SCANCODE_KP_1}},
-		M{P{0x95}, K{SDLK_KP_2},        S{SDL_SCANCODE_KP_2}},
-		M{P{0x96}, K{SDLK_KP_3},        S{SDL_SCANCODE_KP_3}},
-		M{P{0x97}, K{SDLK_KP_4},        S{SDL_SCANCODE_KP_4}},
-
-		M{P{0xA0}, K{SDLK_KP_5},        S{SDL_SCANCODE_KP_5}},
-		M{P{0xA1}, K{SDLK_KP_6},        S{SDL_SCANCODE_KP_6}},
-		M{P{0xA2}, K{SDLK_KP_7},        S{SDL_SCANCODE_KP_7}},
-		M{P{0xA3}, K{SDLK_KP_8},        S{SDL_SCANCODE_KP_8}},
-		M{P{0xA4}, K{SDLK_KP_9},        S{SDL_SCANCODE_KP_9}},
-		M{P{0xA5}, K{SDLK_KP_MINUS},    S{SDL_SCANCODE_KP_MINUS}},
-		M{P{0xA6}, K{SDLK_KP_COMMA},    S{SDL_SCANCODE_KP_COMMA}},
-		M{P{0xA7}, K{SDLK_KP_PERIOD},   S{SDL_SCANCODE_KP_PERIOD}},
-
-		M{P{0xB1}, K{SDLK_RGUI},        S{SDL_SCANCODE_RGUI}},
-		M{P{0xB3}, K{SDLK_LGUI},        S{SDL_SCANCODE_LGUI}},
 	};
 	return mapping;
 }
@@ -393,54 +333,6 @@ static constexpr auto getSVIMapping()
 		M{P{0x53}, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
 		M{P{0x54}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}},
 		M{P{0x55}, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
-		M{P{0x56}, K{SDLK_BACKSPACE},   S{SDL_SCANCODE_BACKSPACE}},
-		M{P{0x57}, K{SDLK_UP},          S{SDL_SCANCODE_UP}},
-
-		M{P{0x60}, K{SDLK_LSHIFT, SDLK_RSHIFT}, S{SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}},
-		M{P{0x61}, K{SDLK_LCTRL},       S{SDL_SCANCODE_LCTRL}},
-		M{P{0x62}, K{SDLK_LALT},        S{SDL_SCANCODE_LALT}},
-		M{P{0x63}, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}},
-		M{P{0x64}, K{SDLK_ESCAPE},      S{SDL_SCANCODE_ESCAPE}},
-		M{P{0x65}, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
-		M{P{0x66}, K{SDLK_RETURN,         SDLK_KP_ENTER},
-				   S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
-		M{P{0x67}, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
-
-		M{P{0x70}, K{SDLK_F1},          S{SDL_SCANCODE_F1}},
-		M{P{0x71}, K{SDLK_F2},          S{SDL_SCANCODE_F2}},
-		M{P{0x72}, K{SDLK_F3},          S{SDL_SCANCODE_F3}},
-		M{P{0x73}, K{SDLK_F4},          S{SDL_SCANCODE_F4}},
-		M{P{0x74}, K{SDLK_F5},          S{SDL_SCANCODE_F5}},
-		M{P{0x75}, K{SDLK_F6},          S{SDL_SCANCODE_F6}}, // CLS
-		M{P{0x76}, K{SDLK_INSERT},      S{SDL_SCANCODE_INSERT}},
-		M{P{0x77}, K{SDLK_DOWN},        S{SDL_SCANCODE_DOWN}},
-
-		M{P{0x80}, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
-		M{P{0x81}, K{SDLK_TAB},         S{SDL_SCANCODE_TAB}},
-		M{P{0x82}, K{SDLK_DELETE},      S{SDL_SCANCODE_DELETE}},
-		M{P{0x83}, K{SDLK_CAPSLOCK},    S{SDL_SCANCODE_CAPSLOCK}},
-		M{P{0x84}, K{SDLK_F7},          S{SDL_SCANCODE_F7}}, // SELECT
-		M{P{0x85}, K{SDLK_PRINTSCREEN}, S{SDL_SCANCODE_PRINTSCREEN}}, // PRINT
-		// no key on 0x86 ?
-		M{P{0x87}, K{SDLK_RIGHT},       S{SDL_SCANCODE_RIGHT}},
-
-		M{P{0x90}, K{SDLK_KP_0},        S{SDL_SCANCODE_KP_0}},
-		M{P{0x91}, K{SDLK_KP_1},        S{SDL_SCANCODE_KP_1}},
-		M{P{0x92}, K{SDLK_KP_2},        S{SDL_SCANCODE_KP_2}},
-		M{P{0x93}, K{SDLK_KP_3},        S{SDL_SCANCODE_KP_3}},
-		M{P{0x94}, K{SDLK_KP_4},        S{SDL_SCANCODE_KP_4}},
-		M{P{0x95}, K{SDLK_KP_5},        S{SDL_SCANCODE_KP_5}},
-		M{P{0x96}, K{SDLK_KP_6},        S{SDL_SCANCODE_KP_6}},
-		M{P{0x97}, K{SDLK_KP_7},        S{SDL_SCANCODE_KP_7}},
-
-		M{P{0xA0}, K{SDLK_KP_8},        S{SDL_SCANCODE_KP_8}},
-		M{P{0xA1}, K{SDLK_KP_9},        S{SDL_SCANCODE_KP_9}},
-		M{P{0xA2}, K{SDLK_KP_PLUS},     S{SDL_SCANCODE_KP_PLUS}},
-		M{P{0xA3}, K{SDLK_KP_MINUS},    S{SDL_SCANCODE_KP_MINUS}},
-		M{P{0xA4}, K{SDLK_KP_MULTIPLY}, S{SDL_SCANCODE_KP_MULTIPLY}},
-		M{P{0xA5}, K{SDLK_KP_DIVIDE},   S{SDL_SCANCODE_KP_DIVIDE}},
-		M{P{0xA6}, K{SDLK_KP_PERIOD},   S{SDL_SCANCODE_KP_PERIOD}},
-		M{P{0xA7}, K{SDLK_KP_COMMA},    S{SDL_SCANCODE_KP_COMMA}},
 	};
 	return mapping;
 }
@@ -551,7 +443,6 @@ static constexpr auto getSegaMapping()
 		M{P{0x01}, K{SDLK_Q},           S{SDL_SCANCODE_Q}},
 		M{P{0x02}, K{SDLK_A},           S{SDL_SCANCODE_A}},
 		M{P{0x03}, K{SDLK_Z},           S{SDL_SCANCODE_Z}},
-		M{P{0x04}, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}},  // eng
 		M{P{0x05}, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
 		M{P{0x06}, K{SDLK_K},           S{SDL_SCANCODE_K}},
 		M{P{0x07}, K{SDLK_I},           S{SDL_SCANCODE_I}},
@@ -561,7 +452,6 @@ static constexpr auto getSegaMapping()
 		M{P{0x11}, K{SDLK_W},           S{SDL_SCANCODE_W}},
 		M{P{0x12}, K{SDLK_S},           S{SDL_SCANCODE_S}},
 		M{P{0x13}, K{SDLK_X},           S{SDL_SCANCODE_X}},
-		M{P{0x14}, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
 		M{P{0x15}, K{SDLK_PERIOD,         SDLK_KP_PERIOD},
 		           S{SDL_SCANCODE_PERIOD, SDL_SCANCODE_KP_PERIOD}},
 		M{P{0x16}, K{SDLK_L},           S{SDL_SCANCODE_L}},
@@ -572,7 +462,6 @@ static constexpr auto getSegaMapping()
 		M{P{0x21}, K{SDLK_E},           S{SDL_SCANCODE_E}},
 		M{P{0x22}, K{SDLK_D},           S{SDL_SCANCODE_D}},
 		M{P{0x23}, K{SDLK_C},           S{SDL_SCANCODE_C}},
-		M{P{0x24}, K{SDLK_HOME},        S{SDL_SCANCODE_HOME}},
 		M{P{0x25}, K{SDLK_SLASH,         SDLK_KP_DIVIDE},
 		           S{SDL_SCANCODE_SLASH, SDL_SCANCODE_KP_DIVIDE}},
 		M{P{0x26}, K{SDLK_SEMICOLON,         SDLK_KP_PLUS},
@@ -584,8 +473,6 @@ static constexpr auto getSegaMapping()
 		M{P{0x31}, K{SDLK_R},           S{SDL_SCANCODE_R}},
 		M{P{0x32}, K{SDLK_F},           S{SDL_SCANCODE_F}},
 		M{P{0x33}, K{SDLK_V},           S{SDL_SCANCODE_V}},
-		M{P{0x34}, K{SDLK_INSERT},      S{SDL_SCANCODE_INSERT}},
-		M{P{0x35}, K{SDLK_F7},          S{SDL_SCANCODE_F7}},         // pi
 		M{P{0x36}, K{SDLK_APOSTROPHE,         SDLK_KP_MULTIPLY},
 		           S{SDL_SCANCODE_APOSTROPHE, SDL_SCANCODE_KP_MULTIPLY}}, // :
 		M{P{0x37}, K{SDLK_GRAVE},       S{SDL_SCANCODE_GRAVE}},      // @
@@ -596,7 +483,6 @@ static constexpr auto getSegaMapping()
 		M{P{0x42}, K{SDLK_G},           S{SDL_SCANCODE_G}},
 		M{P{0x43}, K{SDLK_B},           S{SDL_SCANCODE_B}},
 		// nothing on 0x44
-		M{P{0x45}, K{SDLK_DOWN},        S{SDL_SCANCODE_DOWN}},
 		M{P{0x46}, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
 		M{P{0x47}, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
 
@@ -606,9 +492,6 @@ static constexpr auto getSegaMapping()
 		M{P{0x52}, K{SDLK_H},           S{SDL_SCANCODE_H}},
 		M{P{0x53}, K{SDLK_N},           S{SDL_SCANCODE_N}},
 		// nothing on 0x54
-		M{P{0x55}, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
-		M{P{0x56}, K{SDLK_RETURN,         SDLK_KP_ENTER},
-		           S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
 		//P{ not}hing on 0x57
 
 		M{P{0x60}, K{SDLK_7,         SDLK_KP_7},
@@ -617,8 +500,6 @@ static constexpr auto getSegaMapping()
 		M{P{0x62}, K{SDLK_J},           S{SDL_SCANCODE_J}},
 		M{P{0x63}, K{SDLK_M},           S{SDL_SCANCODE_M}},
 		// nothing on 0x64
-		M{P{0x65}, K{SDLK_RIGHT},       S{SDL_SCANCODE_RIGHT}},
-		M{P{0x66}, K{SDLK_UP},          S{SDL_SCANCODE_UP}},
 		// nothing on 0x67
 
 		M{P{0x70}, K{SDLK_8,         SDLK_KP_8},
@@ -632,14 +513,6 @@ static constexpr auto getSegaMapping()
 		M{P{0xB0}, K{SDLK_EQUALS},      S{SDL_SCANCODE_EQUALS}}, // ^
 
 		M{P{0xC0}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}}, // cur
-		M{P{0xC3}, K{SDLK_TAB},         S{SDL_SCANCODE_TAB}},       // func
-
-		M{P{0xD0}, K{SDLK_ESCAPE,         SDLK_F8},
-		           S{SDL_SCANCODE_ESCAPE, SDL_SCANCODE_F8}},   // break
-		M{P{0xD1}, K{SDLK_LALT},        S{SDL_SCANCODE_LALT}}, // graph
-		M{P{0xD2}, K{SDLK_LCTRL},       S{SDL_SCANCODE_LCTRL}},
-		M{P{0xD3}, K{SDLK_LSHIFT,         SDLK_RSHIFT},
-		        S{SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}},
 	};
 	return mapping;
 //// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
@@ -668,16 +541,12 @@ static constexpr auto getSegaMapping()
 
 static constexpr auto msxKeyCodeMapping      = extractKeyCodeMapping   ([] { return getMSXMapping(); });
 static constexpr auto msxScanCodeMapping     = extractScanCodeMapping  ([] { return getMSXMapping(); });
-static constexpr auto msxCombinedShiftFlag   = extractCombinedShiftFlag([] { return getMSXMapping(); });
 static constexpr auto sviKeyCodeMapping      = extractKeyCodeMapping   ([] { return getSVIMapping(); });
 static constexpr auto sviScanCodeMapping     = extractScanCodeMapping  ([] { return getSVIMapping(); });
-static constexpr auto sviCombinedShiftFlag   = extractCombinedShiftFlag([] { return getSVIMapping(); });
 static constexpr auto cvJoyKeyCodeMapping    = extractKeyCodeMapping   ([] { return getCvJoyMapping(); });
 static constexpr auto cvJoyScanCodeMapping   = extractScanCodeMapping  ([] { return getCvJoyMapping(); });
-static constexpr auto cvJoyCombinedShiftFlag = extractCombinedShiftFlag([] { return getCvJoyMapping(); });
 static constexpr auto segaKeyCodeMapping     = extractKeyCodeMapping   ([] { return getSegaMapping(); });
 static constexpr auto segaScanCodeMapping    = extractScanCodeMapping  ([] { return getSegaMapping(); });
-static constexpr auto segaCombinedShiftFlag  = extractCombinedShiftFlag([] { return getSegaMapping(); });
 
 static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const KeyCodeMsxMapping>> defaultKeyCodeMappings = {
 	msxKeyCodeMapping,
@@ -691,11 +560,186 @@ static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const ScanCod
 	cvJoyScanCodeMapping,
 	segaScanCodeMapping,
 };
-static constexpr array_with_enum_index<Keyboard::Matrix, bool> defaultCombinedShiftFlags = {
-	msxCombinedShiftFlag,
-	sviCombinedShiftFlag,
-	cvJoyCombinedShiftFlag,
-	segaCombinedShiftFlag,
+
+// The default value of the kbd_key_mapping_<family> setting: the host keys of
+// the MSX keys that have the same name on all keyboards of a computer family
+// (all keys except the letters, digits and symbols, which are in the tables
+// above, by matrix position). A name that the machine doesn't have is ignored.
+struct DefaultKeyMapping {
+	std::string_view msxKeyName;
+	std::array<SDL_Keycode, 2> defaultHostKeys;
+};
+static constexpr auto msxDefaultKeyMapping = std::to_array<DefaultKeyMapping>({
+	{"SHIFT",           {SDLK_LSHIFT, SDLK_RSHIFT}},
+	{"CTRL",            {SDLK_LCTRL}},
+	{"GRAPH",           {SDLK_LALT}},
+	{"CAPSLOCK",        {SDLK_CAPSLOCK}},
+	{"CODE",            {SDLK_RALT}},
+	{"KANA",            {SDLK_RALT}},
+	{"RUS",             {SDLK_RALT}},
+	{"F1",              {SDLK_F1}},
+	{"F2",              {SDLK_F2}},
+	{"F3",              {SDLK_F3}},
+	{"F4",              {SDLK_F4}},
+	{"F5",              {SDLK_F5}},
+	{"ESCAPE",          {SDLK_ESCAPE}},
+	{"TAB",             {SDLK_TAB}},
+	{"STOP",            {SDLK_F8}},
+	{"BACKSPACE",       {SDLK_BACKSPACE}},
+	{"SELECT",          {SDLK_F7}},
+	{"RETURN",          {SDLK_RETURN}},
+	{"ENTER",           {SDLK_RETURN}},
+	{"SPACE",           {SDLK_SPACE}},
+	{"HOME",            {SDLK_HOME}},
+	{"INSERT",          {SDLK_INSERT}},
+	{"DELETE",          {SDLK_DELETE}},
+	{"LEFT",            {SDLK_LEFT}},
+	{"UP",              {SDLK_UP}},
+	{"DOWN",            {SDLK_DOWN}},
+	{"RIGHT",           {SDLK_RIGHT}},
+	{"NUMPAD_0",        {SDLK_KP_0}},
+	{"NUMPAD_1",        {SDLK_KP_1}},
+	{"NUMPAD_2",        {SDLK_KP_2}},
+	{"NUMPAD_3",        {SDLK_KP_3}},
+	{"NUMPAD_4",        {SDLK_KP_4}},
+	{"NUMPAD_5",        {SDLK_KP_5}},
+	{"NUMPAD_6",        {SDLK_KP_6}},
+	{"NUMPAD_7",        {SDLK_KP_7}},
+	{"NUMPAD_8",        {SDLK_KP_8}},
+	{"NUMPAD_9",        {SDLK_KP_9}},
+	{"NUMPAD_ASTERISK", {SDLK_KP_MULTIPLY}},
+	{"NUMPAD_PLUS",     {SDLK_KP_PLUS}},
+	{"NUMPAD_SLASH",    {SDLK_KP_DIVIDE}},
+	{"NUMPAD_MINUS",    {SDLK_KP_MINUS}},
+	{"NUMPAD_COMMA",    {SDLK_KP_COMMA, SDLK_KP_ENTER}},
+	{"NUMPAD_PERIOD",   {SDLK_KP_PERIOD}},
+	{"CANCEL",          {SDLK_LGUI}},
+	{"EXECUTE",         {SDLK_RGUI}},
+	{"DEADKEY1",        {SDLK_RCTRL}},
+	{"DEADKEY2",        {SDLK_PAGEUP}},
+	{"DEADKEY3",        {SDLK_PAGEDOWN}},
+});
+static constexpr auto sviDefaultKeyMapping = std::to_array<DefaultKeyMapping>({
+	{"SHIFT",           {SDLK_LSHIFT, SDLK_RSHIFT}},
+	{"CTRL",            {SDLK_LCTRL}},
+	{"LGRAPH",          {SDLK_LALT}},
+	{"RGRAPH",          {SDLK_RALT}},
+	{"CAPSLOCK",        {SDLK_CAPSLOCK}},
+	{"F1",              {SDLK_F1}},
+	{"F2",              {SDLK_F2}},
+	{"F3",              {SDLK_F3}},
+	{"F4",              {SDLK_F4}},
+	{"F5",              {SDLK_F5}},
+	{"CLS",             {SDLK_F6}},
+	{"ESCAPE",          {SDLK_ESCAPE}},
+	{"TAB",             {SDLK_TAB}},
+	{"STOP",            {SDLK_F8}},
+	{"BACKSPACE",       {SDLK_BACKSPACE}},
+	{"SELECT",          {SDLK_F7}},
+	{"PRINT",           {SDLK_PRINTSCREEN}},
+	{"ENTER",           {SDLK_RETURN}},
+	{"SPACE",           {SDLK_SPACE}},
+	{"INSERT",          {SDLK_INSERT}},
+	{"DELETE",          {SDLK_DELETE}},
+	{"LEFT",            {SDLK_LEFT}},
+	{"UP",              {SDLK_UP}},
+	{"DOWN",            {SDLK_DOWN}},
+	{"RIGHT",           {SDLK_RIGHT}},
+	{"NUMPAD_0",        {SDLK_KP_0}},
+	{"NUMPAD_1",        {SDLK_KP_1}},
+	{"NUMPAD_2",        {SDLK_KP_2}},
+	{"NUMPAD_3",        {SDLK_KP_3}},
+	{"NUMPAD_4",        {SDLK_KP_4}},
+	{"NUMPAD_5",        {SDLK_KP_5}},
+	{"NUMPAD_6",        {SDLK_KP_6}},
+	{"NUMPAD_7",        {SDLK_KP_7}},
+	{"NUMPAD_8",        {SDLK_KP_8}},
+	{"NUMPAD_9",        {SDLK_KP_9}},
+	{"NUMPAD_ASTERISK", {SDLK_KP_MULTIPLY}},
+	{"NUMPAD_PLUS",     {SDLK_KP_PLUS}},
+	{"NUMPAD_SLASH",    {SDLK_KP_DIVIDE}},
+	{"NUMPAD_MINUS",    {SDLK_KP_MINUS}},
+	{"NUMPAD_COMMA",    {SDLK_KP_COMMA, SDLK_KP_ENTER}},
+	{"NUMPAD_PERIOD",   {SDLK_KP_PERIOD}},
+});
+static constexpr auto segaDefaultKeyMapping = std::to_array<DefaultKeyMapping>({
+	{"SHIFT",           {SDLK_LSHIFT, SDLK_RSHIFT}},
+	{"CTRL",            {SDLK_LCTRL}},
+	{"GRAPH",           {SDLK_LALT}},
+	{"ENG_DIER_S",      {SDLK_RALT}},
+	{"KANA",            {SDLK_RALT}},
+	{"FUNC",            {SDLK_TAB}},
+	{"BREAK",           {SDLK_ESCAPE, SDLK_F8}},
+	{"PI",              {SDLK_F7}},
+	{"ENTER_CR",        {SDLK_RETURN, SDLK_KP_ENTER}},
+	{"SPACE",           {SDLK_SPACE}},
+	{"HOME",            {SDLK_HOME}},
+	{"INS",             {SDLK_INSERT}},
+	{"LEFT",            {SDLK_LEFT}},
+	{"UP",              {SDLK_UP}},
+	{"DOWN",            {SDLK_DOWN}},
+	{"RIGHT",           {SDLK_RIGHT}},
+});
+static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const DefaultKeyMapping>> defaultKeyMappings = {
+	msxDefaultKeyMapping,
+	sviDefaultKeyMapping,
+	std::span<const DefaultKeyMapping>{}, // the ColecoVision has no keyboard
+	segaDefaultKeyMapping,
+};
+static constexpr array_with_enum_index<Keyboard::Matrix, std::string_view> keyMappingSettingNames = {
+	"kbd_key_mapping_msx",
+	"kbd_key_mapping_svi",
+	"",
+	"kbd_key_mapping_sega",
+};
+
+[[nodiscard]] static TclObject getDefaultKeyMapping(Keyboard::Matrix matrix)
+{
+	TclObject result(TclObject::MakeDictTag{});
+	for (const auto& [name, defaultHostKeys] : defaultKeyMappings[matrix]) {
+		TclObject inputs;
+		for (auto keyCode : defaultHostKeys) {
+			if (keyCode != SDLK_UNKNOWN) {
+				inputs.addListElement(toString(BooleanInput(BooleanKeyboard(keyCode))));
+			}
+		}
+		result.addDictKeyValue(name, inputs);
+	}
+	return result;
+}
+
+// The positions of the numeric keypad keys on the MSX and SVI keyboards that
+// have one, for the kbd_numkeypad_always_enabled setting: then the host keypad
+// presses these positions on a machine that doesn't have the keypad.
+struct KeypadPosition {
+	std::string_view msxKeyName;
+	KeyMatrixPosition pos;
+};
+static constexpr auto msxKeypadPositions = std::to_array<KeypadPosition>({
+	{"NUMPAD_ASTERISK", KeyMatrixPosition{0x90}}, {"NUMPAD_PLUS",   KeyMatrixPosition{0x91}},
+	{"NUMPAD_SLASH",    KeyMatrixPosition{0x92}}, {"NUMPAD_0",      KeyMatrixPosition{0x93}},
+	{"NUMPAD_1",        KeyMatrixPosition{0x94}}, {"NUMPAD_2",      KeyMatrixPosition{0x95}},
+	{"NUMPAD_3",        KeyMatrixPosition{0x96}}, {"NUMPAD_4",      KeyMatrixPosition{0x97}},
+	{"NUMPAD_5",        KeyMatrixPosition{0xA0}}, {"NUMPAD_6",      KeyMatrixPosition{0xA1}},
+	{"NUMPAD_7",        KeyMatrixPosition{0xA2}}, {"NUMPAD_8",      KeyMatrixPosition{0xA3}},
+	{"NUMPAD_9",        KeyMatrixPosition{0xA4}}, {"NUMPAD_MINUS",  KeyMatrixPosition{0xA5}},
+	{"NUMPAD_COMMA",    KeyMatrixPosition{0xA6}}, {"NUMPAD_PERIOD", KeyMatrixPosition{0xA7}},
+});
+static constexpr auto sviKeypadPositions = std::to_array<KeypadPosition>({
+	{"NUMPAD_0",        KeyMatrixPosition{0x90}}, {"NUMPAD_1",      KeyMatrixPosition{0x91}},
+	{"NUMPAD_2",        KeyMatrixPosition{0x92}}, {"NUMPAD_3",      KeyMatrixPosition{0x93}},
+	{"NUMPAD_4",        KeyMatrixPosition{0x94}}, {"NUMPAD_5",      KeyMatrixPosition{0x95}},
+	{"NUMPAD_6",        KeyMatrixPosition{0x96}}, {"NUMPAD_7",      KeyMatrixPosition{0x97}},
+	{"NUMPAD_8",        KeyMatrixPosition{0xA0}}, {"NUMPAD_9",      KeyMatrixPosition{0xA1}},
+	{"NUMPAD_PLUS",     KeyMatrixPosition{0xA2}}, {"NUMPAD_MINUS",  KeyMatrixPosition{0xA3}},
+	{"NUMPAD_ASTERISK", KeyMatrixPosition{0xA4}}, {"NUMPAD_SLASH",  KeyMatrixPosition{0xA5}},
+	{"NUMPAD_PERIOD",   KeyMatrixPosition{0xA6}}, {"NUMPAD_COMMA",  KeyMatrixPosition{0xA7}},
+});
+static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const KeypadPosition>> keypadPositions = {
+	msxKeypadPositions,
+	sviKeypadPositions,
+	std::span<const KeypadPosition>{},
+	std::span<const KeypadPosition>{},
 };
 
 // The character keys (letters, digits, symbols) in the keycode tables are at
@@ -762,9 +806,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, eventDistributor(eventDistributor_)
+	, joystickManager(motherBoard.getReactor().getInputEventGenerator().getJoystickManager())
 	, keyCodeTab (defaultKeyCodeMappings [matrix_])
 	, scanCodeTab(defaultScanCodeMappings[matrix_])
-	, combinedShiftFlag(defaultCombinedShiftFlags[matrix_])
 	, modifierPos(modifierPosForMatrix[matrix_])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
@@ -802,6 +846,25 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	// keyboard can have unwanted side effects
 
 	eventDistributor.registerEventListener(EventType::KEYMAP_CHANGED, *this);
+
+	if (auto settingName = keyMappingSettingNames[matrix_]; !settingName.empty()) {
+		auto& setting = keyMappingSetting.emplace(commandController, settingName,
+			"Host inputs that press MSX keys: a dict of MSX key names (or MATRIX_<row>_<bit> "
+			"for a matrix position) with a list of host inputs (the syntax of the "
+			"msxjoystick<n>_config settings) for each. For the keys that have the same name on "
+			"all keyboards of this computer family; the letters, digits and symbols have built-in "
+			"host keys as well. A host input in this dict only presses the MSX keys of this "
+			"dict. In CHARACTER mode, host keys that type a character keep typing it.",
+			getDefaultKeyMapping(matrix_).getString());
+		setting.setChecker([this](const TclObject& newValue) {
+			parseKeyMapping(newValue);
+		});
+		try {
+			parseKeyMapping(setting.getValue());
+		} catch (MSXException&) {
+			setting.setValue(setting.getDefaultValue());
+		}
+	}
 
 	motherBoard.registerKeyboard(*this);
 }
@@ -951,14 +1014,180 @@ void Keyboard::setFocus(bool newFocus, EmuTime time)
 void Keyboard::signalMSXEvent(const Event& event,
                               EmuTime time) noexcept
 {
-	if (getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
-		const auto& keyEvent = get_event<KeyEvent>(event);
-		if (keyEvent.getRepeat()) return;
+	bool isKeyEvent = getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP);
+	if (isKeyEvent && get_event<KeyEvent>(event).getRepeat()) return;
+
+	if (isKeyEvent) {
 		// Ignore possible console on/off events:
 		// we do not re-scan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
 		msxKeyEventQueue.process_asap(time, event);
+	} else {
+		// joystick and mouse buttons in the key mapping
+		processKeyMapping(event, time);
+	}
+}
+
+// The kbd_key_mapping_<family> setting: a dict with as keys an MSX key name or
+// MATRIX_<row>_<bit>, and as values a list of host inputs (BooleanInput). Names
+// that this MSX doesn't have make the entry ignored, so only the syntax is
+// checked.
+void Keyboard::parseKeyMapping(const TclObject& value)
+{
+	std::vector<KeyMapping> newMappings;
+
+	auto& interp = commandController.getInterpreter();
+	auto n = value.getListLength(interp);
+	if (n & 1) {
+		throw CommandException("Need an even number of elements");
+	}
+	for (decltype(n) i = 0; i < n; i += 2) {
+		std::string_view name = value.getListIndex(interp, i + 0).getString();
+		if (name.empty() || !std::ranges::all_of(name, [](char c) {
+				return (('A' <= c) && (c <= 'Z')) || (('a' <= c) && (c <= 'z')) ||
+				       (('0' <= c) && (c <= '9')) || (c == '_');
+			})) {
+			throw CommandException("Invalid MSX key name: \"", name, '"');
+		}
+		KeyMapping mapping;
+		mapping.msxKeyName = name;
+		for (const auto& input : parseBooleanInputList(interp, value.getListIndex(interp, i + 1))) {
+			mapping.inputs.push_back({input});
+		}
+
+		// like in a Tcl dict, a later entry for a key replaces an earlier one
+		std::erase_if(newMappings, [&](const KeyMapping& m) { return m.msxKeyName == name; });
+
+		std::tie(mapping.key, mapping.onlyWithKeypadEnabled) = getMappedKeyPosition(name);
+		if (!mapping.key.isValid()) continue; // this MSX doesn't have this key
+		newMappings.push_back(std::move(mapping));
+	}
+
+	// only change the mapping when parsing was fully successful
+	releaseMappedKeys(getCurrentTime());
+	keyMappings = std::move(newMappings);
+}
+
+// A key name of this MSX, or MATRIX_<row>_<bit>. Or a keypad key that this MSX
+// doesn't have: then the second value is true, and the position is the one on
+// the keyboards of this computer family that have a keypad (only used when the
+// kbd_numkeypad_always_enabled setting is on).
+std::pair<KeyMatrixPosition, bool> Keyboard::getMappedKeyPosition(std::string_view name) const
+{
+	if (name.starts_with("MATRIX_")) {
+		auto rowBit = name.substr(7);
+		if (auto sep = rowBit.find('_'); sep != std::string_view::npos) {
+			auto row = StringOp::stringToBase<10, unsigned>(rowBit.substr(0, sep));
+			auto bit = StringOp::stringToBase<10, unsigned>(rowBit.substr(sep + 1));
+			if (row && bit &&
+			    (*row < KeyMatrixPosition::NUM_ROWS) &&
+			    (*bit < KeyMatrixPosition::NUM_COLS)) {
+				return {KeyMatrixPosition(*row, *bit), false};
+			}
+		}
+		return {};
+	}
+	if (auto pos = keyboardInfo.getMsxKeyPosition(name); pos.isValid()) {
+		return {pos, false};
+	}
+	const auto& keypad = keypadPositions[matrixType];
+	if (auto it = std::ranges::find(keypad, name, &KeypadPosition::msxKeyName);
+	    it != keypad.end()) {
+		return {it->pos, true};
+	}
+	return {};
+}
+
+/*
+ * Process a host input for the key mapping.
+ * @return True iff the event is used by the key mapping (then it must not be
+ *         processed further).
+ */
+bool Keyboard::processKeyMapping(const Event& event, EmuTime time)
+{
+	if (keyMappings.empty()) return false;
+
+	// In CHARACTER mode a host key that types a character keeps typing it.
+	bool ignorePress = false;
+	if (getType(event) == EventType::KEY_DOWN) {
+		ignorePress = getCharacter(get_event<KeyEvent>(event)).first != 0;
+	}
+
+	bool keypadEnabled = keyboardSettings.getAlwaysEnableKeypad();
+	auto isUsed = [&](const KeyMapping& mapping) {
+		return !mapping.onlyWithKeypadEnabled || keypadEnabled;
+	};
+	auto getJoyDeadThreshold = [&](JoystickId joyId) {
+		return joystickManager.getJoyDeadThreshold(joyId);
+	};
+	bool used = false;
+	for (auto& mapping : keyMappings) {
+		if (!isUsed(mapping)) continue;
+		for (auto& in : mapping.inputs) {
+			auto onOff = match(in.input, event, getJoyDeadThreshold);
+			if (!onOff) continue;
+			if (*onOff) {
+				if (ignorePress) continue;
+				used = true;
+			} else {
+				// (a release is only used after a press that was)
+				if (!in.active) continue;
+				used = true;
+			}
+			in.active = *onOff;
+		}
+	}
+	if (!used) return false;
+
+	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> newDown = {};
+	for (const auto& mapping : keyMappings) {
+		if (std::ranges::any_of(mapping.inputs, &KeyMapping::Input::active)) {
+			newDown[mapping.key.getRow()] |= mapping.key.getMask();
+		}
+	}
+	setMappedKeys(time, newDown);
+	return true;
+}
+
+// Press and release MSX keys, so that the keys pressed via the key mapping
+// become 'newDown' (a set bit is a pressed key).
+void Keyboard::setMappedKeys(EmuTime time, const std::array<uint8_t, KeyMatrixPosition::NUM_ROWS>& newDown)
+{
+	for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
+		uint8_t changed = mappedKeysDown[row] ^ newDown[row];
+		for (auto bit : xrange(KeyMatrixPosition::NUM_COLS)) {
+			if (changed & (1 << bit)) {
+				pressMappedKey(time, KeyMatrixPosition(row, bit), (newDown[row] >> bit) & 1);
+			}
+		}
+	}
+	mappedKeysDown = newDown;
+}
+
+void Keyboard::pressMappedKey(EmuTime time, KeyMatrixPosition pos, bool down)
+{
+	// The lock keys keep their lock state.
+	using enum KeyInfo::Modifier;
+	if (pos == modifierPos[CODE]) {
+		processCodeKanaChange(time, down);
+	} else if (pos == modifierPos[GRAPH]) {
+		processGraphChange(time, down);
+	} else {
+		if (down && (pos == modifierPos[CAPS])) {
+			locksOn ^= KeyInfo::CAPS_MASK;
+		}
+		updateKeyMatrix(time, down, pos);
+	}
+}
+
+// Release the MSX keys pressed via the key mapping, and forget which of its
+// inputs are active (when the mapping changes, or on focus loss).
+void Keyboard::releaseMappedKeys(EmuTime time)
+{
+	setMappedKeys(time, {});
+	for (auto& mapping : keyMappings) {
+		for (auto& in : mapping.inputs) in.active = false;
 	}
 }
 
@@ -980,11 +1209,11 @@ void Keyboard::stopReplay(EmuTime time) noexcept
 void Keyboard::syncHostKeyMatrix(EmuTime time)
 {
 	if (!focus) {
-		// On focus loss, all keys are released in the matrix. Clear host-side Shift
-		// tracking to match this state and prevent subsequent events from being dropped.
+		// On focus loss, all keys are released in the matrix. Also forget
+		// the host inputs of the key mapping that are held, to match this
+		// state and prevent subsequent events from being dropped.
 		// Only clear when !focus so that stopReplay() can preserve held keys.
-		leftShiftPressed = false;
-		rightShiftPressed = false;
+		releaseMappedKeys(time);
 	}
 	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
 		changeKeyMatrixEvent(time, uint8_t(row), hkm);
@@ -1073,6 +1302,21 @@ static bool isTextWithoutKey(const KeyEvent& keyEvent)
 }
 
 /*
+ * The release of the CODE/KANA key that pressUnicodeByUser() pressed to toggle
+ * its lock (see MsxKeyEventQueue::executeUntil()): a release event without
+ * scancode of the right ALT key. (In older savestates: of the key of the
+ * former kbd_code_kana_host_key setting, so one of the keys it allowed.)
+ */
+static bool isCodeKanaRelease(bool down, const KeyEvent& keyEvent)
+{
+	return !down && isTextWithoutKey(keyEvent) &&
+	       (keyEvent.getKeyCode() == one_of(
+	            SDLK_RALT, SDLK_APPLICATION, SDLK_RCTRL, SDLK_HENKAN,
+	            SDLK_MUHENKAN, SDLK_RSHIFT, SDLK_RGUI, SDLK_LGUI,
+	            SDLK_HELP, SDLK_UNDO, SDLK_END, SDLK_PAGEUP, SDLK_PAGEDOWN));
+}
+
+/*
  * @return True iff a release event for the CODE/KANA key must be scheduled.
  */
 bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
@@ -1131,56 +1375,48 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		      key.toString().c_str());
 	}
 
-	// Process dead keys.
-	if (mode == KeyboardSettings::MappingMode::CHARACTER) {
-		const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
-		for (auto n : xrange(3)) {
-			if (key.keycode == keyboardSettings.getDeadKeyHostKey(n)) {
-				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
-				if (deadKey.isValid()) {
-					updateKeyMatrix(time, down, deadKey.pos);
-					return false;
-				}
-			}
+	if ((keyEvent.getScanCode() == SDL_SCANCODE_GRAVE) && (hostKeyMap == HostKeyMap::JP)) {
+		// To work around a Japanese keyboard Kanji mode bug. (Multi-character
+		// input makes a keydown event without keyrelease message.)
+		return false;
+	}
+
+	if (isCodeKanaRelease(down, keyEvent)) {
+		updateKeyMatrix(time, false, modifierPos[KeyInfo::Modifier::CODE]);
+		return false;
+	}
+
+#ifdef __APPLE__
+	if ((key.mod & SDL_KMOD_GUI) &&
+	    (((mode == KeyboardSettings::MappingMode::POSITIONAL) && (key.scancode == SDL_SCANCODE_I)) ||
+	     ((mode != KeyboardSettings::MappingMode::POSITIONAL) && (key.keycode == SDLK_I)))) {
+		// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
+		processKeyMapping(down ? Event(KeyDownEvent::create(SDLK_INSERT))
+		                       : Event(KeyUpEvent::create(SDLK_INSERT)), time);
+		return false;
+	}
+#endif
+
+	if constexpr (!SANE_CAPSLOCK_BEHAVIOR) {
+		if (key.keycode == SDLK_CAPSLOCK) {
+			// Every CAPS lock event is a key press (see
+			// SANE_CAPSLOCK_BEHAVIOR): press it now, and release it
+			// a bit later (see executeUntil()).
+			processKeyMapping(KeyDownEvent::create(SDLK_CAPSLOCK), time);
+			setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
+			return false;
 		}
 	}
 
-	if (key.keycode == SDLK_CAPSLOCK) {
-		processCapslockEvent(time, down);
+	if (processKeyMapping(event, time)) return false;
+
+	if (isTextWithoutKey(keyEvent) &&
+	    (mode != KeyboardSettings::MappingMode::CHARACTER)) {
+		// Text without a key (see isTextWithoutKey()) is only used
+		// in CHARACTER mode.
 		return false;
-	} else if (key.keycode == keyboardSettings.getCodeKanaHostKey()) {
-		processCodeKanaChange(time, down);
-		return false;
-	} else if (key.keycode == SDLK_LALT) {
-		processGraphChange(time, down);
-		return false;
-	// KEYPAD_RETURN and KEYPAD_COMMA exist at the same physical position on the host side.
-	} else if ((key.keycode == SDLK_KP_ENTER) || (key.keycode == SDLK_KP_COMMA)) {
-		processKeypadEnterKey(time, down);
-		return false;
-	} else if (combinedShiftFlag && ((key.keycode == SDLK_LSHIFT) || (key.keycode == SDLK_RSHIFT))) {
-		if (key.keycode == SDLK_LSHIFT) leftShiftPressed= down;
-		if (key.keycode == SDLK_RSHIFT) rightShiftPressed = down;
-		if (down && (leftShiftPressed!= rightShiftPressed)) {
-			processSdlKey(time, SDLKey::create(SDLK_LSHIFT,SDL_SCANCODE_LSHIFT, down, key.mod));
-		} else if (!down && !leftShiftPressed && !rightShiftPressed) {
-			processSdlKey(time, SDLKey::create(SDLK_LSHIFT,SDL_SCANCODE_LSHIFT, down, key.mod));
-		}
-		return false;
-	} else {
-		if (isTextWithoutKey(keyEvent) &&
-		    (mode != KeyboardSettings::MappingMode::CHARACTER)) {
-			// Text without a key (see isTextWithoutKey()) is only used
-			// in CHARACTER mode.
-			return false;
-		}
-		if ((keyEvent.getScanCode() == SDL_SCANCODE_GRAVE) && (hostKeyMap == HostKeyMap::JP)) {
-			// To work around a Japanese keyboard Kanji mode bug. (Multi-character
-			// input makes a keydown event without keyrelease message.)
-			return false;
-		}
-		return processKeyEvent(time, down, keyEvent);
 	}
+	return processKeyEvent(time, down, keyEvent);
 }
 
 /*
@@ -1218,31 +1454,10 @@ void Keyboard::processGraphChange(EmuTime time, bool down)
 	updateKeyMatrix(time, down, modifierPos[KeyInfo::Modifier::GRAPH]);
 }
 
-/*
- * Process a change (up or down event) of the CAPSLOCK key
- * It presses or releases the key in the MSX keyboard matrix
- * and changes the capslock state in case of a press
- */
-void Keyboard::processCapslockEvent(EmuTime time, bool down)
-{
-	if (SANE_CAPSLOCK_BEHAVIOR) {
-		debug("Changing CAPS lock state according to SDL request\n");
-		if (down) {
-			locksOn ^= KeyInfo::CAPS_MASK;
-		}
-		updateKeyMatrix(time, down, modifierPos[KeyInfo::Modifier::CAPS]);
-	} else {
-		debug("Pressing CAPS lock and scheduling a release\n");
-		locksOn ^= KeyInfo::CAPS_MASK;
-		updateKeyMatrix(time, true, modifierPos[KeyInfo::Modifier::CAPS]);
-		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
-	}
-}
-
 void Keyboard::executeUntil(EmuTime time)
 {
-	debug("Releasing CAPS lock\n");
-	updateKeyMatrix(time, false, modifierPos[KeyInfo::Modifier::CAPS]);
+	// (only used without SANE_CAPSLOCK_BEHAVIOR, see processQueuedEvent())
+	processKeyMapping(KeyUpEvent::create(SDLK_CAPSLOCK), time);
 }
 
 bool Keyboard::signalEvent(const Event& event)
@@ -1254,53 +1469,10 @@ bool Keyboard::signalEvent(const Event& event)
 	return false;
 }
 
-void Keyboard::processKeypadEnterKey(EmuTime time, bool down)
-{
-	// (with the comma mode this is the NUMPAD_COMMA key, which not every
-	// MSX has, see processSdlKey())
-	processSdlKey(time,
-		keyboardSettings.getKpEnterMode() == KeyboardSettings::KpEnterMode::MSX_KP_COMMA ?
-		SDLKey::create(SDLK_KP_COMMA, SDL_SCANCODE_KP_COMMA, down) :
-		SDLKey::create(SDLK_KP_ENTER, SDL_SCANCODE_KP_ENTER, down));
-}
-
-// Host keys for MSX keys that not every MSX has: the numeric keypad, and the
-// CANCEL and EXECUTE keys. They are mapped by the name of the MSX key: if the
-// keyboard_info file of this MSX doesn't have that key, the host key does
-// nothing (except for the keypad when the kbd_numkeypad_always_enabled
-// setting is on: then the position in the key matrix table is used).
-struct NamedHostKey {
-	SDL_Keycode keycode;
-	SDL_Scancode scancode;
-	std::string_view msxKeyName;
-	bool keypad;
-};
-static constexpr std::array namedHostKeys = {
-	NamedHostKey{SDLK_KP_0,        SDL_SCANCODE_KP_0,        "NUMPAD_0",        true},
-	NamedHostKey{SDLK_KP_1,        SDL_SCANCODE_KP_1,        "NUMPAD_1",        true},
-	NamedHostKey{SDLK_KP_2,        SDL_SCANCODE_KP_2,        "NUMPAD_2",        true},
-	NamedHostKey{SDLK_KP_3,        SDL_SCANCODE_KP_3,        "NUMPAD_3",        true},
-	NamedHostKey{SDLK_KP_4,        SDL_SCANCODE_KP_4,        "NUMPAD_4",        true},
-	NamedHostKey{SDLK_KP_5,        SDL_SCANCODE_KP_5,        "NUMPAD_5",        true},
-	NamedHostKey{SDLK_KP_6,        SDL_SCANCODE_KP_6,        "NUMPAD_6",        true},
-	NamedHostKey{SDLK_KP_7,        SDL_SCANCODE_KP_7,        "NUMPAD_7",        true},
-	NamedHostKey{SDLK_KP_8,        SDL_SCANCODE_KP_8,        "NUMPAD_8",        true},
-	NamedHostKey{SDLK_KP_9,        SDL_SCANCODE_KP_9,        "NUMPAD_9",        true},
-	NamedHostKey{SDLK_KP_MULTIPLY, SDL_SCANCODE_KP_MULTIPLY, "NUMPAD_ASTERISK", true},
-	NamedHostKey{SDLK_KP_PLUS,     SDL_SCANCODE_KP_PLUS,     "NUMPAD_PLUS",     true},
-	NamedHostKey{SDLK_KP_DIVIDE,   SDL_SCANCODE_KP_DIVIDE,   "NUMPAD_SLASH",    true},
-	NamedHostKey{SDLK_KP_MINUS,    SDL_SCANCODE_KP_MINUS,    "NUMPAD_MINUS",    true},
-	NamedHostKey{SDLK_KP_COMMA,    SDL_SCANCODE_KP_COMMA,    "NUMPAD_COMMA",    true},
-	NamedHostKey{SDLK_KP_PERIOD,   SDL_SCANCODE_KP_PERIOD,   "NUMPAD_PERIOD",   true},
-	NamedHostKey{SDLK_LGUI,        SDL_SCANCODE_LGUI,        "CANCEL",          false},
-	NamedHostKey{SDLK_RGUI,        SDL_SCANCODE_RGUI,        "EXECUTE",         false},
-};
-
 /*
- * Process an SDL key press/release event. It concerns a
- * special key (e.g. SHIFT, UP, DOWN, F1, F2, ...) that can not
- * be unambiguously derived from a unicode character;
- *  Map the SDL key to an equivalent MSX key press/release event
+ * Process an SDL key press/release event of a host key that is not in the key
+ * mapping and that isn't processed as a unicode character (e.g. in KEY mode,
+ * or CTRL+character): map it by the built-in tables of the character keys.
  */
 void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 {
@@ -1310,20 +1482,6 @@ void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 	};
 
 	bool positional = keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL;
-	if (auto it = std::ranges::find_if(namedHostKeys, [&](const NamedHostKey& k) {
-			return positional ? (k.scancode == key.scancode) : (k.keycode == key.keycode);
-		});
-	    it != namedHostKeys.end()) {
-		if (auto pos = keyboardInfo.getMsxKeyPosition(it->msxKeyName); pos.isValid()) {
-			process(pos);
-			return;
-		}
-		if (!it->keypad || !keyboardSettings.getAlwaysEnableKeypad()) {
-			return; // this MSX doesn't have this key
-		}
-		// otherwise: the position in the key matrix table (below)
-	}
-
 	if (positional) {
 		if ((key.keycode == SDLK_RIGHTBRACKET) && (key.scancode == SDL_SCANCODE_BACKSLASH))
 		{
@@ -1385,68 +1543,11 @@ void Keyboard::updateKeyMatrix(EmuTime time, bool down, KeyMatrixPosition pos)
  */
 bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent)
 {
-	auto mode = keyboardSettings.getMappingMode();
-
-	auto keyCode = keyEvent.getKeyCode();
 	auto scanCode = keyEvent.getScanCode();
 	auto key = keyEvent.getKey();
 
-	bool isOnKeypad =
-		(SDLK_KP_1 <= keyCode && keyCode <= SDLK_KP_0) || // note order is 1-9,0
-		(keyCode == one_of(SDLK_KP_PERIOD, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY,
-		                   SDLK_KP_MINUS,  SDLK_KP_PLUS));
-
-#ifdef __APPLE__
-	bool positional = mode == KeyboardSettings::MappingMode::POSITIONAL;
-	if ((key.mod & SDL_KMOD_GUI) &&
-	    (( positional && (keyEvent.getScanCode() == SDL_SCANCODE_I)) ||
-	     (!positional && (keyCode == SDLK_I)))) {
-		// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
-		keyCode = SDLK_INSERT;
-		key.keycode = SDLK_INSERT;
-		key.scancode = SDL_SCANCODE_INSERT;
-		key.mod &= ~SDL_KMOD_GUI;
-	}
-#endif
-
 	if (down) {
-		UnicodeKeymap::KeyInfo keyInfo;
-		unsigned unicode;
-		if (isOnKeypad ||
-		    mode == one_of(KeyboardSettings::MappingMode::KEY,
-		                   KeyboardSettings::MappingMode::POSITIONAL)) {
-			// User entered a key on numeric keypad or the driver is in
-			// KEY/POSITIONAL mapping mode.
-			// First option (keypad) maps to same unicode as some other key
-			// combinations (e.g. digit on main keyboard or TAB/DEL).
-			// Use unicode to handle the more common combination and use direct
-			// matrix to matrix mapping for the exceptional cases (keypad).
-			// TODO: idea: in CHARACTER mode, on an MSX that doesn't have the
-			// keypad key (see namedHostKeys), use the unicode instead, so
-			// that the keypad still types its character (via another key)
-			// instead of nothing.
-			unicode = 0;
-		} else {
-			unicode = keyEvent.getUnicode();
-			if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
-				// Control character in C0 or C1 range.
-				// Use SDL's interpretation instead.
-				unicode = 0;
-			} else if (utf8::is_pua(unicode)) {
-				// Code point in Private Use Area: undefined by Unicode,
-				// so we rely on SDL's interpretation instead.
-				// For example the Mac's cursor keys are in this range.
-				unicode = 0;
-			} else {
-				const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
-				keyInfo = unicodeKeymap.get(unicode);
-				if (!keyInfo.isValid()) {
-					// Unicode does not exist in our mapping; try to process
-					// the key using its keycode instead.
-					unicode = 0;
-				}
-			}
-		}
+		auto [unicode, keyInfo] = getCharacter(keyEvent);
 
 		// Remember which unicode character is currently derived
 		// from this SDL key. It must be stored here (during key-press)
@@ -1501,6 +1602,56 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 		}
 		return false;
 	}
+}
+
+/*
+ * The character that a host key press types on the MSX, with the MSX key
+ * combination for it. Or 0 when the key is mapped by its keycode instead: in
+ * KEY and POSITIONAL mode, for a key without a character (or one this MSX
+ * can't type), and for the numeric keypad.
+ */
+std::pair<unsigned, KeyInfo> Keyboard::getCharacter(const KeyEvent& keyEvent) const
+{
+	auto keyCode = keyEvent.getKeyCode();
+	bool isOnKeypad =
+		(SDLK_KP_1 <= keyCode && keyCode <= SDLK_KP_0) || // note order is 1-9,0
+		(keyCode == one_of(SDLK_KP_PERIOD, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY,
+		                   SDLK_KP_MINUS,  SDLK_KP_PLUS));
+	if (isOnKeypad ||
+	    keyboardSettings.getMappingMode() == one_of(KeyboardSettings::MappingMode::KEY,
+	                                                KeyboardSettings::MappingMode::POSITIONAL)) {
+		// User entered a key on numeric keypad or the driver is in
+		// KEY/POSITIONAL mapping mode.
+		// First option (keypad) maps to same unicode as some other key
+		// combinations (e.g. digit on main keyboard or TAB/DEL).
+		// Use unicode to handle the more common combination and use direct
+		// matrix to matrix mapping for the exceptional cases (keypad).
+		// TODO: idea: in CHARACTER mode, on an MSX that doesn't have the
+		// keypad key (see the key mapping), use the unicode instead, so
+		// that the keypad still types its character (via another key)
+		// instead of nothing.
+		return {0, {}};
+	}
+	unsigned unicode = keyEvent.getUnicode();
+	if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
+		// Control character in C0 or C1 range.
+		// Use SDL's interpretation instead.
+		return {0, {}};
+	}
+	if (utf8::is_pua(unicode)) {
+		// Code point in Private Use Area: undefined by Unicode,
+		// so we rely on SDL's interpretation instead.
+		// For example the Mac's cursor keys are in this range.
+		return {0, {}};
+	}
+	const auto& unicodeKeymap = keyboardInfo.getUnicodeKeymap();
+	auto keyInfo = unicodeKeymap.get(unicode);
+	if (!keyInfo.isValid()) {
+		// Unicode does not exist in our mapping; try to process
+		// the key using its keycode instead.
+		return {0, {}};
+	}
+	return {unicode, keyInfo};
 }
 
 void Keyboard::processCmd(Interpreter& interp, std::span<const TclObject> tokens, bool up)
@@ -1922,8 +2073,9 @@ void Keyboard::MsxKeyEventQueue::processFront(EmuTime time, bool late)
 	if (insertCodeKanaRelease) {
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
-		// before any of the other events in the queue
-		eventQueue.emplace_front(KeyUpEvent::create(keyboard.keyboardSettings.getCodeKanaHostKey()));
+		// before any of the other events in the queue (see
+		// isCodeKanaRelease()).
+		eventQueue.emplace_front(KeyUpEvent::create(SDLK_RALT));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {
@@ -1940,8 +2092,8 @@ void Keyboard::MsxKeyEventQueue::processFront(EmuTime time, bool late)
 			}
 			if (std::exchange(keyboard.codeKanaTemporarilyPressed, false)) {
 				// Release the tapped CODE/KANA key, before any of the
-				// other events in the queue.
-				eventQueue.emplace_front(KeyUpEvent::create(keyboard.keyboardSettings.getCodeKanaHostKey()));
+				// other events in the queue (see isCodeKanaRelease()).
+				eventQueue.emplace_front(KeyUpEvent::create(SDLK_RALT));
 			}
 		} else {
 			// it's possible clear() has been called
