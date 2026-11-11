@@ -11,6 +11,7 @@
 
 namespace openmsx {
 
+class BooleanSetting;
 class V9990;
 class V9990Rasterizer;
 class Setting;
@@ -40,6 +41,7 @@ public:
 	void setColorMode(V9990ColorMode mode, EmuTime time) override;
 	void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
 	                   EmuTime time) override;
+	void paletteSnow(int index, EmuTime time) override;
 	void updateSuperimposing(bool enabled, EmuTime time) override;
 	void updateBackgroundColor(int index, EmuTime time) override;
 	void updateScrollAX(EmuTime time) override;
@@ -87,6 +89,10 @@ private:
 	/** The Rasterizer
 	  */
 	const std::unique_ptr<V9990Rasterizer> rasterizer;
+
+	/** Show palette snow (shared by all V9990 renderers).
+	  */
+	std::shared_ptr<BooleanSetting> paletteSnowSetting;
 
 	/** Frameskip
 	  */

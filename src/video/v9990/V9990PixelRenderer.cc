@@ -10,6 +10,7 @@
 #include "RenderSettings.hh"
 #include "VideoSystem.hh"
 
+#include "BooleanSetting.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "IntegerSetting.hh"
@@ -35,6 +36,11 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, rasterizer(vdp.getReactor().getDisplay().
 	                getVideoSystem().createV9990Rasterizer(vdp))
+	, paletteSnowSetting(vdp.getMotherBoard().getSharedStuff<BooleanSetting>(
+		"v9990_palette_snow",
+		vdp.getCommandController(), "v9990_palette_snow",
+		"Show the stray dots ('snow') a real V9990 shows when its "
+		"palette is written while the screen is drawn", true))
 {
 	reset(vdp.getMotherBoard().getCurrentTime());
 
@@ -274,6 +280,32 @@ void V9990PixelRenderer::updatePalette(int index, uint8_t r, uint8_t g, uint8_t 
 	}
 	rasterizer->setPalette(index, r, g, b, ys);
 }
+// Measured on a real V9990 (Tecnobytes PowerGraph, B1, NTSC): every byte
+// written to the palette data port while the beam is in the picture or the
+// border puts a dot at the beam's position, of the colour being written. It
+// doesn't matter which entry is written, whether any pixel uses it, or
+// whether the value changes. Writes during the horizontal or vertical blank
+// show nothing. The colour is taken as the written entry's colour after the
+// byte (all tests wrote equal R, G and B); the dot as one dot wide.
+void V9990PixelRenderer::paletteSnow(int index, EmuTime time)
+{
+	if (!drawFrame || !paletteSnowSetting->getBoolean()) return;
+
+	int ticks = vdp.getUCTicksThisFrame(time);
+	int x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
+	int y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+	auto visible = [](int pos, const V9990DisplayPeriod& period) {
+		int start = period.blank;
+		int end = start + period.border1 + period.display + period.border2;
+		return (start <= pos) && (pos < end);
+	};
+	if (!visible(x, vdp.getHorizontalTiming()) ||
+	    !visible(y, vdp.getVerticalTiming())) return;
+
+	auto [r, g, b, ys] = vdp.getPalette(index);
+	rasterizer->drawSnow(x, y, r, g, b);
+}
+
 void V9990PixelRenderer::updateSuperimposing(bool enabled, EmuTime time)
 {
 	sync(time);

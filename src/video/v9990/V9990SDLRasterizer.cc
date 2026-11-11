@@ -83,10 +83,28 @@ void V9990SDLRasterizer::frameStart()
 	// but still 240 lines per frame.
 	lineRenderTop = verTiming.blank + verTiming.border1 +
 	                (verTiming.display - SCREEN_HEIGHT) / 2;
+
+	snowDots.clear();
 }
 
 void V9990SDLRasterizer::frameEnd(EmuTime time)
 {
+	// Every line is drawn now: put the palette snow on top.
+	for (const auto& dot : snowDots) {
+		auto line = workFrame->getLineDirect(dot.y);
+		unsigned width = workFrame->getLineWidthDirect(dot.y);
+		if (width == 1) {
+			// a blank (border only) line: widen it
+			std::ranges::fill(line.first(dot.width), line[0]);
+			workFrame->setLineWidth(dot.y, dot.width);
+			width = dot.width;
+		}
+		// (the display mode can change within a frame)
+		unsigned x = (width == dot.width) ? dot.x : dot.x * width / dot.width;
+		if (x < width) line[x] = dot.color;
+	}
+	snowDots.clear();
+
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 	workFrame->init(
 	    vdp.isInterlaced() ? (vdp.getEvenOdd() ? RawFrame::FieldType::EVEN
@@ -344,6 +362,23 @@ void V9990SDLRasterizer::resetPalette()
 void V9990SDLRasterizer::setSuperimpose(bool /*enabled*/)
 {
 	resetPalette();
+}
+
+void V9990SDLRasterizer::drawSnow(int x, int y, uint8_t r, uint8_t g, uint8_t b)
+{
+	// Only remember the dot: the rest of its line isn't drawn yet.
+	int screenY = y - lineRenderTop;
+	int screenX = x - colZero;
+	if ((screenY < 0) || (screenY >= SCREEN_HEIGHT) ||
+	    (screenX < 0) || (screenX >= SCREEN_WIDTH * 8)) return;
+	unsigned width = vdp.getLineWidth();
+	if (width <= 1) return; // B5, B6: not supported
+	auto idx32768 = ((g & 31) << 10) | ((r & 31) << 5) | ((b & 31) << 0);
+	snowDots.push_back(SnowDot{
+		.y = unsigned(screenY),
+		.x = unsigned(V9990::UCtoX(screenX, displayMode)),
+		.width = width,
+		.color = palette32768[idx32768]});
 }
 
 bool V9990SDLRasterizer::isRecording() const

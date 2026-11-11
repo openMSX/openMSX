@@ -10,6 +10,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -51,6 +52,7 @@ public:
 	void drawDisplay(int fromX, int fromY, int toX, int toY,
 	                 int displayX,
 	                 int displayY, int displayYA, int displayYB) override;
+	void drawSnow(int x, int y, uint8_t r, uint8_t g, uint8_t b) override;
 	[[nodiscard]] bool isRecording() const override;
 
 	/** Fill the palettes.
@@ -128,6 +130,17 @@ private:
 	std::array<Pixel, 64> palette64;         // from index to host Pixel color
 	std::array<int16_t, 64> palette64_32768; // from index to 15bpp V9990 color
 	// invariant: palette64[i] == palette32768[palette64_32768[i]]
+
+	/** Palette snow dots for this frame. They're drawn at the end of the
+	  * frame, over what the frame shows there.
+	  */
+	struct SnowDot {
+		unsigned y;     // line in workFrame
+		unsigned x;     // pixel, for a line 'width' pixels wide
+		unsigned width; // line width when the dot was made
+		Pixel color;
+	};
+	std::vector<SnowDot> snowDots;
 
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.

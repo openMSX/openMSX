@@ -295,6 +295,7 @@ void V9990::writeIO(uint16_t port, uint8_t val, EmuTime time)
 			}
 			uint8_t& palPtr = regs[PALETTE_POINTER];
 			writePaletteRegister(palPtr, val, time);
+			renderer->paletteSnow(palPtr >> 2, time);
 			switch (palPtr & 3) {
 				case 0:  palPtr += 1; break; // red
 				case 1:  palPtr += 1; break; // green

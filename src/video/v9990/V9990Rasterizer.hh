@@ -94,6 +94,16 @@ public:
 		int fromX, int fromY, int toX, int toY,
 		int displayX, int displayY, int displayYA, int displayYB) = 0;
 
+	/** Put a "palette snow" dot on the screen: one dot of the current
+	  * display mode, drawn over whatever the frame shows there.
+	  * @param x  X coordinate of the dot in V9990 UC ticks.
+	  * @param y  Y coordinate of the dot in absolute lines.
+	  * @param r  Red component intensity (5 bits)
+	  * @param g  Green component intensity (5 bits)
+	  * @param b  Blue component intensity (5 bits)
+	  */
+	virtual void drawSnow(int x, int y, uint8_t r, uint8_t g, uint8_t b) = 0;
+
 	/** Is video recording active?
 	  */
 	[[nodiscard]] virtual bool isRecording() const = 0;
