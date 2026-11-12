@@ -40,6 +40,7 @@ class DebuggableEditor final : public ImGuiPart
 public:
 	explicit DebuggableEditor(ImGuiManager& manager_, std::string_view debuggableName, size_t index);
 	[[nodiscard]] std::string_view getDebuggableName() const { return {title.data(), debuggableNameSize}; }
+	[[nodiscard]] std::string_view getTitle() const { return title; }
 
 	void makeSnapshot(MSXMotherBoard& motherBoard);
 	void makeSnapshot(Debuggable& debuggable);

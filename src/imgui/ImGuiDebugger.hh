@@ -62,6 +62,8 @@ public:
 	DebuggableBitmapViewer& openBitmapViewer(std::string_view debuggableName);
 	// The first open hex editor for this debuggable, or else a newly opened one.
 	DebuggableEditor& openHexEditor(std::string_view debuggableName);
+	// Returns nullptr when there's no hex editor (anymore) with this title.
+	[[nodiscard]] DebuggableEditor* findHexEditor(std::string_view title);
 	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard,
 	                    ImGuiDisassembly* disassembly);
 
