@@ -285,7 +285,8 @@ public:
 	}
 
 	/** Undocumented: R#22 bit 7 (SDA) disables layer A and sprites,
-	  * bit 6 (SDB) disables layer B and sprites (P1 mode).
+	  * bit 6 (SDB) disables layer B and sprites (P1 mode). With both
+	  * bits set the sprites show again, on the backdrop.
 	  */
 	[[nodiscard]] bool isLayerADisabled() const {
 		return regs[SCROLL_CONTROL_BY1] & 0x80;

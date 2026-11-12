@@ -305,12 +305,21 @@ void V9990P1Converter::convertLine(
 	auto palA = subspan<16>(palette64, (offset & 0x03) << 4);
 	auto palB = subspan<16>(palette64, (offset & 0x0C) << 2);
 
-	// SDA/SDB: a disabled layer also disables sprites, so priority and
-	// 'info' don't matter; just draw the remaining layer (if any).
+	// SDA/SDB: one disabled layer also disables sprites, so priority and
+	// 'info' don't matter; just draw the remaining layer. With both layers
+	// disabled the sprites show again, alone on the backdrop (measured on
+	// a real V9990).
 	bool disableA = vdp.isLayerADisabled();
 	bool disableB = vdp.isLayerBDisabled();
 	if (disableA && disableB) {
 		std::fill_n(linePtr, displayWidth, bgCol);
+		if (drawSprites) {
+			std::ranges::fill(info, 0); // all background
+			unsigned spritePatternTable = vdp.getSpritePatternAddress(V9990DisplayMode::P1);
+			renderSprites<P1Policy>(
+				vram, spritePatternTable, palette64,
+				linePtr, info, displayX, displayEnd, displayY);
+		}
 		return;
 	} else if (disableA) {
 		renderPattern<P1BackgroundPolicy>(
