@@ -1,6 +1,6 @@
 # V9990: palette snow
 
-These are the hardware probe and the photos behind the palette snow.
+These are the hardware probes and the photos behind the palette snow.
 
 ## Files
 
@@ -13,10 +13,15 @@ These are the hardware probe and the photos behind the palette snow.
 | `palsnow_N_openmsx_after_fix.png` | Test N in openMSX after the fix. |
 | `palsnow2_K_powergraph.jpg` | PALSNOW2 test K (A-I) on a real V9990. |
 | `palsnow2_K_openmsx_after_fix.png` | PALSNOW2 test K in openMSX after the fix. |
+| `palread.z80` | PALREAD probe source: palette reads in place of writes. |
+| `palread_N_powergraph.jpg` | PALREAD test N (0-8) on a real V9990. |
+| `palread_2_openmsx_before_fix.png` | PALREAD test 2 in openMSX before reads snowed. |
+| `palread_N_openmsx_after_fix.png` | PALREAD test N in openMSX after the fix. |
 
 Test machine: a Hotbit (MSX1, 3.58 MHz Z80) with a Tecnobytes PowerGraph
-(real V9990), NTSC, photographed on a Sony CRT. The colour casts in the
-photos come from the camera: the white stripe also looks violet. A faint
+(real V9990), NTSC, photographed on a Sony PVM monitor in black-and-white
+mode, so the photos show brightness only. The colour casts in them come
+from the camera: the white stripe also looks violet. A faint
 horizontal line across the grey and white stripes, also in test 1, is not
 snow.
 
@@ -24,9 +29,10 @@ The openMSX screenshots come from a Panasonic FS-A1GT with
 `-ext video9000`, using `screenshot -raw`.
 
 Build the probes with sjasmplus (`sjasmplus palsnow.z80` writes
-`PALSNOW.COM`, `sjasmplus palsnow2.z80` writes `PALSNOW2.COM`). They are
-MSX-DOS .COM programs and are MSX1-safe. Keys 1-8 (and A-I in PALSNOW2)
-select a test; ESC returns to DOS.
+`PALSNOW.COM`, `sjasmplus palsnow2.z80` writes `PALSNOW2.COM`,
+`sjasmplus palread.z80` writes `PALREAD.COM`). They are MSX-DOS .COM
+programs and are MSX1-safe. Keys 1-8 (and A-I in PALSNOW2, 0-8 in
+PALREAD) select a test; ESC returns to DOS.
 
 ## Screen
 
@@ -82,10 +88,36 @@ palette in all of them. G and I settle it: the same black on screen snows
 in stripe 1 (a palette dot) and stays clean in stripe 0 (a YJK dot). So
 the write disturbs the palette's output, not the output mixer.
 
+## PALREAD: palette reads
+
+PALREAD uses PALSNOW's screen and reads the palette data port where
+PALSNOW writes it. Entries 4-63, which no pixel shows, hold R = n,
+G = n + 11, B = n + 22, so a wrong read would show. "ERR" at the top
+counts the reads that came back different from the palette. It stayed
+00000 in every test.
+
+| Test | What it does | Real V9990 |
+|------|--------------|------------|
+| 0 | table: lines from VR's rise to its fall; lines a 147-byte write burst and read burst take; entries 2, 3, 15 read in the blank | VR 50; write 18, read 17; P2 = 16 16 16, P3 = 31 31 31, P15 = 15 26 5 (all right) |
+| 1 | no palette access | clean |
+| 2 | entry 15 read, 3 bytes per line, from picture line 60 (every other line: the loop is longer than a line) | dots at a fixed x on the left of the picture |
+| 3 | the same, entry 2 (a shown colour) | dots, as 2 |
+| 4 | a 147-byte read burst at VR's rise | dots in the bottom border only |
+| 5 | the same burst 16 lines after VR's rise | clean |
+| 6 | read bursts for a whole frame, every other frame | dots in slanted bands over the picture, the grey stripe and the top border |
+| 7 | entries 0-63 read for a whole frame, every other frame | dots in the picture, the grey stripe and both borders |
+| 8 | PALSNOW test 7 (write bursts), the reference | dots everywhere |
+
+So reads snow at the same places as writes, and still return the right
+data. A read burst is not slower than a write burst, so the manual's "A
+WAIT signal is output till the data has been prepared" (section 12.1,
+p. 75) doesn't hold the CPU until a free slot: a read takes the palette
+RAM from the picture, as a write does.
+
 ## What this shows
 
-- Every byte written to the palette data port (P#1, port 61h) makes one
-  dot. Writing the palette pointer (R#14) makes none (inferred: tests 2
+- Every byte written to or read from the palette data port (P#1, port
+  61h) makes one dot (for reads, see below). Writing the palette pointer (R#14) makes none (inferred: tests 2
   and 3 write it once per line and show three dots per line, not four).
 - It doesn't matter which entry is written, whether any pixel uses it, or
   whether the value changes.
@@ -106,7 +138,12 @@ the write disturbs the palette's output, not the output mixer.
 
 - The dot's exact width.
 - Its colour when R, G and B differ: every test wrote equal R, G and B.
-- Whether palette reads also snow.
+- The colour of a read's dot. The photos show read dots as bright as
+  white write dots, but the monitor was in black-and-white mode, and a
+  small bright dot blows out to full white whatever its colour.
+- How many dots a read makes. Test 2's three reads per line show two
+  columns of dots, some doubled, where PALSNOW's three writes show three.
+  Maybe the chip prefetches the next byte after each read.
 - Whether writes in the horizontal blank snow.
 - PAL timing, the 512- and 640-wide modes and the P1 and P2 modes. Only
   B1 was tested.
