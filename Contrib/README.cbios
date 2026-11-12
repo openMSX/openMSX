@@ -1,5 +1,5 @@
-C-BIOS 0.29
-===========
+C-BIOS 0.31a
+============
 
 This software is a substitute BIOS which is can be used for running MSX
 emulators. It currently supports only execution of cartridge image ("ROMs").
@@ -8,7 +8,7 @@ Before you use it, you should read and accept the license (see below).
 On the C-BIOS web site, you can download newer versions, download the source
 code, and report bugs.
 
-http://cbios.sourceforge.net/
+https://cbios.github.io/
 
 
 License
@@ -217,6 +217,18 @@ ver 0.29  2018-02-18(CET)
             at 50Hz default interrupt frequency
 ver 0.29a 2018-09-23(CEST)
           * Fixed metadata in openMSX configs for EU machines
+ver 0.30  2026-11-10(CET)
+          * Many keyboard, screen editor and BIOS call fixes, measured
+            against real MSX machines; see CHANGELOG.md for the full list
+          * Website moved to https://cbios.github.io/, source to
+            https://github.com/cbios/cbios
+ver 0.31  2026-11-11(CET) "rodent infestation"
+          * Mouse, trackball, touch pad and paddle support
+          * Graphics cursor routines (MAPXYC, SETC, NSETCX and others) work
+            in all screen modes
+          * More BIOS fixes; see CHANGELOG.md for the full list
+ver 0.31a 2026-11-12(CET)
+          * openMSX configs: connect the PSG as in openMSX 19 and newer
 
 Special Thanks
 --------------
