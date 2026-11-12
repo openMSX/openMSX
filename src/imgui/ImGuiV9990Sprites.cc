@@ -366,6 +366,12 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 				}
 			}
 
+			// Disabled sprites also take one of the 16 slots of a line, so count all sprites.
+			std::array<uint8_t, LINES> perLine = {};
+			for (const auto& spr : sprites) {
+				for (auto i : xrange(16)) ++perLine[(spr.y + i) % LINES];
+			}
+
 			auto fullSize = zm * gl::vec2{float(width), float(LINES)};
 			im::Child("##screen", {0.0f, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto* drawList = ImGui::GetWindowDrawList();
@@ -378,10 +384,14 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 				bool hovered = ImGui::IsItemHovered();
 				auto hoverPos = hoveredCell(scrnPos, zm);
 				ImGui::SameLine();
+				spritesPerLineHistogram(showSpritesPerLine, perLine, 16, zm.y);
 
 				im::Group([&]{
 					spriteBoxSettings(drawBoundingBox, boundingBoxColor, boundingBoxOnAll);
 					ImGui::Checkbox("Max 16 sprites per line", &enableLimitPerLine);
+					spritesPerLineSettings(showSpritesPerLine, perLine, 16,
+						"\nDisabled sprites are counted too: they are not drawn, but do take "
+						"one of the 16 sprites per line.");
 				});
 
 				if (hovered) {

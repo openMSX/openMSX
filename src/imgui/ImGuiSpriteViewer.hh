@@ -55,6 +55,7 @@ private:
 	bool grid = true;
 	bool drawBoundingBox = true;
 	bool enableLimitPerLine = true;
+	bool showSpritesPerLine = false;
 	bool enableStopY = true;
 
 	gl::Texture patternTex {gl::Null{}}; // TODO also deallocate when needed
@@ -94,7 +95,8 @@ private:
 		PersistentElement{"boundingBox",         &ImGuiSpriteViewer::drawBoundingBox},
 		PersistentElement{"boundingBoxColor",    &ImGuiSpriteViewer::boundingBoxColor},
 		PersistentElement{"spritesPerLineLimit", &ImGuiSpriteViewer::enableLimitPerLine},
-		PersistentElement{"stopY",               &ImGuiSpriteViewer::enableStopY}
+		PersistentElement{"stopY",               &ImGuiSpriteViewer::enableStopY},
+		PersistentElement{"spritesPerLine",      &ImGuiSpriteViewer::showSpritesPerLine}
 	};
 };
 

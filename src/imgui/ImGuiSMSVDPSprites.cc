@@ -11,6 +11,7 @@
 
 #include "MSXMotherBoard.hh"
 
+#include "narrow.hh"
 #include "ranges.hh"
 #include "static_vector.hh"
 #include "xrange.hh"
@@ -21,6 +22,7 @@
 #include <array>
 #include <cassert>
 #include <cstring>
+#include <span>
 
 namespace openmsx {
 
@@ -377,10 +379,19 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			int spriteLine;
 			uint8_t flags;
 		};
+		// The number of sprites selected out of 'onLine' sprites on a line.
+		auto selectedCount = [&](int onLine, bool limitPerLine) {
+			return limitPerLine ? std::min(onLine, maxSprites) : onLine;
+		};
+		// Returns the number of sprites on the line, also those beyond the
+		// per-line limit: 'selected' has selectedCount() entries. Like on the
+		// hardware, the magnification test below uses the number of selected
+		// sprites, so with magnified sprites the result depends on 'limitPerLine'.
 		auto selectLine = [&](int line, bool limitPerLine, bool stopAtTerminator,
 		                      std::array<Selected, 64>& selected) -> int {
-			int count = 0;
+			int onLine = 0;
 			for (int sprite = 0; sprite < total; ++sprite) {
+				int count = selectedCount(onLine, limitPerLine);
 				int parseLine = line - 1;
 				int spriteY = vram[yAddress(sprite)];
 				if (stopAtTerminator && (spriteY == stopY)) break;
@@ -390,8 +401,8 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 					spriteY >>= 1;
 				}
 				if ((parseLine >= spriteY) && (parseLine < (spriteY + size))) {
-					if (!limitPerLine || (count < maxSprites)) {
-						Selected& s = selected[count];
+					if (!limitPerLine || (onLine < maxSprites)) {
+						Selected& s = selected[onLine];
 						int spriteLine = parseLine - spriteY;
 						s.sprite = sprite;
 						s.tile = spriteTile(sprite);
@@ -405,11 +416,11 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 							if (xShift) s.x -= 8;
 						}
 						s.spriteLine = spriteLine & 0x07;
-						++count;
 					}
+					++onLine;
 				}
 			}
-			return count;
+			return onLine;
 		};
 
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -484,7 +495,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 			}
 			std::array<Selected, 64> selected;
 			for (int line = 0; line < lines; ++line) {
-				int count = selectLine(line, true, canStopY, selected);
+				int count = selectedCount(selectLine(line, true, canStopY, selected), true);
 				for (int i = 0; i < count; ++i) {
 					if (selected[i].sprite != sprite) continue;
 					// Still counts for the per-line limit, but draws nothing.
@@ -582,9 +593,12 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 
 			// Per-line simulation, mirroring SMSVDPCore::selectSprites and
 			// drawSpritesTms9918Mode()/drawSpritesMode4().
+			std::array<uint8_t, 256> perLine = {};
 			for (int line = 0; line < lines; ++line) {
 				std::array<Selected, 64> selected;
-				int count = selectLine(line, enableLimitPerLine, !renderAfterStopY && canStopY, selected);
+				int onLine = selectLine(line, enableLimitPerLine, !renderAfterStopY && canStopY, selected);
+				int count = selectedCount(onLine, enableLimitPerLine);
+				perLine[line] = narrow<uint8_t>(onLine);
 				// draw in reverse order: the first selected sprite is on top
 				auto lineBuf = subspan<256>(screen, 256 * line);
 				for (int i = count - 1; i >= 0; --i) {
@@ -660,6 +674,8 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 				bool hovered = ImGui::IsItemHovered();
 				auto hoverPos = hoveredCell(scrnPos, gl::vec2(float(zm)));
 				ImGui::SameLine();
+				auto visibleLines = std::span(perLine).first(lines);
+				spritesPerLineHistogram(showSpritesPerLine, visibleLines, maxSprites, float(zm));
 
 				im::Group([&]{
 					spriteBoxSettings(drawBoundingBox, boundingBoxColor, boundingBoxOnAll);
@@ -667,6 +683,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 						auto maxStr = tmpStrCat("Max ", maxSprites, " sprites per line");
 						ImGui::Checkbox(maxStr.c_str(), &enableLimitPerLine);
 					}
+					spritesPerLineSettings(showSpritesPerLine, visibleLines, maxSprites);
 					im::Disabled(!canStopY, [&]{
 						ImGui::Checkbox("Show After Y=0xD0", &renderAfterStopY);
 						simpleToolTip("Also render the sprites from the Y=0xD0 terminator onwards. "
