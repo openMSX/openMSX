@@ -541,40 +541,4 @@ SymbolFile* SymbolManager::findFile(std::string_view filename)
 	}
 }
 
-std::string SymbolManager::getFileFilters()
-{
-	return "Auto-detect file type (*){.*},"
-	       "asMSX 0.x symbol files (*.sym){.sym},"
-	       "HiTech C link map files (*.map){.map},"
-	       "HiTech C symbol files (*.sym){.sym},"
-	       "NoICE command files (*.noi){.noi},"
-	       "pasmo symbol files (*.symbol *.publics *.sys){.symbol,.publics,.sys},"
-	       "tniASM 0.x symbol files (*.sym){.sym},"
-	       "tniASM 1.x symbol files (*.sym){.sym},"
-	       "vasm symbol files (*.sym){.sym},"
-	       "wlalink no$gmb symbol files (*.sym){.sym}";
-}
-
-SymbolFile::Type SymbolManager::getTypeForFilter(std::string_view filter)
-{
-	using enum SymbolFile::Type;
-	if (filter.starts_with("Auto")) {
-		return AUTO_DETECT;
-	} else if (filter.starts_with("asMSX")) {
-		return ASMSX;
-	} else if (filter.starts_with("HiTech C link")) {
-		return LINKMAP;
-	} else if (filter.starts_with("HiTech C symbol")) {
-		return HTC;
-	} else if (filter.starts_with("NoICE")) {
-		return NOICE;
-	} else if (filter.starts_with("vasm")) {
-		return VASM;
-	} else if (filter.starts_with("wlalink")) {
-		return WLALINK_NOGMB;
-	} else {
-		return GENERIC;
-	}
-}
-
 } // namespace openmsx

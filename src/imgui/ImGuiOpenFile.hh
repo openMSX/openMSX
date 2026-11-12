@@ -33,9 +33,6 @@ public:
 	                     zstring_view lastLocationHint = {},
 	                     Painter painter = Painter::MANAGER);
 
-	// should be called from within a callback of the methods above
-	static std::string getLastFilter();
-
 	[[nodiscard]] zstring_view iniName() const override { return "open file dialog"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;

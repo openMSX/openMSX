@@ -90,9 +90,6 @@ public:
 	[[nodiscard]] std::optional<uint16_t> lookupSymbol(std::string_view s) const;
 	[[nodiscard]] std::optional<uint16_t> parseSymbolOrValue(std::string_view s) const;
 
-	[[nodiscard]] static std::string getFileFilters();
-	[[nodiscard]] static SymbolFile::Type getTypeForFilter(std::string_view filter);
-
 //private:
 	// These should not be called directly, except by the unittest
 	[[nodiscard]] static std::optional<unsigned> isHexDigit(char c);

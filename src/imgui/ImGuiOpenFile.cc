@@ -163,10 +163,4 @@ void ImGuiOpenFile::doPaint()
 	}
 }
 
-std::string ImGuiOpenFile::getLastFilter()
-{
-	auto* fileDialog = ImGuiFileDialog::Instance();
-	return fileDialog->GetCurrentFilter();
-}
-
 } // namespace openmsx

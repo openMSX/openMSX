@@ -308,6 +308,22 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 	});
 }
 
+[[nodiscard]] static const char* typeDisplayName(SymbolFile::Type type)
+{
+	switch (type) {
+		using enum SymbolFile::Type;
+		case AUTO_DETECT:   return "Auto-detect file type";
+		case ASMSX:         return "asMSX 0.x symbol file";
+		case GENERIC:       return "Generic (pasmo, sjasm, tniASM)";
+		case HTC:           return "HiTech C symbol file";
+		case LINKMAP:       return "HiTech C link map file";
+		case NOICE:         return "NoICE command file";
+		case VASM:          return "vasm symbol file";
+		case WLALINK_NOGMB: return "wlalink no$gmb symbol file";
+		default: UNREACHABLE;
+	}
+}
+
 void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
@@ -318,12 +334,23 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 		if (ImGui::Button("Load symbol file...")) {
 			manager.openFile->selectFile(
 				"Select symbol file",
-				SymbolManager::getFileFilters(),
-				[this](const std::string& filename) {
-					auto type = SymbolManager::getTypeForFilter(ImGuiOpenFile::getLastFilter());
+				"Symbol files (*.sym *.map *.noi *.symbol *.publics *.sys){.sym,.map,.noi,.symbol,.publics,.sys}",
+				[this, type = loadType](const std::string& filename) {
 					loadFile(filename, SymbolManager::LoadEmpty::NOT_ALLOWED, type, {}, {});
 				});
 		}
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		im::Combo("##type", typeDisplayName(loadType), [&]{
+			for (auto type = SymbolFile::Type::FIRST;
+			     type < SymbolFile::Type::LAST;
+			     type = static_cast<SymbolFile::Type>(static_cast<int>(type) + 1)) {
+				if (ImGui::Selectable(typeDisplayName(type))) {
+					loadType = type;
+				}
+			}
+		});
+		simpleToolTip("The type of the symbol file that will be loaded");
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			std::optional<FileInfo> reloadAction;
