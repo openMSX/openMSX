@@ -859,11 +859,13 @@ V9990ColorMode V9990::getColorMode(uint8_t pal_ctrl) const
 			case 0x00: return BP2;
 			case 0x01: return BP4;
 			case 0x02:
-				switch (pal_ctrl & 0xC0) {
-					case 0x00: return BP6;
-					case 0x40: return BD8;
+				switch (pal_ctrl & 0xE0) {
+					case 0x00: case 0x20: return BP6;
+					case 0x40: case 0x60: return BD8;
 					case 0x80: return BYJK;
+					case 0xA0: return BYJKP;
 					case 0xC0: return BYUV;
+					case 0xE0: return BYUVP;
 				}
 				break;
 			case 0x03: return BD16;
