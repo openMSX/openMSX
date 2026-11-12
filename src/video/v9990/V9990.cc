@@ -202,6 +202,8 @@ uint8_t V9990::readIO(uint16_t port, EmuTime time)
 		break;
 
 	case PALETTE_DATA:
+		// A read takes the palette RAM from the picture, as a write does.
+		renderer->paletteSnow(regs[PALETTE_POINTER] >> 2, time);
 		if (!(regs[PALETTE_CONTROL] & 0x10)) {
 			uint8_t& palPtr = regs[PALETTE_POINTER];
 			switch (palPtr & 3) {

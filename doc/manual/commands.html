@@ -6356,11 +6356,12 @@ current MSX model can be:</p>
   <h3><a id="v9990_palette_snow">v9990_palette_snow</a></h3>
 
   <p>A real V9990 puts a stray dot ("snow") on the screen for every byte that
-  is written to its palette while the picture or the border is being drawn.
-  The dot shows at the beam's position, in the colour being written. Only dots
-  that take their colour from the palette snow: in the direct-colour bitmap
-  modes (BD8, BD16, YJK, YUV) only the border does. Software that only writes
-  the palette during the vertical blank shows no snow.</p>
+  is written to or read from its palette while the picture or the border is
+  being drawn. The dot shows at the beam's position, in the colour of the entry
+  being accessed. Only dots that take their colour from the palette snow: in
+  the direct-colour bitmap modes (BD8, BD16, YJK, YUV) only the border does.
+  Software that only accesses the palette during the vertical blank shows no
+  snow.</p>
 
   <div class="subsectiontitle">
     usage:

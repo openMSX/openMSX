@@ -317,6 +317,10 @@ bool V9990PixelRenderer::readsPalette(V9990ColorMode mode)
 // modes (BD8, BD16, BYJK, BYUV) stays clean. The colour is taken as the
 // written entry's colour after the byte (all tests wrote equal R, G and B);
 // the dot as one dot wide.
+// Reads of the palette data port snow at the same places (measured, with
+// the right data returned). Their colour can't be told apart on the photos;
+// the entry being read is used. Some reads seem to leave no dot (maybe the
+// chip prefetches the next byte); one dot per read is modelled.
 void V9990PixelRenderer::paletteSnow(int index, EmuTime time)
 {
 	if (!drawFrame || !paletteSnowSetting->getBoolean()) return;

@@ -69,12 +69,12 @@ public:
 	virtual void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
 	                        EmuTime time) = 0;
 
-	/** A byte was written to the palette data port (P#1). On a real
-	  * V9990 this puts a dot of the written entry's (new) colour on the
-	  * screen, at the beam's position, when the beam is in the picture or
-	  * the border ("palette snow").
-	  * @param index  The palette entry the byte was written to.
-	  * @param time   The moment of the write.
+	/** A byte was written to or read from the palette data port (P#1).
+	  * On a real V9990 this puts a dot of the accessed entry's colour
+	  * (after a write, the new one) on the screen, at the beam's position,
+	  * when the beam is in the picture or the border ("palette snow").
+	  * @param index  The palette entry the byte was written to or read from.
+	  * @param time   The moment of the access.
 	  */
 	virtual void paletteSnow(int index, EmuTime time) = 0;
 
