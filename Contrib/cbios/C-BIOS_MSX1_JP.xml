@@ -8,6 +8,7 @@
     <release_year>2010</release_year>
     <description>An MSX1 machine using C-BIOS, with an Japanese keyboard layout and 60Hz interrupt frequency.</description>
     <type>MSX</type>
+    <region>jp</region>
   </info>
 
   <CassettePort/>
@@ -18,7 +19,7 @@
       <ROM id="C-BIOS Main ROM JP">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>933719a975a62395068b0a251dd4395b67217630</sha1>
+          <sha1>5533121736ff66a6ac7425be6f746b83d6af1796</sha1>
           <filename>cbios_main_msx1_jp.rom</filename>
         </rom>
       </ROM>
@@ -26,7 +27,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>9fbbe400dbaf186aeba42e170d9424b032412c42</sha1>
+          <sha1>c5e80d3771919aff1af491a078b608438b801dee</sha1>
           <filename>cbios_logo_msx1.rom</filename>
         </rom>
       </ROM>

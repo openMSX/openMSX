@@ -8,6 +8,7 @@
     <release_year>2003</release_year>
     <description>An MSX1 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
     <type>MSX</type>
+    <region>eu</region>
   </info>
 
   <CassettePort/>
@@ -18,7 +19,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>baf2e9c69252fd9b350b488d89c71887b9d05eec</sha1>
+          <sha1>0d7f546f10ac11b3cdbf4da9941941c18aea2fef</sha1>
           <filename>cbios_main_msx1_eu.rom</filename>
         </rom>
       </ROM>
@@ -26,7 +27,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>9fbbe400dbaf186aeba42e170d9424b032412c42</sha1>
+          <sha1>c5e80d3771919aff1af491a078b608438b801dee</sha1>
           <filename>cbios_logo_msx1.rom</filename>
         </rom>
       </ROM>
