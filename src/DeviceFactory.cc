@@ -99,7 +99,9 @@
 #include "YamahaFDC.hh"
 #include "YamahaSKW01.hh"
 #include "MSXTimer.hh"
+#include "Y8960AdpcmMemory.hh"
 #include "Y8960Mixer.hh"
+#include "Y8960OPL2Device.hh"
 #include "Y8960SSGSDevice.hh"
 #include "Y8960OPLLDevice.hh"
 
@@ -347,6 +349,10 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<Y8960Mixer>(conf);
 	} else if (type == "Y8960-SSGS") {
 		result = std::make_unique<Y8960SSGSDevice>(conf);
+	} else if (type == "Y8960-ADPCM-RAM") {
+		result = std::make_unique<Y8960AdpcmMemory>(conf);
+	} else if (type == "Y8960-OPL2") {
+		result = std::make_unique<Y8960OPL2Device>(conf);
 	} else if (type == "Y8960-OPLL") {
 		result = std::make_unique<Y8960OPLLDevice>(conf);
 	} else {
