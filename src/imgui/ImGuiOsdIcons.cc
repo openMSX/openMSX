@@ -334,7 +334,8 @@ void ImGuiOsdIcons::paintConfigureIcons()
 						});
 					}
 
-					auto image = [&](IconInfo::Icon& ic, const char* id) {
+					auto image = [&](IconInfo::Icon IconInfo::* which, const char* id) {
+						auto& ic = icon.*which;
 						if (ic.tex.get()) {
 							ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size));
 							im::PopupContextItem(id, [&]{
@@ -349,18 +350,20 @@ void ImGuiOsdIcons::paintConfigureIcons()
 						}
 						if (ImGui::IsItemClicked()) {
 							manager.openFile->selectFile(
-								"Select image for icon", "PNG (*.png){.png}",
-								[this, &ic](const std::string& filename) {
-									ic.filename = filename;
+								"Select image for icon", {{"PNG (*.png)", "png"}},
+								// 'iconInfo' may have changed before the callback runs
+								[this, row, which](const std::string& filename) {
+									if (row >= narrow<int>(iconInfo.size())) return;
+									(iconInfo[row].*which).filename = filename;
 									iconInfoDirty = true;
 								});
 						}
 					};
 					if (ImGui::TableNextColumn()) { // true-image
-						image(icon.on, "##on");
+						image(&IconInfo::on, "##on");
 					}
 					if (ImGui::TableNextColumn()) { // false-image
-						image(icon.off, "##off");
+						image(&IconInfo::off, "##off");
 					}
 					if (ImGui::TableNextColumn()) { // expression
 						ImGui::SetNextItemWidth(-FLT_MIN);

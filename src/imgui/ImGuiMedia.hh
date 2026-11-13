@@ -23,6 +23,7 @@
 namespace openmsx {
 
 class CassettePlayer;
+struct FileFilter;
 class HardwareConfig;
 class RomInfo;
 
@@ -126,14 +127,14 @@ public:
 	static void printDatabase(const RomInfo& romInfo, const char* buf);
 	static bool selectMapperType(const char* label, RomType& romType);
 
-	static std::string diskFilter();
+	static FileFilter diskFilter();
 
 	void showMediaWindow(std::string_view mediaName);
 
 private:
 	bool selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width) const;
 	bool selectImage(ItemGroup& group, const std::string& title,
-	                 function_ref<std::string()> createFilter, zstring_view current,
+	                 function_ref<FileFilter()> createFilter, zstring_view current,
 	                 function_ref<std::string(const std::string&)> displayFunc = std::identity{},
 	                 const std::function<void()>& createNewCallback = {});
 	bool selectDirectory(ItemGroup& group, const std::string& title, zstring_view current,
