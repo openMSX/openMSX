@@ -4,6 +4,7 @@
 #include "V9990ModeEnum.hh"
 
 #include "EmuTime.hh"
+#include "function_ref.hh"
 
 #include <cstdint>
 #include <optional>
@@ -104,6 +105,17 @@ public:
 	  *              optional to disable the snow.
 	  */
 	virtual void setPaletteSnow(std::optional<int> index) = 0;
+
+	/** Does a part of a line get the color of at least one pixel from
+	  * the palette (the one that has "palette snow")?
+	  * @param line  The line (in VDP coordinates).
+	  * @param draw  Draws that part of the line, by calling
+	  *              drawBorder() and/or drawDisplay(). It's called
+	  *              twice, with different palettes. The result doesn't
+	  *              end up on the screen.
+	  */
+	[[nodiscard]] virtual bool isPaletteInUse(
+		int line, function_ref<void()> draw) = 0;
 
 	/** Is video recording active?
 	  */

@@ -9,6 +9,7 @@
 #include "Clock.hh"
 #include "IRQHelper.hh"
 #include "MSXDevice.hh"
+#include "Probe.hh"
 #include "Schedulable.hh"
 #include "SimpleDebuggable.hh"
 #include "TclCallback.hh"
@@ -588,6 +589,29 @@ private:
 
 	IRQHelper irq;
 
+	/** Signals each palette access (a read from or a write to the palette
+	  * data port) that causes "palette snow": at least one pixel on the
+	  * screen gets its color from the palette during the access. The
+	  * colors don't matter: snow in the color the pixel already had
+	  * also counts. The value is a list {x y index}:
+	  * the position of the beam, in pixels of the current display mode
+	  * and lines, relative to the top-left corner of the display area
+	  * (so negative in the left and top border), and the accessed
+	  * palette entry.
+	  */
+	struct PaletteSnowProbe final : ProbeBase {
+		PaletteSnowProbe(Debugger& debugger, std::string name);
+		[[nodiscard]] TclObject getValue() const override;
+		[[nodiscard]] TraceValue getTraceValue() const override;
+		void signal(int x_, int y_, int index_) {
+			x = x_; y = y_; index = index_;
+			notify();
+		}
+		int x = 0;
+		int y = 0;
+		int index = 0;
+	} paletteSnowProbe;
+
 	Display& display;
 
 	TclCallback   invalidRegisterReadCallback;
@@ -728,6 +752,11 @@ private:
 	  * @param time  Moment in emulated time to write register
 	  */
 	void writePaletteRegister(uint8_t reg, uint8_t val, EmuTime time);
+
+	/** The CPU accessed the palette data port: tell the renderer and
+	  * signal the probe.
+	  */
+	void paletteAccess(int index, EmuTime time);
 
 	/** Schedule a sync point at the start of the next line
 	 */

@@ -49,6 +49,10 @@ void V9990DummyRenderer::updateSuperimposing(
 {
 }
 
+bool V9990DummyRenderer::isPaletteInUse(EmuTime /*time*/)
+{
+	return false; // nothing is drawn
+}
 void V9990DummyRenderer::paletteSnow(int /*index*/, EmuTime /*time*/)
 {
 }

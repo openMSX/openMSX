@@ -79,6 +79,18 @@ public:
 	  */
 	virtual void paletteSnow(int index, EmuTime time) = 0;
 
+	/** Does an access to the palette data port at this moment cause
+	  * palette snow: does at least one of the pixels drawn during the
+	  * access get its color from the palette? That's not the case when
+	  * the beam is in the blanking or when the pixels there have a
+	  * direct color. The colors themselves don't matter: snow that has
+	  * the color the pixel already had also counts.
+	  * Unlike paletteSnow() this doesn't draw anything, and it doesn't
+	  * depend on frame skip or on the 'v9990_palette_snow' setting.
+	  * @param time  The moment in emulated time of the access.
+	  */
+	[[nodiscard]] virtual bool isPaletteInUse(EmuTime time) = 0;
+
 	/** Change superimpose status. */
 	virtual void updateSuperimposing(bool enabled, EmuTime time) = 0;
 
