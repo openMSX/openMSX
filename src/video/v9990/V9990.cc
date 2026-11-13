@@ -202,6 +202,7 @@ uint8_t V9990::readIO(uint16_t port, EmuTime time)
 		break;
 
 	case PALETTE_DATA:
+		renderer->paletteSnow(regs[PALETTE_POINTER] >> 2, time);
 		if (!(regs[PALETTE_CONTROL] & 0x10)) {
 			uint8_t& palPtr = regs[PALETTE_POINTER];
 			switch (palPtr & 3) {
@@ -295,6 +296,7 @@ void V9990::writeIO(uint16_t port, uint8_t val, EmuTime time)
 			}
 			uint8_t& palPtr = regs[PALETTE_POINTER];
 			writePaletteRegister(palPtr, val, time);
+			renderer->paletteSnow(palPtr >> 2, time);
 			switch (palPtr & 3) {
 				case 0:  palPtr += 1; break; // red
 				case 1:  palPtr += 1; break; // green

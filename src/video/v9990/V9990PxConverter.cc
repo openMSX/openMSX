@@ -17,14 +17,13 @@ namespace openmsx {
 
 using Pixel = V9990P1Converter::Pixel;
 
-V9990P1Converter::V9990P1Converter(V9990& vdp_, std::span</*const*/ Pixel, 64> palette64_)
+V9990P1Converter::V9990P1Converter(V9990& vdp_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, palette64(palette64_)
 {
 }
 
-V9990P2Converter::V9990P2Converter(V9990& vdp_, std::span</*const*/ Pixel, 64> palette64_)
-	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
+V9990P2Converter::V9990P2Converter(V9990& vdp_)
+	: vdp(vdp_), vram(vdp.getVRAM())
 {
 }
 
@@ -273,7 +272,8 @@ static void renderSprites(
 
 void V9990P1Converter::convertLine(
 	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
-	unsigned displayYA, unsigned displayYB, bool drawSprites)
+	unsigned displayYA, unsigned displayYB, bool drawSprites,
+	std::span</*const*/ Pixel, 64> palette64)
 {
 	Pixel* __restrict linePtr = buf.data();
 	auto displayWidth = narrow<unsigned>(buf.size());
@@ -327,7 +327,8 @@ void V9990P1Converter::convertLine(
 
 void V9990P2Converter::convertLine(
 	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
-	unsigned displayYA, bool drawSprites)
+	unsigned displayYA, bool drawSprites,
+	std::span</*const*/ Pixel, 64> palette64)
 {
 	Pixel* __restrict linePtr = buf.data();
 	auto displayWidth = narrow<unsigned>(buf.size());

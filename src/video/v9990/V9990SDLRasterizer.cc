@@ -26,9 +26,9 @@ V9990SDLRasterizer::V9990SDLRasterizer(
 	, workFrame(std::make_unique<RawFrame>(1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, postProcessor(std::move(postProcessor_))
-	, bitmapConverter(vdp, palette64, palette64_32768, palette256, palette256_32768, palette32768)
-	, p1Converter(vdp, palette64)
-	, p2Converter(vdp, palette64)
+	, bitmapConverter(vdp, palette256, palette256_32768, palette32768)
+	, p1Converter(vdp)
+	, p2Converter(vdp)
 {
 	// Fill palettes
 	preCalcPalettes();
@@ -64,6 +64,7 @@ void V9990SDLRasterizer::reset()
 	setDisplayMode(vdp.getDisplayMode());
 	setColorMode(vdp.getColorMode());
 	resetPalette();
+	paletteSnow = false;
 }
 
 void V9990SDLRasterizer::frameStart()
@@ -111,7 +112,7 @@ void V9990SDLRasterizer::drawBorder(
 {
 	Pixel bgColor = vdp.isOverScan()
 	              ? 0
-	              : palette64[vdp.getBackDropColor() & 63];
+	              : (paletteSnow ? snow64 : palette64)[vdp.getBackDropColor() & 63];
 
 	int startY = std::max(fromY  - lineRenderTop,   0);
 	int endY   = std::min(limitY - lineRenderTop, 240);
@@ -201,10 +202,11 @@ void V9990SDLRasterizer::drawP1Mode(
 	int displayY, int displayYA, int displayYB,
 	int displayWidth, int displayHeight, bool drawSprites)
 {
+	auto& pal = paletteSnow ? snow64 : palette64;
 	while (displayHeight--) {
 		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
 		p1Converter.convertLine(dst, displayX, displayY,
-		                        displayYA, displayYB, drawSprites);
+		                        displayYA, displayYB, drawSprites, pal);
 		workFrame->setLineWidth(fromY, 320);
 		++fromY;
 		++displayY;
@@ -217,9 +219,10 @@ void V9990SDLRasterizer::drawP2Mode(
 	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight, bool drawSprites)
 {
+	auto& pal = paletteSnow ? snow64 : palette64;
 	while (displayHeight--) {
 		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
-		p2Converter.convertLine(dst, displayX, displayY, displayYA, drawSprites);
+		p2Converter.convertLine(dst, displayX, displayY, displayYA, drawSprites, pal);
 		workFrame->setLineWidth(fromY, 640);
 		++fromY;
 		++displayY;
@@ -248,6 +251,8 @@ void V9990SDLRasterizer::drawBxMode(
 	unsigned rollMask = vdp.getRollMask(0x1FFF);
 	unsigned scrollYBase = scrollY & ~rollMask & 0x1FFF;
 	int cursorY = displayY - vdp.getCursorYOffset();
+	const auto& pal       = paletteSnow ? snow64       : palette64;
+	const auto& pal_32768 = paletteSnow ? snow64_32768 : palette64_32768;
 	while (displayHeight--) {
 		// Note: convertLine() can draw up to 3 pixels too many. But
 		// that's ok, the buffer is big enough: buffer can hold 1280
@@ -256,7 +261,8 @@ void V9990SDLRasterizer::drawBxMode(
 		// plus 3 pixels cannot go beyond the end of the buffer.
 		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
 		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
-		bitmapConverter.convertLine(dst, x, y, cursorY, drawSprites);
+		bitmapConverter.convertLine(dst, x, y, cursorY, drawSprites,
+		                            pal, pal_32768);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
 		displayYA += lineStep;
@@ -344,6 +350,15 @@ void V9990SDLRasterizer::resetPalette()
 void V9990SDLRasterizer::setSuperimpose(bool /*enabled*/)
 {
 	resetPalette();
+}
+
+void V9990SDLRasterizer::setPaletteSnow(std::optional<int> index)
+{
+	paletteSnow = index.has_value();
+	if (index) {
+		snow64      .fill(palette64      [*index & 63]);
+		snow64_32768.fill(palette64_32768[*index & 63]);
+	}
 }
 
 bool V9990SDLRasterizer::isRecording() const

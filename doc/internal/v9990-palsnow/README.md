@@ -149,3 +149,27 @@ RAM from the picture, as a write does.
   B1 was tested.
 - Sprites and cursors. They read the palette, so they should snow, also
   in the direct-colour modes.
+
+## openMSX
+
+The model: the palette RAM has a single access port and the CPU gets
+priority. So during a CPU access every palette lookup made by the video
+output returns the entry the CPU accesses. In openMSX a read or write of
+the palette data port starts a short period (`SNOW_DURATION` in
+`src/video/v9990/V9990PixelRenderer.cc`, 8 UC ticks: one B1 dot) in which
+the rasterizer draws with a palette that has the accessed entry's colour
+in all 64 entries. That way only the dots that read the palette snow: the
+border, the paletted modes, the palette dots of BYJKP and BYUVP, sprites
+and cursors.
+
+The duration is a time, so the dots are wider (counted in dots of the
+mode) in the modes with a higher horizontal resolution than B1. That is
+not verified on hardware.
+
+The snow is only drawn when the `accuracy` setting is `pixel`. The
+`v9990_palette_snow` setting (on by default) turns it off.
+
+The `*_openmsx_after_fix.png` screenshots were made with an earlier
+implementation of the snow; it has been reworked since. PALSNOW2's G and I
+screenshots also predate openMSX's BYJKP and BYUVP support: they show G as
+F and I as H, without snow on stripes 1-2.

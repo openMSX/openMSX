@@ -10,6 +10,7 @@
 #include "RenderSettings.hh"
 #include "VideoSystem.hh"
 
+#include "BooleanSetting.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "IntegerSetting.hh"
@@ -23,9 +24,27 @@
 #include "one_of.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <cassert>
+#include <utility>
 
 namespace openmsx {
+
+// "Palette snow": measured on a real V9990 (see doc/internal/v9990-palsnow/),
+// every byte read from or written to the palette data port while the picture
+// or the border is being drawn puts a stray dot on the screen at the position
+// of the beam. The dot has the color of the accessed palette entry. Only
+// pixels that get their color from the palette are affected.
+//
+// This is modeled as: the palette RAM has only a single access port, and the
+// CPU gets priority. So while the CPU accesses the palette, every palette
+// lookup made by the video output returns the entry accessed by the CPU.
+//
+// The duration is chosen so that we get 1 pixel wide dots in B1 mode. The
+// measured dots are 1 to 2 pixels wide in that mode (only B1 was measured).
+// Because it's a duration, the dots are wider (when counted in pixels) in the
+// modes with a higher horizontal resolution. That's not verified.
+static constexpr int SNOW_DURATION = 8; // in UC ticks
 
 V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	: vdp(vdp_)
@@ -35,6 +54,12 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, rasterizer(vdp.getReactor().getDisplay().
 	                getVideoSystem().createV9990Rasterizer(vdp))
+	, paletteSnowSetting(vdp.getMotherBoard().getSharedStuff<BooleanSetting>(
+		"v9990_palette_snow",
+		vdp.getCommandController(), "v9990_palette_snow",
+		"Show the stray dots ('snow') that a real V9990 shows when its "
+		"palette is read or written while the screen is being drawn "
+		"(only shown when the 'accuracy' setting is 'pixel')", true))
 {
 	reset(vdp.getMotherBoard().getCurrentTime());
 
@@ -59,6 +84,7 @@ void V9990PixelRenderer::reset(EmuTime time)
 	setDisplayMode(vdp.getDisplayMode(), time);
 	setColorMode(vdp.getColorMode(), time);
 
+	snowEndX = snowEndY = 0;
 	rasterizer->reset();
 }
 
@@ -99,6 +125,7 @@ void V9990PixelRenderer::frameStart(EmuTime time)
 	accuracy = renderSettings.getAccuracy();
 	lastX = 0;
 	lastY = 0;
+	snowEndX = snowEndY = 0;
 	verticalOffsetA = verticalOffsetB = vdp.getTopBorder();
 
 	// Make sure that the correct timing is used
@@ -175,6 +202,20 @@ void V9990PixelRenderer::renderUntil(EmuTime time)
 		}
 	}();
 
+	if (std::pair(snowEndY, snowEndX) > std::pair(lastY, lastX)) {
+		// First draw (the remaining part of) the palette snow.
+		auto [y, x] = std::min(std::pair(toY, toX), std::pair(snowEndY, snowEndX));
+		// Using the current color of this entry is fine: the palette
+		// only changes after a sync (so after this snow is drawn).
+		rasterizer->setPaletteSnow(snowIndex);
+		renderTo(x, y);
+		rasterizer->setPaletteSnow({});
+	}
+	renderTo(toX, toY);
+}
+
+void V9990PixelRenderer::renderTo(int toX, int toY)
+{
 	if ((toX == lastX) && (toY == lastY)) return;
 
 	// edges of the DISPLAY part of the vdp output
@@ -273,6 +314,28 @@ void V9990PixelRenderer::updatePalette(int index, uint8_t r, uint8_t g, uint8_t 
 		sync(time);
 	}
 	rasterizer->setPalette(index, r, g, b, ys);
+}
+void V9990PixelRenderer::paletteSnow(int index, EmuTime time)
+{
+	// The snow starts at the position of the beam, that position is only
+	// known to the rasterizer when rendering is pixel accurate.
+	if (!drawFrame || (accuracy != RenderSettings::Accuracy::PIXEL) ||
+	    !paletteSnowSetting->getBoolean()) {
+		return;
+	}
+	// Draw everything before this access without snow (but with the snow
+	// of an earlier access).
+	sync(time);
+
+	// From here on, for a short time, draw with snow. No need to check
+	// whether the beam is in a visible part of the screen or whether the
+	// pixels there actually use the palette: the rasterizer handles that.
+	snowIndex = index;
+	// Note: this can be past the end of the frame. Then renderUntil() never
+	// gets there, instead frameStart() ends the snow.
+	int endTicks = vdp.getUCTicksThisFrame(time) + SNOW_DURATION;
+	snowEndX = endTicks % V9990DisplayTiming::UC_TICKS_PER_LINE;
+	snowEndY = endTicks / V9990DisplayTiming::UC_TICKS_PER_LINE;
 }
 void V9990PixelRenderer::updateSuperimposing(bool enabled, EmuTime time)
 {

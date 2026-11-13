@@ -20,14 +20,20 @@ public:
 
 	V9990BitmapConverter(
 		V9990& vdp,
-		std::span<const Pixel,    64> palette64,  std::span<const int16_t,  64> palette64_32768,
 		std::span<const Pixel,   256> palette256, std::span<const int16_t, 256> palette256_32768,
 		std::span<const Pixel, 32768> palette32768);
 
 	/** Convert a line of VRAM into host pixels.
+	  * The 64 color palette (used for the BP* modes, the palette pixels in
+	  * the BYJKP and BYUVP modes and for the cursors) is passed in two
+	  * forms: 'palette64' translates an index to a host pixel,
+	  * 'palette64_32768' translates it to a 15-bit V9990 color.
+	  * This is the palette manipulated through the palette port.
 	  */
 	void convertLine(std::span<Pixel> dst, unsigned x, unsigned y,
-		         int cursorY, bool drawCursors) const;
+		         int cursorY, bool drawCursors,
+		         std::span<const Pixel,   64> palette64,
+		         std::span<const int16_t, 64> palette64_32768) const;
 
 	/** Set a different rendering mode.
 	  */
@@ -50,12 +56,6 @@ private:
 	/** Reference to VDP VRAM
 	  */
 	V9990VRAM& vram;
-
-	/** The 64 color palette for P1, P2 and BP* modes
-	  * This is the palette manipulated through the palette port and register
-	  */
-	std::span<const Pixel, 64> const palette64;
-	std::span<const int16_t, 64> const palette64_32768;
 
 	/** The 256 color palette for BD8 mode
 	  * A fixed palette; sub-color space within the 32768 color palette

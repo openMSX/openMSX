@@ -191,6 +191,7 @@
         <li><a class="internal" href="#videosource">videosource</a></li>
         <li><a class="internal" href="#vsync">vsync</a></li>
         <li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
+        <li><a class="internal" href="#v9990_palette_snow">v9990_palette_snow</a></li>
         <li><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></li>
         <li><a class="internal" href="#othersettings">other</a></li>
       </ol>
@@ -6339,6 +6340,49 @@ current MSX model can be:</p>
       <td><code>set v9990cmdtrace off</code></td>
 
       <td>Disables V9990 command tracing</td>
+    </tr>
+  </table>
+
+  <div class="note">
+   Note: This setting is only available if the <code>gfx9000</code> or
+   <code>video9000</code> extension is present.
+  </div>
+
+
+  <h3><a id="v9990_palette_snow">v9990_palette_snow</a></h3>
+
+  <p>A real V9990 puts a stray dot ("snow") on the screen for every byte that
+  is written to or read from its palette while the picture or the border is
+  being drawn. The dot shows at the beam's position, in the colour of the entry
+  being accessed. Only pixels that take their colour from the palette show snow:
+  in the direct-colour bitmap modes (BD8, BD16, YJK, YUV) that's only the border
+  and the cursors. Software that only accesses the palette during the vertical
+  blank shows no snow.</p>
+
+  <p>Snow is only shown when the <code><a class="internal" href="#accuracy">accuracy</a></code>
+  setting is set to <code>pixel</code> (the default).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set v9990_palette_snow</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set v9990_palette_snow on</code></td>
+
+      <td>Show palette snow, like a real V9990 (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set v9990_palette_snow off</code></td>
+
+      <td>Don't show palette snow</td>
     </tr>
   </table>
 

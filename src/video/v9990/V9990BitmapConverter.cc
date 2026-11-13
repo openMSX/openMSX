@@ -15,11 +15,9 @@ namespace openmsx {
 
 V9990BitmapConverter::V9990BitmapConverter(
 		V9990& vdp_,
-		std::span<const Pixel,    64> palette64_,  std::span<const int16_t,  64> palette64_32768_,
 		std::span<const Pixel,   256> palette256_, std::span<const int16_t, 256> palette256_32768_,
 		std::span<const Pixel, 32768> palette32768_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, palette64 (palette64_ ), palette64_32768 (palette64_32768_ )
 	, palette256(palette256_), palette256_32768(palette256_32768_)
 	, palette32768(palette32768_)
 {
@@ -462,7 +460,9 @@ public:
 
 void V9990BitmapConverter::convertLine(
 	std::span<Pixel> dst, unsigned x, unsigned y,
-	int cursorY, bool drawCursors) const
+	int cursorY, bool drawCursors,
+	std::span<const Pixel,   64> palette64,
+	std::span<const int16_t, 64> palette64_32768) const
 {
 	assert(dst.size() <= 1024);
 

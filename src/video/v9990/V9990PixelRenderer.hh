@@ -11,6 +11,7 @@
 
 namespace openmsx {
 
+class BooleanSetting;
 class V9990;
 class V9990Rasterizer;
 class Setting;
@@ -40,6 +41,7 @@ public:
 	void setColorMode(V9990ColorMode mode, EmuTime time) override;
 	void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
 	                   EmuTime time) override;
+	void paletteSnow(int index, EmuTime time) override;
 	void updateSuperimposing(bool enabled, EmuTime time) override;
 	void updateBackgroundColor(int index, EmuTime time) override;
 	void updateScrollAX(EmuTime time) override;
@@ -50,6 +52,11 @@ public:
 private:
 	void sync(EmuTime time, bool force = false);
 	void renderUntil(EmuTime time) override;
+
+	/** Render from the last sync point (lastX, lastY) up to the given
+	  * position, and make that the new last sync point.
+	  */
+	void renderTo(int toX, int toY);
 
 	/** Type of drawing to do.
 	  */
@@ -88,6 +95,10 @@ private:
 	  */
 	const std::unique_ptr<V9990Rasterizer> rasterizer;
 
+	/** Show "palette snow"? (Shared between all V9990 renderers).
+	  */
+	const std::shared_ptr<BooleanSetting> paletteSnowSetting;
+
 	/** Frameskip
 	  */
 	float finishFrameDuration{0.0f};
@@ -106,6 +117,18 @@ private:
 	  * from HSYNC
 	  */
 	int lastX;
+
+	/** "Palette snow": a CPU access to the palette data port takes the
+	  * palette away from the video output for a short time. From the last
+	  * sync point till the position (snowEndX, snowEndY) the rasterizer
+	  * must draw with the palette snow enabled. These two use the same
+	  * units as lastX and lastY. When this position is not beyond the
+	  * last sync point there is no (more) snow to draw.
+	  * 'snowIndex' is the accessed palette entry.
+	  */
+	int snowEndX = 0;
+	int snowEndY = 0;
+	int snowIndex = 0;
 
 	/** Apparently V9990 keeps an internal counter that indicates which line
 	  * to display. That counter is initialized at the top of the screen and
