@@ -436,6 +436,7 @@ sources = files(
     'sound/Y8960OPL2Device.cc',
     'sound/Y8960OPLL.cc',
     'sound/Y8960OPLLDevice.cc',
+    'sound/Y8960OPMDevice.cc',
     'sound/YM2151.cc',
     'sound/YM2413.cc',
     'sound/YM2413Burczynski.cc',
