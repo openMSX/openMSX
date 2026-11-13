@@ -941,9 +941,16 @@ void V9990::scheduleHscan(EmuTime time)
 		} else {
 			int line = regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3) +
 				   getTopBorder();
+			// Measured on a real V9990 (NTSC, R#16 = 0): IL 229, 17
+			// lines after VR rises, is the last line the interrupt
+			// comes on; from IL 230 on (the vertical sync, after the
+			// bottom border and 4 erase lines) it never does. Here that
+			// is the frame's last 4 lines, and anything past the end.
+			if (line >= verTiming->cycle - 4) return -1;
 			return line * V9990DisplayTiming::UC_TICKS_PER_LINE;
 		}
 	}();
+	if (offset < 0) return; // never comes
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1
 	offset += (regs[INTERRUPT_3] & 0x0F) * 64 * mult;
 	if (offset <= ticks) {
