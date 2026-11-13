@@ -327,6 +327,7 @@ sources = files(
     'memory/RomSuperLodeRunner.cc',
     'memory/RomSuperSwangi.cc',
     'memory/RomSynthesizer.cc',
+    'memory/RomY8960.cc',
     'memory/RomZemina126in1.cc',
     'memory/RomZemina80in1.cc',
     'memory/RomZemina90in1.cc',

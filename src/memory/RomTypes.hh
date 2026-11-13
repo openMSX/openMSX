@@ -97,6 +97,7 @@ enum class RomType : uint8_t {
 	ZEMINA80IN1,
 	ZEMINA90IN1,
 	ZEMINA126IN1,
+	Y8960,
 
 	NUM,
 	UNKNOWN
