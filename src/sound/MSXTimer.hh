@@ -5,6 +5,7 @@
 #include "IRQHelper.hh"
 #include "DynamicClock.hh"
 #include "Schedulable.hh"
+#include "serialize_meta.hh"
 #include <memory>
 #include <string>
 
@@ -42,7 +43,7 @@ private:
 
     void resetValue();
    	uint32_t divCount(uint32_t value) const;
-    uint32_t mulCount(uint32_t value) const;
+    uint64_t mulCount(uint32_t value) const;
    	uint32_t modCount(uint32_t value) const;
     bool get_w_end_count(uint32_t value) const;
    	uint64_t getNextPoint(uint32_t value) const;
@@ -69,7 +70,9 @@ private:
 class MSXTimer final : public MSXDevice, private MSXTimerIrqCallback
 {
 public:
-	const unsigned FREQ = 3579545 * 24;
+	// The timer's design sheet gives 85.9MHz, but the cartridge clocks the
+	// timer with its 42.95MHz system clock.
+	const unsigned FREQ = 3579545 * 12;
 	explicit MSXTimer(const DeviceConfig& config);
 	~MSXTimer() override;
 
@@ -81,6 +84,14 @@ public:
 	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
 	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, byte value, EmuTime time) override;
+
+	/** Open or close the I/O ports: 7FFFh (I/O Enabler2) bit 7.
+	  * The counters and the interrupt keep running while the ports are
+	  * closed, because the cartridge's enabler only stops the address
+	  * decoding. */
+	void setIoEnabled(bool enabled) { ioEnabled = enabled; }
+	[[nodiscard]] bool isIoEnabled() const { return ioEnabled; }
+
 	//[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	//[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
 	//void writeMem(uint16_t address, byte value, EmuTime time) override;
@@ -104,7 +115,9 @@ private:
 	MSXTimerCore timer3;
 	byte registerLatch;
 	byte counterSelectLatch;
+	bool ioEnabled;
 };
+SERIALIZE_CLASS_VERSION(MSXTimer, 2);
 
 } // namespace openmsx
 

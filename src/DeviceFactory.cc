@@ -338,6 +338,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<MSXPiDevice>(conf);
 	} else if (type == "Franky") {
 		result = std::make_unique<Franky>(conf);
+	} else if (type == "MSX-TIMER") {
+		result = std::make_unique<MSXTimer>(conf);
 	} else {
 		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");

@@ -10,7 +10,7 @@
     <type>sound expansion</type>
   </info>
   <devices>
-    <MSX-TIMER>
+    <MSX-TIMER id="y8960-timer">
       <io base="0xB0" num="4"/>
     </MSX-TIMER>
   </devices>

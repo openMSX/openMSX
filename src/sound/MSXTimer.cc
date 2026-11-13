@@ -20,6 +20,7 @@ MSXTimer::MSXTimer(const DeviceConfig& config)
 	, timer2(config.getMotherBoard().getScheduler(), *this, FREQ, 2)
 	, timer3(config.getMotherBoard().getScheduler(), *this, FREQ, 3)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
+	, ioEnabled(false)
 {
 	powerUp(getCurrentTime());
 }
@@ -53,14 +54,17 @@ void MSXTimer::reset(EmuTime time)
 	irq.reset();
 	irqState = 0;
 	registerLatch = 0;
+	counterSelectLatch = 0;
 	timer0.reset(time);
 	timer1.reset(time);
 	timer2.reset(time);
 	timer3.reset(time);
+	ioEnabled = false;
 }
 
 byte MSXTimer::readIO(uint16_t port, EmuTime time)
 {
+	if (!ioEnabled) return 0xFF;
 	byte result = 0xFF;
 	switch (port & 0x03) {
 	case 0x00:
@@ -110,6 +114,7 @@ byte MSXTimer::readIO(uint16_t port, EmuTime time)
 
 byte MSXTimer::peekIO(uint16_t port, EmuTime time) const
 {
+	if (!ioEnabled) return 0xFF;
 	byte result = 0xFF;
 	switch (port & 0x03) {
 	case 0x00:
@@ -159,6 +164,7 @@ byte MSXTimer::peekIO(uint16_t port, EmuTime time) const
 
 void MSXTimer::writeIO(uint16_t port, byte value, EmuTime time)
 {
+	if (!ioEnabled) return;
 	switch (port & 0x03) {
 	case 0x00:
 		registerLatch = value;
@@ -186,13 +192,14 @@ void MSXTimer::writeIO(uint16_t port, byte value, EmuTime time)
 		if (value & 0x08) timer3.resetIrqFlag(time);
 		break;
 	case 0x03:
-		counterSelectLatch = value & 0x03;
+		// A value other than 0-3 selects no counter, and B3h then reads FFh.
+		counterSelectLatch = (value & 0xFC) ? 0x04 : value;
 		break;
 	}
 }
 
 template<typename Archive>
-void MSXTimer::serialize(Archive& ar, unsigned /*version*/)
+void MSXTimer::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("timer0",         	   timer0,
 				 "timer1",		 	   timer1,
@@ -201,6 +208,9 @@ void MSXTimer::serialize(Archive& ar, unsigned /*version*/)
 				 "irqState",	   	   irqState,
 	             "registerLatch", 	   registerLatch,
 	             "counterSelectLatch", counterSelectLatch);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("ioEnabled", ioEnabled);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXTimer);
 REGISTER_MSXDEVICE(MSXTimer, "MSX-TIMER");
@@ -218,10 +228,9 @@ MSXTimerCore::MSXTimerCore(Scheduler& scheduler_, MSXTimerIrqCallback& cb_, unsi
 
 void MSXTimerCore::executeUntil(EmuTime time)
 {
-    // 同期ポイントに達したのでポイントは削除済
+    // reaching the sync point removed it
     scheduled = false;
 
-    // カウンタを更新
     updateCounter(time);
     updateSchedule(time);
     updateIrq(time);
@@ -249,25 +258,29 @@ uint32_t MSXTimerCore::divCount(uint32_t value) const
     }
 }
 
-uint32_t MSXTimerCore::mulCount(uint32_t value) const
+uint64_t MSXTimerCore::mulCount(uint32_t value) const
 {
+    // 64 bits: a terminal value of 255 at resolution 7 asks for 256<<24,
+    // which does not fit in 32. Wrapped to 0, the sync point that
+    // getNextPoint() leads to would vanish and the counter would stop.
+    uint64_t v = value;
     switch (ff_reso) {
     case 0:
-        return (value << 10);
+        return (v << 10);
     case 1:
-        return (value << 12);
+        return (v << 12);
     case 2:
-        return (value << 14);
+        return (v << 14);
     case 3:
-        return (value << 16);
+        return (v << 16);
     case 4:
-        return (value << 18);
+        return (v << 18);
     case 5:
-        return (value << 20);
+        return (v << 20);
     case 6:
-        return (value << 22);
+        return (v << 22);
     default:
-        return (value << 24);
+        return (v << 24);
     }
 }
 
@@ -316,34 +329,29 @@ void MSXTimerCore::resetValue()
     ff_count_end = 0;
 }
 
-void MSXTimerCore::updateSchedule(EmuTime time)
+void MSXTimerCore::updateSchedule(EmuTime /*time*/)
 {
-    // 次の同期ポイントまでのクロック数を計算
     uint64_t period = (!ff_repeat && get_w_end_count(ff_counter))
-                      ?  0                                                  // OneShot で ff_counter が ff_count に達している時
-                      : (getNextPoint(ff_counter) - (uint64_t)ff_counter);  // カウント中
+                      ?  0                                                  // one-shot, ff_count reached
+                      : (getNextPoint(ff_counter) - (uint64_t)ff_counter);  // counting
 
-    // カウント中にレジスタの書き換えがあったら同期ポイントを削除
+    // a register write while counting leaves the old sync point behind
     if (scheduled) {
         removeSyncPoint();
         scheduled = false;
     }
 
-    // 次の同期ポイントを設定
+    // Leave clock alone here. Moving it would make the elapsed count 0
+    // when the sync point is reached, and the counter would not advance.
     if (ff_count_enable && period > 0) {
-        clock.reset(time);
-        clock += period;
-	    setSyncPoint(clock.getTime());
+        setSyncPoint(clock + period);
         scheduled = true;
     }
 }
 
 void MSXTimerCore::updateIrq(EmuTime time)
 {
-    // 新しい割り込みフラグ
     bool newIrq = ff_count_end && ff_intr_enable;
-
-    // 前回と割り込みフラグが変わったらコールバックを呼ぶ
     if (irqState != newIrq) {
         cb.callback(chNum, newIrq, time);
     }
@@ -356,19 +364,16 @@ void MSXTimerCore::checkCounter(uint32_t& counter, uint8_t& count_end, uint8_t& 
     count_end = ff_count_end;
     count_enable = ff_count_enable;
 
-    // 経過クロック数カウントアップする
     if (ff_count_enable) {
-        uint32_t period = ff_count_enable ? clock.getTicksTillUp(time) : 0;
+        uint64_t period = clock.getTicksTill(time);
         while (period > 0 && ff_count_enable) {
-            // 次の桁上がり(下位ビットが 1.. -> 0.. に遷移する)ポイントまでのクロック数を計算
-            uint32_t step = (uint32_t)(getNextPoint(counter) - (uint64_t)counter);
+            // clocks up to the next carry out of the low bits (1..1 -> 0..0)
+            uint64_t step = getNextPoint(counter) - (uint64_t)counter;
             if (step > period) step = period;
             assert(step > 0);
 
-            // カウントアップ
-            uint64_t counter64 = (uint64_t)counter + (uint64_t)step;
+            uint64_t counter64 = (uint64_t)counter + step;
 
-            // ff_count まで達した?
             if (get_w_end_count((uint32_t)(counter64 - 1))) {
                 if (ff_repeat) {
                     counter64 = 0;
@@ -380,8 +385,6 @@ void MSXTimerCore::checkCounter(uint32_t& counter, uint8_t& count_end, uint8_t& 
             }
 
             counter = (uint32_t)(counter64 & 0xFFFFFFFF);
-
-            // クロック数がなくなるまで繰り返し
             period -= step;
         }
     }
@@ -397,11 +400,17 @@ void MSXTimerCore::updateCounter(EmuTime time)
     ff_counter = counter;
     ff_count_end = count_end;
     ff_count_enable = count_enable;
+
+    // clock holds how far the counter has been brought up to date. Left
+    // behind, checkCounter would count the same time twice. The fraction
+    // of a tick carries over to the next update.
+    clock.advance(time);
 }
 
 void MSXTimerCore::reset(EmuTime time)
 {
     resetValue();
+    clock.reset(time);
     updateSchedule(time);
 }
 
@@ -443,7 +452,7 @@ uint8_t MSXTimerCore::peekReg(uint8_t rg, EmuTime ) const
     case 0x02:
         return ff_count_enable & 1;
     }
-    return 0xFF;
+    return 0x00; // register 3 does not exist; the hardware reads it as 0
 }
 
 uint8_t MSXTimerCore::readReg(uint8_t rg, EmuTime time)
