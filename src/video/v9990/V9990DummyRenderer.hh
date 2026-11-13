@@ -26,6 +26,7 @@ public:
 	void updateScrollBX(EmuTime time) override;
 	void updateScrollAYLow(EmuTime time) override;
 	void updateScrollBYLow(EmuTime time) override;
+	void updateLayerDisable(EmuTime time) override;
 };
 
 } // namespace openmsx

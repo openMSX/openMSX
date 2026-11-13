@@ -91,6 +91,9 @@ public:
 	virtual void updateScrollAYLow(EmuTime time) = 0;
 	virtual void updateScrollBYLow(EmuTime time) = 0;
 
+	/** Set layer disable bits (SDA/SDB in R#22). */
+	virtual void updateLayerDisable(EmuTime time) = 0;
+
 protected:
 	V9990Renderer() = default;
 };

@@ -696,6 +696,10 @@ void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime time)
 		case SCROLL_CONTROL_BX1:
 			renderer->updateScrollBX(time);
 			break;
+		case SCROLL_CONTROL_BY1:
+			// SDA/SDB bits take effect immediately, unlike the scroll bits
+			if ((regs[reg] ^ val) & 0xC0) renderer->updateLayerDisable(time);
+			break;
 		case DISPLAY_ADJUST:
 			// TODO verify on real V9990: when exactly does a
 			//  change in horizontal/vertical adjust take place

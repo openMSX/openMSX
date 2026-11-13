@@ -381,6 +381,10 @@ void V9990PixelRenderer::updateScrollBYLow(EmuTime time)
 		verticalOffsetB = lastY;
 	}
 }
+void V9990PixelRenderer::updateLayerDisable(EmuTime time)
+{
+	if (displayEnabled) sync(time);
+}
 
 void V9990PixelRenderer::update(const Setting& setting) noexcept
 {

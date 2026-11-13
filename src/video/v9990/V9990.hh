@@ -284,6 +284,17 @@ public:
 		return regs[SCROLL_CONTROL_BY0] + 256 * scrollBYHigh;
 	}
 
+	/** Undocumented: R#22 bit 7 (SDA) disables layer A and sprites,
+	  * bit 6 (SDB) disables layer B and sprites (P1 mode). With both
+	  * bits set the sprites show again, on the backdrop.
+	  */
+	[[nodiscard]] bool isLayerADisabled() const {
+		return regs[SCROLL_CONTROL_BY1] & 0x80;
+	}
+	[[nodiscard]] bool isLayerBDisabled() const {
+		return regs[SCROLL_CONTROL_BY1] & 0x40;
+	}
+
 	/** Returns the vertical roll mask
 	  */
 	[[nodiscard]] unsigned getRollMask(unsigned maxMask) const {
