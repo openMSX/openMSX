@@ -318,6 +318,19 @@ LINK_FLAGS+=$(TARGET_FLAGS)
 
 # Determine compiler.
 CXX?=g++
+ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
+  $(error Set CXX to your "g++" executable instead of "gcc")
+endif
+# The compiler family, from its version output: the name doesn't always tell
+# (e.g. 'c++' is Clang on FreeBSD, and GCC on most Linux distributions).
+CXX_VERSION_OUTPUT:=$(shell $(CXX) --version 2>/dev/null)
+ifneq ($(findstring clang,$(CXX_VERSION_OUTPUT)),)
+  CXX_FAMILY:=clang
+else ifneq ($(findstring Free Software Foundation,$(CXX_VERSION_OUTPUT)),)
+  CXX_FAMILY:=gcc
+else
+  CXX_FAMILY:=
+endif
 # Use ccache if available to speed up compilation
 CCACHE?=$(shell command -v ccache 2>/dev/null)
 ifneq ($(CCACHE),)
@@ -325,7 +338,7 @@ ifneq ($(CCACHE),)
 endif
 WINDRES?=windres
 DEPEND_FLAGS:=
-ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
+ifeq ($(CXX_FAMILY),clang)
   # Enable C++23 (partially supported since clang-17)
   # apple-clang still needs -std=c++2b
   COMPILE_FLAGS+=-std=c++2b -fconstexpr-steps=2000000
@@ -334,10 +347,11 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
   COMPILE_FLAGS+=-Wno-unused-const-variable
-  CC:=$(subst clang++,clang,$(CXX))
+  # Plain C compiler, for the 3rd party libs.
+  CC:=$(subst c++,cc,$(subst clang++,clang,$(CXX)))
   DEPEND_FLAGS+=-MP
 else
-ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
+ifeq ($(CXX_FAMILY),gcc)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
   # Enable C++23  (partially supported since gcc-11)
@@ -351,13 +365,9 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
-  CC:=$(subst g++,gcc,$(CXX))
+  CC:=$(subst c++,cc,$(subst g++,gcc,$(CXX)))
 else
-  ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
-    $(error Set CXX to your "g++" executable instead of "gcc")
-  else
-    $(warning Unsupported compiler: $(CXX), please update Makefile)
-  endif
+  $(warning Unsupported compiler: $(CXX), please update Makefile)
 endif
 endif
 
