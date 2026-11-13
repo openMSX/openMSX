@@ -22,6 +22,7 @@
             <sha1>1b315d4168ee3a6452589aaa50463193e438760a</sha1> <!-- 2.40 -->
           </rom>
           <sramname>carnivore2.flash</sramname>
+          <flashname>carnivore2.flash.flash</flashname>
           <eeprom>
             <sramname>carnivore2.eeprom</sramname>
           </eeprom>

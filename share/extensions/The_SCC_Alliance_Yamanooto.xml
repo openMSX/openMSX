@@ -19,6 +19,7 @@
           </sound>
           <rom/>
           <sramname>yamanooto.sram</sramname>
+          <flashname>yamanooto.sram.flash</flashname>
           <mappertype>Yamanooto</mappertype>
         </ROM>
       </secondary>

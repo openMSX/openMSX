@@ -19,6 +19,7 @@
           </rom>
           <mappertype>ASCII16-X</mappertype>
           <sramname>ASCII16-X_Mapper_XL.sram</sramname>
+          <flashname>ASCII16-X_Mapper_XL.sram.flash</flashname>
         </ROM>
       </secondary>
     </primary>

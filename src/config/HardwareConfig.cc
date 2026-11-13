@@ -122,7 +122,9 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	mapperType->setData(mapper.empty() ? "auto" : doc.allocateString(mapper));
 	auto* sramName = mapperType->setNextSibling(doc.allocateElement("sramname"));
 	sramName->setData(doc.allocateString(tmpStrCat(sramfile, ".SRAM")));
-	auto* rom = sramName->setNextSibling(doc.allocateElement("rom"));
+	auto* flashName = sramName->setNextSibling(doc.allocateElement("flashname"));
+	flashName->setData(doc.allocateString(tmpStrCat(sramfile, ".SRAM.flash")));
+	auto* rom = flashName->setNextSibling(doc.allocateElement("rom"));
 	auto* rfName = rom->setFirstChild(doc.allocateElement("resolvedFilename"));
 	rfName->setData(doc.allocateString(resolvedFilename));
 	auto* fName = rfName->setNextSibling(doc.allocateElement("filename"));
