@@ -430,8 +430,8 @@ $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE) \
 
 # Generate components Makefile.
 $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) \
-		build/components.py
-	$(CMD)$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $@ $(PROBE_MAKE)
+		build/components.py build/configurations.py
+	$(CMD)$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $@ $(PROBE_MAKE) $(LINK_MODE)
 	$(CMD)touch $@
 
 # Default target.
@@ -441,7 +441,7 @@ else
 all: $(MAIN_EXECUTABLE)
 endif
 
-ifeq ($(COMPONENT_CORE),false)
+ifeq ($(REQUIRED_COMPONENTS),false)
 # Force new probe.
 config: $(PROBE_MAKE)
 	$(CMD)mv $(PROBE_MAKE) $(PROBE_MAKE).failed
