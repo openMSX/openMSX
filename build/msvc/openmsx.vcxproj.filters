@@ -1170,6 +1170,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960Mixer.cc">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960OPLL.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2151.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -1183,6 +1186,9 @@
       <Filter>sound</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKTBanked.cc">
       <Filter>sound</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413OriginalNukeYKT.cc">
@@ -2846,6 +2852,9 @@
     <None Include="$(OpenMSXSrcDir)\sound\Y8960Mixer.hh">
       <Filter>sound</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960OPLL.hh">
+      <Filter>sound</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\sound\YM2151.hh">
       <Filter>sound</Filter>
     </None>
@@ -2865,6 +2874,9 @@
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKTBanked.hh">
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYktTables.ii">

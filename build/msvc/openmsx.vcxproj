@@ -733,11 +733,14 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SSGS.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SSGSDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SsgCore.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960OPLL.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960OPLLDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2151.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413Burczynski.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKTBanked.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413OriginalNukeYKT.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\opll.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF262.cc" />
@@ -1388,6 +1391,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\Y8960SSGS.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960SSGSDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960SsgCore.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960OPLL.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960OPLLDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960Pan.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2151.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413.hh" />
@@ -1396,6 +1401,7 @@
     <None Include="$(OpenMSXSrcDir)\sound\YM2413Interface.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKTBanked.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYktTables.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413OriginalNukeYKT.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\opll.hh" />
