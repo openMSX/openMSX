@@ -5,6 +5,7 @@
 #include "Clock.hh"
 #include "DeviceConfig.hh"
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
@@ -655,7 +656,7 @@ int32_t FmChannel::output4Op(const OutputPlan& plan, uint32_t amOffset)
 	}
 
 	// compute the 14-bit volume/value of operator 1 and update the feedback
-	int32_t op1value = feedbackIn = ops[0].computeVolume(ops[0].phase() + opmod, amOffset);
+	int32_t op1value = feedbackIn = narrow_cast<int16_t>(ops[0].computeVolume(ops[0].phase() + opmod, amOffset));
 
 	// now that the feedback has been computed, skip the rest if this channel
 	// feeds no output; no need to do all this work for nothing
@@ -664,16 +665,16 @@ int32_t FmChannel::output4Op(const OutputPlan& plan, uint32_t amOffset)
 	// populate the opout table
 	std::array<int16_t, 8> opout;
 	opout[0] = 0;
-	opout[1] = op1value;
+	opout[1] = narrow_cast<int16_t>(op1value);
 
 	// compute the 14-bit volume/value of operator 2
 	opmod = opout[plan.op2in] >> 1;
-	opout[2] = ops[1].computeVolume(ops[1].phase() + opmod, amOffset);
+	opout[2] = narrow_cast<int16_t>(ops[1].computeVolume(ops[1].phase() + opmod, amOffset));
 	opout[5] = opout[1] + opout[2];
 
 	// compute the 14-bit volume/value of operator 3
 	opmod = opout[plan.op3in] >> 1;
-	opout[3] = ops[2].computeVolume(ops[2].phase() + opmod, amOffset);
+	opout[3] = narrow_cast<int16_t>(ops[2].computeVolume(ops[2].phase() + opmod, amOffset));
 	opout[6] = opout[1] + opout[3];
 	opout[7] = opout[2] + opout[3];
 
@@ -951,7 +952,7 @@ void FmEngine::setClockPrescale(uint32_t value, EmuTime time)
 	if (value == prescale) return;
 	assert(sampleClock.getTicksTill(time) == 0);
 	const uint32_t oldPrescale = prescale;
-	prescale = value;
+	prescale = narrow_cast<uint8_t>(value);
 	sampleClock.reset(time); // restart: otherwise a shorter period could put next sample before 'time'
 	sampleClock.setPeriod(Clock<CLOCK>::duration(24 * prescale));
 	// Timers count FM ticks; each tick is OPERATORS * prescale master clocks.
@@ -1160,7 +1161,7 @@ int32_t OpnaRegisters::clockLfo(uint32_t maxCount)
 	}
 
 	// AM value is 7 bits, staring at bit 8; grab the low 6 directly
-	lfoAm = bitfield(lfoCounter, 8, 6);
+	lfoAm = narrow_cast<uint8_t>(bitfield(lfoCounter, 8, 6));
 
 	// first half of the AM period (bit 6 == 0) is inverted
 	if (bitfield(lfoCounter, 8+6) == 0) {
@@ -1194,17 +1195,17 @@ uint32_t OpnaRegisters::lfoAmOffset(uint32_t amShift) const
 void OpnaRegisters::cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCache& cache) const
 {
 	// get frequency from the channel
-	uint32_t blockFreq = cache.blockFreq = chBlockFreq(chOffs);
+	uint32_t blockFreq = cache.blockFreq = narrow_cast<uint16_t>(chBlockFreq(chOffs));
 
 	// if multi-frequency mode is enabled and this is channel 2,
 	// fetch one of the special frequencies
 	if (multiFreq() && chOffs == 2) {
 		if (opOffs == 2) {
-			blockFreq = cache.blockFreq = multiBlockFreq(1);
+			blockFreq = cache.blockFreq = narrow_cast<uint16_t>(multiBlockFreq(1));
 		} else if (opOffs == 10) {
-			blockFreq = cache.blockFreq = multiBlockFreq(2);
+			blockFreq = cache.blockFreq = narrow_cast<uint16_t>(multiBlockFreq(2));
 		} else if (opOffs == 6) {
-			blockFreq = cache.blockFreq = multiBlockFreq(0);
+			blockFreq = cache.blockFreq = narrow_cast<uint16_t>(multiBlockFreq(0));
 		}
 	}
 
@@ -1226,10 +1227,10 @@ void OpnaRegisters::cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCa
 	keycode |= bitfield(0xfe80, bitfield(blockFreq, 7, 4));
 
 	// detune adjustment
-	cache.detune = detuneAdjustment(opDetune(opOffs), keycode);
+	cache.detune = narrow_cast<int8_t>(detuneAdjustment(opDetune(opOffs), keycode));
 
 	// multiple value, as an x.1 value (0 means 0.5)
-	cache.multiple = opMultiple(opOffs) * 2;
+	cache.multiple = narrow_cast<uint8_t>(opMultiple(opOffs) * 2);
 	if (cache.multiple == 0) {
 		cache.multiple = 1;
 	}
@@ -1246,19 +1247,19 @@ void OpnaRegisters::cacheOperatorData(unsigned chOffs, unsigned opOffs, OpDataCa
 	}
 
 	// total level, scaled by 8
-	cache.totalLevel = opTotalLevel(opOffs) << 3;
+	cache.totalLevel = narrow_cast<uint16_t>(opTotalLevel(opOffs) << 3);
 
 	// 4-bit sustain level, but 15 means 31 so effectively 5 bits
-	cache.egSustain = opSustainLevel(opOffs);
+	cache.egSustain = narrow_cast<uint16_t>(opSustainLevel(opOffs));
 	cache.egSustain |= (cache.egSustain + 1) & 0x10;
 	cache.egSustain <<= 5;
 
 	// determine KSR adjustment for envelope rates
 	uint32_t ksrVal = keycode >> (opKsr(opOffs) ^ 3);
-	cache.egRate[std::to_underlying(EnvelopeState::ATTACK)] = effectiveRate(opAttackRate(opOffs) * 2, ksrVal);
-	cache.egRate[std::to_underlying(EnvelopeState::DECAY)] = effectiveRate(opDecayRate(opOffs) * 2, ksrVal);
-	cache.egRate[std::to_underlying(EnvelopeState::SUSTAIN)] = effectiveRate(opSustainRate(opOffs) * 2, ksrVal);
-	cache.egRate[std::to_underlying(EnvelopeState::RELEASE)] = effectiveRate(opReleaseRate(opOffs) * 4 + 2, ksrVal);
+	cache.egRate[std::to_underlying(EnvelopeState::ATTACK)] = narrow_cast<uint8_t>(effectiveRate(opAttackRate(opOffs) * 2, ksrVal));
+	cache.egRate[std::to_underlying(EnvelopeState::DECAY)] = narrow_cast<uint8_t>(effectiveRate(opDecayRate(opOffs) * 2, ksrVal));
+	cache.egRate[std::to_underlying(EnvelopeState::SUSTAIN)] = narrow_cast<uint8_t>(effectiveRate(opSustainRate(opOffs) * 2, ksrVal));
+	cache.egRate[std::to_underlying(EnvelopeState::RELEASE)] = narrow_cast<uint8_t>(effectiveRate(opReleaseRate(opOffs) * 4 + 2, ksrVal));
 
 	// SSG-EG shape and the LFO AM enable, read per sample otherwise
 	cache.ssgEgMode = uint8_t(opSsgEgMode(opOffs));
@@ -1427,7 +1428,7 @@ AdpcmAChannel::OutputPlan AdpcmAChannel::makeOutputPlan(
 	// convert into a shift and a multiplier
 	// QUESTION: verify this from other sources
 	plan.mul = 15 - (vol & 7);
-	plan.shift = 4 + 1 + (vol >> 3);
+	plan.shift = narrow_cast<uint8_t>(4 + 1 + (vol >> 3));
 
 	// a maximum combined volume adds nothing, and neither does a closed pan
 	plan.panMask = 0;
@@ -1665,7 +1666,7 @@ bool AdpcmBChannel::consumeNibble()
 			}
 		} else {
 			// if CPU-driven, copy the next byte (clockEmu() raises BRDY)
-			curByte = registers.cpuData();
+			curByte = narrow_cast<uint8_t>(registers.cpuData());
 		}
 	}
 
@@ -1865,7 +1866,7 @@ uint8_t AdpcmBChannel::peek(uint32_t regNum) const
 	// Observe the next CPU read without consuming dummy reads, advancing RAM,
 	// changing EOS/BRDY or invoking a potentially destructive host read.
 	if (regNum == 0x08 && !registers.execute() && !registers.record() && registers.external()) {
-		if (cpuWriteActive) return registers.cpuData();
+		if (cpuWriteActive) return narrow_cast<uint8_t>(registers.cpuData());
 		if (dummyRead == 0) return ram[emu.address & 0x3ffff];
 	}
 	return 0;
@@ -1879,7 +1880,7 @@ uint8_t AdpcmBChannel::read(uint32_t regNum)
 	if (regNum == 0x08 && !registers.execute() && !registers.record() && registers.external()) {
 		// A mode change alone does not terminate an unfinished RAM writer.
 		// Until RESET, the CPU sees its last data-buffer byte (Makoto V4).
-		if (cpuWriteActive) return registers.cpuData();
+		if (cpuWriteActive) return narrow_cast<uint8_t>(registers.cpuData());
 
 		// two dummy reads are consumed first
 		if (dummyRead != 0) {
@@ -2244,14 +2245,14 @@ uint8_t YM2608::peekPort(unsigned port, EmuTime time) const
 	auto busy = (time < busyEnd) ? STATUS_BUSY : 0;
 	switch (port & 3) {
 	case 0:
-		return (fm.status() & (ym2608::FmEngine::STATUS_TIMER_A | ym2608::FmEngine::STATUS_TIMER_B)) | busy;
+		return narrow_cast<uint8_t>((fm.status() & (ym2608::FmEngine::STATUS_TIMER_A | ym2608::FmEngine::STATUS_TIMER_B)) | busy);
 	case 1:
 		if (addressLatch < 0x10) {
 			return ssg.peekRegister(addressLatch, time);
 		}
 		return (addressLatch == 0xff) ? 1 : 0;
 	case 2:
-		return statusHi() | busy;
+		return narrow_cast<uint8_t>(statusHi() | busy);
 	case 3:
 		return ((addressLatch & 0xff) < 0x10) ? adpcmB.peek(addressLatch & 0x0f) : 0;
 	default:
@@ -2317,7 +2318,7 @@ void YM2608::syncAdpcmBStatus()
 	// ymfm only pushed ADPCM flags into the IRQ line when status-hi was read.
 	// Raise or clear them whenever the ADPCM-B engine may have changed them.
 	uint8_t status = statusHi();
-	fm.setResetStatus(status, ~status);
+	fm.setResetStatus(status, uint8_t(~status));
 }
 
 void YM2608::sync(EmuTime time)
@@ -2411,7 +2412,7 @@ void YM2608::writeRegister(unsigned regNum, uint8_t data, EmuTime time)
 		}
 	} else {
 		// 20-28, 2A-FF, 111-1FF: write to FM
-		fm.writeReg(regNum, data, time);
+		fm.writeReg(narrow_cast<uint16_t>(regNum), data, time);
 	}
 
 	// mark busy for a bit
@@ -2432,7 +2433,7 @@ uint8_t YM2608::peekRegister(unsigned regNum, EmuTime time) const
 	} else if (regNum == 0x110) {
 		return flagControl;
 	} else {
-		return fm.readReg(regNum);
+		return fm.readReg(narrow_cast<uint16_t>(regNum));
 	}
 }
 

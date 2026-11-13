@@ -121,7 +121,7 @@ constexpr std::array<B4, 4> EG_STEP_HI = {
 	for (auto timer_shift : xrange(14)) {
 		for (auto timer : xrange(4)) {
 			for (auto rate : xrange(64)) {
-				uint8_t rate_hi = rate >> 2;
+				auto rate_hi = narrow<uint8_t>(rate >> 2);
 				uint8_t rate_lo = rate & 3;
 				bool inc_hi = EG_STEP_HI[timer][rate_lo];
 				bool inc_lo = [&]() -> bool {
@@ -134,13 +134,13 @@ constexpr std::array<B4, 4> EG_STEP_HI = {
 					}
 					return false;
 				}();
-				result[timer_shift][timer][rate] = [&]() {
+				result[timer_shift][timer][rate] = [&]() -> uint8_t {
 					if (rate_hi != 0xf) {
 						int32_t shift = (rate_hi < 12)
 						              ? inc_lo
 						              : (rate_hi - 11 + inc_hi);
 						if (shift > 0) {
-							return 5 - shift;
+							return narrow<uint8_t>(5 - shift);
 						}
 					}
 					return 31;
@@ -159,7 +159,7 @@ static constexpr auto attack = computeAttackTable();
 	for (auto timer_shift : xrange(14)) {
 		for (auto timer : xrange(4)) {
 			for (auto rate : xrange(64)) {
-				uint8_t rate_hi = rate >> 2;
+				auto rate_hi = narrow<uint8_t>(rate >> 2);
 				uint8_t rate_lo = rate & 3;
 				bool inc_hi = EG_STEP_HI[timer][rate_lo];
 				bool inc_lo = [&]() -> bool {
@@ -181,7 +181,7 @@ static constexpr auto attack = computeAttackTable();
 					          (rate_hi == 12 && !inc_hi && (counter_state == 3)) ||
 					          (inc_lo && (counter_state == 3));
 					int i01 = (i0 << 1) | i1;
-					result[timer_shift][timer][counter_state][rate] = i01;
+					result[timer_shift][timer][counter_state][rate] = narrow<uint8_t>(i01);
 				}
 			}
 		}
@@ -210,7 +210,7 @@ template<typename Table>
 					result.index[i][j][k] = narrow<uint8_t>(std::ranges::distance(haystack.begin(), it));
 				} else {
 					copy_to_range(table[i][j][k], result.data[out_n]);
-					result.index[i][j][k] = out_n;
+					result.index[i][j][k] = narrow<uint8_t>(out_n);
 					++out_n;
 				}
 			}

@@ -195,7 +195,7 @@ inline void Graphic4Mode::pset(
 	uint8_t src, uint8_t color, LogOp op)
 {
 	auto sh = uint8_t(((~x) & 1) << 2);
-	op(time, vram, addr, src, uint8_t(color << sh), ~uint8_t(15 << sh));
+	op(time, vram, addr, src, uint8_t(color << sh), uint8_t(~(15 << sh)));
 }
 
 inline uint8_t Graphic4Mode::duplicate(uint8_t color)
@@ -247,7 +247,7 @@ inline void Graphic5Mode::pset(
 	uint8_t src, uint8_t color, LogOp op)
 {
 	auto sh = uint8_t(((~x) & 3) << 1);
-	op(time, vram, addr, src, uint8_t(color << sh), ~uint8_t(3 << sh));
+	op(time, vram, addr, src, uint8_t(color << sh), uint8_t(~(3 << sh)));
 }
 
 inline uint8_t Graphic5Mode::duplicate(uint8_t color)
@@ -301,7 +301,7 @@ inline void Graphic6Mode::pset(
 	uint8_t src, uint8_t color, LogOp op)
 {
 	auto sh = uint8_t(((~x) & 1) << 2);
-	op(time, vram, addr, src, uint8_t(color << sh), ~uint8_t(15 << sh));
+	op(time, vram, addr, src, uint8_t(color << sh), uint8_t(~(15 << sh)));
 }
 
 inline uint8_t Graphic6Mode::duplicate(uint8_t color)
@@ -575,7 +575,7 @@ struct IncrMask4
 	}
 	void step()
 	{
-		mask = ~mask;
+		mask = uint8_t(~mask);
 	}
 private:
 	uint8_t mask;
@@ -584,7 +584,7 @@ private:
 struct IncrMask5
 {
 	IncrMask5(unsigned x, int tx)
-		: mask(~uint8_t(0xC0 >> ((x & 3) << 1)))
+		: mask(uint8_t(~(0xC0 >> ((x & 3) << 1))))
 		, shift((tx > 0) ? 6 : 2)
 	{
 	}
@@ -698,7 +698,7 @@ struct NotOp {
 	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
 	                uint8_t src, uint8_t color, uint8_t mask) const
 	{
-		vram.cmdWrite(addr, (src & mask) | ~(color | mask), time);
+		vram.cmdWrite(addr, uint8_t((src & mask) | ~(color | mask)), time);
 	}
 };
 

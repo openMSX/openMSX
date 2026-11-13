@@ -512,7 +512,7 @@ void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 		auto drawSpriteAttributes = [&]{
 			auto rows = total / 8;
 			auto zoomSize = gl::vec2{float(spriteW), float(spriteH)} * float(zm);
-			auto fullSize = zoomSize * gl::vec2(8, rows);
+			auto fullSize = zoomSize * gl::vec2(8, float(rows));
 			im::Child("##attrib", {0, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				if (type == NONE) {
 					ImGui::TextUnformatted("No sprites in this screen mode"sv);

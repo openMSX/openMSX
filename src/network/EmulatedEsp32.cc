@@ -916,15 +916,15 @@ void EmulatedEsp32::tcpAcceptClient(Connection* conn) const
 [[nodiscard]] static int sockSendTo(SOCKET sd, std::span<const uint8_t> buf,
                                     const struct sockaddr* dest, ::socklen_t destLen)
 {
-	return sendto(sd, std::bit_cast<const char*>(buf.data()),
-	              static_cast<int>(buf.size()), 0, dest, destLen);
+	return narrow_cast<int>(sendto(sd, std::bit_cast<const char*>(buf.data()),
+	              static_cast<int>(buf.size()), 0, dest, destLen));
 }
 
 [[nodiscard]] static int sockRecvFrom(SOCKET sd, std::span<uint8_t> buf,
                                       struct sockaddr* from, ::socklen_t* fromLen)
 {
-	return recvfrom(sd, std::bit_cast<char*>(buf.data()),
-	                static_cast<int>(buf.size()), 0, from, fromLen);
+	return narrow_cast<int>(recvfrom(sd, std::bit_cast<char*>(buf.data()),
+	                static_cast<int>(buf.size()), 0, from, fromLen));
 }
 
 // Active TLS: drive the handshake (the connection reports SYN-SENT until

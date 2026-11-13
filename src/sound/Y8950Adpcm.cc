@@ -111,7 +111,7 @@ void Y8950Adpcm::restart(PlayData& pd) const
 void Y8950Adpcm::sync(EmuTime time)
 {
 	if (isPlaying()) { // optimization, also correct without this test
-		unsigned ticks = clock.getTicksTill(time);
+		auto ticks = narrow_cast<unsigned>(clock.getTicksTill(time));
 		for (unsigned i = 0; isPlaying() && (i < ticks); ++i) {
 			(void)calcSample(true); // ignore result
 		}

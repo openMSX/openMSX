@@ -401,8 +401,8 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			// such as font size and the overall size of gui elements
 			// and the speed of crossing virtual barriers
 			static constexpr float MARGIN = 10;
-			float xn = std::clamp(x, MARGIN, w - 1 - MARGIN);
-			float yn = std::clamp(y, MARGIN, h - 1 - MARGIN);
+			float xn = std::clamp(x, MARGIN, float(w) - 1 - MARGIN);
+			float yn = std::clamp(y, MARGIN, float(h) - 1 - MARGIN);
 			if (xn != x || yn != y) SDL_WarpMouseInWindow(window, xn, yn);
 		}
 		break;

@@ -102,6 +102,7 @@
 
 #include "cstd.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -254,7 +255,7 @@ uint8_t SCC::readWave(unsigned channel, unsigned address, EmuTime time) const
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
 	} else {
-		unsigned ticks = deformTimer.getTicksTill(time);
+		auto ticks = narrow_cast<unsigned>(deformTimer.getTicksTill(time));
 		unsigned periodCh = ((channel == 3) &&
 		                     (currentMode != Mode::Plus) &&
 		                     ((deformValue & 0xC0) == 0x40))

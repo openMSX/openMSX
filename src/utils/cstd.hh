@@ -16,7 +16,7 @@ namespace cstd {
 template<typename T>
 [[nodiscard]] constexpr T abs(T t)
 {
-    return (t >= 0) ? t : -t;
+    return (t >= 0) ? t : T(-t);
 }
 
 // Reimplementation of various mathematical functions. You must specify an

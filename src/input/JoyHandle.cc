@@ -81,11 +81,11 @@ void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 	std::vector<AnalogStatus> newWheelBindings;
 
 	auto& interp = commandController.getInterpreter();
-	unsigned n = newValue.getListLength(interp);
+	auto n = newValue.getListLength(interp);
 	if (n & 1) {
 		throw CommandException("Need an even number of elements");
 	}
-	for (unsigned i = 0; i < n; i += 2) {
+	for (decltype(n) i = 0; i < n; i += 2) {
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
 		auto it = std::ranges::find(keyNames, key);
 		if (it == keyNames.end()) {

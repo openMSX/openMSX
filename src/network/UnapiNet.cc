@@ -1,6 +1,7 @@
 #include "UnapiNet.hh"
 
 #include "MSXException.hh"
+#include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
 
@@ -775,8 +776,8 @@ void UnapiNet::socketLoop()
 			std::array<char, MAX_UDP_DGRAM> buf;
 			struct sockaddr_in src;
 			::socklen_t slen = sizeof(src);
-			int n = recvfrom(sd, buf.data(), buf.size(), 0,
-			                 reinterpret_cast<struct sockaddr*>(&src), &slen);
+			auto n = narrow_cast<int>(recvfrom(sd, buf.data(), buf.size(), 0,
+			                 reinterpret_cast<struct sockaddr*>(&src), &slen));
 #ifdef _WIN32
 			// Winsock reports a datagram larger than the buffer as an
 			// ERROR (WSAEMSGSIZE) after filling the buffer and consuming
@@ -1568,8 +1569,8 @@ void UnapiNet::cmdUdpSend()
 			replyStatus(ERR_NO_CONN);
 			return;
 		}
-		n = sendto(sd, data, static_cast<int>(len), 0,
-		           reinterpret_cast<struct sockaddr*>(&dest), sizeof(dest));
+		n = narrow_cast<int>(sendto(sd, data, static_cast<int>(len), 0,
+		           reinterpret_cast<struct sockaddr*>(&dest), sizeof(dest)));
 	}
 	// A refused or short kernel write leaves the socket open and usable.
 	replyStatus(n == static_cast<int>(len) ? ERR_OK : ERR_NO_NETWORK);

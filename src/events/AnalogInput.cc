@@ -37,7 +37,7 @@ std::optional<AnalogInput> parseAnalogInput(std::string_view text)
 		if (axis.size() != 6 || !axis.ends_with("-axis")) return std::nullopt;
 		auto n = tolower(axis[0]) - 'x';
 		if (n != one_of(0, 1)) return std::nullopt;
-		return AnalogMouseAxis(n);
+		return AnalogMouseAxis(narrow_cast<uint8_t>(n));
 	} else if (type.starts_with("joy")) {
 		type.remove_prefix(3);
 		auto j = StringOp::stringToBase<10, unsigned>(type);

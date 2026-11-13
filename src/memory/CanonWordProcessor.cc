@@ -97,7 +97,7 @@ const byte* CanonWordProcessor::readHelper(uint16_t address) const
 void CanonWordProcessor::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0xbff8 <= address) && (address <= 0xbfff)) {
-		select = ~value; // invert !!
+		select = byte(~value); // invert !!
 		invalidateDeviceRCache(0x4000, 0x4000);
 	}
 }
