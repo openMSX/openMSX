@@ -11,7 +11,7 @@ without the interrupt.
 | File | What it is |
 |------|------------|
 | `gr8timer.z80` | GR8TIMER probe source. Its header describes every test. |
-| `gr8timer_hotbit.jpg` | An earlier GR8TIMER on a real GR8NET. |
+| `gr8timer_hotbit.jpg` | GR8TIMER on a real GR8NET. |
 | `gr8timer_openmsx.png` | GR8TIMER in openMSX with `-ext gr8net-timer`. |
 
 Test machine: a Hotbit (MSX1, 3.58 MHz Z80, Nextor 2.01) with a GR8NET
@@ -37,20 +37,18 @@ the counter at 3.579545 MHz and accepts the slot when:
 A slot that fails gets its four bytes (5FEAh-5FEDh) written back, in case
 it is RAM.
 
-The photo was taken with an earlier version, which found the adapter
-through the I/O ports and printed an ID line (build date, slot, hardware
-version) in place of `TIMER IN SLOT`. The measurements are the same code.
-**The slot search has not been run on a real GR8NET yet.**
+On the real machine the search finds the GR8NET in slot 82h, the slot
+the adapter itself reports through its I/O ports.
 
 ## Results
 
 | Test | Expected | Real GR8NET | openMSX |
 |------|----------|-------------|---------|
-| TIMER IN SLOT | the adapter's slot | (ID line: slot 82h) | 02h |
-| READ PAIR | 335 | 335 | 335 |
-| DELAY 10M | 625778 | 626461 | 625778 |
+| TIMER IN SLOT | the adapter's slot | 82h | 02h |
+| READ PAIR | 335 | 336 | 335 |
+| DELAY 10M | 625778 | 626462 | 625778 |
 | DELAY 3M5 | 224000 | 224000 | 224000 |
-| FRAME | ~166882 | 167033 | 166935 |
+| FRAME | ~166882 | 167117 | 166935 |
 | STOP | two equal values | OK | OK |
 | INT, CLEAR, AGAIN | OK | OK | OK |
 
@@ -64,10 +62,11 @@ In openMSX slot 2 is not expanded on that machine. With
   (IGE = 0). Its INT bit still sets and clears.
 - **The 3.579545 MHz clock is locked to the Z80's clock on this board.**
   224000 Z80 clocks gave exactly 224000 ticks.
-- **The 10 MHz clock runs 0.109% fast relative to the Z80** (626461
+- **The 10 MHz clock runs 0.109% fast relative to the Z80** (626462
   against 625778). openMSX uses an exact 10 MHz.
 - Two back-to-back reads (LSB, then the latched MID and MSB) take 335
-  ticks at 10 MHz, as the Z80 clock count predicts.
+  or 336 ticks at 10 MHz (120 Z80 clocks are 335.2 ticks, 335.6 with the
+  fast clock), as the Z80 clock count predicts.
 
 For timing other devices (for instance V9990 commands), CLS = 1
 (3.579545 MHz) counts in Z80 clocks.
