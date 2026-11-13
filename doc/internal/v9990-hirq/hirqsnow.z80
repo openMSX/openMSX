@@ -1,0 +1,775 @@
+; HIRQSNOW: does the V9990's line interrupt (R#10/R#11) come on lines
+; past the picture, in the bottom border and the vertical blank? And are
+; palette writes made from it, in the blank, free of snow? MSX-DOS .COM
+; (HIRQSNOW.COM, MSX-DOS 1 or 2, MSX1-safe). Keys 0-7 pick a test, ESC
+; returns to DOS.
+;
+; Why: PALSNOW (the V9990 palette snow probe) found that palette writes snow unless
+; made in the blank: from VR's rise + 14 lines (the bottom border's end) to
+; + 36 (the top border's start). A vertical-blank handler that runs at
+; VR's rise can't wait there; a line interrupt in the blank could.
+; The manual (section 12.2, p. 83): IL0-9 is the line "with the display
+; start line as 0", nothing says visible lines only. Section 13.3.13 (p.
+; 103), NTSC, non-interlaced: 212 display lines, 14 bottom border, 4 + 3 +
+; 15 blank (erase, sync, erase), 14 top border, 262 in all: line 212 is
+; VR's rise, 226-247 the blank, IL 227 is VR + 15.
+;
+; Screen: PALSNOW's (B1, 256x212, 4 bpp; stripes of colours 0 (the
+; backdrop, black), 1 (black), 2 (grey), 3 (white); the test's number: that
+; many white blocks at the top left). Text: white, 3x5 dots doubled.
+;
+;  0  TABLE    (at the start) "VR LINES": VR's rise to its fall, in lines
+;              (counted on the status HR bit). "BURST": the lines the burst
+;              below takes. Then, for each IL: the lines from VR's rise to
+;              the line interrupt (port 66h b1, R#9 IEH set), POL polled with
+;              interrupts off, INT taken as an IM1 interrupt (0038h hooked for
+;              the frame; the MSX VDP's interrupt held off meanwhile, then
+;              left to DOS); "---": none in
+;              300 lines. Expected (manual): IL -
+;              212 for IL 212-261, IL + 50 below 212 (the next frame), maybe
+;              one off (the counting). INT "---" with POL right: the board
+;              doesn't take INT1 (the line interrupt's pin) to the MSX.
+;              PowerGraph, first version (IL 0-262): as expected up to 227,
+;              "---" from 236 on, both columns; this list finds the end.
+;  1  NONE     no palette write (the control)
+;  2  IL 214   at the line interrupt, polled: PALSNOW's burst (entries
+;              15-63, none shown, = white: 147 bytes, about 14 lines) in the
+;              bottom border: snow there (PALSNOW test 5)
+;  3  IL 226   the blank's first line: clean
+;  4  IL 227   VR + 15: clean
+;  5  IL 229   the burst (18 lines) ends just before the top border
+;  6  IL 231   the burst runs into the top border's first lines
+;  7  INT 227  as 4, the burst from an IM1 interrupt (as a game would)
+; "MISS" at the top left: some frame's line interrupt didn't come (no burst
+; that frame).
+
+V9_VRAM         equ     60h
+V9_PAL          equ     61h
+V9_DATA         equ     63h
+V9_SEL          equ     64h
+V9_STAT         equ     65h
+V9_INT          equ     66h
+V9_SYS          equ     67h
+V9_OUT          equ     6Fh
+MSX_STAT        equ     99h
+MSX_CTRL        equ     99h
+RG1SAV          equ     0F3E0h          ; the BIOS's copy of the VDP's R#1
+IE0             equ     20h             ; R#1: the VDP's frame interrupt
+
+STAT_VR         equ     40h
+STAT_HR         equ     20h
+INT_HI          equ     02h
+IEH             equ     02h
+TIMEOUT         equ     300
+BURST_ENTRY     equ     15
+TEXT_Y          equ     16
+ROW_Y           equ     40
+ROW_PITCH       equ     11
+WHITE2          equ     33h             ; two white dots
+
+        output  "HIRQSNOW.COM"
+        org     0100h
+
+START:
+        di
+        ; reset the V9990
+        ld      a,2
+        out     (V9_SYS),a
+        xor     a
+        out     (V9_SYS),a
+        out     (V9_OUT),a
+        ld      hl,REGS
+REG_LP:
+        ld      a,(hl)
+        cp      0FFh
+        jr      z,REG_DONE
+        out     (V9_SEL),a
+        inc     hl
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        jr      REG_LP
+REG_DONE:
+        ld      a,14
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      hl,PALETTE
+        ld      bc,64*3*256+V9_PAL      ; B = 192 bytes, C = the port
+        otir
+        call    STRIPES
+        ; display on
+        ld      a,8
+        out     (V9_SEL),a
+        ld      a,0C2h
+        out     (V9_DATA),a
+        xor     a
+        ld      (TEST),a
+        call    NEW_TEST
+
+MAIN_LP:
+        ei
+        ld      e,0FFh
+        ld      c,06h                   ; BDOS: direct console input, no wait
+        call    5
+        and     a
+        jr      z,FRAME
+        cp      1Bh
+        jr      z,QUIT
+        sub     '0'
+        cp      8
+        jr      nc,FRAME
+        ld      (TEST),a
+        call    NEW_TEST
+FRAME:
+        di
+        ld      a,(TEST)
+        cp      2
+        jr      c,F_NONE
+        cp      7
+        jr      z,F_INT
+        call    TEST_IL
+        call    T_POLL
+        jr      MAIN_LP
+F_INT:
+        call    TEST_IL
+        call    T_INT
+        jr      MAIN_LP
+F_NONE:
+        call    WAIT_VR_RISE
+        jr      MAIN_LP
+
+QUIT:
+        ld      a,10h
+        out     (V9_OUT),a              ; the courtesy value on exit
+        ld      c,00h                   ; BDOS: back to DOS
+        jp      5
+
+; the screen again, and test 0's table
+NEW_TEST:
+        di
+        xor     a
+        ld      (MISSED),a
+        call    STRIPES
+        call    INDICATOR
+        ld      a,(TEST)
+        and     a
+        ret     nz
+        jp      TABLE
+
+; HL = the test's IL (SNOW_IL)
+TEST_IL:
+        ld      a,(TEST)
+        add     a,a
+        ld      e,a
+        ld      d,0
+        ld      hl,SNOW_IL
+        add     hl,de
+        ld      a,(hl)
+        inc     hl
+        ld      h,(hl)
+        ld      l,a
+        ret
+
+; 2-6: the burst at line interrupt HL, polled
+T_POLL:
+        call    ARM
+        call    WAIT_VR_RISE
+        ld      a,7
+        out     (V9_INT),a
+TP_LP:
+        in      a,(V9_INT)
+        and     INT_HI
+        jr      nz,TP_GO
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,TP_LP
+        call    MISS                    ; the picture started: none
+        jr      DISARM
+TP_GO:
+        call    BURST
+        ; fall through
+
+; R#9 = 0, the flags cleared
+DISARM:
+        ld      a,9
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      a,7
+        out     (V9_INT),a
+        ret
+
+; 7: the burst at line interrupt HL, from the IM1 interrupt
+T_INT:
+        call    SET_LINE
+        ld      a,1
+        ld      (INT_BURST),a
+        call    INT_FRAME
+        ret     nz
+        jp      MISS
+
+; R#10-12 = line HL, dot 0 (R#11 IEHM 0: that line only); R#9 = IEH
+ARM:
+        call    SET_LINE
+IEH_ON:
+        ld      a,9
+        out     (V9_SEL),a
+        ld      a,IEH
+        out     (V9_DATA),a
+        ret
+
+; R#10-12 = line HL, dot 0
+SET_LINE:
+        ld      a,10
+        out     (V9_SEL),a
+        ld      a,l
+        out     (V9_DATA),a
+        ld      a,h
+        out     (V9_DATA),a
+        xor     a
+        out     (V9_DATA),a
+        ret
+
+; a frame, the line interrupt polled (ARMed): DE = lines from VR's rise to
+; it, 0FFFFh if none in TIMEOUT
+POLL_FRAME:
+        call    WAIT_VR_RISE
+        ld      a,7
+        out     (V9_INT),a
+        ld      de,0
+PF_LP:
+        call    WAIT_LINE
+        inc     de
+        in      a,(V9_INT)
+        and     INT_HI
+        ret     nz
+        ld      a,d
+        cp      high TIMEOUT
+        jr      nz,PF_LP
+        ld      a,e
+        cp      low TIMEOUT
+        jr      nz,PF_LP
+        ld      de,0FFFFh
+        ret
+
+; a frame with the line interrupt (SET_LINE) taken at 0038h: DE = lines
+; from VR's rise to it; Z if none in TIMEOUT. The MSX VDP's interrupt is
+; off meanwhile (R#1 IE0): DOS's handler must not run in the window. It
+; pages the BIOS in at 0038h and enables interrupts, and a line interrupt
+; then re-enters the BIOS's handler, which can't acknowledge the V9990,
+; for ever (the first hook-to-DOS version hung so on the PowerGraph); it
+; also takes lines the count would miss. The VDP's flag stays set, so DOS
+; gets the interrupt (the keyboard's scan) at the next ei after the frame.
+; Ends with 0038h back, R#9 = 0 and IE0 back, interrupts off.
+INT_FRAME:
+        di
+        xor     a
+        ld      (GOT),a
+        ld      a,(RG1SAV)
+        and     0FFh-IE0
+        call    MSX_R1
+        call    HOOK_ON
+        call    WAIT_VR_RISE
+        ld      a,7
+        out     (V9_INT),a
+        call    IEH_ON
+        ld      a,1
+        ld      (ARMED),a
+        ld      de,0
+        ei
+IF_LP:
+        call    WAIT_LINE
+        inc     de
+        ld      a,(GOT)
+        and     a
+        jr      nz,IF_END
+        ld      a,d
+        cp      high TIMEOUT
+        jr      nz,IF_LP
+        ld      a,e
+        cp      low TIMEOUT
+        jr      nz,IF_LP
+        xor     a
+IF_END:
+        di
+        push    af
+        xor     a
+        ld      (ARMED),a
+        push    de
+        call    DISARM
+        call    HOOK_OFF
+        ld      a,(RG1SAV)
+        call    MSX_R1
+        pop     de
+        pop     af
+        ret
+
+; the MSX VDP's R#1 = A (interrupts off)
+MSX_R1:
+        out     (MSX_CTRL),a
+        ld      a,80h+1
+        out     (MSX_CTRL),a
+        ret
+
+; IM1: the line interrupt (acknowledged; the burst if INT_BURST), or
+; another (none expected: the MSX VDP's is off): acknowledged (S#0 read)
+INT_HANDLER:
+        push    af
+        ld      a,(ARMED)               ; (the flag sets with R#9 = 0 too:
+        and     a                       ; before IEH_ON it is stale)
+        jr      z,IH_OTHER
+        in      a,(V9_INT)
+        and     INT_HI
+        jr      z,IH_OTHER
+        out     (V9_INT),a
+        ld      a,(INT_BURST)
+        and     a
+        jr      z,IH_GOT
+        push    bc
+        push    de
+        push    hl
+        call    BURST
+        pop     hl
+        pop     de
+        pop     bc
+IH_GOT:
+        ld      a,1
+        ld      (GOT),a
+        pop     af
+        ei
+        ret
+IH_OTHER:
+        in      a,(MSX_STAT)
+        pop     af
+        ei
+        ret
+
+; 0038h: jp INT_HANDLER (its 3 bytes kept)
+HOOK_ON:
+        ld      hl,0038h
+        ld      de,HOOK_SAVE
+        ld      bc,3
+        ldir
+        ld      a,0C3h
+        ld      (0038h),a
+        ld      hl,INT_HANDLER
+        ld      (0039h),hl
+        ret
+
+HOOK_OFF:
+        ld      hl,HOOK_SAVE
+        ld      de,0038h
+        ld      bc,3
+        ldir
+        ret
+
+; test 0: the burst's lines, then a row for each IL_LIST line
+TABLE:
+        xor     a
+        call    AFTER_BURST
+        push    hl
+        inc     hl
+        inc     hl                      ; + the 2 lines before: VR's length
+        ld      de,TXT_VR_N
+        call    DEC3
+        ld      a,1
+        call    AFTER_BURST
+        ex      de,hl
+        pop     hl
+        and     a
+        sbc     hl,de
+        ld      de,TXT_BURST_N
+        call    DEC3
+        ld      hl,TXT_VR
+        ld      de,TEXT_Y*256
+        call    PRINT
+        ld      hl,TXT_HEAD
+        ld      de,(TEXT_Y+12)*256
+        call    PRINT
+        ld      a,ROW_Y
+        ld      (ROW),a
+        ld      hl,IL_LIST
+        ld      (IL_PTR),hl
+TB_LP:
+        ld      hl,(IL_PTR)
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      (IL_PTR),hl
+        ld      a,d
+        and     e
+        inc     a
+        ret     z                       ; 0FFFFh: the list's end
+        ld      (IL),de
+        ex      de,hl
+        ld      de,TXT_ROW
+        call    DEC3
+        ld      hl,(IL)
+        call    ARM
+        call    POLL_FRAME
+        call    DISARM
+        ex      de,hl
+        ld      de,TXT_ROW+4
+        call    DEC3
+        xor     a
+        ld      (INT_BURST),a
+        ld      hl,(IL)
+        call    SET_LINE
+        call    INT_FRAME
+        jr      nz,TB_GOT
+        ld      de,0FFFFh
+TB_GOT:
+        ex      de,hl
+        ld      de,TXT_ROW+8
+        call    DEC3
+ROW_DONE:
+        ld      hl,TXT_ROW
+        ld      a,(ROW)
+        ld      d,a
+        ld      e,0
+        call    PRINT
+        ld      a,(ROW)
+        add     a,ROW_PITCH
+        ld      (ROW),a
+        jr      TB_LP
+
+; HL = lines from VR's rise + 2 to its fall, with (A = 1) or without (0)
+; the burst first
+AFTER_BURST:
+        push    af
+        call    WAIT_VR_RISE
+        call    WAIT_LINE
+        call    WAIT_LINE
+        pop     af
+        and     a
+        call    nz,BURST
+        ld      hl,0
+AB_LP:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        ret     z
+        call    WAIT_LINE
+        inc     hl
+        jr      AB_LP
+
+; "MISS" once
+MISS:
+        ld      a,(MISSED)
+        and     a
+        ret     nz
+        inc     a
+        ld      (MISSED),a
+        ld      hl,TXT_MISS
+        ld      de,TEXT_Y*256
+        jp      PRINT
+
+; entries 15-63 = white (147 bytes)
+BURST:
+        ld      a,14
+        out     (V9_SEL),a
+        ld      a,BURST_ENTRY*4
+        out     (V9_DATA),a
+        ld      c,V9_PAL
+        ld      e,64-BURST_ENTRY
+BU_LP:
+        ld      hl,SNOW_COLOUR
+        outi
+        outi
+        outi
+        dec     e
+        jr      nz,BU_LP
+        ret
+
+; VR low then high: the vertical non-display period starts
+WAIT_VR_RISE:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,WAIT_VR_RISE
+VR_HIGH:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      z,VR_HIGH
+VR_ROSE:
+        ret
+
+; HR high then low: the next line's picture part starts
+WAIT_LINE:
+        in      a,(V9_STAT)
+        and     STAT_HR
+        jr      z,WAIT_LINE
+HR_HIGH:
+        in      a,(V9_STAT)
+        and     STAT_HR
+        jr      nz,HR_HIGH
+        ret
+
+; the four stripes, lines 0-211
+STRIPES:
+        ld      hl,0
+        call    WADDR
+        ld      d,212
+ST_LN:
+        ld      e,00h
+        call    OUT32
+        ld      e,11h
+        call    OUT32
+        ld      e,22h
+        call    OUT32
+        ld      e,33h
+        call    OUT32
+        dec     d
+        jr      nz,ST_LN
+        ret
+
+; The test's number: TEST white blocks (4x8 dots, 2 dots apart) at lines
+; 4-11: of each 3 bytes from x 0 the first is a gap, the next two a block,
+; for bytes 0 to TEST*3-1
+INDICATOR:
+        ld      a,(TEST)
+        ld      e,a
+        add     a,a
+        add     a,e
+        ld      e,a                     ; E = TEST*3: the bytes the blocks span
+        ld      d,4
+IN_LN:
+        ld      a,d
+        rrca
+        and     80h
+        ld      l,a
+        ld      a,d
+        srl     a
+        ld      h,a                     ; HL = line * 128
+        call    WADDR
+        ld      b,0                     ; the byte, 0-31
+        ld      l,0                     ; its place in its 3 (0: the gap)
+IN_BYTE:
+        xor     a
+        cp      l
+        jr      z,IN_OUT
+        ld      a,b
+        cp      e
+        ld      a,0
+        jr      nc,IN_OUT               ; past the blocks
+        ld      a,33h
+IN_OUT:
+        out     (V9_VRAM),a
+        inc     l
+        ld      a,l
+        cp      3
+        jr      c,IN_NEXT
+        ld      l,0
+IN_NEXT:
+        inc     b
+        ld      a,b
+        cp      32
+        jr      nz,IN_BYTE
+        inc     d
+        ld      a,d
+        cp      12
+        jr      nz,IN_LN
+        ret
+
+; HL = text (0-ended: 0-9, A-Z, '-', anything else a blank), D = its top
+; line, E = its column (8 dots)
+PRINT:
+        ld      a,(hl)
+        and     a
+        ret     z
+        push    hl
+        call    PUTC
+        pop     hl
+        inc     hl
+        inc     e
+        jr      PRINT
+
+; A = the character, D = line, E = column; D and E kept
+PUTC:
+        push    de
+        call    GLYPH
+        ld      b,5
+PU_ROW:
+        ld      c,(hl)
+        call    FONT_LINE
+        inc     d
+        call    FONT_LINE
+        inc     d
+        inc     hl
+        djnz    PU_ROW
+        pop     de
+        ret
+
+; HL = the glyph of character A (FONT, 5 rows)
+GLYPH:
+        ld      c,36
+        cp      '-'
+        jr      z,GL_IDX
+        ld      c,37
+        sub     '0'
+        cp      10
+        jr      c,GL_DIG
+        sub     'A'-'0'
+        cp      26
+        jr      nc,GL_IDX
+        add     a,10
+GL_DIG:
+        ld      c,a
+GL_IDX:
+        ld      l,c
+        ld      h,0
+        ld      b,h
+        add     hl,hl
+        add     hl,hl
+        add     hl,bc                   ; * 5
+        ld      bc,FONT
+        add     hl,bc
+        ret
+
+; a glyph row's line: C bits 2-0 (left first), 2 dots each, a blank byte
+; after; at line D, column E; B, C, D, E, HL kept
+FONT_LINE:
+        push    hl
+        ld      a,d
+        rrca
+        and     80h
+        ld      l,a
+        ld      a,e
+        add     a,a
+        add     a,a
+        or      l
+        ld      l,a
+        ld      a,d
+        srl     a
+        ld      h,a
+        call    WADDR
+        ld      a,c
+        and     4
+        call    FONT_DOT
+        ld      a,c
+        and     2
+        call    FONT_DOT
+        ld      a,c
+        and     1
+        call    FONT_DOT
+        xor     a
+        out     (V9_VRAM),a
+        pop     hl
+        ret
+
+FONT_DOT:
+        ld      a,WHITE2
+        jr      nz,FD_OUT
+        xor     a
+FD_OUT:
+        out     (V9_VRAM),a
+        ret
+
+; HL (0-999) as 3 digits at DE; 0FFFFh as "---"
+DEC3:
+        ld      a,h
+        and     l
+        inc     a
+        jr      nz,D3_NUM
+        ld      a,'-'
+        ld      (de),a
+        inc     de
+        ld      (de),a
+        inc     de
+        ld      (de),a
+        ret
+D3_NUM:
+        ld      bc,-100
+        call    D3_DIGIT
+        ld      bc,-10
+        call    D3_DIGIT
+        ld      a,l
+        add     a,'0'
+        ld      (de),a
+        ret
+D3_DIGIT:
+        ld      a,'0'-1
+D3_LP:
+        inc     a
+        add     hl,bc
+        jr      c,D3_LP
+        sbc     hl,bc
+        ld      (de),a
+        inc     de
+        ret
+
+; HL = VRAM write address (bits 15-0; bits 18-16 = 0)
+WADDR:
+        xor     a
+        out     (V9_SEL),a
+        ld      a,l
+        out     (V9_DATA),a
+        ld      a,h
+        out     (V9_DATA),a
+        xor     a
+        out     (V9_DATA),a
+        ret
+
+; 32 bytes of E
+OUT32:
+        ld      b,32
+O32_LP:
+        ld      a,e
+        out     (V9_VRAM),a
+        djnz    O32_LP
+        ret
+
+REGS:
+        db      6,81h, 7,00h, 8,42h, 9,00h, 13,00h, 15,00h, 16,00h
+        db      17,0, 18,0, 19,0, 20,0, 21,0, 22,0, 23,0, 24,0
+        db      0FFh
+
+; R, G, B (5 bits): 0 black (the backdrop), 1 black, 2 grey, 3 white,
+; 4-63 black
+PALETTE:
+        db      0,0,0, 0,0,0, 16,16,16, 31,31,31
+        ds      60*3,0
+SNOW_COLOUR:
+        db      31,31,31
+
+; 3x5: each row's bits 2-0, left first; 0-9, A-Z, '-', blank
+FONT:
+        db      7,5,5,5,7, 2,6,2,2,7, 7,1,7,4,7, 7,1,3,1,7, 5,5,7,1,1
+        db      7,4,7,1,7, 7,4,7,5,7, 7,1,1,2,2, 7,5,7,5,7, 7,5,7,1,7
+        db      2,5,7,5,5, 6,5,6,5,6, 3,4,4,4,3, 6,5,5,5,6, 7,4,6,4,7
+        db      7,4,6,4,4, 3,4,5,5,3, 5,5,7,5,5, 7,2,2,2,7, 1,1,1,5,2
+        db      5,5,6,5,5, 4,4,4,4,7, 5,7,7,5,5, 6,5,5,5,5, 2,5,5,5,2
+        db      6,5,6,4,4, 2,5,5,6,3, 6,5,6,5,5, 3,4,2,1,6, 7,2,2,2,2
+        db      5,5,5,5,7, 5,5,5,5,2, 5,5,7,7,5, 5,5,2,5,5, 5,5,2,2,2
+        db      7,1,2,4,7, 0,0,7,0,0, 0,0,0,0,0
+
+IL_LIST:
+        dw      0, 100, 211, 212, 213, 226, 227, 228, 229, 230, 231, 232
+        dw      233, 234, 235, 0FFFFh
+SNOW_IL:
+        dw      0, 0, 214, 226, 227, 229, 231, 227
+
+TXT_VR:
+        db      "VR LINES "
+TXT_VR_N:
+        db      "000  BURST "
+TXT_BURST_N:
+        db      "000",0
+TXT_HEAD:
+        db      "IL  POL INT",0
+TXT_ROW:
+        db      "000 000 000",0
+TXT_MISS:
+        db      "MISS",0
+
+TEST:   db      0
+MISSED: db      0
+GOT:    db      0
+ARMED:  db      0
+INT_BURST:
+        db      0
+ROW:    db      0
+IL:     dw      0
+IL_PTR: dw      0
+HOOK_SAVE:
+        ds      3
