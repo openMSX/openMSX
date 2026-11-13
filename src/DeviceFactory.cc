@@ -99,6 +99,7 @@
 #include "YamahaFDC.hh"
 #include "YamahaSKW01.hh"
 #include "MSXTimer.hh"
+#include "Y8960Mixer.hh"
 
 #include "one_of.hh"
 
@@ -340,6 +341,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<Franky>(conf);
 	} else if (type == "MSX-TIMER") {
 		result = std::make_unique<MSXTimer>(conf);
+	} else if (type == "Y8960-MIXER") {
+		result = std::make_unique<Y8960Mixer>(conf);
 	} else {
 		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");
