@@ -36,6 +36,7 @@ sources = files(
     'MSXS1985.cc',
     'MSXS1990.cc',
     'MSXSwitchedDevice.cc',
+    'Y8960SystemController.cc',
     'MSXToshibaTcx200x.cc',
     'MSXTurboRPause.cc',
     'MSXVictorHC9xSystemControl.cc',

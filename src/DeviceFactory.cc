@@ -105,6 +105,7 @@
 #include "Y8960SSGSDevice.hh"
 #include "Y8960OPLLDevice.hh"
 #include "Y8960OPMDevice.hh"
+#include "Y8960SystemController.hh"
 
 #include "one_of.hh"
 
@@ -358,6 +359,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<Y8960OPLLDevice>(conf);
 	} else if (type == "Y8960-OPM") {
 		result = std::make_unique<Y8960OPMDevice>(conf);
+	} else if (type == "Y8960-SYSTEM-CONTROLLER") {
+		result = std::make_unique<Y8960SystemController>(conf);
 	} else {
 		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");

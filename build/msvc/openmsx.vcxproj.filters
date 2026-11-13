@@ -1567,6 +1567,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1985.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1990.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Y8960SystemController.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXTurboRPause.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PasswordCart.cc" />
@@ -3400,6 +3401,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXS1985.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXS1990.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.hh" />
+    <None Include="$(OpenMSXSrcDir)\Y8960SystemController.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXTurboRPause.hh" />
     <None Include="$(OpenMSXSrcDir)\PasswordCart.hh" />
