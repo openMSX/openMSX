@@ -18,6 +18,7 @@
 #include "FraelSwitchableROM.hh"
 #include "Franky.hh"
 #include "GoudaSCSI.hh"
+#include "GR8NET.hh"
 #include "JVCMSXMIDI.hh"
 #include "MSXAudio.hh"
 #include "MSXBunsetsu.hh"
@@ -261,6 +262,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<SunriseIDE>(conf);
 	} else if (type == "UnapiNet") {
 		result = std::make_unique<UnapiNet>(conf);
+	} else if (type == "GR8NET") {
+		result = std::make_unique<GR8NET>(conf);
 	} else if (type == "GoudaSCSI") {
 		result = std::make_unique<GoudaSCSI>(conf);
 	} else if (type == "MegaSCSI") {
