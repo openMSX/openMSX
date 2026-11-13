@@ -220,6 +220,15 @@ class GL(Library):
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		if platform in ('netbsd', 'openbsd'):
 			return '-isystem /usr/X11R6/include -isystem /usr/X11R7/include'
+		elif platform in ('freebsd', 'dragonfly'):
+			# Mesa is in ports. As a system library, GL doesn't get the ports
+			# directory from the base class (and for the staticbindist that
+			# directory is the 3rd party install directory), so add it here.
+			# Not every compiler searches it by itself: GCC from ports does,
+			# the system compiler (Clang) doesn't. With -idirafter it's
+			# searched last, so it doesn't override other headers (e.g. those
+			# of the 3rd party libraries in the staticbindist).
+			return '-idirafter %s/include' % environ.get('LOCALBASE', '/usr/local')
 		else:
 			return super().getCompileFlags(
 				platform, linkStatic, distroRoot
@@ -233,6 +242,9 @@ class GL(Library):
 			return '-lopengl32'
 		elif platform in ('netbsd', 'openbsd'):
 			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGL'
+		elif platform in ('freebsd', 'dragonfly'):
+			# see getCompileFlags()
+			return '-L%s/lib -lGL' % environ.get('LOCALBASE', '/usr/local')
 		else:
 			return super().getLinkFlags(platform, linkStatic, distroRoot)
 
