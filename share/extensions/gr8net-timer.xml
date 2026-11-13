@@ -2,20 +2,19 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>GR8NET</name>
+    <name>GR8NET timer</name>
     <manufacturer>AGE Labs</manufacturer>
     <code/>
     <release_year>2015</release_year>
-    <description>GR8NET network adapter. Minimal: only the identification through I/O ports 5Eh/5Fh and the controlled interrupt generator's counter (special control registers 5FEAh-5FEDh in bank 0), usable as a timer. No ROM, network, audio or interrupt.</description>
+    <description>For developers. Not a GR8NET: only the 24-bit counter of that card's controlled interrupt generator (special control registers 5FEAh-5FEDh in bank 0), usable as a 10 MHz or 3.58 MHz timer. No I/O ports, ROM, network, audio or interrupt.</description>
     <type>network</type>
   </info>
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <GR8NET id="GR8NET">
+        <GR8NETTimer id="GR8NET timer">
           <mem base="0x4000" size="0x2000"/>
-          <io base="0x5E" num="2"/>
-        </GR8NET>
+        </GR8NETTimer>
       </secondary>
     </primary>
   </devices>

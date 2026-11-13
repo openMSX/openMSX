@@ -1,46 +1,62 @@
 # GR8NET: the controlled interrupt generator as a timer
 
-These are the hardware probe and the photo behind the minimal GR8NET
-device (`src/network/GR8NET.cc`). It emulates the adapter-ID ports and
-the 24-bit counter of the controlled interrupt generator (GR8NET manual,
-section 11.5.1), without the interrupt.
+These are the hardware probe and the photo behind the GR8NET timer
+device (`src/network/GR8NETTimer.cc`, `-ext gr8net-timer`). It is a
+developer's tool, not a GR8NET: it emulates only the 24-bit counter of
+the controlled interrupt generator (GR8NET manual, section 11.5.1),
+without the interrupt.
 
 ## Files
 
 | File | What it is |
 |------|------------|
 | `gr8timer.z80` | GR8TIMER probe source. Its header describes every test. |
-| `gr8timer_hotbit.jpg` | GR8TIMER on a real GR8NET. |
-| `gr8timer_openmsx.png` | GR8TIMER in openMSX with `-ext gr8net`. |
+| `gr8timer_hotbit.jpg` | An earlier GR8TIMER on a real GR8NET. |
+| `gr8timer_openmsx.png` | GR8TIMER in openMSX with `-ext gr8net-timer`. |
 
 Test machine: a Hotbit (MSX1, 3.58 MHz Z80, Nextor 2.01) with a GR8NET
 (firmware 2017-5-9, hardware 0.5) in slot 2-0. It was photographed on a
 Sony PVM monitor in black-and-white mode.
 
 The openMSX screenshot comes from a Sharp HB-8000 with
-`-ext Panasonic_FS-FD1A -ext gr8net`.
+`-ext Panasonic_FS-FD1A -ext gr8net-timer`.
 
 Build the probe with sjasmplus (`sjasmplus gr8timer.z80` writes
 `GR8TIMER.COM`). It is an MSX-DOS .COM program and is MSX1-safe. It runs
 once, prints its results and returns to DOS.
 
+## Finding the counter
+
+The probe doesn't use the GR8NET's I/O ports (5Eh/5Fh), which the device
+doesn't emulate. It puts every slot and subslot in page 1 in turn, starts
+the counter at 3.579545 MHz and accepts the slot when:
+
+- two reads in a row differ, and
+- 224000 Z80 clocks count 224000 ticks, give or take 2.
+
+A slot that fails gets its four bytes (5FEAh-5FEDh) written back, in case
+it is RAM.
+
+The photo was taken with an earlier version, which found the adapter
+through the I/O ports and printed an ID line (build date, slot, hardware
+version) in place of `TIMER IN SLOT`. The measurements are the same code.
+**The slot search has not been run on a real GR8NET yet.**
+
 ## Results
 
 | Test | Expected | Real GR8NET | openMSX |
 |------|----------|-------------|---------|
-| ID | GR8N, date, slot, HW | 2017-5-9, slot 82h, HW 0.5 | 2023-3-19, slot 02h, HW 255.255 |
+| TIMER IN SLOT | the adapter's slot | (ID line: slot 82h) | 02h |
 | READ PAIR | 335 | 335 | 335 |
 | DELAY 10M | 625778 | 626461 | 625778 |
 | DELAY 3M5 | 224000 | 224000 | 224000 |
-| FRAME | ~166882 | 167033 | 166851 |
+| FRAME | ~166882 | 167033 | 166935 |
 | STOP | two equal values | OK | OK |
 | INT, CLEAR, AGAIN | OK | OK | OK |
 
-In openMSX:
-
-- the ID is the device's fixed build date;
-- slot 02h is not expanded on that machine;
-- hardware version registers 3 and 4 aren't emulated, so they read FFh.
+In openMSX slot 2 is not expanded on that machine. With
+`-ext slotexpander` before `-ext gr8net-timer` the probe finds it in
+82h, and without the extension it prints `GR8NET timer not found`.
 
 ## What this shows
 
@@ -59,5 +75,5 @@ For timing other devices (for instance V9990 commands), CLS = 1
 ## Not covered
 
 - The generator's interrupt (IGE, HZP, WDE). It isn't emulated.
-- Everything else on the GR8NET: mapper modes, network, SD card, audio.
-  Those aren't emulated either.
+- Everything else on the GR8NET: the I/O ports (adapter identification),
+  mapper modes, network, SD card, audio. Those aren't emulated either.

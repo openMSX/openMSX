@@ -9,8 +9,12 @@
 ; the adapter's slot (special control registers at 5FC0-5FFF, bank 0).
 ;
 ; What it prints:
-;  - ID: port 5Eh/5Fh register 0 ("GR8N" + the engine's build date), the
-;    slot ID (register 1, RDSLT format), the hardware version (3, 4).
+;  - TIMER IN SLOT: where the counter was found. Every slot (and subslot,
+;    from EXPTBL) is put in page 1 in turn; the counter is there when,
+;    started at 3.579545 MHz, it changes between two reads and counts
+;    224000 +-2 ticks in 224000 Z80 clocks (that clock is the Z80's). The
+;    I/O ports (5Eh/5Fh) are not used. The four bytes written are put back
+;    when the slot fails the test (it may be RAM).
 ;  - READ PAIR: the ticks between two counter reads 120 Z80 clocks apart
 ;    (exp. 335 at 10 MHz).
 ;  - DELAY 10M: the ticks of 2N minus N iterations of a 28-clock loop
@@ -27,9 +31,8 @@
 BDOS            equ     5
 ENASLT          equ     0024h
 RAMAD1          equ     0F342h          ; page 1's RAM slot (MSX-DOS)
+EXPTBL          equ     0FCC1h          ; bit 7: the primary slot is expanded
 
-G_SEL           equ     5Eh             ; adapter and register select
-G_DATA          equ     5Fh             ; the selected register
 MSX_STAT        equ     99h
 
 REG_CTL         equ     5FEAh           ; generator control
@@ -49,85 +52,16 @@ START:
         ld      de,TXT_TITLE
         call    PRINT
 
-        ; find adapter #0: register 0 reads "GR8N"
-        in      a,(G_SEL)
-        ld      (SAVE5E),a
-        cp      0FFh
-        jr      nz,HAVE5E
-        xor     a                       ; none answered: DAID 0
-HAVE5E:
-        and     30h                     ; keep DAID, SAID = 0
-        ld      (SEL0),a
-        out     (G_SEL),a               ; RID 0 (restarts the sequence)
-        ld      hl,IDBUF
-        ld      b,8
-ID_LP:
-        in      a,(G_DATA)
-        ld      (hl),a
-        inc     hl
-        djnz    ID_LP
-        ld      hl,IDBUF
-        ld      de,TXT_GR8N
-        ld      b,4
-CMP_LP:
-        ld      a,(de)
-        cp      (hl)
-        jp      nz,NOT_FOUND
-        inc     hl
-        inc     de
-        djnz    CMP_LP
-        ld      a,(SEL0)
-        or      1
-        out     (G_SEL),a
-        in      a,(G_DATA)
-        ld      (SLOT),a
-        ld      a,(SEL0)
-        or      3
-        out     (G_SEL),a
-        in      a,(G_DATA)
-        ld      (HWMAJ),a
-        ld      a,(SEL0)
-        or      4
-        out     (G_SEL),a
-        in      a,(G_DATA)
-        ld      (HWMIN),a
-        call    RESTORE5E
+        call    FIND
         ld      a,(SLOT)
         cp      0FFh
-        jp      z,NOT_FOUND
-
-        ; ID: GR8N yyyy-mm-dd SLOT xxh HW m.n
-        ld      de,TXT_ID
-        call    PRINT
-        ld      hl,IDBUF+4              ; year, little-endian word
-        ld      de,TMP3
-        ldi
-        ldi
-        xor     a
-        ld      (de),a
-        ld      hl,TMP3
-        call    PRDEC
-        ld      a,'-'
-        call    PUTC
-        ld      a,(IDBUF+6)
-        call    PRDEC8
-        ld      a,'-'
-        call    PUTC
-        ld      a,(IDBUF+7)
-        call    PRDEC8
+        jr      z,NOT_FOUND
         ld      de,TXT_SLOT
         call    PRINT
         ld      a,(SLOT)
         call    PRHEX
-        ld      de,TXT_HW
+        ld      de,TXT_H
         call    PRINT
-        ld      a,(HWMAJ)
-        call    PRDEC8
-        ld      a,'.'
-        call    PUTC
-        ld      a,(HWMIN)
-        call    PRDEC8
-        call    CRLF
 
         call    MEASURE
         call    REPORT
@@ -135,20 +69,112 @@ CMP_LP:
         jp      BDOS
 
 NOT_FOUND:
-        call    RESTORE5E
         ld      de,TXT_NOTFOUND
         call    PRINT
         ld      c,00h
         jp      BDOS
 
-RESTORE5E:
-        ld      a,(SAVE5E)
-        cp      0FFh
-        jr      nz,R5_OUT
-        ld      a,(SEL0)
-R5_OUT:
-        out     (G_SEL),a
+; ---------------------------------------------------------------------------
+; SLOT = the slot ID (RDSLT format) of the first slot with the counter in
+; page 1, or FFh. Primary slots 0-3, and subslots 0-3 of the expanded ones.
+FIND:
+        di
+        xor     a
+        ld      (PRIM),a
+F_PRIM:
+        ld      a,(PRIM)
+        ld      e,a
+        ld      d,0
+        ld      hl,EXPTBL
+        add     hl,de
+        ld      a,(hl)
+        and     80h
+        or      e                       ; subslot 0
+F_SEC:
+        ld      (SLOT),a
+        ld      h,40h
+        call    ENASLT
+        di
+        call    PROBE
+        jr      z,F_DONE
+        ld      a,(SLOT)
+        bit     7,a
+        jr      z,F_NEXT                ; not expanded
+        add     a,4
+        bit     4,a
+        jr      z,F_SEC                 ; subslots 1-3
+F_NEXT:
+        ld      a,(PRIM)
+        inc     a
+        ld      (PRIM),a
+        cp      4
+        jr      nz,F_PRIM
+        ld      a,0FFh
+        ld      (SLOT),a
+F_DONE:
+        ld      a,(RAMAD1)
+        ld      h,40h
+        call    ENASLT
+        ei
         ret
+
+; Z if page 1 has the counter. Else the four bytes are written back.
+PROBE:
+        ld      hl,REG_CTL
+        ld      de,SAVE4
+        ld      bc,4
+        ldir
+        ld      a,CTL_RST
+        ld      (REG_CTL),a
+        ld      hl,0
+        call    SET_COUNT
+        ld      a,CTL_RST+CTL_OP+CTL_CLS
+        ld      (REG_CTL),a
+        ; a running counter changes between two reads
+        ld      hl,C0
+        call    READC
+        ld      hl,C1
+        call    READC
+        ld      hl,C0
+        ld      de,C1
+        ld      b,3
+PB_SAME:
+        ld      a,(de)
+        cp      (hl)
+        jr      nz,PB_COUNTS
+        inc     hl
+        inc     de
+        djnz    PB_SAME
+        jr      PB_NO
+PB_COUNTS:
+        ; and counts Z80 clocks: 28 * DELAY_N, give or take 2
+        ld      hl,T3
+        call    DELAYS
+        ld      ix,T3
+        ld      iy,K_LOW
+        ld      hl,T1
+        call    SUB24
+        ld      a,(T1+1)
+        ld      hl,T1+2
+        or      (hl)
+        jr      nz,PB_NO
+        ld      a,(T1)
+        cp      5
+        jr      nc,PB_NO
+        ld      a,CTL_RST               ; stopped
+        ld      (REG_CTL),a
+        xor     a
+        ret
+PB_NO:
+        ld      hl,SAVE4
+        ld      de,REG_CTL
+        ld      bc,4
+        ldir
+        or      1                       ; NZ
+        ret
+
+K_LOW:
+        d24     28*DELAY_N-2
 
 ; ---------------------------------------------------------------------------
 ; All the measurements, with the adapter in page 1 and interrupts off. The
@@ -474,15 +500,6 @@ PRNIB:
         add     a,'A'-'9'-1
         jr      PUTC
 
-; A in decimal
-PRDEC8:
-        ld      (TMP3),a
-        xor     a
-        ld      (TMP3+1),a
-        ld      (TMP3+2),a
-        ld      hl,TMP3
-        ; fall through
-
 ; (HL), 24 bits little-endian, in decimal, no leading zeros
 PRDEC:
         ld      e,(hl)
@@ -547,11 +564,9 @@ POW10:
         d24     10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
 
 TXT_TITLE:      db      "GR8NET timer test",13,10,"$"
-TXT_GR8N:       db      "GR8N"
-TXT_ID:         db      "ID GR8N $"
-TXT_SLOT:       db      " SLOT $"
-TXT_HW:         db      "h HW $"
-TXT_NOTFOUND:   db      "GR8NET #0 not found",13,10,"$"
+TXT_SLOT:       db      "TIMER IN SLOT $"
+TXT_H:          db      "h",13,10,"$"
+TXT_NOTFOUND:   db      "GR8NET timer not found",13,10,"$"
 TXT_PAIR:       db      "READ PAIR (exp 335):    $"
 TXT_D10:        db      "DELAY 10M (exp 625778): $"
 TXT_D35:        db      "DELAY 3M5 (exp 224000): $"
@@ -564,13 +579,10 @@ TXT_OK:         db      " OK$"
 TXT_FAIL:       db      " FAIL$"
 TXT_CRLF:       db      13,10,"$"
 
-SAVE5E:         db      0
-SEL0:           db      0
 SLOT:           db      0
-HWMAJ:          db      0
-HWMIN:          db      0
-IDBUF:          ds      8
-TMP3:           ds      3
+PRIM:           db      0
+SAVE4:          ds      4
+T3:             ds      3
 LEAD:           db      0
 DIGIT:          db      0
 COUNT:          db      0

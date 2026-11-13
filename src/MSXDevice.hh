@@ -343,10 +343,6 @@ protected:
 		assert((0 <= ps) && (ps <= 3));
 		return narrow_cast<byte>(ps);
 	}
-	/** -1 if the primary slot is not expanded. */
-	[[nodiscard]] int getSecondarySlot() const {
-		return ss;
-	}
 
 	IterableBitSet<256> inPorts;
 	IterableBitSet<256> outPorts;
