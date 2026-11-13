@@ -733,6 +733,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960Adpcm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960AdpcmMemory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960OPL2.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SCC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SSGS.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SSGSDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SsgCore.cc" />
@@ -1396,6 +1397,7 @@
     <None Include="$(OpenMSXSrcDir)\sound\Y8960Adpcm.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960AdpcmMemory.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960OPL2.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960SCC.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960SSGS.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960SSGSDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\Y8960SsgCore.hh" />
