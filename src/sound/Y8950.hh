@@ -20,11 +20,10 @@
 
 namespace openmsx {
 
-class MSXAudio;
 class DeviceConfig;
 class Y8950Periphery;
 
-class Y8950 final : private ResampledSoundDevice, private EmuTimerCallback
+class Y8950 final : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	static constexpr int CLOCK_FREQ     = 3579545;
@@ -56,7 +55,7 @@ public:
 	static constexpr int STATUS_T1      = R04_MASK_T1;
 
 	Y8950(const std::string& name, const DeviceConfig& config,
-	      unsigned sampleRam, EmuTime time, MSXAudio& audio);
+	      unsigned sampleRam, EmuTime time, Y8950Periphery& periphery);
 	~Y8950();
 
 	void setEnabled(bool enabled, EmuTime time);

@@ -15,9 +15,11 @@ namespace openmsx {
 
 MSXAudio::MSXAudio(const DeviceConfig& config)
 	: MSXDevice(config)
+	, periphery(Y8950PeripheryFactory::create(
+		*this, getDeviceConfig2(), getName()))
 	, y8950(getName(), config,
 	        config.getChildDataAsInt("sampleram", 256) * 1024,
-	        getCurrentTime(), *this)
+	        getCurrentTime(), *periphery)
 {
 	auto type = config.getChildData("type", "philips");
 	if (StringOp::casecmp cmp; cmp(type, "philips")) {
@@ -33,13 +35,6 @@ MSXAudio::~MSXAudio()
 	// delete soon, because PanasonicAudioPeriphery still uses
 	// this object in its destructor
 	periphery.reset();
-}
-
-Y8950Periphery& MSXAudio::createPeriphery(const std::string& soundDeviceName)
-{
-	periphery = Y8950PeripheryFactory::create(
-		*this, getDeviceConfig2(), soundDeviceName);
-	return *periphery;
 }
 
 void MSXAudio::powerUp(EmuTime time)

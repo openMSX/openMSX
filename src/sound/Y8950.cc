@@ -6,7 +6,6 @@
 
 #include "Y8950.hh"
 
-#include "MSXAudio.hh"
 #include "Y8950Periphery.hh"
 
 #include "DeviceConfig.hh"
@@ -485,10 +484,10 @@ void Y8950::Channel::keyOff(KeyPart part)
 static constexpr auto INPUT_RATE = unsigned(cstd::round(Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 
 Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
-             unsigned sampleRam, EmuTime time, MSXAudio& audio)
+             unsigned sampleRam, EmuTime time, Y8950Periphery& periphery_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-AUDIO", 9 + 5 + 1, INPUT_RATE, false)
 	, motherBoard(config.getMotherBoard())
-	, periphery(audio.createPeriphery(getName()))
+	, periphery(periphery_)
 	, adpcm(*this, config, name_, sampleRam)
 	, connector(motherBoard.getPluggingController())
 	, dac13(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config)
