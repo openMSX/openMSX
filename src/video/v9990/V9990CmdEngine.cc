@@ -43,12 +43,6 @@ using TimingTable = std::span<const A2, 4>;
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-static constexpr std::array BMLX_TIMING = {
-	A2{A{ d(10), d(16), d(32), d(66)}, A{d( 8), d(14), d(28), d(57)}, A{d( 8), d(13), d(27), d(54)}}, // identical to LMMM
-	A2{A{ d( 6), d(10), d(20), d(39)}, A{d( 5), d( 9), d(18), d(35)}, A{d( 5), d( 9), d(17), d(35)}}, // identical to LMMM
-	A2{A{ d(84), d(84), d(84), d(84)}, A{d(44), d(44), d(44), d(44)}, A{d(17), d(17), d(17), d(17)}},
-	A2{A{ d(57), d(57), d(57), d(57)}, A{d(25), d(25), d(25), d(25)}, A{d( 9), d( 9), d( 9), d( 9)}}
-};
 static constexpr std::array BMLL_TIMING = {
 	A2{A{d( 33),d( 33),d( 33),d( 33)}, A{d(28), d(28), d(28), d(28)}, A{d(27), d(27), d(27), d(27)}},
 	A2{A{d( 20),d( 20),d( 20),d( 20)}, A{d(18), d(18), d(18), d(18)}, A{d(18), d(18), d(18), d(18)}},
@@ -142,6 +136,7 @@ static constexpr T6 ROW_LMMV = {121, 40,  0, 36, 82,  82};
 static constexpr T6 ROW_LMMM = {153, 72, 24, 70, 71, 149};
 static constexpr int ROW_LMMV_1 =  80;
 static constexpr int ROW_LMMM_1 =  74;
+static constexpr int ROW_BMLX_P1 = 150;
 // Extra time for each word, on top of its two accesses.
 static constexpr T6 WORD_LMMV = { 0, 44, 104, 42,  1,  1};
 static constexpr T6 WORD_LMMM = {11, 15,  49,  8,  8,  8}; // destination word
@@ -151,6 +146,7 @@ static constexpr T6 WORD_CMMM = { 6, 26,  67, 23,  7,  4}; // destination word
 static constexpr T6 SHIFT_LMMM = {29, 11, 4, 11, 9, 0};
 // Extra time for each linear byte.
 static constexpr T6 BYTE_BMXL = {20, 7, 24, 4, 4, 4};
+static constexpr T6 BYTE_BMLX = {44, 7, 24, 4, 4, 4};
 
 // The least time that a pixel (BMLL: a byte) can take, in any mode. Used
 // for a lower bound on a command's end.
@@ -165,6 +161,9 @@ static constexpr int64_t MAX_PENDING = 480;
 }
 [[nodiscard]] static constexpr int rowLMMM(unsigned m, unsigned nx) {
 	return ((m == P1) && (nx == 1)) ? ROW_LMMM_1 : ROW_LMMM[m];
+}
+[[nodiscard]] static constexpr int rowBMLX(unsigned m) {
+	return (m == P1) ? ROW_BMLX_P1 : ROW_LMMM[m];
 }
 [[nodiscard]] static constexpr EmuDuration dur(int64_t n) {
 	return Clk::duration(n);
@@ -1652,13 +1651,17 @@ template<>
 void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	// TODO test corner cases, timing
-	auto delta = getTiming(*this, BMLX_TIMING);
 	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
+	const bool timed = accessTimed();
 
-	while (engineTime < limit) {
-		engineTime += delta;
+	while (true) {
+		// a source word and a destination word
+		bool rowStart = ANX == getWrappedNX();
+		int think = Tm::WORD_LMMM[Tm::BPP16] +
+		            (rowStart ? Tm::ROW_LMMM[Tm::BPP16] : 0);
+		if (!step(limit, timed, 4, think)) break;
 		auto src = V9990Bpp16::point(vram, SX, SY, pitch);
 		vram.writeVRAMBx(dstAddress++, narrow_cast<uint8_t>(src & 0xFF));
 		vram.writeVRAMBx(dstAddress++, narrow_cast<uint8_t>(src >> 8));
@@ -1680,13 +1683,21 @@ template<typename Mode>
 void V9990CmdEngine::executeBMLX(EmuTime limit)
 {
 	// TODO test corner cases, timing
-	auto delta = getTiming(*this, BMLX_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
+	const unsigned npw = Tm::PIXELS_PER_WORD[m];
 
-	while (engineTime < limit) {
-		engineTime += delta;
+	while (true) {
+		// the source words a byte's pixels start, and a destination
+		// byte (half a word)
+		bool rowStart = ANX == getWrappedNX();
+		unsigned accesses =
+			2 * wordStarts(SX, dx, npw, Mode::PIXELS_PER_BYTE) + 1;
+		int think = Tm::BYTE_BMLX[m] + (rowStart ? Tm::rowBMLX(m) : 0);
+		if (!step(limit, timed, accesses, think)) break;
 		uint8_t d = 0;
 		for (auto i : xrange(Mode::PIXELS_PER_BYTE)) {
 			auto src = Mode::point(vram, SX, SY, pitch);
@@ -2174,11 +2185,10 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 		break;
 	case 0x04: // LMMM
 	case 0x08: // BMXL
+	case 0x09: // BMLX
 		left = rect * Tm::MIN_PIXEL_COPY;
 		break;
 	// (not yet timed by accesses)
-	case 0x09: // BMLX
-		return engineTime + getTiming(*this, BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 	case 0x0A: // BMLL
 		return engineTime + getTiming(*this, BMLL_TIMING) * nbBytes;
 	case 0x0B: // LINE
