@@ -1701,6 +1701,10 @@ void V9990CmdEngine::startBMLL(EmuTime time)
 	if (nbBytes == 0) {
 		nbBytes = 0x80000;
 	}
+	// Measured: a count with a low byte of 0 takes the time of 256 bytes
+	// more. Only that time is emulated (whether those bytes are also copied
+	// was not measured). ANX counts them.
+	ANX = (accessTimed() && ((NX & 0xFF) == 0)) ? 256 : 0;
 }
 void V9990CmdEngine::startBMLL16(EmuTime time)
 {
@@ -1710,6 +1714,7 @@ void V9990CmdEngine::startBMLL16(EmuTime time)
 	srcAddress >>= 1;
 	dstAddress >>= 1;
 	nbBytes    >>= 1;
+	ANX        >>= 1;
 }
 
 template<>
@@ -1722,6 +1727,15 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 	while (true) {
 		// a source word and a destination word
 		if (!step(limit, timed, 4, 2 * Tm::BYTE_BMLL[Tm::BPP16])) break;
+		if (nbBytes == 0) {
+			// the extra words' time, see startBMLL()
+			if (!--ANX) {
+				endBMLL();
+				cmdReady(engineTime);
+				return;
+			}
+			continue;
+		}
 		// VRAM always mapped as in Bx modes
 		auto srcColor = uint16_t(vram.readVRAMDirect(srcAddress + 0x00000) +
 		                         vram.readVRAMDirect(srcAddress + 0x40000) * 256);
@@ -1733,7 +1747,7 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 		vram.writeVRAMDirect(dstAddress + 0x40000, narrow_cast<uint8_t>(result >> 8));
 		srcAddress = (srcAddress + 1) & 0x3FFFF;
 		dstAddress = (dstAddress + 1) & 0x3FFFF;
-		if (!--nbBytes) {
+		if (!--nbBytes && !ANX) {
 			endBMLL();
 			cmdReady(engineTime);
 			return;
@@ -1754,6 +1768,15 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 		bool cross = ((srcAddress ^ dstAddress) & 1) != 0;
 		int think = Tm::BYTE_BMLL[m] + (cross ? Tm::CROSS_BMLL : 0);
 		if (!step(limit, timed, 2, think)) break;
+		if (nbBytes == 0) {
+			// the extra 256 bytes' time, see startBMLL()
+			if (!--ANX) {
+				endBMLL();
+				cmdReady(engineTime);
+				return;
+			}
+			continue;
+		}
 		// VRAM always mapped as in Bx modes
 		auto srcColor = vram.readVRAMBx(srcAddress);
 		auto addr = V9990VRAM::transformBx(dstAddress);
@@ -1764,7 +1787,7 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 		vram.writeVRAMDirect(addr, result);
 		srcAddress = (srcAddress + 1) & 0x7FFFF;
 		dstAddress = (dstAddress + 1) & 0x7FFFF;
-		if (!--nbBytes) {
+		if (!--nbBytes && !ANX) {
 			endBMLL();
 			cmdReady(engineTime);
 			return;
