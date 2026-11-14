@@ -505,6 +505,10 @@ void VDP::execHorAdjust(EmuTime time)
 	}
 	renderer->updateHorizontalAdjust(newHorAdjust, time);
 	horizontalAdjust = newHorAdjust;
+	// VR and F move with the adjust (see scheduleVScan()).
+	if (vScanSyncTime > time) {
+		scheduleVScan(time);
+	}
 }
 
 int VDP::getScrollBurstTicks(EmuTime time) const
@@ -655,14 +659,21 @@ void VDP::scheduleVScan(EmuTime time)
 	// Display end is where the display line counter equals the number of
 	// lines selected by R#9 bit 7 as it is right now.
 	int offset = displayStart + getNumberOfLines() * TICKS_PER_LINE;
-	if (offset < 0) {
+	// F rises with VR's rise, which moves with the horizontal adjust,
+	// and one Z80 T-state (6 ticks) after it.
+	// Measured on a Philips VG-8235 (V9958), GRAPHIC4 and TEXT1, R#18
+	// low nibble 0, 2, 7, 8, F: VR's rise and fall and F's rise all move
+	// by -4 ticks x the signed adjust, and F rises 1 T after VR.
+	static constexpr int F_AFTER_VR = 6;
+	int fOffset = offset + getVRAdjustTicks() + F_AFTER_VR;
+	if (fOffset < 0) {
 		// That moment lies before this frame (the counter is still the
 		// previous frame's), so there is no display end until the next
 		// counter reset schedules one.
 		vScanSyncTime = slotTableEndSyncTime = time;
 		return;
 	}
-	vScanSyncTime = frameStartTime + offset;
+	vScanSyncTime = frameStartTime + fOffset;
 
 	// Register new VSCAN sync point. If the counter already passed the
 	// value there is none this frame: overscan.
@@ -672,7 +683,7 @@ void VDP::scheduleVScan(EmuTime time)
 	}
 
 	// The access grid switches back 162 cycles into the line after this one.
-	slotTableEndSyncTime = vScanSyncTime - VDPClock::duration(SLOT_TABLE_END_LEAD);
+	slotTableEndSyncTime = frameStartTime + offset - VDPClock::duration(SLOT_TABLE_END_LEAD);
 	if (slotTableEndSyncTime > time) {
 		syncSlotTableEnd.setSyncPoint(slotTableEndSyncTime);
 	}
@@ -1233,8 +1244,11 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 		int ticksThisFrame = getTicksThisFrame(time);
 		int displayEnd =
 			displayStart + getNumberOfLines() * TICKS_PER_LINE;
-		bool vr = ticksThisFrame < displayStart - TICKS_PER_LINE
-		       || ticksThisFrame >= displayEnd;
+		// VR's edges move with the horizontal adjust, as HR's
+		// (measured on a V9958, see scheduleVScan()).
+		int vrTicks = ticksThisFrame - getVRAdjustTicks();
+		bool vr = vrTicks < displayStart - TICKS_PER_LINE
+		       || vrTicks >= displayEnd;
 		return statusReg2
 			| (getHR(ticksThisFrame) ? 0x20 : 0x00)
 			| (vr ? 0x40 : 0x00)

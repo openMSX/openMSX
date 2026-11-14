@@ -676,6 +676,13 @@ public:
 	/** Gets the number of VDP clock ticks between start of line and the start
 	  * of the right border.
 	  */
+	/** Gets the number of VDP clock ticks by which VR and F move with the
+	  * horizontal adjust: -4 ticks times the signed adjust, as HR.
+	  */
+	[[nodiscard]] int getVRAdjustTicks() const {
+		return (horizontalAdjust - 7) * 4;
+	}
+
 	[[nodiscard]] int getRightBorder() const {
 		return getLeftSprites()
 			+ (displayMode.isTextMode() ? 960 : 1024);
