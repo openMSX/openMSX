@@ -58,6 +58,14 @@ digitized values (that is why the manual uses `COLOR ,,255`), SCREEN 5-7 take th
 closest palette color, SCREEN 8 is plain GRB 3-3-2. The digitization level slider
 scales what is digitized.
 
+Headless regression check (2026-11-14, Linux build, local 640x480 PPM):
+`SCREEN 8:COLOR ,,255:SET VIDEO 1:COPY SCREEN` selected the expected
+register mode (R#8 = 0x28, R#9 = 0x12), and 51,919 of 131,072 VRAM bytes
+changed from the pre-command dump. However, the sampled picture area was
+uniform (`0x04`); this check does **not** establish that the source image was
+digitized by the Philips firmware. Trace the register-0 DG pulse and compare
+the resulting pixels with the input frame before claiming this path works.
+
 ## Front panel
 
 A window with the three indicators (AV IN/OUT, AV IN, SUPERIMPOSE), the
