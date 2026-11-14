@@ -27,46 +27,6 @@
 
 namespace openmsx {
 
-static constexpr unsigned maxLength = 171; // The maximum value from the xxx_TIMING tables below
-static constexpr EmuDuration d_(unsigned x)
-{
-	assert(x <= maxLength);
-	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
-}
-using EDStorage = EmuDurationStorageFor<d_(maxLength).toUint64()>;
-static constexpr EDStorage d(unsigned x) { return EDStorage{d_(x)}; }
-using A  = std::array<const EDStorage, 4>;
-using A2 = std::array<const A, 3>;
-using TimingTable = std::span<const A2, 4>;
-
-// 1st index  B0/2/4, B1/3/7, P1, P2
-// 2nd index  sprites-ON, sprites-OFF, display-OFF
-// 3th index  2bpp, 4bpp, 8bpp, 16bpp
-//            (for P1/P2 fill in the same value 4 times)
-static constexpr std::array SRCH_TIMING = {
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}  // TODO
-};
-
-[[nodiscard]] static EmuDuration getTiming(const V9990CmdEngine& cmdEngine, TimingTable table)
-{
-	if (cmdEngine.getBrokenTiming()) [[unlikely]] return {};
-
-	const auto& vdp = cmdEngine.getVDP();
-	auto mode = vdp.getDisplayMode();
-	unsigned idx1 = (mode == V9990DisplayMode::P1) ? 2 :
-	                (mode == V9990DisplayMode::P2) ? 3 :
-	                (vdp.isOverScan()) ? 0 : 1;
-	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
-	                                       : 2;
-	unsigned idx3 = vdp.getColorDepth();
-	return EmuDuration(table[idx1][idx2][idx3]);
-}
-
-
-
 // Command timing from VRAM accesses.
 //
 // Measured on a real V9990 in every display mode but with the 25 MHz
@@ -129,6 +89,7 @@ static constexpr int ROW_BMLX_P1 = 150;
 static constexpr T6 WORD_LMMV = { 0, 44, 104, 42,  1,  1};
 static constexpr T6 WORD_LMMM = {11, 15,  49,  8,  8,  8}; // destination word
 static constexpr T6 WORD_CMMM = { 6, 26,  67, 23,  7,  4}; // destination word
+static constexpr T6 WORD_SRCH = {76, 79, 105, 79, 79, 79};
 // LMMM with source and destination at different places in their words:
 // for each pixel.
 static constexpr T6 SHIFT_LMMM = {29, 11, 4, 11, 9, 0};
@@ -1871,16 +1832,21 @@ template<typename Mode>
 void V9990CmdEngine::executeSRCH(EmuTime limit)
 {
 	using Type = typename Mode::Type;
-	auto delta = getTiming(*this, SRCH_TIMING);
 	unsigned width = vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 	Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
 
 	uint16_t TX = (ARG & DIX) ? uint16_t(-1) : 1;
 	bool AEQ = (ARG & NEQ) != 0;
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
+	const unsigned npw = Tm::PIXELS_PER_WORD[m];
 
-	while (engineTime < limit) {
-		engineTime += delta;
+	while (true) {
+		// a source word, at the first pixel and at each word's start
+		bool word = (ASX == SX) || wordStart(ASX, TX, npw);
+		int think = word ? Tm::WORD_SRCH[m] : 0;
+		if (!step(limit, timed, word ? 2 : 0, think)) break;
 		Type value;
 		Type col;
 		Type mask2;
@@ -2194,9 +2160,8 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 	case 0x0B: // LINE
 		left = int64_t(NX - ANX) * Tm::MIN_PIXEL_LINE;
 		break;
-	// (not yet timed by accesses)
-	case 0x0C: // SRCH: can end at any next pixel
-		return engineTime + getTiming(*this, SRCH_TIMING);
+	case 0x0C: // SRCH: can end at any pixel
+		break;
 	default:
 		return engineTime; // ends at once, or when the CPU moves data
 	}
