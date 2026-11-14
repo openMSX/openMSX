@@ -200,8 +200,10 @@ void printSpriteBoxes(std::span<const SpriteBox> boxes, gl::ivec2 pos, int patte
 // one per line), as a vertical histogram at the cursor position, each line
 // 'zoom' pixels tall, so that it lines up with that screen. Lines with more
 // than 'limit' sprites are drawn in another color; hovering shows the count.
+// The scale is fixed: 'limit' is halfway, 'maxSprites' (the size of the sprite
+// table) is the full width, non-linear in between.
 // The next item comes on the same line. Draws nothing when 'show' is false.
-void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int limit, float zoom);
+void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int limit, int maxSprites, float zoom);
 
 // The "Sprites per line" checkbox, and when checked a summary of 'counts': the
 // busiest line and the number of lines over 'limit'. 'extraHelp' is added to
