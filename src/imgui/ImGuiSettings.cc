@@ -1960,6 +1960,10 @@ void ImGuiSettings::startExternalVideo()
 		externalVideoStatus = "Select a device or enter a stream URL.";
 		return;
 	}
+	if (externalAudio && externalVideoSource == 0 && externalAudioDevice.empty()) {
+		externalVideoStatus = "Select an audio capture device.";
+		return;
+	}
 	auto script = FileOperations::join(FileOperations::getSystemDataDir(),
 	                                  "scripts/external_video_bridge.py");
 	if (!FileOperations::exists(script)) {

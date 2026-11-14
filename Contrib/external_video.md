@@ -37,6 +37,8 @@ or select **Network stream** and enter an RTSP/HTTP URL. Use **Start** to begin,
 panel uses the `py -3` launcher by default. If Python or FFmpeg cannot be found,
 set their executable paths under **Capture tools**. The URL is not saved in the
 GUI preferences. The MSX software must still activate superimpose.
+For local capture with **Capture audio** enabled, select an audio input as
+well. FFmpeg's video-device selection alone does not select a microphone.
 
 When openMSX starts the bridge, it passes its process ID. The bridge stops
 video and audio capture when **Stop** is selected, openMSX exits normally, or

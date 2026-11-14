@@ -337,6 +337,8 @@ def main() -> int:
         input_args = input_args[1:]
     if args.device and input_args:
         parser.error("use either --device or FFmpeg input arguments after --")
+    if args.device and args.audio_output and not args.audio_test_tone and not args.audio_device:
+        parser.error("--audio-device is required when capturing audio from a local video device")
     if args.device:
         try:
             input_args = device_arguments(args.device)
