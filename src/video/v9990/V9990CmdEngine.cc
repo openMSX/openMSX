@@ -61,12 +61,6 @@ static constexpr std::array BMLL_TIMING = {
 	A2{A{d(118),d(118),d(118),d(118)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}},
 	A2{A{d(118),d(118),d(118),d(118)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}}
 };
-static constexpr std::array CMMM_TIMING = {
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}  // TODO
-};
 static constexpr std::array LINE_TIMING = {
 	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
 	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
@@ -157,6 +151,7 @@ static constexpr int ROW_LMMM_1 =  74;
 // Extra time for each word, on top of its two accesses.
 static constexpr T6 WORD_LMMV = { 0, 44, 104, 42,  1,  1};
 static constexpr T6 WORD_LMMM = {11, 15,  49,  8,  8,  8}; // destination word
+static constexpr T6 WORD_CMMM = { 6, 26,  67, 23,  7,  4}; // destination word
 // LMMM with source and destination at different places in their words:
 // for each pixel.
 static constexpr T6 SHIFT_LMMM = {29, 11, 4, 11, 9, 0};
@@ -1512,13 +1507,19 @@ void V9990CmdEngine::executeCMMM(EmuTime limit)
 {
 	// TODO can be optimized a lot
 
-	auto delta = getTiming(*this, CMMM_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
-	while (engineTime < limit) {
-		engineTime += delta;
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
+	const unsigned npw = Tm::PIXELS_PER_WORD[m];
+	while (true) {
+		// (a font word is 16 pixels: one access for each font byte)
+		bool dstWord = (ANX == getWrappedNX()) || wordStart(DX, dx, npw);
+		unsigned accesses = (dstWord ? 2 : 0) + (bitsLeft ? 0 : 1);
+		int think = dstWord ? Tm::WORD_CMMM[m] : 0;
+		if (!step(limit, timed, accesses, think)) break;
 		if (!bitsLeft) {
 			data = vram.readVRAMBx(srcAddress++);
 			bitsLeft = 8;
@@ -2146,14 +2147,13 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 	int64_t left = 0; // in Tm's time units
 	switch (CMD >> 4) {
 	case 0x02: // LMMV
+	case 0x07: // CMMM
 		left = rect * Tm::MIN_PIXEL_LMMV;
 		break;
 	case 0x04: // LMMM
 		left = rect * Tm::MIN_PIXEL_COPY;
 		break;
 	// (not yet timed by accesses)
-	case 0x07: // CMMM
-		return engineTime + getTiming(*this, CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 	case 0x08: // BMXL
 		return engineTime + getTiming(*this, BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 	case 0x09: // BMLX
