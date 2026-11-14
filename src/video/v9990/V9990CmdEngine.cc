@@ -43,12 +43,6 @@ using TimingTable = std::span<const A2, 4>;
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-static constexpr std::array LMMM_TIMING = {
-	A2{A{d (10),d (16),d( 32),d( 66)}, A{d( 8), d(14), d(28), d(57)}, A{d( 8), d(13), d(27), d(54)}},
-	A2{A{d ( 6),d( 10),d( 20),d( 39)}, A{d( 5), d( 9), d(18), d(35)}, A{d( 5), d( 9), d(17), d(35)}},
-	A2{A{d(115),d(115),d(115),d(115)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}},
-	A2{A{d( 57),d( 57),d( 57),d( 57)}, A{d(25), d(25), d(25), d(25)}, A{d( 9), d( 9), d( 9), d( 9)}}
-};
 static constexpr std::array BMXL_TIMING = { // NOTE: values are BYTE based here!
 	A2{A{d( 38),d( 33),d( 32),d( 33)}, A{d(33), d(28), d(28), d(28)}, A{d(33), d(27), d(27), d(27)}}, // identical to LMMM (b)
 	A2{A{d( 24),d( 20),d( 20),d (19)}, A{d(22), d(18), d(18), d(18)}, A{d(21), d(17), d(17), d(17)}}, // identical to LMMM (b)
@@ -157,19 +151,29 @@ static constexpr T6 ACCESS = {42, 41, 41, 41, 41, 41}; // 0.70 clocks
 // Extra time at the start of each row. In P1 a row of one pixel takes
 // less.
 static constexpr T6 ROW_LMMV = {121, 40,  0, 36, 82,  82};
+static constexpr T6 ROW_LMMM = {153, 72, 24, 70, 71, 149};
 static constexpr int ROW_LMMV_1 =  80;
+static constexpr int ROW_LMMM_1 =  74;
 // Extra time for each word, on top of its two accesses.
 static constexpr T6 WORD_LMMV = { 0, 44, 104, 42,  1,  1};
+static constexpr T6 WORD_LMMM = {11, 15,  49,  8,  8,  8}; // destination word
+// LMMM with source and destination at different places in their words:
+// for each pixel.
+static constexpr T6 SHIFT_LMMM = {29, 11, 4, 11, 9, 0};
 
 // The least time that a pixel (BMLL: a byte) can take, in any mode. Used
 // for a lower bound on a command's end.
 static constexpr int64_t MIN_PIXEL_LMMV = 20;
+static constexpr int64_t MIN_PIXEL_COPY = 24; // LMMM, BMXL, BMLX
 // The most of that time that one pending step can cover.
 static constexpr int64_t MAX_PENDING = 480;
 
 // Extra time at the start of a row of 'nx' pixels.
 [[nodiscard]] static constexpr int rowLMMV(unsigned m, unsigned nx) {
 	return ((m == P1) && (nx == 1)) ? ROW_LMMV_1 : ROW_LMMV[m];
+}
+[[nodiscard]] static constexpr int rowLMMM(unsigned m, unsigned nx) {
+	return ((m == P1) && (nx == 1)) ? ROW_LMMM_1 : ROW_LMMM[m];
 }
 [[nodiscard]] static constexpr EmuDuration dur(int64_t n) {
 	return Clk::duration(n);
@@ -1394,13 +1398,23 @@ void V9990CmdEngine::executeLMMM(EmuTime limit)
 {
 	// TODO can be optimized a lot
 
-	auto delta = getTiming(*this, LMMM_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
-	while (engineTime < limit) {
-		engineTime += delta;
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
+	const unsigned npw = Tm::PIXELS_PER_WORD[m];
+	// the pixel moves to another place in its word
+	const int shift = ((SX ^ DX) & (npw - 1)) ? Tm::SHIFT_LMMM[m] : 0;
+	while (true) {
+		bool rowStart = ANX == getWrappedNX();
+		bool dstWord = rowStart || wordStart(DX, dx, npw);
+		bool srcWord = rowStart || wordStart(SX, dx, npw);
+		unsigned accesses = (dstWord ? 2 : 0) + (srcWord ? 2 : 0);
+		int think = (rowStart ? Tm::rowLMMM(m, NX) : 0) +
+		            (dstWord ? Tm::WORD_LMMM[m] : 0) + shift;
+		if (!step(limit, timed, accesses, think)) break;
 		auto src = Mode::point(vram, SX, SY, pitch);
 		src = Mode::shift(src, SX, DX);
 		Mode::pset(vram, DX, DY, pitch, src, WM, lut, LOG, dataLatch);
@@ -2134,9 +2148,10 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 	case 0x02: // LMMV
 		left = rect * Tm::MIN_PIXEL_LMMV;
 		break;
-	// (not yet timed by accesses)
 	case 0x04: // LMMM
-		return engineTime + getTiming(*this, LMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+		left = rect * Tm::MIN_PIXEL_COPY;
+		break;
+	// (not yet timed by accesses)
 	case 0x07: // CMMM
 		return engineTime + getTiming(*this, CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 	case 0x08: // BMXL
