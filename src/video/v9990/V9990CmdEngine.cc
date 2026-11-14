@@ -43,12 +43,6 @@ using TimingTable = std::span<const A2, 4>;
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-static constexpr std::array BMXL_TIMING = { // NOTE: values are BYTE based here!
-	A2{A{d( 38),d( 33),d( 32),d( 33)}, A{d(33), d(28), d(28), d(28)}, A{d(33), d(27), d(27), d(27)}}, // identical to LMMM (b)
-	A2{A{d( 24),d( 20),d( 20),d (19)}, A{d(22), d(18), d(18), d(18)}, A{d(21), d(17), d(17), d(17)}}, // identical to LMMM (b)
-	A2{A{d(171),d(171),d(171),d(171)}, A{d(82), d(82), d(82), d(82)}, A{d(29), d(29), d(29), d(29)}},
-	A2{A{d(114),d(114),d(114),d(114)}, A{d(50), d(50), d(50), d(50)}, A{d(18), d(18), d(18), d(18)}}
-};
 static constexpr std::array BMLX_TIMING = {
 	A2{A{ d(10), d(16), d(32), d(66)}, A{d( 8), d(14), d(28), d(57)}, A{d( 8), d(13), d(27), d(54)}}, // identical to LMMM
 	A2{A{ d( 6), d(10), d(20), d(39)}, A{d( 5), d( 9), d(18), d(35)}, A{d( 5), d( 9), d(17), d(35)}}, // identical to LMMM
@@ -155,6 +149,8 @@ static constexpr T6 WORD_CMMM = { 6, 26,  67, 23,  7,  4}; // destination word
 // LMMM with source and destination at different places in their words:
 // for each pixel.
 static constexpr T6 SHIFT_LMMM = {29, 11, 4, 11, 9, 0};
+// Extra time for each linear byte.
+static constexpr T6 BYTE_BMXL = {20, 7, 24, 4, 4, 4};
 
 // The least time that a pixel (BMLL: a byte) can take, in any mode. Used
 // for a lower bound on a command's end.
@@ -290,6 +286,27 @@ bool V9990CmdEngine::step(EmuTime limit, bool timed,
 	uint16_t x, uint16_t dx, unsigned n)
 {
 	return (x & (n - 1)) == ((dx == 1) ? 0 : (n - 1));
+}
+
+// The words that the next 'count' pixels of a rectangle command start, from
+// column 'x' with 'anx' pixels left in the row and 'any' rows left.
+unsigned V9990CmdEngine::wordStarts(
+	uint16_t x, uint16_t dx, unsigned n, unsigned count) const
+{
+	unsigned result = 0;
+	uint16_t anx = ANX;
+	uint16_t any = ANY;
+	repeat(count, [&] {
+		if (any == 0) return;
+		if ((anx == getWrappedNX()) || wordStart(x, dx, n)) ++result;
+		x += dx;
+		if (!--anx) {
+			x -= uint16_t(NX * dx);
+			--any;
+			anx = getWrappedNX();
+		}
+	});
+	return result;
 }
 
 // Lazily initialized LUT to speed up logical operations:
@@ -1558,15 +1575,14 @@ void V9990CmdEngine::startBMXL(EmuTime time)
 template<>
 void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
-	// timing value is times 2, because it does 2 bytes per iteration:
-	auto delta = getTiming(*this, BMXL_TIMING) * 2;
 	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = V9990Bpp16::getLogOpLUT(LOG);
+	const bool timed = accessTimed();
 
-	while (engineTime < limit) {
-		engineTime += delta;
+	// a source word and a destination word
+	while (step(limit, timed, 4, Tm::WORD_LMMM[Tm::BPP16])) {
 		auto src = uint16_t(vram.readVRAMBx(srcAddress + 0) +
 		                    vram.readVRAMBx(srcAddress + 1) * 256);
 		srcAddress += 2;
@@ -1589,14 +1605,20 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 template<typename Mode>
 void V9990CmdEngine::executeBMXL(EmuTime limit)
 {
-	auto delta = getTiming(*this, BMXL_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
+	const unsigned npw = Tm::PIXELS_PER_WORD[m];
 
-	while (engineTime < limit) {
-		engineTime += delta;
+	while (true) {
+		// a source byte (half a word), and the destination words its
+		// pixels start
+		unsigned accesses =
+			1 + 2 * wordStarts(DX, dx, npw, Mode::PIXELS_PER_BYTE);
+		if (!step(limit, timed, accesses, Tm::BYTE_BMXL[m])) break;
 		uint8_t d = vram.readVRAMBx(srcAddress++);
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			auto d2 = Mode::shift(d, i, DX);
@@ -2151,11 +2173,10 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 		left = rect * Tm::MIN_PIXEL_LMMV;
 		break;
 	case 0x04: // LMMM
+	case 0x08: // BMXL
 		left = rect * Tm::MIN_PIXEL_COPY;
 		break;
 	// (not yet timed by accesses)
-	case 0x08: // BMXL
-		return engineTime + getTiming(*this, BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 	case 0x09: // BMLX
 		return engineTime + getTiming(*this, BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
 	case 0x0A: // BMLL

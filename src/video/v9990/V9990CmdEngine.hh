@@ -350,6 +350,7 @@ private:
 	[[nodiscard]] bool accessStep(EmuTime limit, unsigned accesses, int think);
 	[[nodiscard]] bool step(EmuTime limit, bool timed,
 	                        unsigned accesses, int think);
+	[[nodiscard]] unsigned wordStarts(uint16_t x, uint16_t dx, unsigned n, unsigned count) const;
 
 	/** The running command is complete. Perform necessary clean-up actions.
 	  */
