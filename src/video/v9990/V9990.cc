@@ -445,6 +445,7 @@ void V9990::execCheckCmdEnd(EmuTime time)
 
 void V9990::scheduleCmdEnd(EmuTime time)
 {
+	syncCmdEnd.removeSyncPoint();
 	if (regs[INTERRUPT_0] & 4) {
 		auto next = cmdEngine.estimateCmdEnd();
 		if (next > time) {
@@ -812,6 +813,9 @@ void V9990::frameStart(EmuTime time)
 	    frameStartTime + getBottomBorder() * V9990DisplayTiming::UC_TICKS_PER_LINE);
 
 	renderer->frameStart(time);
+
+	// (the display may have been switched on or off)
+	scheduleCmdEnd(time);
 }
 
 void V9990::raiseIRQ(IRQType irqType)
