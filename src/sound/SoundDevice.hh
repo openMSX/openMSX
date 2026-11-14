@@ -94,9 +94,30 @@ public:
 	 * @param balance [-1, +1], -1: fully left, 0: center, +1: fully right
 	 *                 The sum of the energy of the left and right channel is kept constant.
 	 * NOTE: after calling setBalance() a number of times you must also call postSetBalance() once.
+	 * NOTE: this is meant to be called during the construction phase (before audio generation starts).
 	 */
 	void setBalance(unsigned channel, float balance);
 	virtual void postSetBalance();
+
+	/** Enable the use of setChannelFactors().
+	 * This method may only be called during the construction phase (after
+	 * the call to registerSound(), before audio generation starts).
+	 * It must be called (as preparation) before it's allowed to call setChannelFactors().
+	 */
+	void enableSetChannelFactors();
+
+	/** Set the left/right multiplication factors per channel.
+	 *
+	 * In a way this is similar to setBalance(), it (over)writes the same
+	 * factors.  But this gives more control, it can also be used the change
+	 * the volume per channel.
+
+	 * And most important: it's allowed to call this at-run-time (during
+	 * sound generation), but only after enableSetChannelFactors() has been
+	 * called (during construction). And then this disables some internal
+	 * optimizations to make this possible.
+	 */
+	void setChannelFactors(unsigned channel, float left, float right, EmuTime time);
 
 	/** Query the last generated audio signal for a specific channel.
 	  * The length of this buffer is fixed (for a specific sound device),
