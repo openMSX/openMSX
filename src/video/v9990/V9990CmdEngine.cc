@@ -1923,12 +1923,20 @@ void V9990CmdEngine::startPSET(EmuTime time)
 	auto lut = Mode::getLogOpLUT(LOG);
 	Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 	advancePointer();
+	if (accessTimed()) {
+		// ends after its word's two accesses, see executePSET()
+		engineTime = time;
+		return;
+	}
 	cmdReady(time);
 }
 
-void V9990CmdEngine::executePSET(EmuTime /*limit*/)
+void V9990CmdEngine::executePSET(EmuTime limit)
 {
-	UNREACHABLE;
+	assert(accessTimed());
+	if (accessStep(limit, 2, 0)) {
+		cmdReady(engineTime);
+	}
 }
 
 // ADVN
@@ -2161,6 +2169,7 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 		left = int64_t(NX - ANX) * Tm::MIN_PIXEL_LINE;
 		break;
 	case 0x0C: // SRCH: can end at any pixel
+	case 0x0E: // PSET
 		break;
 	default:
 		return engineTime; // ends at once, or when the CPU moves data
