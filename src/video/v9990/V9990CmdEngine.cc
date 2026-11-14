@@ -43,12 +43,6 @@ using TimingTable = std::span<const A2, 4>;
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-static constexpr std::array BMLL_TIMING = {
-	A2{A{d( 33),d( 33),d( 33),d( 33)}, A{d(28), d(28), d(28), d(28)}, A{d(27), d(27), d(27), d(27)}},
-	A2{A{d( 20),d( 20),d( 20),d( 20)}, A{d(18), d(18), d(18), d(18)}, A{d(18), d(18), d(18), d(18)}},
-	A2{A{d(118),d(118),d(118),d(118)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}},
-	A2{A{d(118),d(118),d(118),d(118)}, A{d(52), d(52), d(52), d(52)}, A{d(18), d(18), d(18), d(18)}}
-};
 static constexpr std::array LINE_TIMING = {
 	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
 	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
@@ -144,14 +138,19 @@ static constexpr T6 WORD_CMMM = { 6, 26,  67, 23,  7,  4}; // destination word
 // LMMM with source and destination at different places in their words:
 // for each pixel.
 static constexpr T6 SHIFT_LMMM = {29, 11, 4, 11, 9, 0};
+// BMLL with source and destination bytes in different chips: for each
+// byte.
+static constexpr int CROSS_BMLL = 37;
 // Extra time for each linear byte.
 static constexpr T6 BYTE_BMXL = {20, 7, 24, 4, 4, 4};
 static constexpr T6 BYTE_BMLX = {44, 7, 24, 4, 4, 4};
+static constexpr T6 BYTE_BMLL = { 5, 7,  4, 4, 4, 4};
 
 // The least time that a pixel (BMLL: a byte) can take, in any mode. Used
 // for a lower bound on a command's end.
 static constexpr int64_t MIN_PIXEL_LMMV = 20;
 static constexpr int64_t MIN_PIXEL_COPY = 24; // LMMM, BMXL, BMLX
+static constexpr int64_t MIN_BYTE_BMLL  = 70;
 // The most of that time that one pending step can cover.
 static constexpr int64_t MAX_PENDING = 480;
 
@@ -1745,12 +1744,12 @@ template<>
 void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	// TODO DIX DIY?
-	// timing value is times 2, because it does 2 bytes per iteration:
-	auto delta = getTiming(*this, BMLL_TIMING) * 2;
 	auto lut = V9990Bpp16::getLogOpLUT(LOG);
 	bool transp = (LOG & 0x10) != 0;
-	while (engineTime < limit) {
-		engineTime += delta;
+	const bool timed = accessTimed();
+	while (true) {
+		// a source word and a destination word
+		if (!step(limit, timed, 4, 2 * Tm::BYTE_BMLL[Tm::BPP16])) break;
 		// VRAM always mapped as in Bx modes
 		auto srcColor = uint16_t(vram.readVRAMDirect(srcAddress + 0x00000) +
 		                         vram.readVRAMDirect(srcAddress + 0x40000) * 256);
@@ -1774,10 +1773,15 @@ template<typename Mode>
 void V9990CmdEngine::executeBMLL(EmuTime limit)
 {
 	// TODO DIX DIY?
-	auto delta = getTiming(*this, BMLL_TIMING);
 	auto lut = Mode::getLogOpLUT(LOG);
-	while (engineTime < limit) {
-		engineTime += delta;
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
+	while (true) {
+		// Half a source word and half a destination word. It takes
+		// longer if the two bytes are in different chips.
+		bool cross = ((srcAddress ^ dstAddress) & 1) != 0;
+		int think = Tm::BYTE_BMLL[m] + (cross ? Tm::CROSS_BMLL : 0);
+		if (!step(limit, timed, 2, think)) break;
 		// VRAM always mapped as in Bx modes
 		auto srcColor = vram.readVRAMBx(srcAddress);
 		auto addr = V9990VRAM::transformBx(dstAddress);
@@ -2188,9 +2192,10 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 	case 0x09: // BMLX
 		left = rect * Tm::MIN_PIXEL_COPY;
 		break;
-	// (not yet timed by accesses)
 	case 0x0A: // BMLL
-		return engineTime + getTiming(*this, BMLL_TIMING) * nbBytes;
+		left = int64_t(nbBytes) * Tm::MIN_BYTE_BMLL;
+		break;
+	// (not yet timed by accesses)
 	case 0x0B: // LINE
 		return engineTime + getTiming(*this, LINE_TIMING) * (NX - ANX + 1);
 	case 0x0C: // SRCH: can end at any next pixel
