@@ -65,6 +65,13 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 	updateMonitorWorkArea();
+	// Windows that are restored as open (from imgui.ini) and lie (partly)
+	// outside the main window get an OS window of their own. Window managers
+	// tend to give such a new OS window the focus, and ImGui then also moves
+	// its keyboard focus there. Ignore such OS focus changes shortly after
+	// startup, so that the MSX keeps the keyboard focus. (ImGui's time is
+	// the time since the first frame.)
+	ImGui::GetIO().ConfigViewportsPlatformFocusSetsImGuiFocus = ImGui::GetTime() > 1.0;
 	ImGui::NewFrame();
 
 	// Allow docking in main window
@@ -92,10 +99,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			ImGuiWindowFlags_NoBringToFrontOnFocus;
 	bool focus = false;
 	im::Window("MSX Display Area", nullptr, flags, [&]{
-		// Ensure this window has focus on startup (after other windows are loaded)
-		if (ImGui::GetFrameCount() == 1) {
-			ImGui::SetWindowFocus();
-		}
 		// If no other window currently has focus, then take it ourselves.
 		if (ImGui::GetCurrentContext()->NavWindow == nullptr) {
 			ImGui::SetWindowFocus();
@@ -115,6 +118,15 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	});
 
 	manager.paintImGui(focus);
+
+	// Ensure this window has focus on startup: windows that are restored
+	// as open (from imgui.ini) take the focus when they first appear, so do
+	// this at the end of the first frame, after they appeared.
+	if (ImGui::GetFrameCount() == 1) {
+		if (auto* window = ImGui::FindWindowByName("MSX Display Area")) {
+			ImGui::FocusWindow(window);
+		}
+	}
 
 	// Rendering
 	const ImGuiIO& io = ImGui::GetIO();

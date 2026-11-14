@@ -215,6 +215,10 @@ private:
 	bool handleDropped = false;
 	bool openInsertedInfo = false;
 	bool guiActive = false;
+	// The ImGui window (ID) that last had the keyboard focus, other than
+	// the main menu bar. When the menu bar gives up the focus, the focus
+	// goes back to this window, see paintImGui().
+	unsigned lastFocusedWindow = 0;
 
 	EmuTime prevBoardTime = EmuTime::zero();
 	float speedDrawTimeOut = 0.0f;

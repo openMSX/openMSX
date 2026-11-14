@@ -191,6 +191,12 @@ void ImGuiMessages::paintPopup()
 		ImGui::OpenPopup("popup-message");
 	}
 
+	// Show the messages in the middle of the main window, not at the mouse
+	// position: there they could end up in (the OS window of) another
+	// window that is closing, and then they're invisible, while they still
+	// have the keyboard focus.
+	const auto* mainViewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(mainViewport->GetCenter(), ImGuiCond_Appearing, {0.5f, 0.5f});
 	im::Popup("popup-message", [&]{
 		printMessages(popupMessages);
 		bool close = paintButtons();

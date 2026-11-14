@@ -562,6 +562,22 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 			auto period = active ? 0.5f : 5.0f;
 			return calculateFade(menuAlpha, target, period);
 		}();
+		// When the main menu bar gives up the keyboard focus (e.g. after
+		// choosing a menu item, or after it took the focus when it first
+		// appeared), ImGui gives the focus to the top-most other window.
+		// That's never the MSX display area (it stays at the back), but
+		// e.g. the console. Instead, give it back to the window that had
+		// it before the menu bar took it.
+		const auto& g = *ImGui::GetCurrentContext();
+		const auto* menuBarWindow = ImGui::FindWindowByName("##MainMenuBar");
+		// (not the menus themselves, nor other popups)
+		auto isPopup = [](const ImGuiWindow* w) {
+			return w->Flags & (ImGuiWindowFlags_Popup | ImGuiWindowFlags_ChildMenu);
+		};
+		if (g.NavWindow && (g.NavWindow != menuBarWindow) && !isPopup(g.NavWindow)) {
+			lastFocusedWindow = g.NavWindow->ID;
+		}
+		bool menuBarHadFocus = menuBarWindow && (g.NavWindow == menuBarWindow);
 		im::StyleVar(ImGuiStyleVar_Alpha, menuAlpha, [&]{
 			im::MainMenuBar([&]{
 				if (ImGui::ArrowButton("undock-button", ImGuiDir_Up)) {
@@ -571,6 +587,17 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 				drawMenu();
 			});
 		});
+		if (menuBarHadFocus && g.NavWindow && (g.NavWindow != menuBarWindow) &&
+		    !isPopup(g.NavWindow)) { // e.g. a menu opened via the keyboard
+			auto* previous = ImGui::FindWindowByID(lastFocusedWindow);
+			if (!previous || !previous->WasActive) {
+				// that window was closed: give the focus to the MSX
+				previous = ImGui::FindWindowByName("MSX Display Area");
+			}
+			if (previous && (previous != g.NavWindow)) {
+				ImGui::FocusWindow(previous);
+			}
+		}
 	}
 
 	if (statusBarVisible) drawStatusBar(motherBoard);
