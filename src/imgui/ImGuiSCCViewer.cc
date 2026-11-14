@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "SCC.hh"
 #include "SoundDevice.hh"
+#include "Y8960SCC.hh"
 
 #include "narrow.hh"
 
@@ -15,7 +16,8 @@ ImGuiSCCViewer::ImGuiSCCViewer(ImGuiManager& manager_)
 {
 }
 
-static void paintSCC(const SCC& scc)
+template<typename Chip>
+static void paintSCC(const Chip& scc)
 {
 	im::TreeNode(scc.getName().c_str(), ImGuiTreeNodeFlags_DefaultOpen, [&] {
 		const auto& waveData = scc.getWaveData();
@@ -48,6 +50,9 @@ void ImGuiSCCViewer::paint(MSXMotherBoard* motherBoard)
 			if (const auto* device = dynamic_cast<const SCC*>(info.device)) {
 				noDevices = false;
 				paintSCC(*device);
+			} else if (const auto* y8960 = dynamic_cast<const Y8960SCC*>(info.device)) {
+				noDevices = false;
+				paintSCC(*y8960);
 			}
 		}
 		if (noDevices) {

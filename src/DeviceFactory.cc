@@ -98,6 +98,14 @@
 #include "XMLElement.hh"
 #include "YamahaFDC.hh"
 #include "YamahaSKW01.hh"
+#include "MSXTimer.hh"
+#include "Y8960AdpcmMemory.hh"
+#include "Y8960Mixer.hh"
+#include "Y8960OPL2Device.hh"
+#include "Y8960SSGSDevice.hh"
+#include "Y8960OPLLDevice.hh"
+#include "Y8960OPMDevice.hh"
+#include "Y8960SystemController.hh"
 
 #include "one_of.hh"
 
@@ -337,6 +345,22 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<MSXPiDevice>(conf);
 	} else if (type == "Franky") {
 		result = std::make_unique<Franky>(conf);
+	} else if (type == "MSX-TIMER") {
+		result = std::make_unique<MSXTimer>(conf);
+	} else if (type == "Y8960-MIXER") {
+		result = std::make_unique<Y8960Mixer>(conf);
+	} else if (type == "Y8960-SSGS") {
+		result = std::make_unique<Y8960SSGSDevice>(conf);
+	} else if (type == "Y8960-ADPCM-RAM") {
+		result = std::make_unique<Y8960AdpcmMemory>(conf);
+	} else if (type == "Y8960-OPL2") {
+		result = std::make_unique<Y8960OPL2Device>(conf);
+	} else if (type == "Y8960-OPLL") {
+		result = std::make_unique<Y8960OPLLDevice>(conf);
+	} else if (type == "Y8960-OPM") {
+		result = std::make_unique<Y8960OPMDevice>(conf);
+	} else if (type == "Y8960-SYSTEM-CONTROLLER") {
+		result = std::make_unique<Y8960SystemController>(conf);
 	} else {
 		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");

@@ -1,0 +1,562 @@
+// The actual sample playing part is duplicated for the 'emu' domain and the
+// 'audio' domain. The emu part is responsible for cycle accurate sample
+// read back (see peekReg() register 0x13 and 0x14) and for cycle accurate
+// status register updates (the status bits related to playback, e.g.
+// end-of-sample). The audio part is responsible for the actual sound
+// generation. This split up allows for the two parts to be out-of-sync. So for
+// example when emulation is running faster or slower than 100% realtime speed,
+// we both get cycle accurate emulation behaviour and still sound generation at
+// 100% realtime speed (which is most of the time better for sound quality).
+
+#include "Y8960Adpcm.hh"
+
+#include "Y8960AdpcmMemory.hh"
+#include "Y8960OPL2.hh"
+
+#include "Clock.hh"
+#include "DeviceConfig.hh"
+#include "MSXMotherBoard.hh"
+#include "serialize.hh"
+
+#include "Math.hh"
+#include "narrow.hh"
+
+#include <algorithm>
+#include <array>
+
+namespace openmsx {
+
+// Bitmask for register 0x07
+static constexpr int R07_RESET       = 0x01;
+static constexpr int R07_SP_OFF      = 0x08;
+static constexpr int R07_REPEAT      = 0x10;
+static constexpr int R07_MEMORY_DATA = 0x20;
+static constexpr int R07_REC         = 0x40;
+static constexpr int R07_START       = 0x80;
+static constexpr int R07_MODE        = 0xE0;
+
+// Bitmask for register 0x08
+static constexpr int R08_ROM         = 0x01;
+static constexpr int R08_64K         = 0x02;
+static constexpr int R08_DA_AD       = 0x04;
+static constexpr int R08_SAMPL       = 0x08;
+static constexpr int R08_NOTE_SET    = 0x40;
+static constexpr int R08_CSM         = 0x80;
+
+static constexpr int DIFF_MAX     = 0x6000;
+static constexpr int DIFF_MIN     = 0x7F;
+static constexpr int DIFF_DEFAULT = 0x7F;
+
+static constexpr int STEP_BITS = 16;
+static constexpr int STEP_MASK = (1 << STEP_BITS) -1;
+
+
+Y8960Adpcm::Y8960Adpcm(Y8960OPL2& opl2_, const DeviceConfig& config,
+                       Y8960AdpcmMemory& memory_)
+	: Schedulable(config.getScheduler())
+	, opl2(opl2_)
+	, memory(memory_)
+	, clock(config.getMotherBoard().getCurrentTime())
+{
+	// The memory device clears itself at power-up.
+}
+
+void Y8960Adpcm::clearRam()
+{
+	memory.clear();
+}
+
+void Y8960Adpcm::reset(EmuTime time)
+{
+	removeSyncPoint();
+
+	clock.reset(time);
+
+	startAddr = 0;
+	stopAddr = 7;
+	delta = 0;
+	addrMask = (1 << 18) - 1;
+	reg7 = 0;
+	reg15 = 0;
+	readDelay = 0;
+	romBank = false;
+	writeReg(0x12, 255, time); // volume
+
+	restart(emu);
+	restart(aud);
+
+	opl2.setStatus(Y8960OPL2::STATUS_BUF_RDY);
+}
+
+bool Y8960Adpcm::isPlaying() const
+{
+	return (reg7 & 0xC0) == 0x80;
+}
+bool Y8960Adpcm::isMuted() const
+{
+	return !isPlaying() || (reg7 & R07_SP_OFF);
+}
+
+void Y8960Adpcm::restart(PlayData& pd) const
+{
+	pd.memPtr = startAddr;
+	pd.nowStep = (1 << STEP_BITS) - delta;
+	pd.out = 0;
+	pd.output = 0;
+	pd.diff = DIFF_DEFAULT;
+	pd.nextLeveling = 0;
+	pd.sampleStep = 0;
+	pd.adpcm_data = 0; // dummy, avoid UMR in serialize
+}
+
+void Y8960Adpcm::sync(EmuTime time)
+{
+	if (isPlaying()) { // optimization, also correct without this test
+		unsigned ticks = clock.getTicksTill(time);
+		for (unsigned i = 0; isPlaying() && (i < ticks); ++i) {
+			(void)calcSample(true); // ignore result
+		}
+	}
+	clock.advance(time);
+}
+
+void Y8960Adpcm::schedule()
+{
+	assert(isPlaying());
+	if ((stopAddr > startAddr) && (delta != 0)) {
+		// TODO possible optimization, no need to set sync points if
+		//      the corresponding bit is masked in the interrupt enable
+		//      register
+		if (reg7 & R07_MEMORY_DATA) {
+			// we already did a sync(time), so clock is up-to-date
+			Clock<Y8960OPL2::CLOCK_FREQ, Y8960OPL2::CLOCK_FREQ_DIV> stop(clock);
+			uint64_t samples = stopAddr - emu.memPtr + 1;
+			uint64_t length = (samples << STEP_BITS) +
+					((1 << STEP_BITS) - emu.nowStep) +
+					(delta - 1);
+			stop += unsigned(length / delta);
+			setSyncPoint(stop.getTime());
+		} else {
+			// TODO we should also set a sync-point in this case
+			//      because this mode sets the STATUS_BUF_RDY bit
+			//      which also triggers an IRQ
+		}
+	}
+}
+
+void Y8960Adpcm::executeUntil(EmuTime time)
+{
+	assert(isPlaying());
+	sync(time); // should set STATUS_EOS
+	assert(opl2.peekRawStatus() & Y8960OPL2::STATUS_EOS);
+	if (isPlaying() && (reg7 & R07_REPEAT)) {
+		schedule();
+	}
+}
+
+void Y8960Adpcm::writeReg(uint8_t rg, uint8_t data, EmuTime time)
+{
+	sync(time); // TODO only when needed
+	switch (rg) {
+	case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
+		reg7 = data;
+		// PCM_BSY follows START after RESET has been applied, so 81h
+		// leaves it clear. Y8950Adpcm sets it from the written value.
+		if (reg7 & R07_RESET) {
+			reg7 = 0;
+		}
+		if (reg7 & R07_START) {
+			opl2.setStatus(Y8960OPL2::STATUS_PCM_BSY);
+		} else {
+			opl2.resetStatus(Y8960OPL2::STATUS_PCM_BSY);
+		}
+		if (reg7 & R07_START) {
+			// start ADPCM
+			restart(emu);
+			restart(aud);
+		}
+		if (reg7 & R07_MEMORY_DATA) {
+			// access external memory?
+			emu.memPtr = startAddr;
+			aud.memPtr = startAddr;
+			readDelay = 2; // two dummy reads
+			if ((reg7 & 0xA0) == 0x20) {
+				// Memory read or write
+				opl2.setStatus(Y8960OPL2::STATUS_BUF_RDY);
+			}
+		} else {
+			// access via CPU
+			emu.memPtr = 0;
+			aud.memPtr = 0;
+		}
+		removeSyncPoint();
+		if (isPlaying()) {
+			schedule();
+		}
+		break;
+
+	case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM
+		romBank = data & R08_ROM;
+		addrMask = data & R08_64K ? (1 << 16) - 1 : (1 << 18) - 1;
+		break;
+
+	case 0x09: // START ADDRESS (L)
+		startAddr = (startAddr & 0x7F807) | (data << 3);
+		break;
+	case 0x0A: // START ADDRESS (H)
+		startAddr = (startAddr & 0x007FF) | (data << 11);
+		break;
+
+	case 0x0B: // STOP ADDRESS (L)
+		stopAddr = (stopAddr & 0x7F807) | (data << 3);
+		if (isPlaying()) {
+			removeSyncPoint();
+			schedule();
+		}
+		break;
+	case 0x0C: // STOP ADDRESS (H)
+		stopAddr = (stopAddr & 0x007FF) | (data << 11);
+		if (isPlaying()) {
+			removeSyncPoint();
+			schedule();
+		}
+		break;
+
+	case 0x0F: // ADPCM-DATA
+		writeData(data);
+		break;
+
+	case 0x10: // DELTA-N (L)
+		delta = (delta & 0xFF00) | data;
+		volumeWStep = (volume * delta) >> STEP_BITS;
+		if (isPlaying()) {
+			removeSyncPoint();
+			schedule();
+		}
+		break;
+	case 0x11: // DELTA-N (H)
+		delta = (delta & 0x00FF) | (data << 8);
+		volumeWStep = (volume * delta) >> STEP_BITS;
+		if (isPlaying()) {
+			removeSyncPoint();
+			schedule();
+		}
+		break;
+
+	case 0x12: { // ENVELOP CONTROL
+		volume = data;
+		volumeWStep = (volume * delta) >> STEP_BITS;
+		break;
+	}
+	case 0x0D: // PRESCALE (L)
+	case 0x0E: // PRESCALE (H)
+	case 0x15: // DAC-DATA  (bit9-2)
+	case 0x16: //           (bit1-0)
+	case 0x17: //           (exponent)
+	case 0x1A: // PCM-DATA
+		// not implemented
+		break;
+	}
+}
+
+void Y8960Adpcm::writeData(uint8_t data)
+{
+	reg15 = data;
+	if ((reg7 & R07_MODE) == 0x60) {
+		// external memory write
+		assert(!isPlaying()); // no need to update the 'aud' data
+		if (readDelay) {
+			emu.memPtr = startAddr;
+			readDelay = 0;
+		}
+		if (emu.memPtr <= stopAddr) {
+			writeMemory(emu.memPtr, data);
+			emu.memPtr += 2; // two nibbles at a time
+
+			// reset BRDY bit in status register,
+			// which means we are processing the write
+			opl2.resetStatus(Y8960OPL2::STATUS_BUF_RDY);
+
+			// setup a timer that will callback us in 10
+			// master clock cycles for Y8950. In the
+			// callback set the BRDY flag to 1, which
+			// means we have written the data. For now, we
+			// don't really do this; we simply reset and
+			// set the flag in zero time, so that the IRQ
+			// will work.
+			opl2.setStatus(Y8960OPL2::STATUS_BUF_RDY);
+
+			if (emu.memPtr > stopAddr) {
+				// we just received the last byte: set EOS
+				// verified on real HW:
+				//  in case of EOS, BUF_RDY is set as well
+				opl2.setStatus(Y8960OPL2::STATUS_EOS);
+				// Eugeny tested that pointer wraps when
+				// continue writing after EOS
+				emu.memPtr = startAddr;
+			}
+		}
+
+	} else if ((reg7 & R07_MODE) == 0x80) {
+		// ADPCM synthesis from CPU
+
+		// Reset BRDY bit in status register, which means we
+		// are full of data
+		opl2.resetStatus(Y8960OPL2::STATUS_BUF_RDY);
+	}
+}
+
+uint8_t Y8960Adpcm::readReg(uint8_t rg, EmuTime time)
+{
+	sync(time); // TODO only when needed
+	uint8_t result = (rg == 0x0F)
+	            ? readData()   // ADPCM-DATA
+	            : peekReg(rg); // other
+	return result;
+}
+
+uint8_t Y8960Adpcm::peekReg(uint8_t rg, EmuTime time) const
+{
+	const_cast<Y8960Adpcm*>(this)->sync(time); // TODO only when needed
+	return peekReg(rg);
+}
+
+uint8_t Y8960Adpcm::peekReg(uint8_t rg) const
+{
+	switch (rg) {
+	case 0x0F: // ADPCM-DATA
+		return peekData();
+	case 0x13:
+		// TODO check: is this before or after
+		//   volume is applied
+		//   filtering is performed
+		return narrow_cast<uint8_t>((emu.output >>  8) & 0xFF);
+	case 0x14:
+		return narrow_cast<uint8_t>((emu.output >> 16) & 0xFF);
+	default:
+		return 255;
+	}
+}
+
+void Y8960Adpcm::resetStatus()
+{
+	// If the BUF_RDY mask is cleared (e.g. by writing the value 0x80 to
+	// register R#4). Reading the status register still has the BUF_RDY
+	// bit set. Without this behavior demos like 'NOP Unknown reality'
+	// hang when testing the amount of sample ram or when uploading data
+	// to the sample ram.
+	//
+	// Before this code was added, those demos also worked but only
+	// because we had a hack that always kept bit BUF_RDY set.
+	//
+	// When the ADPCM unit is not performing any function (e.g. after a
+	// reset), the BUF_RDY bit should still be set. The AUDIO detection
+	// routine in 'MSX-Audio BIOS v1.3' depends on this. See
+	//   [3533002] Y8950 not being detected by MSX-Audio v1.3
+	//   https://sourceforge.net/tracker/?func=detail&aid=3533002&group_id=38274&atid=421861
+	// TODO I've implemented this as '(reg7 & R07_MODE) == 0', is this
+	//      correct/complete?
+	if (((reg7 & R07_MODE & ~R07_REC) == R07_MEMORY_DATA) ||
+	    ((reg7 & R07_MODE) == 0)){
+		// transfer to or from sample ram, or no function
+		opl2.setStatus(Y8960OPL2::STATUS_BUF_RDY);
+	}
+}
+
+uint8_t Y8960Adpcm::readData()
+{
+	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
+		// external memory read
+		assert(!isPlaying()); // no need to update the 'aud' data
+		if (readDelay) {
+			emu.memPtr = startAddr;
+		}
+	}
+	uint8_t result = peekData();
+	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
+		assert(!isPlaying()); // no need to update the 'aud' data
+		if (readDelay) {
+			// two dummy reads
+			--readDelay;
+			opl2.setStatus(Y8960OPL2::STATUS_BUF_RDY);
+		} else if (emu.memPtr > stopAddr) {
+			// set EOS bit in status register
+			opl2.setStatus(Y8960OPL2::STATUS_EOS);
+		} else {
+			emu.memPtr += 2; // two nibbles at a time
+
+			// reset BRDY bit in status register, which means we
+			// are reading the memory now
+			opl2.resetStatus(Y8960OPL2::STATUS_BUF_RDY);
+
+			// setup a timer that will callback us in 10 master
+			// clock cycles for Y8950. In the callback set the BRDY
+			// flag to 1, which means we have another data ready.
+			// For now, we don't really do this; we simply reset and
+			// set the flag in zero time, so that the IRQ will work.
+
+			// set BRDY bit in status register
+			opl2.setStatus(Y8960OPL2::STATUS_BUF_RDY);
+		}
+	}
+	return result;
+}
+
+uint8_t Y8960Adpcm::peekData() const
+{
+	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
+		// external memory read
+		assert(!isPlaying()); // no need to update the 'aud' data
+		if (readDelay) {
+			return reg15;
+		} else if (emu.memPtr > stopAddr) {
+			return 0;
+		} else {
+			return readMemory(emu.memPtr);
+		}
+	} else {
+		return 0; // TODO check
+	}
+}
+
+// With the ROM bit set the Y8960 behaves like a Y8950 with an empty ROM
+// socket: there is no sample ROM behind it, but the bit still takes the
+// SRAM away.
+void Y8960Adpcm::writeMemory(unsigned memPtr, uint8_t value)
+{
+	if (romBank) return;
+	unsigned addr = (memPtr / 2) & addrMask;
+	memory.write(addr, value);
+}
+uint8_t Y8960Adpcm::readMemory(unsigned memPtr) const
+{
+	if (romBank) return 0;
+	unsigned addr = (memPtr / 2) & addrMask;
+	return memory.read(addr);
+}
+
+int Y8960Adpcm::calcSample()
+{
+	// called by audio thread
+	if (!isPlaying()) return 0;
+	int output = calcSample(false);
+	return (reg7 & R07_SP_OFF) ? 0 : output;
+}
+
+int Y8960Adpcm::calcSample(bool doEmu)
+{
+	// values taken from ymdelta.c by Tatsuyuki Satoh.
+	static constexpr std::array<int, 16> F1 = {
+		 1,   3,   5,   7,   9,  11,  13,  15,
+		-1,  -3,  -5,  -7,  -9, -11, -13, -15
+	};
+	static constexpr std::array<int, 16> F2 = {
+		57,  57,  57,  57,  77, 102, 128, 153,
+		57,  57,  57,  57,  77, 102, 128, 153
+	};
+
+	assert(isPlaying());
+
+	PlayData& pd = doEmu ? emu : aud;
+	pd.nowStep += delta;
+	if (pd.nowStep & ~STEP_MASK) {
+		pd.nowStep &= STEP_MASK;
+		uint8_t val = [&] {
+			if (!(pd.memPtr & 1)) {
+				// even nibble
+				if (reg7 & R07_MEMORY_DATA) {
+					pd.adpcm_data = readMemory(pd.memPtr);
+				} else {
+					pd.adpcm_data = reg15;
+					// set BRDY bit, ready to accept new data
+					if (doEmu) {
+						opl2.setStatus(Y8960OPL2::STATUS_BUF_RDY);
+					}
+				}
+				return uint8_t(pd.adpcm_data >> 4);
+			} else {
+				// odd nibble
+				return uint8_t(pd.adpcm_data & 0x0F);
+			}
+		}();
+		int prevOut = pd.out;
+		pd.out = Math::clipToInt16(pd.out + (pd.diff * F1[val]) / 8);
+		pd.diff = std::clamp((pd.diff * F2[val]) / 64, DIFF_MIN, DIFF_MAX);
+
+		int prevLeveling = pd.nextLeveling;
+		pd.nextLeveling = (prevOut + pd.out) / 2;
+		int deltaLeveling = pd.nextLeveling - prevLeveling;
+		pd.sampleStep = deltaLeveling * volumeWStep;
+		int tmp = deltaLeveling * ((volume * narrow<int>(pd.nowStep)) >> STEP_BITS);
+		pd.output = prevLeveling * volume + tmp;
+
+		++pd.memPtr;
+		if ((reg7 & R07_MEMORY_DATA) &&
+		    (pd.memPtr > stopAddr)) {
+			// On 2003/06/21 I commited a patch with comment:
+			//   generate end-of-sample interrupt at every sample
+			//   end, including loops
+			// Unfortunately it doesn't give any reason why and now
+			// I can't remember it :-(
+			// This is different from e.g. the MAME implementation.
+			if (doEmu) {
+				opl2.setStatus(Y8960OPL2::STATUS_EOS);
+			}
+			if (reg7 & R07_REPEAT) {
+				restart(pd);
+			} else {
+				if (doEmu) {
+					removeSyncPoint();
+					reg7 = 0;
+					// Y8950Adpcm leaves PCM_BSY set here; the
+					// Y8960 drops it together with START.
+					opl2.resetStatus(Y8960OPL2::STATUS_PCM_BSY);
+				}
+			}
+		}
+	} else {
+		pd.output += pd.sampleStep;
+	}
+	return pd.output >> 12;
+}
+
+
+// version 2: romBank
+template<typename Archive>
+void Y8960Adpcm::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeBase<Schedulable>(*this);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("romBank", romBank);
+	} else {
+		romBank = false;
+	}
+	ar.serialize("startAddr",    startAddr,
+	             "stopAddr",     stopAddr,
+	             "addrMask",     addrMask,
+	             "volume",       volume,
+	             "volumeWStep",  volumeWStep,
+	             "readDelay",    readDelay,
+	             "delta",        delta,
+	             "reg7",         reg7,
+	             "reg15",        reg15,
+
+	             "memPtr",       emu.memPtr,
+	             "nowStep",      emu.nowStep,
+	             "out",          emu.out,
+	             "output",       emu.output,
+	             "diff",         emu.diff,
+	             "nextLeveling", emu.nextLeveling,
+	             "sampleStep",   emu.sampleStep,
+	             "adpcm_data",   emu.adpcm_data);
+	if constexpr (Archive::IS_LOADER) {
+		// ignore aud part for saving,
+		// for loading we make it the same as the emu part
+		aud = emu;
+	}
+
+	ar.serialize("clock", clock);
+}
+INSTANTIATE_SERIALIZE_METHODS(Y8960Adpcm);
+
+} // namespace openmsx

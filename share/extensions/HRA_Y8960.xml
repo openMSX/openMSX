@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Y8960 Cartridge</name>
+    <manufacturer>HRA!</manufacturer>
+    <code/>
+    <release_year>2026</release_year>
+    <description>MSX2++ equivalent sound cartridge.</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <!-- The <volume> of each block follows the level ratios measured on the
+         cartridge, with the loudest, the OPM, at 30000. They differ from the
+         values in comparable extensions (fmpac.xml, audio.xml, scc.xml, ...) -->
+    <MSX-TIMER id="y8960-timer">
+      <io base="0xB0" num="4"/>
+    </MSX-TIMER>
+    <!-- I/O 40h-4Fh. Writing 80h to 40h enables it, and 02h to 41h selects
+         this cartridge. Identification only: the Config ROM reader/writer
+         behind function 01h of 42h is not there -->
+    <Y8960-SYSTEM-CONTROLLER id="Y8960 System Controller"/>
+    <!-- One SSGS block holding two YM2149 units: 00h-0Fh is unit 0, 10h-1Fh
+         unit 1, and 20h-2Fh the volume and pan of each channel.
+         A0h = register number, A1h = write.
+         Sharing the ports of the MSX's PSG is what the cartridge does. The
+         cartridge answers A2h reads of unit 1, but this does not: an input
+         port overlapping the MSX's PSG makes openMSX warn every time the
+         extension is inserted -->
+    <Y8960-SSGS id="Y8960 SSGS">
+      <io base="0xA0" num="4" type="O"/>
+      <sound>
+        <volume>15003</volume>
+      </sound>
+    </Y8960-SSGS>
+    <Y8960-OPLL id="Y8960 OPLL">
+      <io base="0x7C" num="2" type="O"/>
+      <sound>
+        <volume>7009</volume>
+      </sound>
+    </Y8960-OPLL>
+    <!-- The ADPCM sample memory, 256kB: 40000h-7FFFFh of the cartridge's
+         SRAM. Keep it before the OPL2, which looks it up when it is built -->
+    <Y8960-ADPCM-RAM id="Y8960 ADPCM RAM"/>
+    <Y8960-OPL2 id="Y8960 OPL2">
+      <io base="0xC0" num="2"/>
+      <adpcm_memory>Y8960 ADPCM RAM</adpcm_memory>
+      <sound>
+        <volume>7433</volume>
+      </sound>
+    </Y8960-OPL2>
+    <!-- 7Eh = address, 7Fh = data. Reading 7Fh returns the status -->
+    <Y8960-OPM id="Y8960 OPM">
+      <io base="0x7E" num="2"/>
+      <sound>
+        <volume>30000</volume>
+      </sound>
+    </Y8960-OPM>
+    <primary slot="any">
+      <secondary slot="any">
+        <ROM id="Y8960 SCC">
+          <mem base="0x4000" size="0x8000"/>
+          <sound>
+            <volume>7509</volume>
+          </sound>
+          <mappertype>Y8960</mappertype>
+          <rom/>
+          <!-- The addresses of the memory mapped I/O and the I/O Enabler
+               bits are listed at the top of RomY8960.cc -->
+          <opll>Y8960 OPLL</opll>
+          <opl2>Y8960 OPL2</opl2>
+          <ssgs>Y8960 SSGS</ssgs>
+          <opm>Y8960 OPM</opm>
+          <timer>y8960-timer</timer>
+          <mixer>y8960-mixer</mixer>
+        </ROM>
+      </secondary>
+    </primary>
+    <!-- The mixer has no I/O ports. Its volumes are written through the
+         memory mapped I/O at 7FF7h + channel; 4 and 5 (7FFBh / 7FFCh) are
+         the OPM's ports, not volumes. The master volume at 7FFEh scales all
+         channels. The ADPCM is mixed into the OPL2 and takes its volume.
+         Keep this after the ROM, as it refers to the SCC.
+         The cartridge does not feed its sound back into the MSX, so the
+         default is the cartridge's output alone. The setting
+         y8960-mixer_output switches to msx or mix -->
+    <Y8960-MIXER id="y8960-mixer">
+      <default_output>y8960</default_output>
+      <channel num="0" idref="Y8960 SSGS"/>
+      <channel num="1" idref="Y8960 OPLL"/>
+      <channel num="2" idref="Y8960 OPL2"/>
+      <channel num="3" idref="Y8960 SCC"/>
+      <channel num="6" idref="Y8960 OPM"/>
+    </Y8960-MIXER>
+  </devices>
+</msxconfig>

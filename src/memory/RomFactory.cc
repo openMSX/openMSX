@@ -64,6 +64,7 @@
 #include "RomZemina80in1.hh"
 #include "RomZemina90in1.hh"
 #include "Yamanooto.hh"
+#include "RomY8960.hh"
 
 #include "DeviceConfig.hh"
 #include "MSXException.hh"
@@ -385,6 +386,8 @@ std::unique_ptr<MSXDevice> create(DeviceConfig& config)
 		return std::make_unique<RomWonderKid>(config, std::move(rom));
 	case KOREAN128IN1:
 		return std::make_unique<RomKorean128in1>(config, std::move(rom));
+	case Y8960:
+		return std::make_unique<RomY8960>(config, std::move(rom));
 	case NUM: case UNKNOWN: break; // no actual rom types
 	}
 	throw MSXException("Unknown ROM type");

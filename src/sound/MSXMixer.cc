@@ -761,10 +761,10 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info) const
 		}
 	}();
 	auto [ampL, ampR] = info.device->getAmplificationFactor();
-	info.left1  = l1 * ampL;
-	info.right1 = r1 * ampR;
-	info.left2  = l2 * ampL;
-	info.right2 = r2 * ampR;
+	info.left1  = l1 * ampL * info.gainLeft;
+	info.right1 = r1 * ampR * info.gainRight;
+	info.left2  = l2 * ampL * info.gainLeft;
+	info.right2 = r2 * ampR * info.gainRight;
 }
 
 void MSXMixer::updateMasterVolume()
@@ -843,6 +843,18 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 std::string MSXMixer::SoundDeviceInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
+}
+
+void MSXMixer::setDeviceGain(std::string_view name, float leftGain, float rightGain)
+{
+	auto it = std::ranges::find(infos, name, [](const SoundDeviceInfo& i) {
+		return std::string_view(i.device->getName()); });
+	if (it == infos.end()) {
+		throw CommandException("Unknown sound device '", name, "'");
+	}
+	it->gainLeft  = leftGain;
+	it->gainRight = rightGain;
+	updateVolumeParams(*it);
 }
 
 void MSXMixer::SoundDeviceInfoTopic::tabCompletion(std::vector<std::string>& tokens) const

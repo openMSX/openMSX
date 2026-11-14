@@ -996,6 +996,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomWonderKid.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomY8960.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina126in1.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -1104,6 +1107,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXSCCPlusCart.cc">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXTimer.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXTurboRPCM.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -1164,6 +1170,18 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950Periphery.cc">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960Mixer.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960OPLL.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960OPMDevice.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8960SCC.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2151.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -1177,6 +1195,9 @@
       <Filter>sound</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKTBanked.cc">
       <Filter>sound</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413OriginalNukeYKT.cc">
@@ -1549,6 +1570,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1985.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1990.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\Y8960SystemController.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXTurboRPause.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PasswordCart.cc" />
@@ -2645,6 +2667,9 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomWonderKid.hh">
       <Filter>memory</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomY8960.hh">
+      <Filter>memory</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina126in1.hh">
       <Filter>memory</Filter>
     </None>
@@ -2765,6 +2790,9 @@
     <None Include="$(OpenMSXSrcDir)\sound\MSXSCCPlusCart.hh">
       <Filter>sound</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\sound\MSXTimer.hh">
+      <Filter>sound</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\sound\MSXTurboRPCM.hh">
       <Filter>sound</Filter>
     </None>
@@ -2834,6 +2862,18 @@
     <None Include="$(OpenMSXSrcDir)\sound\Y8950Periphery.hh">
       <Filter>sound</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960Mixer.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960OPLL.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960OPMDevice.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\Y8960SCC.hh">
+      <Filter>sound</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\sound\YM2151.hh">
       <Filter>sound</Filter>
     </None>
@@ -2853,6 +2893,9 @@
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKTBanked.hh">
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYktTables.ii">
@@ -3364,6 +3407,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXS1985.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXS1990.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.hh" />
+    <None Include="$(OpenMSXSrcDir)\Y8960SystemController.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXToshibaTcx200x.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXTurboRPause.hh" />
     <None Include="$(OpenMSXSrcDir)\PasswordCart.hh" />

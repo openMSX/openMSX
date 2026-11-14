@@ -51,6 +51,10 @@ public:
 		dynarray<ChannelSettings> channelSettings;
 		float defaultVolume = 0.f;
 		float left1 = 0.f, right1 = 0.f, left2 = 0.f, right2 = 0.f;
+		/** Extra gain, on top of the device's own amplification and the
+		  * user's volume/balance settings. For a cartridge that has a
+		  * mixer of its own in front of its sound devices. */
+		float gainLeft = 1.0f, gainRight = 1.0f;
 	};
 
 public:
@@ -135,6 +139,10 @@ public:
 
 	// Returns the nominal host sample rate (not adjusted for speed setting)
 	[[nodiscard]] unsigned getSampleRate() const { return hostSampleRate; }
+
+	/** Set the extra gain of one sound device, see SoundDeviceInfo::gainLeft.
+	 * Throws when no sound device goes by that name. */
+	void setDeviceGain(std::string_view name, float leftGain, float rightGain);
 
 	[[nodiscard]] SoundDevice* findDevice(std::string_view name) const;
 	[[nodiscard]] const SoundDeviceInfo* findDeviceInfo(std::string_view name) const;
