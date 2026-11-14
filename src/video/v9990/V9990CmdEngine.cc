@@ -43,12 +43,6 @@ using TimingTable = std::span<const A2, 4>;
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-static constexpr std::array LMMV_TIMING = {
-	A2{A{ d( 8), d(11), d(15), d(30)}, A{d( 7), d(10), d(13), d(26)}, A{d( 7), d(10), d(13), d(25)}},
-	A2{A{ d( 5), d( 7), d( 9), d(18)}, A{d( 5), d( 6), d( 8), d(17)}, A{d( 5), d( 6), d( 8), d(17)}},
-	A2{A{ d(56), d(56), d(56), d(56)}, A{d(25), d(25), d(25), d(25)}, A{d( 9), d( 9), d( 9), d( 9)}},
-	A2{A{ d(28), d(28), d(28), d(28)}, A{d(15), d(15), d(15), d(15)}, A{d( 6), d( 6), d( 6), d( 6)}}
-};
 static constexpr std::array LMMM_TIMING = {
 	A2{A{d (10),d (16),d( 32),d( 66)}, A{d( 8), d(14), d(28), d(57)}, A{d( 8), d(13), d(27), d(54)}},
 	A2{A{d ( 6),d( 10),d( 20),d( 39)}, A{d( 5), d( 9), d(18), d(35)}, A{d( 5), d( 9), d(17), d(35)}},
@@ -108,6 +102,95 @@ static constexpr std::array SRCH_TIMING = {
 }
 
 
+
+// Command timing from VRAM accesses.
+//
+// Measured on a real V9990 in every display mode but with the 25 MHz
+// crystal (doc/internal/v9990-cmd-timing). The command engine works on
+// 16-bit words: one byte from each of the two VRAM chips. Every word a
+// command touches, source or destination, costs two accesses, and some
+// 'think' time that depends on the command and on the pixels in a word.
+//
+// The time unit here is 1/5 of a UC tick (1/60 of a Z80 clock). Tables are
+// indexed by the engine's mode: P1, P2, 2 bpp, 4 bpp, 8 bpp, 16 bpp.
+namespace Tm {
+enum : unsigned { P1, P2, BPP2, BPP4, BPP8, BPP16 };
+
+static constexpr int SUB = 5;
+using Clk = Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND * SUB>;
+
+using T6 = std::array<int, 6>;
+static constexpr T6 PIXELS_PER_WORD = {2, 4, 8, 4, 2, 1};
+// From one access to the engine's next.
+static constexpr T6 ACCESS = {42, 41, 41, 41, 41, 41}; // 0.70 clocks
+// Extra time at the start of each row. In P1 a row of one pixel takes
+// less.
+static constexpr T6 ROW_LMMV = {121, 40,  0, 36, 82,  82};
+static constexpr int ROW_LMMV_1 =  80;
+// Extra time for each word, on top of its two accesses.
+static constexpr T6 WORD_LMMV = { 0, 44, 104, 42,  1,  1};
+
+// The least time that a pixel (BMLL: a byte) can take, in any mode. Used
+// for a lower bound on a command's end.
+static constexpr int64_t MIN_PIXEL_LMMV = 20;
+// The most of that time that one pending step can cover.
+static constexpr int64_t MAX_PENDING = 480;
+
+// Extra time at the start of a row of 'nx' pixels.
+[[nodiscard]] static constexpr int rowLMMV(unsigned m, unsigned nx) {
+	return ((m == P1) && (nx == 1)) ? ROW_LMMV_1 : ROW_LMMV[m];
+}
+[[nodiscard]] static constexpr EmuDuration dur(int64_t n) {
+	return Clk::duration(n);
+}
+} // namespace Tm
+
+// Does the access model time the running command?
+bool V9990CmdEngine::accessTimed() const
+{
+	return !brokenTiming;
+}
+
+// The first moment, not before 'request', that the engine gets a VRAM access.
+EmuTime V9990CmdEngine::grantAccess(EmuTime request) const
+{
+	return request;
+}
+
+// One step of a command: 'think' time, then 'accesses' VRAM accesses. Returns
+// false if that isn't all done by 'limit'; 'nextDone' is then when it will be.
+bool V9990CmdEngine::accessStep(EmuTime limit, unsigned accesses, int think)
+{
+	auto access = Tm::dur(Tm::ACCESS[timingMode()]);
+	EmuTime t = engineTime + Tm::dur(think);
+	repeat(accesses, [&] {
+		t = grantAccess(t) + access;
+	});
+	if (t > limit) {
+		nextDone = t;
+		return false;
+	}
+	engineTime = t;
+	return true;
+}
+
+// One step of a command's loop.
+bool V9990CmdEngine::step(EmuTime limit, bool timed,
+                          unsigned accesses, int think)
+{
+	if (timed) return accessStep(limit, accesses, think);
+	// instantaneous (broken) timing: everything at the first later sync
+	return engineTime < limit;
+}
+
+// Does the pixel at 'x' start a new VRAM word, going in direction 'dx'? 'n'
+// is the pixels in a word (in P1: the two pixels that share a byte in each
+// chip).
+[[nodiscard]] static constexpr bool wordStart(
+	uint16_t x, uint16_t dx, unsigned n)
+{
+	return (x & (n - 1)) == ((dx == 1) ? 0 : (n - 1));
+}
 
 // Lazily initialized LUT to speed up logical operations:
 //  - 1st index is the mode: 2,4,8 bpp or 'not-transparent'
@@ -916,6 +999,10 @@ void V9990CmdEngine::setCmdReg(uint8_t reg, uint8_t value, EmuTime time)
 			default: UNREACHABLE;
 		}
 
+		if (accessTimed()) {
+			nextDone = engineTime;
+		}
+
 		// Finish command now if instantaneous command timing is active.
 		if (brokenTiming) {
 			sync(time);
@@ -1087,7 +1174,6 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 {
 	// TODO can be optimized a lot
 
-	auto delta = getTiming(*this, LMMV_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	uint16_t dx = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t dy = (ARG & DIY) ? uint16_t(-1) : 1;
@@ -1096,8 +1182,15 @@ void V9990CmdEngine::executeLMMV(EmuTime limit)
 	// real V9990: an LMMV into layer B ignores FC bits 15-8).
 	uint16_t color = std::is_same_v<Mode, V9990P1>
 	               ? uint16_t((fgCol & 0xFF) * 0x0101) : fgCol;
-	while (engineTime < limit) {
-		engineTime += delta;
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
+	const unsigned npw = Tm::PIXELS_PER_WORD[m];
+	while (true) {
+		bool rowStart = ANX == getWrappedNX();
+		bool word = rowStart || wordStart(DX, dx, npw);
+		int think = (word ? Tm::WORD_LMMV[m] : 0) +
+		            (rowStart ? Tm::rowLMMV(m, NX) : 0);
+		if (!step(limit, timed, word ? 2 : 0, think)) break;
 		Mode::psetColor(vram, DX, DY, pitch, color, WM, lut, LOG, dataLatch);
 
 		DX += dx;
@@ -1928,68 +2021,39 @@ void V9990CmdEngine::cmdReady(EmuTime /*time*/)
 
 EmuTime V9990CmdEngine::estimateCmdEnd() const
 {
-	EmuDuration delta;
+	// instantaneous (broken) timing needs no extra sync
+	if (!accessTimed()) return engineTime;
+
+	// A lower bound: when the pending step ends (exact), plus the least
+	// the remaining steps can take. Each sync gets closer, and the last
+	// step's end is exact.
+	int64_t rect = ANX + int64_t(ANY - 1) * getWrappedNX();
+	int64_t left = 0; // in Tm's time units
 	switch (CMD >> 4) {
-		case 0x00: // STOP
-			delta = EmuDuration::zero();
-			break;
-
-		case 0x01: // LMMC
-		case 0x05: // CMMC
-			// command terminates when CPU writes data, no need for extra sync
-			delta = EmuDuration::zero();
-			break;
-
-		case 0x03: // LMCM
-		case 0x0D: // POINT
-			// command terminates when CPU reads data, no need for extra sync
-			delta = EmuDuration::zero();
-			break;
-
-		case 0x02: // LMMV
-			// Block commands.
-			delta = getTiming(*this, LMMV_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
-			break;
-		case 0x04: // LMMM
-			delta = getTiming(*this, LMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
-			break;
-		case 0x07: // CMMM
-			delta = getTiming(*this, CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
-			break;
-		case 0x08: // BMXL
-			delta = getTiming(*this, BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
-			break;
-		case 0x09: // BMLX
-			delta = getTiming(*this, BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
-			break;
-
-		case 0x06: // CMMK
-			// Not yet implemented.
-			delta = EmuDuration::zero();
-			break;
-
-		case 0x0A: // BMLL
-			delta = getTiming(*this, BMLL_TIMING) * nbBytes;
-			break;
-
-		case 0x0B: // LINE
-			delta = getTiming(*this, LINE_TIMING) * (NX - ANX + 1); // TODO ignores clipping
-			break;
-
-		case 0x0C: // SRCH
-			// Can end at any next pixel.
-			delta = getTiming(*this, SRCH_TIMING);
-			break;
-
-		case 0x0E: // PSET
-		case 0x0F: // ADVN
-			// Current implementation of these commands execute instantly, no need for extra sync.
-			delta = EmuDuration::zero();
-			break;
-
-		default: UNREACHABLE;
+	case 0x02: // LMMV
+		left = rect * Tm::MIN_PIXEL_LMMV;
+		break;
+	// (not yet timed by accesses)
+	case 0x04: // LMMM
+		return engineTime + getTiming(*this, LMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+	case 0x07: // CMMM
+		return engineTime + getTiming(*this, CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+	case 0x08: // BMXL
+		return engineTime + getTiming(*this, BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+	case 0x09: // BMLX
+		return engineTime + getTiming(*this, BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+	case 0x0A: // BMLL
+		return engineTime + getTiming(*this, BMLL_TIMING) * nbBytes;
+	case 0x0B: // LINE
+		return engineTime + getTiming(*this, LINE_TIMING) * (NX - ANX + 1);
+	case 0x0C: // SRCH: can end at any next pixel
+		return engineTime + getTiming(*this, SRCH_TIMING);
+	default:
+		return engineTime; // ends at once, or when the CPU moves data
 	}
-	return engineTime + delta;
+	// (the pending step may already cover some of that)
+	left = std::max<int64_t>(0, left - Tm::MAX_PENDING);
+	return std::max(nextDone, engineTime) + Tm::dur(left);
 }
 
 // version 1: initial version
@@ -2039,6 +2103,7 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 	}
 	if constexpr (Archive::IS_LOADER) {
 		setCommandMode();
+		nextDone = engineTime; // (a lower bound)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(V9990CmdEngine);
