@@ -75,6 +75,8 @@ void ImGuiConsole::save(ImGuiTextBuffer& buf)
 void ImGuiConsole::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
+	// The 'console' setting (toggled by F10) follows the restored state.
+	consoleSetting.setBoolean(show);
 }
 
 void ImGuiConsole::print(std::string_view text, imColor color)
@@ -499,6 +501,11 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/    drawPos.x += ImGui::CalcTextSize(text).x;
 		/**/ }
 	});
+	if (!show) {
+		// The window was closed with its close button: the 'console'
+		// setting follows (this also gives the focus to the MSX).
+		consoleSetting.setBoolean(false);
+	}
 }
 
 int ImGuiConsole::textEditCallbackStub(ImGuiInputTextCallbackData* data)
