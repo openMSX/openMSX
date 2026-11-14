@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-F900</code>
     <release_year>1986</release_year>
-    <description>Japanese desktop MSX2 aimed for professional market, with superimpose and digitize capabilities (not emulated) and 2 disk drives.</description>
+    <description>Japanese desktop MSX2 with two disk drives and a Video Utility ROM. External video requires the separate HBI-F900 AV Creator extension; its analog timing is not emulated.</description>
     <type>MSX2</type>
     <region>jp</region>
   </info>

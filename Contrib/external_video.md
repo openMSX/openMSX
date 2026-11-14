@@ -1,9 +1,9 @@
 # External video preview
 
 This branch can put a live external video frame behind transparent MSX pixels.
-It is a frame-based preview of superimpose. Digitization into VRAM, external
-audio, external-only mode, analog line/phase synchronization, and the NMS 8280
-front-panel controls are still pending.
+The NMS 8280 also has frame-based digitization into VRAM, external audio,
+external-only mode and front-panel controls. Analog line/phase synchronization
+and physical input switching are not emulated.
 
 ## Quick test
 
@@ -74,3 +74,19 @@ The tested path used FFmpeg's moving `testsrc2` source and a Philips NMS 8255
 with its local ROMs. Two screenshots showed different external frames behind
 the MSX BASIC text. No USB capture device or NMS 8280 ROM was used in that
 test.
+
+## Sony HB-F900 with HBI-F900
+
+Start the `Sony_HB-F900` machine with `-ext Sony_HBI-F900`. The extension
+represents the separate AV Creator; it is not the HBI-V1 cartridge. The HB-F900
+Video Utility ROM detects the module on I/O port F7. With an external frame
+selected in the GUI, SonyVideo1 BASIC commands such as `CALL SUPER`,
+`CALL VIDEO` and `CALL COMPUTER` select the display mode. In SCREEN 8,
+`CALL DIGITIZE ON:COPY SCREEN` takes a frame into VRAM. The GUI currently
+provides one host video source; `CALL VIDEOIN(0..3)` changes the emulated F7
+control latch but does not switch among multiple physical input connectors.
+
+The Sony extension was tested headlessly with the user's HB-F900 ROMs and a
+synthetic external frame. This is not a comparison with a physical HBI-F900.
+See [Sony HBI-F900 research](../doc/internal/sony-hbi-f900.md) for the firmware
+trace, test results and remaining limitations.

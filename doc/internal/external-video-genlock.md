@@ -1,30 +1,34 @@
 # External video and genlock work
 
 Target order: Philips NMS 8280, then Sony HB-F900 with HBI-F900 AV Creator.
-The Sony HBI-V1 cartridge is a separate, later target.
+The Sony HBI-V1 cartridge is separate from the HBI-F900 AV Creator.
 
 ## Current openMSX integration points
 
 - `VDP::setExternalVideoSource()` accepts a `RawFrame`; Pioneer LaserDisc
   already feeds it through `PioneerLDControl::updateVideoSource()`.
-- `VDP` enables that source for superimpose when bit 0 of VDP register 0 is
-  set. `PixelRenderer` and `SDLRasterizer` pass the frame to the rasterizer.
+- `VDP` enables the external source through the relevant MSX1 or MSX2
+  superimpose register bits. `PixelRenderer` and `SDLRasterizer` pass the frame
+  to the rasterizer.
 - `Video9000` is another example of video composition, but combines two
   emulated outputs rather than a host capture device.
-- There is a Sony HB-F900 machine definition, including its video utility ROM.
-  This branch adds an initial NMS 8280 definition. The HB-F900 definition
-  explicitly says its digitize and superimpose functions are not emulated.
-- No NMS 8280 digitizer input is implemented in `VDPCmdEngine`.
+- NMS 8280 machine definitions, video control ports, a front panel and
+  frame-based VDP digitization are present. The digitizer lives in `VDP`, not
+  `VDPCmdEngine`.
+- The HB-F900 machine definition includes its Video Utility ROM. The separate
+  `Sony_HBI-F900` extension supplies the AV Creator's F7 control latch and
+  shared external audio. The HBI-V1 cartridge has its own extension.
 
 ## Hardware behavior to establish before emulation
 
 The NMS 8280 `SET VIDEO` firmware exposes normal, digitize, superimpose,
 and external-only modes. The published example uses `SCREEN 8`, `SET VIDEO 1`,
-and `COPY SCREEN` to digitize. Ports F6/F7 and VDP external-video bits need
-register-level confirmation from the service manual, firmware, or real-hardware
-traces. The front-panel source selector and level sliders also need a host-side
-representation. In particular, a displayed captured frame does not prove that
-`COPY SCREEN` writes the correct bytes to VRAM.
+and `COPY SCREEN` to digitize. Ports F6/F7 and the VDP external-video bits have
+been investigated with the NMS 8280 firmware, but analog behavior and
+digitizer pixel mapping still need comparison with real hardware. The
+front-panel controls have a GUI representation. A displayed captured frame
+alone does not prove that `COPY SCREEN` writes the correct bytes to VRAM;
+that path needs its own test.
 
 The original NMS 8280 disk-ROM dump SHA-1
 `69f3dbfc1d516cd09a1a7e286049f99e37ca90d9` includes memory-mapped FDC
@@ -39,7 +43,8 @@ definition, and all HB-F900 ROMs in its machine definition match. The alternate
 disk ROM. File-Hunter's RomDB separately has two 32 KiB HBI-V1 dumps, SHA-1
 `dbafa0f6ffa6dbfadbf631d209c5c9837ad0e100` and
 `94c4089f91af3d5f2e8db97bb004fa13bbae0d20`. They differ in 260 bytes;
-neither is assigned to an openMSX device yet. ROM binaries stay outside Git.
+both are assigned to the experimental HBI-V1 extension. ROM binaries stay
+outside Git.
 
 ## Current preview path
 
@@ -48,8 +53,8 @@ reloads one complete image at each frame boundary and uses the last valid
 image if a writer is in the middle of replacing it. The path is available on
 all machines for development. On a V9938, external superimpose is selected by
 R#9 bits 5:4 = 01 with transparent background pixels (R#8 bit 5 clear).
-This is a frame-based preview; it does not emulate analog
-genlock phase, digitization into VRAM, or the NMS 8280 front-panel controls.
+This is frame-based composition. NMS 8280 digitization into VRAM and its front
+panel have separate implementations. Analog genlock phase is not emulated.
 
 Generate a still frame with:
 
@@ -74,30 +79,27 @@ showed the external frame behind MSX BASIC text and a changed external frame
 two seconds later. This verifies frame-based visual composition, not USB
 capture, NMS 8280 hardware behavior, digitization, or analog synchronization.
 
-The Sony HB-F900 Video I/F and HBI-F900 AV Creator must be modeled separately.
-The HBI-F900 is the external mixer/digitizer connected to the HB-F900 video
-interface; the base computer alone is not the complete capture system. SonyVideo1
-BASIC uses `CALL VIDEOIN(2)` for superimpose, so Sony software compatibility
-needs its own command and register tests rather than assuming Philips
-`SET VIDEO 2` covers the entire device. Do not infer HBI-F900 behavior from
-HBI-V1 documentation.
+The HB-F900 and its HBI-F900 AV Creator are modeled separately. The base
+computer alone is not the complete capture system. The Sony Video Utility ROM
+uses port F7 and directly sets the VDP display mode for `CALL COMPUTER`,
+`CALL SUPER` and `CALL VIDEO`; `CALL VIDEOIN(0..3)` selects input control bits.
+See `sony-hbi-f900.md` for ROM offsets and tests. Do not infer HBI-F900
+behavior from HBI-V1 documentation.
 
-## Proposed implementation order
+## Remaining work
 
-1. Verify the NMS 8280 machine definition against its ROMs, I/O, and clock
-   mappings. Keep ROM binaries outside the repository.
-2. Keep the shared live source usable with USB capture devices, webcams, and
-   network streams. The current FFmpeg bridge and GUI selector handle these
-   frame sources; field order and timing metadata remain to be modeled.
-3. Emulate the NMS 8280 video control and its composition modes. Test the
-   visible output with deterministic frames.
-4. Emulate the NMS 8280 digitizer path into VDP VRAM, including `COPY SCREEN`,
-   and compare captured VRAM against expected SCREEN 8 data.
-5. Measure the live path's latency and document its frame-based approximation
-   separately from analog line/phase genlock.
-6. Model the HB-F900/HBI-F900 combination using its own firmware and hardware
-   evidence. Test SonyVideo1 `CALL VIDEOIN` modes, mixer controls, and
-   digitization with the HBI-F900 attached. Keep HBI-V1 as a later device.
+1. Compare NMS 8280 and HBI-F900 pixel data, video levels, input routes and
+   timing with physical hardware. The HBI-F900 `CALL BRIGHT` analog level and
+   physical input switching are still unmodeled.
+2. Test a real USB capture device, webcam, and network stream on each supported
+   host platform. Field order and latency remain to be measured.
+3. Make host video and audio deterministic in rewind and replays, or define
+   an explicit policy for those features.
+4. Verify normal and abnormal openMSX shutdown on Windows, Linux and macOS.
+   Synthetic Windows parent-process tests passed; full application testing is
+   still needed.
+5. Keep commercial ROM binaries outside the repository and prepare focused
+   review commits and reproducible tests for upstream.
 
 ## Sources
 
