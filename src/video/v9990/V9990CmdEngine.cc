@@ -117,6 +117,9 @@ static constexpr std::array SRCH_TIMING = {
 //     - in the horizontal blank, with sprites on: one word (2 accesses) 21
 //       clocks after the active part ends; the rest is taken by the sprite
 //       fetches. With sprites off: any time for the first 44.5 clocks.
+//  - Bitmap modes, in the picture's lines: any time, but for a stretch at
+//    the end of the horizontal blank: 21.6 clocks with the cursor on, 3.4
+//    with it off (more in the overscan modes).
 //
 // The time unit here is 1/5 of a UC tick (1/60 of a Z80 clock). Tables are
 // indexed by the engine's mode: P1, P2, 2 bpp, 4 bpp, 8 bpp, 16 bpp.
@@ -136,6 +139,11 @@ static constexpr int64_t SPRITES_ON_START  = 1281; // 21.35 clocks
 static constexpr int64_t SPRITES_ON_LEN    =   60; //  1 clock: one word
 static constexpr int64_t SPRITES_OFF_START =    0;
 static constexpr int64_t SPRITES_OFF_LEN   = 2670; // 44.5 clocks
+// Bitmap modes: the blocked stretch ends 5 clocks before the first
+// slot's place. Its length: cursor on, cursor off.
+static constexpr int64_t BLOCK_END = 300;
+static constexpr std::array<int64_t, 2> BLOCK_LEN          = {1296, 204};
+static constexpr std::array<int64_t, 2> BLOCK_LEN_OVERSCAN = {1710, 258};
 
 using T6 = std::array<int, 6>;
 static constexpr T6 PIXELS_PER_WORD = {2, 4, 8, 4, 2, 1};
@@ -196,13 +204,19 @@ EmuTime V9990CmdEngine::grantAccess(EmuTime request) const
 	bool sprites = vdp.spritesEnabled();
 	bool patternMode = timingMode() <= Tm::P2;
 
-	// P1, P2: the window [w0, w1) of the horizontal blank is free.
+	// Horizontal blank: P1, P2: the window [w0, w1) is free; bitmap modes:
+	// it is blocked.
 	int64_t w0 = 0;
 	int64_t w1 = 0;
 	if (patternMode) {
 		w0 = Tm::ACTIVE + (sprites ? Tm::SPRITES_ON_START
 		                           : Tm::SPRITES_OFF_START);
 		w1 = w0 + (sprites ? Tm::SPRITES_ON_LEN : Tm::SPRITES_OFF_LEN);
+	} else {
+		const auto& len = vdp.isOverScan() ? Tm::BLOCK_LEN_OVERSCAN
+		                                   : Tm::BLOCK_LEN;
+		w1 = Tm::LINE - Tm::BLOCK_END;
+		w0 = w1 - len[sprites ? 0 : 1];
 	}
 
 	// 'u' counts from the first active slot of the frame's line 0.
@@ -213,7 +227,10 @@ EmuTime V9990CmdEngine::grantAccess(EmuTime request) const
 		int64_t frameLine =
 			line - Tm::divFloor(line, ver.cycle) * ver.cycle;
 		if ((frameLine < top) || (frameLine >= bottom)) break; // any time
-		if (!patternMode) break; // any time
+		if (!patternMode) {
+			if ((w0 <= x) && (x < w1)) u = line * Tm::LINE + w1;
+			break;
+		}
 		if (x <= Tm::slotPos(Tm::SLOTS - 1)) {
 			int64_t k = x * Tm::SLOTS / Tm::ACTIVE;
 			while (Tm::slotPos(k) < x) ++k;
