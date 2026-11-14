@@ -396,7 +396,7 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 				auto hoverPos = hoveredCell(scrnPos, zm);
 				ImGui::SameLine();
 				auto shownCounts = std::span(perLine).first(visibleLines);
-				spritesPerLineHistogram(showSpritesPerLine, shownCounts, 16, zm.y);
+				spritesPerLineHistogram(showSpritesPerLine, shownCounts, 16, 125, zm.y);
 
 				im::Group([&]{
 					spriteBoxSettings(drawBoundingBox, boundingBoxColor, boundingBoxOnAll);

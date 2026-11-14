@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <ranges>
 #include <string_view>
 
@@ -416,13 +417,25 @@ void printSpriteBoxes(std::span<const SpriteBox> boxes, gl::ivec2 pos, int patte
 	}
 }
 
-void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int limit, float zoom)
+// Fixed (not depending on the counts) horizontal position, as a fraction of the
+// histogram width: linear up to 'limit' (at 1/2), then a power curve that ends
+// at 1 for 'maxSprites', with the same slope at 'limit' so there's no kink.
+static float spritesPerLineX(int n, int limit, int maxSprites)
+{
+	if (n <= limit) return 0.5f * float(n) / float(limit);
+	float p = float(maxSprites - limit) / float(limit); // slope match at 'limit'
+	float t = float(std::min(n, maxSprites) - limit) / float(maxSprites - limit);
+	return 1.0f - 0.5f * std::pow(1.0f - t, p);
+}
+
+void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int limit, int maxSprites, float zoom)
 {
 	if (!show) return;
-	float width = 5.0f * ImGui::GetFontSize();
 	assert(!counts.empty());
-	int busiest = *std::ranges::max_element(counts);
-	float scale = width / float(std::max(busiest, 2 * limit));
+	assert(maxSprites >= 2 * limit); // keeps the curve above 'limit' concave
+	assert(spritesPerLineX(limit, limit, maxSprites) == 0.5f);
+	assert(spritesPerLineX(maxSprites, limit, maxSprites) == 1.0f);
+	float width = 5.0f * ImGui::GetFontSize();
 	gl::vec2 size{width, zoom * float(counts.size())};
 	gl::vec2 pos = ImGui::GetCursorScreenPos();
 	ImGui::InvisibleButton("##spritesPerLine", size);
@@ -438,12 +451,12 @@ void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int lim
 		while ((end < counts.size()) && (counts[end] == n)) ++end;
 		if (n) {
 			drawList->AddRectFilled(pos + gl::vec2{0.0f, zoom * float(y)},
-			                        pos + gl::vec2{scale * float(n), zoom * float(end)},
+			                        pos + gl::vec2{width * spritesPerLineX(n, limit, maxSprites), zoom * float(end)},
 			                        (n > limit) ? overCol : normalCol);
 		}
 		y = end;
 	}
-	float limitX = pos.x + scale * float(limit);
+	float limitX = pos.x + 0.5f * width;
 	drawList->AddLine({limitX, pos.y}, {limitX, pos.y + size.y}, ImGui::GetColorU32(ImGuiCol_Text, 0.5f));
 
 	if (ImGui::IsItemHovered()) {
