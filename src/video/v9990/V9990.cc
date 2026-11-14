@@ -676,6 +676,10 @@ void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime time)
 			// TODO verify this on real V9990
 			syncAtNextLine(syncSetMode, time);
 			break;
+		case CONTROL:
+			// The sprite bit changes the command timing at once.
+			cmdEngine.sync(time);
+			break;
 		case PALETTE_CONTROL:
 			renderer->setColorMode(getColorMode(val), time);
 			break;
@@ -775,6 +779,9 @@ void V9990::createRenderer(EmuTime time)
 
 void V9990::frameStart(EmuTime time)
 {
+	// The command engine's timing depends on these settings.
+	cmdEngine.sync(time);
+
 	// Update setings that are fixed at the start of a frame
 	displayEnabled = (regs[CONTROL]       & 0x80) != 0;
 	palTiming      = (regs[SCREEN_MODE_1] & 0x08) != 0;
