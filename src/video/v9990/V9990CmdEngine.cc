@@ -78,6 +78,9 @@ using T6 = std::array<int, 6>;
 static constexpr T6 PIXELS_PER_WORD = {2, 4, 8, 4, 2, 1};
 // From one access to the engine's next.
 static constexpr T6 ACCESS = {42, 41, 41, 41, 41, 41}; // 0.70 clocks
+// From the write to R#52 to the first step.
+static constexpr int LATENCY      = 168; // 2.8 clocks
+static constexpr int LATENCY_PSET = 234; // 3.9 clocks
 // Extra time at the start of each row. In P1 a row of one pixel takes
 // less.
 static constexpr T6 ROW_LMMV = {121, 40,  0, 36, 82,  82};
@@ -1073,6 +1076,17 @@ void V9990CmdEngine::setCmdReg(uint8_t reg, uint8_t value, EmuTime time)
 		}
 
 		if (accessTimed()) {
+			switch (CMD >> 4) {
+			case 0x02: case 0x04: case 0x07: case 0x08: case 0x09:
+			case 0x0A: case 0x0B: case 0x0C:
+				engineTime += Tm::dur(Tm::LATENCY);
+				break;
+			case 0x0E:
+				engineTime += Tm::dur(Tm::LATENCY_PSET);
+				break;
+			default:
+				break;
+			}
 			nextDone = engineTime;
 		}
 
