@@ -1,0 +1,604 @@
+; GR8TIMER: does the GR8NET's controlled interrupt generator work as a
+; timer, without its interrupt? MSX-DOS .COM (GR8TIMER.COM, MSX-DOS 1 or 2,
+; MSX1-safe). Runs once and prints its results; no keys.
+;
+; Why: to time V9990 commands, the GR8NET's 24-bit counter (GR8NET manual,
+; section 11.5.1) is the finest clock in the machine: 10 MHz (100 ns) or
+; 3.579545 MHz, counting down, 0 = 2^24 (1.68 s at 10 MHz). Reading its LSB
+; latches the MID and MSB that follow. The counter needs page 1 switched to
+; the adapter's slot (special control registers at 5FC0-5FFF, bank 0).
+;
+; What it prints:
+;  - TIMER IN SLOT: where the counter was found. Every slot (and subslot,
+;    from EXPTBL) is put in page 1 in turn; the counter is there when,
+;    started at 3.579545 MHz, it changes between two reads and counts
+;    224000 +-2 ticks in 224000 Z80 clocks (that clock is the Z80's). The
+;    I/O ports (5Eh/5Fh) are not used. The four bytes written are put back
+;    when the slot fails the test (it may be RAM).
+;  - READ PAIR: the ticks between two counter reads 120 Z80 clocks apart
+;    (exp. 335 at 10 MHz).
+;  - DELAY 10M: the ticks of 2N minus N iterations of a 28-clock loop
+;    (N = 8000: 224000 clocks = 62.578 ms, exp. 625778 at 10 MHz).
+;  - DELAY 3M5: the same at 3.579545 MHz (exp. 224000, one tick a Z80
+;    clock; the two crystals differ by some ppm).
+;  - FRAME: the MSX VDP's frame, S#0 F to F (exp. about 166882 at 10 MHz,
+;    59736 Z80 clocks; +-42 from the 30-clock polling loop).
+;  - STOP: two reads 62 ms apart with OP = 0: the same value.
+;  - INT: with a 100 us period (1000 ticks): the INT bit (5FEA b7) sets,
+;    clears on writing 1 to it, and sets again. No interrupt (IGE = 0).
+; Clock counts include the MSX's M1 wait state.
+
+BDOS            equ     5
+ENASLT          equ     0024h
+RAMAD1          equ     0F342h          ; page 1's RAM slot (MSX-DOS)
+EXPTBL          equ     0FCC1h          ; bit 7: the primary slot is expanded
+
+MSX_STAT        equ     99h
+
+REG_CTL         equ     5FEAh           ; generator control
+REG_CNT         equ     5FEBh           ; counter LSB, MID, MSB
+
+CTL_OP          equ     01h
+CTL_RST         equ     02h
+CTL_CLS         equ     20h             ; 3.579545 MHz
+CTL_INT         equ     80h
+
+DELAY_N         equ     8000
+
+        output  "GR8TIMER.COM"
+        org     0100h
+
+START:
+        ld      de,TXT_TITLE
+        call    PRINT
+
+        call    FIND
+        ld      a,(SLOT)
+        cp      0FFh
+        jr      z,NOT_FOUND
+        ld      de,TXT_SLOT
+        call    PRINT
+        ld      a,(SLOT)
+        call    PRHEX
+        ld      de,TXT_H
+        call    PRINT
+
+        call    MEASURE
+        call    REPORT
+        ld      c,00h
+        jp      BDOS
+
+NOT_FOUND:
+        ld      de,TXT_NOTFOUND
+        call    PRINT
+        ld      c,00h
+        jp      BDOS
+
+; ---------------------------------------------------------------------------
+; SLOT = the slot ID (RDSLT format) of the first slot with the counter in
+; page 1, or FFh. Primary slots 0-3, and subslots 0-3 of the expanded ones.
+FIND:
+        di
+        xor     a
+        ld      (PRIM),a
+F_PRIM:
+        ld      a,(PRIM)
+        ld      e,a
+        ld      d,0
+        ld      hl,EXPTBL
+        add     hl,de
+        ld      a,(hl)
+        and     80h
+        or      e                       ; subslot 0
+F_SEC:
+        ld      (SLOT),a
+        ld      h,40h
+        call    ENASLT
+        di
+        call    PROBE
+        jr      z,F_DONE
+        ld      a,(SLOT)
+        bit     7,a
+        jr      z,F_NEXT                ; not expanded
+        add     a,4
+        bit     4,a
+        jr      z,F_SEC                 ; subslots 1-3
+F_NEXT:
+        ld      a,(PRIM)
+        inc     a
+        ld      (PRIM),a
+        cp      4
+        jr      nz,F_PRIM
+        ld      a,0FFh
+        ld      (SLOT),a
+F_DONE:
+        ld      a,(RAMAD1)
+        ld      h,40h
+        call    ENASLT
+        ei
+        ret
+
+; Z if page 1 has the counter. Else the four bytes are written back.
+PROBE:
+        ld      hl,REG_CTL
+        ld      de,SAVE4
+        ld      bc,4
+        ldir
+        ld      a,CTL_RST
+        ld      (REG_CTL),a
+        ld      hl,0
+        call    SET_COUNT
+        ld      a,CTL_RST+CTL_OP+CTL_CLS
+        ld      (REG_CTL),a
+        ; a running counter changes between two reads
+        ld      hl,C0
+        call    READC
+        ld      hl,C1
+        call    READC
+        ld      hl,C0
+        ld      de,C1
+        ld      b,3
+PB_SAME:
+        ld      a,(de)
+        cp      (hl)
+        jr      nz,PB_COUNTS
+        inc     hl
+        inc     de
+        djnz    PB_SAME
+        jr      PB_NO
+PB_COUNTS:
+        ; and counts Z80 clocks: 28 * DELAY_N, give or take 2
+        ld      hl,T3
+        call    DELAYS
+        ld      ix,T3
+        ld      iy,K_LOW
+        ld      hl,T1
+        call    SUB24
+        ld      a,(T1+1)
+        ld      hl,T1+2
+        or      (hl)
+        jr      nz,PB_NO
+        ld      a,(T1)
+        cp      5
+        jr      nc,PB_NO
+        ld      a,CTL_RST               ; stopped
+        ld      (REG_CTL),a
+        xor     a
+        ret
+PB_NO:
+        ld      hl,SAVE4
+        ld      de,REG_CTL
+        ld      bc,4
+        ldir
+        or      1                       ; NZ
+        ret
+
+K_LOW:
+        d24     28*DELAY_N-2
+
+; ---------------------------------------------------------------------------
+; All the measurements, with the adapter in page 1 and interrupts off. The
+; results go to RAM below 4000h; nothing is printed here (page 1 is not RAM).
+MEASURE:
+        di
+        ld      a,(SLOT)
+        ld      h,40h
+        call    ENASLT
+        di
+
+        ; stop, count 0 (2^24), start at 10 MHz
+        ld      a,CTL_RST
+        ld      (REG_CTL),a
+        ld      hl,0
+        call    SET_COUNT
+        ld      a,CTL_RST+CTL_OP
+        ld      (REG_CTL),a
+
+        ; READ PAIR: the two LSB reads are 120 clocks apart
+        ld      hl,C0
+        call    READC
+        ld      hl,C1
+        call    READC
+        ld      ix,C0
+        ld      iy,C1
+        ld      hl,R_PAIR
+        call    SUB24
+
+        ; DELAY 10M
+        ld      hl,R_D10
+        call    DELAYS
+
+        ; DELAY 3M5
+        ld      a,CTL_RST+CTL_OP+CTL_CLS
+        ld      (REG_CTL),a
+        ld      hl,R_D35
+        call    DELAYS
+        ld      a,CTL_RST+CTL_OP
+        ld      (REG_CTL),a
+
+        ; FRAME: S#0 F rises to F rises. A status read just as F sets can
+        ; clear it unseen (TMS9918): a result over 196607 (2 frames) is
+        ; measured again, up to 4 times.
+        ld      a,4
+        ld      (TRIES),a
+FR_AGAIN:
+        in      a,(MSX_STAT)
+FR_1:
+        in      a,(MSX_STAT)
+        rlca
+        jr      nc,FR_1
+        ld      hl,C0
+        call    READC
+FR_2:
+        in      a,(MSX_STAT)
+        rlca
+        jr      nc,FR_2
+        ld      hl,C1
+        call    READC
+        ld      ix,C0
+        ld      iy,C1
+        ld      hl,R_FRAME
+        call    SUB24
+        ld      a,(R_FRAME+2)
+        cp      3
+        jr      c,FR_DONE
+        ld      a,(TRIES)
+        dec     a
+        ld      (TRIES),a
+        jr      nz,FR_AGAIN
+FR_DONE:
+
+        ; STOP: OP = 0 (no RST) freezes the counter
+        xor     a
+        ld      (REG_CTL),a
+        ld      hl,R_STOP0
+        call    READC
+        ld      bc,DELAY_N
+        call    DELAY
+        ld      hl,R_STOP1
+        call    READC
+        ld      a,CTL_OP                ; resume
+        ld      (REG_CTL),a
+
+        ; INT: period 1000 ticks
+        ld      a,CTL_RST
+        ld      (REG_CTL),a
+        ld      hl,1000
+        call    SET_COUNT
+        ld      a,CTL_RST+CTL_OP
+        ld      (REG_CTL),a
+        call    WAIT_INT
+        ld      (R_INT1),a              ; 1: set in time
+        ld      a,CTL_INT+CTL_OP        ; clear INT, keep counting
+        ld      (REG_CTL),a
+        ld      a,(REG_CTL)
+        ld      (R_CLEAR),a             ; INT should read 0 here
+        call    WAIT_INT
+        ld      (R_INT2),a
+
+        ; leave it stopped, count 0
+        ld      a,CTL_RST
+        ld      (REG_CTL),a
+        ld      hl,0
+        call    SET_COUNT
+
+        ld      a,(RAMAD1)
+        ld      h,40h
+        call    ENASLT
+        ei
+        ret
+
+; the 24-bit count = HL (MSB 0), MSB last
+SET_COUNT:
+        ld      a,l
+        ld      (REG_CNT),a
+        ld      a,h
+        ld      (REG_CNT+1),a
+        xor     a
+        ld      (REG_CNT+2),a
+        ret
+
+; (HL) = the counter, LSB first (the LSB read latches the rest)
+READC:
+        ld      a,(REG_CNT)
+        ld      (hl),a
+        inc     hl
+        ld      a,(REG_CNT+1)
+        ld      (hl),a
+        inc     hl
+        ld      a,(REG_CNT+2)
+        ld      (hl),a
+        ret
+
+; (HL) = ticks of 2*DELAY_N loop iterations minus DELAY_N's: 28 * DELAY_N
+; clocks exactly (the reads' overhead cancels)
+DELAYS:
+        push    hl
+        ld      hl,C0
+        call    READC
+        ld      bc,DELAY_N
+        call    DELAY
+        ld      hl,C1
+        call    READC
+        ld      hl,C2
+        call    READC
+        ld      bc,DELAY_N*2
+        call    DELAY
+        ld      hl,C3
+        call    READC
+        ld      ix,C0
+        ld      iy,C1
+        ld      hl,T1
+        call    SUB24                   ; T1 = N's ticks (+ overhead)
+        ld      ix,C2
+        ld      iy,C3
+        ld      hl,T2
+        call    SUB24                   ; T2 = 2N's (+ the same overhead)
+        ld      ix,T2
+        ld      iy,T1
+        pop     hl
+        jp      SUB24
+
+; BC iterations of 28 clocks (7 + 5 + 5 + 11 with M1 waits)
+DELAY:
+        dec     bc
+        ld      a,b
+        or      c
+        jp      nz,DELAY
+        ret
+
+; A = 1 if the INT bit sets within 65536 polls (about 2.5 s), else 0
+WAIT_INT:
+        ld      bc,0
+WI_LP:
+        ld      a,(REG_CTL)
+        and     CTL_INT
+        jr      nz,WI_SET
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,WI_LP
+        xor     a
+        ret
+WI_SET:
+        ld      a,1
+        ret
+
+; (HL) = (IX) - (IY), 24 bits: a countdown's elapsed ticks (earlier - later)
+SUB24:
+        ld      a,(ix+0)
+        sub     (iy+0)
+        ld      (hl),a
+        inc     hl
+        ld      a,(ix+1)
+        sbc     a,(iy+1)
+        ld      (hl),a
+        inc     hl
+        ld      a,(ix+2)
+        sbc     a,(iy+2)
+        ld      (hl),a
+        ret
+
+; ---------------------------------------------------------------------------
+REPORT:
+        ld      de,TXT_PAIR
+        call    PRINT
+        ld      hl,R_PAIR
+        call    PRDEC
+        call    CRLF
+        ld      de,TXT_D10
+        call    PRINT
+        ld      hl,R_D10
+        call    PRDEC
+        call    CRLF
+        ld      de,TXT_D35
+        call    PRINT
+        ld      hl,R_D35
+        call    PRDEC
+        call    CRLF
+        ld      de,TXT_FRAME
+        call    PRINT
+        ld      hl,R_FRAME
+        call    PRDEC
+        call    CRLF
+
+        ld      de,TXT_STOP
+        call    PRINT
+        ld      hl,R_STOP0
+        call    PRDEC
+        ld      a,' '
+        call    PUTC
+        ld      hl,R_STOP1
+        call    PRDEC
+        ld      hl,R_STOP0
+        ld      de,R_STOP1
+        ld      b,3
+ST_CMP:
+        ld      a,(de)
+        cp      (hl)
+        jr      nz,ST_BAD
+        inc     hl
+        inc     de
+        djnz    ST_CMP
+        ld      a,1
+        jr      ST_SHOW
+ST_BAD:
+        xor     a
+ST_SHOW:
+        call    PROKFAIL
+        call    CRLF
+
+        ld      de,TXT_INT
+        call    PRINT
+        ld      a,(R_INT1)
+        call    PROKFAIL
+        ld      de,TXT_CLEAR
+        call    PRINT
+        ld      a,(R_CLEAR)
+        and     CTL_INT
+        ld      a,1
+        jr      z,CL_SHOW
+        xor     a
+CL_SHOW:
+        call    PROKFAIL
+        ld      de,TXT_AGAIN
+        call    PRINT
+        ld      a,(R_INT2)
+        call    PROKFAIL
+        jp      CRLF
+
+; " OK" if A = 1, else " FAIL"
+PROKFAIL:
+        and     a
+        ld      de,TXT_OK
+        jr      nz,PRINT
+        ld      de,TXT_FAIL
+        ; fall through
+
+; DE = a '$'-terminated string
+PRINT:
+        ld      c,09h
+        jp      BDOS
+
+CRLF:
+        ld      de,TXT_CRLF
+        jr      PRINT
+
+; A as a character
+PUTC:
+        push    af
+        push    bc
+        push    de
+        push    hl
+        push    ix
+        push    iy
+        ld      e,a
+        ld      c,02h
+        call    BDOS
+        pop     iy
+        pop     ix
+        pop     hl
+        pop     de
+        pop     bc
+        pop     af
+        ret
+
+; A as 2 hex digits
+PRHEX:
+        push    af
+        rrca
+        rrca
+        rrca
+        rrca
+        call    PRNIB
+        pop     af
+PRNIB:
+        and     0Fh
+        add     a,'0'
+        cp      '9'+1
+        jr      c,PUTC
+        add     a,'A'-'9'-1
+        jr      PUTC
+
+; (HL), 24 bits little-endian, in decimal, no leading zeros
+PRDEC:
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      c,(hl)
+        ex      de,hl                   ; C:HL = the value
+        xor     a
+        ld      (LEAD),a
+        ld      ix,POW10
+        ld      a,8
+        ld      (COUNT),a
+PD_NEXT:
+        ld      e,(ix+0)
+        ld      d,(ix+1)
+        ld      b,(ix+2)                ; B:DE = the power of 10
+        xor     a
+        ld      (DIGIT),a
+PD_SUB:
+        and     a
+        sbc     hl,de
+        ld      a,c
+        sbc     a,b
+        ld      c,a
+        jr      c,PD_UNDER
+        ld      a,(DIGIT)
+        inc     a
+        ld      (DIGIT),a
+        jr      PD_SUB
+PD_UNDER:
+        add     hl,de
+        ld      a,c
+        adc     a,b
+        ld      c,a
+        ld      a,(DIGIT)
+        and     a
+        jr      nz,PD_SHOW
+        ld      a,(LEAD)
+        and     a
+        jr      nz,PD_SHOW
+        ld      a,(COUNT)
+        cp      1                       ; the last digit always shows
+        jr      nz,PD_SKIP
+PD_SHOW:
+        ld      a,1
+        ld      (LEAD),a
+        ld      a,(DIGIT)
+        add     a,'0'
+        call    PUTC
+PD_SKIP:
+        inc     ix
+        inc     ix
+        inc     ix
+        ld      a,(COUNT)
+        dec     a
+        ld      (COUNT),a
+        jr      nz,PD_NEXT
+        ret
+
+POW10:
+        d24     10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
+
+TXT_TITLE:      db      "GR8NET timer test",13,10,"$"
+TXT_SLOT:       db      "TIMER IN SLOT $"
+TXT_H:          db      "h",13,10,"$"
+TXT_NOTFOUND:   db      "GR8NET timer not found",13,10,"$"
+TXT_PAIR:       db      "READ PAIR (exp 335):    $"
+TXT_D10:        db      "DELAY 10M (exp 625778): $"
+TXT_D35:        db      "DELAY 3M5 (exp 224000): $"
+TXT_FRAME:      db      "FRAME (exp ~166882):    $"
+TXT_STOP:       db      "STOP: $"
+TXT_INT:        db      "INT:$"
+TXT_CLEAR:      db      "  CLEAR:$"
+TXT_AGAIN:      db      "  AGAIN:$"
+TXT_OK:         db      " OK$"
+TXT_FAIL:       db      " FAIL$"
+TXT_CRLF:       db      13,10,"$"
+
+SLOT:           db      0
+PRIM:           db      0
+SAVE4:          ds      4
+T3:             ds      3
+LEAD:           db      0
+DIGIT:          db      0
+COUNT:          db      0
+TRIES:          db      0
+C0:             ds      3
+C1:             ds      3
+C2:             ds      3
+C3:             ds      3
+T1:             ds      3
+T2:             ds      3
+R_PAIR:         ds      3
+R_D10:          ds      3
+R_D35:          ds      3
+R_FRAME:        ds      3
+R_STOP0:        ds      3
+R_STOP1:        ds      3
+R_INT1:         db      0
+R_CLEAR:        db      0
+R_INT2:         db      0
