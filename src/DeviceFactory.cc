@@ -39,6 +39,7 @@
 #include "ExternalAudio.hh"
 #include "MSXNMS8280Video.hh"
 #include "SonyHBIV1.hh"
+#include "SonyHBIF900.hh"
 #include "MSXMirrorDevice.hh"
 #include "MSXModem.hh"
 #include "MSXMoonSound.hh"
@@ -279,6 +280,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<MSXKanji12>(conf);
 	} else if (type == "SonyHBIV1") {
 		result = std::make_unique<SonyHBIV1>(conf);
+	} else if (type == "SonyHBIF900") {
+		result = std::make_unique<SonyHBIF900>(conf);
 	} else if (type == "ExternalAudio") {
 		result = std::make_unique<MSXExternalAudio>(conf);
 	} else if (type == "NMS8280Video") {
