@@ -35,8 +35,10 @@ private:
 	bool overrideAll  = false;
 	bool overrideMode = false;
 	bool overridePat  = false;
+	bool overrideLines = false;
 	int manualMode = 0; // 0->P1, 1->P2
 	int manualPatBase = 0;
+	int manualLines = 0; // 0->212 (as displayed), 1->256 (all, y wraps at 256)
 	int patternPalette = 0; // 0-3, palette used to show the sprite pattern table
 	int zoom = 0; // single zoom for all sections (0->1x, ..., 7->8x)
 	int checkerBoardSize = 4;
@@ -66,8 +68,10 @@ private:
 		PersistentElement   {"overrideAll",         &ImGuiV9990Sprites::overrideAll},
 		PersistentElement   {"overrideMode",        &ImGuiV9990Sprites::overrideMode},
 		PersistentElement   {"overridePat",         &ImGuiV9990Sprites::overridePat},
+		PersistentElement   {"overrideLines",       &ImGuiV9990Sprites::overrideLines},
 		PersistentElementMax{"mode",                &ImGuiV9990Sprites::manualMode, 2}, // P1 or P2
 		PersistentElementMax{"patBase",             &ImGuiV9990Sprites::manualPatBase, 0x80000},
+		PersistentElementMax{"lines",               &ImGuiV9990Sprites::manualLines, 2},
 		PersistentElementMax{"patternPalette",      &ImGuiV9990Sprites::patternPalette, 4},
 		PersistentElementMax{"zoom",                &ImGuiV9990Sprites::zoom, 8},
 		PersistentElement   {"showGrid",            &ImGuiV9990Sprites::grid},
