@@ -590,10 +590,12 @@ private:
 	IRQHelper irq;
 
 	/** Signals each palette access (a read from or a write to the palette
-	  * data port) that causes "palette snow": at least one pixel on the
-	  * screen gets its color from the palette during the access. The
-	  * colors don't matter: snow in the color the pixel already had
-	  * also counts. The value is a list {x y index}:
+	  * data port) that causes "palette snow" on a real V9990: one made
+	  * while the beam draws the border or a part of the picture that
+	  * gets its colors from the palette. The colors don't matter: snow
+	  * in the color the pixel already had also counts. This is decided
+	  * from the display mode, see paletteAccess(). It doesn't depend on
+	  * the renderer. The value is a list {x y index}:
 	  * the position of the beam, in pixels of the current display mode
 	  * and lines, relative to the top-left corner of the display area
 	  * (so negative in the left and top border), and the accessed

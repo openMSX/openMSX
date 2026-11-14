@@ -743,24 +743,44 @@ void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime time)
 void V9990::paletteAccess(int index, EmuTime time)
 {
 	renderer->paletteSnow(index, time);
-
-	// Only when someone is interested: checking whether the pixels at
-	// the beam use the palette means drawing them (twice).
 	if (!paletteSnowProbe.anyObservers()) return;
-	if (!renderer->isPaletteInUse(time)) return;
 
+	// Where is the beam?
 	int ticks = getUCTicksThisFrame(time);
-	int dx = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE - getLeftBorder();
-	int y  = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE - getTopBorder();
+	int x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
+	int y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+	const auto& hor = getHorizontalTiming();
+	const auto& ver = getVerticalTiming();
+	auto visible = [](const V9990DisplayPeriod& p, int pos) {
+		return (p.blank <= pos) &&
+		       (pos < p.blank + p.border1 + p.display + p.border2);
+	};
+	if (!visible(hor, x) || !visible(ver, y)) return; // blanking: no snow
+
+	// Does the pixel there get its color from the palette? This only
+	// looks at the mode, not at the pixel itself:
+	//  - in the YJKP and YUVP modes all pixels count, also those that
+	//    have a YJK or YUV color,
+	//  - the cursors in the other direct color modes don't count.
+	bool inDisplay = displayEnabled &&
+		(getLeftBorder() <= x) && (x < getRightBorder()) &&
+		(getTopBorder()  <= y) && (y < getBottomBorder());
+	using enum V9990ColorMode;
+	bool usesPalette = inDisplay
+		? (getColorMode() != one_of(BYUV, BYJK, BD16, BD8))
+		: !isOverScan(); // the border has the backdrop color
+	if (!usesPalette) return;
+
+	int dx = x - getLeftBorder();
 	// UCtoX() only handles positions in or right of the display area
-	int x = (dx >= 0) ? UCtoX(dx, mode) : (-1 - UCtoX(-1 - dx, mode));
-	paletteSnowProbe.signal(x, y, index);
+	int px = (dx >= 0) ? UCtoX(dx, mode) : (-1 - UCtoX(-1 - dx, mode));
+	paletteSnowProbe.signal(px, y - getTopBorder(), index);
 }
 
 V9990::PaletteSnowProbe::PaletteSnowProbe(Debugger& debugger_, std::string name_)
 	: ProbeBase(debugger_, std::move(name_),
-	            "Signals a palette access that causes palette snow, "
-	            "also when the snow has the color the pixel already had. "
+	            "Signals a palette access while the beam draws pixels that "
+	            "use the palette: on a real V9990 that gives palette snow. "
 	            "Value: {x y index}, the beam position relative to the "
 	            "display area and the accessed palette entry.")
 {

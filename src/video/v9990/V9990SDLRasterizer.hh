@@ -10,7 +10,6 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
@@ -49,8 +48,6 @@ public:
 	void setPalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys) override;
 	void setSuperimpose(bool enabled) override;
 	void setPaletteSnow(std::optional<int> index) override;
-	[[nodiscard]] bool isPaletteInUse(
-		int line, function_ref<void()> draw) override;
 	void drawBorder(int fromX, int fromY, int limitX, int limitY) override;
 	void drawDisplay(int fromX, int fromY, int toX, int toY,
 	                 int displayX,
@@ -139,12 +136,6 @@ private:
 	std::array<Pixel, 64> snow64;
 	std::array<int16_t, 64> snow64_32768;
 	bool paletteSnow = false; // use 'snow64' instead of 'palette64'?
-
-	/** Only for isPaletteInUse(): a frame to draw in that is never
-	  * shown (allocated on first use), and a copy of one line of it.
-	  */
-	std::unique_ptr<RawFrame> scratchFrame;
-	std::vector<Pixel> scratchLine;
 
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.

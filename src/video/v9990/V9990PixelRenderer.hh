@@ -42,7 +42,6 @@ public:
 	void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
 	                   EmuTime time) override;
 	void paletteSnow(int index, EmuTime time) override;
-	[[nodiscard]] bool isPaletteInUse(EmuTime time) override;
 	void updateSuperimposing(bool enabled, EmuTime time) override;
 	void updateBackgroundColor(int index, EmuTime time) override;
 	void updateScrollAX(EmuTime time) override;
@@ -59,11 +58,6 @@ private:
 	  * position, and make that the new last sync point.
 	  */
 	void renderTo(int toX, int toY);
-
-	/** Draw the part of the screen between two positions (in UC ticks
-	  * and lines): the borders and the display area.
-	  */
-	void drawSpan(int fromX, int fromY, int toX, int toY);
 
 	/** Type of drawing to do.
 	  */

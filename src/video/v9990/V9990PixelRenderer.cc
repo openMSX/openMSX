@@ -217,13 +217,7 @@ void V9990PixelRenderer::renderUntil(EmuTime time)
 void V9990PixelRenderer::renderTo(int toX, int toY)
 {
 	if ((toX == lastX) && (toY == lastY)) return;
-	drawSpan(lastX, lastY, toX, toY);
-	lastX = toX;
-	lastY = toY;
-}
 
-void V9990PixelRenderer::drawSpan(int fromX, int fromY, int toX, int toY)
-{
 	// edges of the DISPLAY part of the vdp output
 	int left       = vdp.getLeftBorder();
 	int right      = vdp.getRightBorder();
@@ -231,19 +225,22 @@ void V9990PixelRenderer::drawSpan(int fromX, int fromY, int toX, int toY)
 
 	if (displayEnabled) {
 		// Left border
-		subdivide(fromX, fromY, toX, toY, 0, left, DRAW_BORDER);
+		subdivide(lastX, lastY, toX, toY, 0, left, DRAW_BORDER);
 		// Display area
 		//  It's possible this draws a few pixels too many (this
 		//  allowed to simplify the implementation of the Bx modes).
 		//  So it's important to draw from left to right (right border
 		//  must come _after_ display area).
-		subdivide(fromX, fromY, toX, toY, left, right, DRAW_DISPLAY);
+		subdivide(lastX, lastY, toX, toY, left, right, DRAW_DISPLAY);
 		// Right border
-		subdivide(fromX, fromY, toX, toY, right, rightEdge, DRAW_BORDER);
+		subdivide(lastX, lastY, toX, toY, right, rightEdge, DRAW_BORDER);
 	} else {
 		// complete screen
-		subdivide(fromX, fromY, toX, toY, 0, rightEdge, DRAW_BORDER);
+		subdivide(lastX, lastY, toX, toY, 0, rightEdge, DRAW_BORDER);
 	}
+
+	lastX = toX;
+	lastY = toY;
 }
 
 void V9990PixelRenderer::subdivide(int fromX, int fromY, int toX, int toY,
@@ -339,19 +336,6 @@ void V9990PixelRenderer::paletteSnow(int index, EmuTime time)
 	int endTicks = vdp.getUCTicksThisFrame(time) + SNOW_DURATION;
 	snowEndX = endTicks % V9990DisplayTiming::UC_TICKS_PER_LINE;
 	snowEndY = endTicks / V9990DisplayTiming::UC_TICKS_PER_LINE;
-}
-bool V9990PixelRenderer::isPaletteInUse(EmuTime time)
-{
-	// The part of the screen the snow of an access now would cover. A part that
-	// falls on the next line is ignored: a line starts with blanking.
-	int ticks = vdp.getUCTicksThisFrame(time);
-	int x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
-	int y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
-	int toX = std::min(x + SNOW_DURATION, V9990DisplayTiming::UC_TICKS_PER_LINE);
-	// Let the rasterizer draw that part with two palettes, and compare.
-	return rasterizer->isPaletteInUse(y, [&] {
-		drawSpan(x, y, toX, y);
-	});
 }
 void V9990PixelRenderer::updateSuperimposing(bool enabled, EmuTime time)
 {

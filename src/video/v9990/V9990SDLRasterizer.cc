@@ -352,35 +352,6 @@ void V9990SDLRasterizer::setSuperimpose(bool /*enabled*/)
 	resetPalette();
 }
 
-bool V9990SDLRasterizer::isPaletteInUse(int line, function_ref<void()> draw)
-{
-	int y = line - lineRenderTop;
-	if ((y < 0) || (y >= SCREEN_HEIGHT)) return false; // not on the screen
-
-	// Draw in a scratch frame instead of in the frame being built.
-	if (!scratchFrame) scratchFrame = std::make_unique<RawFrame>(1280, 240);
-	std::swap(workFrame, scratchFrame);
-	auto pixels = workFrame->getLineDirect(y);
-	std::ranges::fill(pixels, Pixel(0));
-
-	// Draw twice, with a palette that is all black and one that is all
-	// white (as snow, so the real palette stays as it is). Only the
-	// pixels that look up their color in the palette differ.
-	paletteSnow = true;
-	snow64.fill(palette32768[0x0000]);
-	snow64_32768.fill(0x0000);
-	draw();
-	scratchLine.assign(pixels.begin(), pixels.end());
-	snow64.fill(palette32768[0x7FFF]);
-	snow64_32768.fill(0x7FFF);
-	draw();
-	paletteSnow = false;
-	bool inUse = !std::ranges::equal(pixels, scratchLine);
-
-	std::swap(workFrame, scratchFrame);
-	return inUse;
-}
-
 void V9990SDLRasterizer::setPaletteSnow(std::optional<int> index)
 {
 	paletteSnow = index.has_value();
