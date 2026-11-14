@@ -9,8 +9,6 @@ LIBRARYEXT:=.so
 
 COMPILE_FLAGS+=-D_REENTRANT -D_THREAD_SAFE
 
-LINK_FLAGS:= -static-libgcc -static-libstdc++ $(LINK_FLAGS)
-
 # Don't let CMake use precompiled headers for the 3rd party libraries: with
 # GCC on FreeBSD, compiling SDL3 fails with "sorry, unimplemented: PCH
 # allocation failure".

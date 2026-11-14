@@ -366,6 +366,11 @@ ifeq ($(CXX_FAMILY),gcc)
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
   CC:=$(subst c++,cc,$(subst g++,gcc,$(CXX)))
+  ifeq ($(OPENMSX_TARGET_OS),freebsd)
+    # GCC from the ports comes with its own runtime libraries; without
+    # linking them statically, openMSX crashes at run time.
+    LINK_FLAGS+=-static-libgcc -static-libstdc++
+  endif
 else
   $(warning Unsupported compiler: $(CXX), please update Makefile)
 endif
