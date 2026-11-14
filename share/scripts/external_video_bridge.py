@@ -208,9 +208,8 @@ class AudioRing:
         self.file.close()
 
 
-def run_audio(command: list[str], ring: AudioRing, stop: threading.Event) -> None:
+def run_audio(process: subprocess.Popen, ring: AudioRing, stop: threading.Event) -> None:
     """Pump the PCM output of an FFmpeg process into the ring buffer."""
-    process = subprocess.Popen(command, stdout=subprocess.PIPE)
     assert process.stdout is not None
     try:
         while not stop.is_set():
@@ -219,10 +218,40 @@ def run_audio(command: list[str], ring: AudioRing, stop: threading.Event) -> Non
                 break
             ring.write(data)
     finally:
-        if process.poll() is None:
-            process.terminate()
         process.stdout.close()
+
+
+def terminate_process(process: subprocess.Popen) -> None:
+    if process.poll() is None:
+        try:
+            process.terminate()
+        except ProcessLookupError:
+            pass
+    try:
+        process.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        process.kill()
         process.wait()
+
+
+def parent_alive(parent_pid: int) -> bool:
+    if sys.platform != "win32":
+        return os.getppid() == parent_pid
+    import ctypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.OpenProcess.argtypes = [ctypes.c_ulong, ctypes.c_int, ctypes.c_ulong]
+    kernel32.OpenProcess.restype = ctypes.c_void_p
+    kernel32.WaitForSingleObject.argtypes = [ctypes.c_void_p, ctypes.c_ulong]
+    kernel32.WaitForSingleObject.restype = ctypes.c_ulong
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    handle = kernel32.OpenProcess(0x00100000, False, parent_pid)  # SYNCHRONIZE
+    if not handle:
+        return False
+    try:
+        return kernel32.WaitForSingleObject(handle, 0) == 0x00000102  # WAIT_TIMEOUT
+    finally:
+        kernel32.CloseHandle(handle)
 
 
 def publish(path: Path, rgb: bytes) -> None:
@@ -276,6 +305,8 @@ def main() -> int:
                         help="write video device names to a UTF-8 file and exit")
     parser.add_argument("--stop-file", type=Path,
                         help="stop capture when this file is created")
+    parser.add_argument("--parent-pid", type=int,
+                        help="stop capture if the openMSX process exits")
     parser.add_argument("--device", help="capture device name (Windows), index (macOS), or path (Linux)")
     parser.add_argument("--audio-output", type=Path,
                         help="ring buffer file used by openMSX's external_audio_file setting; "
@@ -328,46 +359,53 @@ def main() -> int:
     stop_audio = threading.Event()
     audio_ring: AudioRing | None = None
     audio_thread: threading.Thread | None = None
-    if args.audio_output is not None:
-        ffmpeg = resolve_ffmpeg(args.ffmpeg)
-        if args.audio_test_tone:
-            audio_input = ["-re", "-f", "lavfi", "-i", f"sine=frequency=440:sample_rate={AUDIO_RATE}"]
-        elif args.audio_device is not None:
-            audio_input = audio_device_arguments(args.audio_device)
-        else:
-            audio_input = input_args  # audio of the same input as the video
-        audio_filter = ["-af", f"volume={args.audio_gain}dB"] if args.audio_gain else []
-        audio_command = [ffmpeg, "-hide_banner", "-loglevel", "warning", *audio_input,
-                         "-vn", *audio_filter, "-ac", str(AUDIO_CHANNELS), "-ar", str(AUDIO_RATE),
-                         "-f", "s16le", "-"]
-        args.audio_output.parent.mkdir(parents=True, exist_ok=True)
-        audio_ring = AudioRing(args.audio_output)
-        audio_thread = threading.Thread(
-            target=run_audio, args=(audio_command, audio_ring, stop_audio), daemon=True)
-        audio_thread.start()
-
-    if args.stop_file:
-        def watch_stop() -> None:
-            while process.poll() is None:
-                if args.stop_file.exists():
-                    stop_audio.set()
-                    process.terminate()
-                    return
-                time.sleep(0.1)
-        threading.Thread(target=watch_stop, daemon=True).start()
+    audio_process: subprocess.Popen | None = None
     try:
+        if args.audio_output is not None:
+            ffmpeg = resolve_ffmpeg(args.ffmpeg)
+            if args.audio_test_tone:
+                audio_input = ["-re", "-f", "lavfi", "-i", f"sine=frequency=440:sample_rate={AUDIO_RATE}"]
+            elif args.audio_device is not None:
+                audio_input = audio_device_arguments(args.audio_device)
+            else:
+                audio_input = input_args  # audio of the same input as the video
+            audio_filter = ["-af", f"volume={args.audio_gain}dB"] if args.audio_gain else []
+            audio_command = [ffmpeg, "-hide_banner", "-loglevel", "warning", *audio_input,
+                             "-vn", *audio_filter, "-ac", str(AUDIO_CHANNELS), "-ar", str(AUDIO_RATE),
+                             "-f", "s16le", "-"]
+            args.audio_output.parent.mkdir(parents=True, exist_ok=True)
+            audio_ring = AudioRing(args.audio_output)
+            audio_process = subprocess.Popen(audio_command, stdout=subprocess.PIPE)
+            audio_thread = threading.Thread(
+                target=run_audio, args=(audio_process, audio_ring, stop_audio), daemon=True)
+            audio_thread.start()
+
+        if args.stop_file or args.parent_pid:
+            def watch_stop() -> None:
+                while process.poll() is None:
+                    if ((args.stop_file and args.stop_file.exists()) or
+                            (args.parent_pid and not parent_alive(args.parent_pid))):
+                        stop_audio.set()
+                        if process.poll() is None:
+                            process.terminate()
+                        if audio_process and audio_process.poll() is None:
+                            audio_process.terminate()
+                        return
+                    time.sleep(0.1)
+            threading.Thread(target=watch_stop, daemon=True).start()
+
         while (frame := read_frame(process.stdout)) is not None:
             publish(args.output, frame)
     except KeyboardInterrupt:
         return 0
     finally:
         stop_audio.set()
-        if process.poll() is None:
-            process.terminate()
+        terminate_process(process)
+        if audio_process is not None:
+            terminate_process(audio_process)
         process.stdout.close()
-        process.wait()
         if audio_thread is not None:
-            audio_thread.join(timeout=2)
+            audio_thread.join()
         if audio_ring is not None:
             audio_ring.close()
     return process.returncode

@@ -68,6 +68,12 @@
 #include <optional>
 #include <utility>
 
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
+
 using namespace std::literals;
 
 namespace openmsx {
@@ -1979,7 +1985,13 @@ void ImGuiSettings::startExternalVideo()
 		command.addListElement(externalVideoPython);
 	}
 	command.addListElement(script, "--output", externalVideoFrameFile,
-	                       "--stop-file", externalVideoStopFile);
+	                       "--stop-file", externalVideoStopFile,
+	                       "--parent-pid",
+#ifdef _WIN32
+	                       int(_getpid()));
+#else
+	                       int(getpid()));
+#endif
 	if (!externalVideoFFmpeg.empty()) {
 		command.addListElement("--ffmpeg", externalVideoFFmpeg);
 	}

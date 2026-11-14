@@ -38,6 +38,11 @@ panel uses the `py -3` launcher by default. If Python or FFmpeg cannot be found,
 set their executable paths under **Capture tools**. The URL is not saved in the
 GUI preferences. The MSX software must still activate superimpose.
 
+When openMSX starts the bridge, it passes its process ID. The bridge stops
+video and audio capture when **Stop** is selected, openMSX exits normally, or
+the openMSX process disappears unexpectedly. Both FFmpeg processes are
+terminated before the audio ring file is closed.
+
 The command-line bridge remains available for scripts and custom FFmpeg input
 options.
 
