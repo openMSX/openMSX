@@ -43,12 +43,6 @@ using TimingTable = std::span<const A2, 4>;
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-static constexpr std::array LINE_TIMING = {
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
-	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}  // TODO
-};
 static constexpr std::array SRCH_TIMING = {
 	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
 	A2{A{ d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}, A{d(24), d(24), d(24), d(24)}}, // TODO
@@ -145,14 +139,17 @@ static constexpr int CROSS_BMLL = 37;
 static constexpr T6 BYTE_BMXL = {20, 7, 24, 4, 4, 4};
 static constexpr T6 BYTE_BMLX = {44, 7, 24, 4, 4, 4};
 static constexpr T6 BYTE_BMLL = { 5, 7,  4, 4, 4, 4};
+// Extra time for each pixel.
+static constexpr T6 PIXEL_LINE = {76, 78, 78, 78, 78, 78};
 
 // The least time that a pixel (BMLL: a byte) can take, in any mode. Used
 // for a lower bound on a command's end.
 static constexpr int64_t MIN_PIXEL_LMMV = 20;
 static constexpr int64_t MIN_PIXEL_COPY = 24; // LMMM, BMXL, BMLX
 static constexpr int64_t MIN_BYTE_BMLL  = 70;
+static constexpr int64_t MIN_PIXEL_LINE = 120;
 // The most of that time that one pending step can cover.
-static constexpr int64_t MAX_PENDING = 480;
+static constexpr int64_t MAX_PENDING = 4 * MIN_PIXEL_LINE;
 
 // Extra time at the start of a row of 'nx' pixels.
 [[nodiscard]] static constexpr int rowLMMV(unsigned m, unsigned nx) {
@@ -1816,18 +1813,18 @@ void V9990CmdEngine::startLINE(EmuTime time)
 template<typename Mode>
 void V9990CmdEngine::executeLINE(EmuTime limit)
 {
-	auto delta = getTiming(*this, LINE_TIMING);
 	unsigned width = vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 
 	uint16_t TX = (ARG & DIX) ? uint16_t(-1) : 1;
 	uint16_t TY = (ARG & DIY) ? uint16_t(-1) : 1;
 	auto lut = Mode::getLogOpLUT(LOG);
+	const bool timed = accessTimed();
+	const unsigned m = timingMode();
 
 	if ((ARG & MAJ) == 0) {
 		// X-Axis is major direction.
-		while (engineTime < limit) {
-			engineTime += delta;
+		while (step(limit, timed, 2, Tm::PIXEL_LINE[m])) {
 			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 
 			ADX += TX;
@@ -1845,8 +1842,7 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 		}
 	} else {
 		// Y-Axis is major direction.
-		while (engineTime < limit) {
-			engineTime += delta;
+		while (step(limit, timed, 2, Tm::PIXEL_LINE[m])) {
 			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 			DY += TY;
 			if (ASX < NY) {
@@ -2195,9 +2191,10 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 	case 0x0A: // BMLL
 		left = int64_t(nbBytes) * Tm::MIN_BYTE_BMLL;
 		break;
-	// (not yet timed by accesses)
 	case 0x0B: // LINE
-		return engineTime + getTiming(*this, LINE_TIMING) * (NX - ANX + 1);
+		left = int64_t(NX - ANX) * Tm::MIN_PIXEL_LINE;
+		break;
+	// (not yet timed by accesses)
 	case 0x0C: // SRCH: can end at any next pixel
 		return engineTime + getTiming(*this, SRCH_TIMING);
 	default:
