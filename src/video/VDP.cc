@@ -505,6 +505,9 @@ void VDP::execHorAdjust(EmuTime time)
 	}
 	renderer->updateHorizontalAdjust(newHorAdjust, time);
 	horizontalAdjust = newHorAdjust;
+	// The match moves with the adjust, as HR does (measured on a V9958:
+	// HR and FH move together within the frame).
+	scheduleHScan(time);
 }
 
 int VDP::getScrollBurstTicks(EmuTime time) const
@@ -1212,16 +1215,27 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 			return statusReg1 | (irqHorizontal.getState() ? 1:0);
 		} else { // line int disabled
 			// FH goes up at the start of the right border of IL and
-			// goes down at the start of the next left border.
+			// goes down at the start of the next left border; in the
+			// non-text modes it goes up FH_LEAD ticks before the right
+			// border and down FH_SHORTEN ticks earlier.
+			// Measured on a Philips VG-8235 (V9958), GRAPHIC4 and
+			// TEXT1, R#19 = 50: in GRAPHIC4 FH rises 24 - 30 ticks
+			// before HR, in TEXT1 with HR; in GRAPHIC4 FH falls 5 - 6
+			// Z80 T-states (30 - 36 ticks) earlier than this window
+			// gave without the correction, TEXT1's fall agrees.
 			// TODO: Precalc matchLength?
+			static constexpr int FH_LEAD = 28;
+			static constexpr int FH_SHORTEN = 33;
+			bool text = displayMode.isTextMode();
 			int afterMatch =
-			       getTicksThisFrame(time) - horizontalScanOffset;
+			       getTicksThisFrame(time) - horizontalScanOffset
+			       + (text ? 0 : FH_LEAD);
 			if (afterMatch < 0) {
 				afterMatch += getTicksPerFrame();
 				// afterMatch can still be negative at this
 				// point, see scheduleHScan()
 			}
-			int matchLength = (displayMode.isTextMode() ? 87 : 59)
+			int matchLength = (text ? 87 : 59 + FH_LEAD - FH_SHORTEN)
 			                  + 27 + 100 + 102;
 			return statusReg1 |
 			       (0 <= afterMatch && afterMatch < matchLength);
