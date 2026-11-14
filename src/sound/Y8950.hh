@@ -15,6 +15,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 
@@ -54,9 +55,19 @@ public:
 	static constexpr int STATUS_T2      = R04_MASK_T2;
 	static constexpr int STATUS_T1      = R04_MASK_T1;
 
+	/** Y8950: the MSX-AUDIO chip.
+	  * Y8960: the OPL2EX of HRA!'s Y8960 cartridge, a YM3812 with the
+	  *        Y8950's ADPCM-B and register map. It has no keyboard connector
+	  *        and no 13-bit DAC.
+	  */
+	enum class Type : uint8_t { Y8950, Y8960 };
+
 	Y8950(const std::string& name, const DeviceConfig& config,
-	      unsigned sampleRam, EmuTime time, Y8950Periphery& periphery);
+	      unsigned sampleRam, EmuTime time, Y8950Periphery& periphery,
+	      Type type);
 	~Y8950();
+
+	[[nodiscard]] Type getType() const { return type; }
 
 	void setEnabled(bool enabled, EmuTime time);
 	void clearRam();
@@ -204,12 +215,14 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	Y8950Periphery& periphery;
+	const Type type;
 	Y8950Adpcm adpcm;
-	Y8950KeyboardConnector connector;
-	DACSound16S dac13; // 13-bit (exponential) DAC
+	std::optional<Y8950KeyboardConnector> connector; // not on Type::Y8960
+	std::optional<DACSound16S> dac13; // 13-bit (exponential) DAC, not on Type::Y8960
 
 	struct Debuggable final : SimpleDebuggable {
-		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name,
+		           static_string_view description);
 		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;

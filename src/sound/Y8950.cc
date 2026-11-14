@@ -483,19 +483,30 @@ void Y8950::Channel::keyOff(KeyPart part)
 
 static constexpr auto INPUT_RATE = unsigned(cstd::round(Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 
+static constexpr static_string_view typeDescription(Y8950::Type type)
+{
+	return (type == Y8950::Type::Y8960) ? static_string_view("Y8960 OPL2EX")
+	                                    : static_string_view("MSX-AUDIO");
+}
+
 Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
-             unsigned sampleRam, EmuTime time, Y8950Periphery& periphery_)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-AUDIO", 9 + 5 + 1, INPUT_RATE, false)
+             unsigned sampleRam, EmuTime time, Y8950Periphery& periphery_,
+             Type type_)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, typeDescription(type_), 9 + 5 + 1, INPUT_RATE, false)
 	, motherBoard(config.getMotherBoard())
 	, periphery(periphery_)
+	, type(type_)
 	, adpcm(*this, config, name_, sampleRam)
-	, connector(motherBoard.getPluggingController())
-	, dac13(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config)
-	, debuggable(motherBoard, getName())
+	, debuggable(motherBoard, getName(), typeDescription(type_))
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
 {
+	if (type == Type::Y8950) {
+		connector.emplace(motherBoard.getPluggingController());
+		dac13.emplace(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config);
+	}
+
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (false) {
@@ -977,7 +988,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			break;
 
 		case 0x06: // (KEYBOARD OUT)
-			connector.write(data, time);
+			if (connector) connector->write(data, time);
 			reg[rg] = data;
 			break;
 
@@ -1003,11 +1014,11 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 
 		case 0x15: // DAC-DATA  (bit9-2)
 			reg[rg] = data;
-			if (reg[0x08] & 0x04) {
+			if (dac13 && (reg[0x08] & 0x04)) {
 				int tmp = static_cast<signed char>(reg[0x15]) * 256
 				        + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
-				dac13.writeDAC(Math::clipToInt16(tmp), time);
+				dac13->writeDAC(Math::clipToInt16(tmp), time);
 			}
 			break;
 		case 0x16: //           (bit1-0)
@@ -1162,7 +1173,8 @@ uint8_t Y8950::peekReg(uint8_t rg, EmuTime time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
-			return connector.peek(time);
+			// without a connector, read as an empty one
+			return connector ? connector->peek(time) : 255;
 
 		case 0x0F: // ADPCM-DATA
 		case 0x13: //  ???
@@ -1310,11 +1322,13 @@ void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Y8950::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("keyboardConnector", connector,
-	             "adpcm",             adpcm,
-	             "timer1",            *timer1,
-	             "timer2",            *timer2,
-	             "irq",               irq);
+	if (connector) {
+		ar.serialize("keyboardConnector", *connector);
+	}
+	ar.serialize("adpcm",  adpcm,
+	             "timer1", *timer1,
+	             "timer2", *timer2,
+	             "irq",    irq);
 	ar.serialize_blob("registers", reg);
 	ar.serialize("pm_phase",      pm_phase,
 	             "am_phase",      am_phase,
@@ -1350,8 +1364,9 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 // SimpleDebuggable
 
 Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
-                              const std::string& name_)
-	: SimpleDebuggable(motherBoard_, name_ + " regs", "MSX-AUDIO", 0x100)
+                              const std::string& name_,
+                              static_string_view description_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs", description_, 0x100)
 {
 }
 

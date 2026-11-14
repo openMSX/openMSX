@@ -19,7 +19,7 @@ MSXAudio::MSXAudio(const DeviceConfig& config)
 		*this, getDeviceConfig2(), getName()))
 	, y8950(getName(), config,
 	        config.getChildDataAsInt("sampleram", 256) * 1024,
-	        getCurrentTime(), *periphery)
+	        getCurrentTime(), *periphery, Y8950::Type::Y8950)
 {
 	auto type = config.getChildData("type", "philips");
 	if (StringOp::casecmp cmp; cmp(type, "philips")) {
