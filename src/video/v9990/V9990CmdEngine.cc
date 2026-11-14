@@ -110,6 +110,13 @@ static constexpr std::array SRCH_TIMING = {
 // 16-bit words: one byte from each of the two VRAM chips. Every word a
 // command touches, source or destination, costs two accesses, and some
 // 'think' time that depends on the command and on the pixels in a word.
+// When an access can happen depends on the raster:
+//  - Display off, or outside the picture's lines: any time.
+//  - P1 and P2, in the picture's lines:
+//     - during the 256 active dots (of P1): 48 slots, evenly spread;
+//     - in the horizontal blank, with sprites on: one word (2 accesses) 21
+//       clocks after the active part ends; the rest is taken by the sprite
+//       fetches. With sprites off: any time for the first 44.5 clocks.
 //
 // The time unit here is 1/5 of a UC tick (1/60 of a Z80 clock). Tables are
 // indexed by the engine's mode: P1, P2, 2 bpp, 4 bpp, 8 bpp, 16 bpp.
@@ -118,6 +125,17 @@ enum : unsigned { P1, P2, BPP2, BPP4, BPP8, BPP16 };
 
 static constexpr int SUB = 5;
 using Clk = Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND * SUB>;
+static constexpr int64_t LINE   = V9990DisplayTiming::UC_TICKS_PER_LINE * SUB;
+static constexpr int64_t ACTIVE = 2048 * SUB; // 256 dots of P1
+static constexpr int     SLOTS  = 48;         // in the active part
+// The first active slot, from the end of openMSX's left border. Measured
+// against the line interrupt: the slots start 12 clocks before it.
+static constexpr int64_t FIRST_SLOT = -3240;
+// P1, P2: horizontal blank, from the end of the active part.
+static constexpr int64_t SPRITES_ON_START  = 1281; // 21.35 clocks
+static constexpr int64_t SPRITES_ON_LEN    =   60; //  1 clock: one word
+static constexpr int64_t SPRITES_OFF_START =    0;
+static constexpr int64_t SPRITES_OFF_LEN   = 2670; // 44.5 clocks
 
 using T6 = std::array<int, 6>;
 static constexpr T6 PIXELS_PER_WORD = {2, 4, 8, 4, 2, 1};
@@ -143,6 +161,14 @@ static constexpr int64_t MAX_PENDING = 480;
 [[nodiscard]] static constexpr EmuDuration dur(int64_t n) {
 	return Clk::duration(n);
 }
+// Position of active slot 'k', from the first.
+[[nodiscard]] static constexpr int64_t slotPos(int64_t k) {
+	return (k * ACTIVE + (SLOTS - 1)) / SLOTS;
+}
+// 'a / b' rounded down, for a positive 'b'.
+[[nodiscard]] static constexpr int64_t divFloor(int64_t a, int64_t b) {
+	return (a >= 0) ? (a / b) : -((-a + b - 1) / b);
+}
 } // namespace Tm
 
 // Does the access model time the running command?
@@ -154,7 +180,54 @@ bool V9990CmdEngine::accessTimed() const
 // The first moment, not before 'request', that the engine gets a VRAM access.
 EmuTime V9990CmdEngine::grantAccess(EmuTime request) const
 {
-	return request;
+	if (!vdp.isDisplayEnabledThisFrame()) return request;
+	// (a frame ends outside the picture)
+	if (request <= vdp.getFrameStartTime()) return request;
+
+	Tm::Clk clk(vdp.getFrameStartTime());
+	auto t = narrow<int64_t>(clk.getTicksTillUp(request));
+
+	const auto& ver = vdp.getVerticalTiming();
+	// The accesses are already rationed in the line before the picture's
+	// first (measured in P1: 213 lines, not 212).
+	int64_t top    = vdp.getTopBorder() - 1;
+	int64_t bottom = top + 1 + ver.display;
+	int64_t base   = vdp.getLeftBorder() * Tm::SUB + Tm::FIRST_SLOT;
+	bool sprites = vdp.spritesEnabled();
+	bool patternMode = timingMode() <= Tm::P2;
+
+	// P1, P2: the window [w0, w1) of the horizontal blank is free.
+	int64_t w0 = 0;
+	int64_t w1 = 0;
+	if (patternMode) {
+		w0 = Tm::ACTIVE + (sprites ? Tm::SPRITES_ON_START
+		                           : Tm::SPRITES_OFF_START);
+		w1 = w0 + (sprites ? Tm::SPRITES_ON_LEN : Tm::SPRITES_OFF_LEN);
+	}
+
+	// 'u' counts from the first active slot of the frame's line 0.
+	int64_t u = t - base;
+	while (true) {
+		int64_t line = Tm::divFloor(u, Tm::LINE);
+		int64_t x = u - line * Tm::LINE;
+		int64_t frameLine =
+			line - Tm::divFloor(line, ver.cycle) * ver.cycle;
+		if ((frameLine < top) || (frameLine >= bottom)) break; // any time
+		if (!patternMode) break; // any time
+		if (x <= Tm::slotPos(Tm::SLOTS - 1)) {
+			int64_t k = x * Tm::SLOTS / Tm::ACTIVE;
+			while (Tm::slotPos(k) < x) ++k;
+			u = line * Tm::LINE + Tm::slotPos(k);
+			break;
+		}
+		if (x < w0) {
+			u = line * Tm::LINE + w0;
+			break;
+		}
+		if (x < w1) break;
+		u = (line + 1) * Tm::LINE; // the next line's first slot
+	}
+	return clk + narrow<uint64_t>(u + base);
 }
 
 // One step of a command: 'think' time, then 'accesses' VRAM accesses. Returns

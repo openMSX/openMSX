@@ -88,6 +88,18 @@ public:
 		return isDisplayArea && displayEnabled;
 	}
 
+	/** Is the display enabled in this frame (R#8 DISP, as it was at the
+	  * frame's start), whatever the scan position?
+	  */
+	[[nodiscard]] bool isDisplayEnabledThisFrame() const {
+		return displayEnabled;
+	}
+
+	/** The moment the current frame started. */
+	[[nodiscard]] EmuTime getFrameStartTime() const {
+		return frameStartTime.getTime();
+	}
+
 	/** Are sprites (cursors) enabled?
 	  * @return true iff enabled
 	  */
