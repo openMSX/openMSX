@@ -120,6 +120,8 @@ static constexpr std::array SRCH_TIMING = {
 //  - Bitmap modes, in the picture's lines: any time, but for a stretch at
 //    the end of the horizontal blank: 21.6 clocks with the cursor on, 3.4
 //    with it off (more in the overscan modes).
+// In the overscan modes (B0, B2, B4) the engine itself runs from the slower
+// clock: all its times are 1.555 times longer.
 //
 // The time unit here is 1/5 of a UC tick (1/60 of a Z80 clock). Tables are
 // indexed by the engine's mode: P1, P2, 2 bpp, 4 bpp, 8 bpp, 16 bpp.
@@ -144,6 +146,9 @@ static constexpr int64_t SPRITES_OFF_LEN   = 2670; // 44.5 clocks
 static constexpr int64_t BLOCK_END = 300;
 static constexpr std::array<int64_t, 2> BLOCK_LEN          = {1296, 204};
 static constexpr std::array<int64_t, 2> BLOCK_LEN_OVERSCAN = {1710, 258};
+// The engine's times in the overscan modes: 1.555 times longer.
+static constexpr int OVERSCAN_MUL = 311;
+static constexpr int OVERSCAN_DIV = 200;
 
 using T6 = std::array<int, 6>;
 static constexpr T6 PIXELS_PER_WORD = {2, 4, 8, 4, 2, 1};
@@ -183,6 +188,12 @@ static constexpr int64_t MAX_PENDING = 480;
 bool V9990CmdEngine::accessTimed() const
 {
 	return !brokenTiming;
+}
+
+// An engine time in the current mode: longer in the overscan modes.
+int V9990CmdEngine::engineT(int t) const
+{
+	return vdp.isOverScan() ? (t * Tm::OVERSCAN_MUL / Tm::OVERSCAN_DIV) : t;
 }
 
 // The first moment, not before 'request', that the engine gets a VRAM access.
@@ -251,8 +262,8 @@ EmuTime V9990CmdEngine::grantAccess(EmuTime request) const
 // false if that isn't all done by 'limit'; 'nextDone' is then when it will be.
 bool V9990CmdEngine::accessStep(EmuTime limit, unsigned accesses, int think)
 {
-	auto access = Tm::dur(Tm::ACCESS[timingMode()]);
-	EmuTime t = engineTime + Tm::dur(think);
+	auto access = Tm::dur(engineT(Tm::ACCESS[timingMode()]));
+	EmuTime t = engineTime + Tm::dur(engineT(think));
 	repeat(accesses, [&] {
 		t = grantAccess(t) + access;
 	});

@@ -345,6 +345,7 @@ private:
 	[[nodiscard]] bool accessTimed() const;
 	/** The index in the timing tables: P1, P2, 2, 4, 8, 16 bits a pixel. */
 	[[nodiscard]] unsigned timingMode() const { return cmdMode >> 4; }
+	[[nodiscard]] int engineT(int t) const;
 	[[nodiscard]] EmuTime grantAccess(EmuTime request) const;
 	[[nodiscard]] bool accessStep(EmuTime limit, unsigned accesses, int think);
 	[[nodiscard]] bool step(EmuTime limit, bool timed,
