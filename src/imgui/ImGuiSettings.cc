@@ -2032,6 +2032,13 @@ void ImGuiSettings::startExternalVideo()
 	if (externalAudio) {
 		manager.execute(makeTclList("set", "external_audio_delay", externalAudioDelay));
 		manager.execute(makeTclList("set", "external_audio_mix", externalAudioMix));
+		if (auto* motherBoard = manager.getReactor().getMotherBoard()) {
+			if (auto* setting = dynamic_cast<BooleanSetting*>(
+			        motherBoard->getMSXCommandController().findSetting(
+			            "external_audio_follow_set_video"))) {
+				externalAudioFollow = setting->getBoolean();
+			}
+		}
 		manager.execute(makeTclList("set", "external_audio_follow_set_video", externalAudioFollow));
 		if (!manager.execute(makeTclList("set", "external_audio_file", externalAudioFile))) {
 			externalAudioFile.clear();
@@ -2186,12 +2193,19 @@ void ImGuiSettings::paintExternalVideo()
 			simpleToolTip("0 = only the sound of the computer, 50 = both at full level, "
 			              "100 = only the external audio. Without external audio it works as "
 			              "the volume of the computer sound (like the slider of the NMS 8280).");
-			if (ImGui::Checkbox("Obey SET VIDEO audio routing", &externalAudioFollow)) {
+			if (auto* motherBoard = manager.getReactor().getMotherBoard()) {
+				if (auto* setting = dynamic_cast<BooleanSetting*>(
+				        motherBoard->getMSXCommandController().findSetting(
+				            "external_audio_follow_set_video"))) {
+					externalAudioFollow = setting->getBoolean();
+				}
+			}
+			if (ImGui::Checkbox("Obey hardware audio routing", &externalAudioFollow)) {
 				manager.execute(makeTclList("set", "external_audio_follow_set_video", externalAudioFollow));
 			}
-			simpleToolTip("Off: the external audio is always played. On: like the real NMS 8280, "
-			              "no external audio is mixed in after a reset until the audio parameter "
-			              "of SET VIDEO (the fifth one, e.g. SET VIDEO ,,,,3) selects the channels.");
+			simpleToolTip("Off: external audio is always played. On: the NMS 8280 "
+			              "SET VIDEO audio parameter or Sony HBI-F900 CALL AUDIO selects "
+			              "which channels receive external audio.");
 			ImGui::TextUnformatted("The level of the external audio is also the 'external-audio' slider of the sound settings.");
 		}
 		im::TreeNode("Capture tools", [&]{

@@ -26,9 +26,9 @@ class ExternalAudioSound;
   *    sound with the (also delayed) video.
   *  - external_audio_mix: the audio mix slider (0 = computer only, 50 = both,
   *    100 = external audio only).
-  *  - external_audio_follow_set_video: obey the audio routing of the BASIC
-  *    command SET VIDEO (port 0xF7 of the NMS 8280), which after a reset
-  *    mixes in no external audio at all. Off by default.
+  *  - external_audio_follow_set_video: obey the external-audio routing of
+  *    the machine's video interface (NMS 8280 SET VIDEO or Sony HBI-F900
+  *    CALL AUDIO). Off by default for generic capture extensions.
   *  - external-audio_volume and external-audio_balance: the usual settings of
   *    a sound device.
   */
@@ -39,7 +39,7 @@ public:
 	~MSXExternalAudio() override;
 
 	/** Which channels of the external audio are mixed in. Set from the audio
-	  * routing bits of the video control port of the NMS 8280 (0xF7). It only
+	  * routing bits of the machine's video control port. It only
 	  * has an effect if the setting 'external_audio_follow_set_video' is on.
 	  */
 	void setRouting(bool left, bool right, EmuTime time);

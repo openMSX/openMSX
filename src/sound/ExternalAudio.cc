@@ -131,9 +131,9 @@ ExternalAudioSound::ExternalAudioSound(MSXMotherBoard& motherBoard)
 	             "50 = both at full level, 100 = only the external audio (EXT)",
 	             50, 0, 100)
 	, followSetting(motherBoard.getCommandController(), "external_audio_follow_set_video",
-	                "obey the audio routing of SET VIDEO (port 0xF7 of the NMS 8280): "
-	                "after a reset no external audio is mixed in until SET VIDEO "
-	                "selects it. Off: the external audio is always played",
+	                "obey the video hardware's external-audio routing (NMS 8280 "
+	                "SET VIDEO or Sony HBI-F900 CALL AUDIO). Off: external audio "
+	                "is always played",
 	                false)
 {
 	registerSound(makeConfig(motherBoard));
