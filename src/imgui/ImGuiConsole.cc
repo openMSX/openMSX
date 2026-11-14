@@ -75,6 +75,10 @@ void ImGuiConsole::save(ImGuiTextBuffer& buf)
 void ImGuiConsole::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
+	// A console that is restored as open doesn't take the keyboard focus
+	// when it first appears: on startup the MSX should get it. (Opening
+	// the console later, e.g. with F10, still focuses its input line.)
+	wasShown = show;
 	// The 'console' setting (toggled by F10) follows the restored state.
 	consoleSetting.setBoolean(show);
 }
