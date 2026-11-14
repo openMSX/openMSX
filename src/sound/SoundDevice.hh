@@ -68,6 +68,13 @@ public:
 		float left;
 		float right;
 	};
+	/** Is this device an input from outside the emulated machine (like the
+	  * audio of the external video source) instead of sound produced by the
+	  * emulated hardware? The 'internal sound gain' of the mixer
+	  * (MSXMixer::setInternalGain()) does not apply to such devices.
+	  */
+	[[nodiscard]] virtual bool isExternalSource() const { return false; }
+
 	[[nodiscard]] AmplificationFactors getAmplificationFactor() const {
 		auto f = getAmplificationFactorImpl();
 		return {.left = f * softwareVolumeLeft, .right = f * softwareVolumeRight};

@@ -184,6 +184,57 @@ public:
 		return superimposing;
 	}
 
+	/** Video mix (NMS 8280 port 0xF6, bit 5): show the external video and
+	  * the VDP image half-for-half instead of superimposing. Only has an
+	  * effect while superimposing.
+	  */
+	/** The external video frame that is available (if any): from the
+	  * external video source or from the host video file setting. Used by
+	  * devices that digitize video (like the Sony HBI-V1).
+	  */
+	[[nodiscard]] const RawFrame* getExternalVideoFrame() const {
+		return externalVideo ? externalVideo : hostVideoFrame.get();
+	}
+
+	[[nodiscard]] bool isVideoMix() const { return videoMix; }
+	void setVideoMix(bool value) { videoMix = value; }
+
+	/** Dim the external video to half its intensity (the 'Ym' parameter of
+	  * SET VIDEO, bit 5 of port 0xF7 of the NMS 8280).
+	  */
+	[[nodiscard]] bool isVideoDim() const { return videoDim; }
+	void setVideoDim(bool value) { videoDim = value; }
+
+	/** Brightness of the external video (0..2, 1 = normal): the digitization
+	  * level slider of the NMS 8280.
+	  */
+	void setVideoLevel(float value) { videoLevel = value; }
+
+	/** The intensity (0..2) of the external video on screen: its level and
+	  * the 'Ym' dimming of SET VIDEO together.
+	  */
+	[[nodiscard]] float getVideoGain() const { return (videoDim ? 0.5f : 1.0f) * videoLevel; }
+
+	/** Intensity (0..1) of the image of the computer when it is superimposed on
+	  * the external video: the video mix slider of the NMS 8280.
+	  */
+	[[nodiscard]] float getComputerLevel() const { return computerLevel; }
+	void setComputerLevel(float value) { computerLevel = value; }
+
+	/** Gain (0..1) of the image of the computer when it is shown on its own
+	  * (internal sync): the video mix of the NMS 8280 (bit 5 of port 0xF6)
+	  * halves it. Fixed per frame.
+	  */
+	[[nodiscard]] float getComputerGain() const { return computerGain; }
+
+	/** How the VDP image is combined with the external video this frame:
+	  * 0 = normal (alpha, color 0 transparent), 1 = superimpose at 50%
+	  * (transparent areas stay full video), 2 = 50/50 mix of the complete
+	  * images (digitize mode with video mix), 3 = only the external video
+	  * (SET VIDEO 3, or the color bus input of R#8). Fixed per frame.
+	  */
+	[[nodiscard]] int getSuperimposeMixMode() const { return superimposeMixMode; }
+
 	/** Get the sprite checker for this VDP.
 	  */
 	[[nodiscard]] SpriteChecker& getSpriteChecker() {
@@ -1132,6 +1183,7 @@ private:
 	  */
 	void updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime time);
 	void updateHostVideoFrame();
+	void digitizeExternalVideo(const RawFrame& frame, EmuTime time);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;
@@ -1261,6 +1313,12 @@ private:
 	 * changes at most once per frame (at the beginning of the frame).
 	 */
 	const RawFrame* superimposing;
+	bool videoMix = false;
+	bool videoDim = false;
+	float computerGain = 1.0f;
+	float videoLevel = 1.0f;
+	float computerLevel = 1.0f;
+	int superimposeMixMode = 0;
 
 	/** The emulation time when this frame was started (vsync).
 	  */

@@ -38,6 +38,12 @@
       <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
     </VDP>
 
+    <NMS8280Video id="Video control">
+      <io base="0xF6" num="3" type="IO"/> <!-- F6: video mix, F7: mode select, F8: audio mix -->
+    </NMS8280Video>
+
+    <ExternalAudio id="External audio"/> <!-- audio of the external video source -->
+
     <PSG id="PSG">
       <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
       <sound>

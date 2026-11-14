@@ -291,6 +291,10 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
 		auto* superImpose = superImposeVideoFrame
 		                  ? &superImposeTex : nullptr;
+		currScaler->setSuperimposeMix(superImposeMix);
+		currScaler->setSuperimposeVideoGain(superImposeVideoGain);
+		currScaler->setSuperimposeComputerLevel(superImposeComputerLevel);
+		currScaler->setComputerGain(computerGain);
 		currScaler->scaleImage(
 			it->tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth, // src

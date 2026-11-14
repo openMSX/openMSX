@@ -46,7 +46,9 @@ private:
 	void paintShortcut();
 	void paintEditShortcut();
 	void paintExternalVideo();
+	void paintFrontPanel();
 	void refreshExternalVideoDevices();
+	void refreshExternalAudioDevices();
 	void startExternalVideo();
 	void stopExternalVideo();
 
@@ -87,6 +89,7 @@ private:
 
 	std::vector<FontInfo> availableFonts;
 	bool showExternalVideo = false;
+	bool showFrontPanel = false;
 	int externalVideoSource = 0; // 0: capture device, 1: network stream
 	std::string externalVideoDevice;
 	std::string externalVideoUrl;
@@ -97,14 +100,30 @@ private:
 	std::string externalVideoFrameFile;
 	std::vector<std::string> externalVideoDevices;
 	bool externalVideoActive = false;
+	bool externalAudio = false; // also capture and play the audio of the source
+	std::string externalAudioDevice;
+	std::string externalAudioFile;
+	std::vector<std::string> externalAudioDevices; // names, as the bridge expects them
+	std::vector<std::string> externalAudioLabels;  // friendly names to show
+	int externalAudioDelay = 120; // ms
+	int externalAudioGain = 0; // dB, applied when the capture starts
+	int externalAudioMix = 50; // 0: computer (INT) only, 100: external (EXT) only
+	bool externalAudioFollow = false; // obey the audio routing of SET VIDEO
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"style", &ImGuiSettings::selectedStyle},
 		PersistentElement{"showExternalVideo", &ImGuiSettings::showExternalVideo},
+		PersistentElement{"showFrontPanel", &ImGuiSettings::showFrontPanel},
 		PersistentElement{"externalVideoSource", &ImGuiSettings::externalVideoSource},
 		PersistentElement{"externalVideoDevice", &ImGuiSettings::externalVideoDevice},
 		PersistentElement{"externalVideoPython", &ImGuiSettings::externalVideoPython},
 		PersistentElement{"externalVideoFFmpeg", &ImGuiSettings::externalVideoFFmpeg},
+		PersistentElement{"externalAudio", &ImGuiSettings::externalAudio},
+		PersistentElement{"externalAudioDevice", &ImGuiSettings::externalAudioDevice},
+		PersistentElement{"externalAudioDelay", &ImGuiSettings::externalAudioDelay},
+		PersistentElement{"externalAudioGain", &ImGuiSettings::externalAudioGain},
+		PersistentElement{"externalAudioMix", &ImGuiSettings::externalAudioMix},
+		PersistentElement{"externalAudioFollow", &ImGuiSettings::externalAudioFollow},
 	};
 };
 

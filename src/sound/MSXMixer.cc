@@ -730,6 +730,7 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info) const
 	int mVolume = masterVolume.getInt();
 	int dVolume = info.volumeSetting->getInt();
 	float volume = info.defaultVolume * narrow<float>(mVolume) * narrow<float>(dVolume) * (1.0f / (100.0f * 100.0f));
+	if (!info.device->isExternalSource()) volume *= internalGain;
 	int balance = info.balanceSetting->getInt();
 	auto [l1, r1, l2, r2] = [&] {
 		if (info.device->isStereo()) {
@@ -767,6 +768,14 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info) const
 	info.right1 = r1 * ampR;
 	info.left2  = l2 * ampL;
 	info.right2 = r2 * ampR;
+}
+
+void MSXMixer::setInternalGain(float gain)
+{
+	gain = std::clamp(gain, 0.0f, 1.0f);
+	if (gain == internalGain) return;
+	internalGain = gain;
+	updateMasterVolume();
 }
 
 void MSXMixer::updateMasterVolume()

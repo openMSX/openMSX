@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>External Audio</name>
+    <manufacturer>openMSX</manufacturer>
+    <code></code>
+    <release_year></release_year>
+    <description>Plays the audio of the external video source (webcam microphone, capture card...), as written by the external video bridge. Settings: external_audio_file, external_audio_delay and external-audio_volume.</description>
+    <type>audio input</type>
+  </info>
+  <devices>
+    <ExternalAudio id="External audio"/>
+  </devices>
+</msxconfig>

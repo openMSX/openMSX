@@ -142,6 +142,13 @@ public:
 
 	void reInit();
 
+	/** Gain (0..1) applied to all sound of the emulated machine, but not to
+	  * the sound devices that are an external source (see
+	  * SoundDevice::isExternalSource()). It is the 'INT' side of the audio
+	  * mix slider of machines with external audio, like the NMS 8280.
+	  */
+	void setInternalGain(float gain);
+
 private:
 	void updateVolumeParams(SoundDeviceInfo& info) const;
 	void updateMasterVolume();
@@ -190,6 +197,7 @@ private:
 	AviRecorder* recorder = nullptr;
 	unsigned synchronousCounter = 0;
 
+	float internalGain = 1.0f;
 	unsigned muteCount = 1; // start muted
 	float tl0, tr0; // internal DC-filter state
 };

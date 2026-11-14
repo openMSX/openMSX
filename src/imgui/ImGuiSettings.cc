@@ -32,6 +32,7 @@
 #include "MSXCommandController.hh"
 #include "MSXJoystick.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXNMS8280Video.hh"
 #include "Mixer.hh"
 #include "Plotter.hh"
 #include "PluggingController.hh"
@@ -186,6 +187,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 
 		im::Menu("Video", [&]{
 			ImGui::MenuItem("External video input...", nullptr, &showExternalVideo);
+			ImGui::MenuItem("NMS 8280 front panel...", nullptr, &showFrontPanel);
 			ImGui::Separator();
 			im::TreeNode("Look and feel", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 				auto& scaler = renderSettings.getScaleAlgorithmSetting();
@@ -1855,6 +1857,7 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 	if (showFont) paintFont();
 	if (showShortcut) paintShortcut();
 	if (showExternalVideo) paintExternalVideo();
+	if (showFrontPanel) paintFrontPanel();
 }
 
 void ImGuiSettings::refreshExternalVideoDevices()
@@ -1894,6 +1897,40 @@ void ImGuiSettings::refreshExternalVideoDevices()
 	                                                   : "Select a capture device.";
 }
 
+void ImGuiSettings::refreshExternalAudioDevices()
+{
+	auto script = FileOperations::join(FileOperations::getSystemDataDir(),
+	                                  "scripts/external_video_bridge.py");
+	auto directory = FileOperations::join(FileOperations::getUserDataDir(), "external-video");
+	FileOperations::mkdirp(directory);
+	auto listing = FileOperations::join(directory, "audio-devices.txt");
+	if (!FileOperations::exists(script)) return;
+	TclObject command = makeTclList("exec");
+#ifdef _WIN32
+	if (externalVideoPython == "python" || externalVideoPython == "py") {
+		command.addListElement("py", "-3");
+	} else
+#endif
+	{
+		command.addListElement(externalVideoPython);
+	}
+	command.addListElement(script, "--list-audio-devices-file", listing);
+	if (!externalVideoFFmpeg.empty()) {
+		command.addListElement("--ffmpeg", externalVideoFFmpeg);
+	}
+	if (!manager.execute(command)) return;
+	externalAudioDevices.clear();
+	externalAudioLabels.clear();
+	std::ifstream input{listing};
+	for (std::string line; std::getline(input, line); ) {
+		if (line.empty()) continue;
+		// "name" or "name<TAB>friendly description"
+		auto tab = line.find('\t');
+		externalAudioDevices.push_back(line.substr(0, tab));
+		externalAudioLabels.push_back(tab == std::string::npos ? line : line.substr(tab + 1));
+	}
+}
+
 void ImGuiSettings::stopExternalVideo()
 {
 	if (!externalVideoStopFile.empty()) {
@@ -1901,6 +1938,10 @@ void ImGuiSettings::stopExternalVideo()
 		externalVideoStopFile.clear();
 	}
 	manager.execute(makeTclList("set", "external_video_file", ""));
+	if (!externalAudioFile.empty()) {
+		manager.execute(makeTclList("set", "external_audio_file", ""));
+		externalAudioFile.clear();
+	}
 	externalVideoActive = false;
 	externalVideoStatus = "External video stopped.";
 }
@@ -1942,6 +1983,16 @@ void ImGuiSettings::startExternalVideo()
 	if (!externalVideoFFmpeg.empty()) {
 		command.addListElement("--ffmpeg", externalVideoFFmpeg);
 	}
+	if (externalAudio) {
+		externalAudioFile = FileOperations::join(directory, "live.pcm");
+		command.addListElement("--audio-output", externalAudioFile);
+		if (externalAudioGain != 0) {
+			command.addListElement("--audio-gain", externalAudioGain);
+		}
+		if (externalVideoSource == 0 && !externalAudioDevice.empty()) {
+			command.addListElement("--audio-device", externalAudioDevice);
+		}
+	}
 	if (externalVideoSource == 0) {
 		command.addListElement("--device", externalVideoDevice);
 	} else {
@@ -1962,6 +2013,106 @@ void ImGuiSettings::startExternalVideo()
 	}
 	externalVideoActive = true;
 	externalVideoStatus = "Capture started. The MSX must enable superimpose.";
+	if (externalAudio) {
+		manager.execute(makeTclList("set", "external_audio_delay", externalAudioDelay));
+		manager.execute(makeTclList("set", "external_audio_mix", externalAudioMix));
+		manager.execute(makeTclList("set", "external_audio_follow_set_video", externalAudioFollow));
+		if (!manager.execute(makeTclList("set", "external_audio_file", externalAudioFile))) {
+			externalAudioFile.clear();
+			externalVideoStatus += " This machine has no external audio input: "
+			                       "insert the External_Audio extension.";
+		}
+	}
+}
+
+// The front panel of the Philips NMS 8280: the three indicators, the audio/video
+// source selector and the three sliders (digitization level, audio mix and
+// video mix). The numbers are the ones of the manual.
+void ImGuiSettings::paintFrontPanel()
+{
+	im::Window("NMS 8280 front panel", &showFrontPanel, [&]{
+		auto* motherBoard = manager.getReactor().getMotherBoard();
+		auto* video = motherBoard ? dynamic_cast<MSXNMS8280Video*>(
+			motherBoard->findDevice("Video control")) : nullptr;
+		if (!video) {
+			ImGui::TextUnformatted("This machine has no NMS 8280 video hardware.");
+			ImGui::TextUnformatted("Select for instance the machine Philips_NMS_8280.");
+			return;
+		}
+		auto* audioMix = motherBoard ? dynamic_cast<IntegerSetting*>(
+			motherBoard->getMSXCommandController().findSetting("external_audio_mix")) : nullptr;
+
+		// indicators
+		const auto leds = video->getLeds();
+		auto led = [&](const char* label, bool on, ImU32 onColor) {
+			const float radius = ImGui::GetTextLineHeight() * 0.45f;
+			const auto pos = ImGui::GetCursorScreenPos();
+			ImGui::Dummy(ImVec2(radius * 2.5f, radius * 2.0f));
+			auto* list = ImGui::GetWindowDrawList();
+			const ImVec2 center(pos.x + radius, pos.y + ImGui::GetTextLineHeight() * 0.5f);
+			list->AddCircleFilled(center, radius, on ? onColor : IM_COL32(60, 60, 60, 255));
+			list->AddCircle(center, radius, IM_COL32(20, 20, 20, 255));
+			ImGui::SameLine();
+			ImGui::TextUnformatted(label);
+		};
+		led("AV IN/OUT", leds.avInOut, IM_COL32(60, 220, 60, 255));
+		simpleToolTip("(22) The audio/video source comes in via the Euroconnector. "
+		              "It only works when superimposing or with the video mix slider at EXT.");
+		ImGui::SameLine(0.0f, 24.0f);
+		led("AV IN", leds.avIn, IM_COL32(60, 220, 60, 255));
+		simpleToolTip("(23) The audio/video source comes in via the separate (cinch) jacks. "
+		              "It only works when superimposing or with the video mix slider at EXT.");
+		ImGui::SameLine(0.0f, 24.0f);
+		led("SUPERIMPOSE", leds.superimpose, IM_COL32(240, 70, 50, 255));
+		simpleToolTip("(24) The sync is external: superimposing (SET VIDEO 1, 2 or 3).");
+
+		// audio/video source selector (push switch)
+		auto& euro = video->getEuroSourceSetting();
+		bool useEuro = euro.getBoolean();
+		if (ImGui::Checkbox("Source: Euroconnector (AV IN/OUT)", &useEuro)) {
+			euro.setBoolean(useEuro);
+		}
+		simpleToolTip("(21) Audio/video source selector: pushed = Euroconnector, released = "
+		              "the separate AV IN jacks. It only lights the indicators; the source "
+		              "is the one of the External video input window.");
+
+		ImGui::Separator();
+
+		// sliders
+		const ImVec2 size(36.0f, 140.0f);
+		auto slider = [&](const char* id, IntegerSetting* setting, const char* top,
+		                  const char* bottom, const char* tip) {
+			ImGui::BeginGroup();
+			ImGui::BeginDisabled(setting == nullptr);
+			int value = setting ? setting->getInt() : 0;
+			ImGui::TextUnformatted(top);
+			if (ImGui::VSliderInt(id, size, &value, 0, 100, "%d")) {
+				setting->setInt(value);
+			}
+			ImGui::TextUnformatted(bottom);
+			ImGui::EndDisabled();
+			ImGui::EndGroup();
+			simpleToolTip(tip);
+		};
+		slider("##digitize", &video->getVideoLevelSetting(), "bright", "dark",
+		       "(25) Digitization level: the brightness of the external video, on "
+		       "screen and when digitizing. Slightly right of the centre is the normal level.");
+		ImGui::SameLine(0.0f, 28.0f);
+		slider("##audiomix", audioMix, "EXT", "INT",
+		       "(26) Audio mix: the external audio (EXT) and the sound of the computer "
+		       "(INT). Without external audio it is the volume of the computer.");
+		ImGui::SameLine(0.0f, 28.0f);
+		slider("##videomix", &video->getVideoMixLevelSetting(), "GRAPHIC", "EXT",
+		       "(27) Video mix: the intensity of the image of the computer over the external "
+		       "video. At the bottom only the external video is shown.");
+		ImGui::TextUnformatted("digitize    audio mix    video mix");
+
+		ImGui::Separator();
+		if (ImGui::Button("External video input...")) showExternalVideo = true;
+		if (audioMix == nullptr) {
+			ImGui::TextUnformatted("The audio mix needs the External audio device.");
+		}
+	});
 }
 
 void ImGuiSettings::paintExternalVideo()
@@ -1984,9 +2135,53 @@ void ImGuiSettings::paintExternalVideo()
 		} else {
 			ImGui::InputText("Stream URL", &externalVideoUrl);
 		}
+		ImGui::Separator();
+		ImGui::Checkbox("Capture audio", &externalAudio);
+		if (externalAudio) {
+			if (externalVideoSource == 0) {
+				if (externalAudioDevices.empty() && externalAudioDevice.empty()) {
+					refreshExternalAudioDevices();
+				}
+				if (ImGui::Button("Refresh audio devices")) refreshExternalAudioDevices();
+				for (auto i : xrange(externalAudioDevices.size())) {
+					const auto& device = externalAudioDevices[i];
+					if (ImGui::Selectable(externalAudioLabels[i].c_str(), externalAudioDevice == device)) {
+						externalAudioDevice = device;
+					}
+					simpleToolTip(device);
+				}
+				std::string_view shown = externalAudioDevice;
+				for (auto i : xrange(externalAudioDevices.size())) {
+					if (externalAudioDevices[i] == externalAudioDevice) shown = externalAudioLabels[i];
+				}
+				ImGui::Text("Selected: %s", shown.empty() ? "(default)" : std::string(shown).c_str());
+			} else {
+				ImGui::TextUnformatted("The audio of the stream is used.");
+			}
+			ImGui::SliderInt("Audio gain (dB, at Start)", &externalAudioGain, 0, 40);
+			if (ImGui::SliderInt("Audio delay (ms)", &externalAudioDelay, 0, 500) &&
+			    externalVideoActive && !externalAudioFile.empty()) {
+				manager.execute(makeTclList("set", "external_audio_delay", externalAudioDelay));
+			}
+			ImGui::TextUnformatted("Audio mix:   INT (computer)  <->  EXT (external)");
+			if (ImGui::SliderInt("##externalAudioMix", &externalAudioMix, 0, 100)) {
+				manager.execute(makeTclList("set", "external_audio_mix", externalAudioMix));
+			}
+			simpleToolTip("0 = only the sound of the computer, 50 = both at full level, "
+			              "100 = only the external audio. Without external audio it works as "
+			              "the volume of the computer sound (like the slider of the NMS 8280).");
+			if (ImGui::Checkbox("Obey SET VIDEO audio routing", &externalAudioFollow)) {
+				manager.execute(makeTclList("set", "external_audio_follow_set_video", externalAudioFollow));
+			}
+			simpleToolTip("Off: the external audio is always played. On: like the real NMS 8280, "
+			              "no external audio is mixed in after a reset until the audio parameter "
+			              "of SET VIDEO (the fifth one, e.g. SET VIDEO ,,,,3) selects the channels.");
+			ImGui::TextUnformatted("The level of the external audio is also the 'external-audio' slider of the sound settings.");
+		}
 		im::TreeNode("Capture tools", [&]{
 			ImGui::InputText("Python executable", &externalVideoPython);
 			ImGui::InputText("FFmpeg executable", &externalVideoFFmpeg);
+			ImGui::InputText("Audio device name", &externalAudioDevice);
 			ImGui::TextUnformatted("Leave FFmpeg empty for automatic detection.");
 		});
 		if (ImGui::Button(externalVideoActive ? "Switch source" : "Start")) startExternalVideo();

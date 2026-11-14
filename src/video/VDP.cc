@@ -40,8 +40,10 @@ TODO:
 #include "narrow.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <fstream>
 #include <memory>
@@ -766,10 +768,43 @@ void VDP::frameStart(EmuTime time)
 	bool enableSuperimpose = isMSX1VDP() ? (controlRegs[0] & 1)
 		: (((controlRegs[9] & 0x30) == 0x10) &&
 		   ((controlRegs[8] & 0x20) == 0));
+	// Video mix (NMS 8280, port 0xF6 bit 5), only with external sync
+	// (R#9 S1:S0 = 01, as used by SET VIDEO 1 and 2). With an opaque
+	// computer image (R#8 TP = 1, SET VIDEO 1: digitize mode) both complete
+	// images are shown half-for-half; when superimposing (TP = 0,
+	// SET VIDEO 2) the computer image is halved over the full video.
+	superimposeMixMode = 0;
+	// Video mix without external sync (SET VIDEO 0): the image of the computer
+	// alone, at half its intensity.
+	computerGain = (videoMix && !isMSX1VDP() && ((controlRegs[9] & 0x30) == 0x00)) ? 0.5f : 1.0f;
+	// External video only: R#9 S1:S0 = 10 (SET VIDEO 3), or the color bus in
+	// input mode (R#8 CB = 1, MS = 0), in the bitmap modes.
+	const auto base = displayMode.getBase();
+	const bool bitmapMode = base == one_of(DisplayMode::GRAPHIC4, DisplayMode::GRAPHIC5,
+	                                       DisplayMode::GRAPHIC6, DisplayMode::GRAPHIC7);
+	const bool externalOnly = !isMSX1VDP() &&
+		(((controlRegs[9] & 0x30) == 0x20) ||
+		 (bitmapMode && !(controlRegs[8] & 0x80) && (controlRegs[8] & 0x10)));
+	if (externalOnly) {
+		enableSuperimpose = true;
+		superimposeMixMode = 3;
+	} else if (videoMix && !isMSX1VDP() && ((controlRegs[9] & 0x30) == 0x10)) {
+		if (controlRegs[8] & 0x20) {
+			enableSuperimpose = true;
+			superimposeMixMode = 2;
+		} else if (enableSuperimpose) {
+			superimposeMixMode = 1;
+		}
+	}
 	if (const RawFrame* newSuperimposing = enableSuperimpose ? videoInput : nullptr;
 	    superimposing != newSuperimposing) {
 		superimposing = newSuperimposing;
 		renderer->updateSuperimposing(superimposing, time);
+	}
+
+	// Digitizing (R#0 bit 6, 'DG'): store the external video in VRAM.
+	if (videoInput && !isMSX1VDP() && (controlRegs[0] & 0x40)) {
+		digitizeExternalVideo(*videoInput, time);
 	}
 
 	// The display line counter does not notice the frame boundary: it
@@ -831,6 +866,113 @@ void VDP::updateHostVideoFrame()
 			          (uint32_t(rgb[i + 1]) << 8) | rgb[i];
 		}
 		hostVideoFrame->setLineWidth(y, width);
+	}
+}
+
+// Emulation of the video digitizer found in the V9938 (used by for example
+// 'COPY SCREEN' on the Philips NMS 8280): while bit 6 of R#0 (DG) is set, the
+// external video signal is stored in the VRAM page that is displayed. It works
+// in the bitmap modes GRAPHIC4..GRAPHIC7 (SCREEN 5..8).
+//
+// The conversion is done once per frame, at the start of the frame, from the
+// current external video frame. The mapping of the picture to the screen is
+// the same as for superimposing: the whole external frame is stretched over
+// the complete output area (320x240 or 640x240, including borders). The VRAM
+// area covered by the 212 visible lines is overwritten.
+//
+// Assumptions that are not (yet) verified on real hardware:
+// - register R#7 is used as a mask on the digitized pixel values (that's why
+//   the BASIC example does COLOR ,,255 before COPY SCREEN)
+// - SCREEN 5..7 pick the closest palette color, SCREEN 8 is plain RGB 3-3-2
+// Note that this makes the emulation depend on the host video, so it is not
+// reproducible in a replay or when rewinding.
+void VDP::digitizeExternalVideo(const RawFrame& frame, EmuTime time)
+{
+	const auto mode = displayMode.getBase();
+	unsigned bitsPerPixel = 0;
+	switch (mode) {
+	case DisplayMode::GRAPHIC4: bitsPerPixel = 4; break; // SCREEN 5
+	case DisplayMode::GRAPHIC5: bitsPerPixel = 2; break; // SCREEN 6
+	case DisplayMode::GRAPHIC6: bitsPerPixel = 4; break; // SCREEN 7
+	case DisplayMode::GRAPHIC7: bitsPerPixel = 8; break; // SCREEN 8
+	default: return; // not a bitmap mode
+	}
+	const bool hires = (mode == DisplayMode::GRAPHIC5) || (mode == DisplayMode::GRAPHIC6);
+	const bool planar = displayMode.isPlanar();
+	const unsigned width = hires ? 512 : 256;
+	const unsigned bytesPerLine = width * bitsPerPixel / 8;
+	const unsigned pageBase = (controlRegs[2] << 10) & (planar ? 0x10000 : 0x18000);
+
+	const unsigned srcHeight = frame.getHeight();
+	if (srcHeight == 0) return;
+	const unsigned outWidth  = hires ? 640 : 320;
+	const unsigned outHeight = 240;
+	const unsigned borderX   = (outWidth - width) / 2;
+	const int borderY        = 14 + (getVerticalAdjust() - 7); // 7 is neutral
+
+	const unsigned colorMask = controlRegs[7];
+	const unsigned numColors = 1u << std::min(bitsPerPixel, 4u);
+	struct RGB { int r, g, b; };
+	std::array<RGB, 16> pal;
+	for (auto i : xrange(numColors)) {
+		auto c = getPalette(i);
+		pal[i] = {int(((c >> 4) & 7) * 255 / 7), int(((c >> 8) & 7) * 255 / 7),
+		          int((c & 7) * 255 / 7)};
+	}
+
+	auto& vramRef = getVRAM();
+	std::vector<uint8_t> line(bytesPerLine);
+	for (unsigned y = 0; y < 212; ++y) {
+		const int sy0 = (borderY + int(y)) * int(srcHeight) / int(outHeight);
+		const int sy1 = std::max(sy0 + 1,
+			(borderY + int(y) + 1) * int(srcHeight) / int(outHeight));
+		std::ranges::fill(line, 0);
+		for (unsigned x = 0; x < width; ++x) {
+			// Average the source pixels that cover this VRAM pixel.
+			unsigned sumR = 0, sumG = 0, sumB = 0, count = 0;
+			for (int sy = std::max(sy0, 0); sy < std::min(sy1, int(srcHeight)); ++sy) {
+				const unsigned srcWidth = frame.getLineWidthDirect(sy);
+				if (srcWidth == 0) continue;
+				const auto src = frame.getLineDirect(sy);
+				const unsigned sx0 = (borderX + x) * srcWidth / outWidth;
+				const unsigned sx1 = std::max(sx0 + 1,
+					(borderX + x + 1) * srcWidth / outWidth);
+				for (unsigned sx = sx0; sx < std::min(sx1, srcWidth); ++sx) {
+					auto p = src[sx]; // same layout as in updateHostVideoFrame()
+					sumR += p & 0xFF;
+					sumG += (p >> 8) & 0xFF;
+					sumB += (p >> 16) & 0xFF;
+					++count;
+				}
+			}
+			if (count == 0) continue;
+			auto level = [&](unsigned sum) {
+				return std::min(255, int(float(sum / count) * videoLevel));
+			};
+			const int r = level(sumR), g = level(sumG), b = level(sumB);
+
+			unsigned value;
+			if (bitsPerPixel == 8) { // GRB 3-3-2
+				value = ((g >> 5) << 5) | ((r >> 5) << 2) | (b >> 6);
+			} else {
+				value = 0;
+				int best = 1 << 30;
+				for (auto i : xrange(numColors)) {
+					int dr = r - pal[i].r, dg = g - pal[i].g, db = b - pal[i].b;
+					int d = dr * dr + dg * dg + db * db;
+					if (d < best) { best = d; value = i; }
+				}
+			}
+			value &= colorMask & ((1u << bitsPerPixel) - 1);
+
+			const unsigned bitPos = x * bitsPerPixel;
+			line[bitPos / 8] |= uint8_t(value << (8 - bitsPerPixel - (bitPos & 7)));
+		}
+		for (auto i : xrange(bytesPerLine)) {
+			unsigned addr = pageBase + y * bytesPerLine + i; // logical
+			if (planar) addr = ((addr & 1) << 16) | (addr >> 1);
+			vramRef.cmdWrite(addr, line[i], time);
+		}
 	}
 }
 
