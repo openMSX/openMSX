@@ -1819,20 +1819,29 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 	auto lut = Mode::getLogOpLUT(LOG);
 	const bool timed = accessTimed();
 	const unsigned m = timingMode();
+	// Measured in P1: a line that passes the layer's edge goes on at the
+	// other edge of the same row, and takes its full length's time. (Not
+	// measured in the other modes: there it ends at the image's edge.)
+	const bool wrap = std::is_same_v<Mode, V9990P1>;
+	auto stepX = [&] {
+		ADX = wrap ? uint16_t((ADX & 0x200) | ((ADX + TX) & 0xFF))
+		           : uint16_t(ADX + TX);
+	};
+	auto atEdge = [&] { return !wrap && (ADX & width); };
 
 	if ((ARG & MAJ) == 0) {
 		// X-Axis is major direction.
 		while (step(limit, timed, 2, Tm::PIXEL_LINE[m])) {
 			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG, dataLatch);
 
-			ADX += TX;
+			stepX();
 			if (ASX < NY) {
 				ASX += NX;
 				DY += TY;
 			}
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
-			if (ANX++ == NX || (ADX & width)) {
+			if (ANX++ == NX || atEdge()) {
 				SX = 0; // SX is the X counter
 				cmdReady(engineTime); // LINE leaves NY alone
 				break;
@@ -1845,11 +1854,11 @@ void V9990CmdEngine::executeLINE(EmuTime limit)
 			DY += TY;
 			if (ASX < NY) {
 				ASX += NX;
-				ADX += TX;
+				stepX();
 			}
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
-			if (ANX++ == NX || (ADX & width)) {
+			if (ANX++ == NX || atEdge()) {
 				SX = 0; // SX is the X counter
 				cmdReady(engineTime); // LINE leaves NY alone
 				break;
