@@ -153,3 +153,177 @@ the VDP: it latches the value the CPU gets at the start of the read, and
 clears the flags the read clears a fixed time later (the window's width).
 A flag set between those two moments isn't in the value and is cleared
 anyway. Then the end of the window is the moment the flag is set.
+
+## The interrupt lines and the picture follow the timing
+
+**Files.**
+
+- `irqtest.asm`, `irqtest.bas`: counts interrupts while the main loop
+  polls S#0 (turboR only). Result: `results/fs-a1gt-irq.txt`.
+- `vdpirq.asm`, `autoexec-vdpirq.bas`: the `vdprace` trial for F with the
+  interrupt enabled: when the interrupt comes. Results:
+  `results/<machine>-irq-{text,screen5}.txt`.
+- `vdpirqh.asm`, `autoexec-vdpirqh.bas`, `vdpirqh2.bas`: the same for FH
+  and the line interrupt. Results: `results/<machine>-irqh-{text,screen5}.txt`,
+  `results/hb-f700d-irqh2-{text,screen5}.txt`.
+- `vdpline1.asm`, `vdpline.asm`, `vdpline.bas`, `vdpline2.bas`: a backdrop
+  colour stripe written at a fixed moment relative to HR, with markers,
+  for photos (`vdpline1.asm` writes `VDPLIN1.BIN`). Photos:
+  `photos/<machine>-vdpline*.jpg`.
+- `vdpfh.asm`, `vdpfh.bas`: the same stripe, timed with the line
+  interrupt. Photos: `photos/<machine>-vdpfh-screen5.jpg`.
+
+### irqtest: interrupts while polling S#0
+
+**How.** The main loop polls S#0 with interrupts enabled; an IM2 handler
+counts the interrupts and whether its own read of S#0 sees F; the E6 timer
+of the turboR (one tick per 14 Z80 cycles) gives the number of frames.
+
+**Results**, FS-A1GT, 614.4 frames: 578 interrupts, in 468 of which the
+handler saw F and in 110 found it already cleared; the main loop saw F 107
+times; 36 frames had no interrupt. So an interrupt can come after a read
+that has seen and cleared F (110 times here).
+
+### vdpirq: when the interrupt comes
+
+**How.** `vdpirq.asm` is the `vdprace` trial for F (MODE 0) with the
+interrupt enabled during the read A1: IE0, `EI`, interrupt mode 2 with a
+handler that reads S#0 and records that it ran and whether it saw F.
+Outcomes per e:
+
+- before: A1 doesn't see F, the handler does (F set later, or the
+  interrupt came before A1);
+- lost: neither sees F;
+- seen: A1 sees F and no interrupt follows;
+- pulse: A1 sees F and the interrupt still comes (the handler finds F
+  cleared).
+
+`autoexec-vdpirq.bas`: text mode and SCREEN 5, 32 repetitions. The result
+files have the columns e, lost, seen, before, pulse.
+
+**Results**, the e values of the outcomes from the window on:
+
+| | lost | then | before again from |
+|---|------|------|-------------------|
+| FS-A1GT, SCREEN 5 | 92-94 | pulse 95-107 | 108 |
+| FS-A1GT, text | 87-89 | pulse 90-101 | 102 |
+| HB-F700D, SCREEN 5 | 97-101 | pulse 102-111 | 113 |
+| HB-F700D, text | 92-96 | pulse 97-106 | 107 |
+
+On both machines, a read right after the window always sees F and the
+interrupt still follows; the range ends where the interrupt comes before
+A1, 6 Z80 cycles (FS-A1GT) or 4 to 5 (HB-F700D) later than where a read
+would clear an interrupt that follows the flag at once. Fitted: the
+interrupt line follows F by 33 VDP cycles (V9958) and 24 (V9938).
+
+### vdpirqh: when the line interrupt comes
+
+**How.** `vdpirqh.asm` with `autoexec-vdpirqh.bas`: `vdpirq` for FH
+instead of F (MODE 1, line 191, IE1 on and IE0 off, the handler reads
+S#1). Outcomes as in `vdpirq`. TEXT2 and SCREEN 5, 32 repetitions.
+`vdpirqh2.bas` runs it again on the HB-F700D: TEXT2 with 64 repetitions
+and SCREEN 5 with 32.
+
+**Results**, the e values of the outcomes from the window on:
+
+| | lost | pulse | before again from |
+|---|---|---|---|
+| HB-F700D, SCREEN 5 | 47-51 | 52-62 | 63 |
+| HB-F700D, SCREEN 5, `vdpirqh2` | 48-52 | 53-63 | 64 |
+| HB-F700D, text | 38-42 | 43-51 | 53 |
+| HB-F700D, text, `vdpirqh2` (64 repetitions) | 38-41 | 42-52 | 53 |
+| FS-A1GT, SCREEN 5 | 42-45 | 46-57 | 58 |
+| FS-A1GT, text | 32-35 | 36-47 | 48 |
+
+The end of the "pulse" range is where the interrupt comes before the read.
+On the FS-A1GT, whose clock drifts, the change from pulse to before falls
+inside one Z80 cycle (a mix at e = 58 and 48). On the HB-F700D the pulse
+range ends 13 to 14 Z80 cycles after the start of the lost window in TEXT2
+and 15 in SCREEN 5, in both runs; between the runs everything moved by up
+to 1 Z80 cycle.
+
+Fitted: the ends of the ranges are reproduced with an interrupt line that
+follows FH by 21 to 24 VDP cycles on the V9958 and 19 to 20 on the V9938
+in SCREEN 5, a little earlier than F's (33 and 24); 33 / 24 puts the end 1
+to 2 Z80 cycles too late. On the HB-F700D in text mode the range ends 1
+Z80 cycle earlier than with any of these values (in both runs); a delay
+below 19 removes the pulse range there.
+
+### vdpline: a write relative to HR, in the picture
+
+**How.** Each frame: sync on VR and measure the phase with 48 HR samples
+(as in `vdprace`), then wait a fixed time plus the measured phase, so that
+what follows starts at the same moment relative to HR's falling edge every
+frame, to within one Z80 cycle. Then, for 64 lines, in a loop of exactly
+228 Z80 cycles per line: write COLB to R#7 (the backdrop: the border, and
+colour 0 pixels in SCREEN 5 or the background in text mode), and 114 cycles
+later COLA. That gives a stripe whose edges show where the two writes land
+in the line (a loop of the wrong length would make them slant). Above and
+below the stripe the program draws markers in the picture itself, at the
+columns where the stripe would start and end for a given timing model; the
+VDP draws them at its own pixel positions, so a photo shows where the
+stripe lies relative to each model, in the VDP's own pixel grid. The
+models put HR where the CPU tests measure it, the display area at a fixed
+place in the line, and differ in the delay between that and the picture:
+
+- `vdpline1.asm` with `vdpline.bas`: SCREEN 5 (red marker = 33 VDP cycles
+  of delay, green = none), SCREEN 0 WIDTH 80 (one marker: no delay).
+- `vdpline.asm` with `vdpline2.bas` (started by `vdpline.bas`): SCREEN 0
+  WIDTH 80 and 40, solid marker = no delay, dotted = 33 VDP cycles.
+
+**Results** (the FS-A1GT's SCREEN 5 screen was read on the screen, not
+photographed):
+
+| Screen | FS-A1GT | HB-F700D |
+|--------|---------|----------|
+| SCREEN 5 | on the red marker, at most 1 pixel to the right | 2-3 pixels right of the red marker |
+| WIDTH 80, one marker | about 15 text pixels left of it | about 14 left |
+| WIDTH 80, two markers | on the dotted marker | about 3 text pixels right of the dotted marker |
+| WIDTH 40, two markers | on the dotted marker | about 1.5 pixels right of the dotted marker |
+
+So relative to HR the stripe lies where the model with 33 VDP cycles of
+delay puts it on the V9958, and 21 to 27 on the V9938. These photos fix
+only the sum of the display area's place and that delay; the delay of the
+interrupt line is measured on its own (`vdpirq`).
+
+### vdpfh: a write relative to the line interrupt, in the picture
+
+**How.** `vdpfh.asm`: only the line interrupt is enabled (IE1, line 100);
+the CPU waits with `HALT` in interrupt mode 2 with its own vector table (no
+BIOS code involved), and the handler writes the `vdpline` stripe after a
+fixed delay, in SCREEN 5. A `HALT` cycle is 5 Z80 cycles: on the HB-F700D
+(locked clocks) the edge stays sharp, on the FS-A1GT it wobbles by a few
+pixels. Markers: red = the picture and the interrupt line without delay,
+green = the picture 33 VDP cycles later and the interrupt line without
+delay.
+
+**Results:** on both machines on the red markers (the FS-A1GT wobbling
+around them), at display x 55 to 222 on the HB-F700D and 57 to 227 on the
+FS-A1GT: relative to the line interrupt, a write lands where the model
+without any delay puts it, so the interrupt line of FH and the picture are
+delayed by about the same.
+
+### Conclusion
+
+**The interrupt lines** follow the flags with a delay:
+
+- F (`vdpirq`, `irqtest`, measured): the interrupt still comes after a
+  read that saw and cleared F, for reads up to 33 VDP cycles (V9958) or
+  about 24 (V9938) after F (fitted); on the FS-A1GT, while polling, 110 of
+  578 interrupts found F already cleared.
+- FH (`vdpirqh`, fitted): 21 to 24 VDP cycles (V9958) and 19 to 20 (V9938)
+  after FH, a little earlier than F's. On the HB-F700D the pulse range ends
+  1 Z80 cycle earlier in text mode than that gives (two runs).
+
+**Where a write lands in the picture.**
+
+- Relative to HR (`vdpline`, fitted to the markers, about one pixel): a
+  backdrop write made t VDP cycles after HR falls changes the picture from
+  pixel x on, with x = (t - 32) / 4 in the graphics modes and x = (t - 37)
+  / 2 in 80-column text mode (/ 4 in 40-column; t from HR's fall in the
+  text mode) on the V9958. On the V9938 the stripe lies 2 to 3 pixels
+  (SCREEN 5) and 3 text pixels (80 columns; 1.5 in 40 columns) further
+  right: x = (t - 20 to - 24) / 4 and x = (t - 31) / 2.
+- Relative to the line interrupt (`vdpfh`): where a model with the same
+  delay for the interrupt line of FH and for the picture puts it: on both
+  machines the picture and that interrupt line are delayed alike.

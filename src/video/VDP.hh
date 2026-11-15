@@ -143,6 +143,26 @@ public:
 		return (version & VM_VRAM_REMAPPING) != 0;
 	}
 
+	/** The VDP's outputs, the picture and the interrupt line, follow its
+	  * internal timing (the status flags, register writes) this many VDP
+	  * cycles later. Measured on a V9958 (Panasonic FS-A1GT) and a V9938
+	  * (Sony HB-F700D), see doc/internal/vdp-status-race; not measured on
+	  * the TMS99xx.
+	  */
+	[[nodiscard]] int getOutputDelay() const {
+		return isMSX1VDP() ? 0 : (hasYJK() ? 33 : 24);
+	}
+
+	/** The interrupt line of FH follows FH by this many VDP cycles; that of
+	  * F follows F by getOutputDelay(). Measured with vdpirqh (V9958
+	  * Panasonic FS-A1GT, V9938 Sony HB-F700D), see
+	  * doc/internal/vdp-status-race; not measured on the TMS99xx, which
+	  * has no FH.
+	  */
+	[[nodiscard]] int getLineIrqDelay() const {
+		return isMSX1VDP() ? 0 : (hasYJK() ? 24 : 20);
+	}
+
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
@@ -926,6 +946,14 @@ private:
 		}
 	} syncHScan;
 
+	struct SyncIrqDelay final : public SyncBase {
+		using SyncBase::SyncBase;
+		void executeUntil(EmuTime time) override {
+			auto& vdp = OUTER(VDP, syncIrqDelay);
+			vdp.execIrqDelay(time);
+		}
+	} syncIrqDelay;
+
 	struct SyncHorAdjust final : public SyncBase {
 		using SyncBase::SyncBase;
 		void executeUntil(EmuTime time) override {
@@ -990,6 +1018,25 @@ private:
 	void execSlotTableStart(EmuTime time);
 	void execSlotTableEnd(EmuTime time);
 	void execHScan(EmuTime time);
+	void execIrqDelay(EmuTime time);
+
+	/** A pending FH (see fhPendingTime) is set from fhPendingTime on. */
+	void applyPendingFH(EmuTime time);
+	/** Drops a pending FH that isn't set yet, and its HSCAN sync point. */
+	void cancelPendingFH(EmuTime time);
+	/** When FH is set and the active edge of its interrupt line is still
+	  * to come at the HSCAN sync point, that edge moves to syncIrqDelay, so
+	  * that it's applied in order with an inactive edge scheduled now.
+	  */
+	void handOverLineIrq(EmuTime time);
+
+	/** The interrupt line of F (vertical) or FH (horizontal) goes active
+	  * or inactive, getOutputDelay() or getLineIrqDelay() cycles after this
+	  * time.
+	  */
+	void changeIrqVertical(bool active, EmuTime time);
+	void changeIrqHorizontal(bool active, EmuTime time);
+	void scheduleIrqDelay();
 	void execHorAdjust(EmuTime time);
 	void execSetMode(EmuTime time);
 	void execSetBlank(EmuTime time);
@@ -1303,6 +1350,25 @@ private:
 	EmuTime statusReg1ReadTime;
 	EmuTime fhSetTime;
 
+	/** FH in S#1 (with IE1). Its interrupt line, irqHorizontal, follows it
+	  * getLineIrqDelay() cycles later.
+	  */
+	bool fhFlag = false;
+	/** The moment a pending FH is set (infinity: none). The HSCAN sync
+	  * point is getLineIrqDelay() later, where its interrupt line goes
+	  * active; until then FH is worked out from this moment, so that a line
+	  * interrupt costs one sync point.
+	  */
+	EmuTime fhPendingTime = EmuTime::infinity();
+	/** The pending changes of the interrupt lines (infinity: none). F and
+	  * FH are set at most once per line, so one change of each kind is
+	  * enough.
+	  */
+	EmuTime irqVerticalOn = EmuTime::infinity();
+	EmuTime irqVerticalOff = EmuTime::infinity();
+	EmuTime irqHorizontalOn = EmuTime::infinity();
+	EmuTime irqHorizontalOff = EmuTime::infinity();
+
 	TclCallback tooFastCallback;
 	TclCallback dotClockDirectionCallback;
 
@@ -1518,7 +1584,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 15);
+SERIALIZE_CLASS_VERSION(VDP, 16);
 
 } // namespace openmsx
 
