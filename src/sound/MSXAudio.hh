@@ -17,11 +17,6 @@ public:
 	explicit MSXAudio(const DeviceConfig& config);
 	~MSXAudio() override;
 
-	/** Creates a periphery object for this MSXAudio cartridge.
-	  * The ownership of the object remains with the MSXAudio instance.
-	  */
-	[[nodiscard]] Y8950Periphery& createPeriphery(const std::string& soundDeviceName);
-
 	void powerUp(EmuTime time) override;
 	void reset(EmuTime time) override;
 	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;

@@ -159,13 +159,16 @@ void Y8950Adpcm::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 	switch (rg) {
 	case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
 		reg7 = data;
-		if (reg7 & R07_START) {
+		if (reg7 & R07_RESET) {
+			reg7 = 0;
+		}
+		// The Y8950 takes PCM_BSY from START as written, so writing 0xA1
+		// sets it (measured on a real Y8950, see openMSX issue #1124).
+		// The Y8960 takes it after RESET, so 0x81 or 0xA1 clears it.
+		if (((y8950.getType() == Y8950::Type::Y8960) ? reg7 : data) & R07_START) {
 			y8950.setStatus(Y8950::STATUS_PCM_BSY);
 		} else {
 			y8950.resetStatus(Y8950::STATUS_PCM_BSY);
-		}
-		if (reg7 & R07_RESET) {
-			reg7 = 0;
 		}
 		if (reg7 & R07_START) {
 			// start ADPCM
@@ -506,6 +509,11 @@ int Y8950Adpcm::calcSample(bool doEmu)
 				if (doEmu) {
 					removeSyncPoint();
 					reg7 = 0;
+					// The Y8950 keeps PCM_BSY set here (issue
+					// #1124), the Y8960 clears it.
+					if (y8950.getType() == Y8950::Type::Y8960) {
+						y8950.resetStatus(Y8950::STATUS_PCM_BSY);
+					}
 				}
 			}
 		}
