@@ -103,6 +103,11 @@ static FlagLostWindow getFHLostWindow(const VDP& vdp)
 	return vdp.hasYJK() ? FH_LOST_V9958 : FH_LOST_V9938;
 }
 
+/** VR in S#2 changes this many VDP cycles after the end and the start of the
+  * display (where openMSX also sets F). Measured on a V9958 (Panasonic
+  * FS-A1GT) and a V9938 (Sony HB-F700D), see doc/internal/vdp-status-race. */
+static constexpr int VR_DELAY = 9;
+
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
   * command engine that slot anyway, to a dummy read, if it arrives this many
   * cycles before it. */
@@ -1371,10 +1376,11 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 		//       VR is probably part of that, so use it.
 		//       --> Is isDisplayArea actually !VR?
 		int ticksThisFrame = getTicksThisFrame(time);
+		int vrTicks = ticksThisFrame - VR_DELAY;
 		int displayEnd =
 			displayStart + getNumberOfLines() * TICKS_PER_LINE;
-		bool vr = ticksThisFrame < displayStart - TICKS_PER_LINE
-		       || ticksThisFrame >= displayEnd;
+		bool vr = vrTicks < displayStart - TICKS_PER_LINE
+		       || vrTicks >= displayEnd;
 		return statusReg2
 			| (getHR(ticksThisFrame) ? 0x20 : 0x00)
 			| (vr ? 0x40 : 0x00)

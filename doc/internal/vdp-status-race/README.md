@@ -327,3 +327,109 @@ delayed by about the same.
 - Relative to the line interrupt (`vdpfh`): where a model with the same
   delay for the interrupt line of FH and for the picture puts it: on both
   machines the picture and that interrupt line are delayed alike.
+
+## HR and VR in S#2
+
+**Files.**
+
+- `vdpedge.asm`, `vdpedge.bas`, `autoexec-vdpedge.bas`: where VR and HR
+  change. Results: `results/<machine>-edge-m<mode>-s<screen>.txt`.
+- `autoexec-screen5.bas`: `vdprace` in SCREEN 5 (and `vdpedge` mode 4, see
+  "Two quick VRAM writes"). Results:
+  `results/<machine>-{f,fh,vr}-screen5.txt`.
+- `vdpmode.asm`, `autoexec-vdpmode.bas` to `autoexec-vdpmode4.bas`:
+  `vdprace` with a screen mode switch between the phase measurement and
+  the read, and with R#18 and R#25 set. Results:
+  `results/<machine>-mode-<mode>-<A><B>[-r18-<adjust>].txt` and
+  `results/fs-a1gt-mode-<mode>-{s1,s2,s3,s4,s6,s7,s8,s12,text40}.txt`.
+
+### vdpedge: the edges of VR and HR
+
+**How.** The trial of `vdprace`, with at the end:
+
+| Mode | What it does at e | Columns in the result file |
+|------|-------------------|----------------------------|
+| 0 | reads S#2 once: VR rising at the end of the display | -, bit 1, bit 0 |
+| 1 | the same one frame later: VR falling | -, bit 1, bit 0 |
+| 2 | reads S#2 once: HR, both edges | -, bit 1, bit 0 |
+
+`vdpedge.bas` asks for the mode, the screen (0 = SCREEN 0 WIDTH 80, 5 =
+SCREEN 5) and `W`, and saves `V6M<mode>S<screen>W<W>.TXT`. Parameters: `C` =
+1075 (mode 0, text), 1227 (mode 0, SCREEN 5), 1987 or 1599 (mode 1, 50 or
+60 Hz), 100 (mode 2); `H` = 21 (text), 20 (SCREEN 5). F, FH and VR in
+SCREEN 5 come from `autoexec-screen5.bas` (`vdprace`, `C` = 1227 for F and
+VR, 1075 for FH, `H` = 20).
+
+**Results**, from the AUTOEXEC runs (HR falls at 76|77 and 304|305: the
+reference):
+
+| What | FS-A1GT | HB-F700D |
+|------|---------|----------|
+| F lost, text | 205\|206 - 209\|210 | 207\|208 - 212\|213 |
+| FH lost, text | 151\|152 - 155\|156 | 152\|155 - 158\|160 |
+| F lost, SCREEN 5 | 211\|212 - 214\|215 | 213\|214 - 217\|218 |
+| FH lost, SCREEN 5 | 161\|162 - 165\|166 | 163\|164 - 168\|169 |
+| VR rises (`vdprace`), text | 208\|209 | 210\|212 |
+| VR rises (`vdprace`), SCREEN 5 | 213\|214 | 215\|217 |
+| VR rises (`vdpedge` 0), text | 225\|226 | 225\|226 |
+| VR rises (`vdpedge` 0), SCREEN 5 | 230\|231 | 230\|233 |
+| VR falls (`vdpedge` 1), text | 236\|237 | 224\|225 |
+| VR falls (`vdpedge` 1), SCREEN 5 | 242\|243 | 229\|231 |
+| HR rises (`vdpedge` 2), text | 238\|239 | 237\|238 |
+| HR rises (`vdpedge` 2), SCREEN 5 | 253\|254 | 252\|253 |
+
+### vdpmode: a screen mode switch, all screen modes
+
+**How.** `vdpmode.asm` is `vdprace` with two screen modes per trial: mode A
+(set at the start of the trial: the sync on VR and the 48 HR samples) and
+mode B (set right after the samples: the read). T is TEXT2 (SCREEN 0 WIDTH
+80), G is GRAPHIC4 (SCREEN 5). Sprites are off. MODE 0 (F), 1 (FH, line
+191), 2 (VR) or 3 (HR: only A1 counts, "seen" is HR=1). If R18 isn't FFh,
+R#18 is set to it for the whole test (07h moves the picture 7 pixels to the
+left, 08h 8 to the right), and likewise R25 (08h: YJK). Every e is relative
+to HR's falling edge in mode A.
+
+| AUTOEXEC | Runs (32 repetitions, `C` = 1075 or 100 for MODE 3, `H` = 21, unless noted) | Machines |
+|----------|------------------|----------|
+| `autoexec-vdpmode.bas` | MODE 0-3 with A/B = T/T, T/G, G/G, G/T; MODE 0, 2, 3 with T/T and G/G and R#18 = 07h, 08h (16 repetitions, `H` = 20 for G/G with 07h) | both |
+| `autoexec-vdpmode2.bas` | MODE 1 with T/T and G/G and R#18 = 07h, 08h; MODE 3 T/T 07h again | both |
+| `autoexec-vdpmode3.bas` | MODE 0-3 in SCREEN 8 and SCREEN 12 (SCREEN 8 with YJK); MODE 0 and 2 in SCREEN 5 with R#18 = 04h, 0Ch | FS-A1GT |
+| `autoexec-vdpmode4.bas` | MODE 0, 1, 3 in SCREEN 0 WIDTH 40 and SCREEN 1, 2, 3, 4, 6, 7 (16 repetitions) | FS-A1GT |
+
+**Results, mode switch** (e):
+
+| FS-A1GT | T/T | T/G | G/G | G/T |
+|---------|-----|-----|-----|-----|
+| F lost, from | 109\|110 | 109\|110 | 115\|116 | 115\|116 |
+| VR rises | 112\|113 | 112\|113 | 117\|118 | 117\|118 |
+| HR rises | 124\|125 | 134\|135 | 140\|141 | 130\|131 |
+| HR falls | 191\|192 | 186\|187 | 191\|192 | 196\|197 |
+
+| HB-F700D | T/T | T/G | G/G | G/T |
+|----------|-----|-----|-----|-----|
+| F lost, from | 115\|118 | 115\|116 | 120\|121 | 120\|121 |
+| VR rises | 115\|120 | 116\|122 | 121\|126 | 124\|125 |
+| HR rises | 131\|132 | 141\|142 | 146\|147 | 136\|137 |
+| HR falls | 198\|199 | 193\|194 | 198\|199 | 203\|204 |
+
+F and VR depend on mode A only (T/G equals T/T, G/T equals G/G); HR
+depends on mode B: in GRAPHIC4 HR rises 10 Z80 cycles later and falls 5
+earlier than in TEXT2, relative to F.
+
+**Results, more screen modes** (FS-A1GT): SCREEN 1, 2, 3, 4, 6, 7 and 8
+give the same edges as SCREEN 5 (F lost from 114|115 or 115|116, HR
+140|141 / 191|192), SCREEN 0 WIDTH 40 the same as WIDTH 80.
+
+### Conclusion
+
+- Measured (`vdprace`, `vdpmode`): F and VR don't depend on the screen
+  mode; HR does. Relative to F, HR rises 10 Z80 cycles later and falls 5
+  earlier in GRAPHIC4 than in TEXT2. The end of the F window comes 5.9 VDP
+  cycles (FS-A1GT) and 4.4 (NMS 8250 with V9958) after the first read that
+  sees VR rise, about 10 ± 3 on the HB-F700D. SCREEN 1 to 8 have the edges
+  of SCREEN 5, SCREEN 0 WIDTH 40 those of WIDTH 80.
+- Fitted (`vdprace`, `vdpedge`, `vdpmode`): in the graphics modes HR=1
+  from -312 to 0 (312 VDP cycles); in the text modes HR=1 from -367 to +31
+  (398 VDP cycles); VR changes (both edges) at -48 in all modes.
+  Exception: VR's falling edge in text mode fits 3 to 6 VDP cycles
+  earlier.
