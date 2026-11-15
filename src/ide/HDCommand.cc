@@ -8,6 +8,8 @@
 #include "FileException.hh"
 #include "TclObject.hh"
 
+#include "strCat.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -32,13 +34,20 @@ void HDCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 		result.addListElement(tmpStrCat(hd.getName(), ':'),
 		                      hd.getImageName().getResolved());
 
-		if (hd.isWriteProtected()) {
-			TclObject options = makeTclList("readonly");
-			result.addListElement(options);
+		TclObject options;
+		if (hd.isEjected())        options.addListElement("empty");
+		if (hd.isWriteProtected()) options.addListElement("readonly");
+		if (hd.isHotSwappable())   options.addListElement("hotswappable");
+		if (options.size() != 0) result.addListElement(options);
+	} else if ((tokens.size() == 2) && (tokens[1] == "eject")) {
+		if (!hd.isHotSwappable()) {
+			throw CommandException(
+				"Can't eject a hard disk image, only an SD card.");
 		}
+		hd.eject();
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && tokens[1] == "insert")) {
-		if (powerSetting.getBoolean()) {
+		if (!hd.isHotSwappable() && powerSetting.getBoolean()) {
 			throw CommandException(
 				"Can only change hard disk image when MSX "
 				"is powered down.");
@@ -70,16 +79,21 @@ void HDCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 
 std::string HDCommand::help(std::span<const TclObject> /*tokens*/) const
 {
-	return hd.getName() + ": change the hard disk image for this hard disk drive\n";
+	return strCat(hd.getName(), ": change the hard disk image for this hard disk drive\n",
+	              hd.isHotSwappable()
+	                  ? "This is an SD card: the image can be changed while the MSX is powered on,\n"
+	                    "and 'eject' removes the card.\n"
+	                  : "");
 }
 
 void HDCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
-	static constexpr std::array extra = {"insert"sv};
+	static constexpr std::array extra = {"eject"sv, "insert"sv};
+	// 'eject' only for SD cards
+	auto subCommands = std::span(extra).subspan(hd.isHotSwappable() ? 0 : 1);
 	completeFileName(tokens, userFileContext(),
-		(tokens.size() < 3) ? extra : std::span<const std::string_view>{});
-
+		(tokens.size() < 3) ? subCommands : std::span<const std::string_view>{});
 }
 
 bool HDCommand::needRecord(std::span<const TclObject> tokens) const

@@ -4,6 +4,7 @@
 #include "DiskImageUtils.hh"
 
 #include "circular_buffer.hh"
+#include "serialize_meta.hh"
 
 #include <array>
 #include <cstdint>
@@ -39,6 +40,7 @@ public:
 
 private:
 	void executeCommand();
+	void checkCardChanged();
 	[[nodiscard]] uint8_t readCurrentByteFromCurrentSector();
 
 private:
@@ -54,7 +56,13 @@ private:
 	Mode mode = Mode::COMMAND;
 	unsigned currentSector = 0;
 	int currentByteInSector = 0;
+
+	// A freshly inserted card isn't in SPI mode yet: it ignores everything
+	// until CMD0. Drivers rely on that to notice a card change.
+	bool waitingForCmd0 = false;
+	unsigned lastChangeCount = 0; // last seen HD::getChangeCount()
 };
+SERIALIZE_CLASS_VERSION(SdCard, 2);
 
 } // namespace openmsx
 

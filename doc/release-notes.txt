@@ -162,6 +162,9 @@ New or improved emulator features:
 - fixed mouse speed scaling, depending on the host display size (including
   HighDPI) and MSX screen resolution
 - allow SD cards and SCSI disks also to be manipulated by disk manipulator
+- SD cards (MegaFlashROM SCC+ SD, SD Mapper V1) can now be changed and
+  ejected while the MSX is running, like on the real cartridges (console and
+  GUI)
 - fixed several bugs in the cashandler script (to use CAS files directly)
 - added 'rs232-raw' pluggable that connects to host RS-232C port
 - added emulation of the MSXPi device

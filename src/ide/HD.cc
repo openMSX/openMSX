@@ -29,9 +29,10 @@ std::shared_ptr<HD::HDInUse> HD::getDrivesInUse(MSXMotherBoard& motherBoard)
 	return motherBoard.getSharedStuff<HDInUse>("hdInUse");
 }
 
-HD::HD(const DeviceConfig& config)
+HD::HD(const DeviceConfig& config, HotSwap hotSwap)
 	: motherBoard(config.getMotherBoard())
 	, name("hdX")
+	, hotSwappable(hotSwap == HotSwap::YES)
 {
 	hdInUse = getDrivesInUse(motherBoard);
 
@@ -104,6 +105,10 @@ void HD::setMedia(const TclObject& info, EmuTime /*time*/)
 	auto target = info.getOptionalDictValue(TclObject("target"));
 	if (!target) return;
 
+	if (hotSwappable && target->getString().empty()) {
+		eject();
+		return;
+	}
 	switchImage(Filename(target->getString()));
 }
 
@@ -113,8 +118,26 @@ void HD::switchImage(const Filename& newFilename)
 	filename = newFilename;
 	filesize = file.getSize();
 	tigerTree.emplace(*this, filesize, filename.getResolved());
+	++changeCount;
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, getName(),
 	                                   filename.getResolved());
+}
+
+void HD::closeImage()
+{
+	file.close();
+	filename = Filename();
+	filesize = 0;
+	tigerTree.reset();
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, getName(), {});
+}
+
+void HD::eject()
+{
+	assert(hotSwappable);
+	if (isEjected()) return;
+	closeImage();
+	++changeCount;
 }
 
 size_t HD::getNbSectorsImpl()
@@ -125,12 +148,14 @@ size_t HD::getNbSectorsImpl()
 void HD::readSectorsImpl(
 	std::span<SectorBuffer> buffers, size_t startSector)
 {
+	assert(!isEjected());
 	file.seek(startSector * sizeof(SectorBuffer));
 	file.read(buffers);
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
+	assert(!isEjected());
 	file.seek(sector * sizeof(buf));
 	file.write(buf.raw);
 	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf),
@@ -139,7 +164,7 @@ void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 
 bool HD::isWriteProtectedImpl() const
 {
-	return file.isReadOnly();
+	return !isEjected() && file.isReadOnly();
 }
 
 Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
@@ -206,7 +231,7 @@ bool HD::isCacheStillValid(time_t& cacheTime)
 
 SectorAccessibleDisk* HD::getSectorAccessibleDisk()
 {
-	return this;
+	return isEjected() ? nullptr : this;
 }
 
 std::string_view HD::getContainerName() const
@@ -254,7 +279,14 @@ void HD::serialize(Archive& ar, unsigned version)
 			//  - So to get in the same state as the initial
 			//    savestate we again close the file. Otherwise the
 			//    checksum-check code below goes wrong.
-			file.close();
+			// For an SD card the scenario above can't happen
+			// (the constructor always creates the image), so
+			// here an empty filename means an ejected card.
+			if (hotSwappable) {
+				closeImage(); // also forget the image from the config
+			} else {
+				file.close();
+			}
 		} else {
 			tmp.updateAfterLoadState();
 			if (filename != tmp) switchImage(tmp);

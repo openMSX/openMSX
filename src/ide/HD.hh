@@ -25,16 +25,27 @@ class HD : public SectorAccessibleDisk, public DiskContainer
 {
 public:
 	static constexpr unsigned MAX_HD = 26;
+	/** YES: the image can be changed or ejected while the MSX is powered on
+	  * (an SD card), NO: only while powered off (a hard disk). */
+	enum class HotSwap : bool { NO, YES };
 	using HDInUse = std::bitset<MAX_HD>;
 	static std::shared_ptr<HDInUse> getDrivesInUse(MSXMotherBoard& motherBoard);
 
 public:
-	explicit HD(const DeviceConfig& config);
+	explicit HD(const DeviceConfig& config, HotSwap hotSwap = HotSwap::NO);
 	~HD() override;
 
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] const Filename& getImageName() const { return filename; }
 	void switchImage(const Filename& filename);
+	void eject(); // only for hot-swappable HDs
+	// Only an SD card can be ejected; SdCard checks this before any sector access.
+	[[nodiscard]] bool isEjected() const { return hotSwappable && !file.is_open(); }
+	[[nodiscard]] bool isHotSwappable() const { return hotSwappable; }
+	/** Incremented on each image change or eject, so the user of this HD can
+	  * notice that (e.g. an SD card that behaves like a freshly inserted card).
+	  */
+	[[nodiscard]] unsigned getChangeCount() const { return changeCount; }
 
 	[[nodiscard]] std::string getTigerTreeHash();
 
@@ -67,6 +78,7 @@ private:
 	[[nodiscard]] bool isCacheStillValid(time_t& time) override;
 
 	void showProgress(size_t position, size_t maxPosition);
+	void closeImage();
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -81,6 +93,8 @@ private:
 	std::shared_ptr<HDInUse> hdInUse;
 
 	uint64_t lastProgressTime;
+	unsigned changeCount = 0;
+	const bool hotSwappable;
 	bool everDidProgress;
 };
 

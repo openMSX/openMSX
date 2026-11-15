@@ -667,11 +667,11 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, Mode mode
 					bool isEmpty = target->getString().empty();
 					auto targetStr = isEmpty ? EMPTY : target->getString();
 
-					auto formatMediaName = [](std::string_view name) {
+					auto formatMediaName = [&](std::string_view name) {
+						if (name.starts_with("hd")) return ImGuiMedia::hdDisplayName(&motherBoard, name);
 						constexpr auto multiSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
 							{"cart", "Cartridge Slot"},
 							{"disk", "Disk Drive"    },
-							{"hd"  , "Hard Disk"     },
 							{"cd"  , "CDROM Drive"   },
 							{"ls"  , "LS120 Drive"   },
 						});
