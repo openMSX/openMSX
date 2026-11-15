@@ -464,3 +464,53 @@ lose FH from 64|65 or 65|66, as SCREEN 5; SCREEN 0 WIDTH 40 as WIDTH 80.
 - Fitted (`vdprace`, `vdpedge`, `vdpmode`): FH is set at -345 in the
   graphics modes (33 VDP cycles before HR rises) and at -373 in the text
   modes (6 before HR rises).
+
+## F, FH, VR and HR all move with the horizontal adjust
+
+**Files.** `vdpmode` with R#18 set (see "HR and VR in S#2"). Results:
+`results/<machine>-mode-<mode>-<A><B>-r18-<adjust>.txt`
+(`fs-a1gt-mode-3-tt-r18-7-2.txt` is a second run of that test; on the
+HB-F700D its file couldn't be read back from the floppy, the second run
+replaces it). `vdpadj.asm`, `autoexec-vdpadj.bas`: `vdpmode` with R#18
+changed between the HR measurement and the read. Results:
+`results/<machine>-adj-<f|vr>-<screen5|text>-r18-<b>.txt`.
+
+### vdpmode with the horizontal adjust
+
+**Results** (R#18 = 00h / 07h / 08h, e):
+
+| What | FS-A1GT | HB-F700D |
+|------|---------|----------|
+| F lost, T/T, from | 109\|110 / 109\|110 / 109\|110 | 115\|118 / (*) / 116\|117 |
+| F lost, G/G, from | 115\|116 / 115\|116 / 115\|116 | 120\|121 / 121\|122 / 120\|123 |
+| VR rises, T/T | 112\|113 / 112\|113 / 112\|113 | 115\|120 / 117\|122 / 119\|120 |
+| VR rises, G/G | 117\|118 / 117\|118 / 117\|118 | 121\|126 / 123\|125 / 122\|125 |
+| FH lost, T/T, from | 55\|56 / 55\|56 / 55\|56 | 61\|64 / 61\|62 / 61\|62 |
+| FH lost, G/G, from | 65\|66 / 65\|66 / 65\|66 | 70\|71 / 71\|73 / 71\|72 |
+
+(*) No e with trials inside the window: e 115 is "before", e 121 "seen".
+MODE 3 gives the same HR edges with every adjust (the phase comes from HR
+itself). R#18 = 04h and 0Ch (FS-A1GT, SCREEN 5, F and VR): the same. So,
+relative to HR, F, FH and VR stay where they are with any adjust.
+
+### vdpadj: R#18 changed between the HR measurement and the read
+
+**How.** `vdpadj.asm` with `autoexec-vdpadj.bas`: `vdpmode` MODE 0 (F) and
+MODE 2 (VR), GRAPHIC4 and TEXT2, with R#18 = 00h during the sync and the HR
+samples and R#18 = B (00h, 02h, 07h, 08h, 0Fh) from right after the samples
+on; 8 repetitions. e stays relative to HR with R#18 = 00h, so the edges show
+how far F and VR move with the adjust.
+
+**Results**, the shift of the edge relative to B = 00h, in Z80 cycles
+(-4 VDP cycles per adjust step would be -1.3, -4.7, +5.3 and +0.7):
+
+| | B = 02h | 07h | 08h | 0Fh |
+|---|---|---|---|---|
+| FS-A1GT, VR and F, GRAPHIC4 and TEXT2 | -1 to -1.5 | -4 to -5 | +5 to +5.5 | 0 to +0.5 |
+| HB-F700D, VR and F, GRAPHIC4 and TEXT2 | -1 | -4 to -4.5 | +5.5 to +6 | +1 |
+
+### Conclusion
+
+Measured (`vdpmode`, `vdpadj`): HR, F, FH and VR keep their positions
+relative to each other with any horizontal adjust (R#18); F and VR move
+with it by -4 VDP cycles per step, HR and FH along with them.

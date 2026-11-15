@@ -108,6 +108,15 @@ static FlagLostWindow getFHLostWindow(const VDP& vdp)
   * FS-A1GT) and a V9938 (Sony HB-F700D), see doc/internal/vdp-status-race. */
 static constexpr int VR_DELAY = 9;
 
+/** F, VR, FH and HR keep their positions relative to each other when the
+  * horizontal adjust changes (measured on the same machines, see
+  * doc/internal/vdp-status-race). HR and FH follow the adjust through
+  * getRightBorder(); F (VSCAN) and VR are moved by this many VDP cycles. */
+static int getStatusAdjustTicks(const VDP& vdp)
+{
+	return (vdp.getHorizontalAdjust() - 7) * 4;
+}
+
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
   * command engine that slot anyway, to a dummy read, if it arrives this many
   * cycles before it. */
@@ -647,6 +656,9 @@ void VDP::execHorAdjust(EmuTime time)
 	}
 	renderer->updateHorizontalAdjust(newHorAdjust, time);
 	horizontalAdjust = newHorAdjust;
+	// The line interrupt and the display end move with the adjust.
+	scheduleHScan(time);
+	scheduleVScan(time);
 }
 
 int VDP::getScrollBurstTicks(EmuTime time) const
@@ -799,7 +811,8 @@ void VDP::scheduleVScan(EmuTime time)
 
 	// Display end is where the display line counter equals the number of
 	// lines selected by R#9 bit 7 as it is right now.
-	int offset = displayStart + getNumberOfLines() * TICKS_PER_LINE;
+	int offset = displayStart + getNumberOfLines() * TICKS_PER_LINE
+	           + getStatusAdjustTicks(*this);
 	if (offset < 0) {
 		// That moment lies before this frame (the counter is still the
 		// previous frame's), so there is no display end until the next
@@ -817,7 +830,9 @@ void VDP::scheduleVScan(EmuTime time)
 	}
 
 	// The access grid switches back 162 cycles into the line after this one.
-	slotTableEndSyncTime = vScanSyncTime - VDPClock::duration(SLOT_TABLE_END_LEAD);
+	// That doesn't move with the horizontal adjust.
+	slotTableEndSyncTime = vScanSyncTime - VDPClock::duration(
+		SLOT_TABLE_END_LEAD + getStatusAdjustTicks(*this));
 	if (slotTableEndSyncTime > time) {
 		syncSlotTableEnd.setSyncPoint(slotTableEndSyncTime);
 	}
@@ -1379,7 +1394,7 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 		//       VR is probably part of that, so use it.
 		//       --> Is isDisplayArea actually !VR?
 		int ticksThisFrame = getTicksThisFrame(time);
-		int vrTicks = ticksThisFrame - VR_DELAY;
+		int vrTicks = ticksThisFrame - VR_DELAY - getStatusAdjustTicks(*this);
 		int displayEnd =
 			displayStart + getNumberOfLines() * TICKS_PER_LINE;
 		bool vr = vrTicks < displayStart - TICKS_PER_LINE
