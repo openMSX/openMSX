@@ -254,6 +254,12 @@ static std::string hdFilter()
 	return buildFilter("Hard disk images", std::array{"dsk"sv});
 }
 
+static std::string sdFilter()
+{
+	// same raw image format as a hard disk, '.sdc' is the name used by the extension configs
+	return buildFilter("SD card images", std::array{"sdc"sv, "dsk"sv});
+}
+
 static std::string cdFilter()
 {
 	return buildFilter("CDROM images", std::array{"iso"sv});
@@ -485,9 +491,10 @@ void ImGuiMedia::paintRecent(std::string_view mediaName, ItemGroup& group,
 				auto d = strCat(display(item, displayFunc), "##", count++);
 				if (ImGui::MenuItem(d.c_str())) {
 					bool delayed = actionToSet == nullptr;
-					auto action = [this, &group, item, mediaName, delayed] {
+					// copy the name: the action may run later (see 'actionToSet')
+					auto action = [this, &group, item, name = std::string(mediaName), delayed] {
 						group.edit = item;
-						insertMedia(mediaName, group.edit, delayed);
+						insertMedia(name, group.edit, delayed);
 					};
 					if (actionToSet) {
 						*actionToSet = action;
@@ -668,8 +675,8 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		for (auto i : xrange(HD::MAX_HD)) {
 			if (!(*hdInUse)[i]) continue;
 			hdName.back() = char('a' + i);
-			auto displayName = tmpStrCat("Hard Disk ", char('A' + i));
 			if (auto cmdResult = manager.execute(TclObject(hdName))) {
+				auto displayName = hdDisplayName(motherBoard, hdName);
 				elementInGroup();
 				im::Menu(displayName.c_str(), [&]{
 					paintHardDiskMenuContent(hdName, displayName, cmdResult->getListIndex(interp, 1), *motherBoard);
@@ -743,31 +750,59 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 	}
 }
 
+// SD cards (e.g. MegaFlashROM SCC+ SD) are hard disks that can be changed or
+// ejected while the MSX is running.
+bool ImGuiMedia::isHotSwappableHd(const MSXMotherBoard& motherBoard, std::string_view hdName)
+{
+	const auto* hd = dynamic_cast<const HD*>(motherBoard.findMediaProvider(hdName));
+	return hd && hd->isHotSwappable();
+}
+
+// "SD Card X" or "Hard Disk X" for media slot 'hdx'
+std::string ImGuiMedia::hdDisplayName(const MSXMotherBoard* motherBoard, std::string_view hdName)
+{
+	bool sdCard = motherBoard && isHotSwappableHd(*motherBoard, hdName);
+	return strCat(sdCard ? "SD Card " : "Hard Disk ", char('A' + (hdName.back() - 'a')));
+}
+
 void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard)
 {
-	paintCurrent(currentImage, "hard disk");
+	// An SD card can be changed while the MSX is running. A hard disk needs a
+	// power cycle, so its insert action goes through 'switchHdAction'.
+	bool sdCard = isHotSwappableHd(motherBoard, mediaSlotName);
+	std::string_view kind = sdCard ? "SD card" : "hard disk";
+	auto* actionToSet = sdCard ? nullptr : &switchHdAction;
+
+	paintCurrent(currentImage, kind);
 	auto& group = hdMediaInfo[mediaSlotName.back() - 'a'];
-	if (ImGui::MenuItem("Select hard disk image...")) {
+	if (sdCard && ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+		manager.executeDelayed(makeTclList(mediaSlotName, "eject"));
+	}
+	if (ImGui::MenuItem(strCat("Select ", kind, " image...").c_str())) {
 		manager.openFile->selectFile(
 			strCat("Select image for ", slotDisplayName),
-			hdFilter(),
+			sdCard ? sdFilter() : hdFilter(),
 			// Copy the name: these callbacks run later (after the file
 			// dialog and the confirmation), when the string that
 			// 'mediaSlotName' refers to may no longer exist.
-			[this, &group, name = std::string(mediaSlotName)](const auto& fn) {
-				switchHdAction = [this, &group, name, fn] {
+			[this, &group, name = std::string(mediaSlotName), actionToSet](const auto& fn) {
+				auto action = [this, &group, name, fn, delayed = actionToSet == nullptr] {
 					group.edit.name = fn;
-					bool delayed = false;
 					this->insertMedia(name, group.edit, delayed);
 				};
+				if (actionToSet) {
+					*actionToSet = action;
+				} else {
+					action();
+				}
 			},
 			currentImage.getString());
 	}
-	if (motherBoard.isPowered()) {
+	if (actionToSet && motherBoard.isPowered()) {
 		HelpMarker("Hard disk image cannot be switched while the MSX is powered on, "
 			   "so a power cycle is required.");
 	}
-	paintRecent(std::string(mediaSlotName), group, std::identity{}, {}, &switchHdAction);
+	paintRecent(std::string(mediaSlotName), group, std::identity{}, {}, actionToSet);
 }
 
 void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage)

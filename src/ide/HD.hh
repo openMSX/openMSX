@@ -25,16 +25,25 @@ class HD : public SectorAccessibleDisk, public DiskContainer
 {
 public:
 	static constexpr unsigned MAX_HD = 26;
+	/** YES: the image can be changed or ejected while the MSX is powered on
+	  * (an SD card), NO: only while powered off (a hard disk). */
+	enum class HotSwap : bool { NO, YES };
 	using HDInUse = std::bitset<MAX_HD>;
 	static std::shared_ptr<HDInUse> getDrivesInUse(MSXMotherBoard& motherBoard);
 
 public:
-	explicit HD(const DeviceConfig& config);
+	explicit HD(const DeviceConfig& config, HotSwap hotSwap = HotSwap::NO);
 	~HD() override;
 
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] const Filename& getImageName() const { return filename; }
 	void switchImage(const Filename& filename);
+	void eject(); // only for hot-swappable HDs
+	// Only an SD card can be ejected; SdCard checks this before any sector access.
+	[[nodiscard]] bool isEjected() const { return hotSwappable && !file.is_open(); }
+	[[nodiscard]] bool isHotSwappable() const { return hotSwappable; }
+	// DiskContainer: true once after an image change or eject (read by SdCard)
+	[[nodiscard]] bool diskChanged() override;
 
 	[[nodiscard]] std::string getTigerTreeHash();
 
@@ -59,7 +68,6 @@ private:
 	// DiskContainer:
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	[[nodiscard]] std::string_view getContainerName() const override;
-	[[nodiscard]] bool diskChanged() override;
 	int insertDisk(const std::string& newFilename) override;
 
 	// TTData
@@ -67,6 +75,7 @@ private:
 	[[nodiscard]] bool isCacheStillValid(time_t& time) override;
 
 	void showProgress(size_t position, size_t maxPosition);
+	void closeImage();
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -76,16 +85,18 @@ private:
 
 	File file;
 	Filename filename;
-	size_t filesize;
+	size_t filesize = 0;
 
 	std::shared_ptr<HDInUse> hdInUse;
 
 	uint64_t lastProgressTime;
+	bool changed = false; // image changed or ejected, see diskChanged()
+	const bool hotSwappable;
 	bool everDidProgress;
 };
 
 REGISTER_BASE_CLASS(HD, "HD");
-SERIALIZE_CLASS_VERSION(HD, 2);
+SERIALIZE_CLASS_VERSION(HD, 3);
 
 } // namespace openmsx
 

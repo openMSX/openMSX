@@ -1260,6 +1260,8 @@
 
   <p>Change the hard disk image. The commands <code>hda</code>, <code>hdb</code> etc. are assigned to all available hard disk drives in the MSX. They will not correspond to drive names as used in MSX-DOS.</p>
 
+  <p>A hard disk image can only be changed while the MSX is powered off. SD cards (e.g. in the MegaFlashROM SCC+ SD or the SD Mapper V1) are also controlled with these commands, but like the real cards they can be changed or ejected while the MSX is running. For them, <code>hda</code> without arguments also shows the option <code>hotswappable</code>, and <code>empty</code> when no card is inserted.</p>
+
   <div class="subsectiontitle">
     usage:
   </div>
@@ -1281,6 +1283,12 @@
       <td><code>hda</code></td>
 
       <td>Show current hard disk image for hard disk "hda"</td>
+    </tr>
+
+    <tr>
+      <td><code>hda eject</code></td>
+
+      <td>Remove the SD card "hda" (only for SD cards)</td>
     </tr>
   </table>
 

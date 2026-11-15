@@ -65,6 +65,8 @@ public:
 	void paintLaserDiscMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage);
 	void paintCDROMMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage);
 	void paintHardDiskMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard);
+	[[nodiscard]] static bool isHotSwappableHd(const MSXMotherBoard& motherBoard, std::string_view hdName);
+	[[nodiscard]] static std::string hdDisplayName(const MSXMotherBoard* motherBoard, std::string_view hdName);
 
 public:
 	enum class SelectDiskType : int {

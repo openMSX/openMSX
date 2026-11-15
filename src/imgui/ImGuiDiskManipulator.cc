@@ -267,7 +267,7 @@ ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(
 	return result;
 }
 
-[[nodiscard]] static std::string driveDisplayName(std::string_view drive)
+std::string ImGuiDiskManipulator::driveDisplayName(std::string_view drive) const
 {
 	if (drive == "virtual_drive") return "Virtual drive";
 	std::string result;
@@ -275,7 +275,7 @@ ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(
 		result = strCat("Disk drive ", char('A' + drive[4] - 'a'));
 		drive.remove_prefix(5);
 	} else if (drive.size() >= 3 && drive.starts_with("hd")) {
-		result = strCat("Hard disk ", char('A' + drive[2] - 'a'));
+		result = ImGuiMedia::hdDisplayName(manager.getReactor().getMotherBoard(), drive.substr(0, 3));
 		drive.remove_prefix(3);
 	} else {
 		return ""; // not supported
