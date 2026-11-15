@@ -584,8 +584,13 @@ void VDP::scheduleLineCountReset(EmuTime time)
 {
 	// The reset happens at the start of the processing of the line, see
 	// syncAtNextLine().
+	// Measured on a Philips VG-8235 (V9958), GRAPHIC4: R#9 NT (50 -> 60 Hz
+	// and 60 -> 50 Hz) and LN are taken 3 Z80 cycles (18 ticks) earlier in
+	// the line than tick 144 gives. The text modes keep 144: there the
+	// chip takes LN about 2 cycles later than 144 gives (NT not measured).
+	int resetTick = getDisplayMode().isTextMode() ? 144 : 126;
 	int ticks = (8 + getVerticalAdjust()) * TICKS_PER_LINE
-	          + 144 + (horizontalAdjust - 7) * 4;
+	          + resetTick + (horizontalAdjust - 7) * 4;
 	EmuTime resetTime = frameStartTime + ticks;
 	if (resetTime <= time) {
 		// Moved behind us by an adjust change. If a reset is still
