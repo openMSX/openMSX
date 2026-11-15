@@ -514,3 +514,60 @@ how far F and VR move with the adjust.
 Measured (`vdpmode`, `vdpadj`): HR, F, FH and VR keep their positions
 relative to each other with any horizontal adjust (R#18); F and VR move
 with it by -4 VDP cycles per step, HR and FH along with them.
+
+## Two quick VRAM writes
+
+**Files.** `vdpedge` modes 3 and 4 (see "HR and VR in S#2"): mode 3 is
+among the runs of `autoexec-vdpedge.bas`, mode 4 runs from
+`autoexec-vdpedge4.bas` (text mode and SCREEN 5) and
+`autoexec-screen5.bas` (SCREEN 5). Results:
+`results/<machine>-edge-m3-s0.txt` and
+`results/<machine>-edge-m4-s<screen>.txt` (`fs-a1gt-edge-m4-s5-2.txt` is
+a second run, with the same result).
+
+**How.** The trial of `vdprace`, with at the end:
+
+| Mode | What it does at e | Columns in the result file |
+|------|-------------------|----------------------------|
+| 3 | `OUT (C),A` / `OUT (C),B` (AAh, then 55h, 14 Z80 cycles apart) to VRAM 7000h, reads back 7000h-7001h | second write lost (AAh, 00h), both written, other |
+| 4 | the same writes, reads back 7000h-7002h | (55h, 00h, 00h), (AAh, 55h, 00h), other; plus all triples with their counts (`T` lines) |
+
+Parameters: `C` = 100, `H` = 21 (text), 20 (SCREEN 5).
+
+**Results, text mode** (`results/*-edge-m4-s0.txt`, 10240 trials each):
+
+| Read back from 7000h-7002h | FS-A1GT | HB-F700D |
+|----------------------------|---------|----------|
+| AAh, 55h, 00h (both written) | 6112 | 5895 |
+| 55h, 00h, 00h | 1725 | 3091 |
+| 55h, 55h, 00h | 2233 | 534 |
+| AAh, AAh, 00h | 0 | 720 |
+| AAh, 00h, 00h (second write lost) | 0 | 0 |
+| 00h, 55h, 00h | 168 | 0 |
+| other | 2 | 0 |
+
+The bad trials come in windows of 8 Z80 cycles in every 16 (the text mode
+access slot pattern) on both machines; the part of the window where only
+the second byte arrives (55h, 00h, 00h) is FS-A1GT e 14-16, HB-F700D e
+17-21.
+
+**Results, SCREEN 5** (`results/*-edge-m4-s5*.txt`): 3 to 4 Z80 cycles out
+of about every 21 (128 VDP cycles) are too fast: FS-A1GT 1205 and 1233
+times (55h, 55h, 00h) and 134 and 118 times (00h, 55h, 00h) in two runs;
+HB-F700D 725 times (55h, 55h, 00h), 505 times (AAh, AAh, 00h) and 10 times
+(55h, 00h, 00h).
+
+### Conclusion
+
+Measured: when a second `OUT` to VRAM comes too soon after the first, the
+result is never a lost second write: both addresses get the second byte
+(55h, 55h, 00h), or the first address gets the second byte and the second
+address nothing (55h, 00h, 00h), or the second address gets its byte and
+the first nothing (00h, 55h, 00h, FS-A1GT), or the first byte is written
+twice (AAh, AAh, 00h, HB-F700D). The too-fast windows are 8 Z80 cycles in
+every 16 in text mode and 3 to 4 in about every 21 in SCREEN 5.
+
+*Interpretation (an assumption, not measured):* the VDP keeps the data of a
+CPU VRAM write in one register, not with the request: a write that comes
+too soon overwrites the byte of the write that is still waiting, and a
+second request accepted while the first still waits gets the same byte.

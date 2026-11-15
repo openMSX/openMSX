@@ -1188,10 +1188,23 @@ void VDP::scheduleV99x8VramAccess(bool isRead, EmuTime time)
 
 	if (cpuRequestIsTooEarly(request)) [[unlikely]] {
 		if (!allowTooFastAccess) {
-			// The VDP has nowhere to put this request, so nothing at all
-			// happens for it: no VRAM access, and the VRAM pointer does
-			// not advance.
+			// The VDP has nowhere to put this request: no VRAM access
+			// for it, and the VRAM pointer does not advance. But a write
+			// has put its byte in 'cpuVramData', and a write that is
+			// still waiting for its slot stores that byte instead of its
+			// own: writing AAh and then 55h too quickly leaves 55h (and
+			// the pointer advanced once). Measured on a V9958 and a
+			// V9938, see doc/internal/vdp-status-race.
 			tooFastCallback.execute();
+			if (!isRead && pendingCpuAccess) {
+				if (secondCpuSlot != EmuTime::infinity()) {
+					if (!secondCpuVramReqIsRead) {
+						secondCpuVramReqData = cpuVramData;
+					}
+				} else if (!cpuVramReqIsRead) {
+					cpuVramReqData = cpuVramData;
+				}
+			}
 			return;
 		}
 		// In 'ignore' mode no access may be lost, so free the buffer by
