@@ -156,24 +156,6 @@ static constexpr std::array<int8_t, LFO_AM_TAB_ELEMENTS> lfo_am_table =
 
 //**************************************************//
 //                                                  //
-//  Helper functions                                //
-//                                                  //
-//**************************************************//
-
-static constexpr unsigned DB_POS(int x)
-{
-	auto result = int(x / DB_STEP);
-	assert(result < DB_MUTE);
-	assert(result >= 0);
-	return result;
-}
-static constexpr unsigned DB_NEG(int x)
-{
-	return 2 * DB_MUTE + DB_POS(x);
-}
-
-//**************************************************//
-//                                                  //
 //                  Create tables                   //
 //                                                  //
 //**************************************************//
@@ -577,11 +559,7 @@ void Y8950::reset(EmuTime time)
 	pm_mode = false;
 	pm_phase = 0;
 	am_phase = 0;
-	noise_seed = 0xffff;
-	noiseA_phase = 0;
-	noiseB_phase = 0;
-	noiseA_dPhase = 0;
-	noiseB_dPhase = 0;
+	noise = 1;
 
 	// update the output buffer before changing the register
 	updateStream(time);
@@ -764,27 +742,11 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
 }
 
-int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whiteNoise)
+// HH, SD and CYM: the phase is not the slot's own, see generateChannels()
+int Y8950::Slot::calc_slot_rhythm(int lfo_am, unsigned pgout)
 {
 	unsigned egOut = calc_envelope(lfo_am);
-	unsigned pgout = calc_phase(lfo_pm);
-	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
-	return (dB2LinTab[tmp + egOut] + dB2LinTab[egOut + whiteNoise]) >> 1;
-}
-
-int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
-{
-	unsigned egOut = calc_envelope(lfo_am);
-	return (dB2LinTab[egOut + a] + dB2LinTab[egOut + b]) >> 1;
-}
-
-// HI-HAT
-int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whiteNoise)
-{
-	unsigned egOut = calc_envelope(lfo_am);
-	return (dB2LinTab[egOut + whiteNoise] +
-	        dB2LinTab[egOut + a] +
-	        dB2LinTab[egOut + b]) >> 2;
+	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
 }
 
 float Y8950::getAmplificationFactorImpl() const
@@ -826,11 +788,16 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	if (checkMuteHelper()) {
 		// TODO update internal state even when muted
-		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
-		// and noise_seed aren't updated, probably ok
+		// during mute pm_phase, am_phase and noise aren't updated,
+		// probably ok
 		std::ranges::fill(bufs, nullptr);
 		return;
 	}
+
+	// A real Y8950 and YM3812 play CYM at phase 0x100 or 0x300, as in
+	// MAME: 3dB louder than Nuked-OPL3's 0x080 or 0x280, and silent with
+	// waveform 3 on the YM3812. The Y8960's RTL (JTOPL) uses 0x080/0x280.
+	const unsigned cymBase = (type == Type::Y8960) ? 0x080 : 0x100;
 
 	for (auto sample : xrange(num)) {
 		// Amplitude modulation: 27 output levels (triangle waveform);
@@ -845,22 +812,15 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 		int lfo_pm = pmTable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
-		if (noise_seed & 1) {
-			noise_seed ^= 0x24000;
-		}
-		noise_seed >>= 1;
-		int whiteNoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
-
-		noiseA_phase += noiseA_dPhase;
-		noiseA_phase &= (0x40 << 11) - 1;
-		if ((noiseA_phase >> 11) == 0x3f) {
-			noiseA_phase = 0;
-		}
-		int noiseA = noiseA_phase & (0x03 << 11) ? DB_POS(6) : DB_NEG(6);
-
-		noiseB_phase += noiseB_dPhase;
-		noiseB_phase &= (0x10 << 11) - 1;
-		int noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
+		// The noise generator steps once per slot, as in Nuked-OPL3. These
+		// chips have 18 slots, so it steps 18 times per sample. HH reads
+		// it at slot 13 and SD at slot 16, which is bit 13 and bit 16 of
+		// the state at the start of the sample.
+		unsigned hhNoise = (noise >> 13) & 1;
+		unsigned sdNoise = (noise >> 16) & 1;
+		repeat(2, [&] { // 9 steps at a time
+			noise = (noise >> 9) | (((noise ^ (noise >> 14)) & 0x1ff) << 14);
+		});
 
 		for (auto i : xrange(rythm_mode ? 6 : 9)) {
 			if (ch[i].slot[CAR].isActive()) {
@@ -878,9 +838,23 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 			//bufs[7][sample] += 0;
 			//bufs[8][sample] += 0;
 
-			// TODO wasn't in original source either
-			(void)ch[7].slot[MOD].calc_phase(lfo_pm);
-			(void)ch[8].slot[CAR].calc_phase(lfo_pm);
+			// HH, SD and CYM don't play their own phase, but one
+			// built from bits of the HH and CYM phase generators and
+			// the noise, as in Nuked-OPL3, which matches a real Y8950
+			// and YM3812 apart from the CYM phase (see cymBase).
+			// Nuked-OPL3 takes the CYM bits for HH from the previous
+			// sample, here all bits come from this sample.
+			unsigned hh = ch[7].slot[MOD].calc_phase(lfo_pm);
+			unsigned cym = ch[8].slot[CAR].calc_phase(lfo_pm);
+			// SD doesn't play its own phase, but its phase generator runs
+			(void)ch[7].slot[CAR].calc_phase(lfo_pm);
+			auto bit = [](unsigned v, unsigned n) { return (v >> n) & 1; };
+			unsigned rmXor = (bit(hh, 2) ^ bit(hh, 7)) |
+			                 (bit(hh, 3) ^ bit(cym, 5)) |
+			                 (bit(cym, 3) ^ bit(cym, 5));
+			unsigned hhPhase = (rmXor << 9) | ((rmXor ^ hhNoise) ? 0xd0 : 0x34);
+			unsigned sdPhase = (bit(hh, 8) << 9) | ((bit(hh, 8) ^ sdNoise) << 8);
+			unsigned cymPhase = (rmXor << 9) | cymBase;
 
 			bufs[ 9][sample] += (ch[6].slot[CAR].isActive())
 				? narrow_cast<float>(
@@ -888,13 +862,13 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)))
 				: 0.0f;
 			bufs[10][sample] += (ch[7].slot[CAR].isActive())
-				? narrow_cast<float>(2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whiteNoise))
+				? narrow_cast<float>(2 * ch[7].slot[CAR].calc_slot_rhythm(lfo_am, sdPhase))
 				: 0.0f;
 			bufs[11][sample] += (ch[8].slot[CAR].isActive())
-				? narrow_cast<float>(2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB))
+				? narrow_cast<float>(2 * ch[8].slot[CAR].calc_slot_rhythm(lfo_am, cymPhase))
 				: 0.0f;
 			bufs[12][sample] += (ch[7].slot[MOD].isActive())
-				? narrow_cast<float>(2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whiteNoise))
+				? narrow_cast<float>(2 * ch[7].slot[MOD].calc_slot_rhythm(lfo_am, hhPhase))
 				: 0.0f;
 			bufs[13][sample] += (ch[8].slot[MOD].isActive())
 				? narrow_cast<float>(2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am))
@@ -1130,14 +1104,6 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			}
 		}();
 		ch[c].setFreq(freq);
-		unsigned fNum  = freq % 1024;
-		unsigned block = freq / 1024;
-		switch (c) {
-		case 7: noiseA_dPhase = fNum << block;
-			break;
-		case 8: noiseB_dPhase = fNum << block;
-			break;
-		}
 		ch[c].slot[CAR].updateAll(freq);
 		ch[c].slot[MOD].updateAll(freq);
 		reg[rg] = data;
@@ -1319,8 +1285,11 @@ void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 
+// version 1: initial version
+// version 2: 'noise' replaces 'noise_seed', 'noiseA_phase', 'noiseB_phase',
+//            'noiseA_dphase' and 'noiseB_dphase'
 template<typename Archive>
-void Y8950::serialize(Archive& ar, unsigned /*version*/)
+void Y8950::serialize(Archive& ar, unsigned version)
 {
 	if (connector) {
 		ar.serialize("keyboardConnector", *connector);
@@ -1331,13 +1300,14 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 	             "irq",    irq);
 	ar.serialize_blob("registers", reg);
 	ar.serialize("pm_phase",      pm_phase,
-	             "am_phase",      am_phase,
-	             "noise_seed",    noise_seed,
-	             "noiseA_phase",  noiseA_phase,
-	             "noiseB_phase",  noiseB_phase,
-	             "noiseA_dphase", noiseA_dPhase,
-	             "noiseB_dphase", noiseB_dPhase,
-	             "channels",      ch,
+	             "am_phase",      am_phase);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("noise", noise);
+	} else {
+		assert(Archive::IS_LOADER);
+		noise = 1;
+	}
+	ar.serialize("channels",      ch,
 	             "status",        status,
 	             "statusMask",    statusMask,
 	             "rythm_mode",    rythm_mode,

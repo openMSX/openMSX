@@ -11,6 +11,7 @@
 #include "FixedPoint.hh"
 #include "IRQHelper.hh"
 #include "SimpleDebuggable.hh"
+#include "serialize_meta.hh"
 
 #include <array>
 #include <cstdint>
@@ -164,9 +165,7 @@ private:
 		[[nodiscard]] int calc_slot_car(int lfo_pm, int lfo_am, int fm);
 		[[nodiscard]] int calc_slot_mod(int lfo_pm, int lfo_am);
 		[[nodiscard]] int calc_slot_tom(int lfo_pm, int lfo_am);
-		[[nodiscard]] int calc_slot_snare(int lfo_pm, int lfo_am, int whiteNoise);
-		[[nodiscard]] int calc_slot_cym(int lfo_am, int a, int b);
-		[[nodiscard]] int calc_slot_hat(int lfo_am, int a, int b, int whiteNoise);
+		[[nodiscard]] int calc_slot_rhythm(int lfo_am, unsigned pgout);
 
 		void updateAll(unsigned freq);
 		void updatePG(unsigned freq);
@@ -238,12 +237,7 @@ private:
 	unsigned pm_phase; // Pitch Modulator
 	unsigned am_phase; // Amp Modulator
 
-	// Noise Generator
-	int noise_seed;
-	unsigned noiseA_phase;
-	unsigned noiseB_phase;
-	unsigned noiseA_dPhase;
-	unsigned noiseB_dPhase;
+	unsigned noise; // 23-bit noise generator of the rhythm sounds
 
 	uint8_t status;     // STATUS Register
 	uint8_t statusMask; // bit=0 -> masked
@@ -252,6 +246,7 @@ private:
 	bool pm_mode;
 	bool enabled = true;
 };
+SERIALIZE_CLASS_VERSION(Y8950, 2);
 
 } // namespace openmsx
 
