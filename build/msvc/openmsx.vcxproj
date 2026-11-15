@@ -742,6 +742,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\network\EmulatedEsp32.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\network\SMXWiFi.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\network\GR8NETTimer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\network\UnapiNet.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DeltaBlock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
@@ -1395,6 +1396,7 @@
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\network\EmulatedEsp32.hh" />
     <None Include="$(OpenMSXSrcDir)\network\SMXWiFi.hh" />
+    <None Include="$(OpenMSXSrcDir)\network\GR8NETTimer.hh" />
     <None Include="$(OpenMSXSrcDir)\network\UnapiNet.hh" />
     <None Include="$(OpenMSXSrcDir)\network\UnapiNetWire.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />

@@ -1206,6 +1206,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\network\SMXWiFi.cc">
       <Filter>network</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\network\GR8NETTimer.cc">
+      <Filter>network</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\network\UnapiNet.cc">
       <Filter>network</Filter>
     </ClCompile>
@@ -2883,6 +2886,9 @@
       <Filter>network</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\network\SMXWiFi.hh">
+      <Filter>network</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\network\GR8NETTimer.hh">
       <Filter>network</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\network\UnapiNet.hh">
