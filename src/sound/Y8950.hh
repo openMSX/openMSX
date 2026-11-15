@@ -104,6 +104,8 @@ private:
 	void keyOff_CYM();
 	void setRythmMode(int data);
 	void update_key_status();
+	void updateWaveform(int r);
+	void updateWaveforms();
 
 	[[nodiscard]] bool checkMuteHelper();
 
@@ -194,6 +196,7 @@ private:
 
 		Patch patch;
 		uint8_t key;
+		uint8_t wave; // 0-3, always 0 unless Type::Y8960 enables 0xE0-0xF5
 	};
 
 	class Channel {

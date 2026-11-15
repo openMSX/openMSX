@@ -234,6 +234,24 @@ static constexpr auto sinTable = [] {
 	return result;
 }();
 
+// The YM3812 (Type::Y8960) adds three waveforms to the sine, selected per
+// slot by registers 0xE0-0xF5. They are derived from sinTable, so they use
+// its encoding. The silent parts use DB_MUTE - 1, which is what lin2db()
+// gives for zero.
+static constexpr auto waveTables = [] {
+	std::array<std::array<unsigned, PG_WIDTH>, 4> result = {};
+	constexpr auto SILENCE = unsigned(DB_MUTE - 1);
+	for (auto i : xrange(PG_WIDTH)) {
+		unsigned sine = sinTable[i];
+		unsigned absSine = (sine >= 2 * DB_MUTE) ? (sine - 2 * DB_MUTE) : sine;
+		result[0][i] = sine;
+		result[1][i] = (i < PG_WIDTH / 2) ? sine : SILENCE;      // half sine
+		result[2][i] = absSine;
+		result[3][i] = (i & (PG_WIDTH / 4)) ? SILENCE : absSine; // quarter sine
+	}
+	return result;
+}();
+
 // Table for Pitch Modulator
 static constexpr auto pmTable = [] {
 	std::array<std::array<int, PM_PG_WIDTH>, 2> result = {};
@@ -339,6 +357,7 @@ void Y8950::Slot::reset()
 	eg_mode = EnvelopeState::FINISH;
 	eg_phase = EG_DP_MAX;
 	key = 0;
+	wave = 0;
 	patch.reset();
 
 	// this initializes:
@@ -606,6 +625,31 @@ void Y8950::setRythmMode(int data)
 	}
 }
 
+// Slot number (2 * channel + MOD/CAR) for the low 5 bits of the register
+// number in 0x20-0x95 and 0xE0-0xF5, -1 for the unused ones.
+static constexpr std::array<int, 32> sTbl = {
+	 0,  2,  4,  1,  3,  5, -1, -1,
+	 6,  8, 10,  7,  9, 11, -1, -1,
+	12, 14, 16, 13, 15, 17, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1
+};
+
+// recalculate 'wave' of the slot of register 0xE0 + r, only used for
+// Type::Y8960
+void Y8950::updateWaveform(int r)
+{
+	if (int s = sTbl[r]; s >= 0) {
+		bool enable = (reg[0x01] & 0x20) != 0;
+		ch[s / 2].slot[s & 1].wave = enable ? (reg[0xe0 + r] & 3) : 0;
+	}
+}
+
+// recalculate 'wave' of all slots, only used for Type::Y8960
+void Y8950::updateWaveforms()
+{
+	for (auto r : xrange(0x16)) updateWaveform(r);
+}
+
 // recalculate 'key' from register settings
 void Y8950::update_key_status()
 {
@@ -718,7 +762,7 @@ int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egOut = calc_envelope(lfo_am);
 	int pgout = narrow<int>(calc_phase(lfo_pm)) + wave2_8pi(fm);
-	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
+	return dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 }
 
 int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
@@ -729,7 +773,7 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	if (patch.FB != 0) {
 		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
+	int newOutput = dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -739,14 +783,14 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egOut = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
-	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
+	return dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 }
 
 // HH, SD and CYM: the phase is not the slot's own, see generateChannels()
 int Y8950::Slot::calc_slot_rhythm(int lfo_am, unsigned pgout)
 {
 	unsigned egOut = calc_envelope(lfo_am);
-	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
+	return dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 }
 
 float Y8950::getAmplificationFactorImpl() const
@@ -891,13 +935,6 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 
 void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 {
-	static constexpr std::array<int, 32> sTbl = {
-		 0,  2,  4,  1,  3,  5, -1, -1,
-		 6,  8, 10,  7,  9, 11, -1, -1,
-		12, 14, 16, 13, 15, 17, -1, -1,
-		-1, -1, -1, -1, -1, -1, -1, -1
-	};
-
 	// TODO only for registers that influence sound
 	// TODO also ADPCM
 	//if (rg >= 0x20) {
@@ -922,6 +959,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			//
 			//  5  No effect? - Waveform select enable in YM3812 OPL2 so seems
 			//     reasonable that this bit wouldn't have been used in OPL
+			//     (Type::Y8960 is a YM3812, there it enables 0xE0-0xF5)
 			//
 			//  4  No effect?
 			//
@@ -937,6 +975,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			//  0  Reset envelopes - Envelope generator outputs forced
 			//     to maximum, so all enabled voices sound at maximum
 			reg[rg] = data;
+			if (type == Type::Y8960) updateWaveforms();
 			break;
 
 		case 0x02: // TIMER1 (resolution 80us)
@@ -1116,6 +1155,15 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 		ch[c].slot[MOD].patch.setFeedbackShift((data >> 1) & 7);
 		ch[c].alg = data & 1;
 		reg[rg] = data;
+		break;
+	}
+	case 0xe0: {
+		// waveform select, on Type::Y8960 only (Y8950 has no such register)
+		if (type == Type::Y8960) {
+			reg[rg] = data;
+			updateWaveform(rg & 0x1f);
+		}
+		break;
 	}
 	}
 }
@@ -1269,6 +1317,8 @@ void Y8950::Slot::serialize(Archive& ar, unsigned version)
 	//  dPhase, tll, dPhaseARTableRks, dPhaseDRTableRks, eg_dPhase
 	// These are restored by update_key_status():
 	//  key
+	// These are restored by updateWaveforms() (Type::Y8960 only):
+	//  wave
 }
 
 template<typename Archive>
@@ -1323,6 +1373,7 @@ void Y8950::serialize(Archive& ar, unsigned version)
 		};
 
 		update_key_status();
+		if (type == Type::Y8960) updateWaveforms();
 		EmuTime time = motherBoard.getCurrentTime();
 		for (auto r : rewriteRegs) {
 			writeReg(r, reg[r], time);
