@@ -21,6 +21,7 @@
 #include <array>
 #include <cassert>
 #include <memory>
+#include <utility>
 
 namespace openmsx {
 
@@ -51,23 +52,28 @@ HD::HD(const DeviceConfig& config, HotSwap hotSwap)
 	// via hda command) savestate will try to re-resolve the filename.
 	auto mode = File::OpenMode::NORMAL;
 	if (std::string cliImage = HDImageCLI::getImageForId(id);
-	    cliImage.empty()) {
+	    !cliImage.empty()) {
+		filename = Filename(std::move(cliImage), userFileContext());
+	} else if (config.getXML()) {
 		const auto& original = config.getChildData("filename");
 		filename = Filename(config.getFileContext().resolveCreate(original));
 		mode = File::OpenMode::CREATE;
 	} else {
-		filename = Filename(std::move(cliImage), userFileContext());
+		// SD card slot without a configured card: starts ejected
+		assert(hotSwappable);
 	}
 
-	file = File(filename.getResolved(), mode);
-	filesize = file.getSize();
-	if (mode == File::OpenMode::CREATE && filesize == 0) {
-		// OK, the file was just newly created. Now make sure the file
-		// is of the right (default) size
-		file.truncate(size_t(config.getChildDataAsInt("size", 0)) * 1024 * 1024);
+	if (!filename.empty()) {
+		file = File(filename.getResolved(), mode);
 		filesize = file.getSize();
+		if (mode == File::OpenMode::CREATE && filesize == 0) {
+			// OK, the file was just newly created. Now make sure the file
+			// is of the right (default) size
+			file.truncate(size_t(config.getChildDataAsInt("size", 0)) * 1024 * 1024);
+			filesize = file.getSize();
+		}
+		tigerTree.emplace(*this, filesize, filename.getResolved());
 	}
-	tigerTree.emplace(*this, filesize, filename.getResolved());
 
 	(*hdInUse)[id] = true;
 	hdCommand.emplace(
@@ -118,7 +124,7 @@ void HD::switchImage(const Filename& newFilename)
 	filename = newFilename;
 	filesize = file.getSize();
 	tigerTree.emplace(*this, filesize, filename.getResolved());
-	++changeCount;
+	changed = true;
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, getName(),
 	                                   filename.getResolved());
 }
@@ -137,7 +143,7 @@ void HD::eject()
 	assert(hotSwappable);
 	if (isEjected()) return;
 	closeImage();
-	++changeCount;
+	changed = true;
 }
 
 size_t HD::getNbSectorsImpl()
@@ -241,7 +247,7 @@ std::string_view HD::getContainerName() const
 
 bool HD::diskChanged()
 {
-	return false; // TODO not implemented
+	return std::exchange(changed, false);
 }
 
 int HD::insertDisk(const std::string& newFilename)
@@ -256,6 +262,7 @@ int HD::insertDisk(const std::string& newFilename)
 
 // version 1: initial version
 // version 2: replaced 'checksum'(=sha1) with 'tthsum`
+// version 3: added 'diskChanged'
 template<typename Archive>
 void HD::serialize(Archive& ar, unsigned version)
 {
@@ -280,8 +287,8 @@ void HD::serialize(Archive& ar, unsigned version)
 			//    savestate we again close the file. Otherwise the
 			//    checksum-check code below goes wrong.
 			// For an SD card the scenario above can't happen
-			// (the constructor always creates the image), so
-			// here an empty filename means an ejected card.
+			// (the constructor always creates a configured image),
+			// so here an empty filename means an ejected card.
 			if (hotSwappable) {
 				closeImage(); // also forget the image from the config
 			} else {
@@ -336,6 +343,12 @@ void HD::serialize(Archive& ar, unsigned version)
 				forceWriteProtect();
 			}
 		}
+	}
+
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("diskChanged", changed);
+	} else {
+		changed = false; // switchImage() above is not a card change
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(HD);

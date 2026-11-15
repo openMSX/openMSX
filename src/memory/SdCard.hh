@@ -44,7 +44,7 @@ private:
 	[[nodiscard]] uint8_t readCurrentByteFromCurrentSector();
 
 private:
-	const std::unique_ptr<HD> hd; // can be nullptr
+	const std::unique_ptr<HD> hd; // never nullptr, an empty slot is an ejected HD
 
 	std::array<uint8_t, 6> cmdBuf;
 	SectorBuffer sectorBuf;
@@ -60,7 +60,6 @@ private:
 	// A freshly inserted card isn't in SPI mode yet: it ignores everything
 	// until CMD0. Drivers rely on that to notice a card change.
 	bool waitingForCmd0 = false;
-	unsigned lastChangeCount = 0; // last seen HD::getChangeCount()
 };
 SERIALIZE_CLASS_VERSION(SdCard, 2);
 

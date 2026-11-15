@@ -39,21 +39,20 @@ static constexpr uint8_t R1_ILLEGAL_COMMAND = 0x04;
 static constexpr uint8_t R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
-	: hd(config.getXML() ? std::make_unique<HD>(config, HD::HotSwap::YES) : nullptr)
+	: hd(std::make_unique<HD>(config, HD::HotSwap::YES)) // no config: starts ejected
 {
-	if (hd) lastChangeCount = hd->getChangeCount();
 }
 
 SdCard::~SdCard() = default;
 
 bool SdCard::isPresent() const
 {
-	return hd && !hd->isEjected();
+	return !hd->isEjected();
 }
 
 bool SdCard::isWriteProtected() const
 {
-	return hd && hd->isWriteProtected();
+	return hd->isWriteProtected();
 }
 
 // helper methods for 'transfer' to avoid duplication
@@ -83,8 +82,7 @@ uint8_t SdCard::readCurrentByteFromCurrentSector()
 // command or transfer in progress is aborted, and a new card starts in SD mode.
 void SdCard::checkCardChanged()
 {
-	if (hd->getChangeCount() == lastChangeCount) return;
-	lastChangeCount = hd->getChangeCount();
+	if (!hd->diskChanged()) return;
 
 	using enum Mode;
 	responseQueue.clear();
@@ -97,7 +95,6 @@ void SdCard::checkCardChanged()
 
 uint8_t SdCard::transfer(uint8_t value, bool cs)
 {
-	if (!hd) return 0xFF; // no card slot configured
 	checkCardChanged();
 	if (hd->isEjected()) return 0xFF; // no card inserted
 
@@ -366,29 +363,25 @@ static constexpr auto modeInfo = std::to_array<enum_string<SdCard::Mode>>({
 SERIALIZE_ENUM(SdCard::Mode, modeInfo);
 
 // version 1: initial version
-// version 2: added 'waitingForCmd0' and 'cardChangePending'
+// version 2: added 'waitingForCmd0', 'hd' is always present
 template<typename Archive>
 void SdCard::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("mode",   mode,
 	             "cmdBuf", cmdBuf);
 	ar.serialize_blob("sectorBuf", sectorBuf.raw);
-	if (hd) ar.serialize("hd", *hd);
+	// Version 1 only stored 'hd' for a configured card slot, which (just
+	// constructed) is exactly when there is a card.
+	if (ar.versionAtLeast(version, 2) || !hd->isEjected()) {
+		ar.serialize("hd", *hd);
+	}
 	ar.serialize("cmdIdx",               cmdIdx,
 	             "transferDelayCounter", transferDelayCounter,
 	             "responseQueue",        responseQueue,
 	             "currentSector",        currentSector,
 	             "currentByteInSector",  currentByteInSector);
-	// A card change that the MSX didn't notice yet (see checkCardChanged())
-	// must not get lost. Loading the HD may have changed its change count, so
-	// store whether a change is pending instead of the count itself.
-	bool cardChangePending = !Archive::IS_LOADER && hd && hd->getChangeCount() != lastChangeCount;
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("waitingForCmd0",    waitingForCmd0,
-		             "cardChangePending", cardChangePending);
-	}
-	if constexpr (Archive::IS_LOADER) {
-		if (hd) lastChangeCount = hd->getChangeCount() - (cardChangePending ? 1 : 0);
+		ar.serialize("waitingForCmd0", waitingForCmd0);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SdCard);

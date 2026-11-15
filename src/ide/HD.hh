@@ -42,10 +42,8 @@ public:
 	// Only an SD card can be ejected; SdCard checks this before any sector access.
 	[[nodiscard]] bool isEjected() const { return hotSwappable && !file.is_open(); }
 	[[nodiscard]] bool isHotSwappable() const { return hotSwappable; }
-	/** Incremented on each image change or eject, so the user of this HD can
-	  * notice that (e.g. an SD card that behaves like a freshly inserted card).
-	  */
-	[[nodiscard]] unsigned getChangeCount() const { return changeCount; }
+	// DiskContainer: true once after an image change or eject (read by SdCard)
+	[[nodiscard]] bool diskChanged() override;
 
 	[[nodiscard]] std::string getTigerTreeHash();
 
@@ -70,7 +68,6 @@ private:
 	// DiskContainer:
 	[[nodiscard]] SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	[[nodiscard]] std::string_view getContainerName() const override;
-	[[nodiscard]] bool diskChanged() override;
 	int insertDisk(const std::string& newFilename) override;
 
 	// TTData
@@ -88,18 +85,18 @@ private:
 
 	File file;
 	Filename filename;
-	size_t filesize;
+	size_t filesize = 0;
 
 	std::shared_ptr<HDInUse> hdInUse;
 
 	uint64_t lastProgressTime;
-	unsigned changeCount = 0;
+	bool changed = false; // image changed or ejected, see diskChanged()
 	const bool hotSwappable;
 	bool everDidProgress;
 };
 
 REGISTER_BASE_CLASS(HD, "HD");
-SERIALIZE_CLASS_VERSION(HD, 2);
+SERIALIZE_CLASS_VERSION(HD, 3);
 
 } // namespace openmsx
 
