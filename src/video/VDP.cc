@@ -88,13 +88,19 @@ static constexpr int CPU_READ_SAMPLE_DELAY = 9;
   * doc/internal/vdp-status-race. The TMS99xx VDPs weren't measured; they are
   * assumed to behave like the V9938. */
 struct FlagLostWindow { int before, after; };
-static constexpr FlagLostWindow F_LOST_V9958 = { 7, 14};
-static constexpr FlagLostWindow F_LOST_V9938 = {13, 15};
-static constexpr FlagLostWindow FH_LOST      = {21,  6};
+static constexpr FlagLostWindow F_LOST_V9958  = { 7, 15};
+static constexpr FlagLostWindow F_LOST_V9938  = {13, 15};
+static constexpr FlagLostWindow FH_LOST_V9958 = {21,  6};
+static constexpr FlagLostWindow FH_LOST_V9938 = {21, 12};
 
 static FlagLostWindow getFLostWindow(const VDP& vdp)
 {
 	return vdp.hasYJK() ? F_LOST_V9958 : F_LOST_V9938;
+}
+
+static FlagLostWindow getFHLostWindow(const VDP& vdp)
+{
+	return vdp.hasYJK() ? FH_LOST_V9958 : FH_LOST_V9938;
 }
 
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
@@ -520,7 +526,7 @@ void VDP::execHScan(EmuTime time)
 {
 	// Horizontal scanning occurs, unless S#1 was read just before.
 	if ((controlRegs[0] & 0x10) &&
-	    ((time - statusReg1ReadTime) >= VDPClock::duration(FH_LOST.before))) {
+	    ((time - statusReg1ReadTime) >= VDPClock::duration(getFHLostWindow(*this).before))) {
 		irqHorizontal.set();
 		fhSetTime = time;
 	}
@@ -1307,7 +1313,7 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 		break;
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
-			if ((time - fhSetTime) < VDPClock::duration(FH_LOST.after)) {
+			if ((time - fhSetTime) < VDPClock::duration(getFHLostWindow(*this).after)) {
 				ret &= ~0x01; // FH was set just before this read: it's lost
 			}
 			statusReg1ReadTime = time;
