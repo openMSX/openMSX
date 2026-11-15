@@ -900,10 +900,15 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 			unsigned sdPhase = (bit(hh, 8) << 9) | ((bit(hh, 8) ^ sdNoise) << 8);
 			unsigned cymPhase = (rmXor << 9) | cymBase;
 
+			// BD: with 'connect' = 1 only the carrier is heard, without
+			// FM, as measured on a real Y8950 and YM3812. The modulator
+			// still runs.
+			auto bd = [&] {
+				int mod = ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am);
+				return ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am, ch[6].alg ? 0 : mod);
+			};
 			bufs[ 9][sample] += (ch[6].slot[CAR].isActive())
-				? narrow_cast<float>(
-					2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
-						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)))
+				? narrow_cast<float>(2 * bd())
 				: 0.0f;
 			bufs[10][sample] += (ch[7].slot[CAR].isActive())
 				? narrow_cast<float>(2 * ch[7].slot[CAR].calc_slot_rhythm(lfo_am, sdPhase))
