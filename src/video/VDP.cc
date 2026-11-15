@@ -670,6 +670,9 @@ void VDP::execSetMode(EmuTime time)
 		DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
 		getCmdBit(),
 		time);
+	// The line interrupt comes at the right border, which depends on the
+	// display mode.
+	scheduleHScan(time);
 }
 
 void VDP::execSetBlank(EmuTime time)

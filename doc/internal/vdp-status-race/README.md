@@ -433,3 +433,34 @@ give the same edges as SCREEN 5 (F lost from 114|115 or 115|116, HR
   (398 VDP cycles); VR changes (both edges) at -48 in all modes.
   Exception: VR's falling edge in text mode fits 3 to 6 VDP cycles
   earlier.
+
+## FH follows the screen mode in which it is set
+
+**Files.** `vdpmode` (see "HR and VR in S#2"), MODE 1 (FH). Results:
+`results/<machine>-mode-1-<A><B>.txt` and
+`results/fs-a1gt-mode-1-{s1,s2,s3,s4,s6,s7,s8,text40}.txt`.
+
+**Results, mode switch** (e; mode A for the phase measurement, mode B for
+the read):
+
+| FH lost, from | T/T | T/G | G/G | G/T |
+|---------------|-----|-----|-----|-----|
+| FS-A1GT | 55\|56 | 59\|60 | 65\|66 | 60\|61 |
+| HB-F700D | 61\|64 | 65\|66 | 70\|71 | 66\|67 |
+
+T/G and G/T lie between T/T and G/G: FH depends on both. Corrected for F,
+which follows mode A ("HR and VR in S#2": F 5 to 6 Z80 cycles later in
+G/x than in T/x), FH comes 4 to 5 Z80 cycles later relative to F when
+mode B is GRAPHIC4 than when it is TEXT2, with either mode A.
+
+**Results, more screen modes** (FS-A1GT): SCREEN 1, 2, 3, 4, 6, 7 and 8
+lose FH from 64|65 or 65|66, as SCREEN 5; SCREEN 0 WIDTH 40 as WIDTH 80.
+
+### Conclusion
+
+- Measured (`vdpmode`): FH depends on the screen mode at the moment it is
+  set: relative to F it comes 4 to 5 Z80 cycles later in GRAPHIC4 than in
+  TEXT2.
+- Fitted (`vdprace`, `vdpedge`, `vdpmode`): FH is set at -345 in the
+  graphics modes (33 VDP cycles before HR rises) and at -373 in the text
+  modes (6 before HR rises).
