@@ -419,16 +419,19 @@ static bool menuItemWithShortcut(ImGuiManager& manager, const char* label, Short
 	}
 }
 
-void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer)
+void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT)
 {
 	im::Menu("File", [&]{
 		ImGui::MenuItem("Select probes and traces", nullptr, &showSelect);
 		if (ImGui::MenuItem("Export as VCD ...")) {
 			manager.openFile->selectNewFile(
-				"Export to VCD", "VCD (*.vcd){.vcd}",
-				[&](const auto& fn) {
+				"Export to VCD", {{"VCD (*.vcd)", "vcd"}},
+				// Don't capture 'tracer': the machine may be gone when the callback runs
+				[this](const auto& fn) {
+					auto* motherBoard = manager.getReactor().getMotherBoard();
+					if (!motherBoard) return;
 					try {
-						tracer.exportVCD(fn);
+						motherBoard->getDebugger().getTracer().exportVCD(fn);
 					} catch (MSXException& e) {
 						manager.printError(
 							"Couldn't export VCD: ", e.getMessage());
@@ -1551,7 +1554,7 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 
 	if (showMenuBar) {
 		im::MenuBar([&]{
-			drawMenuBar(minT, totalT, tracer);
+			drawMenuBar(minT, totalT);
 		});
 	}
 	drawToolBar(minT, totalT, viewScreenWidth);

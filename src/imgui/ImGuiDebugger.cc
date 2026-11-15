@@ -320,6 +320,12 @@ DebuggableEditor& ImGuiDebugger::openHexEditor(std::string_view debuggableName)
 	return **it;
 }
 
+DebuggableEditor* ImGuiDebugger::findHexEditor(std::string_view title)
+{
+	auto it = std::ranges::find(hexEditors, title, &DebuggableEditor::getTitle);
+	return (it != hexEditors.end()) ? it->get() : nullptr;
+}
+
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
 	auto createHexEditor = [&](const std::string& name) {

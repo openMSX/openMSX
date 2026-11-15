@@ -71,7 +71,7 @@ private:
 	void gotoNextPosEdge(EmuTime& selectedTime);
 	void gotoNextNegEdge(EmuTime& selectedTime);
 
-	void drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer);
+	void drawMenuBar(EmuTime minT, EmuDuration totalT);
 	void drawToolBar(EmuTime minT, EmuDuration totalT, float graphWidth);
 	void drawNames(float rulerHeight, float rowHeight, int mouseRow);
 	void drawSplitter(float width);

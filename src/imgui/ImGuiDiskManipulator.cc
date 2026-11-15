@@ -685,15 +685,11 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##BrowseNewImage")) {
 				manager.openFile->selectNewFile(
 					"Filename for new disk image",
-					"Disk image (*.dsk){.dsk}", // only .dsk (not all other disk extensions)
+					{{"Disk image (*.dsk)", "dsk"}}, // only .dsk (not all other disk extensions)
 					[&](const auto& fn) { editModal = fn; },
-					getDiskImageName(),
-					ImGuiOpenFile::Painter::DISKMANIPULATOR);
+					getDiskImageName());
 			}
 			simpleToolTip("Select new file");
-			if (manager.openFile->mustPaint(ImGuiOpenFile::Painter::DISKMANIPULATOR)) {
-				manager.openFile->doPaint();
-			}
 
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
 			ImGui::Combo("type", &bootType, "DOS 1\0DOS 2\0Nextor\0", 3); // in sync with MSXBootSectorType enum
@@ -777,7 +773,7 @@ void ImGuiDiskManipulator::insertMsxDisk()
 	}
 	manager.openFile->selectFile(
 		strCat("Select disk image for ", driveDisplayName(selectedDrive)),
-		ImGuiMedia::diskFilter(),
+		{ImGuiMedia::diskFilter()},
 		[&](const auto& fn) {
 			auto* drive = getDrive();
 			if (!drive) return;
@@ -791,7 +787,7 @@ void ImGuiDiskManipulator::exportDiskImage()
 {
 	manager.openFile->selectNewFile(
 		strCat("Export ", driveDisplayName(selectedDrive), " to new disk image"),
-		"Disk image (*.dsk){.dsk}", // only .dsk (not all other disk extensions)
+		{{"Disk image (*.dsk)", "dsk"}}, // only .dsk (not all other disk extensions)
 		[&](const auto& fn) {
 			auto dd = getDriveAndDisk();
 			if (!dd) return;

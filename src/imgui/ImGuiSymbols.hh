@@ -64,6 +64,7 @@ private:
 	std::vector<SymbolRef> symbols;
 
 	std::vector<FileInfo> fileError;
+	SymbolFile::Type loadType = SymbolFile::Type::AUTO_DETECT; // for "Load symbol file..."
 
 	struct SortState {
 		int columnIndex = -1;
