@@ -47,12 +47,13 @@ void SoundDevice::addFill(float*& buf, float val, unsigned num)
 }
 
 SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string_view description_,
-			 unsigned numChannels_, unsigned inputRate, bool stereo_)
+			 unsigned numChannels_, unsigned inputRate, Output output_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))
 	, description(description_)
 	, numChannels(numChannels_)
-	, stereo(stereo_ ? 2 : 1)
+	, stereo(1) // all channels are mono
+	, outputMode(output_)
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == one_of(1u, 2u));
@@ -118,7 +119,7 @@ void SoundDevice::setBalance(unsigned channel, float balance)
 	assert(-1.0f <= balance);
 	assert(balance <= 1.0f);
 
-	if (balance != 0.0f) balanceCenter = false;
+	if (balance != 0.0f) outputMode = Output::STEREO;
 	auto left  = std::sqrt(1.0f - balance);
 	auto right = std::sqrt(1.0f + balance);
 	channelBalance[channel] = Balance{.left = left, .right = right};
@@ -139,12 +140,6 @@ void SoundDevice::updateChannelGroups()
 	}
 }
 
-void SoundDevice::enableSetChannelFactors()
-{
-	balanceCenter = false;
-	postSetBalance();
-}
-
 void SoundDevice::setChannelFactors(unsigned channel, float left, float right, EmuTime time)
 {
 	ChannelFactors factors{.channel = channel, .left = left, .right = right};
@@ -153,7 +148,7 @@ void SoundDevice::setChannelFactors(unsigned channel, float left, float right, E
 
 void SoundDevice::setChannelFactors(std::span<const ChannelFactors> factors, EmuTime time)
 {
-	assert(!balanceCenter);
+	assert(outputMode == Output::STEREO);
 	assert(std::ranges::all_of(factors, [&](const auto& f) { return f.channel < numChannels; }));
 	auto changed = [&](const ChannelFactors& f) {
 		return channelBalance[f.channel] != Balance{.left = f.left, .right = f.right};
@@ -246,16 +241,17 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 {
 	if (samples == 0) return true;
 	size_t outputStereo = isStereo() ? 2 : 1;
+	bool mono = outputMode == Output::MONO;
 	// Per-channel balance is only implemented for mono channels.
-	assert(balanceCenter || (stereo == 1));
+	assert(mono || (stereo == 1));
 
 	inplace_buffer<float*, MAX_CHANNELS> bufs(uninitialized_tag{}, numChannels);
 
 	// By default channels share a buffer (generateChannels() then calculates
 	// the sum of those channels):
-	// - With center balance all channels are generated in 'dataOut'.
-	// - Otherwise all channels with the same balance (the same group) are
-	//   generated in the same buffer in 'groupBuffers'.
+	// - For a mono device all channels are generated in 'dataOut'.
+	// - For a stereo device all channels with the same balance (the same
+	//   group) are generated in the same buffer in 'groupBuffers'.
 	// But these channels need their own buffer:
 	auto needSeparateBuffer = [&](unsigned channel) {
 		return channelBuffers[channel].requestCounter != 0
@@ -271,7 +267,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	// a multiple of 4kB all buffers map to the same cache sets (measured:
 	// with 16 groups of 1024 samples that made this method 1.6x slower).
 	size_t groupStride = padded + 16;
-	if (!balanceCenter) {
+	if (!mono) {
 		if (auto needed = numGroups * groupStride;
 		    groupBuffers.size() < needed) [[unlikely]] {
 			groupBuffers.resize(needed);
@@ -284,7 +280,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		auto& cb = channelBuffers[i];
 		if (!needSeparateBuffer(i)) {
 			// no need to keep this channel separate
-			if (balanceCenter) {
+			if (mono) {
 				bufs[i] = dataOut;
 			} else {
 				auto group = channelGroup[i];
@@ -324,7 +320,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	// buffers. Those with only one channel will directly replace the
 	// content of the buffer. For the former we must start from a buffer
 	// containing all zeros.
-	if (balanceCenter) {
+	if (mono) {
 		if ((numChannels != 1) || separateChannels) {
 			std::ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
 		}
@@ -347,7 +343,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		}
 	}
 
-	if (balanceCenter && !separateChannels) {
+	if (mono && !separateChannels) {
 		return std::ranges::any_of(xrange(numChannels),
 		                      [&](auto i) { return bufs[i]; });
 	}
@@ -382,7 +378,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		}
 	}
 
-	if (!balanceCenter) {
+	if (!mono) {
 		// Collect the buffers that contribute to the output: the
 		// non-silent group buffers and the non-silent, non-muted
 		// separate channels. Each with their balance.

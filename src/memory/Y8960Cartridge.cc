@@ -108,6 +108,9 @@ static constexpr std::array<float, 5> BLOCK_LEVEL = {
 	1.0f,                // OPM
 };
 
+// The clock of the two SSGs (the default of AY8910).
+static constexpr float SSG_CLOCK = 3579545.0f / 2.0f;
+
 struct PanGain { float left, right; };
 
 // The pan registers: 1 is hard left, 128 the centre, 255 hard right, and 0
@@ -135,20 +138,22 @@ struct PanGain { float left, right; };
 Y8960Cartridge::Y8960Cartridge(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, MSXSwitchedDevice(getMotherBoard(), SYSTEM_CONTROLLER_ID)
-	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Real)
-	, opll(getName() + " OPLL", config, YM2413::Type::Y8960)
-	, opl2(getName() + " OPL2", config, 256 * 1024, getCurrentTime(), noPeriphery, Y8950::Type::Y8960)
-	, ssg{AY8910(getName() + " SSG 0", DummyAY8910Periphery::instance(), config, getCurrentTime(), AY8910::Type::YM2149),
-	      AY8910(getName() + " SSG 1", DummyAY8910Periphery::instance(), config, getCurrentTime(), AY8910::Type::YM2149)}
+	// These devices have stereo output: the digital mixer of the Y8960 has
+	// a pan (and for the SSGs also a volume) register per channel, see
+	// applyPan().
+	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Real, SoundDevice::Output::STEREO)
+	, opll(getName() + " OPLL", config, YM2413::Type::Y8960, SoundDevice::Output::STEREO)
+	, opl2(getName() + " OPL2", config, 256 * 1024, getCurrentTime(), noPeriphery, Y8950::Type::Y8960,
+	       SoundDevice::Output::STEREO)
+	, ssg{AY8910(getName() + " SSG 0", DummyAY8910Periphery::instance(), config, getCurrentTime(), AY8910::Type::YM2149,
+	             SSG_CLOCK, SoundDevice::Output::STEREO),
+	      AY8910(getName() + " SSG 1", DummyAY8910Periphery::instance(), config, getCurrentTime(), AY8910::Type::YM2149,
+	             SSG_CLOCK, SoundDevice::Output::STEREO)}
 	, opm(getName() + " OPM", "Y8960 OPM", config, getCurrentTime(), YM2151::Variant::YM2151)
 	, timer(getMotherBoard(), getName() + " MSX-TIMER")
 	, mixerDebuggable(getMotherBoard(), getName())
 	, ram(config, getName() + " RAM", "Y8960 RAM", RAM_BANKS * 0x2000)
 {
-	scc.enableSetChannelFactors();
-	opll.enableSetChannelFactors();
-	opl2.enableSetChannelFactors();
-	for (auto& s : ssg) s.enableSetChannelFactors();
 	powerUp(getCurrentTime());
 }
 

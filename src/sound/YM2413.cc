@@ -77,8 +77,8 @@ static constexpr static_string_view typeDescription(YM2413::Type type)
 	                                     : static_string_view("MSX-MUSIC");
 }
 
-YM2413::YM2413(const std::string& name_, const DeviceConfig& config, Type type)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, typeDescription(type), 9 + 5, INPUT_RATE, false)
+YM2413::YM2413(const std::string& name_, const DeviceConfig& config, Type type, Output output)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, typeDescription(type), 9 + 5, INPUT_RATE, output)
 	, core(createCore(config, type))
 	, debuggable(config.getMotherBoard(), getName(), typeDescription(type))
 {

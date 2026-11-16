@@ -106,7 +106,7 @@ static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .o
 LaserdiscPlayer::LaserdiscPlayer(
 		HardwareConfig& hwConf, PioneerLDControl& ldControl_)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getLaserDiscPlayerName(),
-	                       "Laserdisc Player", 2, DUMMY_INPUT_RATE, false)
+	                       "Laserdisc Player", 2, DUMMY_INPUT_RATE, Output::STEREO)
 	, syncAck (hwConf.getMotherBoard().getScheduler())
 	, syncOdd (hwConf.getMotherBoard().getScheduler())
 	, syncEven(hwConf.getMotherBoard().getScheduler())
@@ -138,7 +138,6 @@ LaserdiscPlayer::LaserdiscPlayer(
 		return result;
 	}();
 	registerSound(DeviceConfig(hwConf, *xml));
-	enableSetChannelFactors(); // see updateChannelFactors()
 	updateChannelFactors(getCurrentTime());
 
 	motherBoard.registerMediaProvider(getLaserDiscPlayerName(), *this);

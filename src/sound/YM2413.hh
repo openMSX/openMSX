@@ -25,7 +25,7 @@ public:
 	enum class Type : uint8_t { YM2413, Y8960 };
 
 	YM2413(const std::string& name, const DeviceConfig& config,
-	       Type type = Type::YM2413);
+	       Type type = Type::YM2413, Output output = Output::MONO);
 	~YM2413();
 
 	void reset(EmuTime time);

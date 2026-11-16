@@ -17,7 +17,7 @@ public:
 	enum class Mode : uint8_t {Real, Compatible, Plus};
 
 	SCC(const std::string& name, const DeviceConfig& config,
-	    EmuTime time, Mode mode = Mode::Real);
+	    EmuTime time, Mode mode = Mode::Real, Output output = Output::MONO);
 	~SCC();
 
 	// interaction with realCartridge

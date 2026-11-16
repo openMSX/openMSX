@@ -80,7 +80,7 @@ CassettePlayer::CassettePlayer(HardwareConfig& hwConf)
 	: ResampledSoundDevice(
 		hwConf.getMotherBoard(), getCassettePlayerName(),
 		static_string_view{static_string_view::lifetime_ok_tag{}, DESCRIPTION},
-		1, DUMMY_INPUT_RATE, false)
+		1, DUMMY_INPUT_RATE, Output::MONO)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
 	, motherBoard(hwConf.getMotherBoard())

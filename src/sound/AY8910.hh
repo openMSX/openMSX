@@ -29,7 +29,7 @@ public:
 public:
 	AY8910(const std::string& name, AY8910Periphery& periphery,
 	       const DeviceConfig& config, EmuTime time, Type type,
-	       float frequency = 3579545.0f / 2.0f);
+	       float frequency = 3579545.0f / 2.0f, Output output = Output::MONO);
 	~AY8910();
 
 	[[nodiscard]] uint8_t readRegister(unsigned reg, EmuTime time);

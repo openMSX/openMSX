@@ -24,6 +24,18 @@ class SoundDevice
 public:
 	static constexpr unsigned MAX_CHANNELS = 24;
 
+	/** The channels of a sound device are always mono. But the combined
+	  * output of the device can be either mono or stereo.
+	  *  MONO:   The output is the sum of all channels.
+	  *  STEREO: Each channel has a left and right factor. So a channel
+	  *          can have a different volume in the left and right output
+	  *          (e.g. panning). See setBalance() and setChannelFactors().
+	  * A device has to announce this upfront (in the constructor), because
+	  * the rest of the sound flow is different for mono and stereo
+	  * devices. A stereo device is more expensive.
+	  */
+	enum class Output : uint8_t { MONO, STEREO };
+
 	SoundDevice(const SoundDevice&) = delete;
 	SoundDevice(SoundDevice&&) = delete;
 	SoundDevice& operator=(const SoundDevice&) = delete;
@@ -52,7 +64,7 @@ public:
 	/** Is the full output of this device stereo?
 	  */
 	[[nodiscard]] bool isStereo() const {
-		return hasStereoChannels() || !balanceCenter;
+		return hasStereoChannels() || (outputMode == Output::STEREO);
 	}
 
 	/** Gets this device its 'amplification factor'.
@@ -98,27 +110,20 @@ public:
 	 *                 The sum of the energy of the left and right channel is kept constant.
 	 * NOTE: after calling setBalance() a number of times you must also call postSetBalance() once.
 	 * NOTE: this is meant to be called during the construction phase (before audio generation starts).
+	 * NOTE: a balance different from 0 turns a MONO device into a STEREO device.
 	 */
 	void setBalance(unsigned channel, float balance);
 	virtual void postSetBalance();
-
-	/** Enable the use of setChannelFactors().
-	 * This method may only be called during the construction phase (after
-	 * the call to registerSound(), before audio generation starts).
-	 * It must be called (as preparation) before it's allowed to call setChannelFactors().
-	 */
-	void enableSetChannelFactors();
 
 	/** Set the left/right multiplication factors per channel.
 	 *
 	 * In a way this is similar to setBalance(), it (over)writes the same
 	 * factors.  But this gives more control, it can also be used the change
 	 * the volume per channel.
-
+	 *
 	 * And most important: it's allowed to call this at-run-time (during
-	 * sound generation), but only after enableSetChannelFactors() has been
-	 * called (during construction). And then this disables some internal
-	 * optimizations to make this possible.
+	 * sound generation). It's also allowed before registerSound().
+	 * But only for devices that were constructed with Output::STEREO.
 	 */
 	void setChannelFactors(unsigned channel, float left, float right, EmuTime time);
 
@@ -203,10 +208,10 @@ protected:
 	  * @param description Description for this sound device
 	  * @param numChannels The number of channels for this device
 	  * @param inputRate The sample rate of this sound device
-	  * @param stereo Is this a stereo device
+	  * @param output Is the output of this device mono or stereo
 	  */
 	SoundDevice(MSXMixer& mixer, std::string_view name, static_string_view description,
-	            unsigned numChannels, unsigned inputRate, bool stereo);
+	            unsigned numChannels, unsigned inputRate, Output output);
 	~SoundDevice();
 
 	/** Get amplification/attenuation factor for this device.
@@ -333,7 +338,7 @@ private:
 	unsigned numRecordChannels = 0;
 	std::array<Balance,  MAX_CHANNELS> channelBalance;
 
-	// Only used when '!balanceCenter': channels with the same balance are
+	// Only used for Output::STEREO: channels with the same balance are
 	// put in the same group, all channels in a group can share one buffer.
 	std::array<uint8_t, MAX_CHANNELS> channelGroup = {}; // channel -> group
 	std::array<Balance, MAX_CHANNELS> groupBalance;      // only [0, numGroups) are valid
@@ -341,7 +346,7 @@ private:
 	std::vector<float> groupBuffers; // 'numGroups' consecutive buffers, dynamically grows when needed
 
 	std::array<bool, MAX_CHANNELS> channelMuted;
-	bool balanceCenter = true;
+	Output outputMode;
 
 	// When channel data needs to be collected separately (e.g. because
 	// we're recording the channel, or because we want to present it in the

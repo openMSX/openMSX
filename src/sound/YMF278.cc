@@ -812,7 +812,7 @@ static constexpr unsigned INPUT_RATE = 44100;
 YMF278::YMF278(const std::string& name_, size_t ramSize, DeviceConfig& config,
                SetupMemPtrFunc setupMemPtrs_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "OPL4 wave-part",
-	                       24, INPUT_RATE, false)
+	                       24, INPUT_RATE, Output::STEREO)
 	, motherBoard(config.getMotherBoard())
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
@@ -830,10 +830,7 @@ YMF278::YMF278(const std::string& name_, size_t ramSize, DeviceConfig& config,
 	std::ranges::fill(regs, 0);
 
 	registerSound(config);
-	enableSetChannelFactors(); // the panning of the slots
-	// must come after the above because of the calls to setChannelFactors()
-	// and (via setMixLevel()) setSoftwareVolume()
-	reset(motherBoard.getCurrentTime());
+	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
 }
 
 YMF278::~YMF278()

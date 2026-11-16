@@ -65,7 +65,7 @@ public:
 
 	Y8950(const std::string& name, const DeviceConfig& config,
 	      unsigned sampleRam, EmuTime time, Y8950Periphery& periphery,
-	      Type type);
+	      Type type, Output output = Output::MONO);
 	~Y8950();
 
 	[[nodiscard]] Type getType() const { return type; }

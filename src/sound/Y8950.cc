@@ -492,8 +492,8 @@ static constexpr static_string_view typeDescription(Y8950::Type type)
 
 Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
              unsigned sampleRam, EmuTime time, Y8950Periphery& periphery_,
-             Type type_)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, typeDescription(type_), 9 + 5 + 1, INPUT_RATE, false)
+             Type type_, Output output)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, typeDescription(type_), 9 + 5 + 1, INPUT_RATE, output)
 	, motherBoard(config.getMotherBoard())
 	, periphery(periphery_)
 	, type(type_)

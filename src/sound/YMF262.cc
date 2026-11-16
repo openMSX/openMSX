@@ -1445,7 +1445,7 @@ static unsigned calcInputRate(bool isYMF278)
 YMF262::YMF262(const std::string& name_,
                const DeviceConfig& config, bool isYMF278_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound FM-part",
-	                       18, calcInputRate(isYMF278_), false)
+	                       18, calcInputRate(isYMF278_), Output::STEREO)
 	, debuggable(config.getMotherBoard(), getName())
 	, timer1(isYMF278_
 	         ? EmuTimer::createOPL4_1(config.getScheduler(), *this)
@@ -1469,10 +1469,7 @@ YMF262::YMF262(const std::string& name_,
 	}
 
 	registerSound(config);
-	enableSetChannelFactors(); // the left/right enable bits of the channels
-	// must come after the above because of the calls to setChannelFactors()
-	// and (via setMixLevel()) setSoftwareVolume()
-	reset(config.getMotherBoard().getCurrentTime());
+	reset(config.getMotherBoard().getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
 }
 
 YMF262::~YMF262()

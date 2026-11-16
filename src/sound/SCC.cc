@@ -123,9 +123,9 @@ static constexpr auto calcDescription(SCC::Mode mode)
 }
 
 SCC::SCC(const std::string& name_, const DeviceConfig& config,
-         EmuTime time, Mode mode)
+         EmuTime time, Mode mode, Output output)
 	: ResampledSoundDevice(
-		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, false)
+		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, output)
 	, debuggable(config.getMotherBoard(), getName())
 	, deformTimer(time)
 	, currentMode(mode)

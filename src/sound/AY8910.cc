@@ -466,8 +466,8 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 
 AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
                const DeviceConfig& config, EmuTime time, Type type,
-               float clockFreq)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, narrow_cast<unsigned>(std::lrint(clockFreq / 8)), false)
+               float clockFreq, Output output)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, narrow_cast<unsigned>(std::lrint(clockFreq / 8)), output)
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
 	, vibratoPercent(

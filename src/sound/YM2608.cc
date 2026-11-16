@@ -2462,10 +2462,9 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 YM2608::FmPart::FmPart(DeviceConfig& config, std::string_view name_)
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name_,
-		"Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, false)
+		"Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, Output::STEREO)
 {
 	registerSound(config);
-	enableSetChannelFactors(); // the left/right output enable bits of the channels
 }
 
 YM2608::FmPart::~FmPart()

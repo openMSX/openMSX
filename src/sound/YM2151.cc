@@ -876,7 +876,7 @@ static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
 YM2151::YM2151(const std::string& name_, static_string_view desc,
                const DeviceConfig& config, EmuTime time, Variant variant_)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, false)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, Output::STEREO)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
 	, timer2(variant_ == Variant::YM2164 ? EmuTimer::createOPP_2(config.getScheduler(), *this)
@@ -912,9 +912,9 @@ YM2151::YM2151(const std::string& name_, static_string_view desc,
 		std::cout << '\n';
 	}
 
+	reset(time);
+
 	registerSound(config);
-	enableSetChannelFactors(); // the left/right enable bits of the channels
-	reset(time); // must come after the above because of call to setChannelFactors()
 }
 
 YM2151::~YM2151()

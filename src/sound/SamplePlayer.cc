@@ -54,7 +54,7 @@ SamplePlayer::SamplePlayer(const std::string& name_, static_string_view desc,
                            const DeviceConfig& config,
                            std::string_view samplesBaseName, unsigned numSamples,
                            std::string_view alternativeName)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, false)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, Output::MONO)
 	, samples(loadSamples(name_, config, samplesBaseName, alternativeName, numSamples))
 {
 	registerSound(config);
