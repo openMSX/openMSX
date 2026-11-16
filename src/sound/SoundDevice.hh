@@ -34,6 +34,8 @@ public:
 	  * A device has to announce this upfront (in the constructor), because
 	  * the rest of the sound flow is different for mono and stereo
 	  * devices. A stereo device is more expensive.
+	  * One exception: a per-channel balance in the config file turns a MONO
+	  * device into a STEREO device, see registerSound().
 	  */
 	enum class Output : uint8_t { MONO, STEREO };
 
@@ -114,12 +116,10 @@ public:
 	 * @param channel [0, numChannels)
 	 * @param balance [-1, +1], -1: fully left, 0: center, +1: fully right
 	 *                 The sum of the energy of the left and right channel is kept constant.
-	 * NOTE: after calling setBalance() a number of times you must also call postSetBalance() once.
 	 * NOTE: this is meant to be called during the construction phase (before audio generation starts).
-	 * NOTE: a balance different from 0 turns a MONO device into a STEREO device.
+	 * NOTE: only allowed for devices with Output::STEREO.
 	 */
 	void setBalance(unsigned channel, float balance);
-	virtual void postSetBalance();
 
 	/** Set the left/right multiplication factors per channel.
 	 *

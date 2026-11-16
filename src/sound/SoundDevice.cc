@@ -100,7 +100,13 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 			continue;
 		}
 
-		auto channels = StringOp::parseRange(channel->getValue(), 1, numChannels);
+		// A per-channel balance turns a mono device into a stereo
+		// device. That's still possible here: the device isn't yet
+		// registered with the mixer (so e.g. no resampler yet).
+		auto channels = StringOp::parseRange(channel->getValue(), 1, numChannels); // may throw
+		if (*balance != 0) outputMode = Output::STEREO;
+		if (outputMode == Output::MONO) continue; // balance=0 is the default
+
 		channels.foreachSetBit([&](size_t c) {
 			setBalance(unsigned(c - 1), narrow_cast<float>(*balance) * (1.0f / 100.0f));
 		});
@@ -114,8 +120,8 @@ void SoundDevice::setBalance(unsigned channel, float balance)
 	assert(channel < numChannels);
 	assert(-1.0f <= balance);
 	assert(balance <= 1.0f);
+	assert(outputMode == Output::STEREO);
 
-	if (balance != 0.0f) outputMode = Output::STEREO;
 	auto left  = std::sqrt(1.0f - balance);
 	auto right = std::sqrt(1.0f + balance);
 	channelBalance[channel] = Balance{.left = left, .right = right};
@@ -156,11 +162,6 @@ void SoundDevice::setChannelFactors(std::span<const ChannelFactors> factors, Emu
 		channelBalance[f.channel] = Balance{.left = f.left, .right = f.right};
 	}
 	updateChannelGroups();
-}
-
-void SoundDevice::postSetBalance()
-{
-	mixer.updateSoftwareVolume(*this);
 }
 
 void SoundDevice::unregisterSound()

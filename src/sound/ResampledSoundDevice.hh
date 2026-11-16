@@ -30,12 +30,6 @@ public:
 
 	[[nodiscard]] DynamicClock& getEmuClock() { return emuClock; }
 
-	// setBalance() might switch from mono to stereo output
-	void postSetBalance() override {
-		createResampler();
-		SoundDevice::postSetBalance();
-	}
-
 protected:
 	ResampledSoundDevice(MSXMotherBoard& motherBoard, std::string_view name,
 	                     static_string_view description, unsigned channels,

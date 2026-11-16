@@ -36,7 +36,8 @@ Yamanooto::Yamanooto(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(*this)
 	, flash(rom, AmdFlashChip::S29GL064N90TFI04, {}, config)
-	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Compatible)
+	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Compatible,
+	      SCC::Output::STEREO) // the channels have a different balance, see below
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime(), AY8910::Type::AY8910)
 {
@@ -50,7 +51,6 @@ Yamanooto::Yamanooto(DeviceConfig& config, Rom&& rom_)
 	scc.setBalance(2,  0.67f);
 	scc.setBalance(3, -0.67f);
 	scc.setBalance(4,  0.67f);
-	scc.postSetBalance();
 
 	getCPUInterface().register_IO_Out_range(0x10, 2, this);
 	powerUp(getCurrentTime());
