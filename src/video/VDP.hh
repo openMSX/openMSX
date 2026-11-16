@@ -1141,6 +1141,12 @@ private:
 	  */
 	[[nodiscard]] uint8_t readStatusReg(uint8_t reg, EmuTime time);
 
+	/** Where in a line (in ticks) the processing of a line starts: the
+	  * display mode, display enable and sprite disable are latched there.
+	  * Follows the horizontal adjust.
+	  */
+	[[nodiscard]] int getLineStartTicks() const;
+
 	/** Schedule a sync point at the start of the next line.
 	  */
 	void syncAtNextLine(SyncBase& type, EmuTime time) const;

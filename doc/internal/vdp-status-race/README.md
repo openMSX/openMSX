@@ -607,3 +607,49 @@ Measured: a mid-line R#23 write (bitmap modes) takes effect from an
 8-pixel group of the picture on: the seam jumps by 8 pixels, on the
 picture's own 8-pixel grid, 1 Z80 cycle per group moving it to the next
 group after about every 5 groups.
+
+## The display mode and enable are latched once per line
+
+**Files.** `hintz80.asm`: runs grauw's `HINTTOBL` from issue #1310 in Z80
+mode (on a turboR).
+
+**How.** `HINTTOBL` is the test program from issue #1310 by grauw (download
+link in `hintz80.asm`), an MSX-DOS program, SCREEN 1. In 4-line rows, each
+row waits with `HALT` for a line interrupt, then waits a fixed time that is
+one Z80 cycle longer in every next row, and writes R#1 with the display
+disabled, followed by a write that enables it again 38 Z80 cycles later. As
+long as the disable comes before the moment the VDP latches the display
+enable for the next line, that line is blank. The rows are labelled with
+their wait (the number of Z80 cycles from the interrupt to the 11th cycle of
+the `OUT`); the reading is the last row that still has a blank line, even if
+it only flickers (`HALT` adds 0 to 4 cycles). `hintz80.asm` wraps it into
+`HINTZ80.COM`, which first switches a turboR to Z80 mode (on a disk with an
+MSX-DOS 1 boot sector the FS-A1GT already starts in Z80 mode).
+
+**Results:**
+
+| Machine | Z80 cycles |
+|---------|------------|
+| Yamaha CX5MII (V9938), grauw in #1310 | 242 |
+| Sony HB-F700D (V9938) | 242 (photo: the line through the lower half of the `241/242` label) |
+| Panasonic FS-A1GT (V9958) | 241 (photo: through the upper half) |
+
+### Software with writes near this moment
+
+On the real machines:
+
+- **Woei** (issue #470): its split (R#1, display off, after polling FH)
+  is stable on both machines.
+- **Dawn of Time**, the copper part (issue #1313): the top line of the
+  copper area is missing now and then: on the HB-F700D 1 or 2 times per
+  second (by eye). On the FS-A1GT its bottom line flickers, and the bars in
+  this part are uneven.
+
+### Conclusion
+
+Measured (`HINTTOBL`, issue #1310): the VDP latches the display mode, the
+display enable and the sprite disable once per line; `HINTTOBL` gives 242
+Z80 cycles from the line interrupt on the V9938 and 241 on the V9958.
+Fitted (`HINTTOBL` run in an emulation with the timing and the interrupt
+line delays above): the latch is 91 to 96 VDP cycles (V9938) and 79 to 84
+(V9958) before HR falls at the start of the line it is for.
