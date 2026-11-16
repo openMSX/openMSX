@@ -514,10 +514,8 @@ void MSXMixer::generate(std::span<StereoFloat> output, EmuTime time)
 			// device generates stereo output
 			auto l2 = info.left2;
 			auto r2 = info.right2;
-			if (l1 == r2) {
+			if ((l1 == r2) && (l2 == 0.0f) && (r1 == 0.0f)) {
 				// no re-panning
-				assert(l2 == 0.0f);
-				assert(r1 == 0.0f);
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
 					// generate in 'stereoBuf' (because it was still empty)
 					// then multiply in-place
