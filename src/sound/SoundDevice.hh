@@ -5,6 +5,7 @@
 #include "WavWriter.hh"
 #include "static_string_view.hh"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <optional>
@@ -55,16 +56,11 @@ public:
 	 */
 	[[nodiscard]] unsigned getNumChannels() const { return numChannels; }
 
-	/** Are the individual channels of this device stereo?
-	 */
-	[[nodiscard]] bool hasStereoChannels() const {
-		return stereo == 2;
-	}
-
-	/** Is the full output of this device stereo?
+	/** Is the output of this device stereo? (The individual channels are
+	  * always mono.)
 	  */
 	[[nodiscard]] bool isStereo() const {
-		return hasStereoChannels() || (outputMode == Output::STEREO);
+		return outputMode == Output::STEREO;
 	}
 
 	/** Gets this device its 'amplification factor'.
@@ -86,6 +82,16 @@ public:
 	[[nodiscard]] AmplificationFactors getAmplificationFactor() const {
 		auto f = getAmplificationFactorImpl();
 		return {.left = f * softwareVolumeLeft, .right = f * softwareVolumeRight};
+	}
+
+	/** The amplification factor for a single (mono) channel, e.g. to
+	  * record it or to show it in the GUI: the largest of the left and
+	  * the right factor. (So that a channel isn't shown as silent when the
+	  * MSX software only set the left 'software volume' to zero.)
+	  */
+	[[nodiscard]] float getChannelAmplificationFactor() const {
+		auto [left, right] = getAmplificationFactor();
+		return std::max(left, right);
 	}
 
 	/** Change the 'software volume' of this sound device.
@@ -192,13 +198,10 @@ public:
 	  * This number depends on the native-sample-rate of the device. For all
 	  * devices it will be (approximately) represent the same time duration.
 	  */
-	[[nodiscard]] unsigned getLastMonoBufferSize() const {
+	[[nodiscard]] unsigned getLastBufferSize() const {
 		// Tuned so that both the ImGui waveform and spectrum viewer
 		// look 'nice' (and aren't too expensive to calculate).
 		return inputSampleRate / 7; // ~0.14 seconds
-	}
-	[[nodiscard]] unsigned getLastBufferSize() const {
-		return getLastMonoBufferSize() * stereo;
 	}
 
 protected:
@@ -334,7 +337,6 @@ private:
 	float softwareVolumeRight = 1.0f;
 	unsigned inputSampleRate;
 	const unsigned numChannels;
-	const unsigned stereo;
 	unsigned numRecordChannels = 0;
 	std::array<Balance,  MAX_CHANNELS> channelBalance;
 

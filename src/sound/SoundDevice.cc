@@ -11,11 +11,9 @@
 #include "StringOp.hh"
 #include "inplace_buffer.hh"
 #include "narrow.hh"
-#include "one_of.hh"
 #include "xrange.hh"
 
 #include <algorithm>
-#include <bit>
 #include <cassert>
 #include <cmath>
 
@@ -52,11 +50,9 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string
 	, name(makeUnique(mixer, name_))
 	, description(description_)
 	, numChannels(numChannels_)
-	, stereo(1) // all channels are mono
 	, outputMode(output_)
 {
 	assert(numChannels <= MAX_CHANNELS);
-	assert(stereo == one_of(1u, 2u));
 
 	setInputRate(inputRate);
 
@@ -196,7 +192,7 @@ void SoundDevice::recordChannel(unsigned channel, const std::string& filename)
 	bool wasRecording = writer[channel].has_value();
 	if (!filename.empty()) {
 		writer[channel].emplace(
-			filename, stereo, inputSampleRate);
+			filename, 1, inputSampleRate);
 	} else {
 		writer[channel].reset();
 	}
@@ -240,10 +236,7 @@ std::span<const float> SoundDevice::getLastBuffer(unsigned channel)
 bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 {
 	if (samples == 0) return true;
-	size_t outputStereo = isStereo() ? 2 : 1;
-	bool mono = outputMode == Output::MONO;
-	// Per-channel balance is only implemented for mono channels.
-	assert(mono || (stereo == 1));
+	bool mono = !isStereo();
 
 	inplace_buffer<float*, MAX_CHANNELS> bufs(uninitialized_tag{}, numChannels);
 
@@ -261,7 +254,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	static_assert(MAX_CHANNELS <= 32);
 	uint32_t separateChannels = 0; // bit-mask of channels
 	uint32_t usedGroups = 0;       // bit-mask of groups
-	auto size = narrow<unsigned>(samples * stereo);
+	auto size = narrow<unsigned>(samples);
 	auto padded = (size + 3) & ~3; // round up to multiple of 4
 	// Distance between the group buffers. Not simply 'padded': when that's
 	// a multiple of 4kB all buffers map to the same cache sets (measured:
@@ -322,7 +315,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	// containing all zeros.
 	if (mono) {
 		if ((numChannels != 1) || separateChannels) {
-			std::ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
+			std::ranges::fill(std::span{dataOut, samples}, 0.0f);
 		}
 	} else {
 		for (auto group : xrange(numGroups)) {
@@ -354,18 +347,10 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 			if (writer[i]) {
 				assert(bufs[i] != dataOut);
 				if (bufs[i]) {
-					auto amp = getAmplificationFactor();
-					if (stereo == 1) {
-						writer[i]->write(
-							std::span{bufs[i], samples},
-							amp.left);
-					} else {
-						writer[i]->write(
-							std::span{std::bit_cast<const StereoFloat*>(bufs[i]), samples},
-							amp.left, amp.right);
-					}
+					writer[i]->write(std::span{bufs[i], samples},
+					                 getChannelAmplificationFactor());
 				} else {
-					writer[i]->writeSilence(narrow<unsigned>(stereo * samples));
+					writer[i]->writeSilence(narrow<unsigned>(samples));
 				}
 			}
 			// update silent info in channelBuffers
@@ -455,7 +440,6 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	// the stuff below. Currently this code is only rarely used anymore
 	// (only when recording or muting individual sound chip channels), so
 	// it's not worth the extra complexity anymore.
-	size_t num = samples * stereo;
 	size_t i = 0;
 	do {
 		auto out0 = dataOut[i + 0];
@@ -475,7 +459,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		dataOut[i + 2] = out2;
 		dataOut[i + 3] = out3;
 		i += 4;
-	} while (i < num);
+	} while (i < samples);
 
 	return true;
 }

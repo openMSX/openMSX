@@ -292,7 +292,7 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 		if (sampleRate == 0.0f) {
 			// silent -> reduced sampleRate hasn't been calculated yet
 			sampleRate = device.getNativeSampleRate();
-			auto samples = device.getLastMonoBufferSize();
+			auto samples = device.getLastBufferSize();
 			switch (fftLen) {
 				case 256:  samples /= 8; break;
 				case 512:  samples /= 4; break;
@@ -416,33 +416,12 @@ static void paintPitch(std::span<const float> buf, const SoundDevice& device)
 	});
 }
 
-static void stereoToMono(std::span<const float> stereo, float factorL, float factorR,
-                         std::vector<float>& mono)
-{
-	assert((stereo.size() & 1) == 0);
-	auto size = stereo.size() / 2;
-	mono.resize(size);
-	for (auto i : xrange(size)) {
-		mono[i] = factorL * stereo[2 * i + 0]
-		        + factorR * stereo[2 * i + 1];
-	}
-}
-
 static void paintDevice(SoundDevice& device, std::span<const MSXMixer::SoundDeviceInfo::ChannelSettings> settings)
 {
-	static std::vector<float> tmpBuf; // recycle buffer for all channels, for all frames
-
-	bool stereo = device.hasStereoChannels();
-	auto [factorL, factorR] = device.getAmplificationFactor();
-	auto factor = stereo ? 1.0f : factorL;
+	auto factor = device.getChannelAmplificationFactor();
 
 	im::ID_for_range(device.getNumChannels(), [&](int channel) {
-		auto monoBuf = [&]{
-			auto buf = device.getLastBuffer(channel);
-			if (!stereo) return buf;
-			stereoToMono(buf, factorL, factorR, tmpBuf);
-			return std::span<const float>{tmpBuf};
-		}();
+		auto monoBuf = device.getLastBuffer(channel);
 
 		if (ImGui::TableNextColumn()) { // name
 			ImGui::StrCat(channel + 1);
