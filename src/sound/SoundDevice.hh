@@ -6,9 +6,12 @@
 #include "static_string_view.hh"
 
 #include <array>
+#include <cstdint>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace openmsx {
 
@@ -272,7 +275,9 @@ protected:
 private:
 	struct Balance { // amplitude multiplication factors
 		float left, right;
+		[[nodiscard]] bool operator==(const Balance&) const = default;
 	};
+	void updateChannelGroups();
 
 	MSXMixer& mixer;
 	const std::string name;
@@ -287,6 +292,14 @@ private:
 	const unsigned stereo;
 	unsigned numRecordChannels = 0;
 	std::array<Balance,  MAX_CHANNELS> channelBalance;
+
+	// Only used when '!balanceCenter': channels with the same balance are
+	// put in the same group, all channels in a group can share one buffer.
+	std::array<uint8_t, MAX_CHANNELS> channelGroup = {}; // channel -> group
+	std::array<Balance, MAX_CHANNELS> groupBalance;      // only [0, numGroups) are valid
+	unsigned numGroups = 1;
+	std::vector<float> groupBuffers; // 'numGroups' consecutive buffers, dynamically grows when needed
+
 	std::array<bool, MAX_CHANNELS> channelMuted;
 	bool balanceCenter = true;
 

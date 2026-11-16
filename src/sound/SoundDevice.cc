@@ -62,6 +62,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string
 	// initially no channels are muted
 	std::ranges::fill(channelMuted, false);
 	std::ranges::fill(channelBalance, Balance{.left = 1.0f, .right = 1.0f});
+	updateChannelGroups();
 }
 
 SoundDevice::~SoundDevice() = default;
@@ -121,6 +122,21 @@ void SoundDevice::setBalance(unsigned channel, float balance)
 	auto left  = std::sqrt(1.0f - balance);
 	auto right = std::sqrt(1.0f + balance);
 	channelBalance[channel] = Balance{.left = left, .right = right};
+	updateChannelGroups();
+}
+
+void SoundDevice::updateChannelGroups()
+{
+	// Channels with the same balance are put in the same group.
+	numGroups = 0;
+	for (auto channel : xrange(numChannels)) {
+		auto groups = std::span{groupBalance}.first(numGroups);
+		auto it = std::ranges::find(groups, channelBalance[channel]);
+		if (it == groups.end()) {
+			groupBalance[numGroups++] = channelBalance[channel];
+		}
+		channelGroup[channel] = narrow<uint8_t>(std::distance(groups.begin(), it));
+	}
 }
 
 void SoundDevice::enableSetChannelFactors()
@@ -133,8 +149,11 @@ void SoundDevice::setChannelFactors(unsigned channel, float left, float right, E
 {
 	assert(channel < numChannels);
 	assert(!balanceCenter);
+	Balance balance{.left = left, .right = right};
+	if (channelBalance[channel] == balance) return;
 	mixer.updateStream(time);
-	channelBalance[channel] = Balance{.left = left, .right = right};
+	channelBalance[channel] = balance;
+	updateChannelGroups();
 }
 
 void SoundDevice::postSetBalance()
@@ -216,29 +235,54 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 {
 	if (samples == 0) return true;
 	size_t outputStereo = isStereo() ? 2 : 1;
+	// Per-channel balance is only implemented for mono channels.
+	assert(balanceCenter || (stereo == 1));
 
 	inplace_buffer<float*, MAX_CHANNELS> bufs(uninitialized_tag{}, numChannels);
 
-	// TODO optimization: All channels with the same balance (according to
-	// channelBalance[]) could use the same buffer when balanceCenter is
-	// false
+	// By default channels share a buffer (generateChannels() then calculates
+	// the sum of those channels):
+	// - With center balance all channels are generated in 'dataOut'.
+	// - Otherwise all channels with the same balance (the same group) are
+	//   generated in the same buffer in 'groupBuffers'.
+	// But these channels need their own buffer:
 	auto needSeparateBuffer = [&](unsigned channel) {
 		return channelBuffers[channel].requestCounter != 0
 		    || channelMuted[channel]
-		    || writer[channel]
-		    || !balanceCenter;
+		    || writer[channel];
 	};
-	bool anySeparateChannel = false;
+	static_assert(MAX_CHANNELS <= 32);
+	uint32_t separateChannels = 0; // bit-mask of channels
+	uint32_t usedGroups = 0;       // bit-mask of groups
 	auto size = narrow<unsigned>(samples * stereo);
 	auto padded = (size + 3) & ~3; // round up to multiple of 4
+	// Distance between the group buffers. Not simply 'padded': when that's
+	// a multiple of 4kB all buffers map to the same cache sets (measured:
+	// with 16 groups of 1024 samples that made this method 1.6x slower).
+	size_t groupStride = padded + 16;
+	if (!balanceCenter) {
+		if (auto needed = numGroups * groupStride;
+		    groupBuffers.size() < needed) [[unlikely]] {
+			groupBuffers.resize(needed);
+		}
+	}
+	auto groupBuffer = [&](unsigned group) {
+		return &groupBuffers[group * groupStride];
+	};
 	for (auto i : xrange(numChannels)) {
 		auto& cb = channelBuffers[i];
 		if (!needSeparateBuffer(i)) {
 			// no need to keep this channel separate
-			bufs[i] = dataOut;
+			if (balanceCenter) {
+				bufs[i] = dataOut;
+			} else {
+				auto group = channelGroup[i];
+				bufs[i] = groupBuffer(group);
+				usedGroups |= 1u << group;
+			}
 			cb.stopIdx = 0; // no valid last data
 		} else {
-			anySeparateChannel = true;
+			separateChannels |= 1u << i;
 			cb.requestCounter = (cb.requestCounter < samples) ? 0 : unsigned(cb.requestCounter - samples);
 
 			if (auto remainingSize = narrow<unsigned>(cb.buffer.size() - cb.stopIdx);
@@ -264,61 +308,123 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		}
 	}
 
-	static_assert(sizeof(float) == sizeof(uint32_t));
-	if ((numChannels != 1) || anySeparateChannel) {
-		// The generateChannels() method of SoundDevices with more than
-		// one channel will _add_ the generated channel data in the
-		// provided buffers. Those with only one channel will directly
-		// replace the content of the buffer. For the former we must
-		// start from a buffer containing all zeros.
-		std::ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
+	// The generateChannels() method of SoundDevices with more than one
+	// channel will _add_ the generated channel data in the provided
+	// buffers. Those with only one channel will directly replace the
+	// content of the buffer. For the former we must start from a buffer
+	// containing all zeros.
+	if (balanceCenter) {
+		if ((numChannels != 1) || separateChannels) {
+			std::ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
+		}
+	} else {
+		for (auto group : xrange(numGroups)) {
+			if (usedGroups & (1u << group)) {
+				std::ranges::fill(std::span{groupBuffer(group), size}, 0.0f);
+			}
+		}
 	}
 
 	generateChannels(bufs, narrow<unsigned>(samples));
 
-	if (!anySeparateChannel) {
+	if (balanceCenter && !separateChannels) {
 		return std::ranges::any_of(xrange(numChannels),
 		                      [&](auto i) { return bufs[i]; });
 	}
 
-	for (auto i : xrange(numChannels)) {
-		// record channels
-		if (writer[i]) {
-			assert(bufs[i] != dataOut);
-			if (bufs[i]) {
-				auto amp = getAmplificationFactor();
-				if (stereo == 1) {
-					writer[i]->write(
-						std::span{bufs[i], samples},
-						amp.left);
+	if (separateChannels) {
+		for (auto i : xrange(numChannels)) {
+			// record channels
+			if (writer[i]) {
+				assert(bufs[i] != dataOut);
+				if (bufs[i]) {
+					auto amp = getAmplificationFactor();
+					if (stereo == 1) {
+						writer[i]->write(
+							std::span{bufs[i], samples},
+							amp.left);
+					} else {
+						writer[i]->write(
+							std::span{std::bit_cast<const StereoFloat*>(bufs[i]), samples},
+							amp.left, amp.right);
+					}
 				} else {
-					writer[i]->write(
-						std::span{std::bit_cast<const StereoFloat*>(bufs[i]), samples},
-						amp.left, amp.right);
+					writer[i]->writeSilence(narrow<unsigned>(stereo * samples));
 				}
+			}
+			// update silent info in channelBuffers
+			auto& cb = channelBuffers[i];
+			if (bufs[i]) {
+				cb.silent = 0;
 			} else {
-				writer[i]->writeSilence(narrow<unsigned>(stereo * samples));
+				cb.silent += narrow<unsigned>(samples);
 			}
 		}
-		// update silent info in channelBuffers
-		auto& cb = channelBuffers[i];
-		if (bufs[i]) {
-			cb.silent = 0;
-		} else {
-			cb.silent += narrow<unsigned>(samples);
+	}
+
+	if (!balanceCenter) {
+		// Collect the buffers that contribute to the output: the
+		// non-silent group buffers and the non-silent, non-muted
+		// separate channels. Each with their balance.
+		inplace_buffer<const float*, MAX_CHANNELS> mixBufs   (uninitialized_tag{}, numChannels);
+		inplace_buffer<Balance,      MAX_CHANNELS> mixBalance(uninitialized_tag{}, numChannels);
+		unsigned numMix = 0;
+		auto add = [&](const float* buf, const Balance& balance) {
+			if ((balance.left == 0.0f) && (balance.right == 0.0f)) return;
+			mixBufs[numMix] = buf;
+			mixBalance[numMix] = balance;
+			++numMix;
+		};
+		uint32_t activeGroups = 0;
+		for (auto i : xrange(numChannels)) {
+			if (!bufs[i]) continue; // muted by the device itself
+			if (separateChannels & (1u << i)) {
+				if (!channelMuted[i]) {
+					add(bufs[i], channelBalance[i]);
+				}
+			} else {
+				activeGroups |= 1u << channelGroup[i];
+			}
 		}
+		for (auto group : xrange(numGroups)) {
+			if (activeGroups & (1u << group)) {
+				add(groupBuffer(group), groupBalance[group]);
+			}
+		}
+		if (numMix == 0) return false;
+
+		// Apply the balance and mix to a stereo output.
+		{
+			const float* in = mixBufs[0];
+			auto l = mixBalance[0].left;
+			auto r = mixBalance[0].right;
+			for (size_t i = 0; i < samples; ++i) {
+				dataOut[2 * i + 0] = in[i] * l;
+				dataOut[2 * i + 1] = in[i] * r;
+			}
+		}
+		for (unsigned j = 1; j < numMix; ++j) {
+			const float* __restrict in = mixBufs[j];
+			float* __restrict out = dataOut;
+			auto l = mixBalance[j].left;
+			auto r = mixBalance[j].right;
+			for (size_t i = 0; i < samples; ++i) {
+				out[2 * i + 0] += in[i] * l;
+				out[2 * i + 1] += in[i] * r;
+			}
+		}
+
+		return true;
 	}
 
 	// remove muted channels (explicitly by user or by device itself)
 	bool anyUnmuted = false;
 	unsigned numMix = 0;
-	inplace_buffer<Balance, MAX_CHANNELS> mixBalance(uninitialized_tag{}, numChannels);
 	for (auto i : xrange(numChannels)) {
 		if (bufs[i] && !channelMuted[i]) {
 			anyUnmuted = true;
 			if (bufs[i] != dataOut) {
 				bufs[numMix] = bufs[i];
-				mixBalance[numMix] = channelBalance[i];
 				++numMix;
 			}
 		}
@@ -327,32 +433,6 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	if (numMix == 0) {
 		// all extra channels muted
 		return anyUnmuted;
-	}
-
-	// actually mix channels
-	if (!balanceCenter) {
-		size_t i = 0;
-		do {
-			float left0  = 0.0f;
-			float right0 = 0.0f;
-			float left1  = 0.0f;
-			float right1 = 0.0f;
-			unsigned j = 0;
-			do {
-				left0  += bufs[j][i + 0] * mixBalance[j].left;
-				left1  += bufs[j][i + 1] * mixBalance[j].left;
-				right0 += bufs[j][i + 0] * mixBalance[j].right;
-				right1 += bufs[j][i + 1] * mixBalance[j].right;
-				j++;
-			} while (j < numMix);
-			dataOut[i * 2 + 0] = left0;
-			dataOut[i * 2 + 1] = right0;
-			dataOut[i * 2 + 2] = left1;
-			dataOut[i * 2 + 3] = right1;
-			i += 2;
-		} while (i < samples);
-
-		return true;
 	}
 
 	// In the past we had ARM and x86-SSE2 optimized assembly routines for
