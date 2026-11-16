@@ -61,6 +61,7 @@
 #include "YM2413Core.hh"
 
 #include "inline.hh"
+#include "serialize_meta.hh"
 #include "stl.hh"
 
 #include <array>
@@ -71,7 +72,11 @@ namespace openmsx::YM2413NukeYKT {
 class YM2413 final : public YM2413Core
 {
 public:
-	YM2413();
+	/** toneBanks: the OPLL-EX of HRA!'s Y8960 cartridge. Registers 0x40-0x48
+	  * pick, per channel, the tone set of instruments 1-15: 0 YM2413,
+	  * 1 YM2423 (OPLL-X), 2 YMF281 (OPLL-P), 3 DS1001 (VRC7).
+	  */
+	explicit YM2413(bool toneBanks = false);
 	void reset() override;
 	void writePort(bool port, uint8_t value, int cycle_offset) override;
 	void pokeReg(uint8_t reg, uint8_t value) override;
@@ -202,9 +207,11 @@ private:
 
 	void doModeWrite(uint8_t address, uint8_t value);
 	void changeFnumBlock(uint32_t ch);
+	[[nodiscard]] const Patch* getPatch(uint8_t channel) const;
 
 private:
 	static const std::array<Patch, 15> m_patches;
+	static const std::array<std::array<Patch, 15>, 3> b_patches; // tone sets 1-3
 	static const array_with_enum_index<RmNum, Patch> r_patches;
 
 	// IO
@@ -261,7 +268,8 @@ private:
 	std::array<uint8_t, 9> sk_on;
 	std::array<uint8_t, 9> vol8; // multiplied by 8
 	std::array<uint8_t, 9> inst;
-	std::array<const Patch*, 9> p_inst; // redundant: &patches[inst[]]
+	std::array<uint8_t, 9> bank; // tone set, always 0 without toneBanks
+	std::array<const Patch*, 9> p_inst; // redundant: calculate from inst[] and bank[]
 	uint8_t rhythm;
 	uint8_t testMode;
 	std::array<Patch, 1 + 15> patches; // user patch (modifiable) + 15 ROM patches
@@ -283,8 +291,13 @@ private:
 
 	int allowed_offset = 0; // Hack: see comments in writePort()
 	bool speedUpHack = false;
+	const bool toneBanks;
 };
 
 } // namespace openmsx::NukeYKT
+
+namespace openmsx {
+SERIALIZE_CLASS_VERSION(YM2413NukeYKT::YM2413, 2);
+} // namespace openmsx
 
 #endif

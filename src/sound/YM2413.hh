@@ -18,7 +18,14 @@ class YM2413Core;
 class YM2413 final : public ResampledSoundDevice
 {
 public:
-	YM2413(const std::string& name, const DeviceConfig& config);
+	/** YM2413: the MSX-MUSIC chip, with the core the config asks for.
+	  * Y8960: the OPLL-EX of HRA!'s Y8960 cartridge, a YM2413 with a tone set
+	  *        per channel (registers 0x40-0x48). Always the NukeYKT core.
+	  */
+	enum class Type : uint8_t { YM2413, Y8960 };
+
+	YM2413(const std::string& name, const DeviceConfig& config,
+	       Type type = Type::YM2413);
 	~YM2413();
 
 	void reset(EmuTime time);
@@ -39,7 +46,8 @@ private:
 	const std::unique_ptr<YM2413Core> core;
 
 	struct Debuggable final : SimpleDebuggable {
-		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name,
+		           static_string_view description);
 		[[nodiscard]] uint8_t read(unsigned address) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
