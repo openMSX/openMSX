@@ -530,8 +530,16 @@ void SCC::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& scc = OUTER(SCC, debuggable);
 	if (address < 0xA0) {
-		// read wave form 1..5
-		scc.writeWave(address >> 5, address, value);
+		// write wave form 1..5
+		unsigned channel = address >> 5;
+		if ((channel == 4) && (scc.currentMode != Mode::Plus)) {
+			// Only in SCC+ mode wave form 5 is separate. In the
+			// other modes it shares its memory with wave form 4:
+			// writing one changes both.
+			channel = 3;
+		}
+		scc.updateStream(time);
+		scc.writeWave(channel, address, value);
 	} else if (address < 0xC0) {
 		// freq volume block
 		scc.setFreqVol(address, value, time);
