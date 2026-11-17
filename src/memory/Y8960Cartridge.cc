@@ -21,12 +21,18 @@
 //
 // Memory mapped registers, write-only, at 0x7FE0-0x7FFF while 0x6000-0x7FFF
 // shows neither RAM nor the SCC:
+//   0x7FF4/0x7FF5 OPLL address/data
+//   0x7FF6 I/O Enabler1: bit 0 opens the OPLL ports
 //   0x7FF7 SSG volume   0x7FF8 OPLL volume   0x7FF9 OPL2 volume
 //   0x7FFA SCC volume   0x7FFD OPM volume    0x7FFE master volume
+//
+// I/O ports, all closed after reset like the FM-PAC's:
+//   0x7C/0x7D OPLL address/data (write-only)
 
 #include "Y8960Cartridge.hh"
 
 #include "CacheLine.hh"
+#include "MSXCPUInterface.hh"
 #include "serialize.hh"
 
 #include "outer.hh"
@@ -62,6 +68,11 @@ static constexpr unsigned SSG_REGS = 0x1E;
 {
 	return (reg & 3) != 3;
 }
+
+// The NukeYKT core puts the rhythm out as HH, TOM, BD, SD, TC, after the 9
+// melodic channels. Each takes the pan of the channel it sounds on: BD 7,
+// HH and SD 8, TOM and TC 9.
+static constexpr std::array<uint8_t, 5> OPLL_RHYTHM_CHANNEL = {7, 8, 6, 7, 8};
 
 // The levels of the blocks (SSG, OPLL, OPL2, SCC, OPM) relative to each
 // other, measured on the cartridge with all volume registers at their
@@ -101,11 +112,18 @@ struct PanGain { float left, right; };
 Y8960Cartridge::Y8960Cartridge(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Real)
+	, opll(getName() + " OPLL", config, YM2413::Type::Y8960)
 	, mixerDebuggable(getMotherBoard(), getName())
 	, ram(config, getName() + " RAM", "Y8960 RAM", RAM_BANKS * 0x2000)
 {
 	scc.enableSetChannelFactors();
+	opll.enableSetChannelFactors();
 	powerUp(getCurrentTime());
+}
+
+Y8960Cartridge::~Y8960Cartridge()
+{
+	writeIoEnabler1(0);
 }
 
 void Y8960Cartridge::powerUp(EmuTime time)
@@ -116,12 +134,15 @@ void Y8960Cartridge::powerUp(EmuTime time)
 
 void Y8960Cartridge::reset(EmuTime time)
 {
+	writeIoEnabler1(0);
 	ramEnabled = false;
 	for (auto region : xrange(2u, 6u)) {
 		setBank(region, uint8_t(region - 2));
 	}
 
 	scc.reset(time);
+	opll.reset(time);
+	opllLatch = 0;
 
 	for (auto reg : xrange(VOLUME, MASTER + 1)) mixer[reg] = 0x80;
 	for (auto reg : xrange(OPLL_PAN, SSG_REGS)) mixer[reg] = 128;
@@ -272,6 +293,8 @@ void Y8960Cartridge::writeMmio(uint16_t address, byte value, EmuTime time)
 {
 	using enum Block;
 	switch (address) {
+	case 0x7FF4: case 0x7FF5: writeOpll(address & 1, value, time); break;
+	case 0x7FF6: writeIoEnabler1(value); break;
 	case 0x7FF7: writeVolume(SSG,  value, time); break;
 	case 0x7FF8: writeVolume(OPLL, value, time); break;
 	case 0x7FF9: writeVolume(OPL2, value, time); break;
@@ -280,6 +303,38 @@ void Y8960Cartridge::writeMmio(uint16_t address, byte value, EmuTime time)
 	case 0x7FFE: writeMixer(MASTER, value, time); break;
 	default: break;
 	}
+}
+
+void Y8960Cartridge::writeIoEnabler1(uint8_t value)
+{
+	value &= 0x01;
+	if (value != ioEnabler1) {
+		if (value) {
+			getCPUInterface().register_IO_Out_range(0x7C, 2, this);
+		} else {
+			getCPUInterface().unregister_IO_Out_range(0x7C, 2, this);
+		}
+	}
+	ioEnabler1 = value;
+}
+
+void Y8960Cartridge::writeIO(uint16_t port, byte value, EmuTime time)
+{
+	switch (port & 0xFF) {
+	case 0x7C: case 0x7D: writeOpll(port & 1, value, time); break;
+	default: break;
+	}
+}
+
+void Y8960Cartridge::writeOpll(bool port, uint8_t value, EmuTime time)
+{
+	if (!port) {
+		opllLatch = value;
+	} else if ((0x50 <= opllLatch) && (opllLatch <= 0x58)) {
+		writeMixer(OPLL_PAN + opllLatch - 0x50, value, time);
+	}
+	// the YM2413 sees the pan writes as well, and ignores them
+	opll.writePort(port, value, time);
 }
 
 void Y8960Cartridge::writeVolume(Block block, uint8_t value, EmuTime time)
@@ -306,6 +361,7 @@ void Y8960Cartridge::applyVolume(Block block, EmuTime time)
 	float gain = BLOCK_LEVEL[size_t(block)]
 	           * volumeGain(mixer[VOLUME + unsigned(block)]) * volumeGain(mixer[MASTER]);
 	switch (block) {
+	case Block::OPLL: opll.setSoftwareVolume(gain, time); break;
 	case Block::SCC:  scc .setSoftwareVolume(gain, time); break;
 	default: break;
 	}
@@ -314,7 +370,15 @@ void Y8960Cartridge::applyVolume(Block block, EmuTime time)
 void Y8960Cartridge::applyPan(unsigned reg, EmuTime time)
 {
 	auto [left, right] = panGain(mixer[reg]);
-	if ((SCC_PAN <= reg) && (reg < SCC_PAN + 5)) {
+	if ((OPLL_PAN <= reg) && (reg < OPLL_PAN + 9)) {
+		auto ch = reg - OPLL_PAN;
+		opll.setChannelFactors(ch, left, right, time);
+		for (auto i : xrange(unsigned(OPLL_RHYTHM_CHANNEL.size()))) {
+			if (OPLL_RHYTHM_CHANNEL[i] == ch) {
+				opll.setChannelFactors(9 + i, left, right, time);
+			}
+		}
+	} else if ((SCC_PAN <= reg) && (reg < SCC_PAN + 5)) {
 		scc.setChannelFactors(reg - SCC_PAN, left, right, time);
 	}
 }
@@ -348,6 +412,8 @@ void Y8960Cartridge::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	ar.serialize("scc",           scc,
+	             "opll",          opll,
+	             "opllLatch",     opllLatch,
 	             "mixer",         mixer,
 	             "ram",           ram,
 	             "bankReg",       bankReg,
@@ -357,6 +423,10 @@ void Y8960Cartridge::serialize(Archive& ar, unsigned /*version*/)
 		// factors in a savestate
 		applyAll(getCurrentTime());
 	}
+	// through the setter, which registers the ports that are open
+	auto enabler1 = ioEnabler1;
+	ar.serialize("ioEnabler1", enabler1);
+	if constexpr (Archive::IS_LOADER) writeIoEnabler1(enabler1);
 }
 INSTANTIATE_SERIALIZE_METHODS(Y8960Cartridge);
 REGISTER_MSXDEVICE(Y8960Cartridge, "Y8960Cartridge");

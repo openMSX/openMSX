@@ -5,6 +5,7 @@
 
 #include "Ram.hh"
 #include "SCC.hh"
+#include "YM2413.hh"
 
 #include "SimpleDebuggable.hh"
 
@@ -22,6 +23,7 @@ class Y8960Cartridge final : public Rom8kBBlocks
 {
 public:
 	Y8960Cartridge(const DeviceConfig& config, Rom&& rom);
+	~Y8960Cartridge() override;
 
 	// MSXDevice
 	void powerUp(EmuTime time) override;
@@ -31,6 +33,7 @@ public:
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
 	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -48,6 +51,10 @@ private:
 	[[nodiscard]] unsigned getRamAddress(uint16_t address) const;
 	void setBank(unsigned region, uint8_t value);
 	void writeMmio(uint16_t address, byte value, EmuTime time);
+	void writeIoEnabler1(uint8_t value);
+
+	// sound chips, port 0 address, port 1 data
+	void writeOpll(bool port, uint8_t value, EmuTime time);
 
 	// digital mixer
 	void writeVolume(Block block, uint8_t value, EmuTime time);
@@ -58,6 +65,7 @@ private:
 
 private:
 	SCC scc;
+	YM2413 opll;
 
 	// the registers of the digital mixer, laid out as in Y8960Cartridge.cc
 	std::array<uint8_t, 0x2E> mixer{};
@@ -72,6 +80,8 @@ private:
 	Ram ram;
 	std::array<uint8_t, 4> bankReg = {0, 1, 2, 3};
 	bool ramEnabled = false;
+	uint8_t ioEnabler1 = 0;
+	uint8_t opllLatch = 0;
 };
 
 } // namespace openmsx
