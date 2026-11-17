@@ -37,6 +37,7 @@
 //   0xA0/0xA1 SSG address/data (write-only), shared with the MSX's own PSG
 //   0xB0-0xB3 MSX-TIMER. Its counters and interrupt run on while the ports
 //             are closed: the enable bit only gates the address decoding.
+//   0x40-0x4F System Controller (switched I/O id 0x80), always there
 //   0xC0/0xC1 OPL2 address and status/data
 
 #include "Y8960Cartridge.hh"
@@ -59,6 +60,10 @@ namespace openmsx {
 static constexpr unsigned ROM_BANKS = 16;
 static constexpr unsigned RAM_BANKS = 16;
 static constexpr uint8_t SCC_BANK = 0x3F;
+
+static constexpr uint8_t SYSTEM_CONTROLLER_ID = 0x80; // 40h
+static constexpr uint8_t BOARD_ID = 0x02;             // 41h: this cartridge
+static constexpr uint8_t FUNCTION_CONFIG_ROM = 0x01;  // 42h
 
 // The registers of the digital mixer, which is also the layout of the
 // "<name> mixer" debuggable:
@@ -128,6 +133,7 @@ struct PanGain { float left, right; };
 
 Y8960Cartridge::Y8960Cartridge(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
+	, MSXSwitchedDevice(getMotherBoard(), SYSTEM_CONTROLLER_ID)
 	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Real)
 	, opll(getName() + " OPLL", config, YM2413::Type::Y8960)
 	, opl2(getName() + " OPL2", config, 256 * 1024, getCurrentTime(), noPeriphery, Y8950::Type::Y8960)
@@ -186,6 +192,9 @@ void Y8960Cartridge::reset(EmuTime time)
 		mixer[SSG_REGS + 8 + r] = connected ? 128  : 0; // pan
 	}
 	applyAll(time);
+
+	boardSelected = false;
+	romFunction = false;
 }
 
 bool Y8960Cartridge::isRamRegion(unsigned region) const
@@ -600,6 +609,44 @@ void Y8960Cartridge::MixerDebuggable::write(unsigned address, uint8_t value, Emu
 	cart.writeMixer(address, value, time);
 }
 
+// The System Controller: 41h selects a board by its id (02h is this
+// cartridge) and 42h a function (01h is the Config ROM reader/writer); each
+// reads back the complement of what selected it. Only this identification is
+// emulated: the Config ROM reader/writer behind 43h-47h reads FFh and takes
+// no writes. The hardware forgets the selection when 40h is written with
+// anything but 80h. The device switch doesn't tell a switched device that it
+// was deselected, so here the selection lasts until 41h is written again or a
+// reset.
+uint8_t Y8960Cartridge::readSwitchedIO(uint16_t port, EmuTime time)
+{
+	return peekSwitchedIO(port, time);
+}
+
+uint8_t Y8960Cartridge::peekSwitchedIO(uint16_t port, EmuTime /*time*/) const
+{
+	switch (port & 0x0F) {
+	case 0x00: return uint8_t(~SYSTEM_CONTROLLER_ID);
+	case 0x01: return boardSelected ? uint8_t(~BOARD_ID) : 0xFF;
+	case 0x02: return romFunction ? uint8_t(~FUNCTION_CONFIG_ROM) : 0xFF;
+	default:   return 0xFF;
+	}
+}
+
+void Y8960Cartridge::writeSwitchedIO(uint16_t port, uint8_t value, EmuTime /*time*/)
+{
+	switch (port & 0x0F) {
+	case 0x01:
+		boardSelected = value == BOARD_ID;
+		if (!boardSelected) romFunction = false;
+		break;
+	case 0x02:
+		if (boardSelected) romFunction = value == FUNCTION_CONFIG_ROM;
+		break;
+	default:
+		break;
+	}
+}
+
 
 Y8960Cartridge::Timer::Timer(MSXMotherBoard& motherBoard, const std::string& name)
 	: counters{Counter(*this, motherBoard.getScheduler()), Counter(*this, motherBoard.getScheduler()),
@@ -835,7 +882,9 @@ void Y8960Cartridge::serialize(Archive& ar, unsigned /*version*/)
 	             "mixer",         mixer,
 	             "ram",           ram,
 	             "bankReg",       bankReg,
-	             "ramEnabled",    ramEnabled);
+	             "ramEnabled",    ramEnabled,
+	             "boardSelected", boardSelected,
+	             "romFunction",   romFunction);
 	if constexpr (Archive::IS_LOADER) {
 		// the sound devices don't keep their software volume and channel
 		// factors in a savestate

@@ -4,6 +4,7 @@
 #include "RomBlocks.hh"
 
 #include "AY8910.hh"
+#include "MSXSwitchedDevice.hh"
 #include "Ram.hh"
 #include "SCC.hh"
 #include "Y8950.hh"
@@ -26,7 +27,7 @@ namespace openmsx {
   * next to the ROM, and the registers of its sound chips and digital mixer.
   * The top of Y8960Cartridge.cc has where the CPU finds them.
   */
-class Y8960Cartridge final : public Rom8kBBlocks
+class Y8960Cartridge final : public Rom8kBBlocks, public MSXSwitchedDevice
 {
 public:
 	Y8960Cartridge(const DeviceConfig& config, Rom&& rom);
@@ -43,6 +44,11 @@ public:
 	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
 	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, byte value, EmuTime time) override;
+
+	// MSXSwitchedDevice, the System Controller
+	[[nodiscard]] uint8_t readSwitchedIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] uint8_t peekSwitchedIO(uint16_t port, EmuTime time) const override;
+	void writeSwitchedIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -185,6 +191,10 @@ private:
 	uint8_t opl2Latch = 0;
 	uint8_t ssgLatch = 0;
 	uint8_t opmLatch = 0;
+
+	// System Controller
+	bool boardSelected = false;
+	bool romFunction = false;
 };
 
 } // namespace openmsx
