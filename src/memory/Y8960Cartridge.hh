@@ -3,6 +3,7 @@
 
 #include "RomBlocks.hh"
 
+#include "AY8910.hh"
 #include "Ram.hh"
 #include "SCC.hh"
 #include "Y8950.hh"
@@ -64,6 +65,7 @@ private:
 	[[nodiscard]] uint8_t readOpl2(bool port, EmuTime time);
 	[[nodiscard]] uint8_t peekOpl2(bool port, EmuTime time) const;
 	void writeOpl2(bool port, uint8_t value, EmuTime time);
+	void writeSsg(bool port, uint8_t value, EmuTime time);
 
 	// digital mixer
 	void writeVolume(Block block, uint8_t value, EmuTime time);
@@ -80,6 +82,7 @@ private:
 		[[nodiscard]] uint4_t read(EmuTime time) override;
 	} noPeriphery;
 	Y8950 opl2;
+	std::array<AY8910, 2> ssg;
 
 	// the registers of the digital mixer, laid out as in Y8960Cartridge.cc
 	std::array<uint8_t, 0x2E> mixer{};
@@ -98,6 +101,7 @@ private:
 	uint8_t ioEnabler2 = 0;
 	uint8_t opllLatch = 0;
 	uint8_t opl2Latch = 0;
+	uint8_t ssgLatch = 0;
 };
 
 } // namespace openmsx
