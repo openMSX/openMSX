@@ -59,6 +59,11 @@ static constexpr uint8_t TCPIP_TCP_RCV      = 18;
 static constexpr uint8_t TCPIP_CONFIG_AUTOIP = 25;
 static constexpr uint8_t TCPIP_CONFIG_IP     = 26;
 static constexpr uint8_t TCPIP_DNS_Q_NEW     = 206;
+// Vendor-private ESP32-UNAPI firmware extension (not part of the TCP-IP
+// UNAPI specification): non-destructive peek of a UDP connection's oldest
+// pending datagram, including its sender. See the ESP32-UNAPI-Firmware
+// documentation.
+static constexpr uint8_t TCPIP_UDP_STATEX    = 210;
 
 // ---- helper: check if a custom command is "quick" (no parameters) ----
 // Mirrors the QUICK_COMMAND set executed directly in the RX_PARSER_IDLE
@@ -87,7 +92,7 @@ static constexpr uint8_t TCPIP_DNS_Q_NEW     = 206;
 	                     TCPIP_TCP_OPEN, TCPIP_TCP_CLOSE, TCPIP_TCP_ABORT,
 	                     TCPIP_TCP_STATE, TCPIP_TCP_SEND, TCPIP_TCP_RCV,
 	                     TCPIP_CONFIG_AUTOIP, TCPIP_CONFIG_IP,
-	                     TCPIP_DNS_Q_NEW) ||
+	                     TCPIP_DNS_Q_NEW, TCPIP_UDP_STATEX) ||
 	       (129 <= cmd && cmd <= 143) || // SSH UNAPI
 	       (200 <= cmd && cmd <= 202) || // HTTP client
 	       cmd == one_of('A', 'B', 'd', 'U', 'u',
@@ -425,6 +430,12 @@ private:
 	std::optional<OpenSSL::SessionHandle> ssl;  // null when not using TLS
 	bool tlsVerify = false;     // validate the server certificate
 	std::atomic<uint8_t> handshakePhase{0}; // 0=no TLS, 1=handshaking, 2=done
+	// Serializes calls into the SSL object: OpenSSL does not allow
+	// concurrent use of one SSL* from multiple threads. The reader thread
+	// drives the handshake and reads, the ESP thread writes. Lock order:
+	// connectionsMutex (ESP thread) -> sslMutex; the reader thread takes
+	// sslMutex only.
+	std::mutex sslMutex;
 
 	std::thread readerThread;
 	std::atomic<bool> readerActive{false};
@@ -921,27 +932,74 @@ void EmulatedEsp32::tcpAcceptClient(Connection* conn) const
 }
 
 [[nodiscard]] static int sockRecvFrom(SOCKET sd, std::span<uint8_t> buf,
-                                      struct sockaddr* from, ::socklen_t* fromLen)
+                                      struct sockaddr* from, ::socklen_t* fromLen,
+                                      int flags = 0)
 {
 	return recvfrom(sd, std::bit_cast<char*>(buf.data()),
-	                static_cast<int>(buf.size()), 0, from, fromLen);
+	                static_cast<int>(buf.size()), flags, from, fromLen);
+}
+
+// Result of a non-destructive peek at the oldest pending UDP datagram.
+struct UdpPeekInfo {
+	uint16_t size; // data bytes, capped at one UDP_RCV block (2048)
+	uint32_t ip;   // sender address, host byte order
+	uint16_t port; // sender port, host byte order
+};
+
+// Peek at the oldest pending UDP datagram without consuming it (MSG_PEEK)
+// and return its size and sender; nullopt when no datagram is pending.
+[[nodiscard]] static std::optional<UdpPeekInfo> peekUdpDatagram(SOCKET sd)
+{
+	std::array<uint8_t, 2048> buf; // only the size and sender are used
+	struct sockaddr_in from{};
+	::socklen_t fromLen = sizeof(from);
+	auto n = sockRecvFrom(sd, buf,
+	                      std::bit_cast<struct sockaddr*>(&from),
+	                      &fromLen, MSG_PEEK);
+	if (n < 0) {
+#ifdef _WIN32
+		// Winsock reports a datagram larger than the peek buffer as
+		// WSAEMSGSIZE. The datagram stays queued (MSG_PEEK) and both the
+		// truncated buffer and the sender address/port are filled.
+		if (WSAGetLastError() != WSAEMSGSIZE) return std::nullopt;
+		n = static_cast<int>(buf.size());
+#else
+		return std::nullopt;
+#endif
+	}
+	return UdpPeekInfo{
+		.size = static_cast<uint16_t>(n),
+		.ip = ntohl(from.sin_addr.s_addr),
+		.port = ntohs(from.sin_port),
+	};
 }
 
 // Active TLS: drive the handshake (the connection reports SYN-SENT until
 // the handshake and certificate validation have finished).
 void EmulatedEsp32::tcpDriveHandshake(Connection* conn, int connIdx)
 {
-	auto r = conn->ssl->handshake();
+	auto r = [conn] {
+		std::scoped_lock lock(conn->sslMutex);
+		return conn->ssl->handshake();
+	}();
 	if (!r) {
 		if (conn->tlsVerify) {
 			// Certificate validation failure (self-signed, expired,
 			// hostname mismatch, ...): the specific reason is reported
 			// by SSL_get_verify_result(), not by the error queue (which
 			// only holds the generic "certificate verify failed" entry).
-			uint8_t reason = static_cast<uint8_t>(conn->ssl->verifyResult());
+			uint8_t reason = 0;
+			std::string description;
+			{
+				std::scoped_lock lock(conn->sslMutex);
+				reason = static_cast<uint8_t>(conn->ssl->verifyResult());
+				if (reason != 0) {
+					description = conn->ssl->verifyErrorDescription();
+				}
+			}
 			if (reason != 0) {
 				cliComm.printWarning("SMXWiFi: TLS failure: certificate verification: ",
-				                     conn->ssl->verifyErrorDescription());
+				                     description);
 				tcpTlsFail(conn, connIdx, reason);
 				return;
 			}
@@ -988,7 +1046,10 @@ bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 		// TLS: decrypt; a clean TLS close is a close_notify, a real
 		// error fails the connection, WouldBlock is just "try again
 		// later".
-		auto r = conn->ssl->read(buf);
+		auto r = [conn, &buf] {
+			std::scoped_lock lock(conn->sslMutex);
+			return conn->ssl->read(buf);
+		}();
 		if (!r) {
 			auto& err = r.error();
 			if (err) { // WouldBlock or Closed: no real error
@@ -1028,7 +1089,10 @@ void EmulatedEsp32::tcpDrainSsl(Connection* conn, int connIdx)
 {
 	std::array<uint8_t, 2048> buf; // one full TCP_RCV
 	for (;;) {
-		auto r = conn->ssl->read(buf);
+		auto r = [conn, &buf] {
+			std::scoped_lock lock(conn->sslMutex);
+			return conn->ssl->read(buf);
+		}();
 		if (!r) {
 			auto& err = r.error();
 			if (err) {
@@ -1235,6 +1299,7 @@ void EmulatedEsp32::handleUnapiCommand(uint8_t cmd, std::span<const uint8_t> dat
 	case TCPIP_UDP_STATE:    cmdUdpState(data); break;
 	case TCPIP_UDP_SEND:     cmdUdpSend(data); break;
 	case TCPIP_UDP_RCV:      cmdUdpRcv(data); break;
+	case TCPIP_UDP_STATEX:   cmdUdpStateX(data); break;
 	case TCPIP_TCP_OPEN:     cmdTcpOpen(data); break;
 	case TCPIP_TCP_CLOSE:    cmdTcpClose(data); break;
 	case TCPIP_TCP_ABORT:    cmdTcpAbort(data); break;
@@ -1754,9 +1819,17 @@ void EmulatedEsp32::cmdUdpState(std::span<const uint8_t> data)
 	}
 	// Return: local port (2), pending datagrams (1), oldest size (2)
 	uint16_t port = conn->localPort;
-	// Count pending datagrams is tricky with raw sockets — just return 0
-	uint8_t pendingDgrams = 0;
-	uint16_t oldestSize = 0;
+
+	// UDP_STATE must not consume data: peek at the head datagram instead
+	// of receiving it. The real firmware's parsePacket()-based UDP_STATE
+	// is destructive - the next UDP_RCV discards the parsed datagram - but
+	// that is a firmware defect, not behaviour the emulation should copy.
+	// Without a receive queue only the head datagram is inspectable, so
+	// report B=1 when one is pending (the spec allows under-reporting the
+	// count) and its size, capped at 2048 like cmdUdpRcv().
+	auto peek = peekUdpDatagram(conn->sock);
+	uint8_t pendingDgrams = peek ? 1 : 0;
+	uint16_t oldestSize = peek ? peek->size : 0;
 	// Built as a byte literal rather than Endian::write_UA_L16() calls:
 	// three fields of mixed width in one initializer, where the explicit
 	// byte order is self-documenting.
@@ -1768,6 +1841,42 @@ void EmulatedEsp32::cmdUdpState(std::span<const uint8_t> data)
 		static_cast<uint8_t>((oldestSize >> 8) & 0xFF)
 	};
 	sendResponse(10, 0, resp);
+}
+
+// Vendor-private command 210 (not part of the TCP-IP UNAPI specification):
+// non-destructive UDP_STATE extension that also reports the sender of the
+// oldest pending datagram. Same MSG_PEEK as UDP_STATE, so the next
+// TCPIP_UDP_RCV returns exactly the datagram described here and polling is
+// side-effect free.
+void EmulatedEsp32::cmdUdpStateX(std::span<const uint8_t> data)
+{
+	if (data.size() != 1) {
+		sendResponse(TCPIP_UDP_STATEX, 4); // ERR_INV_PARAM
+		return;
+	}
+	int num = data[0];
+	if (num == 0 || num > MAX_CONNECTIONS) {
+		sendResponse(TCPIP_UDP_STATEX, 11); // ERR_NO_CONN
+		return;
+	}
+	std::scoped_lock lock(connectionsMutex);
+	const auto* conn = getConnection(num - 1);
+	if (!conn || conn->type != 2) {
+		sendResponse(TCPIP_UDP_STATEX, 11); // ERR_NO_CONN
+		return;
+	}
+
+	// {pending (1), oldest size (2 LSB MSB), sender IP (4, same byte
+	// order as UDP_RCV), sender port (2 LSB MSB)}; all zero when the
+	// queue is empty.
+	std::array<uint8_t, 9> resp{};
+	if (auto peek = peekUdpDatagram(conn->sock)) {
+		resp[0] = 1;
+		Endian::write_UA_L16(resp.data() + 1, peek->size);
+		Endian::write_UA_B32(resp.data() + 3, peek->ip);
+		Endian::write_UA_L16(resp.data() + 7, peek->port);
+	}
+	sendResponse(TCPIP_UDP_STATEX, 0, resp);
 }
 
 void EmulatedEsp32::cmdUdpSend(std::span<const uint8_t> data)
@@ -2285,12 +2394,20 @@ void EmulatedEsp32::cmdTcpState(std::span<const uint8_t> data)
 		sendResponse(16, 0, resp);
 		return;
 	}
-	// Deliberately not narrow<>(): recvBuffer is unbounded (the reader
-	// thread keeps appending until the MSX drains it), so with a slow
-	// or stopped MSX it can exceed 16-bit range; the field is 16-bit on
-	// the wire, so it wraps like the firmware's bounded-buffer avail
-	// would. Capping recvBuffer would make narrow<>() safe here.
-	auto avail = static_cast<uint16_t>(conn->recvAvail());
+	// Snapshot the state before the buffer size: the reader thread pushes
+	// received data before it marks the connection CLOSE_WAIT (the FIN is
+	// seen in a later poll than the last data), so once CLOSE_WAIT is
+	// observed here, all data received before the FIN is already counted.
+	// The opposite order could report CLOSE_WAIT with zero available
+	// bytes while the last data is still pending in the receive buffer.
+	auto state = conn->state.load();
+	// Cap the reported availability like the real firmware, which reports
+	// at most one TCP_RCV worth of buffered data (2048 bytes) per query.
+	// The receive buffer itself stays unbounded; the cap keeps the 16-bit
+	// wire field truthful (never overstates) and fits the 2048-byte
+	// protocol data limit (cmdTcpRcv clamps to the same value).
+	auto avail = static_cast<uint16_t>(
+		std::min<size_t>(conn->recvAvail(), 2048));
 
 	// Info block, same layout as the firmware's TcpState():
 	// TLS flag (1) + lwIP state (1) + available (2 LSB MSB)
@@ -2298,16 +2415,18 @@ void EmulatedEsp32::cmdTcpState(std::span<const uint8_t> data)
 	// + remote IP (4) + remote port (2 LSB MSB) + local port (2 LSB MSB)
 	std::array<uint8_t, 16> resp{};
 	resp[0] = conn->ssl ? 1 : 0;  // TLS flag (spec 4.5.5, bit 0)
-	// Report the live connection state as the firmware does (raw lwIP
-	// TCP state): the reader thread sets state=3 when the remote side
-	// closes the connection, which maps to CLOSE_WAIT (7). Per the spec's
-	// robustness recommendation, keep reporting ESTABLISHED while there
-	// is still unconsumed incoming data.
+	// Report the live connection state like the real firmware, which
+	// returns the raw lwIP PCB state: once the remote side closes, lwIP
+	// is in CLOSE_WAIT (7) even while received data is still buffered
+	// and can be retrieved with TCPIP_TCP_RCV. The specification's
+	// optional robustness recommendation (report ESTABLISHED until the
+	// pending data is consumed) is deliberately not followed, for parity
+	// with the real device.
 	uint8_t tcpState = 4;              // ESTABLISHED
-	if (conn->state == 1) {
+	if (state == 1) {
 		tcpState = 2;              // opening -> SYN_SENT
-	} else if (conn->state == 3) {
-		tcpState = (avail > 0) ? 4 : 7; // CLOSE_WAIT (7), ESTABLISHED (4) if data pending
+	} else if (state == 3) {
+		tcpState = 7;              // CLOSE_WAIT (data may still be pending)
 	}
 	resp[1] = tcpState;
 	Endian::write_UA_L16(resp.data() + 2, avail);
@@ -2369,7 +2488,10 @@ void EmulatedEsp32::cmdTcpSend(std::span<const uint8_t> data)
 			sendResponse(17, 12); // ERR_CONN_STATE
 			return;
 		}
-		auto r = conn->ssl->write(payload);
+		auto r = [conn, payload] {
+			std::scoped_lock lock(conn->sslMutex);
+			return conn->ssl->write(payload);
+		}();
 		if (!r) {
 			auto& err = r.error();
 			if (err) { // WouldBlock or Closed: no real error

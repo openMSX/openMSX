@@ -150,6 +150,7 @@ private:
 	void cmdUdpOpen(std::span<const uint8_t> data);
 	void cmdUdpClose(std::span<const uint8_t> data);
 	void cmdUdpState(std::span<const uint8_t> data);
+	void cmdUdpStateX(std::span<const uint8_t> data);
 	void cmdUdpSend(std::span<const uint8_t> data);
 	void cmdUdpRcv(std::span<const uint8_t> data);
 	void cmdTcpOpen(std::span<const uint8_t> data);
