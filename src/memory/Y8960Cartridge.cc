@@ -29,12 +29,14 @@
 //   0x7FFA SCC volume   0x7FFD OPM volume    0x7FFE master volume
 //   0x7FFB/0x7FFC OPM address/data, in between the volumes
 //   0x7FFF I/O Enabler2, readable: bit 0 opens the OPL2 ports, bit 1 the
-//          SSG's, bit 2 the OPM's
+//          SSG's, bit 2 the OPM's, bit 7 the MSX-TIMER's
 //
 // I/O ports, all closed after reset like the FM-PAC's:
 //   0x7C/0x7D OPLL address/data (write-only)
 //   0x7E/0x7F OPM address and data/status (the status on 0x7F only)
 //   0xA0/0xA1 SSG address/data (write-only), shared with the MSX's own PSG
+//   0xB0-0xB3 MSX-TIMER. Its counters and interrupt run on while the ports
+//             are closed: the enable bit only gates the address decoding.
 //   0xC0/0xC1 OPL2 address and status/data
 
 #include "Y8960Cartridge.hh"
@@ -42,11 +44,13 @@
 #include "CacheLine.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 
 #include "outer.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <cmath>
 #include <numbers>
 
@@ -130,6 +134,7 @@ Y8960Cartridge::Y8960Cartridge(const DeviceConfig& config, Rom&& rom_)
 	, ssg{AY8910(getName() + " SSG 0", DummyAY8910Periphery::instance(), config, getCurrentTime(), AY8910::Type::YM2149),
 	      AY8910(getName() + " SSG 1", DummyAY8910Periphery::instance(), config, getCurrentTime(), AY8910::Type::YM2149)}
 	, opm(getName() + " OPM", "Y8960 OPM", config, getCurrentTime(), YM2151::Variant::YM2151)
+	, timer(getMotherBoard(), getName() + " MSX-TIMER")
 	, mixerDebuggable(getMotherBoard(), getName())
 	, ram(config, getName() + " RAM", "Y8960 RAM", RAM_BANKS * 0x2000)
 {
@@ -171,6 +176,7 @@ void Y8960Cartridge::reset(EmuTime time)
 	ssgLatch = 0;
 	opm.reset(time);
 	opmLatch = 0;
+	timer.reset(time);
 
 	for (auto reg : xrange(VOLUME, MASTER + 1)) mixer[reg] = 0x80;
 	for (auto reg : xrange(OPLL_PAN, SSG_REGS)) mixer[reg] = 128;
@@ -364,7 +370,7 @@ void Y8960Cartridge::writeIoEnabler1(uint8_t value)
 
 void Y8960Cartridge::writeIoEnabler2(uint8_t value)
 {
-	value &= 0x07;
+	value &= 0x87;
 	auto changed = value ^ ioEnabler2;
 	auto& cpu = getCPUInterface();
 	if (changed & 0x01) {
@@ -388,6 +394,13 @@ void Y8960Cartridge::writeIoEnabler2(uint8_t value)
 			cpu.unregister_IO_InOut_range(0x7E, 2, this);
 		}
 	}
+	if (changed & 0x80) {
+		if (value & 0x80) {
+			cpu.register_IO_InOut_range(0xB0, 4, this);
+		} else {
+			cpu.unregister_IO_InOut_range(0xB0, 4, this);
+		}
+	}
 	ioEnabler2 = value;
 }
 
@@ -395,6 +408,7 @@ byte Y8960Cartridge::readIO(uint16_t port, EmuTime time)
 {
 	switch (port & 0xFF) {
 	case 0x7E: case 0x7F: return readOpm(port & 1);
+	case 0xB0: case 0xB1: case 0xB2: case 0xB3: return timer.readPort(port & 3, time);
 	case 0xC0: case 0xC1: return readOpl2(port & 1, time);
 	default: return 0xFF;
 	}
@@ -404,6 +418,7 @@ byte Y8960Cartridge::peekIO(uint16_t port, EmuTime time) const
 {
 	switch (port & 0xFF) {
 	case 0x7E: case 0x7F: return readOpm(port & 1);
+	case 0xB0: case 0xB1: case 0xB2: case 0xB3: return timer.peekPort(port & 3, time);
 	case 0xC0: case 0xC1: return peekOpl2(port & 1, time);
 	default: return 0xFF;
 	}
@@ -415,6 +430,7 @@ void Y8960Cartridge::writeIO(uint16_t port, byte value, EmuTime time)
 	case 0x7C: case 0x7D: writeOpll(port & 1, value, time); break;
 	case 0x7E: case 0x7F: writeOpm (port & 1, value, time); break;
 	case 0xA0: case 0xA1: writeSsg (port & 1, value, time); break;
+	case 0xB0: case 0xB1: case 0xB2: case 0xB3: timer.writePort(port & 3, value, time); break;
 	case 0xC0: case 0xC1: writeOpl2(port & 1, value, time); break;
 	default: break;
 	}
@@ -585,6 +601,222 @@ void Y8960Cartridge::MixerDebuggable::write(unsigned address, uint8_t value, Emu
 }
 
 
+Y8960Cartridge::Timer::Timer(MSXMotherBoard& motherBoard, const std::string& name)
+	: counters{Counter(*this, motherBoard.getScheduler()), Counter(*this, motherBoard.getScheduler()),
+	           Counter(*this, motherBoard.getScheduler()), Counter(*this, motherBoard.getScheduler())}
+	, irq(motherBoard, name + ".IRQ")
+{
+}
+
+void Y8960Cartridge::Timer::reset(EmuTime time)
+{
+	for (auto& c : counters) c.reset(time);
+	index = 0;
+	select = 0;
+	irq.reset();
+}
+
+uint8_t Y8960Cartridge::Timer::readPort(unsigned port, EmuTime time)
+{
+	switch (port & 3) {
+	case 1: case 2: case 3:
+		for (auto& c : counters) c.sync(time);
+		updateIrq();
+		break;
+	}
+	return peekPort(port, time);
+}
+
+uint8_t Y8960Cartridge::Timer::peekPort(unsigned port, EmuTime time) const
+{
+	switch (port & 3) {
+	case 0:
+		return index;
+	case 1:
+		return counters[(index >> 2) & 3].peekReg(index & 3);
+	case 2: {
+		uint8_t flags = 0;
+		for (unsigned i = 0; i < 4; ++i) {
+			if (counters[i].peekFlag(time)) flags |= uint8_t(1 << i);
+		}
+		return flags;
+	}
+	default:
+		return (select < 4) ? counters[select].peekCount(time) : 0xFF;
+	}
+}
+
+void Y8960Cartridge::Timer::writePort(unsigned port, uint8_t value, EmuTime time)
+{
+	switch (port & 3) {
+	case 0:
+		index = value;
+		break;
+	case 1:
+		counters[(index >> 2) & 3].writeReg(index & 3, value, time);
+		break;
+	case 2:
+		for (unsigned i = 0; i < 4; ++i) {
+			if (value & (1 << i)) counters[i].clearFlag(time);
+		}
+		break;
+	case 3:
+		select = (value & 0xFC) ? 4 : value;
+		break;
+	}
+	updateIrq();
+}
+
+void Y8960Cartridge::Timer::updateIrq()
+{
+	bool any = std::ranges::any_of(counters, &Counter::interrupt);
+	if (any) {
+		irq.set();
+	} else {
+		irq.reset();
+	}
+}
+
+
+Y8960Cartridge::Timer::Counter::Counter(Timer& timer_, Scheduler& scheduler)
+	: Schedulable(scheduler)
+	, timer(timer_)
+{
+	clock.setFreq(CLOCK_FREQ);
+}
+
+void Y8960Cartridge::Timer::Counter::reset(EmuTime time)
+{
+	removeSyncPoint();
+	clock.reset(time);
+	ticks = 0;
+	terminal = resolution = 0;
+	repeat = intEnable = counting = ended = false;
+}
+
+uint8_t Y8960Cartridge::Timer::Counter::peekReg(unsigned reg) const
+{
+	switch (reg) {
+	case 0: return uint8_t((repeat ? 0x01 : 0) | (resolution << 4) | (intEnable ? 0x80 : 0));
+	case 1: return terminal;
+	case 2: return counting;
+	default: return 0;
+	}
+}
+
+void Y8960Cartridge::Timer::Counter::writeReg(unsigned reg, uint8_t value, EmuTime time)
+{
+	sync(time);
+	switch (reg) {
+	case 0:
+		repeat = value & 1;
+		resolution = (value >> 4) & 7;
+		intEnable = value & 0x80;
+		break;
+	case 1:
+		terminal = value;
+		break;
+	case 2:
+		counting = value & 1;
+		if (value & 2) ticks = 0;
+		break;
+	}
+	schedule();
+}
+
+void Y8960Cartridge::Timer::Counter::clearFlag(EmuTime time)
+{
+	sync(time);
+	ended = false;
+	schedule();
+}
+
+// The count ends on the last clock of the unit in which it reaches the
+// terminal value, or of the current unit if it is past it already. A
+// repeating counter starts again from 0, the others stop there.
+void Y8960Cartridge::Timer::Counter::advance(uint64_t& t, bool& end, bool& on, uint64_t elapsed) const
+{
+	while (on && elapsed) {
+		uint64_t boundary = uint64_t(std::max(count(t), terminal) + 1) << shift();
+		uint64_t step = std::min(boundary - t, elapsed);
+		t += step;
+		elapsed -= step;
+		if (t == boundary) {
+			end = true;
+			if (repeat) {
+				t = 0;
+			} else {
+				t = boundary - 1;
+				on = false;
+			}
+		}
+	}
+}
+
+void Y8960Cartridge::Timer::Counter::sync(EmuTime time)
+{
+	advance(ticks, ended, counting, clock.getTicksTill(time));
+	clock.advance(time);
+}
+
+uint8_t Y8960Cartridge::Timer::Counter::peekCount(EmuTime time) const
+{
+	uint64_t t = ticks;
+	bool end = ended;
+	bool on = counting;
+	advance(t, end, on, clock.getTicksTill(time));
+	return count(t);
+}
+
+bool Y8960Cartridge::Timer::Counter::peekFlag(EmuTime time) const
+{
+	uint64_t t = ticks;
+	bool end = ended;
+	bool on = counting;
+	advance(t, end, on, clock.getTicksTill(time));
+	return end;
+}
+
+void Y8960Cartridge::Timer::Counter::schedule()
+{
+	removeSyncPoint();
+	if (counting) {
+		uint64_t boundary = uint64_t(std::max(count(ticks), terminal) + 1) << shift();
+		setSyncPoint(clock + (boundary - ticks));
+	}
+}
+
+void Y8960Cartridge::Timer::Counter::executeUntil(EmuTime time)
+{
+	sync(time);
+	schedule();
+	timer.updateIrq();
+}
+
+template<typename Archive>
+void Y8960Cartridge::Timer::Counter::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+	ar.serialize("clock",      clock,
+	             "ticks",      ticks,
+	             "terminal",   terminal,
+	             "resolution", resolution,
+	             "repeat",     repeat,
+	             "intEnable",  intEnable,
+	             "counting",   counting,
+	             "ended",      ended);
+}
+
+template<typename Archive>
+void Y8960Cartridge::Timer::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("counters", counters,
+	             "irq",      irq,
+	             "index",    index,
+	             "select",   select);
+}
+
+
 template<typename Archive>
 void Y8960Cartridge::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -599,6 +831,7 @@ void Y8960Cartridge::serialize(Archive& ar, unsigned /*version*/)
 	             "ssgLatch",      ssgLatch,
 	             "opm",           opm,
 	             "opmLatch",      opmLatch,
+	             "timer",         timer,
 	             "mixer",         mixer,
 	             "ram",           ram,
 	             "bankReg",       bankReg,
