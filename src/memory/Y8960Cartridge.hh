@@ -5,6 +5,8 @@
 
 #include "Ram.hh"
 #include "SCC.hh"
+#include "Y8950.hh"
+#include "Y8950Periphery.hh"
 #include "YM2413.hh"
 
 #include "SimpleDebuggable.hh"
@@ -33,6 +35,8 @@ public:
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
 	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
@@ -48,13 +52,18 @@ private:
 	[[nodiscard]] bool isSccRegion(unsigned region) const;
 	[[nodiscard]] bool isSccAddress(uint16_t address) const;
 	[[nodiscard]] bool isMmioVisible() const;
+	[[nodiscard]] bool isIoEnabler2(uint16_t address) const;
 	[[nodiscard]] unsigned getRamAddress(uint16_t address) const;
 	void setBank(unsigned region, uint8_t value);
 	void writeMmio(uint16_t address, byte value, EmuTime time);
 	void writeIoEnabler1(uint8_t value);
+	void writeIoEnabler2(uint8_t value);
 
 	// sound chips, port 0 address, port 1 data
 	void writeOpll(bool port, uint8_t value, EmuTime time);
+	[[nodiscard]] uint8_t readOpl2(bool port, EmuTime time);
+	[[nodiscard]] uint8_t peekOpl2(bool port, EmuTime time) const;
+	void writeOpl2(bool port, uint8_t value, EmuTime time);
 
 	// digital mixer
 	void writeVolume(Block block, uint8_t value, EmuTime time);
@@ -66,6 +75,11 @@ private:
 private:
 	SCC scc;
 	YM2413 opll;
+	struct NoPeriphery final : Y8950Periphery {
+		void write(uint4_t outputs, uint4_t values, EmuTime time) override;
+		[[nodiscard]] uint4_t read(EmuTime time) override;
+	} noPeriphery;
+	Y8950 opl2;
 
 	// the registers of the digital mixer, laid out as in Y8960Cartridge.cc
 	std::array<uint8_t, 0x2E> mixer{};
@@ -81,7 +95,9 @@ private:
 	std::array<uint8_t, 4> bankReg = {0, 1, 2, 3};
 	bool ramEnabled = false;
 	uint8_t ioEnabler1 = 0;
+	uint8_t ioEnabler2 = 0;
 	uint8_t opllLatch = 0;
+	uint8_t opl2Latch = 0;
 };
 
 } // namespace openmsx
