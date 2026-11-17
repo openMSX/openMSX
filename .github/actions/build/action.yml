@@ -23,6 +23,15 @@ runs:
       if: ${{ inputs.os == 'linux' && (inputs.flavour == 'unittest' || inputs.flavour == 'super-opt' || inputs.flavour == 'debug')}}
       shell: bash
       run: sudo apt-get install libsdl3-dev libpng-dev tcl-dev libglew-dev libsdl3-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
+    - name: Install Flatpak prerequisites
+      if: ${{ inputs.os == 'flatpak' }}
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install flatpak flatpak-builder
+        # flatpak-builder sandboxes the build with unprivileged user namespaces,
+        # which Ubuntu restricts by default.
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+        flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     - name: Install Windows prerequisites
       if: ${{ contains(inputs.os, 'mingw') }}
       shell: bash
@@ -52,17 +61,25 @@ runs:
       if: ${{ inputs.os == 'windows-vc' }}
       uses: microsoft/setup-msbuild@v3
     - name: Cache 3rdparty downloads and sources
+      if: ${{ inputs.os != 'flatpak' }}
       id: cache-3rdparty-src
       uses: actions/cache@v5
       with:
         path: derived/3rdparty
         key: 3rdparty-src-${{ hashFiles('build/packages.py', 'build/3rdparty/*.diff') }}
     - name: Cache 3rdparty libs
+      if: ${{ inputs.os != 'flatpak' }}
       id: cache-3rdparty
       uses: actions/cache@v5
       with:
         path: derived/*/3rdparty
         key: ${{ github.ref }}-${{ inputs.os }}-${{ inputs.cpu }}-${{ inputs.flavour }}-${{ hashFiles('build/packages.py', 'build/3rdparty.mk', 'build/3rdparty/*', 'build/platform-*.mk', 'build/flavour-*.mk') }}
+    - name: Cache Flatpak build state (downloads and built dependencies)
+      if: ${{ inputs.os == 'flatpak' }}
+      uses: actions/cache@v5
+      with:
+        path: derived/flatpak/state
+        key: flatpak-state-${{ inputs.cpu }}-${{ hashFiles('build/package-flatpak/*.yaml') }}
     - name: Download 3rd party packages for Windows VC build
       if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty-src.outputs.cache-hit != 'true' }}
       shell: pwsh
@@ -71,7 +88,7 @@ runs:
       uses: SimenB/github-actions-cpu-cores@v3
       id: cpu-cores
     - name: Make
-      if: ${{ inputs.os != 'windows-vc' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.os != 'flatpak' }}
       shell: bash
       run: |
         CXX_PART=""
@@ -90,6 +107,14 @@ runs:
           OPENMSX_FLAVOUR=${{ inputs.flavour }} \
           $CXX_PART \
           $BUILD_TARGET
+    - name: Build Flatpak
+      if: ${{ inputs.os == 'flatpak' }}
+      shell: bash
+      run: |
+        flatpak-builder --user --install-deps-from=flathub \
+          --disable-rofiles-fuse --force-clean \
+          --state-dir=derived/flatpak/state --repo=derived/flatpak/repo \
+          derived/flatpak/build build/package-flatpak/org.openmsx.openMSX.yaml
     - name: msbuild
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
@@ -143,6 +168,9 @@ runs:
         TARGET_BASE=openmsx-${OPENMSX_VERSION}-${{ inputs.os }}-${{ inputs.cpu }}-bin
         if [ "${{ inputs.os }}" = "darwin" ]; then
           SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
+        elif [ "${{ inputs.os }}" = "flatpak" ]; then
+          DERIVED_PATH=derived/flatpak
+          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-linux-${{ inputs.cpu }}.flatpak
         else
           SINGLE_OUTPUT_FILE=${TARGET_BASE}.zip
         fi
@@ -155,8 +183,17 @@ runs:
       if: ${{ inputs.flavour == 'unittest' }}
       shell: bash
       run: derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}/bin/openmsx
+    - name: Create Flatpak bundle for upload
+      if: ${{ inputs.os == 'flatpak' }}
+      shell: bash
+      run: |
+        flatpak build-bundle \
+          --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
+          derived/flatpak/repo \
+          "${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}" \
+          org.openmsx.openMSX
     - name: Rename output folder and zip it for upload
-      if: ${{ inputs.os != 'windows-vc' && inputs.os != 'darwin' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.os != 'darwin' && inputs.os != 'flatpak' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       shell: bash
       run: |
         cd ${{ steps.openmsx.outputs.derived_path }}/bindist
@@ -171,7 +208,7 @@ runs:
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
         if-no-files-found: error
     - name: Upload probe logging zip
-      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.os != 'flatpak' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.openmsx.outputs.target_file_base }}-proberesults.zip

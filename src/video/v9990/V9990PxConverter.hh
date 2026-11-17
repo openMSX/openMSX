@@ -14,16 +14,20 @@ class V9990P1Converter
 public:
 	using Pixel = uint32_t;
 
-	V9990P1Converter(V9990& vdp, std::span</*const*/ Pixel, 64> palette64);
+	explicit V9990P1Converter(V9990& vdp);
 
+	/** Convert a line of VRAM into host pixels.
+	  * 'palette64' is logically const: it is modified while drawing, but
+	  * restored before this method returns.
+	  */
 	void convertLine(
 		std::span<Pixel> buf, unsigned displayX, unsigned displayY,
-		unsigned displayYA, unsigned displayYB, bool drawSprites);
+		unsigned displayYA, unsigned displayYB, bool drawSprites,
+		std::span</*const*/ Pixel, 64> palette64);
 
 private:
 	V9990& vdp;
 	V9990VRAM& vram;
-	std::span</*const*/ Pixel, 64> palette64;
 };
 
 class V9990P2Converter
@@ -31,16 +35,20 @@ class V9990P2Converter
 public:
 	using Pixel = uint32_t;
 
-	V9990P2Converter(V9990& vdp, std::span</*const*/ Pixel, 64> palette64);
+	explicit V9990P2Converter(V9990& vdp);
 
+	/** Convert a line of VRAM into host pixels.
+	  * 'palette64' is logically const: it is modified while drawing, but
+	  * restored before this method returns.
+	  */
 	void convertLine(
 		std::span<Pixel> buf, unsigned displayX, unsigned displayY,
-		unsigned displayYA, bool drawSprites);
+		unsigned displayYA, bool drawSprites,
+		std::span</*const*/ Pixel, 64> palette64);
 
 private:
 	V9990& vdp;
 	V9990VRAM& vram;
-	std::span</*const*/ Pixel, 64> palette64;
 };
 
 } // namespace openmsx

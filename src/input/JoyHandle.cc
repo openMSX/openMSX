@@ -12,6 +12,7 @@
 
 #include "join.hh"
 #include "ranges.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
@@ -80,11 +81,11 @@ void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 	std::vector<AnalogStatus> newWheelBindings;
 
 	auto& interp = commandController.getInterpreter();
-	unsigned n = newValue.getListLength(interp);
+	auto n = newValue.getListLength(interp);
 	if (n & 1) {
 		throw CommandException("Need an even number of elements");
 	}
-	for (unsigned i = 0; i < n; i += 2) {
+	for (decltype(n) i = 0; i < n; i += 2) {
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
 		auto it = std::ranges::find(keyNames, key);
 		if (it == keyNames.end()) {
@@ -94,21 +95,17 @@ void JoyHandle::checkJoystickConfig(const TclObject& newValue)
 		auto idx = std::distance(keyNames.begin(), it);
 
 		TclObject value = newValue.getListIndex(interp, i + 1);
-		for (auto j : xrange(value.getListLength(interp))) {
-			std::string_view val = value.getListIndex(interp, j).getString();
-			if (key == "WHEEL") {
+		if (key == "WHEEL") {
+			for (auto j : xrange(value.getListLength(interp))) {
+				std::string_view val = value.getListIndex(interp, j).getString();
 				auto bind = parseAnalogInput(val);
 				if (!bind) {
-					throw CommandException("Invalid binding: ", val);
+					throw CommandException("Invalid analog host input: \"", val, '"');
 				}
 				newWheelBindings.emplace_back(*bind, 0.0f);
-			} else {
-				auto bind = parseBooleanInput(val);
-				if (!bind) {
-					throw CommandException("Invalid binding: ", val);
-				}
-				newBindings[idx].push_back(*bind);
 			}
+		} else {
+			append(newBindings[idx], parseBooleanInputList(interp, value));
 		}
 	}
 

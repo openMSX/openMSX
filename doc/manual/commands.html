@@ -191,6 +191,7 @@
         <li><a class="internal" href="#videosource">videosource</a></li>
         <li><a class="internal" href="#vsync">vsync</a></li>
         <li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
+        <li><a class="internal" href="#v9990_palette_snow">v9990_palette_snow</a></li>
         <li><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></li>
         <li><a class="internal" href="#othersettings">other</a></li>
       </ol>
@@ -1259,6 +1260,8 @@
 
   <p>Change the hard disk image. The commands <code>hda</code>, <code>hdb</code> etc. are assigned to all available hard disk drives in the MSX. They will not correspond to drive names as used in MSX-DOS.</p>
 
+  <p>A hard disk image can only be changed while the MSX is powered off. SD cards (e.g. in the MegaFlashROM SCC+ SD or the SD Mapper V1) are also controlled with these commands, but like the real cards they can be changed or ejected while the MSX is running. For them, <code>hda</code> without arguments also shows the option <code>hotswappable</code>, and <code>empty</code> when no card is inserted.</p>
+
   <div class="subsectiontitle">
     usage:
   </div>
@@ -1280,6 +1283,12 @@
       <td><code>hda</code></td>
 
       <td>Show current hard disk image for hard disk "hda"</td>
+    </tr>
+
+    <tr>
+      <td><code>hda eject</code></td>
+
+      <td>Remove the SD card "hda" (only for SD cards)</td>
     </tr>
   </table>
 
@@ -1542,7 +1551,7 @@
   <h4>examples:</h4>
   <table>
     <tr>
-      <td><code>set oldID [machineID]</code></td>
+      <td><code>set oldID [activate_machine]</code></td>
       <td>get the current machineID</td>
     </tr>
     <tr>
@@ -1550,7 +1559,7 @@
       <td>create a new machineID</td>
     </tr>
     <tr>
-      <td><code>$newID::load_machine Philips_NMS_8250</code></td>
+      <td><code>${newID}::load_machine Philips_NMS_8250</code></td>
       <td>load an MSX2 configuration in that new machineID</td>
     </tr>
     <tr>
@@ -2454,10 +2463,6 @@ current MSX model can be:</p>
 
   <table>
     <tr>
-      <td><code>restore_machine</code></td>
-      <td>Load state from last saved state in default directory</td>
-    </tr>
-    <tr>
       <td><code>restore_machine &lt;filename&gt;</code></td>
       <td>Load state from indicated file</td>
     </tr>
@@ -3021,7 +3026,11 @@ current MSX model can be:</p>
     </tr>
     <tr>
       <td><code>step_back</code></td>
-      <td>Steps one instruction back in time</td>
+      <td>Steps one instruction back in time, block instructions like LDIR are treated as a single instruction</td>
+    </tr>
+    <tr>
+      <td><code>step_back_one</code></td>
+      <td>Like step_back, but only steps back one iteration of a block instruction</td>
     </tr>
     <tr>
       <td><code>symboltracer</code></td>
@@ -3914,7 +3923,7 @@ current MSX model can be:</p>
 
   <h3><a id="frequency">frequency</a></h3>
 
-  <p>Sets the sound mixer frequency. Sound hardware and sound APIs typically support a limited set of frequencies, such as 11025 Hz, 22050 Hz, 44100 Hz and 48000 Hz.</p>
+  <p>Sets the sound mixer frequency, from 11025 to 48000&nbsp;Hz. The default, 0 (auto), uses the frequency of the sound device, which gives the best sound that the device can play: the sound then only has to be resampled once, from the sound chips to the device. A higher value than the frequency of the device doesn't improve the sound (it has to be converted down to the frequency of the device again), a lower one loses the highest frequencies. With a sound device at more than 48000&nbsp;Hz, auto uses that frequency too, which costs more CPU time and makes the buffer of the <code><a class="internal" href="#samples">samples</a></code> setting shorter in time. Sound recordings (see <code><a class="internal" href="#record">record</a></code>) are made at this frequency too.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3925,6 +3934,12 @@ current MSX model can be:</p>
       <td><code>set frequency</code></td>
 
       <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set frequency 0</code></td>
+
+      <td>Use the frequency of the sound device (the default)</td>
     </tr>
 
     <tr>
@@ -4331,7 +4346,7 @@ current MSX model can be:</p>
       <td>Shows the current configuration of the first MSX joystick (there are 2 MSX joysticks defined)</td>
     </tr>
     <tr>
-      <td><code>dict set msxjoystick1_config A {joy1 button5}</code></td>
+      <td><code>dict set msxjoystick1_config A {{joy1 button5}}</code></td>
       <td>(Re)map MSX button A to (only) host button 5 of host joystick/controller 1. Leave the mapping of the
       other MSX inputs unchanged.</td>
     </tr>
@@ -6333,6 +6348,49 @@ current MSX model can be:</p>
       <td><code>set v9990cmdtrace off</code></td>
 
       <td>Disables V9990 command tracing</td>
+    </tr>
+  </table>
+
+  <div class="note">
+   Note: This setting is only available if the <code>gfx9000</code> or
+   <code>video9000</code> extension is present.
+  </div>
+
+
+  <h3><a id="v9990_palette_snow">v9990_palette_snow</a></h3>
+
+  <p>A real V9990 puts a stray dot ("snow") on the screen for every byte that
+  is written to or read from its palette while the picture or the border is
+  being drawn. The dot shows at the beam's position, in the colour of the entry
+  being accessed. Only pixels that take their colour from the palette show snow:
+  in the direct-colour bitmap modes (BD8, BD16, YJK, YUV) that's only the border
+  and the cursors. Software that only accesses the palette during the vertical
+  blank shows no snow.</p>
+
+  <p>Snow is only shown when the <code><a class="internal" href="#accuracy">accuracy</a></code>
+  setting is set to <code>pixel</code> (the default).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set v9990_palette_snow</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set v9990_palette_snow on</code></td>
+
+      <td>Show palette snow, like a real V9990 (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set v9990_palette_snow off</code></td>
+
+      <td>Don't show palette snow</td>
     </tr>
   </table>
 

@@ -29,7 +29,7 @@ byte MSXHiResTimer::readIO(uint16_t port, EmuTime time)
 {
 	if ((port & 3) == 0) {
 		// reading port 0 will latch the current counter value
-		latchedValue = reference.getTicksTill(time);
+		latchedValue = narrow_cast<unsigned>(reference.getTicksTill(time));
 	}
 	// reading port {0, 1, 2, 3} will read bits {0-7, 8-15, 16-23, 24-32}
 	// of the counter
@@ -38,7 +38,7 @@ byte MSXHiResTimer::readIO(uint16_t port, EmuTime time)
 
 byte MSXHiResTimer::peekIO(uint16_t port, EmuTime time) const
 {
-	unsigned tmp = (port & 3) ? latchedValue : reference.getTicksTill(time);
+	unsigned tmp = (port & 3) ? latchedValue : narrow_cast<unsigned>(reference.getTicksTill(time));
 	return narrow_cast<byte>(tmp >> (8 * (port & 3)));
 }
 

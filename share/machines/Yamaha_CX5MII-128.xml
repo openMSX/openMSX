@@ -6,9 +6,9 @@
     <manufacturer>Yamaha</manufacturer>
     <code>CX5MII/128</code>
     <release_year>1985</release_year>
-    <description>Japanese MSX with MSX2 videochip, 128kB RAM and SFG-05 module built in.</description>
+    <description>International MSX with MSX2 videochip, 128kB RAM and SFG-05 module built in.</description>
     <type>MSX</type>
-    <region>jp</region>
+    <region>int</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
@@ -22,7 +22,12 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
-      <keyboard_type>jp_ansi</keyboard_type>
+      <!-- There are several keyboard variants of the CX5MII/128, e.g. with
+           tilde and ` on one key and an accents (dead) key, or with tilde
+           and £ on one key and an accents key. The BIOS ROM of this config
+           has the former; for the latter, use keyboard_type gb (and its own
+           BIOS ROM, not dumped yet). -->
+      <keyboard_type>int</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>

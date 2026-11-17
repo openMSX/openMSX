@@ -57,6 +57,7 @@ private:
 
 	[[nodiscard]] bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir) const;
 	[[nodiscard]] std::string getDiskImageName();
+	[[nodiscard]] std::string driveDisplayName(std::string_view drive) const;
 	[[nodiscard]] std::vector<FileInfo> dirMSX(DrivePartitionTar& stuff);
 	void refreshMsx(DrivePartitionTar& stuff);
 	void refreshHost();

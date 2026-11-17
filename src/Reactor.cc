@@ -1098,8 +1098,7 @@ void RestoreMachineCommand::execute(std::span<const TclObject> tokens,
 
 std::string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
-	return "restore_machine                       Load state from last saved state in default directory\n"
-	       "restore_machine <filename>            Load state from indicated file\n"
+	return "restore_machine <filename>            Load state from indicated file\n"
 	       "\n"
 	       "This is a low-level command, the 'loadstate' script is easier to use.";
 }

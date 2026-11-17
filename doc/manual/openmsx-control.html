@@ -123,11 +123,11 @@
   </div>
 
   <p> When starting openMSX with the <code>-control</code> option, it will not show a
-  window: it starts with the 'none' renderer. So, a nice example (if you're
+  window until the renderer is set. So, a nice example (if you're
   still experimenting on the command line) would be to type this:</p>
 
   <div class="commandline">
-  &lt;command&gt;set renderer SDL&lt;/command&gt;
+  &lt;command&gt;set renderer SDLGL-PP&lt;/command&gt;
   </div>
 
   <p>
@@ -142,7 +142,7 @@
   </p>
 
 <pre>
-&lt;reply result="ok"&gt;SDL&lt;/reply&gt;
+&lt;reply result="ok"&gt;SDLGL-PP&lt;/reply&gt;
 </pre>
 
   <p>
@@ -250,6 +250,7 @@ get messages such as:
 &lt;update type="hardware" machine="machine2" name="carta"&gt;add&lt;/update&gt;
 &lt;update type="hardware" machine="machine2" name="cartb"&gt;add&lt;/update&gt;
 &lt;update type="hardware" machine="machine2" name="cassetteplayer"&gt;add&lt;/update&gt;
+&lt;update type="hardware" name="machine2"&gt;select&lt;/update&gt;
 &lt;update type="hardware" machine="machine1" name="diskb"&gt;remove&lt;/update&gt;
 &lt;update type="hardware" machine="machine1" name="diska"&gt;remove&lt;/update&gt;
 &lt;update type="hardware" machine="machine1" name="carta"&gt;remove&lt;/update&gt;
@@ -257,7 +258,6 @@ get messages such as:
 &lt;update type="hardware" machine="machine1" name="cartc"&gt;remove&lt;/update&gt;
 &lt;update type="hardware" machine="machine1" name="cassetteplayer"&gt;remove&lt;/update&gt;
 &lt;update type="hardware" name="machine1"&gt;remove&lt;/update&gt;
-&lt;update type="hardware" name="machine2"&gt;select&lt;/update&gt;
 </pre>
 
   <p>CAPS LED went to OFF:</p>

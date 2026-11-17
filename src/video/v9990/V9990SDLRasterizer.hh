@@ -47,6 +47,7 @@ public:
 	void setColorMode(V9990ColorMode colorMode) override;
 	void setPalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys) override;
 	void setSuperimpose(bool enabled) override;
+	void setPaletteSnow(std::optional<int> index) override;
 	void drawBorder(int fromX, int fromY, int limitX, int limitY) override;
 	void drawDisplay(int fromX, int fromY, int toX, int toY,
 	                 int displayX,
@@ -128,6 +129,13 @@ private:
 	std::array<Pixel, 64> palette64;         // from index to host Pixel color
 	std::array<int16_t, 64> palette64_32768; // from index to 15bpp V9990 color
 	// invariant: palette64[i] == palette32768[palette64_32768[i]]
+
+	/** Replacement for the 64-entry palette during "palette snow": all
+	  * entries have the same color, see setPaletteSnow().
+	  */
+	std::array<Pixel, 64> snow64;
+	std::array<int16_t, 64> snow64_32768;
+	bool paletteSnow = false; // use 'snow64' instead of 'palette64'?
 
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.

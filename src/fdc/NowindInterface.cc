@@ -118,7 +118,7 @@ void NowindInterface::writeMem(uint16_t address, byte value, EmuTime time)
 	} else if (((0x4000 <= address) && (address < 0x6000)) ||
 	           ((0x8000 <= address) && (address < 0xA000))) {
 		constexpr Clock<1000> clock(EmuTime::zero());
-		host.write(value, clock.getTicksTill(time));
+		host.write(value, narrow_cast<unsigned>(clock.getTicksTill(time)));
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {
 		auto max = narrow<uint8_t>((rom.size() / 0x4000) - 1);

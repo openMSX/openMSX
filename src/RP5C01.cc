@@ -211,15 +211,15 @@ void RP5C01::updateTimeRegs(EmuTime time)
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz
 		fraction += (modeReg & MODE_TIMER_ENABLE) ? elapsed : 0;
-		unsigned carrySeconds = (testReg & TEST_SECONDS)
-		                      ? elapsed : fraction / FREQ;
+		auto carrySeconds = narrow_cast<unsigned>((testReg & TEST_SECONDS)
+		                      ? elapsed : fraction / FREQ);
 		seconds  += carrySeconds;
-		unsigned carryMinutes = (testReg & TEST_MINUTES)
-		                      ? elapsed : seconds / 60;
+		auto carryMinutes = narrow_cast<unsigned>((testReg & TEST_MINUTES)
+		                      ? elapsed : seconds / 60);
 		minutes  += carryMinutes;
 		hours    += minutes / 60;
-		unsigned carryDays = (testReg & TEST_DAYS)
-		                   ? elapsed : hours / 24;
+		auto carryDays = narrow_cast<unsigned>((testReg & TEST_DAYS)
+		                   ? elapsed : hours / 24);
 		if (carryDays) {
 			// Only correct for number of days in a month when we
 			// actually advance the day. Because otherwise e.g. the
@@ -241,8 +241,8 @@ void RP5C01::updateTimeRegs(EmuTime time)
 				months++;
 			}
 		}
-		unsigned carryYears = (testReg & TEST_YEARS)
-		                    ? elapsed : unsigned(months / 12);
+		auto carryYears = narrow_cast<unsigned>((testReg & TEST_YEARS)
+		                    ? elapsed : unsigned(months / 12));
 		years    += carryYears;
 		leapYear += carryYears;
 

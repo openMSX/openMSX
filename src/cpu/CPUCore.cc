@@ -177,6 +177,7 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -380,6 +381,8 @@ template<typename T> void CPUCore<T>::doReset(EmuTime time)
 	// able to reproduce this assert by recording and replaying using a
 	// single openMSX version.
 	T::setTime(time);
+
+	blockStack.fill(BlockContext{});
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
@@ -4010,8 +4013,48 @@ template<typename T> II CPUCore<T>::out_byte_a() {
 }
 
 
+// block repeat bookkeeping, see 'blockStack' in CPUCore.hh
+template<typename T> inline void CPUCore<T>::noteBlockRepeatEntry()
+{
+	const auto& top = blockStack.front();
+	if ((top.pc == getPC()) && (top.sp == getSP())) {
+		// next iteration, or resume after an IRQ
+		return;
+	}
+	pushBlockRepeat();
+}
+
+template<typename T> NEVER_INLINE void CPUCore<T>::pushBlockRepeat()
+{
+	// the last (sentinel) entry stays in place
+	std::shift_right(blockStack.begin(), blockStack.end() - 1, 1);
+
+	// On R800 'time' is after the opcode fetch penalties, an exact start
+	// time would but be better but it would add overhead on _every_
+	// instruction, now we only have overhead on the block instructions.
+	blockStack[0] = {.pc = getPC(), .sp = getSP(), .time = T::getTimeFast()};
+}
+
+template<typename T> inline void CPUCore<T>::noteBlockRepeatEnd()
+{
+	// noteBlockRepeatEntry() was called earlier in this same iteration
+	std::shift_left(blockStack.begin(), blockStack.end(), 1);
+	// blockStack.back() remains unchanged (sentinel value)
+}
+
+template<typename T> std::optional<EmuTime> CPUCore<T>::getBlockStart() const
+{
+	// between instructions PC points to the 1st opcode byte
+	const auto& top = blockStack.front();
+	if ((top.pc == uint16_t(getPC() + 1)) && (top.sp == getSP())) {
+		return top.time;
+	}
+	return {};
+}
+
 // block CP
 template<typename T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	T::setMemPtr(T::getMemPtr() + increase);
 	uint8_t val = RDMEM(getHL(), T::CC_CPI_1);
 	uint8_t res = getA() - val;
@@ -4035,6 +4078,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
 		T::setMemPtr(getPC() + 1);
 		return {uint16_t(-1)/*1*/, T::CC_CPIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_CPI};
 	}
 }
@@ -4046,6 +4090,7 @@ template<typename T> II CPUCore<T>::cpir() { return BLOCK_CP( 1, true ); }
 
 // block LD
 template<typename T> inline II CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	uint8_t val = RDMEM(getHL(), T::CC_LDI_1);
 	WRMEM(getDE(), val, T::CC_LDI_2);
 	setHL(narrow_cast<uint16_t>(getHL() + increase));
@@ -4065,6 +4110,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
 		T::setMemPtr(getPC() + 1);
 		return {uint16_t(-1)/*1*/, T::CC_LDIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_LDI};
 	}
 }
@@ -4076,6 +4122,7 @@ template<typename T> II CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 
 // block IN
 template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_INI_1);
 	T::setMemPtr(getBC() + increase);
 	setBC(getBC() - 0x100); // decr before use
@@ -4096,6 +4143,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 		//setPC(getPC() - 2);
 		return {uint16_t(-1)/*1*/, T::CC_INIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_INI};
 	}
 }
@@ -4107,6 +4155,7 @@ template<typename T> II CPUCore<T>::inir() { return BLOCK_IN( 1, true ); }
 
 // block OUT
 template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
+	if (repeat) noteBlockRepeatEntry();
 	uint8_t val = RDMEM(getHL(), T::CC_OUTI_1);
 	setHL(narrow_cast<uint16_t>(getHL() + increase));
 	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUTI_2);
@@ -4127,6 +4176,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) 
 		//setPC(getPC() - 2);
 		return {uint16_t(-1)/*1*/, T::CC_OTIR};
 	} else {
+		if (repeat) noteBlockRepeatEnd();
 		return {1, T::CC_OUTI};
 	}
 }
@@ -4345,6 +4395,7 @@ template<typename T> template<Reg16 REG> II CPUCore<T>::muluw_hl_SS() {
 //  3 -> timing of the emulation changed (no changes in serialization)
 //  4 -> timing of the emulation changed again (see doc/internal/r800-call.txt)
 //  5 -> added serialization of nmiEdge
+//  6 -> added serialization of blockStack
 template<typename T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
@@ -4366,6 +4417,10 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 		// CPU is deserialized after devices, so nmiEdge is restored to the
 		// saved version even if IRQHelpers set it on deserialization.
 		ar.serialize("nmiEdge", nmiEdge);
+	}
+
+	if (ar.versionAtLeast(version, 6)) {
+		ar.serialize("blockStack", blockStack);
 	}
 
 	// Don't serialize:

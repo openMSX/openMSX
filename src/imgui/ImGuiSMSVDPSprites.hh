@@ -63,6 +63,7 @@ private:
 	bool grid = true;
 	bool drawBoundingBox = true;
 	bool enableLimitPerLine = true;
+	bool showSpritesPerLine = false;
 	bool renderAfterStopY = false; // rendered sprites: also show sprites after Y=0xD0
 	gl::Texture patternTex {gl::Null{}}; // TODO also deallocate when needed
 	gl::Texture gridTex    {gl::Null{}};
@@ -99,7 +100,8 @@ private:
 		PersistentElement{"boundingBox",         &ImGuiSMSVDPSprites::drawBoundingBox},
 		PersistentElement{"boundingBoxColor",    &ImGuiSMSVDPSprites::boundingBoxColor},
 		PersistentElement{"spritesPerLineLimit", &ImGuiSMSVDPSprites::enableLimitPerLine},
-		PersistentElement{"renderAfterStopY",    &ImGuiSMSVDPSprites::renderAfterStopY}
+		PersistentElement{"renderAfterStopY",    &ImGuiSMSVDPSprites::renderAfterStopY},
+		PersistentElement{"spritesPerLine",      &ImGuiSMSVDPSprites::showSpritesPerLine}
 	};
 };
 

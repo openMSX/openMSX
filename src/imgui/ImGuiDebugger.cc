@@ -126,7 +126,7 @@ void ImGuiDebugger::signalBreak()
 void ImGuiDebugger::signalContinue()
 {
 	auto* motherBoard = manager.getReactor().getMotherBoard();
-	if (!motherBoard) return;
+	if (!motherBoard || !motherBoard->getMachineConfig()) return;
 
 	auto& cpuInterface = motherBoard->getCPUInterface();
 	auto& debugger = motherBoard->getDebugger();

@@ -39,7 +39,7 @@ static constexpr uint8_t R1_ILLEGAL_COMMAND = 0x04;
 static constexpr uint8_t R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
-	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)
+	: hd(std::make_unique<HD>(config, HD::HotSwap::YES)) // no config: starts ejected
 {
 }
 
@@ -47,12 +47,12 @@ SdCard::~SdCard() = default;
 
 bool SdCard::isPresent() const
 {
-	return hd != nullptr;
+	return !hd->isEjected();
 }
 
 bool SdCard::isWriteProtected() const
 {
-	return hd && hd->isWriteProtected();
+	return hd->isWriteProtected();
 }
 
 // helper methods for 'transfer' to avoid duplication
@@ -78,9 +78,25 @@ uint8_t SdCard::readCurrentByteFromCurrentSector()
 	return result;
 }
 
+// The card was swapped or ejected: like a real card that is pulled out, any
+// command or transfer in progress is aborted, and a new card starts in SD mode.
+void SdCard::checkCardChanged()
+{
+	if (!hd->diskChanged()) return;
+
+	using enum Mode;
+	responseQueue.clear();
+	cmdIdx = 0;
+	transferDelayCounter = 0;
+	mode = COMMAND;
+	currentByteInSector = 0;
+	waitingForCmd0 = true;
+}
+
 uint8_t SdCard::transfer(uint8_t value, bool cs)
 {
-	if (!hd) return 0xFF; // no card inserted
+	checkCardChanged();
+	if (hd->isEjected()) return 0xFF; // no card inserted
 
 	if (cs) {
 		// /CS is true: not for this chip
@@ -222,10 +238,12 @@ void SdCard::executeCommand()
 	// it takes 2 transfers (2x8 cycles) before a reply
 	// can be given to a command
 	using enum Mode;
-	transferDelayCounter = 2;
 	uint8_t command = cmdBuf[0] & 0x3F;
+	if (waitingForCmd0 && command != 0) return; // no response
+	transferDelayCounter = 2;
 	switch (command) {
 	case 0:  // GO_IDLE_STATE
+		waitingForCmd0 = false;
 		responseQueue.clear();
 		mode = COMMAND;
 		responseQueue.push_back(R1_IDLE);
@@ -344,18 +362,27 @@ static constexpr auto modeInfo = std::to_array<enum_string<SdCard::Mode>>({
 });
 SERIALIZE_ENUM(SdCard::Mode, modeInfo);
 
+// version 1: initial version
+// version 2: added 'waitingForCmd0', 'hd' is always present
 template<typename Archive>
-void SdCard::serialize(Archive& ar, unsigned /*version*/)
+void SdCard::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("mode",   mode,
 	             "cmdBuf", cmdBuf);
 	ar.serialize_blob("sectorBuf", sectorBuf.raw);
-	if (hd) ar.serialize("hd", *hd);
+	// Version 1 only stored 'hd' for a configured card slot, which (just
+	// constructed) is exactly when there is a card.
+	if (ar.versionAtLeast(version, 2) || !hd->isEjected()) {
+		ar.serialize("hd", *hd);
+	}
 	ar.serialize("cmdIdx",               cmdIdx,
 	             "transferDelayCounter", transferDelayCounter,
 	             "responseQueue",        responseQueue,
 	             "currentSector",        currentSector,
 	             "currentByteInSector",  currentByteInSector);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("waitingForCmd0", waitingForCmd0);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(SdCard);
 

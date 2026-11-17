@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -27,6 +28,12 @@ public:
 
 	[[nodiscard]] std::string msxToUtf8(std::span<const uint8_t> msx, char fallback) const;
 	[[nodiscard]] std::vector<uint8_t> utf8ToMsx(std::string_view utf8, char fallback) const;
+
+	/** The same for a single character (no string conversion): returns
+	  * nullopt when there is no mapping.
+	  */
+	[[nodiscard]] std::optional<uint32_t> msxToUnicode(uint8_t msx) const;
+	[[nodiscard]] std::optional<uint8_t> unicodeToMsx(uint32_t unicode) const;
 
 private:
 	void parseVid(std::string_view file);

@@ -98,10 +98,10 @@ namespace openmsx::InputEventFactory {
 
 				e.type = SDL_EVENT_MOUSE_MOTION;
 				e.timestamp = SDL_GetTicksNS();
-				e.x = absX;
-				e.y = absY;
-				e.xrel = str.getListIndex(interp, 2).getInt(interp);
-				e.yrel = str.getListIndex(interp, 3).getInt(interp);
+				e.x = float(absX);
+				e.y = float(absY);
+				e.xrel = float(str.getListIndex(interp, 2).getInt(interp));
+				e.yrel = float(str.getListIndex(interp, 3).getInt(interp));
 				return MouseMotionEvent(evt);
 			}
 		} else if (comp1.starts_with("button")) {

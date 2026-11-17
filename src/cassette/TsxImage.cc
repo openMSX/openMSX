@@ -13,6 +13,7 @@
 #include "Filename.hh"
 #include "MSXException.hh"
 
+#include "narrow.hh"
 #include "xrange.hh"
 
 namespace openmsx {
@@ -53,7 +54,7 @@ TsxImage::TsxImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 int16_t TsxImage::getSampleAt(EmuTime time) const
 {
 	static const Clock<TsxParser::OUTPUT_FREQUENCY> zero(EmuTime::zero());
-	unsigned pos = zero.getTicksTill(time);
+	auto pos = narrow_cast<unsigned>(zero.getTicksTill(time));
 	return pos < output.size() ? output[pos] * 256 : 0;
 }
 

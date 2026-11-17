@@ -19,12 +19,14 @@ public:
 	void setColorMode(V9990ColorMode mode, EmuTime time) override;
 	void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
 	                   EmuTime time) override;
+	void paletteSnow(int index, EmuTime time) override;
 	void updateSuperimposing(bool enabled, EmuTime time) override;
 	void updateBackgroundColor(int index, EmuTime time) override;
 	void updateScrollAX(EmuTime time) override;
 	void updateScrollBX(EmuTime time) override;
 	void updateScrollAYLow(EmuTime time) override;
 	void updateScrollBYLow(EmuTime time) override;
+	void updateLayerDisable(EmuTime time) override;
 };
 
 } // namespace openmsx

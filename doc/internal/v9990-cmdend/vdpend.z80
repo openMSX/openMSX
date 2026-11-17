@@ -1,0 +1,1156 @@
+; VDPEND: what a V9990's command registers hold after a command, in P1
+; (R#6 = 05h). MSX-DOS .COM (VDPEND.COM, MSX-DOS 1 or 2, MSX1-safe);
+; writes VDPEND.TXT on the current drive, as raw hex.
+;
+; R#32-R#52 are write only ([M] V9990 manual, register list: R#32-52 W,
+; R#53-54 R), so each end value is measured by its effect: run the command
+; under test (all of R#32-R#51 written, then R#52), then one "witness"
+; command that writes every register it uses except the one measured, and
+; read what the witness did (BX after SRCH, a byte count from LMCM, or the
+; VRAM it wrote). Every witness reruns the test from the same VRAM, so the
+; test's end state is the same each time. 51 tests x 21 witnesses, about
+; 9 minutes (525 s in openMSX), a dot on the console for each witness.
+;
+; VRAM before each test (RESTORE): both layers colour 15 (LMMV 256x2048,
+; WM per layer); layer A rows 0-2046 carry two markers each, colour 1 at
+; x = y & 127 and colour 2 at x = 128 + (y >> 7), so a SRCH along row y
+; tells y. Row 2047 is plain in both layers. Tests that write VRAM write
+; colour 15 where they can (FC FFFFh, LMMC/CMMC data FFh).
+;
+; Witnesses (W0-W20; the test's own result is W0):
+;  W0  RAW   no witness: status, BX, the test's transfer count, and R#32-R#54
+;            read back (write only: whatever the chip returns)
+;  W1  SX    SRCH, colour 15 in plain row 2047: BX = SX
+;  W2  SYL   SRCH from x 0 (layer A) for colour 1: BX = SY & 127
+;  W3  SYH   SRCH from x 0 for colour 2: BX = 128 + (SY >> 7)
+;  W4  DXA   LMMV 1x1 colour 0 in row 2047, WM 00FFh: rows 2047 scanned
+;  W5  DXB   the same with WM FF00h
+;  W6  DY    LMMV 2x1 colour 0 at layer B x 0: byte 0 of every layer-B row
+;  W7  NX1   LMCM, NY 1 (layer B row 2047): bytes read = NX / 2 (rounded)
+;  W8  NX2   LMCM, NY 2 (rows 2046-2047): bytes read = NX (2 pixels a byte)
+;  W9  NY    LMCM, NX 2: bytes read = NY
+;  W10 ARGV  LMMV 2x2 colour 0 at layer B (128, 1100): rows 1097-1103 scanned
+;            (DIX, DIY)
+;  W11 ARGS  SRCH from x 4 in row 2047 for colour 15: found at 4 unless NEQ
+;  W12 ARGL  LINE MJ 3, MI 1 colour 0 from layer B (128, 1100): rows
+;            1097-1103 scanned (MAJ, DIX, DIY)
+;  W13 LOP1  LMMV 2x1 FC CCCCh over AAh: the byte = LOP's low nibble twice
+;  W14 LOP2  LMMV 2x1 FC 0 over A5h: TP (A5h kept) or L01/L00
+;  W15 WMA   LMMV 2x1 colour 0 at layer A row 2047: FFh & ~WM (both layers'
+;            bytes, the leak)
+;  W16 WMB   the same at layer B
+;  W17 FCA   LMMV 2x1 at layer A row 2047, WM 00FFh: the byte = FC low
+;  W18 FCB   at layer B, WM FF00h: FC high
+;  W19 BCA   CMMC 2x1 at layer A, font data 00h: the byte = BC low
+;  W20 BCB   at layer B: BC high
+;
+; VDPEND.TXT (hex):
+;  C <case> <name> <op> <rep> <R#32-R#51 as written>
+;  W <case> <w> <status> <BX> <count> <last byte> <flags> [readback...]
+;    flags: T = timed out (then STOP), X = TR still set at the end (one
+;    more byte read), - = neither
+;    readback D:<bytes> (a dump) or S<n>:<index>=<byte> ... (a scan: the
+;    n bytes that are not FFh, the first 16 listed; index from the start)
+;  W0's readback is R:<R#32-R#54>.
+; A test with rep 0 issues no command: the witnesses must read back what
+; was written (the calibration). rep 2 issues the opcode twice.
+
+V9_VRAM         equ     60h
+V9_PAL          equ     61h
+V9_CMDP         equ     62h
+V9_DATA         equ     63h
+V9_SEL          equ     64h
+V9_STAT         equ     65h
+V9_INTF         equ     66h
+V9_SYS          equ     67h
+V9_OUT          equ     6Fh
+
+BDOS            equ     0005h
+NWIT            equ     21
+
+        output  "VDPEND.COM"
+        org     0100h
+
+START:
+        ld      de,MSG_HELLO
+        call    PRINT
+        ld      de,BUF
+        ld      c,1Ah                   ; set DTA
+        call    BDOSX
+        ld      de,FCB
+        ld      c,16h                   ; create file
+        call    BDOSX
+        and     a
+        jr      z,OPENED
+        ld      de,MSG_NOFILE
+        call    PRINT
+        rst     0
+OPENED:
+        call    V9_INIT
+        ld      hl,TXT_HEAD
+        call    FSTR
+        ; restore check: a few bytes after RESTORE, as read back
+        call    RESTORE
+        ld      hl,TXT_RCHK
+        call    FSTR
+        ld      hl,RCHK
+        call    READBACK
+        call    FEOL
+
+        ld      ix,CASES
+        xor     a
+        ld      (CASEN),a
+CASE_LP:
+        ld      a,(ix+0)
+        and     a
+        jp      z,ALL_DONE
+        ; console: the case's name
+        ld      b,5
+        push    ix
+        pop     hl
+CN_LP:
+        ld      e,(hl)
+        push    hl
+        push    bc
+        ld      c,02h
+        call    BDOSX
+        pop     bc
+        pop     hl
+        inc     hl
+        djnz    CN_LP
+        ; file: C line
+        ld      a,'C'
+        call    FPUTC
+        call    FSPACE
+        ld      a,(CASEN)
+        call    FHEX8
+        call    FSPACE
+        push    ix
+        pop     hl
+        ld      b,5
+CF_LP:
+        ld      a,(hl)
+        call    FPUTC
+        inc     hl
+        djnz    CF_LP
+        call    FSPACE
+        ld      a,(ix+5)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(ix+6)
+        call    FHEX8
+        call    FSPACE
+        inc     hl                      ; past op and rep: R#32-R#51
+        inc     hl
+        ld      b,20
+CR_LP:
+        ld      a,(hl)
+        call    FHEX8
+        inc     hl
+        djnz    CR_LP
+        call    FEOL
+
+        xor     a
+        ld      (WITN),a
+WIT_LP:
+        call    RESTORE
+        call    RUN_TEST
+        call    RUN_WITNESS
+        ld      e,'.'
+        ld      c,02h
+        call    BDOSX
+        ld      a,(WITN)
+        inc     a
+        ld      (WITN),a
+        cp      NWIT
+        jr      nz,WIT_LP
+        ld      de,MSG_CRLF
+        call    PRINT
+        ld      de,27
+        add     ix,de
+        ld      hl,CASEN
+        inc     (hl)
+        jp      CASE_LP
+
+ALL_DONE:
+        ld      hl,TXT_END
+        call    FSTR
+        call    FCLOSE
+        ld      a,10h
+        out     (V9_OUT),a              ; a Video9000: the MSX's picture
+        ld      de,MSG_DONE
+        call    PRINT
+        rst     0
+
+; ---- the test --------------------------------------------------------
+; IX = the case: name (5), op, rep, R#32-R#51 (20).
+RUN_TEST:
+        push    ix
+        pop     hl
+        ld      de,7
+        add     hl,de
+        call    SETREGS
+        ld      a,(ix+6)
+        and     a
+        jr      z,RT_NONE               ; rep 0: no command
+        ld      b,a
+        ld      a,0FFh
+        ld      (FEEDB),a
+RT_LP:
+        push    bc
+        ld      a,(ix+5)
+        call    DMODE_OF
+        ld      a,(ix+5)
+        call    GO
+        pop     bc
+        djnz    RT_LP
+        ret
+RT_NONE:
+        ld      hl,0
+        ld      (T_CNT),hl
+        xor     a
+        ld      (T_LAST),a
+        ld      (T_FLAGS),a
+        ret
+
+; A = opcode -> (DMODE): 1 = CPU feeds P#2 (LMMC, CMMC), 2 = CPU reads it
+; (LMCM, POINT), 0 = no data.
+DMODE_OF:
+        and     0F0h
+        ld      c,1
+        cp      10h
+        jr      z,DM_SET
+        cp      50h
+        jr      z,DM_SET
+        inc     c
+        cp      30h
+        jr      z,DM_SET
+        cp      0D0h
+        jr      z,DM_SET
+        ld      c,0
+DM_SET:
+        ld      a,c
+        ld      (DMODE),a
+        ret
+
+; ---- the witness -----------------------------------------------------
+RUN_WITNESS:
+        ld      a,(WITN)
+        add     a,a
+        ld      e,a
+        ld      d,0
+        ld      hl,WTAB
+        add     hl,de
+        ld      a,(hl)
+        inc     hl
+        ld      h,(hl)
+        ld      l,a                     ; HL = the witness: op, dmode, ...
+        ld      a,(hl)
+        inc     a
+        jr      nz,RW_CMD
+        ; W0: the test's own result
+        inc     hl
+        inc     hl
+        call    W_HEAD
+        ld      hl,TXT_R
+        call    FSTR
+        ld      a,32                    ; R#32 on, reads increment
+        out     (V9_SEL),a
+        ld      b,23
+RW_REG:
+        in      a,(V9_DATA)
+        call    FHEX8
+        djnz    RW_REG
+        jp      FEOL
+RW_CMD:
+        ld      a,(hl)
+        ld      (W_OP),a
+        inc     hl
+        ld      a,(hl)
+        ld      (DMODE),a
+        inc     hl
+        ; presets: 'P', bank, high, low, value; then the registers
+RW_PRE:
+        ld      a,(hl)
+        cp      'P'
+        jr      nz,RW_REGS
+        inc     hl
+        ld      b,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      e,(hl)
+        inc     hl
+        push    hl
+        ex      de,hl
+        call    SETWA
+        pop     hl
+        ld      a,(hl)
+        out     (V9_VRAM),a
+        inc     hl
+        jr      RW_PRE
+RW_REGS:
+        ld      a,(hl)
+        cp      0FFh
+        jr      z,RW_GO
+        out     (V9_SEL),a
+        inc     hl
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        jr      RW_REGS
+RW_GO:
+        inc     hl
+        push    hl
+        xor     a
+        ld      (FEEDB),a
+        ld      a,(W_OP)
+        call    GO
+        pop     hl
+        call    W_HEAD
+        jp      READBACK_EOL
+
+; W line head: W <case> <w> <status> <BX> <count> <last> <flags>
+; (status and BX read now). Preserves HL.
+W_HEAD:
+        push    hl
+        ld      a,'W'
+        call    FPUTC
+        call    FSPACE
+        ld      a,(CASEN)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(WITN)
+        call    FHEX8
+        call    FSPACE
+        in      a,(V9_STAT)
+        call    FHEX8
+        call    FSPACE
+        ld      a,54
+        out     (V9_SEL),a
+        in      a,(V9_DATA)
+        call    FHEX8
+        ld      a,53
+        out     (V9_SEL),a
+        in      a,(V9_DATA)
+        call    FHEX8
+        call    FSPACE
+        ld      hl,(T_CNT)
+        ld      a,h
+        call    FHEX8
+        ld      a,l
+        call    FHEX8
+        call    FSPACE
+        ld      a,(T_LAST)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(T_FLAGS)
+        ld      c,'-'
+        and     a
+        jr      z,WH_F
+        ld      c,'T'
+        dec     a
+        jr      z,WH_F
+        ld      c,'X'
+WH_F:
+        ld      a,c
+        call    FPUTC
+        pop     hl
+        ret
+
+; HL = readback list ('D' bank hi lo n | 'S' bank hi lo count(2) stride(2),
+; 0 = end), then the end of line.
+READBACK_EOL:
+        call    READBACK
+        jp      FEOL
+
+READBACK:
+        ld      a,(hl)
+        and     a
+        ret     z
+        inc     hl
+        push    af
+        call    FSPACE
+        pop     af
+        cp      'D'
+        jr      z,RB_DUMP
+        ; scan
+        ld      a,'S'
+        call    FPUTC
+        ld      b,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      e,(hl)
+        inc     hl
+        ld      (SC_ADR),de
+        ld      a,b
+        ld      (SC_BANK),a
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      (SC_LEFT),de
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      (SC_STEP),de
+        push    hl
+        call    SCAN
+        pop     hl
+        jr      READBACK
+RB_DUMP:
+        ld      a,'D'
+        call    FPUTC
+        ld      a,':'
+        call    FPUTC
+        ld      b,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      e,(hl)
+        inc     hl
+        ld      c,(hl)                  ; n
+        inc     hl
+        push    hl
+        ex      de,hl
+        call    SETRA
+RB_DLP:
+        in      a,(V9_VRAM)
+        call    FHEX8
+        dec     c
+        jr      nz,RB_DLP
+        pop     hl
+        jr      READBACK
+
+; SCAN: (SC_BANK):(SC_ADR) on, (SC_LEFT) bytes, (SC_STEP) apart; the bytes
+; not FFh: their number, then up to 16 "index=byte". The entries are kept
+; in SC_LIST and written after the count.
+SCAN:
+        ld      hl,0
+        ld      (SC_N),hl
+        ld      (SC_IDX),hl
+SC_LP:
+        ld      a,(SC_BANK)
+        ld      b,a
+        ld      hl,(SC_ADR)
+        call    SETRA
+        in      a,(V9_VRAM)
+        cp      0FFh
+        jr      z,SC_NEXT
+        ld      c,a
+        ld      hl,(SC_N)
+        ld      a,h
+        and     a
+        jr      nz,SC_CNT
+        ld      a,l
+        cp      16
+        jr      nc,SC_CNT
+        ; entry l: SC_LIST + 3*l = index (2), byte
+        ld      e,l
+        ld      d,0
+        ld      hl,SC_LIST
+        add     hl,de
+        add     hl,de
+        add     hl,de
+        ld      de,(SC_IDX)
+        ld      (hl),e
+        inc     hl
+        ld      (hl),d
+        inc     hl
+        ld      (hl),c
+SC_CNT:
+        ld      hl,(SC_N)
+        inc     hl
+        ld      (SC_N),hl
+SC_NEXT:
+        ld      hl,(SC_IDX)
+        inc     hl
+        ld      (SC_IDX),hl
+        ld      hl,(SC_ADR)
+        ld      de,(SC_STEP)
+        add     hl,de
+        ld      (SC_ADR),hl
+        jr      nc,SC_NC
+        ld      hl,SC_BANK
+        inc     (hl)
+SC_NC:
+        ld      hl,(SC_LEFT)
+        dec     hl
+        ld      (SC_LEFT),hl
+        ld      a,h
+        or      l
+        jr      nz,SC_LP
+        ; write: S<n>: entries
+        ld      hl,(SC_N)
+        ld      a,h
+        call    FHEX8
+        ld      a,l
+        call    FHEX8
+        ld      a,':'
+        call    FPUTC
+        ld      a,h
+        and     a
+        ld      a,l
+        jr      z,SC_W16
+        ld      a,16
+SC_W16:
+        cp      16
+        jr      c,SC_WN
+        ld      a,16
+SC_WN:
+        and     a
+        ret     z
+        ld      b,a
+        ld      hl,SC_LIST
+SC_WLP:
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      a,d
+        call    FHEX8
+        ld      a,e
+        call    FHEX8
+        ld      a,'='
+        call    FPUTC
+        ld      a,(hl)
+        inc     hl
+        call    FHEX8
+        dec     b
+        ret     z
+        ld      a,','
+        call    FPUTC
+        jr      SC_WLP
+
+; ---- the command engine ----------------------------------------------
+; HL = R#32-R#51 (20 bytes).
+SETREGS:
+        ld      a,32
+        out     (V9_SEL),a
+        ld      bc,20*256+V9_DATA
+        otir
+        ret
+
+; A = opcode: R#52, then wait for CE to clear, feeding (FEEDB) to P#2
+; (DMODE 1) or reading P#2 (DMODE 2) while TR is set. T_CNT = bytes moved,
+; T_LAST = the last byte read, T_FLAGS: 1 = timed out (STOP issued), 2 = TR
+; still set after CE cleared (one more byte read, counted).
+GO:
+        ld      c,a
+        ld      a,52
+        out     (V9_SEL),a
+        ld      a,c
+        out     (V9_DATA),a
+        ld      hl,0
+        ld      (T_CNT),hl
+        xor     a
+        ld      (T_LAST),a
+        ld      (T_FLAGS),a
+        ld      de,0                    ; timeout: 6 x 65536 polls
+        ld      b,6
+GO_LP:
+        in      a,(V9_STAT)
+        rra                             ; CE
+        jr      nc,GO_END
+        rla
+        rla                             ; TR
+        jr      nc,GO_POLL
+        ld      a,(DMODE)
+        dec     a
+        jr      z,GO_FEED
+        dec     a
+        jr      nz,GO_POLL
+        in      a,(V9_CMDP)
+        ld      (T_LAST),a
+        inc     hl
+        jr      GO_POLL
+GO_FEED:
+        ld      a,(FEEDB)
+        out     (V9_CMDP),a
+        inc     hl
+GO_POLL:
+        dec     de
+        ld      a,d
+        or      e
+        jr      nz,GO_LP
+        djnz    GO_LP
+        ; timed out: STOP
+        ld      a,52
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      a,1
+        ld      (T_FLAGS),a
+        jr      GO_OUT
+GO_END:
+        ld      a,(DMODE)
+        cp      2
+        jr      nz,GO_OUT
+        in      a,(V9_STAT)
+        rla
+        jr      nc,GO_OUT
+        in      a,(V9_CMDP)
+        ld      (T_LAST),a
+        inc     hl
+        ld      a,2
+        ld      (T_FLAGS),a
+GO_OUT:
+        ld      (T_CNT),hl
+        ld      a,7
+        out     (V9_INTF),a             ; the CE flag cleared
+        ret
+
+; ---- VRAM ------------------------------------------------------------
+; B = bits 18-16, HL = bits 15-0.
+SETWA:
+        xor     a
+        out     (V9_SEL),a
+        ld      a,l
+        out     (V9_DATA),a
+        ld      a,h
+        out     (V9_DATA),a
+        ld      a,b
+        out     (V9_DATA),a
+        ret
+
+SETRA:
+        ld      a,3
+        out     (V9_SEL),a
+        ld      a,l
+        out     (V9_DATA),a
+        ld      a,h
+        out     (V9_DATA),a
+        ld      a,b
+        out     (V9_DATA),a
+        ret
+
+; Both layers colour 15, then layer A's row markers.
+RESTORE:
+        xor     a
+        ld      (DMODE),a
+        ld      hl,FILL_A
+        call    SETREGS
+        ld      a,20h
+        call    GO
+        ld      hl,FILL_B
+        call    SETREGS
+        ld      a,20h
+        call    GO
+; Rows y = 0-2046 of layer A: colour 1 at x = y & 127, colour 2 at
+; x = 128 + (y >> 7). Row y is at y * 128 (bank y >> 9, high (y >> 1) & FFh,
+; low (y & 1) << 7).
+MARKERS:
+        ld      de,0
+MK_LP:
+        and     a
+        ld      a,d
+        rra                             ; D bit 0 -> carry
+        ld      b,a                     ; bank
+        ld      a,e
+        rra
+        ld      h,a                     ; high
+        ld      a,e
+        rrca
+        and     80h
+        ld      c,a                     ; low: (y & 1) << 7
+        ; colour 1 at byte (y & 127) >> 1, left pixel when y is even
+        ld      a,e
+        and     7Fh
+        rra
+        or      c
+        ld      l,a
+        call    SETWA
+        ld      a,1Fh
+        bit     0,e
+        jr      z,MK_1
+        ld      a,0F1h
+MK_1:
+        out     (V9_VRAM),a
+        ; colour 2 at byte 64 + (y >> 8), left pixel when y bit 7 is 0
+        ld      a,d
+        add     a,64
+        or      c
+        ld      l,a
+        call    SETWA
+        ld      a,2Fh
+        bit     7,e
+        jr      z,MK_2
+        ld      a,0F2h
+MK_2:
+        out     (V9_VRAM),a
+        inc     de
+        ld      a,d
+        cp      7
+        jr      nz,MK_LP
+        ld      a,e
+        cp      0FFh
+        jr      nz,MK_LP
+        ret
+
+; ---- V9990 init (display off) -----------------------------------------
+V9_INIT:
+        ld      a,2
+        out     (V9_SYS),a
+        xor     a
+        out     (V9_SYS),a
+        ld      a,10h
+        out     (V9_OUT),a
+        ld      hl,REGS
+VI_LP:
+        ld      a,(hl)
+        cp      0FFh
+        ret     z
+        out     (V9_SEL),a
+        inc     hl
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        jr      VI_LP
+
+; ---- output ----------------------------------------------------------
+; BDOS call with IX, IY and HL kept.
+BDOSX:
+        push    hl
+        push    ix
+        push    iy
+        call    BDOS
+        pop     iy
+        pop     ix
+        pop     hl
+        ret
+
+PRINT:
+        ld      c,09h
+        jr      BDOSX
+
+; A -> the file buffer; a full 128-byte record is written. Keeps all but AF.
+FPUTC:
+        push    hl
+        push    de
+        push    bc
+        ld      hl,(BUFP)
+        ld      (hl),a
+        inc     l                       ; BUF is 256-aligned, 128 long
+        ld      (BUFP),hl
+        bit     7,l
+        jr      z,FP_OUT
+        ld      de,FCB
+        ld      c,15h                   ; sequential write
+        call    BDOSX
+        ld      hl,BUF
+        ld      (BUFP),hl
+FP_OUT:
+        pop     bc
+        pop     de
+        pop     hl
+        ret
+
+FSPACE:
+        ld      a,' '
+        jr      FPUTC
+
+FEOL:
+        ld      a,0Dh
+        call    FPUTC
+        ld      a,0Ah
+        jr      FPUTC
+
+FHEX8:
+        push    af
+        rrca
+        rrca
+        rrca
+        rrca
+        call    FHEX4
+        pop     af
+FHEX4:
+        and     0Fh
+        add     a,'0'
+        cp      '9'+1
+        jr      c,FPUTC
+        add     a,'A'-'9'-1
+        jr      FPUTC
+
+; HL = zero-terminated text.
+FSTR:
+        ld      a,(hl)
+        and     a
+        ret     z
+        call    FPUTC
+        inc     hl
+        jr      FSTR
+
+; The last record padded with 1Ah, then close.
+FCLOSE:
+        ld      a,(BUFP)
+        and     a
+        jr      z,FC_CLOSE
+        ld      a,1Ah
+        call    FPUTC
+        jr      FCLOSE
+FC_CLOSE:
+        ld      de,FCB
+        ld      c,10h
+        jp      BDOSX
+
+; ---- data ------------------------------------------------------------
+REGS:
+        db      6,05h, 7,00h, 8,42h, 9,00h, 13,00h, 15,00h, 16,00h
+        db      17,0, 18,0, 19,0, 20,0, 21,0, 22,0, 23,0, 24,0, 25,0
+        db      0FFh
+
+; R#32-R#51: LMMV 256x2048 colour 15, layer A then layer B.
+FILL_A:
+        dw      0, 0, 0, 0, 256, 2048
+        db      0, 0Ch
+        dw      00FFh, 0FFFFh, 0FFFFh
+FILL_B:
+        dw      0, 0, 512, 0, 256, 2048
+        db      0, 0Ch
+        dw      0FF00h, 0FFFFh, 0FFFFh
+
+; Restore check: rows 0, 1, 1024, 2047 bytes 0-3 and 64-65 in layer A,
+; rows 0 and 2047 in layer B.
+RCHK:
+        db      'D', 0, 00h, 00h, 4
+        db      'D', 0, 00h, 40h, 2
+        db      'D', 0, 00h, 80h, 4
+        db      'D', 0, 00h, 0C0h, 2
+        db      'D', 2, 00h, 00h, 4
+        db      'D', 2, 00h, 40h, 2
+        db      'D', 3, 0FFh, 80h, 4
+        db      'D', 4, 00h, 00h, 4
+        db      'D', 7, 0FFh, 80h, 4
+        db      0
+
+        MACRO   WR8 m_reg, m_val
+        db      m_reg, m_val
+        ENDM
+        MACRO   WR16 m_reg, m_val
+        db      m_reg, low (m_val), m_reg+1, high (m_val)
+        ENDM
+        MACRO   DUMP m_adr, m_n
+        db      'D', (m_adr) >> 16, high ((m_adr) & 0FFFFh), low (m_adr), m_n
+        ENDM
+        MACRO   SCANR m_adr, m_n, m_step
+        db      'S', (m_adr) >> 16, high ((m_adr) & 0FFFFh), low (m_adr)
+        dw      m_n, m_step
+        ENDM
+
+ROWU            equ     2047            ; plain in both layers
+ROWU_A          equ     ROWU*128
+ROWU_B          equ     40000h+ROWU*128
+LB              equ     512             ; DX/SX bit 9: layer B
+WIN_Y           equ     1100
+WIN_B           equ     40000h+(WIN_Y-3)*128
+LOP_B           equ     40000h+WIN_Y*128+64
+
+WTAB:
+        dw      W0, W1, W2, W3, W4, W5, W6, W7, W8, W9, W10
+        dw      W11, W12, W13, W14, W15, W16, W17, W18, W19, W20
+
+W0:     db      0FFh, 0
+W1:     db      0C0h, 0                 ; SX
+        WR16    34, ROWU
+        WR8     44, 0
+        WR16    48, 0FFFFh
+        db      0FFh, 0
+W2:     db      0C0h, 0                 ; SY & 127
+        WR16    32, 0
+        WR8     44, 0
+        WR16    48, 1111h
+        db      0FFh, 0
+W3:     db      0C0h, 0                 ; SY >> 7
+        WR16    32, 0
+        WR8     44, 0
+        WR16    48, 2222h
+        db      0FFh, 0
+W4:     db      20h, 0                  ; DX, WM 00FFh
+        WR16    38, ROWU
+        WR16    40, 1
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    46, 00FFh
+        WR16    48, 0
+        db      0FFh
+        SCANR   ROWU_A, 128, 1
+        SCANR   ROWU_B, 128, 1
+        db      0
+W5:     db      20h, 0                  ; DX, WM FF00h
+        WR16    38, ROWU
+        WR16    40, 1
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    46, 0FF00h
+        WR16    48, 0
+        db      0FFh
+        SCANR   ROWU_A, 128, 1
+        SCANR   ROWU_B, 128, 1
+        db      0
+W6:     db      20h, 0                  ; DY
+        WR16    36, LB
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    46, 0FF00h
+        WR16    48, 0
+        db      0FFh
+        SCANR   40000h, 2048, 128
+        db      0
+W7:     db      30h, 2                  ; NX, NY 1
+        WR16    32, LB
+        WR16    34, ROWU
+        WR16    42, 1
+        WR8     44, 0
+        db      0FFh, 0
+W8:     db      30h, 2                  ; NX, NY 2
+        WR16    32, LB
+        WR16    34, ROWU-1
+        WR16    42, 2
+        WR8     44, 0
+        db      0FFh, 0
+W9:     db      30h, 2                  ; NY
+        WR16    32, LB
+        WR16    34, 0
+        WR16    40, 2
+        WR8     44, 0
+        db      0FFh, 0
+W10:    db      20h, 0                  ; ARG: DIX, DIY
+        WR16    36, LB+128
+        WR16    38, WIN_Y
+        WR16    40, 2
+        WR16    42, 2
+        WR8     45, 0Ch
+        WR16    46, 0FF00h
+        WR16    48, 0
+        db      0FFh
+        SCANR   WIN_B, 7*128, 1
+        db      0
+W11:    db      0C0h, 0                 ; ARG: NEQ (DIX)
+        WR16    32, 4
+        WR16    34, ROWU
+        WR16    48, 0FFFFh
+        db      0FFh, 0
+W12:    db      0B0h, 0                 ; ARG: MAJ, DIX, DIY
+        WR16    36, LB+128
+        WR16    38, WIN_Y
+        WR16    40, 3
+        WR16    42, 1
+        WR8     45, 0Ch
+        WR16    46, 0FF00h
+        WR16    48, 0
+        db      0FFh
+        SCANR   WIN_B, 7*128, 1
+        db      0
+W13:    db      20h, 0                  ; LOP: L11-L00
+        db      'P', LOP_B >> 16, high (LOP_B & 0FFFFh), low LOP_B, 0AAh
+        WR16    36, LB+128
+        WR16    38, WIN_Y
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR16    46, 0FF00h
+        WR16    48, 0CCCCh
+        db      0FFh
+        DUMP    LOP_B, 1
+        db      0
+W14:    db      20h, 0                  ; LOP: TP
+        db      'P', LOP_B >> 16, high (LOP_B & 0FFFFh), low LOP_B, 0A5h
+        WR16    36, LB+128
+        WR16    38, WIN_Y
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR16    46, 0FF00h
+        WR16    48, 0
+        db      0FFh
+        DUMP    LOP_B, 1
+        db      0
+W15:    db      20h, 0                  ; WM, layer A
+        WR16    36, 0
+        WR16    38, ROWU
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    48, 0
+        db      0FFh
+        DUMP    ROWU_A, 1
+        DUMP    ROWU_B, 1
+        db      0
+W16:    db      20h, 0                  ; WM, layer B
+        WR16    36, LB
+        WR16    38, ROWU
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    48, 0
+        db      0FFh
+        DUMP    ROWU_A, 1
+        DUMP    ROWU_B, 1
+        db      0
+W17:    db      20h, 0                  ; FC low
+        WR16    36, 0
+        WR16    38, ROWU
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    46, 00FFh
+        db      0FFh
+        DUMP    ROWU_A, 1
+        db      0
+W18:    db      20h, 0                  ; FC high
+        WR16    36, LB
+        WR16    38, ROWU
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    46, 0FF00h
+        db      0FFh
+        DUMP    ROWU_B, 1
+        db      0
+W19:    db      50h, 1                  ; BC low (font data 00h)
+        WR16    36, 0
+        WR16    38, ROWU
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    46, 00FFh
+        WR16    48, 0
+        db      0FFh
+        DUMP    ROWU_A, 1
+        db      0
+W20:    db      50h, 1                  ; BC high
+        WR16    36, LB
+        WR16    38, ROWU
+        WR16    40, 2
+        WR16    42, 1
+        WR8     44, 0
+        WR8     45, 0Ch
+        WR16    46, 0FF00h
+        WR16    48, 0
+        db      0FFh
+        DUMP    ROWU_B, 1
+        db      0
+
+; The tests: name (5 characters), R#52, rep, then R#32-R#51: SX SY DX DY
+; NX NY (words), ARG, LOP, WM FC BC (words). Defaults: SX 40, SY 300,
+; DX 100, DY 600, NX 24, NY 10, LOP 0Ch (WC = SC), WM per destination layer,
+; FC 5A3Ch, BC C3A5h unless the command draws with them (then FFFFh). The
+; source rows (300-309) and the destination rows (600-609) are apart.
+        MACRO   CASE m_name, m_op, m_rep, m_sx, m_sy, m_dx, m_dy, m_nx, m_ny, m_arg, m_wm, m_fc, m_bc
+        db      m_name
+        db      m_op, m_rep
+        dw      m_sx, m_sy, m_dx, m_dy, m_nx, m_ny
+        db      m_arg, 0Ch
+        dw      m_wm, m_fc, m_bc
+        ENDM
+WA              equ     00FFh
+WB              equ     0FF00h
+FF              equ     0FFFFh
+F1              equ     5A3Ch
+B1              equ     0C3A5h
+
+CASES:
+        CASE    "CAL  ", 00h, 0, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "CAL2 ", 00h, 0, 1234, 3001, 1777, 2222, 1500, 3333, 0Fh, WB, B1, F1
+        CASE    "STOP ", 00h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "LMMC ", 10h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "LMMCd", 10h, 1, 40, 300, 123, 609, 24, 10, 0Ch, WA, F1, B1
+        CASE    "LMMCb", 10h, 1, 40, 300, LB+100, 600, 24, 10, 0, WB, F1, B1
+        CASE    "LMMV ", 20h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "LMMVd", 20h, 1, 40, 300, 123, 609, 24, 10, 0Ch, WA, FF, B1
+        CASE    "LMMVo", 20h, 1, 40, 300, 101, 600, 7, 3, 0, WA, FF, B1
+        CASE    "LMMVb", 20h, 1, 40, 300, LB+100, 600, 24, 10, 0, WB, FF, B1
+        CASE    "LMMVx", 20h, 1, 40, 300, 100, 700, 0, 1, 0, WA, FF, B1
+        CASE    "LMMVy", 20h, 1, 40, 300, 100, 600, 4, 0, 0, WA, FF, B1
+        CASE    "LMMVw", 20h, 1, 40, 300, 100, 2040, 24, 16, 0, WA, FF, B1
+        CASE    "LMMVu", 20h, 1, 40, 300, 100, 4, 24, 10, 08h, WA, FF, B1
+        CASE    "LMCM ", 30h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "LMCMd", 30h, 1, 63, 309, 100, 600, 24, 10, 0Ch, WA, F1, B1
+        CASE    "LMCMo", 30h, 1, 41, 300, 100, 600, 7, 3, 0, WA, F1, B1
+        CASE    "LMMM ", 40h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "LMMMd", 40h, 1, 63, 309, 123, 609, 24, 10, 0Ch, WA, F1, B1
+        CASE    "LMMMo", 40h, 1, 41, 300, 100, 600, 7, 3, 0, WA, F1, B1
+        CASE    "LMMMb", 40h, 1, LB+40, 300, LB+100, 600, 24, 10, 0, WB, F1, B1
+        CASE    "LMMMx", 40h, 1, 40, 300, LB+100, 600, 24, 10, 0, WB, F1, B1
+        CASE    "LMMMw", 40h, 1, LB+40, 2040, LB+100, 1000, 24, 16, 0, WB, F1, B1
+        CASE    "CMMC ", 50h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, FF
+        CASE    "CMMCd", 50h, 1, 40, 300, 123, 609, 24, 10, 0Ch, WA, FF, FF
+        CASE    "CMMK ", 60h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, FF
+        CASE    "CMMM ", 70h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, FF
+        CASE    "BMXL ", 80h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "BMLX ", 90h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "BMLL ", 0A0h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "LINE ", 0B0h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "LINEm", 0B0h, 1, 40, 300, 100, 600, 24, 10, 01h, WA, FF, B1
+        CASE    "LINEd", 0B0h, 1, 40, 300, 123, 609, 24, 10, 0Dh, WA, FF, B1
+        CASE    "SRCH ", 0C0h, 1, 40, 300, 100, 600, 24, 10, 0, WA, 1111h, B1
+        CASE    "SRCHn", 0C0h, 1, 40, 300, 100, 600, 24, 10, 0, WA, 5555h, B1
+        CASE    "SRCHl", 0C0h, 1, 40, 300, 100, 600, 24, 10, 04h, WA, 5555h, B1
+        CASE    "SRCHq", 0C0h, 1, 40, 300, 100, 600, 24, 10, 02h, WA, FF, B1
+        CASE    "POINT", 0D0h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "PSET ", 0E0h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "PSETr", 0E1h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "PSETl", 0E3h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "PSETs", 0E2h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "PSETv", 0E4h, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "PSETu", 0ECh, 1, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "PSET2", 0E5h, 2, 40, 300, 100, 600, 24, 10, 0, WA, FF, B1
+        CASE    "ADVN ", 0F0h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "ADVNr", 0F1h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "ADVNl", 0F3h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "ADVNv", 0F4h, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "ADVNu", 0FCh, 1, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        CASE    "ADVN2", 0F5h, 2, 40, 300, 100, 600, 24, 10, 0, WA, F1, B1
+        db      0
+
+TXT_HEAD:
+        db      "# VDPEND v1: V9990 command end registers, P1 (R#6 05h)", 0Dh, 0Ah, 0
+TXT_RCHK:
+        db      "K", 0
+TXT_R:
+        db      " R:", 0
+TXT_END:
+        db      "# end", 0Dh, 0Ah, 0
+MSG_HELLO:
+        db      "VDPEND: V9990 command end registers -> VDPEND.TXT", 0Dh, 0Ah, "$"
+MSG_NOFILE:
+        db      "Cannot create VDPEND.TXT", 0Dh, 0Ah, "$"
+MSG_DONE:
+        db      "Done: VDPEND.TXT", 0Dh, 0Ah, "$"
+MSG_CRLF:
+        db      0Dh, 0Ah, "$"
+
+FCB:
+        db      0, "VDPEND  TXT"
+        ds      25
+
+CASEN:  db      0
+WITN:   db      0
+W_OP:   db      0
+DMODE:  db      0
+FEEDB:  db      0
+T_CNT:  dw      0
+T_LAST: db      0
+T_FLAGS: db     0
+SC_BANK: db     0
+SC_ADR: dw      0
+SC_LEFT: dw     0
+SC_STEP: dw     0
+SC_N:   dw      0
+SC_IDX: dw      0
+SC_LIST: ds     48
+BUFP:   dw      BUF
+
+        align   256
+BUF:    ds      128

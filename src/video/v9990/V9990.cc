@@ -7,6 +7,7 @@
 
 #include "narrow.hh"
 #include "serialize.hh"
+#include "strCat.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
@@ -67,6 +68,7 @@ V9990::V9990(const DeviceConfig& config)
 	, v9990StatusDebug(*this)
 	, v9990PalDebug(*this)
 	, irq(getMotherBoard(), getName() + ".IRQ")
+	, paletteSnowProbe(getMotherBoard().getDebugger(), getName() + ".paletteSnow")
 	, display(getReactor().getDisplay())
 	, invalidRegisterReadCallback(getCommandController(),
 		tmpStrCat(getName(), "_invalid_register_read_callback"),
@@ -202,6 +204,7 @@ uint8_t V9990::readIO(uint16_t port, EmuTime time)
 		break;
 
 	case PALETTE_DATA:
+		paletteAccess(regs[PALETTE_POINTER] >> 2, time);
 		if (!(regs[PALETTE_CONTROL] & 0x10)) {
 			uint8_t& palPtr = regs[PALETTE_POINTER];
 			switch (palPtr & 3) {
@@ -295,6 +298,7 @@ void V9990::writeIO(uint16_t port, uint8_t val, EmuTime time)
 			}
 			uint8_t& palPtr = regs[PALETTE_POINTER];
 			writePaletteRegister(palPtr, val, time);
+			paletteAccess(palPtr >> 2, time);
 			switch (palPtr & 3) {
 				case 0:  palPtr += 1; break; // red
 				case 1:  palPtr += 1; break; // green
@@ -694,6 +698,10 @@ void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime time)
 		case SCROLL_CONTROL_BX1:
 			renderer->updateScrollBX(time);
 			break;
+		case SCROLL_CONTROL_BY1:
+			// SDA/SDB bits take effect immediately, unlike the scroll bits
+			if ((regs[reg] ^ val) & 0xC0) renderer->updateLayerDisable(time);
+			break;
 		case DISPLAY_ADJUST:
 			// TODO verify on real V9990: when exactly does a
 			//  change in horizontal/vertical adjust take place
@@ -730,6 +738,62 @@ void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime time)
 			scheduleHscan(time);
 			break;
 	}
+}
+
+void V9990::paletteAccess(int index, EmuTime time)
+{
+	renderer->paletteSnow(index, time);
+	if (!paletteSnowProbe.anyObservers()) return;
+
+	// Where is the beam?
+	int ticks = getUCTicksThisFrame(time);
+	int x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
+	int y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+	const auto& hor = getHorizontalTiming();
+	const auto& ver = getVerticalTiming();
+	auto visible = [](const V9990DisplayPeriod& p, int pos) {
+		return (p.blank <= pos) &&
+		       (pos < p.blank + p.border1 + p.display + p.border2);
+	};
+	if (!visible(hor, x) || !visible(ver, y)) return; // blanking: no snow
+
+	// Does the pixel there get its color from the palette? This only
+	// looks at the mode, not at the pixel itself:
+	//  - in the YJKP and YUVP modes all pixels count, also those that
+	//    have a YJK or YUV color,
+	//  - the cursors in the other direct color modes don't count.
+	bool inDisplay = displayEnabled &&
+		(getLeftBorder() <= x) && (x < getRightBorder()) &&
+		(getTopBorder()  <= y) && (y < getBottomBorder());
+	using enum V9990ColorMode;
+	bool usesPalette = inDisplay
+		? (getColorMode() != one_of(BYUV, BYJK, BD16, BD8))
+		: !isOverScan(); // the border has the backdrop color
+	if (!usesPalette) return;
+
+	int dx = x - getLeftBorder();
+	// UCtoX() only handles positions in or right of the display area
+	int px = (dx >= 0) ? UCtoX(dx, mode) : (-1 - UCtoX(-1 - dx, mode));
+	paletteSnowProbe.signal(px, y - getTopBorder(), index);
+}
+
+V9990::PaletteSnowProbe::PaletteSnowProbe(Debugger& debugger_, std::string name_)
+	: ProbeBase(debugger_, std::move(name_),
+	            "Signals a palette access while the beam draws pixels that "
+	            "use the palette: on a real V9990 that gives palette snow. "
+	            "Value: {x y index}, the beam position relative to the "
+	            "display area and the accessed palette entry.")
+{
+}
+
+TclObject V9990::PaletteSnowProbe::getValue() const
+{
+	return makeTclList(x, y, index);
+}
+
+TraceValue V9990::PaletteSnowProbe::getTraceValue() const
+{
+	return TraceValue{tmpStrCat(x, ' ', y, ' ', index)};
 }
 
 void V9990::writePaletteRegister(uint8_t reg, uint8_t val, EmuTime time)
@@ -859,11 +923,13 @@ V9990ColorMode V9990::getColorMode(uint8_t pal_ctrl) const
 			case 0x00: return BP2;
 			case 0x01: return BP4;
 			case 0x02:
-				switch (pal_ctrl & 0xC0) {
-					case 0x00: return BP6;
-					case 0x40: return BD8;
+				switch (pal_ctrl & 0xE0) {
+					case 0x00: case 0x20: return BP6;
+					case 0x40: case 0x60: return BD8;
 					case 0x80: return BYJK;
+					case 0xA0: return BYJKP;
 					case 0xC0: return BYUV;
+					case 0xE0: return BYUVP;
 				}
 				break;
 			case 0x03: return BD16;
@@ -933,9 +999,16 @@ void V9990::scheduleHscan(EmuTime time)
 		} else {
 			int line = regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3) +
 				   getTopBorder();
+			// Measured on a real V9990 (NTSC, R#16 = 0): IL 229, 17
+			// lines after VR rises, is the last line the interrupt
+			// comes on; from IL 230 on (the vertical sync, after the
+			// bottom border and 4 erase lines) it never does. Here that
+			// is the frame's last 4 lines, and anything past the end.
+			if (line >= verTiming->cycle - 4) return -1;
 			return line * V9990DisplayTiming::UC_TICKS_PER_LINE;
 		}
 	}();
+	if (offset < 0) return; // never comes
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1
 	offset += (regs[INTERRUPT_3] & 0x0F) * 64 * mult;
 	if (offset <= ticks) {

@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <name>BASIC Level III A PAL</name>
+    <manufacturer>Sega</manufacturer>
+    <code>B-30</code>
+    <release_year>1983</release_year>
+    <description>BASIC cartridge with 16kB RAM for the Sega SC-3000, PAL/export version.</description>
+    <type>BASIC cartridge</type>
+  </info>
+
+  <!-- For the Sega SC-3000. The cartridge has 32kB ROM and 16kB RAM.
+       The BASIC Level III B cartridge has 32kB RAM: that one also covers
+       0xC000-0xFFFF, where it disables the internal RAM of the SC-3000.
+       That is not emulated yet, so only the A version is available. The
+       ROM is the same: BASIC detects the amount of RAM.
+  -->
+
+  <devices>
+    <primary slot="any">
+      <ROM id="BASIC Level III A PAL ROM">
+        <rom>
+          <filename>sc-3000_basic_level_3a_v1.0_pal.rom</filename>
+          <sha1>a43aef367857a681decea52377c2e7a992c2ac68</sha1> <!-- SEGA SC-3000 BASIC Level 3 ver 1.0, Export Version With Diereses -->
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+      <RAM id="BASIC Level III A PAL RAM">
+        <mem base="0x8000" size="0x4000"/>
+      </RAM>
+    </primary>
+  </devices>
+
+</msxconfig>

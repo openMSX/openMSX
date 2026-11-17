@@ -12,6 +12,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
+#include <cmath>
 #include <ranges>
 #include <string_view>
 
@@ -413,6 +415,75 @@ void printSpriteBoxes(std::span<const SpriteBox> boxes, gl::ivec2 pos, int patte
 		ImGui::StrCat("sprite ", b.sprite, ": pat=", b.pattern, " (0x", hex_string(Digits{size_t(patternDigits)}, b.pattern), ")\n"
 		              "x,y=", b.vramX, ',', b.vramY, " (0x", hex_string<2>(b.vramX), ",0x", hex_string<2>(b.vramY), ')');
 	}
+}
+
+// Fixed (not depending on the counts) horizontal position, as a fraction of the
+// histogram width: linear up to 'limit' (at 1/2), then a power curve that ends
+// at 1 for 'maxSprites', with the same slope at 'limit' so there's no kink.
+static float spritesPerLineX(int n, int limit, int maxSprites)
+{
+	if (n <= limit) return 0.5f * float(n) / float(limit);
+	float p = float(maxSprites - limit) / float(limit); // slope match at 'limit'
+	float t = float(std::min(n, maxSprites) - limit) / float(maxSprites - limit);
+	return 1.0f - 0.5f * std::pow(1.0f - t, p);
+}
+
+void spritesPerLineHistogram(bool show, std::span<const uint8_t> counts, int limit, int maxSprites, float zoom)
+{
+	if (!show) return;
+	assert(!counts.empty());
+	assert(maxSprites >= 2 * limit); // keeps the curve above 'limit' concave
+	assert(spritesPerLineX(limit, limit, maxSprites) == 0.5f);
+	assert(spritesPerLineX(maxSprites, limit, maxSprites) == 1.0f);
+	float width = 5.0f * ImGui::GetFontSize();
+	gl::vec2 size{width, zoom * float(counts.size())};
+	gl::vec2 pos = ImGui::GetCursorScreenPos();
+	ImGui::InvisibleButton("##spritesPerLine", size);
+
+	auto* drawList = ImGui::GetWindowDrawList();
+	drawList->AddRectFilled(pos, pos + size, ImGui::GetColorU32(ImGuiCol_FrameBg));
+	auto normalCol = ImGui::GetColorU32(ImGuiCol_PlotHistogram);
+	auto overCol = getColor(imColor::ERROR);
+	// one rectangle per run of lines with the same count, nothing for 0
+	for (size_t y = 0; y < counts.size(); /**/) {
+		auto n = counts[y];
+		auto end = y + 1;
+		while ((end < counts.size()) && (counts[end] == n)) ++end;
+		if (n) {
+			drawList->AddRectFilled(pos + gl::vec2{0.0f, zoom * float(y)},
+			                        pos + gl::vec2{width * spritesPerLineX(n, limit, maxSprites), zoom * float(end)},
+			                        (n > limit) ? overCol : normalCol);
+		}
+		y = end;
+	}
+	float limitX = pos.x + 0.5f * width;
+	drawList->AddLine({limitX, pos.y}, {limitX, pos.y + size.y}, ImGui::GetColorU32(ImGuiCol_Text, 0.5f));
+
+	if (ImGui::IsItemHovered()) {
+		auto line = int((ImGui::GetMousePos().y - pos.y) / zoom);
+		if ((0 <= line) && (line < int(counts.size()))) {
+			int n = counts[line];
+			im::Tooltip([&]{ ImGui::StrCat(n, " sprite", (n == 1 ? "" : "s"), " on line ", line); });
+		}
+	}
+	ImGui::SameLine();
+}
+
+void spritesPerLineSettings(bool& show, std::span<const uint8_t> counts, int limit,
+                            std::string_view extraHelp)
+{
+	ImGui::Checkbox("Sprites per line", &show);
+	HelpMarker(tmpStrCat("The number of sprites on each display line. On lines with more than ", limit,
+	                     " sprites the higher sprite numbers are not drawn.", extraHelp));
+	if (!show) return;
+	assert(!counts.empty());
+	im::Indent([&]{
+		auto busiest = std::ranges::max_element(counts);
+		auto overLimit = std::ranges::count_if(counts, [&](uint8_t n) { return n > limit; });
+		ImGui::StrCat("max: ", int(*busiest), " sprite", (*busiest == 1 ? "" : "s"),
+		              ", on line ", busiest - counts.begin());
+		ImGui::StrCat(overLimit, " line", (overLimit == 1 ? "" : "s"), " over the limit");
+	});
 }
 
 } // namespace openmsx

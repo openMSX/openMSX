@@ -8,6 +8,7 @@
     <release_year>2010</release_year>
     <description>An MSX1 machine using C-BIOS, with Brazillian settings, like 60Hz interrupt frequency.</description>
     <type>MSX</type>
+    <region>br</region>
   </info>
 
   <CassettePort/>
@@ -18,7 +19,7 @@
       <ROM id="C-BIOS Main ROM JP">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>583cda86979ff4cd1eef75e79c7fda96e425317a</sha1>
+          <sha1>9be33b3b4ceb71f522c7d598b5c88e9ea4874bf8</sha1>
           <filename>cbios_main_msx1_br.rom</filename>
         </rom>
       </ROM>
@@ -26,7 +27,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>9fbbe400dbaf186aeba42e170d9424b032412c42</sha1>
+          <sha1>c5e80d3771919aff1af491a078b608438b801dee</sha1>
           <filename>cbios_logo_msx1.rom</filename>
         </rom>
       </ROM>

@@ -90,7 +90,7 @@ BoundingBox rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_ra
 				sum += coverage;
 			}
 			// Accumulate into float canvas (normalized to [0, 1])
-			line[xx] += ink_color * (sum / 256.0f);
+			line[xx] += ink_color * (float(sum) / 256.0f);
 			x += 16;
 		}
 
@@ -104,7 +104,7 @@ BoundingBox rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_ra
 				int coverage = (x < -a) ? left_coverage : right_coverage;
 				sum += coverage;
 			}
-			line[xx_mid] += ink_color * (sum / 256.0f);
+			line[xx_mid] += ink_color * (float(sum) / 256.0f);
 			x += 16;
 		}
 
@@ -116,7 +116,7 @@ BoundingBox rasterize_dot(Canvas<InkType>& canvas, gl::vec2 center, float pen_ra
 				int coverage = std::clamp(a - x, 0, 16);
 				sum += coverage;
 			}
-			line[xx] += ink_color * (sum / 256.0f);
+			line[xx] += ink_color * (float(sum) / 256.0f);
 			x += 16;
 		}
 	}

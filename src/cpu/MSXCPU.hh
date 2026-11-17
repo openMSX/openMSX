@@ -14,6 +14,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <span>
 
 namespace openmsx {
@@ -148,6 +149,9 @@ public:
 	EmuTime waitCyclesR800(EmuTime time, unsigned cycles);
 
 	[[nodiscard]] CPURegs& getRegisters();
+
+	/** See CPUCore::getBlockStart(). Queries the currently active CPU. */
+	[[nodiscard]] std::optional<EmuTime> getBlockStart() const;
 
 	[[nodiscard]] auto* getZ80() { return z80.get(); }
 	[[nodiscard]] auto* getR800() { return r800.get(); }

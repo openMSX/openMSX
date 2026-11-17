@@ -104,6 +104,7 @@ private:
 	void debugInfo(TclObject& result) const;
 	void goBack(std::span<const TclObject> tokens);
 	void goTo(std::span<const TclObject> tokens);
+	void blockStart(std::span<const TclObject> tokens, TclObject& result);
 	void saveReplay(Interpreter& interp,
 	                std::span<const TclObject> tokens, TclObject& result);
 	void loadReplay(Interpreter& interp,

@@ -1849,7 +1849,7 @@ void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
 				[&](gl::vec2 p) { return p * gl::vec2{graphWidth, -graphHeight} + gl::vec2{graphLeft, origin.y}; },
 				0.0f, 1.0f, points);
 			points.emplace_back(arrowRight.x, graphTop);
-			drawList->AddPolyline(points.data(), points.size(), white, 4.0f);
+			drawList->AddPolyline(points.data(), narrow_cast<int>(points.size()), white, 4.0f);
 
 			auto numAxes = disabled ? 0 : joystickManager.getNumAxes(joysticks[selectedJoystick]).value_or(0);
 			for (auto axis : xrange(int(numAxes))) {

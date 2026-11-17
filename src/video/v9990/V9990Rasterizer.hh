@@ -6,6 +6,7 @@
 #include "EmuTime.hh"
 
 #include <cstdint>
+#include <optional>
 
 namespace openmsx {
 
@@ -93,6 +94,16 @@ public:
 	virtual void drawDisplay(
 		int fromX, int fromY, int toX, int toY,
 		int displayX, int displayY, int displayYA, int displayYB) = 0;
+
+	/** Enable or disable "palette snow". While enabled, every lookup in
+	  * the 64-entry palette (border, pattern and palette-bitmap pixels,
+	  * sprites, cursors) returns the current color of the given palette
+	  * entry. Colors that don't come from that palette (BD8, BD16, YJK,
+	  * YUV) are not affected.
+	  * @param index The palette entry (0-63) to show, or an empty
+	  *              optional to disable the snow.
+	  */
+	virtual void setPaletteSnow(std::optional<int> index) = 0;
 
 	/** Is video recording active?
 	  */

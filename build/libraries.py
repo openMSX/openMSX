@@ -23,7 +23,7 @@ def _get_pkg_config(distroRoot):
 	elif distroRoot.startswith('derived/'):
 		toolsDir = '%s/../tools/bin' % distroRoot
 		for name in listdir(toolsDir):
-			if name.endswith('-pkg-config'):
+			if name.endswith('-pkgconf'):
 				return toolsDir + '/' + name
 		raise RuntimeError('No cross-pkg-config found in 3rdparty build')
 	else:
@@ -133,7 +133,7 @@ class Library(object):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
 			return 'unknown'
-		elif 'pkg-config' in configScript:
+		elif 'pkg-config' in configScript or 'pkgconf' in configScript:
 			return '`%s --modversion`' % configScript
 		else:
 			return '`%s --version`' % configScript
@@ -204,8 +204,10 @@ class GL(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		# On *BSD, OpenGL is in ports, not in the base system.
-		return not platform.endswith('bsd')
+		# On *BSD, OpenGL is in ports, not in the base system. But we can't
+		# build it ourselves, and a system that runs openMSX has it installed
+		# anyway (just like X11, which is in ports as well).
+		return True
 
 	@classmethod
 	def getHeaders(cls, platform):
@@ -218,6 +220,15 @@ class GL(Library):
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		if platform in ('netbsd', 'openbsd'):
 			return '-isystem /usr/X11R6/include -isystem /usr/X11R7/include'
+		elif platform in ('freebsd', 'dragonfly'):
+			# Mesa is in ports. As a system library, GL doesn't get the ports
+			# directory from the base class (and for the staticbindist that
+			# directory is the 3rd party install directory), so add it here.
+			# Not every compiler searches it by itself: GCC from ports does,
+			# the system compiler (Clang) doesn't. With -idirafter it's
+			# searched last, so it doesn't override other headers (e.g. those
+			# of the 3rd party libraries in the staticbindist).
+			return '-idirafter %s/include' % environ.get('LOCALBASE', '/usr/local')
 		else:
 			return super().getCompileFlags(
 				platform, linkStatic, distroRoot
@@ -231,6 +242,9 @@ class GL(Library):
 			return '-lopengl32'
 		elif platform in ('netbsd', 'openbsd'):
 			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGL'
+		elif platform in ('freebsd', 'dragonfly'):
+			# see getCompileFlags()
+			return '-L%s/lib -lGL' % environ.get('LOCALBASE', '/usr/local')
 		else:
 			return super().getLinkFlags(platform, linkStatic, distroRoot)
 
@@ -260,6 +274,15 @@ class GLEW(Library):
 	header = '<GL/glew.h>'
 	function = 'glewInit'
 	dependsOn = ('GL', )
+
+	@classmethod
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		# The glew.pc that GLEW installs in our 3rd party build can't be
+		# used (wrong prefix, requires GLU), so only use pkg-config when
+		# linking dynamically.
+		if linkStatic:
+			return None
+		return '%s glew' % _get_pkg_config(distroRoot)
 
 	@classmethod
 	def getLibName(cls, platform):

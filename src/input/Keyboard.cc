@@ -698,23 +698,49 @@ static constexpr array_with_enum_index<Keyboard::Matrix, bool> defaultCombinedSh
 	segaCombinedShiftFlag,
 };
 
+// The character keys (letters, digits, symbols) in the keycode tables are at
+// their position on an international MSX keyboard. Move them to their position
+// on the keyboard of this MSX, according to its unicode keymap. Only when that
+// key produces the character without modifiers (for letters SHIFT is fine as
+// well, e.g. on Sega keyboards lower case letters need SHIFT), otherwise the
+// key would produce a different character (e.g. '=' needs SHIFT on a Japanese
+// MSX) and the fixed position is as good a guess as any.
+static std::vector<KeyCodeMsxMapping> adaptToKeymap(
+	std::span<const KeyCodeMsxMapping> tab, const UnicodeKeymap& keymap)
+{
+	std::vector<KeyCodeMsxMapping> result(tab.begin(), tab.end());
+	for (auto& [keyCode, pos] : result) {
+		bool isPrintableAscii = (' ' < keyCode) && (keyCode < 0x7F);
+		if (!isPrintableAscii) continue;
+		auto keyInfo = keymap.get(keyCode);
+		if (!keyInfo.isValid()) continue;
+		bool isLetter = ('a' <= keyCode) && (keyCode <= 'z');
+		uint8_t allowedMods = isLetter ? KeyInfo::SHIFT_MASK : 0;
+		if ((keyInfo.modMask & ~allowedMods) == 0) {
+			pos = keyInfo.pos;
+		}
+	}
+	// the keycodes didn't change, so the result is still sorted
+	return result;
+}
+
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler_,
                    CommandController& commandController_,
                    EventDistributor& eventDistributor_,
                    MSXEventDistributor& msxEventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   Matrix matrix,
+                   Matrix matrix_,
                    const DeviceConfig& config)
 	: Schedulable(scheduler_)
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, eventDistributor(eventDistributor_)
-	, keyCodeTab (defaultKeyCodeMappings [matrix])
-	, scanCodeTab(defaultScanCodeMappings[matrix])
-	, combinedShiftFlag(defaultCombinedShiftFlags[matrix])
-	, modifierPos(modifierPosForMatrix[matrix])
+	, keyCodeTab (defaultKeyCodeMappings [matrix_])
+	, scanCodeTab(defaultScanCodeMappings[matrix_])
+	, combinedShiftFlag(defaultCombinedShiftFlags[matrix_])
+	, modifierPos(modifierPosForMatrix[matrix_])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
@@ -728,9 +754,10 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(config.getChildData(
-		"keyboard_type", defaultKeymapForMatrix[matrix]))
+		"keyboard_type", defaultKeymapForMatrix[matrix_]))
+	, matrixType(matrix_)
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
-	, blockRow11(matrix == Matrix::MSX
+	, blockRow11(matrix_ == Matrix::MSX
 		&& !config.getChildDataAsBool("has_yesno_keys", false))
 	, keyGhosting(config.getChildDataAsBool("key_ghosting", true))
 	, keyGhostingSGCprotected(config.getChildDataAsBool(
@@ -739,6 +766,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 {
+	characterKeyCodeTab = adaptToKeymap(keyCodeTab, unicodeKeymap);
+
 	std::ranges::fill(keyMatrix,     255);
 	std::ranges::fill(cmdKeyMatrix,  255);
 	std::ranges::fill(typeKeyMatrix, 255);
@@ -835,12 +864,26 @@ std::span<const uint8_t, KeyMatrixPosition::NUM_ROWS> Keyboard::getKeys() const
 {
 	if (keysChanged) {
 		keysChanged = false;
-		std::span matrix = keyTypeCmd.isActive() ? typeKeyMatrix : userKeyMatrix;
-		for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
-			keyMatrix[row] = cmdKeyMatrix[row] & matrix[row];
-		}
-		if (keyGhosting) {
-			doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
+		if (keyTypeCmd.isActive()) {
+			// The 'type' command presses keys to type characters, ghost
+			// keys would add other characters (e.g. with SHIFT+GRAPH on
+			// machines without ghosting protection for SHIFT/GRAPH/CODE).
+			// So only the keys pressed with the keymatrix commands get
+			// ghosting, the typed keys are added afterwards.
+			std::ranges::copy(cmdKeyMatrix, keyMatrix.begin());
+			if (keyGhosting) {
+				doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
+			}
+			for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
+				keyMatrix[row] &= typeKeyMatrix[row];
+			}
+		} else {
+			for (auto row : xrange(KeyMatrixPosition::NUM_ROWS)) {
+				keyMatrix[row] = cmdKeyMatrix[row] & userKeyMatrix[row];
+			}
+			if (keyGhosting) {
+				doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
+			}
 		}
 	}
 	return keyMatrix;
@@ -995,6 +1038,18 @@ void Keyboard::changeKeyMatrixEvent(EmuTime time, uint8_t row, uint8_t newValue)
 }
 
 /*
+ * Text without a key: a key event without scancode, which InputEventGenerator
+ * makes from text input (see splitText() there). For example the text that an
+ * input method composes from a dead key and the next key, or the second and
+ * further characters of a text input event. The host never sends a release
+ * event for it.
+ */
+static bool isTextWithoutKey(const KeyEvent& keyEvent)
+{
+	return keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN;
+}
+
+/*
  * @return True iff a release event for the CODE/KANA key must be scheduled.
  */
 bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
@@ -1089,9 +1144,10 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		}
 		return false;
 	} else {
-		// To work around a Japanese keyboard Kanji mode bug. (Multi-character
-		// input makes a keydown event without keyrelease message.)
-		if (keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN) {
+		if (isTextWithoutKey(keyEvent) &&
+		    (mode != KeyboardSettings::MappingMode::CHARACTER)) {
+			// Text without a key (see isTextWithoutKey()) is only used
+			// in CHARACTER mode.
 			return false;
 		}
 		if ((keyEvent.getScanCode() == SDL_SCANCODE_GRAVE) && (hostKeyMap == HostKeyMap::JP)) {
@@ -1206,7 +1262,10 @@ void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 			process(mapping->msx);
 		}
 	} else {
-		if (const auto* mapping = binary_find(keyCodeTab, key.keycode, {}, &KeyCodeMsxMapping::hostKeyCode)) {
+		auto tab = (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::CHARACTER)
+		         ? std::span<const KeyCodeMsxMapping>(characterKeyCodeTab)
+		         : keyCodeTab;
+		if (const auto* mapping = binary_find(tab, key.keycode, {}, &KeyCodeMsxMapping::hostKeyCode)) {
 			process(mapping->msx);
 		}
 	}
@@ -1562,14 +1621,22 @@ uint8_t Keyboard::pressAscii(unsigned unicode, bool down)
 			// To fix both these problems (and possibly still undiscovered
 			// variations), I'm now extending the workaround to all characters
 			// that are typed via a key combination that includes GRAPH.
-			if (modMask & KeyInfo::GRAPH_MASK) {
+			//
+			// On machines where GRAPH is a lock key, GRAPH is not in
+			// modMask (the lock is already on at this point), but the same
+			// problem occurs with SHIFT + the other key. So: when the
+			// character needs GRAPH, first press all (non-lock) modifiers,
+			// and only then the other key.
+			if (keyInfo.modMask & KeyInfo::GRAPH_MASK) {
 				auto isPressed = [&](auto& key) {
 					return (typeKeyMatrix[key.getRow()] & key.getMask()) == 0;
 				};
-				if (!isPressed(modifierPos[KeyInfo::Modifier::GRAPH])) {
-					// GRAPH not yet pressed ->
-					//  first press it before adding the non-modifier key
-					releaseMask = TRY_AGAIN;
+				for (auto [i, mp] : enumerate(modifierPos)) {
+					if (((modMask >> i) & 1) && !isPressed(mp)) {
+						// modifier not yet pressed ->
+						//  first press it before adding the non-modifier key
+						releaseMask = TRY_AGAIN;
+					}
 				}
 			}
 			// press modifiers
@@ -1733,7 +1800,17 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime time)
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {
-			eventQueue.pop_front();
+			bool releaseText = (getType(event) == EventType::KEY_DOWN) &&
+			                   isTextWithoutKey(get_event<KeyEvent>(event));
+			eventQueue.pop_front(); // invalidates 'event'
+			if (releaseText) {
+				// The host never releases text without a key, so
+				// schedule a release ourselves, to be processed before
+				// any of the other events in the queue. Like the key
+				// release of a key without scancode, it releases the
+				// character that was pressed for it.
+				eventQueue.emplace_front(KeyUpEvent::create(SDLK_UNKNOWN));
+			}
 		} else {
 			// it's possible clear() has been called
 			// (indirectly from keyboard.processQueuedEvent())

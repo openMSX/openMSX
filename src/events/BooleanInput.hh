@@ -29,11 +29,16 @@
 
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <variant>
+#include <vector>
 
 namespace openmsx {
+
+class Interpreter;
+class TclObject;
 
 class BooleanKeyboard
 {
@@ -137,6 +142,15 @@ using BooleanInput = std::variant<
 
 [[nodiscard]] std::string toString(const BooleanInput& input);
 [[nodiscard]] std::optional<BooleanInput> parseBooleanInput(std::string_view text);
+/** Parse a Tcl list of host inputs (each in the syntax of parseBooleanInput()).
+  * Throws a CommandException for an invalid one. */
+[[nodiscard]] std::vector<BooleanInput> parseBooleanInputList(Interpreter& interp, const TclObject& list);
+/** Parse a Tcl dict with names from 'keyNames' as keys and lists of host inputs
+  * as values (e.g. the msxjoystick<n>_config setting). Returns the host inputs
+  * for each name, in the order of 'keyNames'. Throws a CommandException for an
+  * invalid key or host input. */
+[[nodiscard]] std::vector<std::vector<BooleanInput>> parseBooleanInputBindings(
+	Interpreter& interp, const TclObject& dict, std::span<const std::string_view> keyNames);
 [[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadThreshold);
 
 [[nodiscard]] bool operator==(const BooleanInput& x, const BooleanInput& y);

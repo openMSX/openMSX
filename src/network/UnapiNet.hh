@@ -151,7 +151,9 @@ private:
 	// compiled in AND the channel opening successfully); DETECT advertises
 	// it, the ICMP commands are gated on it, and reset() does not re-probe.
 	bool icmpAvailable = false;
+#ifdef _WIN32
 	void* icmpChannel = nullptr; // Windows HANDLE from IcmpCreateFile()
+#endif
 
 	struct IcmpReply {
 		uint32_t srcIp = 0;

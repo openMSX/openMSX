@@ -123,6 +123,20 @@ void SoundDevice::setBalance(unsigned channel, float balance)
 	channelBalance[channel] = Balance{.left = left, .right = right};
 }
 
+void SoundDevice::enableSetChannelFactors()
+{
+	balanceCenter = false;
+	postSetBalance();
+}
+
+void SoundDevice::setChannelFactors(unsigned channel, float left, float right, EmuTime time)
+{
+	assert(channel < numChannels);
+	assert(!balanceCenter);
+	mixer.updateStream(time);
+	channelBalance[channel] = Balance{.left = left, .right = right};
+}
+
 void SoundDevice::postSetBalance()
 {
 	mixer.updateSoftwareVolume(*this);

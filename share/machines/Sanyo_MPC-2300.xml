@@ -1,0 +1,179 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sanyo</manufacturer>
+    <code>MPC-2300</code>
+    <release_year>1987</release_year>
+    <description>Soviet MSX2 for schools, with a Cyrillic keyboard, 128kB RAM and a network interface. The network interface is not fully emulated: hold DEL while booting to skip it and get to BASIC.</description>
+    <type>MSX2</type>
+    <region>ru</region>
+  </info>
+
+  <!-- WARNING: this config is partly guesswork!
+
+       No real machine was available to us. The config is based on what
+       we got from the following machines, assuming that they are all the
+       same regarding hardware and configuration:
+
+       - Serial 57501047 (of Alex Krasivsky, thanks a lot!):
+         - the ROM dumps: BIOS/BASIC, sub ROM and network ROM
+         - a photo of MSXMEM running on it (sent by e-mail in 2014): BIOS/
+           BASIC in slot 0, sub ROM in slot 3-0, 128kB memory mapper in
+           slot 3-2 and the network ROM in page 1 of slot 3-3.
+         - photos of the bottom plate: "MODEL MPC-2300 (C8)", 220V, 50Hz,
+           22W; and an inventory sticker "NO. 33"
+         - photos of the top: the same keyboard (key caps, LEDs) as on the
+           photos of the museum's machine (see below)
+
+       - Serial 57501060: photos on https://www.msx.org/wiki/Sanyo_MPC-2300
+         - Yamaha S1985 MSX-engine and Sanyo CF77099AFT on the underside
+           of the PCB, V9938 VDP and NEC D780C-1 (Z80) CPU; no separate
+           8251 or 8253 (for the network interface) seem to be visible.
+           We found no information about the CF77099AFT, a custom chip;
+           maybe it contains the network interface.
+         - right side: 2 joystick ports and a cassette port
+
+       - Serial unknown: photos of the Soviet Digital Electronics Museum
+         http://www.leningrad.su/museum/show_calc.php?n=396&lang=0
+         - Cyrillic (JCUKEN) keyboard with a RUS key (CODE, a lock key with
+           a RUSS LED) and a CAPS LED, cursor keys, no numeric keypad
+         - 2 cartridge slots; at the back: printer port, RGB, audio and
+           video out, a small switch and a "SER PORT" connector (coax,
+           probably for the network)
+         - boot screen: 128kB VRAM and 128kB RAM
+
+       What we derived from the ROMs:
+       - The network ROM uses an 8251 at I/O ports 0x80 and 0x81, like the
+         standard MSX RS-232 interface, so it is emulated with that. But
+         it never programs an 8253 (it doesn't write to port 0x87): it
+         only writes to ports 0x82-0x84 (strobes?) and reads port 0x86
+         (the lower 6 bits, probably the station code). So the real
+         hardware is probably different, e.g. with a fixed transmit clock.
+       - The keyboard layout (ru unicodemap) was checked against the key
+         tables in the BIOS (and against the key caps on the photos): it
+         fits exactly.
+
+       From the msx.org wiki (sources unknown): the release year (1987),
+       and that it was used in schools (which fits with the network ROM).
+       The wiki also says it is based on an MSX2 prototype of the Sanyo
+       MPC-2 (Wavy2).
+
+       NOT verified, i.e. guessed:
+       - Taken from the config of the Sanyo PHC-23J (another Sanyo MSX2,
+         with an S3527 MSX-engine according to its config):
+         key_ghosting_sgc_protected, ignorePortDirections and the sound
+         volumes.
+       - Common for machines with an S1985 in openMSX: the I/O mirroring,
+         the RTC and the printer port settings.
+       - The network interface (see above), and the RAM of the RS-232
+         interface; the purpose of the switch at the back.
+
+       In openMSX, the screen stays blue at startup: the network ROM (with
+       texts like "** TERMINAL MODE **", "INIT. WAIT ON" and "This STATION
+       CODE =") initializes the 8251 and sends 4 bytes, but in openMSX the
+       8251 only gets a transmit clock from a programmed 8253, so the bytes
+       aren't sent and the ROM waits forever. (A photo of the museum's
+       machine does show the BASIC prompt.) Holding DEL while booting
+       skips the network ROM and gives BASIC.
+  -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back -->
+      <sramname>mpc-2300_s1985.sram</sramname>
+    </S1985>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <keyboard_type>ru</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>mpc-2300.cmos</sramname>
+      <io base="0xB4" num="4" type="IO"/> <!-- S-1985 mirrors -->
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="8" type="IO"/> <!-- S-1985 mirrors -->
+      <bidirectional>true</bidirectional> <!-- S-1985 feature (but not used, nor implemented) -->
+      <unused_bits>0x00</unused_bits>
+    </PrinterPort>
+
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mpc-2300_basic-bios2.rom</filename>
+          <sha1>7850264dead5b05dd07fc79c1b7357940b92565e</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>mpc-2300_msx2sub.rom</filename>
+            <sha1>99990f4b262c6c6e0682041bf30d1ed24dc7dda5</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+      </secondary>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <size>128</size>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary slot="3">
+        <MSX-RS232 id="RS-232">
+          <io base="0x80" num="8"/>
+          <rom>
+            <filename>mpc-2300_network.rom</filename>
+            <sha1>c7c27e2d5da18438f956edc2ca41536ad09d0e75</sha1>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+          <ram>true</ram>
+        </MSX-RS232>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>

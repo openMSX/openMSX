@@ -349,7 +349,7 @@ static void paintPitch(std::span<const float> buf, const SoundDevice& device)
 	auto pos = ImGui::GetCursorPos();
 	ImGui::InvisibleButton("hover", {-FLT_MIN, ImGui::GetFrameHeight()});
 	simpleToolTip([&]{
-		auto f = (err > 0.8) ? 0 : iFreq;
+		auto f = (err > 0.8f) ? 0 : iFreq;
 		return strCat(formatFreq(f, noteNum), "\nconfidence=", 1.0f - err);
 	});
 	ImGui::SetCursorPos(pos);

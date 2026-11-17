@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Spectravideo</manufacturer>
+    <code>SVI-728 (DK)</code>
+    <release_year>1983</release_year>
+    <description>Danish version of the SVI-728.</description>
+    <type>MSX</type>
+    <region>dk</region>
+  </info>
+
+  <!-- This config is mostly guesswork: no real machine was available.
+       - The ROM was taken from the blueMSX website, its origin is not clear.
+       - The rest of the hardware is assumed to be the same as in the
+         Swedish SVI-728.
+       - The keyboard layout (unicodemap dk) was derived from the key tables
+         in this ROM, not from a real keyboard. In this ROM, the characters
+         0xED (EMPTY SET) and 0xE8 (GREEK CAPITAL LETTER PHI) of the
+         character set can't be typed: where the Swedish ROM has them
+         (CODE and SHIFT+CODE on the key right of P), this one has
+         u-umlaut (lower and upper case).
+  -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>dk</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>TMS9129</version>
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="4" type="IO"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>svi-728_dk_basic-bios1.rom</filename>
+          <sha1>1c89e63aed92906426f63fa760392b87f1f660bb</sha1>
+        </rom>
+        <mem base="0x0000" size="0x10000"/> <!-- it's mirrored -->
+      </ROM>
+    </primary>
+
+    <primary slot="1">
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
+    </primary>
+
+    <primary external="true" slot="2"/>
+
+    <!-- Note: this connector is actually a non-standard expansion connector on the back -->
+    <primary external="true" slot="3"/>
+
+  </devices>
+
+</msxconfig>

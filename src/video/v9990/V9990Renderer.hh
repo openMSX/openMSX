@@ -69,6 +69,16 @@ public:
 	virtual void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
 	                        EmuTime time) = 0;
 
+	/** The CPU read from or wrote to the palette data port (P#1).
+	  * On a real V9990 such an access causes "palette snow": for a short
+	  * moment every palette lookup made by the video output returns the
+	  * accessed palette entry.
+	  * For a write this must be called after updatePalette().
+	  * @param index  The accessed palette entry.
+	  * @param time   The moment in emulated time of the access.
+	  */
+	virtual void paletteSnow(int index, EmuTime time) = 0;
+
 	/** Change superimpose status. */
 	virtual void updateSuperimposing(bool enabled, EmuTime time) = 0;
 
@@ -80,6 +90,9 @@ public:
 	virtual void updateScrollBX(EmuTime time) = 0;
 	virtual void updateScrollAYLow(EmuTime time) = 0;
 	virtual void updateScrollBYLow(EmuTime time) = 0;
+
+	/** Set layer disable bits (SDA/SDB in R#22). */
+	virtual void updateLayerDisable(EmuTime time) = 0;
 
 protected:
 	V9990Renderer() = default;

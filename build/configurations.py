@@ -30,7 +30,7 @@ class Configuration(object):
 
 def getConfiguration(name):
 	if name == 'SYS_DYN':
-		requiredComponents = set((EmulationCore, ))
+		requiredComponents = set((EmulationCore, GLRenderer))
 		optionalComponents = set(iterComponents()) - requiredComponents
 		linkStatic = False
 	elif name == '3RD_STA':

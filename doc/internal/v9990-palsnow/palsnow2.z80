@@ -1,0 +1,500 @@
+; PALSNOW2: palsnow.z80 (PALSNOW) plus tests A-I, its test 7 in every
+; colour mode. Does writing the V9990 palette while the picture is drawn put
+; "snow" (stray dots) on the screen? MSX-DOS .COM (PALSNOW2.COM, MSX-DOS 1
+; or 2, MSX1-safe). Keys 1-8 and A-I pick a test, ESC returns to DOS.
+;
+; Why: a game's palette fades, written from its main loop while the picture
+; is drawn, showed snow on a PowerGraph, and none in openMSX. msx.org
+; ("V9990 palette fading", 2012) and the MSX Banzai V9990 manual's notes
+; report the same: stray pixels unless the palette is written in the
+; vertical retrace; maybe only over colours other than the backdrop; maybe
+; also in the bottom border right after VR is set.
+;
+; Screen: B1 bitmap (R#6 = 81h, 256x212, 4 bpp),
+; four vertical stripes, x 0-63 colour 0 (the backdrop, black), 64-127
+; colour 1 (black too), 128-191 colour 2 (grey), 192-255 colour 3 (white);
+; the border is the backdrop. The test's number: that many white blocks
+; (8x8 dots, 8 apart) at the top left, lines 4-11; a letter test's (A 1, B 2,
+; ...) on lines 16-23 instead. Every write puts the colour back as it was (or writes an
+; entry no pixel uses), so whatever changes on the screen is snow. The
+; colour written to unused entries is white, for black-and-white photos:
+; bright dots on the black stripes and the border.
+;
+; Each frame, interrupts off, from the start of the vertical non-display
+; period (status VR, port 65h b6, rising); lines are counted by the status
+; HR bit (b5: each line's horizontal non-display period):
+;  1  NONE     no palette write (the control)
+;  2  PICTURE  from picture line 60 (VR low, then 60 HR edges), mid-line:
+;              entry 15 (no pixel uses it) = white, one entry a line, 70
+;              times (a loop takes just over a line: every other line in
+;              openMSX, so lines 60-200 there; 60-130 if one fits a
+;              line), stopped if VR rises
+;  3  SHOWN    the same lines, entry 2 (the grey stripe) = its own grey
+;  4  HBLANK   the same lines, entry 15's three bytes written as HR rises
+;              (the pointer set earlier in the line)
+;  5  VR EDGE  at VR's rise: entries 15-63 (none shown) = white, a
+;              burst of 147 bytes (about 14 lines)
+;  6  RETRACE  the same burst 16 lines after VR's rise
+;  7  ALWAYS   the burst over and over for a whole frame (every other
+;              frame: the loop then waits for the next VR rise)
+;  8  GAME     as a game's fade: entries 0-15 (all of them, the shown
+;              ones too) rewritten with their own values at picture
+;              line 100
+;
+; A-I: test 7 in each B1 colour mode (the V9990 application manual, 9.1:
+; R#6 CLRM b1-0, R#13 PLTM b7-6 and YAE b5), the four stripes drawn in the
+; mode's own encoding; B is test 7 itself:
+;  A  BP2    2 bpp, palette            00h 55h AAh FFh (entries 0-3)
+;  B  BP4    4 bpp, palette            00h 11h 22h 33h
+;  C  BP6    8 bpp, palette (64)       00h 01h 02h 03h
+;  D  BD8    8 bpp, direct G3 R3 B2    00h 00h 92h FFh
+;  E  BD16   16 bpp, direct G5 R5 B5   0000h 0000h 4210h 7FFFh
+;  F  BYJK   Y5 + 3 bits of J/K        00h 00h 80h F8h (J = K = 0: grey)
+;  G  BYJKP  YJK, VD3 = 1: palette     00h YJK, 18h entry 1, 28h entry 2,
+;            entry VD7-4               F0h YJK (Y 30: VD3 is the flag)
+;  H  BYUV   as F, U/V                 as F
+;  I  BYUVP  as G, U/V                 as G
+; In D-I the picture's dots do not read the palette (G and I: stripes 0
+; and 3 do not, 1 and 2 do; the manual's BD8 diagram has an all-zero dot
+; take the palette's backdrop path); the border always does. If snow is the
+; palette's output disturbed by the write, D-I snow only in the border and
+; in G and I on stripes 1-2 (and maybe BD8's 00h stripes). openMSX knows no
+; YAE: it shows G as F and I as H.
+;
+; Expected if the theory holds: 1, 5? 6 clean; 2, 3, 4?, 7, 8 snow on the
+; picture lines written (from 60 down, or around 100), 7 everywhere. Note per
+; test: snow or not, which stripes (backdrop / black 1 / grey / white),
+; the border, and whether the dots are bright (the written white) or not.
+
+V9_VRAM         equ     60h
+V9_PAL          equ     61h
+V9_DATA         equ     63h
+V9_SEL          equ     64h
+V9_STAT         equ     65h
+V9_SYS          equ     67h
+V9_OUT          equ     6Fh
+
+STAT_VR         equ     40h
+STAT_HR         equ     20h
+FIRST_LINE      equ     60
+LINES           equ     70
+GAME_LINE       equ     100
+BURST_ENTRY     equ     15
+BURST_BYTES     equ     (64-BURST_ENTRY)*3
+
+        output  "PALSNOW2.COM"
+        org     0100h
+
+START:
+        di
+        ; reset
+        ld      a,2
+        out     (V9_SYS),a
+        xor     a
+        out     (V9_SYS),a
+        out     (V9_OUT),a
+        ld      hl,REGS
+REG_LP:
+        ld      a,(hl)
+        cp      0FFh
+        jr      z,REG_DONE
+        out     (V9_SEL),a
+        inc     hl
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        jr      REG_LP
+REG_DONE:
+        ; palette: all 64 entries from PALETTE
+        ld      a,14
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      hl,PALETTE
+        ld      bc,64*3*256+V9_PAL      ; B = 192 bytes, C = the port
+        otir
+        call    SCREEN
+        ; display on
+        ld      a,8
+        out     (V9_SEL),a
+        ld      a,0C2h
+        out     (V9_DATA),a
+
+MAIN_LP:
+        ei
+        ld      e,0FFh
+        ld      c,06h                   ; BDOS: direct console input, no wait
+        call    5
+        and     a
+        jr      z,FRAME
+        cp      1Bh
+        jr      z,QUIT
+        ld      b,a
+        sub     '1'
+        cp      8
+        jr      c,NEW_TEST
+        ld      a,b
+        and     0DFh                    ; (a-i as A-I)
+        sub     'A'
+        cp      9
+        jr      nc,FRAME
+        add     a,8
+NEW_TEST:
+        inc     a
+        ld      (TEST),a
+        call    SCREEN
+FRAME:
+        di
+        call    WAIT_VR_RISE
+        ld      a,(TEST)
+        dec     a
+        add     a,a
+        ld      e,a
+        ld      d,0
+        ld      hl,TESTS
+        add     hl,de
+        ld      a,(hl)
+        inc     hl
+        ld      h,(hl)
+        ld      l,a
+        call    JP_HL
+        jr      MAIN_LP
+
+QUIT:
+        ld      a,10h
+        out     (V9_OUT),a              ; the courtesy value on exit
+        ld      c,00h                   ; BDOS: back to DOS
+        jp      5
+
+JP_HL:
+        jp      (hl)
+
+TESTS:
+        dw      T_NONE, T_PICTURE, T_SHOWN, T_HBLANK
+        dw      T_VR_EDGE, T_RETRACE, T_ALWAYS, T_GAME
+        dw      T_ALWAYS, T_ALWAYS, T_ALWAYS, T_ALWAYS, T_ALWAYS
+        dw      T_ALWAYS, T_ALWAYS, T_ALWAYS, T_ALWAYS
+
+; 1: nothing
+T_NONE:
+        ret
+
+; 2: from picture line 60, mid-line, entry 15 = white
+T_PICTURE:
+        ld      hl,SNOW_COLOUR
+        ld      d,BURST_ENTRY*4
+        jr      PER_LINE
+
+; 3: the same lines, entry 2 = its own grey
+T_SHOWN:
+        ld      hl,PALETTE+2*3
+        ld      d,2*4
+PER_LINE:
+        ld      a,FIRST_LINE
+        call    WAIT_PICTURE_LINE
+        ld      e,LINES
+        ld      c,V9_PAL
+PL_LP:
+        call    WAIT_LINE               ; the line's picture starts
+        ld      b,4                     ; about 60 T-states in
+PL_DELAY:
+        djnz    PL_DELAY
+        in      a,(V9_STAT)
+        and     STAT_VR
+        ret     nz                      ; (the picture over: no border write)
+        ld      a,14
+        out     (V9_SEL),a
+        ld      a,d
+        out     (V9_DATA),a
+        push    hl
+        outi
+        outi
+        outi
+        pop     hl
+        dec     e
+        jr      nz,PL_LP
+        ret
+
+; 4: the same lines, entry 15's bytes written as HR rises
+T_HBLANK:
+        ld      a,FIRST_LINE
+        call    WAIT_PICTURE_LINE
+        ld      e,LINES
+        ld      c,V9_PAL
+HB_LP:
+        call    WAIT_LINE
+        ld      a,14
+        out     (V9_SEL),a
+        ld      a,BURST_ENTRY*4
+        out     (V9_DATA),a
+        ld      hl,SNOW_COLOUR
+        in      a,(V9_STAT)
+        and     STAT_VR
+        ret     nz
+HB_WAIT:
+        in      a,(V9_STAT)
+        and     STAT_HR
+        jr      z,HB_WAIT
+        outi
+        outi
+        outi
+        dec     e
+        jr      nz,HB_LP
+        ret
+
+; 5: at VR's rise, entries 15-63 = white
+T_VR_EDGE:
+        jr      BURST
+
+; 6: the same, 16 lines later
+T_RETRACE:
+        ld      e,16
+RT_LP:
+        call    WAIT_LINE
+        dec     e
+        jr      nz,RT_LP
+        jr      BURST
+
+; 7: bursts until VR rises again
+T_ALWAYS:
+        call    BURST
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,T_ALWAYS             ; (the rest of this blank)
+AL_PICTURE:
+        call    BURST
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      z,AL_PICTURE            ; (the picture)
+        ret
+
+; 8: at picture line 100, entries 0-15 = their own values
+T_GAME:
+        ld      a,GAME_LINE
+        call    WAIT_PICTURE_LINE
+        call    WAIT_LINE
+        ld      a,14
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      hl,PALETTE
+        ld      bc,16*3*256+V9_PAL
+        otir
+        ret
+
+; entries 15-63 = white (147 bytes)
+BURST:
+        ld      a,14
+        out     (V9_SEL),a
+        ld      a,BURST_ENTRY*4
+        out     (V9_DATA),a
+        ld      c,V9_PAL
+        ld      e,64-BURST_ENTRY
+BU_LP:
+        ld      hl,SNOW_COLOUR
+        outi
+        outi
+        outi
+        dec     e
+        jr      nz,BU_LP
+        ret
+
+; VR low then high: the vertical non-display period starts
+WAIT_VR_RISE:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,WAIT_VR_RISE
+VR_HIGH:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      z,VR_HIGH
+        ret
+
+; A = picture line: VR low (the picture), then A lines
+WAIT_PICTURE_LINE:
+        push    af
+VR_LOW:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,VR_LOW
+        pop     af
+        and     a
+        ret     z
+WP_LP:
+        push    af
+        call    WAIT_LINE
+        pop     af
+        dec     a
+        jr      nz,WP_LP
+        ret
+
+; HR high then low: the next line's picture part starts
+WAIT_LINE:
+        in      a,(V9_STAT)
+        and     STAT_HR
+        jr      z,WAIT_LINE
+HR_HIGH:
+        in      a,(V9_STAT)
+        and     STAT_HR
+        jr      nz,HR_HIGH
+        ret
+
+; The test's colour mode (R#6, R#13: MODES, BP4 for tests 1-8), then lines
+; 0-211 in it, 32 units of 8 dots a line: the stripes (units 0-7 colour 0,
+; 8-15 colour 1, ...), but the indicator's row (ROW, 8 lines) colour 0 with
+; colour 3 at units 1, 3, ... below BLOCKS*2
+SCREEN:
+        ld      a,(TEST)
+        sub     9
+        jr      nc,SC_MODE
+        ld      a,1                     ; (B)
+SC_MODE:
+        ld      l,a
+        add     a,a
+        add     a,a
+        add     a,a
+        add     a,l
+        add     a,l
+        add     a,l                     ; * 11, MODES' entry size
+        ld      e,a
+        ld      d,0
+        ld      hl,MODES
+        add     hl,de
+        ld      a,6
+        out     (V9_SEL),a
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        ld      a,13
+        out     (V9_SEL),a
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        ld      a,(hl)
+        ld      (UNIT_PAIRS),a
+        inc     hl
+        ld      (COLOURS),hl
+        ld      a,(TEST)
+        ld      c,4
+        cp      9
+        jr      c,SC_ROW
+        sub     8
+        ld      c,16
+SC_ROW:
+        ld      (BLOCKS),a
+        ld      a,c
+        ld      (ROW),a
+        ld      hl,0
+        call    WADDR
+        ld      d,0                     ; the line
+SC_LINE:
+        ld      a,(ROW)
+        ld      b,a
+        ld      a,d
+        sub     b
+        cp      8
+        ld      e,0                     ; the unit
+        jr      c,SC_IND
+SC_STRIPE:
+        ld      a,e
+        rrca
+        rrca
+        rrca
+        and     3
+        call    OUT_UNIT
+        inc     e
+        bit     5,e
+        jr      z,SC_STRIPE
+        jr      SC_NEXT
+SC_IND:
+        ld      a,(BLOCKS)
+        add     a,a
+        ld      b,a
+SC_IL:
+        ld      a,e
+        cp      b
+        ld      a,0
+        jr      nc,SC_IOUT              ; past the blocks
+        bit     0,e
+        jr      z,SC_IOUT               ; a gap
+        ld      a,3
+SC_IOUT:
+        push    bc
+        call    OUT_UNIT
+        pop     bc
+        inc     e
+        bit     5,e
+        jr      z,SC_IL
+SC_NEXT:
+        inc     d
+        ld      a,d
+        cp      212
+        jr      nz,SC_LINE
+        ret
+
+; A = colour 0-3: one unit (8 dots), its 2 bytes UNIT_PAIRS times
+OUT_UNIT:
+        push    de
+        ld      hl,(COLOURS)
+        add     a,a
+        ld      e,a
+        ld      d,0
+        add     hl,de
+        ld      a,(UNIT_PAIRS)
+        ld      b,a
+        ld      d,(hl)
+        inc     hl
+        ld      e,(hl)
+OU_LP:
+        ld      a,d
+        out     (V9_VRAM),a
+        ld      a,e
+        out     (V9_VRAM),a
+        djnz    OU_LP
+        pop     de
+        ret
+
+; HL = VRAM write address (bits 15-0; bits 18-16 = 0)
+WADDR:
+        xor     a
+        out     (V9_SEL),a
+        ld      a,l
+        out     (V9_DATA),a
+        ld      a,h
+        out     (V9_DATA),a
+        xor     a
+        out     (V9_DATA),a
+        ret
+
+REGS:
+        db      6,81h, 7,00h, 8,42h, 9,00h, 13,00h, 15,00h, 16,00h
+        db      17,0, 18,0, 19,0, 20,0, 21,0, 22,0, 23,0, 24,0
+        db      0FFh
+
+; R, G, B (5 bits): 0 black (the backdrop), 1 black, 2 grey, 3 white,
+; 4-63 black
+PALETTE:
+        db      0,0,0, 0,0,0, 16,16,16, 31,31,31
+        ds      60*3,0
+SNOW_COLOUR:
+        db      31,31,31
+
+; A-I: R#6, R#13, a unit's byte pairs (8 dots), colours 0-3 (2 bytes each)
+MODES:
+        db      80h,00h,1, 00h,00h, 55h,55h, 0AAh,0AAh, 0FFh,0FFh      ; BP2
+        db      81h,00h,2, 00h,00h, 11h,11h, 22h,22h, 33h,33h          ; BP4
+        db      82h,00h,4, 00h,00h, 01h,01h, 02h,02h, 03h,03h          ; BP6
+        db      82h,40h,4, 00h,00h, 00h,00h, 92h,92h, 0FFh,0FFh        ; BD8
+        db      83h,00h,8, 00h,00h, 00h,00h, 10h,42h, 0FFh,7Fh         ; BD16
+        db      82h,80h,4, 00h,00h, 00h,00h, 80h,80h, 0F8h,0F8h        ; BYJK
+        db      82h,0A0h,4, 00h,00h, 18h,18h, 28h,28h, 0F0h,0F0h       ; BYJKP
+        db      82h,0C0h,4, 00h,00h, 00h,00h, 80h,80h, 0F8h,0F8h       ; BYUV
+        db      82h,0E0h,4, 00h,00h, 18h,18h, 28h,28h, 0F0h,0F0h       ; BYUVP
+
+TEST:   db      1
+UNIT_PAIRS:
+        db      0
+COLOURS:
+        dw      0
+ROW:    db      0
+BLOCKS: db      0

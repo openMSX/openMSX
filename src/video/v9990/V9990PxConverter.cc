@@ -17,14 +17,13 @@ namespace openmsx {
 
 using Pixel = V9990P1Converter::Pixel;
 
-V9990P1Converter::V9990P1Converter(V9990& vdp_, std::span</*const*/ Pixel, 64> palette64_)
+V9990P1Converter::V9990P1Converter(V9990& vdp_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, palette64(palette64_)
 {
 }
 
-V9990P2Converter::V9990P2Converter(V9990& vdp_, std::span</*const*/ Pixel, 64> palette64_)
-	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
+V9990P2Converter::V9990P2Converter(V9990& vdp_)
+	: vdp(vdp_), vram(vdp.getVRAM())
 {
 }
 
@@ -273,7 +272,8 @@ static void renderSprites(
 
 void V9990P1Converter::convertLine(
 	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
-	unsigned displayYA, unsigned displayYB, bool drawSprites)
+	unsigned displayYA, unsigned displayYB, bool drawSprites,
+	std::span</*const*/ Pixel, 64> palette64)
 {
 	Pixel* __restrict linePtr = buf.data();
 	auto displayWidth = narrow<unsigned>(buf.size());
@@ -304,6 +304,34 @@ void V9990P1Converter::convertLine(
 	uint8_t offset = vdp.getPaletteOffset();
 	auto palA = subspan<16>(palette64, (offset & 0x03) << 4);
 	auto palB = subspan<16>(palette64, (offset & 0x0C) << 2);
+
+	// SDA/SDB: one disabled layer also disables sprites, so priority and
+	// 'info' don't matter; just draw the remaining layer. With both layers
+	// disabled the sprites show again, alone on the backdrop (measured on
+	// a real V9990).
+	bool disableA = vdp.isLayerADisabled();
+	bool disableB = vdp.isLayerBDisabled();
+	if (disableA && disableB) {
+		std::fill_n(linePtr, displayWidth, bgCol);
+		if (drawSprites) {
+			std::ranges::fill(info, 0); // all background
+			unsigned spritePatternTable = vdp.getSpritePatternAddress(V9990DisplayMode::P1);
+			renderSprites<P1Policy>(
+				vram, spritePatternTable, palette64,
+				linePtr, info, displayX, displayEnd, displayY);
+		}
+		return;
+	} else if (disableA) {
+		renderPattern<P1BackgroundPolicy>(
+			vram, linePtr, subspan(info, 0, displayWidth), bgCol,
+			displayBX, displayBY, 0x7E000, 0x40000, palB, palB);
+		return;
+	} else if (disableB) {
+		renderPattern<P1BackgroundPolicy>(
+			vram, linePtr, subspan(info, 0, displayWidth), bgCol,
+			displayAX, displayAY, 0x7C000, 0x00000, palA, palA);
+		return;
+	}
 	renderPattern2<P1BackgroundPolicy>( // does not yet fill-in 'info'
 		vram, linePtr, /*dummy*/info, bgCol, end1, displayWidth,
 		displayBX, displayBY, 0x7E000, 0x40000, palB,
@@ -327,7 +355,8 @@ void V9990P1Converter::convertLine(
 
 void V9990P2Converter::convertLine(
 	std::span<Pixel> buf, unsigned displayX, unsigned displayY,
-	unsigned displayYA, bool drawSprites)
+	unsigned displayYA, bool drawSprites,
+	std::span</*const*/ Pixel, 64> palette64)
 {
 	Pixel* __restrict linePtr = buf.data();
 	auto displayWidth = narrow<unsigned>(buf.size());

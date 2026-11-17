@@ -10,12 +10,9 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
-#include "join.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
-
-#include <algorithm>
 
 namespace openmsx {
 
@@ -73,32 +70,8 @@ MSXJoystick::~MSXJoystick()
 
 void MSXJoystick::checkJoystickConfig(const TclObject& newValue)
 {
-	std::array<std::vector<BooleanInput>, 6> newBindings;
-
-	auto& interp = commandController.getInterpreter();
-	auto n = newValue.getListLength(interp);
-	if (n & 1) {
-		throw CommandException("Need an even number of elements");
-	}
-	for (decltype(n) i = 0; i < n; i += 2) {
-		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
-		auto it = std::ranges::find(keyNames, key);
-		if (it == keyNames.end()) {
-			throw CommandException(
-				"Invalid key: must be one of ", join(keyNames, ", "));
-		}
-		auto idx = std::distance(keyNames.begin(), it);
-
-		TclObject value = newValue.getListIndex(interp, i + 1);
-		for (auto j : xrange(value.getListLength(interp))) {
-			std::string_view val = value.getListIndex(interp, j).getString();
-			auto bind = parseBooleanInput(val);
-			if (!bind) {
-				throw CommandException("Invalid binding: ", val);
-			}
-			newBindings[idx].push_back(*bind);
-		}
-	}
+	auto newBindings = parseBooleanInputBindings(
+		commandController.getInterpreter(), newValue, keyNames);
 
 	// only change current bindings when parsing was fully successful
 	copy_to_range(newBindings, bindings);

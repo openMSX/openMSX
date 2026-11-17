@@ -920,9 +920,9 @@ private:
 
 	struct SyncHScan final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime /*time*/) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncHScan);
-			vdp.execHScan();
+			vdp.execHScan(time);
 		}
 	} syncHScan;
 
@@ -989,7 +989,7 @@ private:
 	void setSlotTableDisplayArea(bool enabled, EmuTime time);
 	void execSlotTableStart(EmuTime time);
 	void execSlotTableEnd(EmuTime time);
-	void execHScan();
+	void execHScan(EmuTime time);
 	void execHorAdjust(EmuTime time);
 	void execSetMode(EmuTime time);
 	void execSetBlank(EmuTime time);
@@ -1294,6 +1294,15 @@ private:
 	  */
 	EmuTime hScanSyncTime;
 
+	/** Time of the last read of S#0 and S#1, and of the last time the F
+	  * and FH flags were set. A read close to the setting of a flag loses
+	  * it, see readStatusReg(), execVScan() and execHScan().
+	  */
+	EmuTime statusReg0ReadTime;
+	EmuTime fSetTime;
+	EmuTime statusReg1ReadTime;
+	EmuTime fhSetTime;
+
 	TclCallback tooFastCallback;
 	TclCallback dotClockDirectionCallback;
 
@@ -1509,7 +1518,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 14);
+SERIALIZE_CLASS_VERSION(VDP, 15);
 
 } // namespace openmsx
 

@@ -8,6 +8,7 @@
     <release_year>2010</release_year>
     <description>An MSX2 machine using C-BIOS, with a Japanese keyboard layout and 60Hz interrupt frequency.</description>
     <type>MSX2</type>
+    <region>jp</region>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
@@ -20,7 +21,7 @@
       <ROM id="C-BIOS Main ROM JP">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>47cc280f0d8b0611fdb1069e6fd7b854cae93546</sha1>
+          <sha1>38d6945e4888d5d54e3369ae4f8ec12afae7dec8</sha1>
           <filename>cbios_main_msx2_jp.rom</filename>
         </rom>
       </ROM>
@@ -28,7 +29,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>d4e5b98ce23573669fb44447582d656e390791c0</sha1>
+          <sha1>b5386f96f4488b92ff493fbf2394de9a6603c4bf</sha1>
           <filename>cbios_logo_msx2.rom</filename>
         </rom>
       </ROM>
@@ -44,7 +45,7 @@
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
-            <sha1>2fcb40413e7d373f0f2dbdc815ce18746ddf3684</sha1>
+            <sha1>83ba48e3f1d08811fa190706359e45f3a90f9fb7</sha1>
             <filename>cbios_sub.rom</filename>
           </rom>
         </ROM>

@@ -302,16 +302,16 @@ proc toggle_mog_editor {} {
 	set mog_editor_active [expr {!$mog_editor_active}]
 
 	if {$mog_editor_active} {
-		bind -layer mog_editor "mouse button1 down" {
+		bind -layer mog_editor -msx "mouse button1 down" {
 			set mog_overlay::mouse1_pressed true
 			mog_overlay::draw_block
 		}
 
-		bind -layer mog_editor "mouse button1 up" {
+		bind -layer mog_editor -msx "mouse button1 up" {
 			set mog_overlay::mouse1_pressed false
 		}
 
-		bind -layer mog_editor "mouse button3 down" {
+		bind -layer mog_editor -msx "mouse button3 down" {
 			mog_overlay::put_popolon
 		}
 		activate_input_layer mog_editor

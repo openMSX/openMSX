@@ -24,6 +24,7 @@
 #include "MemBuffer.hh"
 #include "OSDGUILayer.hh"
 #include "PNG.hh"
+#include "Timer.hh"
 
 #include "narrow.hh"
 #include "outer.hh"
@@ -35,12 +36,25 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <memory>
 #include <ranges>
 
 namespace openmsx {
+
+// A buffer swap normally takes at most a few tens of milliseconds, and less
+// than 200 ms under a heavy CPU and I/O load, while a blocked swap of a hidden
+// window takes about a second. So a buffer swap of more than this (in
+// microseconds) means that vsync blocks it (see vSyncSuspended).
+static constexpr uint64_t SLOW_SWAP_TIME = 500'000;
+// The number of consecutive slow buffer swaps that suspend vsync. While
+// probing, a single slow swap is enough.
+static constexpr int SLOW_SWAPS_TO_SUSPEND = 2;
+// The number of consecutive fast buffer swaps after which probing ends: the
+// window is visible again.
+static constexpr int FAST_SWAPS_TO_RESUME = 10;
 
 VisibleSurface::VisibleSurface(
 		Display& display_,
@@ -288,14 +302,32 @@ void VisibleSurface::executeRT()
 bool VisibleSurface::signalEvent(const Event& event)
 {
 	if (getType(event) == EventType::WINDOW) {
-		// SDL3 may report the final size of the window only later, even
-		// after SDL_SyncWindow() (e.g. when switching to fullscreen on
-		// GNOME it first reports the size without the top bar), so
-		// update the viewport when it changes.
 		const auto& e = get_event<WindowEvent>(event);
-		if (e.isMainWindow() &&
-		    e.getSdlWindowEvent().type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
-			fullScreenUpdated((SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) != 0);
+		if (e.isMainWindow()) {
+			switch (e.getSdlWindowEvent().type) {
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+				// SDL3 may report the final size of the window only
+				// later, even after SDL_SyncWindow() (e.g. when
+				// switching to fullscreen on GNOME it first reports
+				// the size without the top bar), so update the
+				// viewport when it changes.
+				fullScreenUpdated((SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) != 0);
+				break;
+			case SDL_EVENT_WINDOW_MINIMIZED:
+			case SDL_EVENT_WINDOW_OCCLUDED:
+				suspendVSyncForEvent();
+				break;
+			case SDL_EVENT_WINDOW_RESTORED:
+			case SDL_EVENT_WINDOW_EXPOSED:
+			case SDL_EVENT_WINDOW_FOCUS_GAINED:
+			case SDL_EVENT_WINDOW_MOUSE_ENTER:
+				// (when the window isn't visible after all, slow
+				// buffer swaps suspend vsync again)
+				resumeVSyncForEvent();
+				break;
+			default:
+				break;
+			}
 		}
 		return false;
 	}
@@ -440,7 +472,74 @@ void VisibleSurface::saveScreenshotGL(
 
 void VisibleSurface::finish()
 {
+	auto start = Timer::getTime();
 	SDL_GL_SwapWindow(window.get());
+	checkSwapTime(start);
+}
+
+void VisibleSurface::checkSwapTime(uint64_t start)
+{
+	auto now = Timer::getTime();
+	if (vSyncSuspended) {
+		if (vSyncRetryTime && (now >= vSyncRetryTime)) {
+			// Switch vsync on again, to see whether the window is
+			// visible again. Mesa (DRI3) waits for the pending buffer
+			// swap before it changes the swap interval, so if that
+			// takes long, the window is still hidden.
+			vSyncRetryTime = 0;
+			vSyncProbing = true;
+			slowSwaps = fastSwaps = 0;
+			setVSyncSuspended(false);
+			if ((Timer::getTime() - now) > SLOW_SWAP_TIME) {
+				suspendVSyncForSlowSwaps();
+			}
+		}
+	} else if ((now - start) > SLOW_SWAP_TIME) {
+		fastSwaps = 0;
+		if (++slowSwaps >= (vSyncProbing ? 1 : SLOW_SWAPS_TO_SUSPEND)) {
+			suspendVSyncForSlowSwaps();
+		}
+	} else {
+		slowSwaps = 0;
+		if (vSyncProbing && (++fastSwaps >= FAST_SWAPS_TO_RESUME)) {
+			vSyncProbing = false;
+			vSyncRetryDelay = VSYNC_RETRY_DELAY_MIN;
+		}
+	}
+}
+
+void VisibleSurface::suspendVSyncForSlowSwaps()
+{
+	// (this can take as long as a slow buffer swap, see above)
+	setVSyncSuspended(true);
+	slowSwaps = 0;
+	vSyncProbing = false;
+	vSyncRetryTime = Timer::getTime() + vSyncRetryDelay;
+	vSyncRetryDelay = std::min(2 * vSyncRetryDelay, VSYNC_RETRY_DELAY_MAX);
+}
+
+void VisibleSurface::setVSyncSuspended(bool suspend)
+{
+	if (suspend == vSyncSuspended) return;
+	vSyncSuspended = suspend;
+	updateSwapInterval();
+}
+
+void VisibleSurface::suspendVSyncForEvent()
+{
+	setVSyncSuspended(true);
+	vSyncProbing = false;
+	slowSwaps = fastSwaps = 0;
+	vSyncRetryTime = 0; // an event will resume it
+}
+
+void VisibleSurface::resumeVSyncForEvent()
+{
+	setVSyncSuspended(false);
+	vSyncProbing = false;
+	slowSwaps = fastSwaps = 0;
+	vSyncRetryTime = 0;
+	vSyncRetryDelay = VSYNC_RETRY_DELAY_MIN;
 }
 
 std::unique_ptr<Layer> VisibleSurface::createSnowLayer()
@@ -465,13 +564,18 @@ std::unique_ptr<OutputSurface> VisibleSurface::createOffScreenSurface()
 
 void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 {
-	const auto& visSurface = OUTER(VisibleSurface, vSyncObserver);
-	const auto& syncSetting = visSurface.getDisplay().getRenderSettings().getVSyncSetting();
-	assert(&setting == &syncSetting); (void)setting;
+	auto& visSurface = OUTER(VisibleSurface, vSyncObserver);
+	assert(&setting == &visSurface.getDisplay().getRenderSettings().getVSyncSetting()); (void)setting;
+	visSurface.updateSwapInterval();
+}
 
+void VisibleSurface::updateSwapInterval()
+{
 	// for now, we assume that adaptive vsync is the best kind of vsync, so when
 	// vsync is enabled, we attempt adaptive vsync.
-	int interval = syncSetting.getBoolean() ? -1 : 0;
+	int interval = (!vSyncSuspended &&
+	                getDisplay().getRenderSettings().getVSyncSetting().getBoolean())
+	             ? -1 : 0;
 
 	if (!SDL_GL_SetSwapInterval(interval) && (interval == -1)) {
 		// "Adaptive vsync" is not supported by all drivers. SDL

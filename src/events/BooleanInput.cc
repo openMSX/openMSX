@@ -1,14 +1,19 @@
 #include "BooleanInput.hh"
 
+#include "CommandException.hh"
 #include "Event.hh"
 #include "SDLKey.hh"
+#include "TclObject.hh"
 
 #include "StringOp.hh"
+#include "join.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "stl.hh"
 #include "strCat.hh"
+#include "xrange.hh"
 
+#include <algorithm>
 #include <tuple>
 #include <utility>
 
@@ -102,6 +107,41 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 		}
 	}
 	return std::nullopt;
+}
+
+std::vector<BooleanInput> parseBooleanInputList(Interpreter& interp, const TclObject& list)
+{
+	std::vector<BooleanInput> result;
+	for (auto i : xrange(list.getListLength(interp))) {
+		std::string_view str = list.getListIndex(interp, i).getString();
+		auto input = parseBooleanInput(str);
+		if (!input) {
+			throw CommandException("Invalid host input: \"", str, '"');
+		}
+		result.push_back(*input);
+	}
+	return result;
+}
+
+std::vector<std::vector<BooleanInput>> parseBooleanInputBindings(
+	Interpreter& interp, const TclObject& dict, std::span<const std::string_view> keyNames)
+{
+	std::vector<std::vector<BooleanInput>> result(keyNames.size());
+	auto n = dict.getListLength(interp);
+	if (n & 1) {
+		throw CommandException("Need an even number of elements");
+	}
+	for (decltype(n) i = 0; i < n; i += 2) {
+		std::string_view key = dict.getListIndex(interp, i + 0).getString();
+		auto it = std::ranges::find(keyNames, key);
+		if (it == keyNames.end()) {
+			throw CommandException(
+				"Invalid key: must be one of ", join(keyNames, ", "));
+		}
+		append(result[std::distance(keyNames.begin(), it)],
+		       parseBooleanInputList(interp, dict.getListIndex(interp, i + 1)));
+	}
+	return result;
 }
 
 std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadThreshold)

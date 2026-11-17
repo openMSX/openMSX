@@ -49,6 +49,10 @@ void V9990DummyRenderer::updateSuperimposing(
 {
 }
 
+void V9990DummyRenderer::paletteSnow(int /*index*/, EmuTime /*time*/)
+{
+}
+
 void V9990DummyRenderer::updateBackgroundColor(
 	int /*index*/, EmuTime /*time*/)
 {
@@ -64,6 +68,9 @@ void V9990DummyRenderer::updateScrollAYLow(EmuTime /*time*/)
 {
 }
 void V9990DummyRenderer::updateScrollBYLow(EmuTime /*time*/)
+{
+}
+void V9990DummyRenderer::updateLayerDisable(EmuTime /*time*/)
 {
 }
 

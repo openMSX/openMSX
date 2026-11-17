@@ -322,9 +322,9 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	sectors[0] = protoBootSector;
 	auto& bootSector = sectors[0].bootSector;
 	bootSector.bpSector     = SECTOR_SIZE;
-	bootSector.spCluster    = sectorsPerCluster;
+	bootSector.spCluster    = narrow_cast<uint8_t>(sectorsPerCluster);
 	bootSector.nrFats       = NUM_FATS;
-	bootSector.dirEntries   = sectorsPerDir * (SECTOR_SIZE / sizeof(MSXDirEntry));
+	bootSector.dirEntries   = narrow_cast<uint16_t>(sectorsPerDir * (SECTOR_SIZE / sizeof(MSXDirEntry)));
 	bootSector.nrSectors    = narrow_cast<uint16_t>(nofSectors);
 	bootSector.descriptor   = mediaDescriptor;
 	bootSector.sectorsFat   = narrow_cast<uint16_t>(nofSectorsPerFat);

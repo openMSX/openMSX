@@ -125,7 +125,7 @@ static std::pair<const uint8_t*, const uint8_t*> scan_mismatch(
 		// end-of-buffer checks.
 		auto* sentinel = &const_cast<uint8_t*>(p_end)[-WORD_SIZE];
 		auto save = *sentinel;
-		*sentinel = ~q_end[-WORD_SIZE];
+		*sentinel = uint8_t(~q_end[-WORD_SIZE]);
 
 		while (comp<WORD_SIZE>(p, q)) {
 			p += WORD_SIZE; q += WORD_SIZE;

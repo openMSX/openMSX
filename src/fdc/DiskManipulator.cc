@@ -197,8 +197,8 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 
 	auto* disk = it->drive->getSectorAccessibleDisk();
 	if (!disk) {
-		// not a SectorBasedDisk
-		throw CommandException("Unsupported disk type.");
+		// empty drive (e.g. no floppy, ejected SD card) or not a SectorBasedDisk
+		throw CommandException("No disk inserted, or unsupported disk type.");
 	}
 
 	if (pos2 == std::string_view::npos) {

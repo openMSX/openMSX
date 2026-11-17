@@ -1,0 +1,319 @@
+; SDASDB: the V9990's undocumented layer disables, R#22 bit 7 = SDA (layer
+; A off), bit 6 = SDB (layer B off); the manual (section 12.2, p. 84) shows
+; R#22 bits 7-1 as 0, bit 0 SCBY8. Can they hide a layer on part of the
+; screen only (written mid-frame)? MSX-DOS .COM (SDASDB.COM, MSX-DOS 1 or
+; 2, MSX1-safe), from a ROM test (2026-11-12). Keys 1-5 pick a
+; phase, ESC returns to DOS.
+;
+; P1 mode. Layer A (front) = red horizontal bars, layer B (back) = green
+; vertical bars, one white 16x16 sprite in the middle, blue backdrop.
+;   1  R#22 = 00h  red bars over green bars + sprite
+;   2  R#22 = 80h  SDA: green bars only, no sprite
+;   3  R#22 = 40h  SDB: red bars only, no sprite
+;   4  R#22 = C0h  SDA+SDB: blue backdrop (measured: plus the sprite)
+;   5  split       top half as 2, bottom half as 1: R#22 = 80h at VR's
+;                  rise, 00h at line SPLIT_LINE, on the line interrupt's
+;                  flag (port 66h b1) polled with R#9 = 0: the flag is set
+;                  even with the interrupt disabled? If it isn't, the wait
+;                  times out and the backdrop turns white (R#15 = 3) until
+;                  a key picks a phase.
+; On an emulator without SDA/SDB support all phases look like phase 1.
+
+V9_VRAM:    equ 0x60            ; P#0 VRAM data
+V9_PAL:     equ 0x61            ; P#1 palette data
+V9_REGDATA: equ 0x63            ; P#3 register data
+V9_REGSEL:  equ 0x64            ; P#4 register select
+V9_STATUS:  equ 0x65            ; P#5 status
+V9_INTFLAG: equ 0x66            ; P#6 interrupt flag
+V9_SYSCTL:  equ 0x67            ; P#7 system control
+V9_OUT:     equ 0x6F            ; the V7040 superimpose chip
+
+SPLIT_LINE: equ 106
+
+        output "SDASDB.COM"
+        org 0x0100
+
+Start:
+        di
+        ld a, 2
+        out (V9_SYSCTL), a      ; reset the V9990
+        xor a
+        out (V9_SYSCTL), a      ; MCS=0 (XTAL1)
+        out (V9_OUT), a         ; the V9990's picture
+
+        ld hl, RegInit
+.regLoop:
+        ld a, (hl)
+        cp 0xFF
+        jr z, .regDone
+        inc hl
+        out (V9_REGSEL), a      ; also clears WII/RII
+        ld a, (hl)
+        inc hl
+        out (V9_REGDATA), a
+        jr .regLoop
+.regDone:
+
+        ld a, 14                ; palette pointer = 0
+        out (V9_REGSEL), a
+        xor a
+        out (V9_REGDATA), a
+        ld hl, Palette
+        ld b, PaletteEnd - Palette
+        ld c, V9_PAL
+        otir
+
+        ; clear pattern rows 0-15 of both pattern bases (VRAM powers up 00/FF)
+        ld c, 0
+        ld hl, 0x0000
+        ld de, 0x0800
+        ld b, 0
+        call FillVram
+        ld c, 4
+        ld hl, 0x0000
+        ld de, 0x0800
+        ld b, 0
+        call FillVram
+
+        ; layer A tile 1: solid color 1 (pattern base 0x00000)
+        ld c, 0
+        ld hl, 1 * 4
+        ld b, 0x11
+        ld a, 8
+        ld e, 4
+        call DrawRect
+        ; layer B tile 2: solid color 2 (pattern base 0x40000)
+        ld c, 4
+        ld hl, 2 * 4
+        ld b, 0x22
+        ld a, 8
+        ld e, 4
+        call DrawRect
+        ; sprite pattern 8: solid color 3 (sprite base 0x00000, R#25=0)
+        ld c, 0
+        ld hl, 8 * 8
+        ld b, 0x33
+        ld a, 16
+        ld e, 8
+        call DrawRect
+
+        ; layer A name table 0x7C000: odd tile rows use tile 1
+        ld c, 7
+        ld hl, 0xC000
+        call SetWriteAddr
+        ld d, 64
+.rowA:
+        ld a, d
+        and 1
+        ld e, 64
+.colA:
+        out (V9_VRAM), a
+        ld b, a
+        xor a
+        out (V9_VRAM), a
+        ld a, b
+        dec e
+        jr nz, .colA
+        dec d
+        jr nz, .rowA
+
+        ; layer B name table 0x7E000: odd tile columns use tile 2
+        ld c, 7
+        ld hl, 0xE000
+        call SetWriteAddr
+        ld d, 64
+.rowB:
+        ld e, 64
+.colB:
+        ld a, e
+        and 1
+        add a, a
+        out (V9_VRAM), a
+        xor a
+        out (V9_VRAM), a
+        dec e
+        jr nz, .colB
+        dec d
+        jr nz, .rowB
+
+        ; sprite attribute table 0x3FE00: all sprites off-screen, then sprite 0
+        ld c, 3
+        ld hl, 0xFE00
+        ld de, 0x0200
+        ld b, 0xE8
+        call FillVram
+        ld c, 3
+        ld hl, 0xFE00
+        call SetWriteAddr
+        ld hl, Sprite0
+        ld b, 4
+        ld c, V9_VRAM
+        otir
+
+        ld a, 8                 ; R#8: display on, sprites on
+        out (V9_REGSEL), a
+        ld a, 0x82
+        out (V9_REGDATA), a
+
+MainLoop:
+        ei
+        ld e, 0xFF
+        ld c, 0x06              ; BDOS: direct console input, no wait
+        call 5
+        and a
+        jr z, Frame
+        cp 0x1B
+        jr z, Quit
+        sub '1'
+        cp 5
+        jr nc, Frame
+        ld (Phase), a
+        ld a, 15                ; the backdrop blue again
+        out (V9_REGSEL), a
+        xor a
+        out (V9_REGDATA), a
+Frame:
+        di
+        call WaitFrame
+        ld a, (Phase)
+        cp 4
+        jr z, .split
+        ld e, a
+        ld d, 0
+        ld hl, Phases
+        add hl, de
+        ld a, (hl)
+        call SetR22
+        jr MainLoop
+
+.split:
+        ld a, 0x80              ; top: layer A + sprites off
+        call SetR22
+        ld a, 0x02
+        out (V9_INTFLAG), a     ; clear line flag (set even when disabled?)
+        ld de, 3000             ; the timeout: about 2.5 frames (51 T a try)
+.waitLine:
+        in a, (V9_INTFLAG)
+        and 0x02
+        jr nz, .bottom
+        dec de
+        ld a, d
+        or e
+        jr nz, .waitLine
+        ld a, 15                ; no flag: the backdrop white
+        out (V9_REGSEL), a
+        ld a, 3
+        out (V9_REGDATA), a
+        jr MainLoop
+.bottom:
+        xor a                   ; bottom: everything on
+        call SetR22
+        jr MainLoop
+
+Quit:
+        xor a
+        call SetR22
+        ld a, 0x10
+        out (V9_OUT), a         ; the courtesy value on exit
+        ld c, 0x00              ; BDOS: back to DOS
+        jp 5
+
+; In: A = R#22 value
+SetR22:
+        push af
+        ld a, 22
+        out (V9_REGSEL), a
+        pop af
+        out (V9_REGDATA), a
+        ret
+
+; Waits for the start of the V9990 vertical retrace
+WaitFrame:
+.inVR:
+        in a, (V9_STATUS)
+        and 0x40
+        jr nz, .inVR
+.notVR:
+        in a, (V9_STATUS)
+        and 0x40
+        jr z, .notVR
+VrRose:
+        ret
+
+; In: C = VRAM address bits 18-16, HL = bits 15-0
+SetWriteAddr:
+        xor a
+        out (V9_REGSEL), a      ; R#0, auto-increment to R#1, R#2
+        ld a, l
+        out (V9_REGDATA), a
+        ld a, h
+        out (V9_REGDATA), a
+        ld a, c
+        out (V9_REGDATA), a
+        ret
+
+; In: C:HL = VRAM address, DE = count (> 0), B = value
+FillVram:
+        call SetWriteAddr
+.loop:
+        ld a, b
+        out (V9_VRAM), a
+        dec de
+        ld a, d
+        or e
+        jr nz, .loop
+        ret
+
+; P1 pattern data has a 128 byte pitch
+; In: C:HL = VRAM address, A = lines, E = bytes per line, B = value
+DrawRect:
+        push af
+        push hl
+        push de
+        ld d, 0
+        call FillVram
+        pop de
+        pop hl
+        push de
+        ld de, 128
+        add hl, de
+        pop de
+        pop af
+        dec a
+        jr nz, DrawRect
+        ret
+
+RegInit:
+        db 6, 0x05              ; P1: DSPM=0, DCKM=0, XIMM=1, CLRM=1
+        db 7, 0x00              ; NTSC, non-interlaced
+        db 8, 0x02              ; display off during setup
+        db 9, 0x00              ; no interrupts
+        db 10, SPLIT_LINE       ; line interrupt line (low)
+        db 11, 0x00             ; line interrupt line (high), not every line
+        db 12, 0x00             ; line interrupt X position
+        db 13, 0x00             ; palette control: A and B use palette 0-15
+        db 15, 0x00             ; backdrop = palette 0
+        db 16, 0x00             ; display adjust
+        db 17, 0x00, 18, 0x00   ; scroll A Y
+        db 19, 0x00, 20, 0x00   ; scroll A X
+        db 21, 0x00, 22, 0x00   ; scroll B Y, SDA=SDB=0
+        db 23, 0x00, 24, 0x00   ; scroll B X
+        db 25, 0x00             ; sprite pattern base 0x00000
+        db 27, 0x00             ; priority: layer A in front everywhere
+        db 28, 0x00             ; sprite palette offset 0
+        db 0xFF
+
+Palette:                        ; R, G, B (5 bit)
+        db 0, 0, 12             ; 0: blue (backdrop)
+        db 31, 0, 0             ; 1: red (layer A)
+        db 0, 24, 0             ; 2: green (layer B)
+        db 31, 31, 31           ; 3: white (sprite)
+PaletteEnd:
+
+Sprite0:
+        db 98, 8, 120, 0x00     ; Y, pattern, X, attributes
+
+Phases:
+        db 0x00, 0x80, 0x40, 0xC0
+
+Phase:  db 0

@@ -6,7 +6,6 @@
 
 #include "Y8950.hh"
 
-#include "MSXAudio.hh"
 #include "Y8950Periphery.hh"
 
 #include "DeviceConfig.hh"
@@ -157,24 +156,6 @@ static constexpr std::array<int8_t, LFO_AM_TAB_ELEMENTS> lfo_am_table =
 
 //**************************************************//
 //                                                  //
-//  Helper functions                                //
-//                                                  //
-//**************************************************//
-
-static constexpr unsigned DB_POS(int x)
-{
-	auto result = int(x / DB_STEP);
-	assert(result < DB_MUTE);
-	assert(result >= 0);
-	return result;
-}
-static constexpr unsigned DB_NEG(int x)
-{
-	return 2 * DB_MUTE + DB_POS(x);
-}
-
-//**************************************************//
-//                                                  //
 //                  Create tables                   //
 //                                                  //
 //**************************************************//
@@ -249,6 +230,24 @@ static constexpr auto sinTable = [] {
 	}
 	for (auto i : xrange(PG_WIDTH / 2)) {
 		result[PG_WIDTH / 2 + i] = 2 * DB_MUTE + result[i];
+	}
+	return result;
+}();
+
+// The YM3812 (Type::Y8960) adds three waveforms to the sine, selected per
+// slot by registers 0xE0-0xF5. They are derived from sinTable, so they use
+// its encoding. The silent parts use DB_MUTE - 1, which is what lin2db()
+// gives for zero.
+static constexpr auto waveTables = [] {
+	std::array<std::array<unsigned, PG_WIDTH>, 4> result = {};
+	constexpr auto SILENCE = unsigned(DB_MUTE - 1);
+	for (auto i : xrange(PG_WIDTH)) {
+		unsigned sine = sinTable[i];
+		unsigned absSine = (sine >= 2 * DB_MUTE) ? (sine - 2 * DB_MUTE) : sine;
+		result[0][i] = sine;
+		result[1][i] = (i < PG_WIDTH / 2) ? sine : SILENCE;      // half sine
+		result[2][i] = absSine;
+		result[3][i] = (i & (PG_WIDTH / 4)) ? SILENCE : absSine; // quarter sine
 	}
 	return result;
 }();
@@ -358,6 +357,7 @@ void Y8950::Slot::reset()
 	eg_mode = EnvelopeState::FINISH;
 	eg_phase = EG_DP_MAX;
 	key = 0;
+	wave = 0;
 	patch.reset();
 
 	// this initializes:
@@ -484,19 +484,30 @@ void Y8950::Channel::keyOff(KeyPart part)
 
 static constexpr auto INPUT_RATE = unsigned(cstd::round(Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 
+static constexpr static_string_view typeDescription(Y8950::Type type)
+{
+	return (type == Y8950::Type::Y8960) ? static_string_view("Y8960 OPL2EX")
+	                                    : static_string_view("MSX-AUDIO");
+}
+
 Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
-             unsigned sampleRam, EmuTime time, MSXAudio& audio)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-AUDIO", 9 + 5 + 1, INPUT_RATE, false)
+             unsigned sampleRam, EmuTime time, Y8950Periphery& periphery_,
+             Type type_)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, typeDescription(type_), 9 + 5 + 1, INPUT_RATE, false)
 	, motherBoard(config.getMotherBoard())
-	, periphery(audio.createPeriphery(getName()))
+	, periphery(periphery_)
+	, type(type_)
 	, adpcm(*this, config, name_, sampleRam)
-	, connector(motherBoard.getPluggingController())
-	, dac13(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config)
-	, debuggable(motherBoard, getName())
+	, debuggable(motherBoard, getName(), typeDescription(type_))
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
 {
+	if (type == Type::Y8950) {
+		connector.emplace(motherBoard.getPluggingController());
+		dac13.emplace(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config);
+	}
+
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (false) {
@@ -567,11 +578,7 @@ void Y8950::reset(EmuTime time)
 	pm_mode = false;
 	pm_phase = 0;
 	am_phase = 0;
-	noise_seed = 0xffff;
-	noiseA_phase = 0;
-	noiseB_phase = 0;
-	noiseA_dPhase = 0;
-	noiseB_dPhase = 0;
+	noise = 1;
 
 	// update the output buffer before changing the register
 	updateStream(time);
@@ -616,6 +623,31 @@ void Y8950::setRythmMode(int data)
 			keyOff_CYM();
 		}
 	}
+}
+
+// Slot number (2 * channel + MOD/CAR) for the low 5 bits of the register
+// number in 0x20-0x95 and 0xE0-0xF5, -1 for the unused ones.
+static constexpr std::array<int, 32> sTbl = {
+	 0,  2,  4,  1,  3,  5, -1, -1,
+	 6,  8, 10,  7,  9, 11, -1, -1,
+	12, 14, 16, 13, 15, 17, -1, -1,
+	-1, -1, -1, -1, -1, -1, -1, -1
+};
+
+// recalculate 'wave' of the slot of register 0xE0 + r, only used for
+// Type::Y8960
+void Y8950::updateWaveform(int r)
+{
+	if (int s = sTbl[r]; s >= 0) {
+		bool enable = (reg[0x01] & 0x20) != 0;
+		ch[s / 2].slot[s & 1].wave = enable ? (reg[0xe0 + r] & 3) : 0;
+	}
+}
+
+// recalculate 'wave' of all slots, only used for Type::Y8960
+void Y8950::updateWaveforms()
+{
+	for (auto r : xrange(0x16)) updateWaveform(r);
 }
 
 // recalculate 'key' from register settings
@@ -730,7 +762,7 @@ int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egOut = calc_envelope(lfo_am);
 	int pgout = narrow<int>(calc_phase(lfo_pm)) + wave2_8pi(fm);
-	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
+	return dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 }
 
 int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
@@ -741,7 +773,7 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	if (patch.FB != 0) {
 		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
+	int newOutput = dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -751,30 +783,14 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egOut = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
-	return dB2LinTab[sinTable[pgout & PG_MASK] + egOut];
+	return dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 }
 
-int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whiteNoise)
+// HH, SD and CYM: the phase is not the slot's own, see generateChannels()
+int Y8950::Slot::calc_slot_rhythm(int lfo_am, unsigned pgout)
 {
 	unsigned egOut = calc_envelope(lfo_am);
-	unsigned pgout = calc_phase(lfo_pm);
-	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
-	return (dB2LinTab[tmp + egOut] + dB2LinTab[egOut + whiteNoise]) >> 1;
-}
-
-int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
-{
-	unsigned egOut = calc_envelope(lfo_am);
-	return (dB2LinTab[egOut + a] + dB2LinTab[egOut + b]) >> 1;
-}
-
-// HI-HAT
-int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whiteNoise)
-{
-	unsigned egOut = calc_envelope(lfo_am);
-	return (dB2LinTab[egOut + whiteNoise] +
-	        dB2LinTab[egOut + a] +
-	        dB2LinTab[egOut + b]) >> 2;
+	return dB2LinTab[waveTables[wave][pgout & PG_MASK] + egOut];
 }
 
 float Y8950::getAmplificationFactorImpl() const
@@ -816,11 +832,16 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	if (checkMuteHelper()) {
 		// TODO update internal state even when muted
-		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
-		// and noise_seed aren't updated, probably ok
+		// during mute pm_phase, am_phase and noise aren't updated,
+		// probably ok
 		std::ranges::fill(bufs, nullptr);
 		return;
 	}
+
+	// A real Y8950 and YM3812 play CYM at phase 0x100 or 0x300, as in
+	// MAME: 3dB louder than Nuked-OPL3's 0x080 or 0x280, and silent with
+	// waveform 3 on the YM3812. The Y8960's RTL (JTOPL) uses 0x080/0x280.
+	const unsigned cymBase = (type == Type::Y8960) ? 0x080 : 0x100;
 
 	for (auto sample : xrange(num)) {
 		// Amplitude modulation: 27 output levels (triangle waveform);
@@ -835,22 +856,15 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 		int lfo_pm = pmTable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
-		if (noise_seed & 1) {
-			noise_seed ^= 0x24000;
-		}
-		noise_seed >>= 1;
-		int whiteNoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
-
-		noiseA_phase += noiseA_dPhase;
-		noiseA_phase &= (0x40 << 11) - 1;
-		if ((noiseA_phase >> 11) == 0x3f) {
-			noiseA_phase = 0;
-		}
-		int noiseA = noiseA_phase & (0x03 << 11) ? DB_POS(6) : DB_NEG(6);
-
-		noiseB_phase += noiseB_dPhase;
-		noiseB_phase &= (0x10 << 11) - 1;
-		int noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
+		// The noise generator steps once per slot, as in Nuked-OPL3. These
+		// chips have 18 slots, so it steps 18 times per sample. HH reads
+		// it at slot 13 and SD at slot 16, which is bit 13 and bit 16 of
+		// the state at the start of the sample.
+		unsigned hhNoise = (noise >> 13) & 1;
+		unsigned sdNoise = (noise >> 16) & 1;
+		repeat(2, [&] { // 9 steps at a time
+			noise = (noise >> 9) | (((noise ^ (noise >> 14)) & 0x1ff) << 14);
+		});
 
 		for (auto i : xrange(rythm_mode ? 6 : 9)) {
 			if (ch[i].slot[CAR].isActive()) {
@@ -868,23 +882,42 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 			//bufs[7][sample] += 0;
 			//bufs[8][sample] += 0;
 
-			// TODO wasn't in original source either
-			(void)ch[7].slot[MOD].calc_phase(lfo_pm);
-			(void)ch[8].slot[CAR].calc_phase(lfo_pm);
+			// HH, SD and CYM don't play their own phase, but one
+			// built from bits of the HH and CYM phase generators and
+			// the noise, as in Nuked-OPL3, which matches a real Y8950
+			// and YM3812 apart from the CYM phase (see cymBase).
+			// Nuked-OPL3 takes the CYM bits for HH from the previous
+			// sample, here all bits come from this sample.
+			unsigned hh = ch[7].slot[MOD].calc_phase(lfo_pm);
+			unsigned cym = ch[8].slot[CAR].calc_phase(lfo_pm);
+			// SD doesn't play its own phase, but its phase generator runs
+			(void)ch[7].slot[CAR].calc_phase(lfo_pm);
+			auto bit = [](unsigned v, unsigned n) { return (v >> n) & 1; };
+			unsigned rmXor = (bit(hh, 2) ^ bit(hh, 7)) |
+			                 (bit(hh, 3) ^ bit(cym, 5)) |
+			                 (bit(cym, 3) ^ bit(cym, 5));
+			unsigned hhPhase = (rmXor << 9) | ((rmXor ^ hhNoise) ? 0xd0 : 0x34);
+			unsigned sdPhase = (bit(hh, 8) << 9) | ((bit(hh, 8) ^ sdNoise) << 8);
+			unsigned cymPhase = (rmXor << 9) | cymBase;
 
+			// BD: with 'connect' = 1 only the carrier is heard, without
+			// FM, as measured on a real Y8950 and YM3812. The modulator
+			// still runs.
+			auto bd = [&] {
+				int mod = ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am);
+				return ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am, ch[6].alg ? 0 : mod);
+			};
 			bufs[ 9][sample] += (ch[6].slot[CAR].isActive())
-				? narrow_cast<float>(
-					2 * ch[6].slot[CAR].calc_slot_car(lfo_pm, lfo_am,
-						    ch[6].slot[MOD].calc_slot_mod(lfo_pm, lfo_am)))
+				? narrow_cast<float>(2 * bd())
 				: 0.0f;
 			bufs[10][sample] += (ch[7].slot[CAR].isActive())
-				? narrow_cast<float>(2 * ch[7].slot[CAR].calc_slot_snare(lfo_pm, lfo_am, whiteNoise))
+				? narrow_cast<float>(2 * ch[7].slot[CAR].calc_slot_rhythm(lfo_am, sdPhase))
 				: 0.0f;
 			bufs[11][sample] += (ch[8].slot[CAR].isActive())
-				? narrow_cast<float>(2 * ch[8].slot[CAR].calc_slot_cym(lfo_am, noiseA, noiseB))
+				? narrow_cast<float>(2 * ch[8].slot[CAR].calc_slot_rhythm(lfo_am, cymPhase))
 				: 0.0f;
 			bufs[12][sample] += (ch[7].slot[MOD].isActive())
-				? narrow_cast<float>(2 * ch[7].slot[MOD].calc_slot_hat(lfo_am, noiseA, noiseB, whiteNoise))
+				? narrow_cast<float>(2 * ch[7].slot[MOD].calc_slot_rhythm(lfo_am, hhPhase))
 				: 0.0f;
 			bufs[13][sample] += (ch[8].slot[MOD].isActive())
 				? narrow_cast<float>(2 * ch[8].slot[MOD].calc_slot_tom(lfo_pm, lfo_am))
@@ -907,13 +940,6 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 
 void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 {
-	static constexpr std::array<int, 32> sTbl = {
-		 0,  2,  4,  1,  3,  5, -1, -1,
-		 6,  8, 10,  7,  9, 11, -1, -1,
-		12, 14, 16, 13, 15, 17, -1, -1,
-		-1, -1, -1, -1, -1, -1, -1, -1
-	};
-
 	// TODO only for registers that influence sound
 	// TODO also ADPCM
 	//if (rg >= 0x20) {
@@ -938,6 +964,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			//
 			//  5  No effect? - Waveform select enable in YM3812 OPL2 so seems
 			//     reasonable that this bit wouldn't have been used in OPL
+			//     (Type::Y8960 is a YM3812, there it enables 0xE0-0xF5)
 			//
 			//  4  No effect?
 			//
@@ -953,6 +980,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			//  0  Reset envelopes - Envelope generator outputs forced
 			//     to maximum, so all enabled voices sound at maximum
 			reg[rg] = data;
+			if (type == Type::Y8960) updateWaveforms();
 			break;
 
 		case 0x02: // TIMER1 (resolution 80us)
@@ -978,7 +1006,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			break;
 
 		case 0x06: // (KEYBOARD OUT)
-			connector.write(data, time);
+			if (connector) connector->write(data, time);
 			reg[rg] = data;
 			break;
 
@@ -1004,11 +1032,11 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 
 		case 0x15: // DAC-DATA  (bit9-2)
 			reg[rg] = data;
-			if (reg[0x08] & 0x04) {
+			if (dac13 && (reg[0x08] & 0x04)) {
 				int tmp = static_cast<signed char>(reg[0x15]) * 256
 				        + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
-				dac13.writeDAC(Math::clipToInt16(tmp), time);
+				dac13->writeDAC(Math::clipToInt16(tmp), time);
 			}
 			break;
 		case 0x16: //           (bit1-0)
@@ -1120,14 +1148,6 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 			}
 		}();
 		ch[c].setFreq(freq);
-		unsigned fNum  = freq % 1024;
-		unsigned block = freq / 1024;
-		switch (c) {
-		case 7: noiseA_dPhase = fNum << block;
-			break;
-		case 8: noiseB_dPhase = fNum << block;
-			break;
-		}
 		ch[c].slot[CAR].updateAll(freq);
 		ch[c].slot[MOD].updateAll(freq);
 		reg[rg] = data;
@@ -1140,6 +1160,15 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 		ch[c].slot[MOD].patch.setFeedbackShift((data >> 1) & 7);
 		ch[c].alg = data & 1;
 		reg[rg] = data;
+		break;
+	}
+	case 0xe0: {
+		// waveform select, on Type::Y8960 only (Y8950 has no such register)
+		if (type == Type::Y8960) {
+			reg[rg] = data;
+			updateWaveform(rg & 0x1f);
+		}
+		break;
 	}
 	}
 }
@@ -1163,7 +1192,8 @@ uint8_t Y8950::peekReg(uint8_t rg, EmuTime time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
-			return connector.peek(time);
+			// without a connector, read as an empty one
+			return connector ? connector->peek(time) : 255;
 
 		case 0x0F: // ADPCM-DATA
 		case 0x13: //  ???
@@ -1292,6 +1322,8 @@ void Y8950::Slot::serialize(Archive& ar, unsigned version)
 	//  dPhase, tll, dPhaseARTableRks, dPhaseDRTableRks, eg_dPhase
 	// These are restored by update_key_status():
 	//  key
+	// These are restored by updateWaveforms() (Type::Y8960 only):
+	//  wave
 }
 
 template<typename Archive>
@@ -1308,23 +1340,29 @@ void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 
+// version 1: initial version
+// version 2: 'noise' replaces 'noise_seed', 'noiseA_phase', 'noiseB_phase',
+//            'noiseA_dphase' and 'noiseB_dphase'
 template<typename Archive>
-void Y8950::serialize(Archive& ar, unsigned /*version*/)
+void Y8950::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("keyboardConnector", connector,
-	             "adpcm",             adpcm,
-	             "timer1",            *timer1,
-	             "timer2",            *timer2,
-	             "irq",               irq);
+	if (connector) {
+		ar.serialize("keyboardConnector", *connector);
+	}
+	ar.serialize("adpcm",  adpcm,
+	             "timer1", *timer1,
+	             "timer2", *timer2,
+	             "irq",    irq);
 	ar.serialize_blob("registers", reg);
 	ar.serialize("pm_phase",      pm_phase,
-	             "am_phase",      am_phase,
-	             "noise_seed",    noise_seed,
-	             "noiseA_phase",  noiseA_phase,
-	             "noiseB_phase",  noiseB_phase,
-	             "noiseA_dphase", noiseA_dPhase,
-	             "noiseB_dphase", noiseB_dPhase,
-	             "channels",      ch,
+	             "am_phase",      am_phase);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("noise", noise);
+	} else {
+		assert(Archive::IS_LOADER);
+		noise = 1;
+	}
+	ar.serialize("channels",      ch,
 	             "status",        status,
 	             "statusMask",    statusMask,
 	             "rythm_mode",    rythm_mode,
@@ -1340,6 +1378,7 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 		};
 
 		update_key_status();
+		if (type == Type::Y8960) updateWaveforms();
 		EmuTime time = motherBoard.getCurrentTime();
 		for (auto r : rewriteRegs) {
 			writeReg(r, reg[r], time);
@@ -1351,8 +1390,9 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 // SimpleDebuggable
 
 Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
-                              const std::string& name_)
-	: SimpleDebuggable(motherBoard_, name_ + " regs", "MSX-AUDIO", 0x100)
+                              const std::string& name_,
+                              static_string_view description_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs", description_, 0x100)
 {
 }
 

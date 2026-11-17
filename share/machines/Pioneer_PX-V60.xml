@@ -44,6 +44,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <keyboardlayout>JIS</keyboardlayout>
       <!-- volume of SCC sounds off on real hardware. How to measure? -->
       <sound>
         <volume>21000</volume>

@@ -165,9 +165,8 @@ std::string MsxChar2Unicode::msxToUtf8(
 	utf8.reserve(msx.size()); // possibly underestimation, but that's fine
 	auto out = std::back_inserter(utf8);
 	for (auto m : msx) {
-		auto u = msx2unicode[m];
-		auto u2 = (u != uint32_t(-1)) ? u : fallback(m);
-		out = utf8::unchecked::append(u2, out);
+		auto u = msxToUnicode(m);
+		out = utf8::unchecked::append(u ? *u : fallback(m), out);
 	}
 	return utf8;
 }
@@ -179,10 +178,24 @@ std::vector<uint8_t> MsxChar2Unicode::utf8ToMsx(
 	auto it = utf8.begin(), et = utf8.end();
 	while (it != et) {
 		auto u = utf8::unchecked::next(it);
-		auto m = binary_find(unicode2msx, u, {}, &Entry::unicode);
-		msx.push_back(m ? m->msx : fallback(u));
+		auto m = unicodeToMsx(u);
+		msx.push_back(m ? *m : fallback(u));
 	}
 	return msx;
+}
+
+std::optional<uint32_t> MsxChar2Unicode::msxToUnicode(uint8_t msx) const
+{
+	auto u = msx2unicode[msx];
+	if (u == uint32_t(-1)) return {};
+	return u;
+}
+
+std::optional<uint8_t> MsxChar2Unicode::unicodeToMsx(uint32_t unicode) const
+{
+	auto m = binary_find(unicode2msx, unicode, {}, &Entry::unicode);
+	if (!m) return {};
+	return m->msx;
 }
 
 std::string MsxChar2Unicode::msxToUtf8(std::span<const uint8_t> msx, char fallback) const

@@ -22,6 +22,41 @@ ImGuiLayer::ImGuiLayer(ImGuiManager& manager_)
 {
 }
 
+// In fullscreen mode the window covers the whole display, including the area
+// that is normally reserved for a taskbar or panel. SDL still reports that
+// area as being outside the monitor's work area. Dear ImGui clamps popups
+// (e.g. the main menu) to the monitor's work area, which causes a gap below
+// the menu bar in fullscreen. Use the full display bounds in that case.
+static void updateMonitorWorkArea()
+{
+	auto* window = SDL_GetWindowFromID(WindowEvent::getMainWindowId());
+	if (!window) return;
+
+	const SDL_DisplayID display = SDL_GetDisplayForWindow(window);
+	if (!display) return;
+
+	SDL_Rect mainRect;
+	if (!SDL_GetDisplayBounds(display, &mainRect)) return;
+
+	SDL_Rect workRect = mainRect;
+	if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) &&
+	    (!SDL_GetDisplayUsableBounds(display, &workRect) ||
+	     workRect.w <= 0 || workRect.h <= 0)) {
+		workRect = mainRect;
+	}
+
+	for (auto& monitor : ImGui::GetPlatformIO().Monitors) {
+		if (monitor.MainPos.x == float(mainRect.x) &&
+		    monitor.MainPos.y == float(mainRect.y) &&
+		    monitor.MainSize.x == float(mainRect.w) &&
+		    monitor.MainSize.y == float(mainRect.h)) {
+			monitor.WorkPos = ImVec2(float(workRect.x), float(workRect.y));
+			monitor.WorkSize = ImVec2(float(workRect.w), float(workRect.h));
+			break;
+		}
+	}
+}
+
 void ImGuiLayer::paint(OutputSurface& /*surface*/)
 {
 	manager.preNewFrame();
@@ -29,6 +64,14 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
+	updateMonitorWorkArea();
+	// Windows that are restored as open (from imgui.ini) and lie (partly)
+	// outside the main window get an OS window of their own. Window managers
+	// tend to give such a new OS window the focus, and ImGui then also moves
+	// its keyboard focus there. Ignore such OS focus changes shortly after
+	// startup, so that the MSX keeps the keyboard focus. (ImGui's time is
+	// the time since the first frame.)
+	ImGui::GetIO().ConfigViewportsPlatformFocusSetsImGuiFocus = ImGui::GetTime() > 0.5;
 	ImGui::NewFrame();
 
 	// Allow docking in main window
@@ -56,10 +99,6 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			ImGuiWindowFlags_NoBringToFrontOnFocus;
 	bool focus = false;
 	im::Window("MSX Display Area", nullptr, flags, [&]{
-		// Ensure this window has focus on startup (after other windows are loaded)
-		if (ImGui::GetFrameCount() == 1) {
-			ImGui::SetWindowFocus();
-		}
 		// If no other window currently has focus, then take it ourselves.
 		if (ImGui::GetCurrentContext()->NavWindow == nullptr) {
 			ImGui::SetWindowFocus();
@@ -79,6 +118,15 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	});
 
 	manager.paintImGui(focus);
+
+	// Ensure this window has focus on startup: windows that are restored
+	// as open (from imgui.ini) take the focus when they first appear, so do
+	// this at the end of the first frame, after they appeared.
+	if (ImGui::GetFrameCount() == 1) {
+		if (auto* window = ImGui::FindWindowByName("MSX Display Area")) {
+			ImGui::FocusWindow(window);
+		}
+	}
 
 	// Rendering
 	const ImGuiIO& io = ImGui::GetIO();

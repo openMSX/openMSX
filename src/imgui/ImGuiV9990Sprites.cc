@@ -8,6 +8,7 @@
 
 #include "MSXMotherBoard.hh"
 #include "V9990.hh"
+#include "V9990DisplayTiming.hh"
 #include "V9990VRAM.hh"
 
 #include "MemBuffer.hh"
@@ -68,6 +69,7 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 
 		bool manMode = overrideAll || overrideMode;
 		bool manPat  = overrideAll || overridePat;
+		bool manLines = overrideAll || overrideLines;
 
 		bool isPattern = manMode || vdpIsPattern;
 		bool isP1 = manMode ? (manualMode == 0) : (vdpMode == P1);
@@ -77,6 +79,10 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 		int shownPatBase = manualPatBase & patMask;
 		unsigned patBase = manPat ? unsigned(shownPatBase)
 		                          : unsigned(v9990->getSpritePatternAddress(isP1 ? P1 : P2));
+		// P1 and P2 always use MCLK timing: 212 display lines, both NTSC and PAL.
+		static constexpr int DISPLAY_LINES = V9990DisplayTiming::displayNTSC_MCLK.display;
+		static_assert(DISPLAY_LINES == V9990DisplayTiming::displayPAL_MCLK.display);
+		int visibleLines = (manLines && (manualLines == 1)) ? 256 : DISPLAY_LINES;
 		auto patLabel = vdpIsPattern
 			? strCat("Pattern table: 0x", hex_string<5>(vdpPatBase))
 			: strCat("Pattern table: -");
@@ -90,7 +96,11 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 					comboHexSequence<5>("##pat", &shownPatBase, 0x8000, isP1 ? 0x40000 : 0x80000, 0);
 					if (shownPatBase != (manualPatBase & patMask)) manualPatBase = shownPatBase;
 				}},
-			}, "Interpret VRAM using a manually selected mode and/or sprite pattern table address.");
+				{tmpStrCat("Visible lines: ", DISPLAY_LINES), &overrideLines, [&]{
+					ImGui::Combo("##lines", &manualLines, "212\000256\000");
+				}},
+			}, "Interpret VRAM using a manually selected mode and/or sprite pattern table address,\n"
+			   "and/or show all 256 sprite lines instead of only the displayed ones.");
 
 			ImGui::SameLine();
 			ImGui::Dummy(ImVec2(25, 1));
@@ -315,9 +325,9 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 		im::TreeNode("Rendered sprites", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			static constexpr int LINES = 256; // y-coordinates wrap at 256
 			int width = isP1 ? 256 : 512;
-			MemBuffer<uint32_t> screen(width * LINES);
-			std::ranges::fill(std::span{screen.data(), size_t(width * LINES)}, 0); // transparent
-			for (auto line : xrange(LINES)) {
+			MemBuffer<uint32_t> screen(width * visibleLines);
+			std::ranges::fill(std::span{screen.data(), size_t(width * visibleLines)}, 0); // transparent
+			for (auto line : xrange(visibleLines)) {
 				auto* lineBuf = &screen[width * line];
 				int limit = 16;
 				int count = 0;
@@ -341,9 +351,9 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 					if (enableLimitPerLine && (count == limit)) break;
 				}
 			}
-			updateTexture(renderTex, {width, LINES}, screen, true); // with wrapping
+			updateTexture(renderTex, {width, visibleLines}, screen, true); // with wrapping
 
-			// bounding boxes, clipped to the screen, split when wrapping at y=256.
+			// bounding boxes, split when wrapping at y=256, clipped to the screen.
 			// 'boxes' includes disabled sprites (they still show a box when hovered);
 			// 'enabledBoxes' is what "on all sprites" draws.
 			std::vector<SpriteBox> boxes;
@@ -353,6 +363,7 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 				int w = 16;
 				if (!clipSpriteBoxSide(x, w, width)) continue;
 				auto add = [&](int y, int h) {
+					if (!clipSpriteBoxSide(y, h, visibleLines)) return;
 					SpriteBox box{x, y, w, h, int(i), 0, 0, 0}; // the remaining fields are only for printSpriteBoxes()
 					boxes.push_back(box);
 					if (!spr.disabled) enabledBoxes.push_back(box);
@@ -366,7 +377,13 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 				}
 			}
 
-			auto fullSize = zm * gl::vec2{float(width), float(LINES)};
+			// Disabled sprites also take one of the 16 slots of a line, so count all sprites.
+			std::array<uint8_t, LINES> perLine = {};
+			for (const auto& spr : sprites) {
+				for (auto i : xrange(16)) ++perLine[(spr.y + i) % LINES];
+			}
+
+			auto fullSize = zm * gl::vec2{float(width), float(visibleLines)};
 			im::Child("##screen", {0.0f, childHeightWithScrollbar(fullSize.y)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto* drawList = ImGui::GetWindowDrawList();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
@@ -378,10 +395,15 @@ void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 				bool hovered = ImGui::IsItemHovered();
 				auto hoverPos = hoveredCell(scrnPos, zm);
 				ImGui::SameLine();
+				auto shownCounts = std::span(perLine).first(visibleLines);
+				spritesPerLineHistogram(showSpritesPerLine, shownCounts, 16, 125, zm.y);
 
 				im::Group([&]{
 					spriteBoxSettings(drawBoundingBox, boundingBoxColor, boundingBoxOnAll);
 					ImGui::Checkbox("Max 16 sprites per line", &enableLimitPerLine);
+					spritesPerLineSettings(showSpritesPerLine, shownCounts, 16,
+						"\nDisabled sprites are counted too: they are not drawn, but do take "
+						"one of the 16 sprites per line.");
 				});
 
 				if (hovered) {

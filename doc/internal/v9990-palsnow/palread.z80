@@ -1,0 +1,797 @@
+; PALREAD: does reading the V9990 palette (port 61h) while the picture is
+; drawn put snow on the screen, as writing it does (PALSNOW)? MSX-DOS .COM
+; (PALREAD.COM, MSX-DOS 1 or 2, MSX1-safe). Keys 0-8 pick a test, ESC
+; returns to DOS.
+;
+; Why: PALSNOW/PALSNOW2 found that the snow is the palette's output (only
+; palette-read dots snow): a write takes the palette RAM from the picture.
+; Does a read too? The manual (section 12.1, p. 75, P#1): "By reading
+; through this port, the internal palette RAM data can be obtained. A WAIT
+; signal is output till the data has been prepared": a read may wait for a
+; free slot instead (no snow, a slower read).
+;
+; Screen: PALSNOW's (B1, 256x212, 4 bpp; stripes of colours 0 (the
+; backdrop, black), 1 (black), 2 (grey), 3 (white); the test's number: that
+; many white blocks at the top left). Text: white, 3x5 dots doubled.
+; Entries 4-63 (none shown) hold R = n, G = n + 11, B = n + 22 (5 bits), so
+; a wrong read shows. "ERR": the reads, since the test was picked, that
+; came back other than the palette (bits 4-0 compared).
+;
+;  0  TABLE    (at the start) "VR LINES": VR's rise to its fall (lines,
+;              counted on the status HR bit); "WRITE", "READ": the lines a
+;              147-byte burst (entries 15-63) of writes / reads takes (the
+;              writes: white); P2, P3, P15: entries 2, 3 and 15 read in the
+;              blank, as read (expected 16 16 16, 31 31 31, 15 26 5)
+;  1  NONE     no palette access (the control)
+;  2  PICTURE  from picture line 60, mid-line: entry 15 read, one entry a
+;              line, 70 times (PALSNOW test 2's lines)
+;  3  SHOWN    the same lines, entry 2 (the grey stripe)
+;  4  VR EDGE  at VR's rise: entries 15-63 read, a burst of 147 bytes
+;              (about 14 lines: the bottom border)
+;  5  RETRACE  the same burst 16 lines after VR's rise
+;  6  ALWAYS   the burst over and over for a whole frame
+;  7  ALL      entries 0-63 (the shown ones too) read over and over for a
+;              whole frame
+;  8  WRITE    PALSNOW test 7, the reference: write bursts (entries 15-63 =
+;              white) for a whole frame: snow everywhere
+; The palette is written back (in the blank) when a test is picked.
+
+V9_VRAM         equ     60h
+V9_PAL          equ     61h
+V9_DATA         equ     63h
+V9_SEL          equ     64h
+V9_STAT         equ     65h
+V9_SYS          equ     67h
+V9_OUT          equ     6Fh
+
+STAT_VR         equ     40h
+STAT_HR         equ     20h
+FIRST_LINE      equ     60
+LINES           equ     70
+BURST_ENTRY     equ     15
+BURST_BYTES     equ     (64-BURST_ENTRY)*3
+TEXT_Y          equ     16
+TEXT_PITCH      equ     12
+WHITE2          equ     33h             ; two white dots
+
+        output  "PALREAD.COM"
+        org     0100h
+
+START:
+        di
+        ; reset the V9990
+        ld      a,2
+        out     (V9_SYS),a
+        xor     a
+        out     (V9_SYS),a
+        out     (V9_OUT),a
+        ld      hl,REGS
+REG_LP:
+        ld      a,(hl)
+        cp      0FFh
+        jr      z,REG_DONE
+        out     (V9_SEL),a
+        inc     hl
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        jr      REG_LP
+REG_DONE:
+        ; entries 4-63: R = n, G = n + 11, B = n + 22
+        ld      hl,PALETTE+4*3
+        ld      b,4
+PG_LP:
+        ld      a,b
+        and     1Fh
+        ld      (hl),a
+        inc     hl
+        add     a,11
+        and     1Fh
+        ld      (hl),a
+        inc     hl
+        ld      a,b
+        add     a,22
+        and     1Fh
+        ld      (hl),a
+        inc     hl
+        inc     b
+        ld      a,b
+        cp      64
+        jr      nz,PG_LP
+        call    WRITE_PALETTE
+        call    STRIPES
+        ; display on
+        ld      a,8
+        out     (V9_SEL),a
+        ld      a,0C2h
+        out     (V9_DATA),a
+        xor     a
+        ld      (TEST),a
+        call    NEW_TEST
+
+MAIN_LP:
+        ei
+        ld      e,0FFh
+        ld      c,06h                   ; BDOS: direct console input, no wait
+        call    5
+        and     a
+        jr      z,FRAME
+        cp      1Bh
+        jr      z,QUIT
+        sub     '0'
+        cp      9
+        jr      nc,FRAME
+        ld      (TEST),a
+        call    NEW_TEST
+FRAME:
+        di
+        call    WAIT_VR_RISE
+        ld      a,(TEST)
+        add     a,a
+        ld      e,a
+        ld      d,0
+        ld      hl,TESTS
+        add     hl,de
+        ld      a,(hl)
+        inc     hl
+        ld      h,(hl)
+        ld      l,a
+        call    JP_HL
+        call    SHOW_ERRS
+        jr      MAIN_LP
+
+QUIT:
+        ld      a,10h
+        out     (V9_OUT),a              ; the courtesy value on exit
+        ld      c,00h                   ; BDOS: back to DOS
+        jp      5
+
+JP_HL:
+        jp      (hl)
+
+TESTS:
+        dw      T_NONE, T_NONE, T_PICTURE, T_SHOWN, T_VR_EDGE
+        dw      T_RETRACE, T_ALWAYS, T_ALL, T_WRITE
+
+; the palette written back, the screen again, test 0's table
+NEW_TEST:
+        di
+        call    WAIT_VR_RISE
+        call    RESTORE_PALETTE
+        call    STRIPES
+        call    INDICATOR
+        ld      hl,0
+        ld      (ERRS),hl
+        dec     hl
+        ld      (ERRS_SHOWN),hl         ; (drawn at the next SHOW_ERRS)
+        ld      a,(TEST)
+        and     a
+        ret     nz
+        jp      TABLE
+
+; 0, 1: nothing
+T_NONE:
+        ret
+
+; 2: from picture line 60, mid-line, entry 15 read
+T_PICTURE:
+        ld      hl,PALETTE+BURST_ENTRY*3
+        ld      d,BURST_ENTRY*4
+        jr      PER_LINE
+
+; 3: the same lines, entry 2
+T_SHOWN:
+        ld      hl,PALETTE+2*3
+        ld      d,2*4
+PER_LINE:
+        ld      (EXPECT),hl
+        ld      a,FIRST_LINE
+        call    WAIT_PICTURE_LINE
+        ld      e,LINES
+        ld      c,V9_PAL
+        ld      hl,RBUF
+PL_LP:
+        call    WAIT_LINE               ; the line's picture starts
+        ld      b,4                     ; about 60 T-states in
+PL_DELAY:
+        djnz    PL_DELAY
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,PL_END               ; (the picture over: no border read)
+        ld      a,14
+        out     (V9_SEL),a
+        ld      a,d
+        out     (V9_DATA),a
+        ini
+        ini
+        ini
+        dec     e
+        jr      nz,PL_LP
+PL_END:
+        ld      a,LINES
+        sub     e
+        ret     z
+        ld      b,a
+        ld      de,RBUF
+PL_CHECK:
+        push    bc
+        ld      hl,(EXPECT)
+        ld      b,3
+        call    CHECK
+        pop     bc
+        djnz    PL_CHECK
+        ret
+
+; 4: at VR's rise, entries 15-63 read
+T_VR_EDGE:
+        jr      READ_BURST
+
+; 5: the same, 16 lines later
+T_RETRACE:
+        ld      e,16
+RT_LP:
+        call    WAIT_LINE
+        dec     e
+        jr      nz,RT_LP
+        jr      READ_BURST
+
+; 6: read bursts until VR rises again (the picture's first one checked)
+T_ALWAYS:
+        call    READ_BURST_NC
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,T_ALWAYS             ; (the rest of this blank)
+        call    READ_BURST
+AL_PICTURE:
+        call    READ_BURST_NC
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      z,AL_PICTURE            ; (the picture)
+        ret
+
+; 7: entries 0-63 read until VR rises again (the picture's first checked)
+T_ALL:
+        call    READ_ALL_NC
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,T_ALL
+        call    READ_ALL_NC
+        ld      de,RBUF
+        ld      hl,PALETTE
+        ld      b,192
+        call    CHECK
+AA_PICTURE:
+        call    READ_ALL_NC
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      z,AA_PICTURE
+        ret
+
+; 8: write bursts until VR rises again (PALSNOW test 7)
+T_WRITE:
+        call    WRITE_BURST
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,T_WRITE
+WR_PICTURE:
+        call    WRITE_BURST
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      z,WR_PICTURE
+        ret
+
+; entries 15-63 read to RBUF, checked
+READ_BURST:
+        call    READ_BURST_NC
+        ld      de,RBUF
+        ld      hl,PALETTE+BURST_ENTRY*3
+        ld      b,BURST_BYTES
+        jp      CHECK
+
+; entries 15-63 read to RBUF (147 bytes, PALSNOW's burst's loop)
+READ_BURST_NC:
+        ld      a,BURST_ENTRY*4
+        ld      e,64-BURST_ENTRY
+        jr      READ_N
+
+; entries 0-63 read to RBUF
+READ_ALL_NC:
+        xor     a
+        ld      e,64
+; A = R#14 (the first entry * 4), E = entries: read to RBUF
+READ_N:
+        push    af
+        ld      a,14
+        out     (V9_SEL),a
+        pop     af
+        out     (V9_DATA),a
+        ld      c,V9_PAL
+        ld      hl,RBUF
+RN_LP:
+        ini
+        ini
+        ini
+        dec     e
+        jr      nz,RN_LP
+        ret
+
+; entries 15-63 = white (147 bytes)
+WRITE_BURST:
+        ld      a,14
+        out     (V9_SEL),a
+        ld      a,BURST_ENTRY*4
+        out     (V9_DATA),a
+        ld      c,V9_PAL
+        ld      e,64-BURST_ENTRY
+WB_LP:
+        ld      hl,SNOW_COLOUR
+        outi
+        outi
+        outi
+        dec     e
+        jr      nz,WB_LP
+        ret
+
+; B bytes read at DE against HL, bits 4-0: ERRS + the different ones; DE
+; and HL advanced
+CHECK:
+        ld      a,(de)
+        xor     (hl)
+        and     1Fh
+        jr      z,CK_OK
+        push    hl
+        ld      hl,(ERRS)
+        inc     hl
+        ld      (ERRS),hl
+        pop     hl
+CK_OK:
+        inc     de
+        inc     hl
+        djnz    CHECK
+        ret
+
+; 16 lines into the blank (VR has risen): all 64 entries from PALETTE
+RESTORE_PALETTE:
+        ld      e,16
+RP_LP:
+        call    WAIT_LINE
+        dec     e
+        jr      nz,RP_LP
+WRITE_PALETTE:
+        ld      a,14
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      hl,PALETTE
+        ld      bc,64*3*256+V9_PAL      ; B = 192 bytes, C = the port
+        otir
+        ret
+
+; "ERR nnnnn" at line 4, column 15, if ERRS changed
+SHOW_ERRS:
+        ld      hl,(ERRS)
+        ld      de,(ERRS_SHOWN)
+        and     a
+        sbc     hl,de
+        ret     z
+        ld      hl,(ERRS)
+        ld      (ERRS_SHOWN),hl
+        ld      de,TXT_ERR_N
+        call    DEC5
+        ld      hl,TXT_ERR
+        ld      de,4*256+15
+        jp      PRINT
+
+; test 0
+TABLE:
+        xor     a
+        call    AFTER_BURST
+        ld      (CTRL),hl
+        inc     hl
+        inc     hl                      ; + the 2 lines before: VR's length
+        ld      de,TXT_VR_N
+        call    DEC3
+        ld      a,1
+        call    AFTER_BURST
+        ld      de,TXT_WRITE_N
+        call    BURST_LINES
+        call    WAIT_VR_RISE
+        call    RESTORE_PALETTE
+        ld      a,2
+        call    AFTER_BURST
+        ld      de,TXT_READ_N
+        call    BURST_LINES
+        ld      a,2*4
+        ld      de,TXT_P2_N
+        call    READ_ENTRY
+        ld      a,3*4
+        ld      de,TXT_P3_N
+        call    READ_ENTRY
+        ld      a,BURST_ENTRY*4
+        ld      de,TXT_P15_N
+        call    READ_ENTRY
+TABLE_DONE:
+        ld      hl,TXT_TABLE
+        ld      d,TEXT_Y
+TB_LP:
+        ld      e,0
+        push    de
+        call    PRINT
+        pop     de
+        inc     hl
+        ld      a,d
+        add     a,TEXT_PITCH
+        ld      d,a
+        ld      a,(hl)
+        and     a
+        jr      nz,TB_LP
+        ret
+
+; CTRL - HL (a burst's lines) as 3 digits at DE
+BURST_LINES:
+        push    de
+        ex      de,hl
+        ld      hl,(CTRL)
+        and     a
+        sbc     hl,de
+        pop     de
+        jp      DEC3
+
+; entry A/4 read 16 lines into the blank: its 3 bytes, as read, at DE
+; ("nnn nnn nnn")
+READ_ENTRY:
+        push    de
+        push    af
+        call    WAIT_VR_RISE
+        ld      e,16
+RE_LP:
+        call    WAIT_LINE
+        dec     e
+        jr      nz,RE_LP
+        pop     af
+        ld      e,1
+        call    READ_N
+        pop     de
+        ld      hl,RBUF
+        ld      b,3
+RE_NUM:
+        push    bc
+        push    hl
+        ld      l,(hl)
+        ld      h,0
+        call    DEC3
+        inc     de
+        inc     de                      ; (past the blank)
+        pop     hl
+        inc     hl
+        pop     bc
+        djnz    RE_NUM
+        ret
+
+; HL = lines from VR's rise + 2 to its fall, after a write (A = 1) or read
+; (2) burst, or none (0)
+AFTER_BURST:
+        push    af
+        call    WAIT_VR_RISE
+        call    WAIT_LINE
+        call    WAIT_LINE
+        pop     af
+        dec     a
+        call    z,WRITE_BURST
+        dec     a                       ; (after WRITE_BURST A = 59: no read)
+        call    z,READ_BURST_NC
+        ld      hl,0
+AB_LP:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        ret     z
+        call    WAIT_LINE
+        inc     hl
+        jr      AB_LP
+
+; VR low then high: the vertical non-display period starts
+WAIT_VR_RISE:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,WAIT_VR_RISE
+VR_HIGH:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      z,VR_HIGH
+VR_ROSE:
+        ret
+
+; A = picture line: VR low (the picture), then A lines
+WAIT_PICTURE_LINE:
+        push    af
+VR_LOW:
+        in      a,(V9_STAT)
+        and     STAT_VR
+        jr      nz,VR_LOW
+        pop     af
+        and     a
+        ret     z
+WP_LP:
+        push    af
+        call    WAIT_LINE
+        pop     af
+        dec     a
+        jr      nz,WP_LP
+        ret
+
+; HR high then low: the next line's picture part starts
+WAIT_LINE:
+        in      a,(V9_STAT)
+        and     STAT_HR
+        jr      z,WAIT_LINE
+HR_HIGH:
+        in      a,(V9_STAT)
+        and     STAT_HR
+        jr      nz,HR_HIGH
+        ret
+
+; the four stripes, lines 0-211
+STRIPES:
+        ld      hl,0
+        call    WADDR
+        ld      d,212
+ST_LN:
+        ld      e,00h
+        call    OUT32
+        ld      e,11h
+        call    OUT32
+        ld      e,22h
+        call    OUT32
+        ld      e,33h
+        call    OUT32
+        dec     d
+        jr      nz,ST_LN
+        ret
+
+; The test's number: TEST white blocks (4x8 dots, 2 dots apart) at lines
+; 4-11: of each 3 bytes from x 0 the first is a gap, the next two a block,
+; for bytes 0 to TEST*3-1
+INDICATOR:
+        ld      a,(TEST)
+        ld      e,a
+        add     a,a
+        add     a,e
+        ld      e,a                     ; E = TEST*3: the bytes the blocks span
+        ld      d,4
+IN_LN:
+        ld      a,d
+        rrca
+        and     80h
+        ld      l,a
+        ld      a,d
+        srl     a
+        ld      h,a                     ; HL = line * 128
+        call    WADDR
+        ld      b,0                     ; the byte, 0-31
+        ld      l,0                     ; its place in its 3 (0: the gap)
+IN_BYTE:
+        xor     a
+        cp      l
+        jr      z,IN_OUT
+        ld      a,b
+        cp      e
+        ld      a,0
+        jr      nc,IN_OUT               ; past the blocks
+        ld      a,33h
+IN_OUT:
+        out     (V9_VRAM),a
+        inc     l
+        ld      a,l
+        cp      3
+        jr      c,IN_NEXT
+        ld      l,0
+IN_NEXT:
+        inc     b
+        ld      a,b
+        cp      32
+        jr      nz,IN_BYTE
+        inc     d
+        ld      a,d
+        cp      12
+        jr      nz,IN_LN
+        ret
+
+; HL = text (0-ended: 0-9, A-Z, '-', anything else a blank), D = its top
+; line, E = its column (8 dots); HL left on the 0
+PRINT:
+        ld      a,(hl)
+        and     a
+        ret     z
+        push    hl
+        call    PUTC
+        pop     hl
+        inc     hl
+        inc     e
+        jr      PRINT
+
+; A = the character, D = line, E = column; D and E kept
+PUTC:
+        push    de
+        call    GLYPH
+        ld      b,5
+PU_ROW:
+        ld      c,(hl)
+        call    FONT_LINE
+        inc     d
+        call    FONT_LINE
+        inc     d
+        inc     hl
+        djnz    PU_ROW
+        pop     de
+        ret
+
+; HL = the glyph of character A (FONT, 5 rows)
+GLYPH:
+        ld      c,36
+        cp      '-'
+        jr      z,GL_IDX
+        ld      c,37
+        sub     '0'
+        cp      10
+        jr      c,GL_DIG
+        sub     'A'-'0'
+        cp      26
+        jr      nc,GL_IDX
+        add     a,10
+GL_DIG:
+        ld      c,a
+GL_IDX:
+        ld      l,c
+        ld      h,0
+        ld      b,h
+        add     hl,hl
+        add     hl,hl
+        add     hl,bc                   ; * 5
+        ld      bc,FONT
+        add     hl,bc
+        ret
+
+; a glyph row's line: C bits 2-0 (left first), 2 dots each, a blank byte
+; after; at line D, column E; B, C, D, E, HL kept
+FONT_LINE:
+        push    hl
+        ld      a,d
+        rrca
+        and     80h
+        ld      l,a
+        ld      a,e
+        add     a,a
+        add     a,a
+        or      l
+        ld      l,a
+        ld      a,d
+        srl     a
+        ld      h,a
+        call    WADDR
+        ld      a,c
+        and     4
+        call    FONT_DOT
+        ld      a,c
+        and     2
+        call    FONT_DOT
+        ld      a,c
+        and     1
+        call    FONT_DOT
+        xor     a
+        out     (V9_VRAM),a
+        pop     hl
+        ret
+
+FONT_DOT:
+        ld      a,WHITE2
+        jr      nz,FD_OUT
+        xor     a
+FD_OUT:
+        out     (V9_VRAM),a
+        ret
+
+; HL as 5 digits at DE
+DEC5:
+        ld      bc,-10000
+        call    D_DIGIT
+        ld      bc,-1000
+        call    D_DIGIT
+; HL (0-999) as 3 digits at DE; DE left on the last
+DEC3:
+        ld      bc,-100
+        call    D_DIGIT
+        ld      bc,-10
+        call    D_DIGIT
+        ld      a,l
+        add     a,'0'
+        ld      (de),a
+        ret
+D_DIGIT:
+        ld      a,'0'-1
+D_LP:
+        inc     a
+        add     hl,bc
+        jr      c,D_LP
+        sbc     hl,bc
+        ld      (de),a
+        inc     de
+        ret
+
+; HL = VRAM write address (bits 15-0; bits 18-16 = 0)
+WADDR:
+        xor     a
+        out     (V9_SEL),a
+        ld      a,l
+        out     (V9_DATA),a
+        ld      a,h
+        out     (V9_DATA),a
+        xor     a
+        out     (V9_DATA),a
+        ret
+
+; 32 bytes of E
+OUT32:
+        ld      b,32
+O32_LP:
+        ld      a,e
+        out     (V9_VRAM),a
+        djnz    O32_LP
+        ret
+
+REGS:
+        db      6,81h, 7,00h, 8,42h, 9,00h, 13,00h, 15,00h, 16,00h
+        db      17,0, 18,0, 19,0, 20,0, 21,0, 22,0, 23,0, 24,0
+        db      0FFh
+
+; R, G, B (5 bits): 0 black (the backdrop), 1 black, 2 grey, 3 white,
+; 4-63 made at START
+PALETTE:
+        db      0,0,0, 0,0,0, 16,16,16, 31,31,31
+        ds      60*3,0
+SNOW_COLOUR:
+        db      31,31,31
+
+; 3x5: each row's bits 2-0, left first; 0-9, A-Z, '-', blank
+FONT:
+        db      7,5,5,5,7, 2,6,2,2,7, 7,1,7,4,7, 7,1,3,1,7, 5,5,7,1,1
+        db      7,4,7,1,7, 7,4,7,5,7, 7,1,1,2,2, 7,5,7,5,7, 7,5,7,1,7
+        db      2,5,7,5,5, 6,5,6,5,6, 3,4,4,4,3, 6,5,5,5,6, 7,4,6,4,7
+        db      7,4,6,4,4, 3,4,5,5,3, 5,5,7,5,5, 7,2,2,2,7, 1,1,1,5,2
+        db      5,5,6,5,5, 4,4,4,4,7, 5,7,7,5,5, 6,5,5,5,5, 2,5,5,5,2
+        db      6,5,6,4,4, 2,5,5,6,3, 6,5,6,5,5, 3,4,2,1,6, 7,2,2,2,2
+        db      5,5,5,5,7, 5,5,5,5,2, 5,5,7,7,5, 5,5,2,5,5, 5,5,2,2,2
+        db      7,1,2,4,7, 0,0,7,0,0, 0,0,0,0,0
+
+; test 0's lines, one after another, a 0 after the last
+TXT_TABLE:
+        db      "VR LINES "
+TXT_VR_N:
+        db      "000",0
+        db      "WRITE    "
+TXT_WRITE_N:
+        db      "000",0
+        db      "READ     "
+TXT_READ_N:
+        db      "000",0
+        db      "P2  "
+TXT_P2_N:
+        db      "000 000 000",0
+        db      "P3  "
+TXT_P3_N:
+        db      "000 000 000",0
+        db      "P15 "
+TXT_P15_N:
+        db      "000 000 000",0
+        db      0
+TXT_ERR:
+        db      "ERR "
+TXT_ERR_N:
+        db      "00000",0
+
+TEST:   db      0
+CTRL:   dw      0
+EXPECT: dw      0
+ERRS:   dw      0
+ERRS_SHOWN:
+        dw      0
+RBUF:   ds      256

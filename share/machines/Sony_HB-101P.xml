@@ -30,7 +30,7 @@ x-tal: single 10.6875
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>int</keyboard_type>
+      <keyboard_type>gb</keyboard_type>
       <has_keypad>false</has_keypad>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
