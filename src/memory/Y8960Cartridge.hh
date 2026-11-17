@@ -8,6 +8,7 @@
 #include "SCC.hh"
 #include "Y8950.hh"
 #include "Y8950Periphery.hh"
+#include "YM2151.hh"
 #include "YM2413.hh"
 
 #include "SimpleDebuggable.hh"
@@ -66,6 +67,8 @@ private:
 	[[nodiscard]] uint8_t peekOpl2(bool port, EmuTime time) const;
 	void writeOpl2(bool port, uint8_t value, EmuTime time);
 	void writeSsg(bool port, uint8_t value, EmuTime time);
+	[[nodiscard]] uint8_t readOpm(bool port) const;
+	void writeOpm(bool port, uint8_t value, EmuTime time);
 
 	// digital mixer
 	void writeVolume(Block block, uint8_t value, EmuTime time);
@@ -83,6 +86,7 @@ private:
 	} noPeriphery;
 	Y8950 opl2;
 	std::array<AY8910, 2> ssg;
+	YM2151 opm;
 
 	// the registers of the digital mixer, laid out as in Y8960Cartridge.cc
 	std::array<uint8_t, 0x2E> mixer{};
@@ -102,6 +106,7 @@ private:
 	uint8_t opllLatch = 0;
 	uint8_t opl2Latch = 0;
 	uint8_t ssgLatch = 0;
+	uint8_t opmLatch = 0;
 };
 
 } // namespace openmsx
