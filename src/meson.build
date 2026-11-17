@@ -334,6 +334,7 @@ sources = files(
     'memory/SdCard.cc',
     'memory/SdMapperV1.cc',
     'memory/TrackedRam.cc',
+    'memory/Y8960Cartridge.cc',
     'security/SocketStreamWrapper.cc',
     'security/SspiNegotiateServer.cc',
     'security/SspiUtils.cc',

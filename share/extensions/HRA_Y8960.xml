@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Y8960 Cartridge</name>
+    <manufacturer>HRA!</manufacturer>
+    <code/>
+    <release_year>2026</release_year>
+    <description>MSX2++ equivalent sound cartridge.</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <ROM id="Y8960">
+          <mem base="0x4000" size="0x8000"/>
+          <!-- The volume of the OPM, the loudest of the sound chips. The
+               others follow at the levels measured on the cartridge. -->
+          <sound>
+            <volume>30000</volume>
+          </sound>
+          <mappertype>Y8960Cartridge</mappertype>
+          <rom/>
+        </ROM>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
