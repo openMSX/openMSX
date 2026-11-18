@@ -924,3 +924,64 @@ Measured on the V9958:
   4-pixel shift starts and ends there too, in that line (`vdpyjk3`,
   `vdpyjk5`). The column right before the switch point shows red or
   orange for a group or two.
+
+## The 4 pixels before a YJK picture
+
+**Files.** `vdpline5` (see "YJK moves the picture, not the timing"),
+screens 2 and 3 of `vdpyjk2.bas`, and screens 1 and 2 of `vdpyjk3.bas` and
+`vdpyjk5.bas`. Photos:
+`photos/fs-a1gt-vdpline5-screen12-flicker.jpg`,
+`photos/<machine>-vdpyjk3-strip.jpg`, `photos/fs-a1gt-vdpyjk5-gap.jpg`.
+
+**How.**
+
+- `vdpline5` in SCREEN 12 (see there): the stripe edges of groups 6 and 7
+  are the ones whose second write comes at or after the display start of
+  SCREEN 8 (where the stripe ends at the first column there).
+- `vdpyjk2.bas` screens 2 and 3: `VDPYJKL.BIN` (`vdpyjkl.asm`: `vdpline5`
+  with 16 groups of 8 lines and the second write 22 cycles after the
+  first) in SCREEN 8 and SCREEN 12, R#18 = 08h, TP set (colour 0 is black,
+  not the backdrop): the backdrop stripe's edge at the left moves 1 Z80
+  cycle (1.5 pixels) per group, through the display start and the 4 pixels
+  before the first YJK pixel.
+- `vdpyjk3.bas` screens 1 and 2: the same, with `VDPYJKL.BIN` on a turboR
+  and `VDPYJKM.BIN` (the second write 28 cycles after the first, 6 later)
+  on other machines.
+- `vdpyjk5.bas` screens 1 and 2: `vdpyjk3` screens 1 and 2 again, screen
+  2 also as a video.
+
+**Results, `vdpline5`.** On the FS-A1GT in SCREEN 12 the stripe of the last
+group reaches the first column, and the 4-pixel gap of group 6 flickers
+between black and the stripe colour, more often black (two frames of a
+video: group 6 with its gap, and filled). On the FS-A1GT, whose clock
+drifts, group 6 lands on either side of the display start of SCREEN 8.
+
+**Results, `vdpyjk3`** (left SCREEN 8, right SCREEN 12). In SCREEN 8 the
+stripe edge moves on by about 1.5 pixels per group until it reaches the
+first column (the display start). In SCREEN 12 it never stops inside the 4
+pixels before the first column: a few groups before the display start the
+stripe colour fills the whole border up to the first column at once: on
+the NMS 8250 after an edge at about 4.5 pixels before the first column, on
+the FS-A1GT at about 7 (both about the display start of SCREEN 8, give or
+take a group). On the FS-A1GT this was seen in both runs and in the
+flicker of `vdpline5`.
+
+**Results, `vdpyjk5`** (FS-A1GT; left SCREEN 8, right SCREEN 12; the
+groups are 1 Z80 cycle apart). In SCREEN 8 the stripe edge reaches the
+display start (the first column) at group 4.6; in SCREEN 12 the edge
+stops 1.7 pixels before the display start and the stripe colour fills the
+4 pixels up to the first YJK pixel from group 4.7 on. The pale band below
+that in the photo is the transition flickering between the two (the
+FS-A1GT's clock drifts).
+
+### Conclusion
+
+Measured: the 4 pixels between the display start and the first YJK pixel
+show one colour: the backdrop as it is at the display start (of SCREEN 8),
+to within one Z80 cycle, not the backdrop at each pixel (`vdpline5`,
+`vdpyjk3`, `vdpyjk5`). Not measured with a masked border (R#25 bit 1),
+which covers those pixels.
+
+*Interpretation (an assumption):* the display window opens at its usual
+moment and the YJK pixels come out 4 pixels later; in between the VDP
+outputs the backdrop it took when the window opened.
