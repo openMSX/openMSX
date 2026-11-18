@@ -700,3 +700,227 @@ moment in GRAPHIC4 and TEXT2 (5 apart in e, relative to each mode's HR, as
 HR falls 5 to 6 Z80 cycles later in TEXT2), and it moves with R#18 as HR
 does. Fitted: 101 VDP cycles before HR falls, on both chips (4 VDP cycles
 either way fits worse), 5 to 22 VDP cycles before the latch.
+
+## YJK moves the picture, not the timing
+
+V9958 only (SCREEN 10 to 12), measured on the FS-A1GT and the NMS 8250
+with V9958.
+
+**Files.**
+
+- `vdpyjk.asm`, `autoexec-vdpyjk.bas`: SCREEN 8 above, SCREEN 12 below,
+  the same columns drawn in both: does YJK move the picture? Photo:
+  `photos/fs-a1gt-vdpyjk.jpg`.
+- `vdpline5.asm`, `genyjk.py`, `vdpline5.bas`: a backdrop stripe edge in
+  the border, timed relative to HR, next to pixel columns, in SCREEN 8
+  and SCREEN 12 (`vdpline5.asm` includes `yjk.inc` from `genyjk.py`).
+  Photos: `photos/<machine>-vdpline5-screen{8,12}-left.jpg`.
+- `vdpmode` in SCREEN 8 and SCREEN 12 (`autoexec-vdpmode3.bas`, see "HR
+  and VR in S#2"). Results: `results/fs-a1gt-mode-<mode>-s12.txt`.
+- `vdpyjkl.asm`, `vdpyjkm.asm`, `vdpsw.asm`, `vdpyjk2.bas`, `vdpyjk3.bas`,
+  `vdpyjk5.bas`, `autoexec-vdpyjk5.bas`: a YJK switch in the middle of a
+  line (and more, see the later sections). These include `vdpline5.asm`
+  (with `DEFINE SWEEP`: `vdpyjkl.asm` with `yjkl.inc` from
+  `genyjk.py 22 36 16 8 yjkl.inc`, `vdpyjkm.asm` with `yjkm.inc` from
+  `genyjk.py 28 36 16 8 yjkm.inc`) or `vdpline4.asm` (`vdpsw.asm`, with
+  `stairsw.inc` from `genstair.py 29 stairsw.inc`). Photos:
+  `photos/<machine>-vdpyjk3-switch-*.jpg`,
+  `photos/<machine>-vdpyjk5-switch-374.jpg`,
+  `photos/fs-a1gt-nms-8250-v9958-vdpyjk2-switch.jpg`.
+- `vdpyjkn.asm`, `vdpyjk4.bas`, `vdplc2.bas`: a mid-line R#23 write, the
+  line latch and the line counter reset in YJK (`vdpyjkn.asm` with
+  `yjkn.inc` from `genyjk.py 22 38 16 8 yjkn.inc`). Photos:
+  `photos/<machine>-vdpyjk4-*.jpg`. Results:
+  `results/<machine>-lc-<screen8|screen12>-r18-<0|8>.txt`.
+
+### vdpyjk: does YJK move the picture?
+
+**How.** `vdpyjk.asm` with `autoexec-vdpyjk.bas`: SCREEN 8 at the top,
+SCREEN 12 (R#25 = 08h) from line 106 on, switched by the line interrupt.
+Vertical lines of pixel value F8h every 16 pixels, drawn once for both
+halves: yellow in SCREEN 8, white in SCREEN 12 (Y = 31, J = K = 0).
+
+**Result:** the white lines are 4 pixels right of the yellow ones.
+
+### vdpline5: does YJK move the timing?
+
+**How.** `vdpline5.asm` with `vdpline5.bas`: the `vdpline` frame sync (VR,
+then HR samples), then 64 lines of exactly 228 Z80 cycles in which R#7 gets
+COLB in the right border and 19 cycles later COLA, in the left border of
+the next line, so that a backdrop stripe edge lies in each border; 8 groups
+of 8 lines, the writes 1 cycle later per group. Columns of pixel value F8h
+every 16 pixels and at x = 255. Four screens: SCREEN 8 and SCREEN 12 (R#25
+= 08h), the HR samples taken in that mode, with R#18 = 08h (picture 8
+pixels right, for the left border) and 00h (for the right border). A
+backdrop change shows at a fixed place on the screen for a fixed moment of
+writing; the columns are 4 pixels further right in SCREEN 12 (`vdpyjk`).
+If YJK moves the timing (HR) along, the writes move along and the edges
+keep their distance to the columns; if not, the edges are 4 pixels further
+from the first column in SCREEN 12.
+
+**Results** (FS-A1GT, left border), the distance from the stripe edge to
+the first column per group, in pixels (scale: 16 pixels between the first
+two columns):
+
+| group | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|---|
+| SCREEN 8 | 10.4 | 8.4 | 7.1 | 5.1 | 3.9 | 1.8 | 0.6 | 0 |
+| SCREEN 12 | 14.2 | 11.9 | 10.2 | 8.8 | 7.5 | 6.2 | 5.2 | 0 |
+
+In SCREEN 12 the edges of groups 0 to 6 are 4 to 5 pixels further from the
+first column than in SCREEN 8: HR doesn't move with YJK. (In group 7 the
+stripe reaches the first column in both screens, in SCREEN 12 without the
+4 pixels: those 4 pixels don't show the backdrop of each pixel's moment.
+That is measured separately, with `vdpyjk3` and `vdpyjk5`.)
+
+The modified NMS 8250 with a V9958 instead of its V9938 (no extra VDP I/O
+wait, so other group positions; on a monitor whose horizontal position
+reaches far enough to show the whole left border) gives the same result.
+The photo values are measured per row, against the first column in that
+row (the camera is slightly tilted):
+
+| group | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|---|
+| SCREEN 8 | 16.6 | 15.5 | 14.4 | 13.3 | 11.5 | 10.3 | 9.2 | 8.2 |
+| SCREEN 12 | 22.2 | 20.7 | 19.1 | 18.0 | 17.3 | 16.2 | 14.6 | 13.3 |
+
+SCREEN 12 is 4.7 to 5.9 pixels further from the first column than SCREEN
+8 in every group. The bars moved by about a pixel on the screen, which
+blurs the edges in the photos. The steps are about 1.2 pixels instead of
+the 1.5 of one Z80 cycle: the CPU clock of this machine runs 116 ppm fast
+(`clktest`), so the 8 lines (1824 cycles) of a group take 0.21 Z80 cycles
+less than 8 VDP lines, and each next group moves 0.32 pixels less than one
+cycle (1.5 - 0.32 = 1.18). Here the last group stays 8 pixels from the
+first column.
+
+On the right border the stripe starts right after the last column in both
+screens: there the display end cuts it off, so it doesn't show the
+difference.
+
+### vdpmode in SCREEN 12
+
+**Results** (FS-A1GT): SCREEN 12 gives F, FH, VR and HR at the same
+positions relative to each other as SCREEN 8.
+
+### YJK switched in the middle of a line
+
+**How.** Each screen waits for a photo, space goes on.
+
+- `vdpyjk2.bas` screen 4: `VDPLIN4.BIN` (`vdpline4`, R#25 instead of
+  R#23): SCREEN 8 with columns every 8 pixels (and x + 1 every 32), R#25
+  = 08h (YJK) written at a moment in the line and 00h 112 Z80 cycles
+  later.
+- `vdpyjk3.bas` screens 3 to 6: `VDPSW.BIN` (`vdpsw.asm`: `vdpline4` with
+  the second write 57 Z80 cycles after the first), columns every 8 pixels,
+  at two moments (`C` = 374 and 375, 30 Z80 cycles apart): SCREEN 5 with
+  R#7 (colour 0 shows the backdrop, so a red stripe shows where the writes
+  land) and then SCREEN 8 with R#25 = 08h and 00h at the same moments.
+- `vdpyjk5.bas` screens 3 to 6 (`autoexec-vdpyjk5.bas` runs it on a
+  V9958): the same at `C` = 374 and 375, over columns of F8h every 2
+  pixels (yellow in SCREEN 8, white in YJK), with a ruler of F8h (a tick
+  every 8 pixels, longer every 32) above and below.
+
+**Results, columns every 8 pixels** (`vdpyjk3`, each the R#7 screen above
+the R#25 screen; `fs-a1gt-nms-8250-v9958-vdpyjk2-switch.jpg`: a close-up
+of the switch point of `vdpyjk2` screen 4). YJK switches on and off in
+the middle of the line, at the place in the picture where an R#7 write
+made at the same moment lands, to within the 8-pixel spacing of the
+columns (x, top group to bottom group):
+
+| | R#7 stripe | YJK part (R#25) |
+|---|---|---|
+| FS-A1GT, `C` = 374 | 40 to 48 - 125 to 135 | 40 to 52 - 132 to 140 |
+| NMS 8250 (V9958), `C` = 374 | 34 to 42 - 120 to 125 | 33 to 41 - 116 to 124 |
+| FS-A1GT, `C` = 375 | from 85 - 174 (top group) | from 83 - 172 (top group) |
+
+From the switch point on, the columns are white and lie halfway between
+the yellow ones: the YJK pixels come out 4 pixels later from there on, in
+that line. The column just before the switch point shows red or orange for
+a group or two.
+
+**Results, columns every 2 pixels** (`vdpyjk5`, R#7 left, R#25 right), x
+of the edges in pixels, read against the nearest ruler, top group to
+bottom group:
+
+| | R#7 stripe | YJK part (R#25) |
+|---|---|---|
+| FS-A1GT, `C` = 374 | 41.2 to 48.6 - 129.1 to 137.1 | 38.7 to 47.7 - 129.1 to 135.4 |
+| NMS 8250 (V9958), `C` = 374, top group | 34.8 - 120 | 33.6 - 120.1 |
+
+So YJK switches on and off where the R#7 write lands, to within 1 to 2.5
+pixels, and not in steps of 8 pixels: `vdpyjk3`'s columns every 8 pixels
+showed it only where a column was.
+
+### vdpyjk4 and vdplc2: R#23, the line latch and the line counter reset in YJK
+
+**How.** `vdpyjk4.bas` (each screen waits for a photo, space goes on;
+SCREEN 12 is SCREEN 8 with R#25 = 08h, written by machine code, so that it
+also works with an MSX2 BIOS):
+
+1. and 2. `VDPLIN4.BIN` (`vdpline4`, the R#23 staircase) in SCREEN 8 and in
+   SCREEN 12, the HR samples taken in that mode, over blocks of 8 lines of
+   F8h and 0 with a ruler of F8h (a tick every 8 pixels).
+3. and 4. `VDPYJKN.BIN` (`vdpyjkn.asm`: `vdpline5` with 16 groups of 8
+   lines, the first write 1 Z80 cycle later per group) writing R#1: the
+   display off, and on again 50 Z80 cycles later, over a picture of F8h, in
+   SCREEN 8 and SCREEN 12. A line stays black when the latch for it comes
+   while the display is off; the groups in which that happens show where
+   the latch is.
+
+Then `vdplc2.bas` runs `vdplc` (`VDPLC.BIN`) in SCREEN 8 and SCREEN 12
+(GRAPHIC7, and GRAPHIC7 with R#25 = 08h), R#18 = 00h and 08h, 8
+repetitions.
+
+**Results, R#23** (each SCREEN 8 above SCREEN 12, and videos): in both
+modes the seam lies on a tick of the ruler, so in SCREEN 12 on the moved
+(YJK) picture's 8-pixel grid, 4 pixels further right on the screen. It
+moves to the next tick at the same group in both modes (on the FS-A1GT
+varying between group 5 and 7 from frame to frame, the same range in both
+modes).
+
+**Results, the latch** (left SCREEN 8, right SCREEN 12), the number of
+black lines, measured in every frame of a video (6 frames per second; it
+alternates between two values, one group apart):
+
+| | SCREEN 8 | SCREEN 12 |
+|---|---|---|
+| FS-A1GT | 33 or 41 | 33 or 41 |
+| NMS 8250 (V9958) | 66 or 74 | 66 or 74 |
+
+A latch 16 VDP cycles (4 pixels) later in SCREEN 12 would make the black
+band 2.7 groups (21 lines) longer: the latch doesn't move with YJK.
+
+**Results, the line counter reset**, the last e at which the write is taken
+and the first at which it isn't:
+
+| | SCREEN 8, R#18 = 00h | SCREEN 12, 00h | SCREEN 8, 08h | SCREEN 12, 08h |
+|---|---|---|---|---|
+| FS-A1GT | 141\|142 | 141\|142 | 141\|142 | 141\|142 |
+| NMS 8250 (V9958) | 166\|167 | 166\|167 | 166\|167 | 166\|167 |
+
+The reset doesn't move with YJK (16 VDP cycles would be 2.7 Z80 cycles). The
+FS-A1GT gives the edge of GRAPHIC4 (`vdplc`: 140\|141) to within one Z80
+cycle. The NMS 8250's e values are larger by about 7 because its CPU clock
+runs 116 ppm fast: the write comes about 60000 CPU cycles after the HR
+samples, so it lands 6 to 8 Z80 cycles early.
+
+### Conclusion
+
+Measured on the V9958:
+
+- The picture moves 4 pixels to the right (`vdpyjk`).
+- The timing doesn't move: relative to the picture of SCREEN 8, a backdrop
+  write lands at the same place on the screen (4 to 6 pixels further from
+  the moved columns, `vdpline5`), and F, FH, VR and HR keep their positions
+  relative to each other (`vdpmode`).
+- A mid-line R#23 write takes effect from an 8-pixel group of the moved
+  picture, at the same group for the same write moment as in SCREEN 8
+  (`vdpyjk4`).
+- The line latch and the line counter reset don't move (`vdpyjk4`,
+  `vdplc2`).
+- An R#25 write in the middle of a line switches YJK on or off from the
+  point in the picture where an R#7 write at the same moment lands, to
+  within 1 to 2.5 pixels (switching on perhaps that much earlier), and the
+  4-pixel shift starts and ends there too, in that line (`vdpyjk3`,
+  `vdpyjk5`). The column right before the switch point shows red or
+  orange for a group or two.

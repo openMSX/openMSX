@@ -111,11 +111,11 @@ static constexpr int VR_DELAY = 9;
 /** F, VR, FH and HR keep their positions relative to each other when the
   * horizontal adjust changes (measured on the same machines, see
   * doc/internal/vdp-status-race). HR and FH follow the adjust through
-  * getRightBorder(); F (VSCAN), VR and the line counter reset are moved
-  * by this many VDP cycles, and so is the line latch (not measured). */
+  * getTimingRightBorder(); F (VSCAN), VR and the line counter reset are
+  * moved by this many VDP cycles, and so is the line latch (not measured). */
 static int getStatusAdjustTicks(const VDP& vdp)
 {
-	return (vdp.getHorizontalAdjust() - 7) * 4;
+	return (vdp.getTimingAdjust() - 7) * 4;
 }
 
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
@@ -651,10 +651,8 @@ void VDP::execIrqDelay(EmuTime time)
 
 void VDP::execHorAdjust(EmuTime time)
 {
-	int newHorAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
-	if (controlRegs[25] & 0x08) {
-		newHorAdjust += 4;
-	}
+	// YJK moves the picture 4 pixels, but not the timing.
+	int newHorAdjust = ((controlRegs[18] & 0x0F) ^ 0x07) + getYjkAdjust();
 	renderer->updateHorizontalAdjust(newHorAdjust, time);
 	horizontalAdjust = newHorAdjust;
 	// The line interrupt and the display end move with the adjust.
@@ -668,15 +666,18 @@ int VDP::getScrollBurstTicks(EmuTime time) const
 	// that starts at least LEAD ticks after the write (the burst for that
 	// group is fetched ahead of the beam). The picture follows the timing by
 	// getOutputDelay() ticks, so the groups do too.
+	// YJK delays the pixels by 4 more, not the fetch, so the group of the
+	// picture comes that much later after the write.
 	static constexpr int LEAD = 22;
 	static constexpr int GROUP = 8 * 4; // 8 pixels of 4 ticks
 	if (!isDisplayEnabled() || !getDisplayMode().isBitmapMode()) return -1;
+	int lead = LEAD + getYjkAdjust() * 4;
 	int ticks = getTicksThisFrame(time);
 	int lineStart = ticks - ticks % TICKS_PER_LINE;
 	int groupStart = getLeftSprites() + getOutputDelay();
 	int x = ticks - lineStart - groupStart; // ticks into the display
-	if (x + LEAD <= 0) return -1;
-	return lineStart + groupStart + (x + LEAD + GROUP - 1) / GROUP * GROUP;
+	if (x + lead <= 0) return -1;
+	return lineStart + groupStart + (x + lead + GROUP - 1) / GROUP * GROUP;
 }
 
 void VDP::execSetMode(EmuTime time)
@@ -852,7 +853,7 @@ void VDP::scheduleHScan(EmuTime time)
 	// or after the next reset, the counter never gets there.
 	horizontalScanOffset = displayStart - (100 + 102)
 		+ ((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE
-		+ getRightBorder();
+		+ getTimingRightBorder();
 	if (horizontalScanOffset < 0) {
 		// Before this frame, so already behind us. (Possible while the
 		// counter is still the previous frame's.)
@@ -1648,7 +1649,12 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 			                  time);
 		}
 		if (change & 0x08) {
-			syncAtNextLine(syncHorAdjust, time);
+			// The YJK pixels move 4 pixels from where this write lands
+			// in the picture on, in this line already (R#18 waits for
+			// the next line).
+			int newHorAdjust = horizontalAdjust + ((val & 0x08) ? 4 : -4);
+			renderer->updateHorizontalAdjust(newHorAdjust, time);
+			horizontalAdjust = newHorAdjust;
 		}
 		if (change & 0x02) {
 			renderer->updateBorderMask((val & 0x02) != 0, time);
