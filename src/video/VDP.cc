@@ -111,8 +111,8 @@ static constexpr int VR_DELAY = 9;
 /** F, VR, FH and HR keep their positions relative to each other when the
   * horizontal adjust changes (measured on the same machines, see
   * doc/internal/vdp-status-race). HR and FH follow the adjust through
-  * getRightBorder(); F (VSCAN) and VR are moved by this many VDP cycles,
-  * and so is the line latch (not measured). */
+  * getRightBorder(); F (VSCAN), VR and the line counter reset are moved
+  * by this many VDP cycles, and so is the line latch (not measured). */
 static int getStatusAdjustTicks(const VDP& vdp)
 {
 	return (vdp.getHorizontalAdjust() - 7) * 4;
@@ -742,10 +742,7 @@ void VDP::execSyncCmdDone(EmuTime time)
 // "vertical-auxiliary counter") in https://github.com/ika-musume/IKA9958.
 void VDP::scheduleLineCountReset(EmuTime time)
 {
-	// The reset happens 144 VDP cycles into its line (+ adjust), the
-	// moment issue #1310 found for the line latch.
-	int ticks = (8 + getVerticalAdjust()) * TICKS_PER_LINE
-	          + 144 + (horizontalAdjust - 7) * 4;
+	int ticks = (8 + getVerticalAdjust()) * TICKS_PER_LINE + getLineCountResetTicks();
 	EmuTime resetTime = frameStartTime + ticks;
 	if (resetTime <= time) {
 		// Moved behind us by an adjust change. If a reset is still
@@ -1761,6 +1758,17 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 		}
 		break;
 	}
+}
+
+int VDP::getLineCountResetTicks() const
+{
+	// Measured with vdplc (the moment a write of R#9 LN is still taken for
+	// the next frame, relative to HR) on a V9958 (Panasonic FS-A1GT) and a
+	// V9938 (Sony HB-F700D), in GRAPHIC4 and TEXT2 with three horizontal
+	// adjusts: 158 fits both chips, see doc/internal/vdp-status-race. MSX1
+	// VDPs: not measured.
+	int offset = isMSX1VDP() ? 144 : 158;
+	return offset + getStatusAdjustTicks(*this);
 }
 
 int VDP::getLineStartTicks() const

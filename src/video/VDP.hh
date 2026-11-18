@@ -1147,6 +1147,12 @@ private:
 	  */
 	[[nodiscard]] int getLineStartTicks() const;
 
+	/** Where in its line (in ticks) the display line counter is reset, and
+	  * NT and LN of R#9 are taken for the next frame. Follows the
+	  * horizontal adjust.
+	  */
+	[[nodiscard]] int getLineCountResetTicks() const;
+
 	/** Schedule a sync point at the start of the next line.
 	  */
 	void syncAtNextLine(SyncBase& type, EmuTime time) const;

@@ -653,3 +653,50 @@ Z80 cycles from the line interrupt on the V9938 and 241 on the V9958.
 Fitted (`HINTTOBL` run in an emulation with the timing and the interrupt
 line delays above): the latch is 91 to 96 VDP cycles (V9938) and 79 to 84
 (V9958) before HR falls at the start of the line it is for.
+
+## The line counter reset
+
+**Files.** `vdplc.asm`, `autoexec-vdplc.bas`: writes LN (R#9) at a known
+moment around the line counter reset: is it taken for the next frame?
+Results: `results/<machine>-lc-<screen5|text>-r18-<0|7|8>.txt` (columns
+e, -, seen, before).
+
+**How.** The `vdpmode` trial (sync on VR, HR samples), then a wait into the
+line count reset line of the next frame (line 8 + vertical adjust), where
+R#9 is written with LN = 0 (192 lines) at a moment d, in 1-cycle steps; the
+value byte is written before the wait, the register byte at the measured
+moment. Then S#2 is read about 5 lines after the display start with 212
+lines: the reset fixes the display start from LN as it is then, and with
+192 lines the display starts 10 lines later, so VR is still 1 there if the
+write came before the reset ("seen") and 0 if it came after it ("before").
+(The display end compares the line counter with LN as it is at that
+moment, so it can't show when LN was taken.) Then LN = 1 again, before the
+next frame's reset; each trial takes two frames. The waits differ for 50
+and 60 Hz. GRAPHIC4 and TEXT2, each with R#18 = 00h, 07h and 08h, 8
+repetitions.
+
+**Results**, the last e at which the write is taken and the first at which
+it isn't (the reset lies in between):
+
+| | GRAPHIC4 | TEXT2 |
+|---|---|---|
+| HB-F700D, R#18 = 00h | 157\|160 | 152\|154 |
+| HB-F700D, R#18 = 07h | 158\|162 | 154\|156 |
+| HB-F700D, R#18 = 08h | 159\|160 | 153\|158 |
+| FS-A1GT, R#18 = 00h | 140\|141 | 135\|136 |
+| FS-A1GT, R#18 = 07h | 140\|142 | 135\|136 |
+| FS-A1GT, R#18 = 08h | 140\|141 | 135\|136 |
+
+e is relative to HR's falling edge in the screen mode of the test, which
+comes 31 VDP cycles (5 Z80 cycles) later in TEXT2: the reset is at the same
+moment in both modes. On the HB-F700D (locked clocks) only some e values get
+trials, so its edges are wider.
+
+### Conclusion
+
+The line counter reset (where NT and LN are taken for the next frame) is
+a different moment from the line latch. Measured (`vdplc`): it is the same
+moment in GRAPHIC4 and TEXT2 (5 apart in e, relative to each mode's HR, as
+HR falls 5 to 6 Z80 cycles later in TEXT2), and it moves with R#18 as HR
+does. Fitted: 101 VDP cycles before HR falls, on both chips (4 VDP cycles
+either way fits worse), 5 to 22 VDP cycles before the latch.
