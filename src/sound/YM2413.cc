@@ -20,8 +20,9 @@ namespace openmsx {
 // Debuggable
 
 YM2413::Debuggable::Debuggable(
-		MSXMotherBoard& motherBoard_, const std::string& name_)
-	: SimpleDebuggable(motherBoard_, name_ + " regs", "MSX-MUSIC", 0x40)
+		MSXMotherBoard& motherBoard_, const std::string& name_,
+		static_string_view description_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs", description_, 0x40)
 {
 }
 
@@ -40,8 +41,11 @@ void YM2413::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 
 // YM2413
 
-static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
+static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config, YM2413::Type type)
 {
+	if (type == YM2413::Type::Y8960) {
+		return std::make_unique<YM2413NukeYKT::YM2413>(/*toneBanks*/ true);
+	}
 	auto core = config.getChildData("ym2413-core", "");
 	if (core == "Okazaki") {
 		return std::make_unique<YM2413Okazaki::YM2413>();
@@ -67,10 +71,16 @@ static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 
 static constexpr auto INPUT_RATE = unsigned(cstd::round(YM2413Core::CLOCK_FREQ / 72.0));
 
-YM2413::YM2413(const std::string& name_, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-MUSIC", 9 + 5, INPUT_RATE, false)
-	, core(createCore(config))
-	, debuggable(config.getMotherBoard(), getName())
+static constexpr static_string_view typeDescription(YM2413::Type type)
+{
+	return (type == YM2413::Type::Y8960) ? static_string_view("Y8960 OPLLEX")
+	                                     : static_string_view("MSX-MUSIC");
+}
+
+YM2413::YM2413(const std::string& name_, const DeviceConfig& config, Type type)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, typeDescription(type), 9 + 5, INPUT_RATE, false)
+	, core(createCore(config, type))
+	, debuggable(config.getMotherBoard(), getName(), typeDescription(type))
 {
 	registerSound(config);
 }

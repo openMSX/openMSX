@@ -76,6 +76,7 @@ static constexpr auto romTypeInfoArray = [] {
 	r[MEGAFLASHROMSCCPLUS]={0     ,"MegaFlashRomSccPlus","Mega Flash ROM SCC Plus"}; // variable block size
 	r[REPRO_CARTRIDGE1]= {0x2000, "ReproCartridgeV1","Repro Cartridge V1"};
 	r[REPRO_CARTRIDGE2]= {0x2000, "ReproCartridgeV2","Repro Cartridge V2"};
+	r[Y8960_CARTRIDGE ]= {0x2000, "Y8960Cartridge",  "Y8960 Cartridge"};
 	r[YAMANOOTO       ]= {0x2000, "Yamanooto",       "Yamanooto"};
 	r[KONAMI_ULTIMATE_COLLECTION]={0x2000,"KonamiUltimateCollection","Konami Ultimate Collection"};
 	r[NEO8]            = {0x2000, "NEO-8",           "NEO-8 mapper"};
