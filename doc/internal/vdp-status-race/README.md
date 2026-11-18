@@ -985,3 +985,130 @@ which covers those pixels.
 *Interpretation (an assumption):* the display window opens at its usual
 moment and the YJK pixels come out 4 pixels later; in between the VDP
 outputs the backdrop it took when the window opened.
+
+## An NT write changes the length of the field it is made in
+
+**Files.** `vdpnt.asm`, `vdpnt.bas`, `vdpnt2.bas`, `vdpnt3.bas`,
+`vdpnt4.asm`, `vdpnt4.bas`, `autoexec-vdpnt.bas`: NT (R#9 bit 1) written N
+lines after the display start, then the lines counted to VR's next four
+edges. Results: `results/<machine>-nt-<a|b>.txt` (`vdpnt`),
+`results/<machine>-nt2-<a|b>.txt` (`vdpnt2`), `results/<machine>-nt3.txt`
+(`vdpnt3`), `results/<machine>-nt4-<a|b>.txt` (`vdpnt4`).
+
+**How.** `vdpnt.asm`, per call: R#9 = NTA, 3 frames to settle; sync on VR's
+fall (the display start), count N lines (HR pulses), wait DLY times 14 Z80
+cycles, write R#9 = NTB, then count the lines to VR's next four edges
+(rise, fall, rise, fall). The counts are lines from the write to the edge,
+to within one line. Interrupts are off during the call. SCREEN 0 WIDTH 80,
+212 lines; direction A is 50 to 60 Hz (NTA = 82h, NTB = 80h), B is 60 to
+50 Hz (80h, 82h). Each N is run twice.
+
+- `vdpnt.bas`: N = 0 to 340 in steps of 2 to 50, DLY 0. On the FS-A1GT and
+  the HB-F700D it ran with a version of `vdpnt.asm` without DLY, which
+  writes 32 Z80 cycles earlier than this one with DLY = 0; on the NMS 8250
+  (V9958) with this one.
+- `vdpnt2.bas`: around the end of the field: N = 249 to 257 (A) and 224 to
+  232 (B), DLY = 0 to 16 in steps of 2 (DLY 16 is 224 Z80 cycles, about a
+  line).
+- `vdpnt3.bas`: direction A around the end of a 60 Hz field: N = 199 to
+  206, DLY = 0 to 16.
+- `vdpnt4.bas` with `VDPNT4.BIN` (`vdpnt4.asm`: `vdpnt.asm` with a second
+  delay FINE of 1 Z80 cycle per step, through a NOP sled and stubs of 14 to
+  18 cycles as in `vdpedge`): around the switch of `vdpnt2`, N = 253 (A)
+  and 229 (B), a delay of 65 to 125 Z80 cycles in steps of one (DLY =
+  delay / 14, FINE = the rest), each 6 times, with R#18 = 00h, 07h and
+  08h. The result files list R#18, N and the delay, then the four counts.
+
+`autoexec-vdpnt.bas` runs whichever of the four hasn't saved its result
+file yet; each comes back to it when it's done.
+
+The result files list N (and DLY), then the four counts. Below, D = N + the
+first two counts: the lines from the display start to the next display
+start (the field's own length, plus the difference between the two
+fields' top borders). The machines agree to within one line, apart from
+N = 312 in A: there the NMS 8250's write (32 Z80 cycles later, see above)
+lands after the next field's display start (D = 546).
+
+**Results, `vdpnt`**, D:
+
+| A (50 to 60 Hz), N | D | then (blanking lines) |
+|---|---|---|
+| 0 to 200 | 234 | 48 |
+| 205 to 252 | 484 | 48 |
+| 254 to 266 | 285 | 48 |
+| 270 to 312 | 312 | 21 |
+| 315 to 340 | 547 | 48 |
+
+| B (60 to 50 Hz), N | D | then (blanking lines) |
+|---|---|---|
+| 0 to 225 | 339 | 99 |
+| 230 to 245 | 288 | 99 |
+| 248 to 260 | 261 | 126 |
+| 262 to 340 | 601 | 99 |
+
+Read as fields: with A, a write up to N = 200 gives the field the 60 Hz
+length; from N = 205 on the field runs on much longer, 250 lines more
+than a 60 Hz field; from N = 254 on the write is too late for this field,
+which keeps the 50 Hz length. From N = 270 on the write lands in the next
+field, which then gets the 60 Hz length (21 blanking lines after its
+display) but keeps the 50 Hz top border; from N = 315 on it lands after
+that field's display start. With B, a write up to N = 225 gives the field
+the 50 Hz length, from N = 230 on it is too late; from N = 248 on it
+lands in the next field, which gets the 50 Hz length (126 blanking lines)
+and keeps the 60 Hz top border; from N = 262 on it lands after that
+field's display start.
+
+**Results, `vdpnt2`**, the switch, as N and the first DLY with the new
+outcome (each DLY twice):
+
+| | FS-A1GT | HB-F700D | NMS 8250 (V9958) |
+|---|---|---|---|
+| A: from D = 484 to 285 | N = 253, DLY 12 (mixed) to 14 | N = 253, DLY 14 | N = 253, DLY 14 |
+| B: from D = 339 to 288 | N = 229, DLY 14 | N = 229, DLY 14 | N = 229, DLY 14 |
+
+**Results, `vdpnt3`**: from D = 234 to 484 at N = 202, DLY 14, on all
+three machines.
+
+**Results, `vdpnt4`**, the switch (A: from D = 484 to 285, B: from D = 339
+to 288) as the delay in Z80 cycles at which half of the trials have the new
+outcome:
+
+| R#18 | FS-A1GT, A / B | HB-F700D, A / B | NMS 8250 (V9958), A / B |
+|---|---|---|---|
+| 00h | 101.0 / 100.8 | 102.5 / 103.0 | 105.3 / 102.2 |
+| 07h | 105.2 / 106.7 | 108.5 / 105.8 | 109.2 / 108.7 |
+| 08h | 94.8 / 96.3 | 94.7 / 98.7 | 97.7 / 97.5 |
+
+From R#18 = 07h to 08h the switch comes 7 to 14 Z80 cycles earlier
+(about 10 to 11 on average per machine), from 00h to 07h 3 to 7 later.
+The delay counts from an HR edge, and HR moves with the horizontal adjust
+(see "F, FH, VR and HR all move with the horizontal adjust"): 60 VDP
+cycles (10 Z80 cycles) later from 07h to 08h, 28 (about 5) earlier from
+00h to 07h. The switch moves by the same amount the other way: the moment
+that decides doesn't move with the adjust.
+
+### Conclusion
+
+Measured on the V9938 and the V9958 (the HB-F700D, the FS-A1GT and the
+NMS 8250 with V9958): an NT write changes the length of the field it is
+made in. In time, the field gets the length of the rate written; when the
+line counter is already past that length, the field runs on for a long
+time (A: 250 lines more than a 60 Hz field); too late, the field keeps
+its length and the next field gets the new rate. A write in the next
+field's first lines changes its length, but not its top border.
+
+Fitted (`vdpnt`, `vdpnt2`, `vdpnt3` and `vdpnt4` of all three machines,
+run in an emulation with the timing above): the field lengths are 262 and
+313 lines, and 512 when the counter is past the new length (the counter
+runs on to its wrap); the top border follows NT at the line counter reset.
+The write is in time if it comes at least 400 ± 10 VDP cycles before the
+end of the line in which the field would end, i.e. before 709 ± 10 VDP
+cycles after HR falls at the start of that line (R#18 = 00h); unlike HR, F
+and VR, this moment doesn't move with the horizontal adjust. `vdpnt2` and
+`vdpnt3` alone allow 360 to 520 (they reproduce all switches with those,
+apart from single trials right at a switch; 300 and 600 don't). `vdpnt4`
+narrows it down: with 400 the emulated switch lies within 0.6 Z80 cycles
+of the real one on average on each machine (single settings within 2.5),
+with 380 and 420 it is 2.5 to 5 cycles off. The same moment holds for the
+end of the old rate (`vdpnt2`, `vdpnt4`) and for the new rate's end that
+would already have passed (`vdpnt3`).
