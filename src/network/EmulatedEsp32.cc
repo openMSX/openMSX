@@ -979,7 +979,7 @@ struct UdpPeekInfo {
 void EmulatedEsp32::tcpDriveHandshake(Connection* conn, int connIdx)
 {
 	auto r = [conn] {
-		std::scoped_lock lock(conn->sslMutex);
+		std::scoped_lock sslLock(conn->sslMutex);
 		return conn->ssl->handshake();
 	}();
 	if (!r) {
@@ -991,7 +991,7 @@ void EmulatedEsp32::tcpDriveHandshake(Connection* conn, int connIdx)
 			uint8_t reason = 0;
 			std::string description;
 			{
-				std::scoped_lock lock(conn->sslMutex);
+				std::scoped_lock sslLock(conn->sslMutex);
 				reason = static_cast<uint8_t>(conn->ssl->verifyResult());
 				if (reason != 0) {
 					description = conn->ssl->verifyErrorDescription();
@@ -1047,7 +1047,7 @@ bool EmulatedEsp32::tcpReadData(Connection* conn, int connIdx)
 		// error fails the connection, WouldBlock is just "try again
 		// later".
 		auto r = [conn, &buf] {
-			std::scoped_lock lock(conn->sslMutex);
+			std::scoped_lock sslLock(conn->sslMutex);
 			return conn->ssl->read(buf);
 		}();
 		if (!r) {
@@ -1090,7 +1090,7 @@ void EmulatedEsp32::tcpDrainSsl(Connection* conn, int connIdx)
 	std::array<uint8_t, 2048> buf; // one full TCP_RCV
 	for (;;) {
 		auto r = [conn, &buf] {
-			std::scoped_lock lock(conn->sslMutex);
+			std::scoped_lock sslLock(conn->sslMutex);
 			return conn->ssl->read(buf);
 		}();
 		if (!r) {
@@ -2489,7 +2489,7 @@ void EmulatedEsp32::cmdTcpSend(std::span<const uint8_t> data)
 			return;
 		}
 		auto r = [conn, payload] {
-			std::scoped_lock lock(conn->sslMutex);
+			std::scoped_lock sslLock(conn->sslMutex);
 			return conn->ssl->write(payload);
 		}();
 		if (!r) {
