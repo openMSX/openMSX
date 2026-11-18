@@ -1112,3 +1112,135 @@ of the real one on average on each machine (single settings within 2.5),
 with 380 and 420 it is 2.5 to 5 cycles off. The same moment holds for the
 end of the old rate (`vdpnt2`, `vdpnt4`) and for the new rate's end that
 would already have passed (`vdpnt3`).
+
+## The line latch moves with the horizontal adjust
+
+**Files.** `vdplat.bas`, with `VDPYJKN.BIN` (`vdpyjkn.asm`, see "YJK moves
+the picture, not the timing"). Photos: `photos/<machine>-vdplat.jpg` (the
+three screens side by side).
+
+**How.** `vdplat.bas`: SCREEN 8, a white picture from line 44 on, three
+screens with R#18 = 00h, 04h and 0Ch. R#18 is set before the HR samples
+of the frame sync, so the writes move along with HR. `VDPYJKN.BIN` then
+writes R#1 per line in 16 groups of 8 lines, each group 1 Z80 cycle later
+than the one before: display off, and on again 50 Z80 cycles later. A
+line stays black when the latch for it comes while the display is off.
+Each screen waits for space (photo or video first).
+
+**Results**, in lines, measured on the photos and on every frame of the
+videos:
+
+| | white strip | black band |
+|---|---|---|
+| FS-A1GT (video) | 14 | 34 or 42 (4 or 5 groups), about half of the frames each |
+| HB-F700D (photos) | 13 | 38 to 41 (5 groups) |
+| NMS 8250 (V9958) (video) | 14 | 64 (8 groups) in most frames; 72 (9) for about 4 frames and 56 (7) for 1 or 2 frames, every 0.8 s |
+
+Per machine the band is the same in all three screens, frame for frame.
+On the FS-A1GT and the NMS 8250 the band's lower edge moves by a group
+between video frames; the HB-F700D's screens stood still.
+
+*Interpretation (an assumption, not measured):* on the FS-A1GT and the
+NMS 8250 the Z80 and the VDP don't run in a fixed phase, so the group at
+the band's edge falls on either side now and then; on the NMS 8250 (two
+crystals) it does so in a regular beat.
+
+### Conclusion
+
+Measured on the V9938 and the V9958 (HB-F700D, FS-A1GT, NMS 8250 with
+V9958): the line latch moves with the horizontal adjust, as HR does. The
+height of the band differs per machine and isn't used.
+
+## YJK: sprites and the right edge
+
+**Files.** `vdpyjk2.bas` screen 1 (see "YJK moves the picture, not the
+timing"). Photos: `photos/<machine>-vdpyjk2-sprites.jpg`,
+`photos/<machine>-vdpyjk2-right.jpg`.
+
+**How.** `VDPYJK.BIN` (`vdpyjk`): SCREEN 8 at the top, SCREEN 12 from
+line 106, columns of F8h at x = 0, every 16 pixels and at x = 255,
+backdrop blue; 16x16 sprites with only their 3 left pixel columns set,
+placed 3 pixels left of the columns at x = 64, 128 and 192 in both halves.
+
+**Results, sprites:** in the SCREEN 12 half the sprites keep the same
+3-pixel gap to the (moved) columns as in the SCREEN 8 half, on both
+machines.
+
+**Results, the right edge:** the column at x = 255 is there in SCREEN 12
+too, about 4 pixels further right than in SCREEN 8.
+
+### Conclusion
+
+Measured on the V9958 (FS-A1GT, NMS 8250 with V9958): sprites move with
+the YJK picture, 4 pixels to the right, and the picture ends 4 pixels
+later: YJK doesn't cut off its last 4 pixels.
+
+## Limits
+
+- The TMS99xx wasn't measured (the method needs HR and VR, which it
+  doesn't have), nor its latch moment and line counter reset.
+- These tests don't show whether the display start, line zero and the
+  moment the access slot grid switches move with the horizontal adjust.
+- Where the display area lies in the line and how long after that the
+  pixels come out can't be told apart with these tests: the photos fix
+  their sum (see "The interrupt lines and the picture follow the
+  timing").
+
+## IKA9958
+
+IKA9958 (https://github.com/ika-musume/IKA9958) is a V9958 rebuilt in HDL
+from die shots; S#2 isn't implemented there, so which signals drive HR and
+VR isn't known. Its horizontal counter counts once per 4 VDP cycles. With
+one offset for that counter, chosen to fit, decode points of its
+horizontal PLA fall on the measured (fitted) timing to within one counter
+step or one Z80 cycle:
+
+| Signal | IKA9958 decode point | IKA9958 | measured (fitted) |
+|--------|----------------------|---------|-------------------|
+| HR rises, graphics modes | `0x108` (`bpla[37]`, resets `gt063`) | -313 | -312 |
+| HR falls, graphics modes | `0x000` (`bpla[36]`, sets `gt062`) | -1 | 0 |
+| HR rises, text modes | `0x140` (`bpla[33]`, resets `gt061`) | -377 | -367 |
+| HR falls, text modes | `0x000` (`bpla[36]`) | +31 | +31 |
+| VR changes | vertical tick (`vapla_tick`, latch `gc105`) | -53 | -48 |
+
+The exception is HR's length in text mode (408 VDP cycles against 398). In
+IKA9958 the vertical tick (VR, the line counter) is at the same place in
+all screen modes and the HR decode points differ per mode, as measured; and
+the PLA counter is reloaded when the horizontal counter plus R#18 reaches
+23, so everything decoded from it moves with the adjust, as measured. That
+reload uses R#18 only, without a YJK term, as measured for YJK (`vdpline5`;
+`vdpmode`: no relative shift in SCREEN 12).
+
+The display line counter (`vacntr`, "vertical-auxiliary counter") steps
+and is reset at the same moment as that reload (`vacntr_ci` from
+`hadd_eq23_z`); at the reset it is loaded with a start value from NT and
+LN, so they are taken there. With the same offset that is -97 at R#18 =
+00h, one counter step after the fitted -101 (`vdplc`), and it moves with
+R#18, as measured. IKA9958 has no per-line latch of BL, the M bits and SPD
+(it uses them as they are), so it doesn't show the latch moment, and no
+interrupt or pixel output yet, so it doesn't show their delays.
+
+*Interpretation (an assumption, not measured).* IKA9958 does show when the
+display data is fetched: the fetch window ends at `0x100` in the graphics
+modes (`gt058`) and at `0x140` in the text modes (the text window,
+`gt043`). HR rises 8 counter steps (32 VDP cycles) after that in the
+graphics modes, and at it in the text modes. If the pixels leave the VDP
+about 32 VDP cycles after they are fetched (the delay with which the
+interrupt line follows F on the V9958, `vdpirq`), HR rises when the last
+pixel of a line is out in the graphics modes, and about 32 VDP cycles
+before that in the text modes.
+
+## Other measurements: igmar's, on a Philips VG-8235 (V9958)
+
+In PR #2299 and #2300 igmar measured edges relative to a lock on HR, in
+Z80 cycles (T), with a test ROM of his own. He finds F 1 T after VR (here
+4 to 6 VDP cycles), NT taken in the same line with every vertical adjust,
+and NT and LN taken at the moment of `vdplc` (with the fitted timing above
+his NT edge in GRAPHIC4 comes out at 211.8 T against his 212). In his
+#2299 data VR and F move relative to his HR lock with R#18 by -4 VDP
+cycles per step (0, -2, -5, +5, 0 T for the low nibbles 0, 2, 7, 8, F):
+the same as `vdpadj` gives on both machines here with R#18 changed after
+the HR measurement. He also finds a mid-line R#25 write switching YJK and
+its 4-pixel shift from the write on, as `vdpyjk3` does, and (#2300, M21
+part B) a field in which NT is written in line 14 or 15 ending at the new
+rate's length, as `vdpnt` does.

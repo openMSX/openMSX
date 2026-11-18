@@ -108,11 +108,12 @@ static FlagLostWindow getFHLostWindow(const VDP& vdp)
   * FS-A1GT) and a V9938 (Sony HB-F700D), see doc/internal/vdp-status-race. */
 static constexpr int VR_DELAY = 9;
 
-/** F, VR, FH and HR keep their positions relative to each other when the
-  * horizontal adjust changes (measured on the same machines, see
-  * doc/internal/vdp-status-race). HR and FH follow the adjust through
-  * getTimingRightBorder(); F (VSCAN), VR and the line counter reset are
-  * moved by this many VDP cycles, and so is the line latch (not measured). */
+/** F, VR, FH, HR, the line counter reset and the line latch keep their
+  * positions relative to each other when the horizontal adjust changes
+  * (measured on the same machines, see doc/internal/vdp-status-race). HR
+  * and FH follow the adjust through getTimingRightBorder(); F (VSCAN), VR,
+  * the line counter reset and the line latch are moved by this many VDP
+  * cycles. */
 static int getStatusAdjustTicks(const VDP& vdp)
 {
 	return (vdp.getTimingAdjust() - 7) * 4;
