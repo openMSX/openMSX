@@ -86,17 +86,32 @@ std::string FileContext::resolve(std::string_view filename) const
 	return result;
 }
 
-std::string FileContext::resolveCreate(std::string_view filename) const
+std::span<const std::string> FileContext::getSavePaths() const
 {
 	if (savePaths2.empty()) {
 		savePaths2 = getPathsHelper(savePaths);
 	}
+	return savePaths2;
+}
 
+std::string FileContext::resolveSavePaths(std::string_view filename) const
+{
+	auto result = resolveHelper(getSavePaths(), filename);
+	// resolveHelper passes absolute paths through, even if not yet created.
+	if (!FileOperations::exists(result)) {
+		throw FileException("Couldn't find ", result);
+	}
+	return result;
+}
+
+std::string FileContext::resolveCreate(std::string_view filename) const
+{
+	const auto savePaths_ = getSavePaths();
 	std::string result;
 	try {
-		result = resolveHelper(savePaths2, filename);
+		result = resolveHelper(savePaths_, filename);
 	} catch (FileException&) {
-		const std::string& path = savePaths2.front();
+		const std::string& path = savePaths_.front();
 		try {
 			FileOperations::mkdirp(path);
 		} catch (FileException&) {

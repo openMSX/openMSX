@@ -1,0 +1,103 @@
+name: Flash persistence regressions
+
+on:
+  push:
+    branches:
+      - codex/flash-save-development
+      - codex/developer-state-restore
+  pull_request:
+    paths:
+      - 'src/memory/AmdFlash.*'
+      - 'src/file/FileContext.*'
+      - 'src/file/FileOperations.*'
+      - 'Contrib/flash-*'
+      - 'Contrib/rom-test-utils.py'
+      - 'Contrib/rom-harness-validation-test.py'
+      - '.github/workflows/flash-persistence.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: flash-persistence-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  persistence:
+    name: Flash persistence (${{ matrix.os }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            os: linux
+            cpu: x86_64
+            flavour: super-opt
+          - runner: macos-15
+            os: darwin
+            cpu: aarch64
+            flavour: opt
+          - runner: windows-latest
+            os: windows-vc
+            cpu: x64
+            flavour: opt
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install Linux prerequisites
+        if: matrix.os == 'linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl-dev libglu1-mesa-dev libasound2-dev libxext-dev libsdl2-dev libpng-dev tcl-dev libglew-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
+      - name: Set up MSBuild
+        if: matrix.os == 'windows-vc'
+        uses: microsoft/setup-msbuild@v3
+      - name: Cache third-party sources
+        uses: actions/cache@v5
+        with:
+          path: derived/3rdparty
+          key: flash-src-${{ hashFiles('build/packages.py', 'build/3rdparty/*.diff') }}
+      - name: Cache third-party libraries
+        uses: actions/cache@v5
+        with:
+          path: derived/*/3rdparty
+          key: flash-libs-${{ matrix.os }}-${{ matrix.cpu }}-${{ hashFiles('build/packages.py', 'build/3rdparty.mk', 'build/3rdparty/*', 'build/platform-*.mk', 'build/flavour-*.mk') }}
+      - name: Build native Unix emulator
+        if: matrix.os != 'windows-vc'
+        shell: bash
+        run: |
+          target=""
+          if [ "${{ matrix.os }}" = "darwin" ]; then target="staticbindist"; fi
+          make -j 3 OPENMSX_TARGET_CPU=${{ matrix.cpu }} OPENMSX_TARGET_OS=${{ matrix.os }} OPENMSX_FLAVOUR=${{ matrix.flavour }} $target
+      - name: Build native Windows emulator
+        if: matrix.os == 'windows-vc'
+        shell: pwsh
+        run: |
+          python build/thirdparty_download.py windows
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          msbuild /m /p:Configuration=Release /p:Platform=x64 build\3rdparty\3rdparty.sln
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          msbuild /m /p:Configuration=Release /p:Platform=x64 build\msvc\openmsx.sln
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Test persistence without external firmware
+        shell: bash
+        run: python Contrib/flash-ci-test.py
+      - name: Retain diagnostic fixtures
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: flash-persistence-${{ matrix.os }}
+          path: |
+            derived/flash-regression-*
+            derived/flash-lifecycle-*
+            derived/flash-device-*
+          if-no-files-found: ignore
