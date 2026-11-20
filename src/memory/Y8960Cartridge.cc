@@ -725,8 +725,8 @@ void Y8960Cartridge::Timer::updateIrq()
 }
 
 
-Y8960Cartridge::Timer::Counter::Counter(Timer& timer_, Scheduler& scheduler)
-	: Schedulable(scheduler)
+Y8960Cartridge::Timer::Counter::Counter(Timer& timer_, Scheduler& scheduler_)
+	: Schedulable(scheduler_)
 	, timer(timer_)
 {
 	clock.setFreq(CLOCK_FREQ);
