@@ -106,7 +106,7 @@ static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .o
 LaserdiscPlayer::LaserdiscPlayer(
 		HardwareConfig& hwConf, PioneerLDControl& ldControl_)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getLaserDiscPlayerName(),
-	                       "Laserdisc Player", 1, DUMMY_INPUT_RATE, true)
+	                       "Laserdisc Player", 2, DUMMY_INPUT_RATE, false)
 	, syncAck (hwConf.getMotherBoard().getScheduler())
 	, syncOdd (hwConf.getMotherBoard().getScheduler())
 	, syncEven(hwConf.getMotherBoard().getScheduler())
@@ -138,6 +138,8 @@ LaserdiscPlayer::LaserdiscPlayer(
 		return result;
 	}();
 	registerSound(DeviceConfig(hwConf, *xml));
+	enableSetChannelFactors(); // see updateChannelFactors()
+	updateChannelFactors(getCurrentTime());
 
 	motherBoard.registerMediaProvider(getLaserDiscPlayerName(), *this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getLaserDiscPlayerName(), "add");
@@ -370,6 +372,7 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime time)
 			stereoMode = StereoMode::STEREO;
 			break;
 		}
+		updateChannelFactors(time);
 
 		setAck(time, 46);
 	} else if (playerState == PlayerState::STOPPED) {
@@ -721,14 +724,22 @@ void LaserdiscPlayer::autoRun()
 
 void LaserdiscPlayer::generateChannels(std::span<float*> buffers, unsigned num)
 {
-	// Single channel device: replace content of buffers[0] (not add to it).
-	assert(buffers.size() == 1);
-	if (playerState != PlayerState::PLAYING || seeking || (muteLeft && muteRight)) {
+	// The two channels are the left and the right audio channel of the
+	// disc. How these end up in the left and right output is handled by
+	// SoundDevice, see updateChannelFactors(). (A channel that's not played
+	// on either output is handled as silent by SoundDevice.)
+	// The data is added to the buffers (not replaced), the buffers are
+	// initially filled with zeros.
+	assert(buffers.size() == 2);
+	auto silent = [&] {
 		buffers[0] = nullptr;
+		buffers[1] = nullptr;
+	};
+	if (playerState != PlayerState::PLAYING || seeking || (muteLeft && muteRight)) {
+		silent();
 		return;
 	}
 	assert(video);
-
 	unsigned pos = 0;
 	size_t currentSample;
 
@@ -737,14 +748,10 @@ void LaserdiscPlayer::generateChannels(std::span<float*> buffers, unsigned num)
 		EmuDuration duration = sampleClock.getTime() - start;
 		unsigned len = duration.getTicksAt(video->getSampleRate());
 		if (len >= num) {
-			buffers[0] = nullptr;
+			silent();
 			return;
 		}
-
-		for (/**/; pos < len; ++pos) {
-			buffers[0][pos * 2 + 0] = 0.0f;
-			buffers[0][pos * 2 + 1] = 0.0f;
-		}
+		pos = len; // skip, remains silent
 
 		currentSample = playingFromSample;
 	} else {
@@ -759,39 +766,44 @@ void LaserdiscPlayer::generateChannels(std::span<float*> buffers, unsigned num)
 		lastPlayedSample = currentSample;
 	}
 
-	int left = stereoMode == StereoMode::RIGHT ? 1 : 0;
-	int right = stereoMode == StereoMode::LEFT ? 0 : 1;
-
 	while (pos < num) {
 		const AudioFragment* audio = video->getAudio(lastPlayedSample);
 
 		if (!audio) {
 			if (pos == 0) {
-				buffers[0] = nullptr;
-				break;
-			} else {
-				for (/**/; pos < num; ++pos) {
-					buffers[0][pos * 2 + 0] = 0.0f;
-					buffers[0][pos * 2 + 1] = 0.0f;
-				}
+				silent();
 			}
+			break; // the rest remains silent
 		} else {
 			auto offset = unsigned(lastPlayedSample - audio->position);
 			unsigned len = std::min(audio->length - offset, num - pos);
 
-			// maybe muting should be moved out of the loop?
-			for (unsigned i = 0; i < len; ++i, ++pos) {
-				buffers[0][pos * 2 + 0] = muteLeft ? 0.0f :
-				   audio->pcm[left][offset + i];
-				buffers[0][pos * 2 + 1] = muteRight ? 0.0f :
-				   audio->pcm[right][offset + i];
+			for (auto channel : {0, 1}) {
+				auto* buf = buffers[channel];
+				for (unsigned i = 0; i < len; ++i) {
+					buf[pos + i] += audio->pcm[channel][offset + i];
+				}
 			}
+			pos += len;
 
 			lastPlayedSample += len;
 		}
 	}
 }
 
+void LaserdiscPlayer::updateChannelFactors(EmuTime time)
+{
+	// Which audio channel of the disc is played on the left and on the
+	// right output, and is that output muted?
+	int left  = stereoMode == StereoMode::RIGHT ? 1 : 0;
+	int right = stereoMode == StereoMode::LEFT  ? 0 : 1;
+	auto outputs = [&](int channel) {
+		return channelOutputs(channel,
+		                      !muteLeft  && (left  == channel),
+		                      !muteRight && (right == channel));
+	};
+	setChannelFactors(std::array{outputs(0), outputs(1)}, time);
+}
 float LaserdiscPlayer::getAmplificationFactorImpl() const
 {
 	return 2.0f;
@@ -810,6 +822,7 @@ void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime time)
 	updateStream(time);
 	muteLeft = left;
 	muteRight = right;
+	updateChannelFactors(time);
 }
 
 void LaserdiscPlayer::play(EmuTime time)
@@ -836,6 +849,7 @@ void LaserdiscPlayer::play(EmuTime time)
 		seeking = true;
 		waitFrame = 0;
 		stereoMode = StereoMode::STEREO;
+		updateChannelFactors(time);
 		playingSpeed = SPEED_1IN4;
 	} else if (playerState == PLAYING) {
 		// If Play command is issued while the player
@@ -1182,6 +1196,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 
 	if constexpr (Archive::IS_LOADER) {
 		(void)isVideoOutputAvailable(getCurrentTime());
+		updateChannelFactors(getCurrentTime());
 	}
 }
 

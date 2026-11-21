@@ -122,6 +122,7 @@ private:
 	bool updateBuffer(size_t length, float* buffer,
 	                  EmuTime time) override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
+	void updateChannelFactors(EmuTime time);
 
 	// Schedulable
 	struct SyncAck final : public Schedulable {
@@ -188,7 +189,7 @@ private:
 	size_t playingFromSample;
 	size_t lastPlayedSample;
 	bool muteLeft = false, muteRight = false;
-	StereoMode stereoMode;
+	StereoMode stereoMode = StereoMode::STEREO;
 
 	// Ext Control
 	RemoteState remoteState = RemoteState::IDLE;
