@@ -109,6 +109,7 @@ private:
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
 	void writeRegDirect(uint8_t reg, uint8_t data, EmuTime time);
+	void updateChannelFactors(unsigned slotNum, EmuTime time);
 	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;
 	[[nodiscard]] int16_t getSample(const Slot& slot, uint16_t pos) const;
 	[[nodiscard]] static uint16_t nextPos(const Slot& slot, uint16_t pos, uint16_t increment);

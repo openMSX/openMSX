@@ -73,6 +73,7 @@ static constexpr std::array<uint8_t, 16> pan_left = {
 static constexpr std::array<uint8_t, 16> pan_right = {
 	0, 0,  0,  0,  0,  0,  0,   0, 255, 255, 48, 40, 32, 24, 16, 8
 };
+static constexpr uint8_t PAN_SILENT = 8; // the only value with both left and right -inf dB
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
@@ -513,40 +514,39 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 		return;
 	}
 
+	// A slot with both the left and the right output at -inf dB is silent.
+	for (auto i : xrange(24)) {
+		if (isChannelOff(i)) {
+			bufs[i] = nullptr;
+		}
+	}
+
 	for (auto j : xrange(num)) {
 		for (auto i : xrange(24)) {
 			auto& sl = slots[i];
 			if (sl.state == EG_OFF) {
-				//bufs[i][2 * j + 0] += 0;
-				//bufs[i][2 * j + 1] += 0;
+				//bufs[i][j] += 0;
 				continue;
 			}
 
-			auto sample = narrow_cast<int16_t>(
-				(getSample(sl, sl.pos) * (0x10000 - sl.stepPtr) +
-				 getSample(sl, nextPos(sl, sl.pos, 1)) * sl.stepPtr) >> 16);
-			// TL levels are 00..FF internally (TL register value 7F is mapped to TL level FF)
-			// Envelope levels have 4x the resolution (000..3FF)
-			// Volume levels are approximate logarithmic. -6dB result in half volume. Steps in between use linear interpolation.
-			// A volume of -60dB or lower results in silence. (value 0x280..0x3FF).
-			// Recordings from actual hardware indicate that TL level and envelope level are applied separately.
-			// Each of them is clipped to silence below -60dB, but TL+envelope might result in a lower volume. -Valley Bell
-			auto envVol = narrow_cast<uint16_t>(
-				std::min(sl.env_vol + ((sl.lfo_active && sl.AM) ? sl.compute_am() : 0),
-				         MAX_ATT_INDEX));
-			int smplOut = vol_factor(vol_factor(sample, envVol), sl.TL << TL_SHIFT);
+			if (auto* buf = bufs[i]) {
+				auto sample = narrow_cast<int16_t>(
+					(getSample(sl, sl.pos) * (0x10000 - sl.stepPtr) +
+					 getSample(sl, nextPos(sl, sl.pos, 1)) * sl.stepPtr) >> 16);
+				// TL levels are 00..FF internally (TL register value 7F is mapped to TL level FF)
+				// Envelope levels have 4x the resolution (000..3FF)
+				// Volume levels are approximate logarithmic. -6dB result in half volume. Steps in between use linear interpolation.
+				// A volume of -60dB or lower results in silence. (value 0x280..0x3FF).
+				// Recordings from actual hardware indicate that TL level and envelope level are applied separately.
+				// Each of them is clipped to silence below -60dB, but TL+envelope might result in a lower volume. -Valley Bell
+				auto envVol = narrow_cast<uint16_t>(
+					std::min(sl.env_vol + ((sl.lfo_active && sl.AM) ? sl.compute_am() : 0),
+					         MAX_ATT_INDEX));
+				int smplOut = vol_factor(vol_factor(sample, envVol), sl.TL << TL_SHIFT);
 
-			// Panning is also done separately. (low-volume TL + low-volume panning goes below -60dB)
-			// I'll be taking wild guess and assume that -3dB is approximated with 75%. (same as with TL and envelope levels)
-			// The same applies to the PCM mix level.
-			int32_t volLeft  = pan_left [sl.pan]; // note: register 0xF9 is handled externally
-			int32_t volRight = pan_right[sl.pan];
-			// 0 -> 0x20, 8 -> 0x18, 16 -> 0x10, 24 -> 0x0C, etc. (not using vol_factor here saves array boundary checks)
-			volLeft  = (0x20 - (volLeft  & 0x0f)) >> (volLeft  >> 4);
-			volRight = (0x20 - (volRight & 0x0f)) >> (volRight >> 4);
-
-			bufs[i][2 * j + 0] += narrow_cast<float>((smplOut * volLeft ) >> 5);
-			bufs[i][2 * j + 1] += narrow_cast<float>((smplOut * volRight) >> 5);
+				// Panning is also done separately, see updateChannelFactors().
+				buf[j] += narrow_cast<float>(smplOut);
+			}
 
 			unsigned step = (sl.lfo_active && sl.vib)
 			              ? calcStep(sl.OCT, sl.FN, sl.compute_vib())
@@ -560,6 +560,21 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 		}
 		advance();
 	}
+}
+
+void YMF278::updateChannelFactors(unsigned slotNum, EmuTime time)
+{
+	// The slots are mono, SoundDevice applies the panning.
+	// (low-volume TL + low-volume panning goes below -60dB)
+	// I'll be taking wild guess and assume that -3dB is approximated with 75%. (same as with TL and envelope levels)
+	// The same applies to the PCM mix level.
+	// Note: register 0xF9 is handled externally.
+	auto factor = [](uint8_t vol) {
+		// 0 -> 0x20, 8 -> 0x18, 16 -> 0x10, 24 -> 0x0C, etc. (255 -> 0)
+		return narrow_cast<float>((0x20 - (vol & 0x0f)) >> (vol >> 4)) * (1.0f / 0x20);
+	};
+	auto pan = slots[slotNum].pan;
+	setChannelFactors(slotNum, factor(pan_left[pan]), factor(pan_right[pan]), time);
 }
 
 void YMF278::keyOnHelper(YMF278::Slot& slot) const
@@ -651,10 +666,11 @@ void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime time)
 				// output to DO1 pin:
 				// this pin is not used in MoonSound
 				// we emulate this by muting the sound
-				slot.pan = 8; // both left/right -inf dB
+				slot.pan = PAN_SILENT; // both left/right -inf dB
 			} else {
 				slot.pan = data & 0x0F;
 			}
+			updateChannelFactors(sNum, time);
 
 			if (data & 0x20) {
 				// LFO reset
@@ -796,7 +812,7 @@ static constexpr unsigned INPUT_RATE = 44100;
 YMF278::YMF278(const std::string& name_, size_t ramSize, DeviceConfig& config,
                SetupMemPtrFunc setupMemPtrs_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "OPL4 wave-part",
-	                       24, INPUT_RATE, true)
+	                       24, INPUT_RATE, false)
 	, motherBoard(config.getMotherBoard())
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
@@ -814,7 +830,10 @@ YMF278::YMF278(const std::string& name_, size_t ramSize, DeviceConfig& config,
 	std::ranges::fill(regs, 0);
 
 	registerSound(config);
-	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
+	enableSetChannelFactors(); // the panning of the slots
+	// must come after the above because of the calls to setChannelFactors()
+	// and (via setMixLevel()) setSoftwareVolume()
+	reset(motherBoard.getCurrentTime());
 }
 
 YMF278::~YMF278()
@@ -1027,6 +1046,8 @@ void YMF278::serialize(Archive& ar, unsigned version)
 			sl.keyon = (regs[0x68 + i] & 0x80) != 0;
 			sl.DAMP  = (regs[0x68 + i] & 0x40) != 0;
 			sl.lfo   = (regs[0x80 + i] >> 3) & 7;
+
+			updateChannelFactors(unsigned(i), motherBoard.getCurrentTime());
 		}
 	}
 	// subclasses are responsible for calling setupMemoryPointers()
