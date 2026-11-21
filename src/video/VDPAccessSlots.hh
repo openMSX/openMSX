@@ -14,6 +14,15 @@ namespace openmsx::VDPAccessSlots {
 
 inline constexpr int TICKS = VDP::TICKS_PER_LINE;
 
+/** The slot tables number the cycles of a line as the logic analyser
+  * measurements do (doc/internal/vdp-vram-timing): from the moment the VDP's
+  * HSYNC pin goes active. On the V99x8, with R#18 = 00h, that is this many
+  * cycles after the start of openMSX's line: HR then falls at cycle 181 of the
+  * tables' line in the graphics modes, where the measurements put it
+  * (doc/internal/vdp-vram-timing/command-slots/README.md). The TMS99x8 tables
+  * have never been placed against HR this way and keep an offset of 0. */
+inline constexpr int V99X8_LINE_OFFSET = 78;
+
 /** Minimum distance until the next VRAM access. */
 enum class Delta : int {
 	D0        =  0 * TICKS, // These 2 are internal helpers
@@ -71,21 +80,25 @@ class Calculator
 {
 public:
 	/** This shouldn't be called directly, instead use getCalculator(). */
-	Calculator(EmuTime frame, EmuTime time,
+	Calculator(EmuTime frame, int lineOffset, EmuTime time,
 	           EmuTime limit_, std::span<const uint8_t, NUM_DELTAS * TICKS> tab_)
 		: ref(frame), tab(tab_)
 	{
 		assert(frame <= time);
 		assert(frame <= limit_);
+		assert(0 <= lineOffset); assert(lineOffset < TICKS);
 		// not required that time <= limit
 
-		ticks = narrow<int>(ref.getTicksTill(time));
-		limit = narrow<int>(ref.getTicksTill(limit_));
-		int lines = ticks / TICKS;
-		ticks -= lines * TICKS;
-		limit -= lines * TICKS; // might be negative
-		ref   += lines * TICKS;
+		// 'ticks' counts from the start of the slot tables' line that
+		// 'time' is in, which starts 'base' cycles after 'frame'. That can
+		// be before 'frame' (base >= lineOffset - TICKS), but 'time' itself
+		// never is, so 'base + ticks' stays positive.
+		int sinceFrame = narrow<int>(ref.getTicksTill(time));
+		ticks = (sinceFrame + TICKS - lineOffset) % TICKS;
+		base = sinceFrame - ticks;
+		limit = narrow<int>(ref.getTicksTill(limit_)) - base; // might be negative
 		assert(0 <= ticks); assert(ticks < TICKS);
+		assert(base + ticks >= 0);
 	}
 
 	/** Has 'time' advanced to or past 'limit'? */
@@ -97,7 +110,7 @@ public:
 	  * constructor parameter. Each call to next() will increase this
 	  * value. */
 	[[nodiscard]] EmuTime getTime() const {
-		return ref.getFastAdd(ticks);
+		return ref.getFastAdd(narrow<unsigned>(base + ticks));
 	}
 
 	/** Advance time to the earliest access slot that is at least 'delta'
@@ -107,16 +120,22 @@ public:
 		if (ticks >= TICKS) [[unlikely]] {
 			ticks -= TICKS;
 			limit -= TICKS;
-			ref   += TICKS;
+			base  += TICKS;
 		}
 	}
 
 private:
 	int ticks;
 	int limit;
+	int base;
 	VDP::VDPClock ref;
 	std::span<const uint8_t, NUM_DELTAS * TICKS> tab;
 };
+
+/** Where the slot tables' line starts in openMSX's line: on a V99x8
+  * V99X8_LINE_OFFSET, moved along with the horizontal adjust (R#18) as HR is,
+  * 4 cycles per step; 0 on a TMS99x8. */
+[[nodiscard]] int getLineOffset(const VDP& vdp);
 
 /** Return the time of the next available access slot that is at least 'delta'
   * cycles later than 'time'. The start of the current 'frame' is needed for
@@ -134,9 +153,9 @@ private:
 inline constexpr int MAX_PADDING_SPAN = 8;
 
 /** How many cycles of line padding complete in the interval (t, t + n], where
-  * 't' is at position 'tick' in its line: the number of cycles by which that
-  * interval is longer in VDP cycles than in the VDP's memory cycles. Only for
-  * short intervals; see the comment about 'pad' in VDPAccessSlots.cc. */
+  * 't' is at position 'tick' in openMSX's line: the number of cycles by which
+  * that interval is longer in VDP cycles than in the VDP's memory cycles. Only
+  * for short intervals; see the comment about 'pad' in VDPAccessSlots.cc. */
 [[nodiscard]] int paddingCycles(int tick, int n, const VDP& vdp);
 
 /** Is the CPU slot at line position 'slotTick' a 'late' one? Those hand out

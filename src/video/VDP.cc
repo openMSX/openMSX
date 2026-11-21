@@ -118,13 +118,16 @@ static int getStatusAdjustTicks(const VDP& vdp)
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
   * command engine that slot anyway, to a dummy read, if it arrives this many
   * cycles before it. */
-/** The access grid switches to the display tables 162 cycles into the line
-  * before the display area, which is 1368 + (202 - 162) cycles before
-  * 'displayStartSyncTime', and back 162 cycles into the line after it, which is
-  * (202 - 162) cycles before 'vScanSyncTime'. (Both those sync points are at
-  * cycle 202 of their line, where VR flips.) */
-static constexpr int SLOT_TABLE_START_LEAD = VDP::TICKS_PER_LINE + 202 - 162;
-static constexpr int SLOT_TABLE_END_LEAD = 202 - 162;
+/** The access grid switches to the display tables at cycle 162 of the slot
+  * tables' line before the display area, and back at cycle 162 of the one after
+  * it. In openMSX's line that is 162 + VDPAccessSlots::getLineOffset() cycles
+  * into it, so this many cycles after 'displayStartSyncTime' minus a line, which
+  * is at cycle 202 of its line. 'vScanSyncTime' is that plus the horizontal
+  * adjust's shift (VR flips there). */
+static int getSlotTableSwitchDelay(const VDP& vdp)
+{
+	return 162 + VDPAccessSlots::getLineOffset(vdp) - 202;
+}
 
 static constexpr int DUMMY_WINDOW_LO = 18;
 static constexpr int DUMMY_WINDOW_HI = 22;
@@ -651,8 +654,12 @@ void VDP::execHorAdjust(EmuTime time)
 	// YJK moves the picture 4 pixels, but not the timing.
 	int newHorAdjust = ((controlRegs[18] & 0x0F) ^ 0x07) + getYjkAdjust();
 	renderer->updateHorizontalAdjust(newHorAdjust, time);
+	// The access grid moves with the adjust: a command must not use the new
+	// grid for the accesses it still owes on the old one.
+	cmdEngine->sync(time);
 	horizontalAdjust = newHorAdjust;
-	// The line interrupt and the display end move with the adjust.
+	// The line interrupt and the display end move with the adjust, and so
+	// does the moment the access grid switches back (see scheduleVScan()).
 	scheduleHScan(time);
 	scheduleVScan(time);
 }
@@ -784,9 +791,9 @@ void VDP::execLineCountReset(EmuTime time)
 	displayStartSyncTime = frameStartTime + displayStart;
 	syncDisplayStart.setSyncPoint(displayStartSyncTime);
 
-	// The access grid switches over 162 cycles into the line before this one.
-	slotTableStartSyncTime = displayStartSyncTime -
-	                         VDPClock::duration(SLOT_TABLE_START_LEAD);
+	// The access grid switches over in the line before this one.
+	slotTableStartSyncTime = displayStartSyncTime - VDPClock::duration(
+		TICKS_PER_LINE - getSlotTableSwitchDelay(*this));
 	if (slotTableStartSyncTime > time) {
 		syncSlotTableStart.setSyncPoint(slotTableStartSyncTime);
 	}
@@ -827,10 +834,12 @@ void VDP::scheduleVScan(EmuTime time)
 		//cerr << "inserting new VSCAN sync point\n";
 	}
 
-	// The access grid switches back 162 cycles into the line after this one.
-	// That doesn't move with the horizontal adjust.
-	slotTableEndSyncTime = vScanSyncTime - VDPClock::duration(
-		SLOT_TABLE_END_LEAD + getStatusAdjustTicks(*this));
+	// The access grid switches back in the line after this one. Both it and
+	// 'vScanSyncTime' move with the horizontal adjust.
+	int switchDelay = getSlotTableSwitchDelay(*this) - getStatusAdjustTicks(*this);
+	slotTableEndSyncTime = (switchDelay >= 0)
+		? vScanSyncTime + VDPClock::duration(switchDelay)
+		: vScanSyncTime - VDPClock::duration(-switchDelay);
 	if (slotTableEndSyncTime > time) {
 		syncSlotTableEnd.setSyncPoint(slotTableEndSyncTime);
 	}
