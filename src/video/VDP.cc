@@ -103,8 +103,9 @@ static constexpr int VR_DELAY = 9;
 /** All four flags, F, VR, FH and HR, move together with the horizontal adjust,
   * -4 VDP cycles per step of R#18 (measured on the same machines, see
   * doc/internal/vdp-status-race/flag-positions.md). HR and FH follow the
-  * adjust through getRightBorder(); F (VSCAN) and VR are moved by this many
-  * VDP cycles. */
+  * adjust through getRightBorder(); F (VSCAN), VR and the line counter reset
+  * are moved by this many VDP cycles, and so is the line latch (not
+  * measured). */
 static int getStatusAdjustTicks(const VDP& vdp)
 {
 	return (vdp.getHorizontalAdjust() - 7) * 4;
@@ -720,10 +721,7 @@ void VDP::execSyncCmdDone(EmuTime time)
 // "vertical-auxiliary counter") in https://github.com/ika-musume/IKA9958.
 void VDP::scheduleLineCountReset(EmuTime time)
 {
-	// The reset happens at the start of the processing of the line, see
-	// syncAtNextLine().
-	int ticks = (8 + getVerticalAdjust()) * TICKS_PER_LINE
-	          + 144 + (horizontalAdjust - 7) * 4;
+	int ticks = (8 + getVerticalAdjust()) * TICKS_PER_LINE + getLineCountResetTicks();
 	EmuTime resetTime = frameStartTime + ticks;
 	if (resetTime <= time) {
 		// Moved behind us by an adjust change. If a reset is still
@@ -1728,11 +1726,33 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 	}
 }
 
+int VDP::getLineCountResetTicks() const
+{
+	// Measured with vdplc (the moment a write of R#9 LN is still taken for
+	// the next frame, relative to HR) on a V9958 (Panasonic FS-A1GT) and a
+	// V9938 (Sony HB-F700D), in GRAPHIC4 and TEXT2 with three horizontal
+	// adjusts: 158 fits both chips, see doc/internal/vdp-status-race. MSX1
+	// VDPs: not measured.
+	int offset = isMSX1VDP() ? 144 : 158;
+	return offset + getStatusAdjustTicks(*this);
+}
+
+int VDP::getLineStartTicks() const
+{
+	// Measured with HINTTOBL from issue #1310 (the time from the line
+	// interrupt to the last display disable that still blanks that line):
+	// 242 Z80 cycles on a Sony HB-F700D and grauw's Yamaha CX5MII, 241 on a
+	// Panasonic FS-A1GT (one cycle less from its extra VDP I/O wait, which
+	// openMSX emulates). One latch for the V9938 and the V9958, the middle
+	// of the range that reproduces both machines, see
+	// doc/internal/vdp-status-race/line-latch.md. MSX1 VDPs: not measured.
+	int offset = isMSX1VDP() ? 144 : 173;
+	return offset + getStatusAdjustTicks(*this);
+}
+
 void VDP::syncAtNextLine(SyncBase& type, EmuTime time) const
 {
-	// The processing of a new line starts in the middle of the left erase,
-	// ~144 cycles after the sync signal. Adjust affects it. See issue #1310.
-	int offset = 144 + (horizontalAdjust - 7) * 4;
+	int offset = getLineStartTicks();
 	int line = (getTicksThisFrame(time) + TICKS_PER_LINE - offset) / TICKS_PER_LINE;
 	int ticks = line * TICKS_PER_LINE + offset;
 	EmuTime nextTime = frameStartTime + ticks;
