@@ -402,10 +402,9 @@ void SDLRasterizer::precalcColorIndex0(DisplayMode mode,
 	}
 }
 
-std::pair<Pixel, Pixel> SDLRasterizer::getBorderColors()
+std::pair<Pixel, Pixel> SDLRasterizer::getBorderColors(int bgColor)
 {
 	DisplayMode mode = vdp.getDisplayMode();
-	int bgColor = vdp.getBackgroundColor();
 	if (mode.getBase() == DisplayMode::GRAPHIC5) {
 		// border in SCREEN6 has separate color for even and odd pixels.
 		// TODO odd/even swapped?
@@ -429,7 +428,13 @@ std::pair<Pixel, Pixel> SDLRasterizer::getBorderColors()
 void SDLRasterizer::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
-	auto [border0, border1] = getBorderColors();
+	drawBorder(fromX, fromY, limitX, limitY, vdp.getBackgroundColor());
+}
+
+void SDLRasterizer::drawBorder(
+	int fromX, int fromY, int limitX, int limitY, uint8_t bgColor)
+{
+	auto [border0, border1] = getBorderColors(bgColor);
 
 	int startY = std::max(fromY - lineRenderTop, 0);
 	int endY = std::min(limitY - lineRenderTop, 240);

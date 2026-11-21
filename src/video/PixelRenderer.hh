@@ -65,8 +65,14 @@ public:
 	void updateWindow(bool enabled, EmuTime time) override;
 
 private:
-	/** Indicates whether the area to be drawn is border or display. */
-	enum DrawType : uint8_t { DRAW_BORDER, DRAW_DISPLAY };
+	/** Indicates whether the area to be drawn is border or display, or the
+	  * part of the left border that a YJK picture leaves before its first
+	  * pixel (see renderUntil()). TRACK_YJK_GAP keeps track of the colour
+	  * of that part, as DRAW_YJK_GAP does, without drawing it.
+	  */
+	enum DrawType : uint8_t {
+		DRAW_BORDER, DRAW_DISPLAY, DRAW_YJK_GAP, TRACK_YJK_GAP
+	};
 
 	// Observer<Setting> interface:
 	void update(const Setting& setting) noexcept override;
@@ -141,6 +147,14 @@ private:
 	  * Expressed in number of lines since start of frame.
 	  */
 	int nextY;
+
+	/** The background colour taken for the YJK gap (DRAW_YJK_GAP), and the
+	  * line it was taken for: a part of the gap drawn later in that line
+	  * keeps it.
+	  */
+	uint8_t yjkGapColor = 0;
+	int yjkGapLine = -1;
+	int yjkGapStart = 0; // in VDP clock ticks since the start of the line
 
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
