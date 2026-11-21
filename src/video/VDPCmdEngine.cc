@@ -2593,6 +2593,23 @@ void VDPCmdEngine::sync2(EmuTime time)
 
 void VDPCmdEngine::commandDone(EmuTime time)
 {
+	// The command engine is free from 'time' on, a new command starts at
+	// once, but CE in S#2 stays set this many VDP cycles after the command's
+	// last VRAM access. Measured on a V9938 and two V9958s, see
+	// doc/internal/vdp-vram-timing/command-end/README.md: the same for all
+	// sizes of a command that were measured (1 to 16 bytes or dots, 1 to 4
+	// lines, LINE 2 to 32 dots along X and Y). Left at 0: STOP, LMCM, HMMC
+	// and LMMC, whose ends on the chip aren't modelled here (HMMC and LMMC
+	// wait for the CPU's first byte, where the chip takes it from R#44, see
+	// startLmmc()).
+	static constexpr std::array<uint8_t, 16> CE_HOLD = {
+		  0,   0,   0,   0, // STOP, -, -, -
+		170, 131,  29,  30, // POINT, PSET, SRCH, LINE
+		 78, 104,   0,   0, // LMMV, LMMM, LMCM, LMMC
+		 78, 100,  80,   0, // HMMV, HMMM, YMMM, HMMC
+	};
+	ceEndTime = time + VDP::VDPClock::duration(CE_HOLD[CMD >> 4]);
+
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
 	status &= ~CE;
 	executingProbe = false;
@@ -2840,6 +2857,12 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 		} else {
 			CMD = 0; // see note above
 		}
+	}
+
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("ceEndTime", ceEndTime);
+	} else {
+		ceEndTime = EmuTime::zero();
 	}
 
 	if (ar.versionAtLeast(version, 4)) {

@@ -14,3 +14,4 @@ Contrib/reverse_engineering_tools/kanji/ktst31.dsk binary
 doc/internal/vdp-status-race/*.bas text eol=crlf
 doc/internal/vdp-vram-timing/cpu-write-pairs/*.bas text eol=crlf
 doc/internal/vdp-vram-timing/command-slots/*.bas text eol=crlf
+doc/internal/vdp-vram-timing/command-end/*.bas text eol=crlf
