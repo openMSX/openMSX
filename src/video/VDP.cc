@@ -1252,10 +1252,25 @@ void VDP::scheduleV99x8VramAccess(bool isRead, EmuTime time)
 		// 'cpuVramData', while the access before it has yet to store its
 		// own.
 		assert(secondCpuSlot == EmuTime::infinity());
-		assert(slot > *syncCpuVramAccess.isPending());
+		EmuTime first = *syncCpuVramAccess.isPending();
+		assert(slot > first);
 		secondCpuSlot = slot;
 		secondCpuVramReqIsRead = isRead;
 		secondCpuVramReqData = cpuVramData;
+		// Unless the new byte is in the VDP's data register before that
+		// access takes place: a write access stores what the data register
+		// holds, so then it stores the new byte too. Writing AAh and then
+		// 55h leaves 55h at both addresses. (Not in 'ignore' mode, which
+		// is selected precisely to not have such effects.) The byte is in
+		// the data register this many cycles after 'time', 18 cycles before
+		// its request is registered: fitted to the outcomes of two CPU
+		// writes in quick succession, see
+		// doc/internal/vdp-vram-timing/cpu-write-pairs/README.md.
+		static constexpr int CPU_DATA_DELAY = CPU_REQUEST_DELAY - 18;
+		if (!isRead && !cpuVramReqIsRead && !allowTooFastAccess &&
+		    (time + VDPClock::duration(CPU_DATA_DELAY) <= first)) {
+			cpuVramReqData = cpuVramData;
+		}
 	} else {
 		cpuVramReqIsRead = isRead;
 		cpuVramReqData = cpuVramData;

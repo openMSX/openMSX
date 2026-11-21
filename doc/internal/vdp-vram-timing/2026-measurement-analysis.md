@@ -854,6 +854,7 @@ margin 2, and none at all with the display off or sprites off.
 | the request is registered 29 cycles after the port access | `VDP::scheduleV99x8VramAccess` |
 | one request buffer, released `threshold` cycles before its access | `VDP::scheduleV99x8VramAccess` |
 | the command start delay, per command | `Delta::CMD_START_*` |
+| a write's byte in the data register before its request (section 19) | `VDP::scheduleV99x8VramAccess` |
 
 The generated tables were checked entry by entry against the model in this directory:
 103968 table entries over the four V99x8 tables, 304 slot thresholds and 165424
