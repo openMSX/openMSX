@@ -143,3 +143,8 @@ Also measured: the VDP sets F a few VDP cycles after VR rises, not at the same m
   1 and 2, a header line with the program's settings, then per read moment the number of trials
   lost, seen and before. `fs-a1gt-slot-*.txt`: `slottest`, the same format.
   `<machine>-clock.txt`: `clktest`. `fs-a1gt-irq.txt`: `irqtest`.
+
+## Other measurements with this method
+
+Each has its own document in this folder, in the same form:
+- `irq-delay.md`: the interrupt lines lag the status flags.
