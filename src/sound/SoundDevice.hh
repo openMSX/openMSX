@@ -122,6 +122,35 @@ public:
 	 */
 	void setChannelFactors(unsigned channel, float left, float right, EmuTime time);
 
+	/** The same for several channels at once. Use this when the factors of
+	 * more than one channel change at the same moment: the sound stream
+	 * and the internal administration are then only updated once.
+	 */
+	struct ChannelFactors {
+		unsigned channel;
+		float left, right;
+	};
+	void setChannelFactors(std::span<const ChannelFactors> factors, EmuTime time);
+
+	/** For sound chips that have per channel a left and a right output
+	 * that can be enabled separately: sets the channel factors to 1 for
+	 * an enabled and to 0 for a disabled output.
+	 * (Not an overload of setChannelFactors(): with 'bool' next to 'float'
+	 * parameters a call with e.g. 'int' arguments would be ambiguous.)
+	 */
+	void setChannelOutputs(unsigned channel, bool left, bool right, EmuTime time) {
+		auto factors = channelOutputs(channel, left, right);
+		setChannelFactors(std::span{&factors, 1}, time);
+	}
+	/** The factors that setChannelOutputs() sets, to set the outputs of
+	 * several channels at once with setChannelFactors().
+	 */
+	[[nodiscard]] static ChannelFactors channelOutputs(unsigned channel, bool left, bool right) {
+		return {.channel = channel,
+		        .left  = left  ? 1.0f : 0.0f,
+		        .right = right ? 1.0f : 0.0f};
+	}
+
 	/** Are both channel factors zero? Such a channel isn't audible, and
 	 * it's handled as a silent channel: as if the device itself had set
 	 * the buffer pointer to nullptr in generateChannels(). So it's also

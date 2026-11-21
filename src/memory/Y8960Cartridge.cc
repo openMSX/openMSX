@@ -570,22 +570,27 @@ void Y8960Cartridge::applyPan(unsigned reg, EmuTime time)
 		return;
 	}
 	auto [left, right] = panGain(mixer[reg]);
-	if ((OPLL_PAN <= reg) && (reg < OPLL_PAN + 9)) {
-		auto ch = reg - OPLL_PAN;
-		opll.setChannelFactors(ch, left, right, time);
-		for (auto i : xrange(unsigned(OPLL_RHYTHM_CHANNEL.size()))) {
-			if (OPLL_RHYTHM_CHANNEL[i] == ch) {
-				opll.setChannelFactors(9 + i, left, right, time);
+	// A pan register of the OPLL or OPL2 is for a melody channel and for
+	// the rhythm sounds that are played on that channel: set them all at
+	// once. 'ch' is the melody channel (if any), the rhythm sounds follow
+	// the 9 melody channels.
+	auto setWithRhythm = [&](SoundDevice& device, unsigned ch, bool melody,
+	                         std::span<const uint8_t> rhythmChannel) {
+		std::array<SoundDevice::ChannelFactors, 1 + 6> factors;
+		size_t num = 0;
+		if (melody) factors[num++] = {.channel = ch, .left = left, .right = right};
+		for (auto i : xrange(unsigned(rhythmChannel.size()))) {
+			if (rhythmChannel[i] == ch) {
+				factors[num++] = {.channel = 9 + i, .left = left, .right = right};
 			}
 		}
+		device.setChannelFactors(std::span{factors}.first(num), time);
+	};
+	if ((OPLL_PAN <= reg) && (reg < OPLL_PAN + 9)) {
+		setWithRhythm(opll, reg - OPLL_PAN, true, OPLL_RHYTHM_CHANNEL);
 	} else if ((OPL2_PAN <= reg) && (reg < OPL2_PAN + 10)) {
 		auto ch = reg - OPL2_PAN;
-		if (ch < 9) opl2.setChannelFactors(ch, left, right, time);
-		for (auto i : xrange(unsigned(OPL2_RHYTHM_CHANNEL.size()))) {
-			if (OPL2_RHYTHM_CHANNEL[i] == ch) {
-				opl2.setChannelFactors(9 + i, left, right, time);
-			}
-		}
+		setWithRhythm(opl2, ch, ch < 9, OPL2_RHYTHM_CHANNEL);
 	} else if ((SCC_PAN <= reg) && (reg < SCC_PAN + 5)) {
 		scc.setChannelFactors(reg - SCC_PAN, left, right, time);
 	}

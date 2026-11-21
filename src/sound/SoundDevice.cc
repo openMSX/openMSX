@@ -147,12 +147,23 @@ void SoundDevice::enableSetChannelFactors()
 
 void SoundDevice::setChannelFactors(unsigned channel, float left, float right, EmuTime time)
 {
-	assert(channel < numChannels);
+	ChannelFactors factors{.channel = channel, .left = left, .right = right};
+	setChannelFactors(std::span{&factors, 1}, time);
+}
+
+void SoundDevice::setChannelFactors(std::span<const ChannelFactors> factors, EmuTime time)
+{
 	assert(!balanceCenter);
-	Balance balance{.left = left, .right = right};
-	if (channelBalance[channel] == balance) return;
+	assert(std::ranges::all_of(factors, [&](const auto& f) { return f.channel < numChannels; }));
+	auto changed = [&](const ChannelFactors& f) {
+		return channelBalance[f.channel] != Balance{.left = f.left, .right = f.right};
+	};
+	if (std::ranges::none_of(factors, changed)) return;
+
 	mixer.updateStream(time);
-	channelBalance[channel] = balance;
+	for (const auto& f : factors) {
+		channelBalance[f.channel] = Balance{.left = f.left, .right = f.right};
+	}
 	updateChannelGroups();
 }
 
