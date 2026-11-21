@@ -1063,18 +1063,20 @@ private:
 	  *   False iff the VDP scanning is in the display range.
 	  */
 	[[nodiscard]] bool getHR(int ticksThisFrame) const {
-		// Note: These constants are located inside this function because
-		//       GCC 4.0.x won't link if they are in the class scope.
-		/** Length of horizontal blank (HR=1) in text mode, measured in VDP
-		  * ticks.
-		  */
-		static constexpr int HBLANK_LEN_TXT = 404;
-		/** Length of horizontal blank (HR=1) in graphics mode, measured in VDP
-		  * ticks.
-		  */
+		// HR=1 (horizontal blank) starts this many VDP ticks after the
+		// start of the right border, and lasts this many VDP ticks. Measured
+		// relative to the moments the VDP sets F, FH and VR, on a V9958
+		// (Panasonic FS-A1GT) and a V9938 (Sony HB-F700D), to within one
+		// Z80 cycle (6 VDP cycles), see
+		// doc/internal/vdp-status-race/flag-positions.md.
+		static constexpr int HBLANK_START_TXT = 6;
+		static constexpr int HBLANK_LEN_TXT = 398;
+		static constexpr int HBLANK_START_GFX = 33;
 		static constexpr int HBLANK_LEN_GFX = 312;
-		return (ticksThisFrame + TICKS_PER_LINE - getRightBorder()) % TICKS_PER_LINE
-		     < (displayMode.isTextMode() ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
+		bool text = displayMode.isTextMode();
+		int start = getRightBorder() + (text ? HBLANK_START_TXT : HBLANK_START_GFX);
+		return (ticksThisFrame + TICKS_PER_LINE - start) % TICKS_PER_LINE
+		     < (text ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
 	}
 
 	// VideoSystemChangeListener interface:
