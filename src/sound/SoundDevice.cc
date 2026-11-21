@@ -327,6 +327,15 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 
 	generateChannels(bufs, narrow<unsigned>(samples));
 
+	// A channel with both factors zero isn't audible. Handle it like a
+	// channel that was muted by the device itself: then it's also silent
+	// when that channel is recorded or shown in the GUI.
+	for (auto i : xrange(numChannels)) {
+		if (isChannelOff(i)) {
+			bufs[i] = nullptr;
+		}
+	}
+
 	if (balanceCenter && !separateChannels) {
 		return std::ranges::any_of(xrange(numChannels),
 		                      [&](auto i) { return bufs[i]; });

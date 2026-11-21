@@ -122,6 +122,17 @@ public:
 	 */
 	void setChannelFactors(unsigned channel, float left, float right, EmuTime time);
 
+	/** Are both channel factors zero? Such a channel isn't audible, and
+	 * it's handled as a silent channel: as if the device itself had set
+	 * the buffer pointer to nullptr in generateChannels(). So it's also
+	 * silent in a recording of that channel and in the wave viewer.
+	 * A device can use this to skip the calculations for such a channel.
+	 */
+	[[nodiscard]] bool isChannelOff(unsigned channel) const {
+		const auto& b = channelBalance[channel];
+		return (b.left == 0.0f) && (b.right == 0.0f);
+	}
+
 	/** Query the last generated audio signal for a specific channel.
 	  * The length of this buffer is fixed (for a specific sound device),
 	  * see getLastBufferSize().
