@@ -202,12 +202,11 @@ private:
 	IRQHelper irq;
 
 	std::array<int, 18> chanOut = {};      // 18 channels
+	std::array<uint8_t, 18> outputEnable = {}; // per channel: bit 0 = left, bit 1 = right
 
 	std::array<uint8_t, 512> reg = {};
 	std::array<Channel, 18> channel;  // OPL3 chips have 18 channels
 
-	std::array<int, 18 * 4> pan; // channels output masks 4 per channel
-	                             //    0xffffffff = enable
 	unsigned eg_cnt{0};          // global envelope generator counter
 	unsigned noise_rng{1};       // 23 bit noise shift register
 
@@ -231,7 +230,7 @@ private:
 	const bool isYMF278;		// true iff this is actually a YMF278
 					// ATM only used for NEW2 bit
 };
-SERIALIZE_CLASS_VERSION(YMF262, 2);
+SERIALIZE_CLASS_VERSION(YMF262, 3);
 
 } // namespace openmsx
 

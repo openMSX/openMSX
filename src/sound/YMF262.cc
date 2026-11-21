@@ -45,6 +45,7 @@
 
 #include "Math.hh"
 #include "cstd.hh"
+#include "enumerate.hh"
 #include "narrow.hh"
 #include "outer.hh"
 #include "xrange.hh"
@@ -1308,20 +1309,19 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime time)
 		unsigned chan_no = (r & 0x0F) + ch_offset;
 		auto& ch = channel[chan_no];
 
-		unsigned base = chan_no * 4;
+		// Output enable: CH.A is left, CH.B is right. The outputs
+		// CH.C and CH.D (bits 6 and 7) are not used.
+		bool left  = true; // OPL2 mode - always enabled
+		bool right = true;
 		if (OPL3_mode) {
-			// OPL3 mode
-			pan[base + 0] = (v & 0x10) ? ~0 : 0; // ch.A
-			pan[base + 1] = (v & 0x20) ? ~0 : 0; // ch.B
-			pan[base + 2] = (v & 0x40) ? ~0 : 0; // ch.C
-			pan[base + 3] = (v & 0x80) ? ~0 : 0; // ch.D
-		} else {
-			// OPL2 mode - always enabled
-			pan[base + 0] = ~0; // ch.A
-			pan[base + 1] = ~0; // ch.B
-			pan[base + 2] = ~0; // ch.C
-			pan[base + 3] = ~0; // ch.D
+			left  = (v & 0x10) != 0; // CH.A
+			right = (v & 0x20) != 0; // CH.B
 		}
+		// These are only taken over on a write to this register: a
+		// later switch between OPL2 and OPL3 mode doesn't change them
+		// (see the comment at register 0x105).
+		outputEnable[chan_no] = uint8_t((left ? 1 : 0) | (right ? 2 : 0));
+		setChannelOutputs(chan_no, left, right, time);
 
 		ch.slot[MOD].setFeedbackShift((v >> 1) & 7);
 		ch.slot[MOD].CON = v & 1;
@@ -1445,7 +1445,7 @@ static unsigned calcInputRate(bool isYMF278)
 YMF262::YMF262(const std::string& name_,
                const DeviceConfig& config, bool isYMF278_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound FM-part",
-	                       18, calcInputRate(isYMF278_), true)
+	                       18, calcInputRate(isYMF278_), false)
 	, debuggable(config.getMotherBoard(), getName())
 	, timer1(isYMF278_
 	         ? EmuTimer::createOPL4_1(config.getScheduler(), *this)
@@ -1469,7 +1469,10 @@ YMF262::YMF262(const std::string& name_,
 	}
 
 	registerSound(config);
-	reset(config.getMotherBoard().getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
+	enableSetChannelFactors(); // the left/right enable bits of the channels
+	// must come after the above because of the calls to setChannelFactors()
+	// and (via setMixLevel()) setSoftwareVolume()
+	reset(config.getMotherBoard().getCurrentTime());
 }
 
 YMF262::~YMF262()
@@ -1588,10 +1591,7 @@ void YMF262::generateChannels(std::span<float*> bufs, unsigned num)
 		channel[17].chan_calc(lfo_am);
 
 		for (auto i : xrange(18)) {
-			bufs[i][2 * j + 0] += narrow_cast<float>(chanOut[i] & pan[4 * i + 0]);
-			bufs[i][2 * j + 1] += narrow_cast<float>(chanOut[i] & pan[4 * i + 1]);
-			// unused c        += narrow_cast<float>(chanOut[i] & pan[4 * i + 2]);
-			// unused d        += narrow_cast<float>(chanOut[i] & pan[4 * i + 3]);
+			bufs[i][j] += narrow_cast<float>(chanOut[i]);
 		}
 
 		advance();
@@ -1665,6 +1665,7 @@ void YMF262::Channel::serialize(Archive& a, unsigned /*version*/)
 
 // version 1: initial version
 // version 2: added alreadySignaledNEW2
+// version 3: added outputEnable
 template<typename Archive>
 void YMF262::serialize(Archive& a, unsigned version)
 {
@@ -1694,12 +1695,30 @@ void YMF262::serialize(Archive& a, unsigned version)
 									// but 'true' is the safest value
 	}
 
-	// TODO restore more state by rewriting register values
-	//   this handles pan
-	EmuTime time = timer1->getCurrentTime();
-	for (auto i : xrange(0xC0, 0xC9)) {
-		writeRegDirect(i + 0x000, reg[i + 0x000], time);
-		writeRegDirect(i + 0x100, reg[i + 0x100], time);
+	// The output enable bits of the channels can't be derived from the
+	// registers: they depend on the mode (OPL2 or OPL3) at the moment
+	// registers C0-C8 were written.
+	if (a.versionAtLeast(version, 3)) {
+		a.serialize("outputEnable", outputEnable);
+	}
+
+	if constexpr (Archive::IS_LOADER) {
+		// TODO restore more state by rewriting register values
+		//   this handles feedback and connection
+		EmuTime time = timer1->getCurrentTime();
+		auto saved = outputEnable; // copy: the writes below change it
+		for (auto i : xrange(0xC0, 0xC9)) {
+			writeRegDirect(i + 0x000, reg[i + 0x000], time);
+			writeRegDirect(i + 0x100, reg[i + 0x100], time);
+		}
+		// The above also set the output enable bits, according to the
+		// current mode. For old savestates that's the best we can do.
+		if (a.versionAtLeast(version, 3)) {
+			for (auto [i, e] : enumerate(saved)) {
+				outputEnable[i] = e;
+				setChannelOutputs(unsigned(i), (e & 1) != 0, (e & 2) != 0, time);
+			}
+		}
 	}
 }
 
