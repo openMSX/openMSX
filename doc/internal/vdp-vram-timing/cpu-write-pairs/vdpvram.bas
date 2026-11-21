@@ -1,0 +1,74 @@
+10 ' VDPVRAM, fully automatic: two VRAM writes 14 to 42 Z80 cycles apart, at
+20 ' a known moment relative to HR, in 8 screen settings; what is read back.
+30 ' Results: E<screen><V>W<w>.TXT (V: 8 = V9938, 9 = V9958), per gap a
+40 ' block: per e the counts of the classes 0 (AA,55,00), 1 (55,00,00),
+50 ' 2 (55,55,00), 3 (AA,AA,00), 4 (00,55,00), 5 other, as "e k=n ...";
+60 ' runs of e with only class 0 as "e1-e2 0=n"; then the triples read back.
+70 ' Screens: T = SCREEN 0 WIDTH 80, U = WIDTH 40, C = SCREEN 1, G = SCREEN 5,
+80 ' H = SCREEN 5 sprites off, Y = SCREEN 8, D = SCREEN 5 display off,
+85 ' R = SCREEN 5 with R#18 = 08h. Gaps 0 to 6: 14, 19, 21, 24, 28, 35, 42
+88 ' Z80 cycles from the first OUT to the second (+1 with the S1990).
+89 ' Screens with a non-empty result file are skipped; errors go to ERRLOG.TXT.
+90 MAXFILES=2:CLEAR 300,&H9FFF:SCREEN 0:WIDTH 80:KEY OFF:COLOR 15,4,4
+95 DEFINT A,E,K
+100 BLOAD "VDPVRAM.BIN":DEFUSR=&HC000
+110 R=12:N=368:CA=&HA000:IA=CA+2*N*6:HN=IA+2
+120 W=0:IF PEEK(&H2D)>=3 THEN W=1
+125 V$="8":IF ((VDP(-1)\2) AND 31)=2 THEN V$="9"
+127 ON ERROR GOTO 920:OPEN "ERRLOG.TXT" FOR INPUT AS #1:CLOSE #1:GOTO 130
+130 READ S$:IF S$="*" THEN 400
+135 F$="E"+S$+V$+"W"+MID$(STR$(W),2)+".TXT"
+136 L=0:ON ERROR GOTO 900:OPEN F$ FOR INPUT AS #1:L=LOF(1):CLOSE #1
+137 ON ERROR GOTO 950:IF L>0 THEN PRINT "Skipping ";F$:GOTO 130
+140 FOR G=0 TO 6
+160 PRINT "Screen ";S$;", gap";G;" -> ";F$
+170 H=20:IF S$="T" OR S$="U" THEN H=21
+180 POKE &HC003,R:POKE &HC004,100:POKE &HC005,0:POKE &HC006,H:POKE &HC007,W:POKE &HC008,G
+190 GOSUB 500
+200 A=USR(0)
+210 V9=VDP(10):GOSUB 600
+225 IF G=0 THEN OPEN F$ FOR OUTPUT AS #1 ELSE OPEN F$ FOR APPEND AS #1
+230 PRINT #1,"VDPVRAM R=";R;" H=";H;" W=";W;" S=";S$;" G=";G;" R#9=";V9;" invalid=";PEEK(IA)+256*PEEK(IA+1)
+235 RS=-1:RN=0
+240 FOR E=0 TO N-1:A=CA+E+E
+250 IF PEEK(A+736) OR PEEK(A+737) OR PEEK(A+1472) OR PEEK(A+1473) OR PEEK(A+2208) OR PEEK(A+2209) OR PEEK(A+2944) OR PEEK(A+2945) OR PEEK(A+3680) OR PEEK(A+3681) THEN 262
+252 T=PEEK(A)+256*PEEK(A+1):IF T=0 THEN GOSUB 700:GOTO 275
+254 IF RS<0 THEN RS=E:RN=T ELSE RN=RN+T
+256 GOTO 275
+262 GOSUB 700:L$="":FOR K=0 TO 5:V=PEEK(A+736*K)+256*PEEK(A+736*K+1):IF V THEN L$=L$+STR$(K)+"="+MID$(STR$(V),2)
+264 NEXT:PRINT #1,E;L$
+275 NEXT E:GOSUB 700
+280 NH=PEEK(HN):PRINT #1,"triples";NH
+290 FOR J=0 TO NH-1:HA=HN+1+5*J:PRINT #1,"T";PEEK(HA);PEEK(HA+1);PEEK(HA+2);PEEK(HA+3)+256*PEEK(HA+4):NEXT
+300 CLOSE #1
+310 NEXT G
+320 GOTO 130
+400 PRINT "VDPVRAM done.":END
+500 ' set up screen S$
+510 IF S$="T" THEN SCREEN 0:WIDTH 80:RETURN
+520 IF S$="U" THEN SCREEN 0:WIDTH 40:RETURN
+530 IF S$="C" THEN SCREEN 1:RETURN
+540 IF S$="Y" THEN SCREEN 8:RETURN
+550 SCREEN 5
+560 IF S$="H" THEN VDP(9)=VDP(9) OR 2
+570 IF S$="D" THEN VDP(1)=VDP(1) AND &HBF
+580 IF S$="R" THEN VDP(19)=8
+590 RETURN
+600 ' back to text mode
+610 IF S$="R" THEN VDP(19)=0
+620 SCREEN 0:WIDTH 80:RETURN
+700 ' write the run of e values with only class 0, if any
+710 IF RS<0 THEN RETURN
+720 PRINT #1,MID$(STR$(RS),2);"-";MID$(STR$(E-1),2);" 0=";MID$(STR$(RN),2)
+730 RS=-1:RN=0:RETURN
+900 ' no result file yet
+910 RESUME 137
+920 ' no ERRLOG.TXT yet: create it
+925 RESUME 926
+926 OPEN "ERRLOG.TXT" FOR OUTPUT AS #1:CLOSE #1:GOTO 130
+950 ' log the error and the state, skip this gap
+960 OPEN "ERRLOG.TXT" FOR APPEND AS #2
+970 PRINT #2,"ERR";ERR;" ERL";ERL;" S=";S$;" G=";G;" E=";E;" K=";K;" A=";A;" V=";V;" T=";T;" Z=";Z;" CA=";CA;" N=";N;" R=";R;" FRE=";FRE(0);" L$=";L$
+980 PRINT #2,"PEEK";PEEK(A);PEEK(A+1);" LEN";LEN(L$):CLOSE #2
+990 RESUME 300
+1000 DATA T,U,C,G,H,Y,D,R,*
