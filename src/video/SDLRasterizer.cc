@@ -56,13 +56,13 @@ static constexpr int translateX(int absoluteX, bool narrow)
 	//
 	// This was also needed to prevent a UMR:
 	// * The VDP switches to a new display mode at a specific moment in the
-	//   line, for details see VDP::syncAtNextLine(). Summary: (with
-	//   set-adjust=0) that is 144 cycles past the (start of the) sync
-	//   signal.
-	// * Without this check, for 'absoluteX=144', this function would return
+	//   line, for details see VDP::getLineStartTicks(). In the picture
+	//   that is about 145 cycles past the (start of the) sync signal
+	//   (with set-adjust=0).
+	// * Without this check, for 'absoluteX=145', this function would return
 	//   a non-zero value.
 	// * Suppose we're switching from a 256 to a 512 pixel wide mode. This
-	//   switch happens at cycle=144, but that meant the first few pixels
+	//   switch happens at cycle=145, but that meant the first few pixels
 	//   are still renderer at width=256 and the rest of the line at
 	//   width=512. But, without this check, that meant some pixels in the
 	//   640-pixel wide host buffer are never written, resulting in a UMR.
