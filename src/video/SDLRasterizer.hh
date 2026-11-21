@@ -56,6 +56,8 @@ public:
 	void setTransparency(bool enabled) override;
 	void setSuperimposeVideoFrame(const RawFrame* videoSource) override;
 	void drawBorder(int fromX, int fromY, int limitX, int limitY) override;
+	void drawBorder(int fromX, int fromY, int limitX, int limitY,
+	                uint8_t bgColor) override;
 	void drawDisplay(
 		int fromX, int fromY,
 		int displayX, int displayY,
@@ -94,7 +96,7 @@ private:
 	                        const RawFrame* superimposing, uint8_t bgcolorIndex);
 
 	// Get the border color(s). These are 16bpp or 32bpp host pixels.
-	std::pair<Pixel, Pixel> getBorderColors();
+	std::pair<Pixel, Pixel> getBorderColors(int bgColor);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

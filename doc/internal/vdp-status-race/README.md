@@ -142,3 +142,4 @@ Each has its own document in this folder, in the same form:
 - `r23-groups.md`: a vertical scroll (R#23) write in the middle of a line takes effect per 8-pixel group.
 - `line-latch.md`: the line latch (display mode, enable, sprite disable) and the line counter reset are two different moments.
 - `yjk-timing.md`: YJK (V9958) moves the picture 4 pixels, not the timing; the line latch moves with R#18.
+- `yjk-gap.md`: the 4 pixels before a YJK picture show the backdrop of the display start.

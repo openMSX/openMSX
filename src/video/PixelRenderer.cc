@@ -41,6 +41,16 @@ void PixelRenderer::draw(
 {
 	if (drawType == DRAW_BORDER) {
 		rasterizer->drawBorder(startX, startY, endX, endY);
+	} else if (drawType == DRAW_YJK_GAP || drawType == TRACK_YJK_GAP) {
+		// Taken where the gap starts; a draw that starts inside the gap
+		// continues the line the previous draw started.
+		bool continued = (startY == yjkGapLine) && (startX > yjkGapStart);
+		uint8_t color = continued ? yjkGapColor : vdp.getBackgroundColor();
+		if (drawType == DRAW_YJK_GAP) {
+			rasterizer->drawBorder(startX, startY, endX, endY, color);
+		}
+		yjkGapColor = color;
+		yjkGapLine = endY - 1;
 	} else {
 		assert(drawType == DRAW_DISPLAY);
 
@@ -644,11 +654,39 @@ void PixelRenderer::renderUntil(EmuTime time)
 			vdp.isBorderMasked() ? borderL : vdp.getLeftBackground();
 		int borderR = vdp.getRightBorder();
 
+		// The YJK pixels come 4 pixels after the display start. Those 4
+		// pixels show the background colour as it is at the display
+		// start, not as it is at each pixel (measured with vdpline5 and
+		// vdpyjk3, see doc/internal/vdp-status-race). Not measured with a
+		// masked border, which covers them anyway.
+		yjkGapStart = (vdp.getYjkAdjust() && !vdp.isBorderMasked())
+		            ? borderL - 4 * vdp.getYjkAdjust() : borderL;
+
 		// It's important that right border is drawn last (after left
 		// border and display area). See comment in SDLRasterizer::drawBorder().
-		// Left border.
-		subdivide(nextX, nextY, limitX, limitY,
-			0, displayL, DRAW_BORDER);
+		// Left border. The YJK gap only needs a draw of its own when this
+		// draw continues the gap of a line in a colour that differs from
+		// the current one (see draw()); otherwise the whole left border
+		// is drawn at once, keeping track of the gap's colour.
+		if (yjkGapStart < borderL && nextY == yjkGapLine &&
+		    yjkGapStart < nextX && nextX < borderL &&
+		    yjkGapColor != vdp.getBackgroundColor()) {
+			subdivide(nextX, nextY, limitX, limitY,
+				0, yjkGapStart, DRAW_BORDER);
+			subdivide(nextX, nextY, limitX, limitY,
+				yjkGapStart, borderL, DRAW_YJK_GAP);
+			if (borderL < displayL) {
+				subdivide(nextX, nextY, limitX, limitY,
+					borderL, displayL, DRAW_BORDER);
+			}
+		} else {
+			if (yjkGapStart < borderL) {
+				subdivide(nextX, nextY, limitX, limitY,
+					yjkGapStart, borderL, TRACK_YJK_GAP);
+			}
+			subdivide(nextX, nextY, limitX, limitY,
+				0, displayL, DRAW_BORDER);
+		}
 		// Display area.
 		subdivide(nextX, nextY, limitX, limitY,
 			displayL, borderR, DRAW_DISPLAY);
