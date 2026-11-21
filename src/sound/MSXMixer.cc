@@ -759,10 +759,20 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info) const
 		}
 	}();
 	auto [ampL, ampR] = info.device->getAmplificationFactor();
-	info.left1  = l1 * ampL;
-	info.right1 = r1 * ampR;
-	info.left2  = l2 * ampL;
-	info.right2 = r2 * ampR;
+	if (info.device->isStereo()) {
+		// The left/right amplification factor belongs to the left/right
+		// output of the device, also for the part that the balance
+		// moves to the other side.
+		info.left1  = l1 * ampL;
+		info.right1 = r1 * ampL;
+		info.left2  = l2 * ampR;
+		info.right2 = r2 * ampR;
+	} else {
+		info.left1  = l1 * ampL;
+		info.right1 = r1 * ampR;
+		info.left2  = 0.0f; // not used
+		info.right2 = 0.0f;
+	}
 }
 
 void MSXMixer::updateMasterVolume()
