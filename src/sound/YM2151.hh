@@ -160,8 +160,6 @@ private:
 
 	std::array<YM2151Operator, 32> oper; // the 32 operators
 
-	std::array<unsigned, 16> pan; // channels output masks (0xffffffff = enable)
-
 	unsigned eg_cnt;         // global envelope generator counter
 	unsigned eg_timer;       // global envelope generator counter
 	                         //   works at frequency = chip-clock / (64 * 3)

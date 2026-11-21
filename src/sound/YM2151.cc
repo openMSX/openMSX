@@ -736,8 +736,10 @@ void YM2151::writeReg(uint8_t r, uint8_t v, EmuTime time)
 		switch (r & 0x18) {
 		case 0x00: // RL enable, Feedback, Connection
 			o[0].fb_shift = ((v >> 3) & 7) ? ((v >> 3) & 7) + 6 : 0;
-			pan[(r & 7) * 2 + 0] = (v & 0x40) ? ~0 : 0;
-			pan[(r & 7) * 2 + 1] = (v & 0x80) ? ~0 : 0;
+			setChannelOutputs(r & 7,
+			                  (v & 0x40) != 0, // left
+			                  (v & 0x80) != 0, // right
+			                  time);
 			setConnect(o, r & 7, v & 7);
 			break;
 
@@ -874,7 +876,7 @@ static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
 YM2151::YM2151(const std::string& name_, static_string_view desc,
                const DeviceConfig& config, EmuTime time, Variant variant_)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, false)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
 	, timer2(variant_ == Variant::YM2164 ? EmuTimer::createOPP_2(config.getScheduler(), *this)
@@ -910,9 +912,9 @@ YM2151::YM2151(const std::string& name_, static_string_view desc,
 		std::cout << '\n';
 	}
 
-	reset(time);
-
 	registerSound(config);
+	enableSetChannelFactors(); // the left/right enable bits of the channels
+	reset(time); // must come after the above because of call to setChannelFactors()
 }
 
 YM2151::~YM2151()
@@ -1516,8 +1518,7 @@ void YM2151::generateChannels(std::span<float*> bufs, unsigned num)
 		chan7Calc(); // special case for channel 7
 
 		for (auto j : xrange(8)) {
-			bufs[j][2 * i + 0] += narrow_cast<float>(narrow_cast<int>(chanOut[j] & pan[2 * j + 0]));
-			bufs[j][2 * i + 1] += narrow_cast<float>(narrow_cast<int>(chanOut[j] & pan[2 * j + 1]));
+			bufs[j][i] += narrow_cast<float>(chanOut[j]);
 		}
 		advance();
 	}
@@ -1604,7 +1605,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 	            "timer1",          *timer1,
 	            "timer2",          *timer2,
 	            "operators",       oper,
-	            //"pan",             pan, // recalculated from regs[0x20-0x27]
+	            // left/right enable: recalculated from regs[0x20-0x27]
 	            "eg_cnt",          eg_cnt,
 	            "eg_timer",        eg_timer,
 	            "lfo_phase",       lfo_phase,
