@@ -751,15 +751,11 @@ static void synthesizeFmChannel(FmChannel& channel, OpnaRegisters& regs,
 	uint32_t lfoMaxCount = 0;
 	uint32_t amShift = 0;
 	uint32_t amOffset = 0;
-	bool panLeft = false;
-	bool panRight = false;
 	if constexpr (LFO) {
 		lfoMaxCount = regs.lfoMaxCount();
 	}
 	if constexpr (WRITE) {
 		plan = channel.makeOutputPlan(regs, chNum);
-		panLeft = (plan.outputMask & 1) != 0;
-		panRight = (plan.outputMask & 2) != 0;
 		amShift = regs.lfoAmShift(OpnaRegisters::channelOffset(chNum));
 		if constexpr (!LFO) {
 			amOffset = regs.lfoAmOffset(amShift);
@@ -785,23 +781,12 @@ static void synthesizeFmChannel(FmChannel& channel, OpnaRegisters& regs,
 		return;
 	}
 
-	if (panLeft && panRight) {
+	// The channels are mono: SoundDevice applies the left/right output
+	// enable bits, see YM2608::updateChannelFactors().
+	if (plan.outputMask != 0) {
 		for (unsigned index = 0; index < num; ++index) {
 			tick();
-			float value = float(channel.output4Op(plan, amOffset));
-			unsigned pos = index * 2;
-			buf[pos + 0] += value;
-			buf[pos + 1] += value;
-		}
-	} else if (panLeft) {
-		for (unsigned index = 0; index < num; ++index) {
-			tick();
-			buf[index * 2] += float(channel.output4Op(plan, amOffset));
-		}
-	} else if (panRight) {
-		for (unsigned index = 0; index < num; ++index) {
-			tick();
-			buf[index * 2 + 1] += float(channel.output4Op(plan, amOffset));
+			buf[index] += float(channel.output4Op(plan, amOffset));
 		}
 	} else {
 		for (unsigned index = 0; index < num; ++index) {
@@ -826,7 +811,7 @@ void FmEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, uint3
 		generate(buffers, 1, chanMask);
 		std::array<float*, CHANNELS> rest{};
 		for (unsigned chNum = 0; chNum < CHANNELS; ++chNum) {
-			rest[chNum] = buffers[chNum] ? buffers[chNum] + 2 : nullptr;
+			rest[chNum] = buffers[chNum] ? buffers[chNum] + 1 : nullptr;
 		}
 		generate(rest, num - 1, chanMask);
 		return;
@@ -1486,27 +1471,15 @@ void AdpcmAEngine::generate(std::span<float*, CHANNELS> buffers, unsigned num, u
 			}
 		} else {
 			// Only clock() changes the accumulator, so the scaled sample is
-			// recomputed there instead of once per sample. A closed pan side
-			// keeps adding zero.
-			const bool panLeft  = (plan.panMask & 1) != 0;
-			const bool panRight = (plan.panMask & 2) != 0;
-			float left  = 0.0f;
-			float right = 0.0f;
-			auto rescale = [&] {
-				float value = float(channel.sample(plan));
-				left  = panLeft  ? value : 0.0f;
-				right = panRight ? value : 0.0f;
-			};
-			rescale();
+			// recomputed there instead of once per sample.
+			float value = float(channel.sample(plan));
 			for (unsigned i = 0; i < num; ++i) {
 				env = stepEgCounter(env);
 				if ((env & 3) == 0 && (low || (env & 4) == 0)) {
 					channel.clock(end, rom);
-					rescale();
+					value = float(channel.sample(plan));
 				}
-				unsigned pos = i * 2;
-				buf[pos + 0] += left;
-				buf[pos + 1] += right;
+				buf[i] += value;
 			}
 		}
 	}
@@ -1810,9 +1783,6 @@ void AdpcmBChannel::generate(float* buffer, unsigned num, const OutputPlan& plan
 {
 	if (num == 0) return;
 
-	const bool panLeft  = (plan.panMask & 1) != 0;
-	const bool panRight = (plan.panMask & 2) != 0;
-
 	// The decode state and delta-N are registers, so they are read once.
 	// Without decoding the position never moves, and neither does it without
 	// a step, so in both cases the held sample repeats for the whole run.
@@ -1832,20 +1802,8 @@ void AdpcmBChannel::generate(float* buffer, unsigned num, const OutputPlan& plan
 		return float(sample(plan));
 	};
 
-	if (panLeft && panRight) {
-		for (unsigned i = 0; i < num; ++i) {
-			float value = tick();
-			buffer[2 * i + 0] += value;
-			buffer[2 * i + 1] += value;
-		}
-	} else if (panLeft) {
-		for (unsigned i = 0; i < num; ++i) {
-			buffer[2 * i + 0] += tick();
-		}
-	} else {
-		for (unsigned i = 0; i < num; ++i) {
-			buffer[2 * i + 1] += tick();
-		}
+	for (unsigned i = 0; i < num; ++i) {
+		buffer[i] += tick();
 	}
 }
 
@@ -2216,6 +2174,7 @@ void YM2608::reset(EmuTime time)
 
 	ssg.reset(time);
 	applyRates(time);
+	updateChannelFactors(time);
 	busyEnd = time;
 }
 
@@ -2415,6 +2374,9 @@ void YM2608::writeRegister(unsigned regNum, uint8_t data, EmuTime time)
 		fm.writeReg(narrow_cast<uint16_t>(regNum), data, time);
 	}
 
+	// the write may have changed the left/right output enable bits
+	updateChannelFactors(time);
+
 	// mark busy for a bit
 	busyEnd = time + Clock<CLOCK>::duration(32 * fm.clockPrescale());
 }
@@ -2453,6 +2415,23 @@ void YM2608::applyRates(EmuTime time)
 	ssg.setClockFrequency(float(8 * ssgRate), time);
 }
 
+void YM2608::updateChannelFactors(EmuTime time)
+{
+	// All channels are mono, each with a left and a right output enable
+	// bit. SoundDevice applies those bits (and does nothing when none of
+	// them changed).
+	// The channel numbers are those of generateFM().
+	std::array<SoundDevice::ChannelFactors, 13> factors;
+	for (unsigned c = 0; c < 6; ++c) {
+		factors[c] = SoundDevice::channelOutputs(c, fm.outputLeft(c), fm.outputRight(c));
+	}
+	factors[6] = SoundDevice::channelOutputs(6, adpcmB.outputLeft(), adpcmB.outputRight());
+	for (unsigned c = 0; c < 6; ++c) {
+		factors[c + 7] = SoundDevice::channelOutputs(c + 7, adpcmA.outputLeft(c), adpcmA.outputRight(c));
+	}
+	fmPart.setChannelFactors(factors, time);
+}
+
 bool YM2608::isBusy(EmuTime time) const
 {
 	return time < busyEnd;
@@ -2483,9 +2462,10 @@ void YM2608::generateFM(std::span<float*> buffers, unsigned num)
 YM2608::FmPart::FmPart(DeviceConfig& config, std::string_view name_)
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name_,
-		"Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, true)
+		"Makoto FM, rhythm and ADPCM", 13, (CLOCK + 72) / 144, false)
 {
 	registerSound(config);
+	enableSetChannelFactors(); // the left/right output enable bits of the channels
 }
 
 YM2608::FmPart::~FmPart()
@@ -2566,6 +2546,7 @@ void YM2608::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		fm.setIrqMask(irqEnable & ~flagControl & 0x1f);
 		applyRates(fm.getCurrentTime());
+		updateChannelFactors(fm.getCurrentTime());
 		// only reschedule after all members have been restored
 		adpcmB.schedule();
 	}

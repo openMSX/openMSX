@@ -398,7 +398,7 @@ public:
 		uint8_t op4in;        // opout[] index that modulates operator 4
 		uint8_t carrierMask; // bit 0 = op1, bit 1 = op2, bit 2 = op3 in the sum
 		uint8_t feedback;     // operator 1 self-feedback, 0 means none
-		uint8_t outputMask;  // one bit per output this channel feeds
+		uint8_t outputMask;  // one bit per enabled output; only used to test whether the channel is audible
 	};
 
 	// Read those fields once, before the sample loop.
@@ -444,6 +444,10 @@ public:
 	// a real buffer per channel. Channels outside chanMask, and channels that
 	// are quiet, are nulled.
 	void generate(std::span<float*, CHANNELS> buffers, unsigned num, uint32_t chanMask);
+
+	// The left/right output enable bits of a channel.
+	[[nodiscard]] bool outputLeft (unsigned chNum) const { return registers.chOutput0(OpnaRegisters::channelOffset(chNum)); }
+	[[nodiscard]] bool outputRight(unsigned chNum) const { return registers.chOutput1(OpnaRegisters::channelOffset(chNum)); }
 
 	void writeReg(uint16_t regNum, uint8_t data, EmuTime time);
 	[[nodiscard]] uint8_t status() const;
@@ -584,7 +588,7 @@ public:
 	{
 		int8_t mul;        // volume multiplier
 		uint8_t shift;     // volume shift, accumulator downshift included
-		uint8_t panMask;  // one bit per output this channel feeds
+		uint8_t panMask;  // one bit per enabled output; only used to test whether the channel is audible
 	};
 
 	// Read those fields once, before the sample loop. An empty pan mask means
@@ -624,6 +628,10 @@ public:
 
 	// True when this channel adds zero until the next register write.
 	[[nodiscard]] bool silent(unsigned chNum) const { return channels[chNum].silent(registers, chNum); }
+
+	// The left/right output enable bits of a channel.
+	[[nodiscard]] bool outputLeft (unsigned chNum) const { return registers.chPanLeft (chNum); }
+	[[nodiscard]] bool outputRight(unsigned chNum) const { return registers.chPanRight(chNum); }
 
 	void writeReg(uint32_t regNum, uint8_t data);
 
@@ -766,7 +774,7 @@ public:
 	struct OutputPlan
 	{
 		uint32_t level;    // linear volume
-		uint8_t panMask;  // one bit per output this channel feeds
+		uint8_t panMask;  // one bit per enabled output; only used to test whether the channel is audible
 	};
 
 	// Read those fields once, before the sample loop. An empty pan mask means
@@ -777,7 +785,7 @@ public:
 	// clock advances. OPNA's extra output bit is folded into the 9-bit shift.
 	[[nodiscard]] int32_t sample(const OutputPlan& plan) const;
 
-	// num clocks into an interleaved stereo buffer. Reads the decode state
+	// num clocks into a (mono) buffer. Reads the decode state
 	// and the position step once, like clockN() does.
 	void generate(float* buffer, unsigned num, const OutputPlan& plan);
 
@@ -858,6 +866,10 @@ public:
 	// True when this channel adds zero until the next register write.
 	[[nodiscard]] bool silent() const { return channel.silent(); }
 
+	// The left/right output enable bits.
+	[[nodiscard]] bool outputLeft () const { return registers.panLeft (); }
+	[[nodiscard]] bool outputRight() const { return registers.panRight(); }
+
 	// Advance the guest state by num chip samples, see YM2608::sync().
 	void clockEmu(unsigned num) { channel.clockEmu(num); }
 
@@ -916,6 +928,7 @@ private:
 
 	void updateStream(EmuTime time);
 	void applyRates(EmuTime time);
+	void updateChannelFactors(EmuTime time);
 
 	void generateFM(std::span<float*> buffers, unsigned num);
 
