@@ -25,6 +25,7 @@ namespace openmsx {
 	case MANBOW2_2:
 	case HAMARAJANIGHT:
 	case MEGAFLASHROMSCC:
+	case ASCII8FLASH:
 		return AmdFlashChip::AM29F040B;
 	case RBSC_FLASH_KONAMI_SCC:
 		return AmdFlashChip::AM29F016D;
@@ -52,6 +53,7 @@ namespace openmsx {
 		}
 	case MEGAFLASHROMSCC:
 	case RBSC_FLASH_KONAMI_SCC:
+	case ASCII8FLASH:
 		return {};  // fully writeable
 	default:
 		UNREACHABLE;
@@ -60,7 +62,7 @@ namespace openmsx {
 
 RomManbow2::RomManbow2(DeviceConfig& config, Rom&& rom_, RomType type)
 	: MSXRom(config, std::move(rom_))
-	, scc((type != RomType::RBSC_FLASH_KONAMI_SCC)
+	, scc((type != one_of(RomType::RBSC_FLASH_KONAMI_SCC, RomType::ASCII8FLASH))
 		? std::make_unique<SCC>(
 			getName() + " SCC", config, getCurrentTime())
 		: nullptr)
@@ -71,6 +73,7 @@ RomManbow2::RomManbow2(DeviceConfig& config, Rom&& rom_, RomType type)
 		: nullptr)
 	, flash(rom, getFlashChip(type), getWriteProtectSectors(type), config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
+	, ascii8(type == RomType::ASCII8FLASH)
 {
 	powerUp(getCurrentTime());
 
@@ -194,7 +197,12 @@ void RomManbow2::writeMem(uint16_t address, byte value, EmuTime time)
 			sccEnabled = ((value & 0x3F) == 0x3F);
 			invalidateDeviceRCache(0x9800, 0x0800);
 		}
-		if ((address & 0x1800) == 0x1000) {
+		if (ascii8) {
+			// ASCII8 bank registers at 0x6000/0x6800/0x7000/0x7800
+			if ((0x6000 <= address) && (address < 0x8000)) {
+				setRom((address >> 11) & 3, value);
+			}
+		} else if ((address & 0x1800) == 0x1000) {
 			// page selection
 			setRom(page, value);
 		}
