@@ -338,6 +338,20 @@ private:
 	 */
 	bool brokenTiming;
 
+	/** Access timing: when the pending step of the running command ends.
+	  */
+	EmuTime nextDone = EmuTime::zero();
+
+	[[nodiscard]] bool accessTimed() const;
+	/** The index in the timing tables: P1, P2, 2, 4, 8, 16 bits a pixel. */
+	[[nodiscard]] unsigned timingMode() const { return cmdMode >> 4; }
+	[[nodiscard]] int engineT(int t) const;
+	[[nodiscard]] EmuTime grantAccess(EmuTime request) const;
+	[[nodiscard]] bool accessStep(EmuTime limit, unsigned accesses, int think);
+	[[nodiscard]] bool step(EmuTime limit, bool timed,
+	                        unsigned accesses, int think);
+	[[nodiscard]] unsigned wordStarts(uint16_t x, uint16_t dx, unsigned n, unsigned count) const;
+
 	/** The running command is complete. Perform necessary clean-up actions.
 	  */
 	void cmdReady(EmuTime time);
