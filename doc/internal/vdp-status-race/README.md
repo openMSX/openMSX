@@ -141,3 +141,4 @@ Each has its own document in this folder, in the same form:
 - `flag-positions.md`: where in the line HR, VR, F and FH change, per screen mode and with the horizontal adjust.
 - `r23-groups.md`: a vertical scroll (R#23) write in the middle of a line takes effect per 8-pixel group.
 - `line-latch.md`: the line latch (display mode, enable, sprite disable) and the line counter reset are two different moments.
+- `nt-field.md`: an NT (50/60 Hz) write changes the length of the field it is made in.

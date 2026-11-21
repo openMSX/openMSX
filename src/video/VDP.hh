@@ -79,7 +79,9 @@ public:
 	// Number of lines per frame.
 	static constexpr int PAL_LINES = 313;
 	static constexpr int NTSC_LINES = 262;
-	static constexpr int NUM_LINES_MAX = std::max(PAL_LINES, NTSC_LINES);
+	/** A field is longer than PAL_LINES when NT changes to 60 Hz after the
+	  * 60 Hz field end: the line counter then runs on to its wrap. */
+	static constexpr int NUM_LINES_MAX = 512;
 
 	explicit VDP(const DeviceConfig& config);
 	~VDP() override;
@@ -625,7 +627,7 @@ public:
 	/** Gets the number of lines per frame.
 	  */
 	[[nodiscard]] int getLinesPerFrame() const {
-		return palTiming ? PAL_LINES : NTSC_LINES;
+		return linesPerFrame;
 	}
 
 	/** Gets the number of display lines per screen.
@@ -1475,6 +1477,12 @@ private:
 	  */
 	bool palTiming;
 
+	/** The number of lines of this frame: PAL_LINES or NTSC_LINES as NT
+	  * selects at the frame start, changed by an NT write during the frame
+	  * (see changeRegister()).
+	  */
+	int linesPerFrame;
+
 	/** Is interlace active?
 	  * @see isInterlaced.
 	  */
@@ -1597,7 +1605,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 16);
+SERIALIZE_CLASS_VERSION(VDP, 17);
 
 } // namespace openmsx
 
