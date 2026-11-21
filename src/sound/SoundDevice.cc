@@ -122,10 +122,16 @@ void SoundDevice::setBalance(unsigned channel, float balance)
 	assert(balance <= 1.0f);
 	assert(outputMode == Output::STEREO);
 
-	auto left  = std::sqrt(1.0f - balance);
-	auto right = std::sqrt(1.0f + balance);
-	channelBalance[channel] = Balance{.left = left, .right = right};
+	channelBalance[channel] = calcBalance(balance);
 	updateChannelGroups();
+}
+
+SoundDevice::Balance SoundDevice::calcBalance(float position)
+{
+	// The 'max' makes sure that in case of rounding errors we don't take
+	// the sqrt() of a negative number.
+	return {.left  = std::sqrt(std::max(0.0f, 1.0f - position)),
+	        .right = std::sqrt(std::max(0.0f, 1.0f + position))};
 }
 
 void SoundDevice::updateChannelGroups()

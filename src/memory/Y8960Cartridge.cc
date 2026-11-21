@@ -116,16 +116,19 @@ struct PanGain { float left, right; };
 // The pan registers: 1 is hard left, 128 the centre, 255 hard right, and 0
 // is hard left like 1. The specification only gives those points; in between
 // this is constant power, so the centre is 3dB down on both sides.
+// The result are channel factors for SoundDevice::setChannelFactors(). Those
+// are relative to the centre: {1, 1} for the centre (which SoundDevice plays
+// 3dB down on both sides), {sqrt(2), 0} for hard left.
 [[nodiscard]] static PanGain panGain(uint8_t pan)
 {
 	if (pan == 128) {
 		// exactly symmetric, rather than cos() and sin() a rounding apart
-		constexpr float c = std::numbers::sqrt2_v<float> / 2.0f;
-		return {.left = c, .right = c};
+		return {.left = 1.0f, .right = 1.0f};
 	}
 	if (pan == 0) pan = 1;
 	float t = float(pan - 1) / 254.0f * (std::numbers::pi_v<float> / 2.0f);
-	return {.left = std::cos(t), .right = std::sin(t)};
+	return {.left  = SoundDevice::FULL_OUTPUT * std::cos(t),
+	        .right = SoundDevice::FULL_OUTPUT * std::sin(t)};
 }
 
 // The volume registers: 0 mutes, 1-127 is linear in steps of 1/128, and any

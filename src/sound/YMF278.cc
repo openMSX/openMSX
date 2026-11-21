@@ -571,7 +571,7 @@ void YMF278::updateChannelFactors(unsigned slotNum, EmuTime time)
 	// Note: register 0xF9 is handled externally.
 	auto factor = [](uint8_t vol) {
 		// 0 -> 0x20, 8 -> 0x18, 16 -> 0x10, 24 -> 0x0C, etc. (255 -> 0)
-		return narrow_cast<float>((0x20 - (vol & 0x0f)) >> (vol >> 4)) * (1.0f / 0x20);
+		return narrow_cast<float>((0x20 - (vol & 0x0f)) >> (vol >> 4)) * (FULL_OUTPUT / 0x20);
 	};
 	auto pan = slots[slotNum].pan;
 	setChannelFactors(slotNum, factor(pan_left[pan]), factor(pan_right[pan]), time);

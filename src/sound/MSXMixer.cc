@@ -726,33 +726,36 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info) const
 	int mVolume = masterVolume.getInt();
 	int dVolume = info.volumeSetting->getInt();
 	float volume = info.defaultVolume * narrow<float>(mVolume) * narrow<float>(dVolume) * (1.0f / (100.0f * 100.0f));
-	int balance = info.balanceSetting->getInt();
+	// The balance of the whole device: -1: fully left, 0: center, +1: fully right
+	float balance = narrow<float>(info.balanceSetting->getInt()) * (1.0f / 100.0f);
+	// See SoundDevice::calcBalance() and CENTER_GAIN: the factors of
+	// calcBalance() are relative to the center position.
+	float centerVolume = volume * SoundDevice::CENTER_GAIN;
 	auto [l1, r1, l2, r2] = [&] {
 		if (info.device->isStereo()) {
-			if (balance < 0) {
-				float b = (narrow<float>(balance) + 100.0f) * (1.0f / 100.0f);
-				return std::tuple{
-					/*l1 =*/ volume,
-					/*r1 =*/ 0.0f,
-					/*l2 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
-					/*r2 =*/ volume * sqrtf(std::max(0.0f,        b))
-				};
-			} else {
-				float b = narrow<float>(balance) * (1.0f / 100.0f);
-				return std::tuple{
-					/*l1 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
-					/*r1 =*/ volume * sqrtf(std::max(0.0f,        b)),
-					/*l2 =*/ 0.0f,
-					/*r2 =*/ volume
-				};
-			}
-		} else {
-			// make sure that in case of rounding errors
-			// we don't take sqrt() of negative numbers
-			float b = (narrow<float>(balance) + 100.0f) * (1.0f / 200.0f);
+			// The left output of the device is a sound at position
+			// -1, the right output a sound at position +1. The
+			// balance moves one of these towards the other side:
+			// e.g. with balance=+1 both are fully right. So the
+			// balance of the individual channels of the device
+			// (which is already in its left/right output) remains
+			// as much as possible.
+			auto left  = SoundDevice::calcBalance(-1.0f + 2.0f * std::max(0.0f, balance));
+			auto right = SoundDevice::calcBalance( 1.0f + 2.0f * std::min(0.0f, balance));
+			// Position -1 or +1 has factor sqrt(2) relative to
+			// the center, but here that position means 'unchanged'.
+			float v = centerVolume * SoundDevice::CENTER_GAIN;
 			return std::tuple{
-				/*l1 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
-				/*r1 =*/ volume * sqrtf(std::max(0.0f,        b)),
+				/*l1 =*/ v * left.left,
+				/*r1 =*/ v * left.right,
+				/*l2 =*/ v * right.left,
+				/*r2 =*/ v * right.right
+			};
+		} else {
+			auto [left, right] = SoundDevice::calcBalance(balance);
+			return std::tuple{
+				/*l1 =*/ centerVolume * left,
+				/*r1 =*/ centerVolume * right,
 				/*l2 =*/ 0.0f, // dummy
 				/*r2 =*/ 0.0f  // dummy
 			};

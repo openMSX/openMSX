@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <numbers>
 #include <optional>
 #include <span>
 #include <string>
@@ -38,6 +39,37 @@ public:
 	  * device into a STEREO device, see registerSound().
 	  */
 	enum class Output : uint8_t { MONO, STEREO };
+
+	/** Left and right amplitude multiplication factors. */
+	struct Balance {
+		float left, right;
+		[[nodiscard]] bool operator==(const Balance&) const = default;
+	};
+
+	/** The one place that defines how a sound is distributed over the left
+	  * and right output.
+	  * @param position [-1, +1], -1: fully left, 0: center, +1: fully right
+	  * @return The factors relative to the center position: {1, 1} for
+	  *         the center, {sqrt(2), 0} for fully left.
+	  * The power (left^2 + right^2) is the same for all positions, so the
+	  * loudness doesn't depend on the position.
+	  */
+	[[nodiscard]] static Balance calcBalance(float position);
+
+	/** The gain (in the mixer) for a channel with factors {1, 1}: that's
+	  * a channel of a MONO device, or a channel of a STEREO device in the
+	  * center. Such a channel is played at -3dB on both sides, so that
+	  * fully left or right (see calcBalance()) is played at 0dB.
+	  */
+	static constexpr float CENTER_GAIN = std::numbers::sqrt2_v<float> / 2.0f; // sqrt(0.5)
+
+	/** Channel factor for the outputs of a sound chip that has per channel
+	  * a left and a right output (enable bits, panning). On such a chip a
+	  * channel that's enabled on both outputs plays at full volume on
+	  * both, so 3dB louder than a channel in the center of a MONO device.
+	  * This factor compensates for CENTER_GAIN.
+	  */
+	static constexpr float FULL_OUTPUT = std::numbers::sqrt2_v<float>;
 
 	SoundDevice(const SoundDevice&) = delete;
 	SoundDevice(SoundDevice&&) = delete;
@@ -115,7 +147,8 @@ public:
 	/** Change the balance of a single channel.
 	 * @param channel [0, numChannels)
 	 * @param balance [-1, +1], -1: fully left, 0: center, +1: fully right
-	 *                 The sum of the energy of the left and right channel is kept constant.
+	 *                 The power stays the same as without balance, it's only
+	 *                 distributed over left and right, see calcBalance().
 	 * NOTE: this is meant to be called during the construction phase (before audio generation starts).
 	 * NOTE: only allowed for devices with Output::STEREO.
 	 */
@@ -126,6 +159,7 @@ public:
 	 * In a way this is similar to setBalance(), it (over)writes the same
 	 * factors.  But this gives more control, it can also be used the change
 	 * the volume per channel.
+	 * The factors {1, 1} give the same result as a channel of a MONO device.
 	 *
 	 * And most important: it's allowed to call this at-run-time (during
 	 * sound generation). It's also allowed before registerSound().
@@ -144,8 +178,8 @@ public:
 	void setChannelFactors(std::span<const ChannelFactors> factors, EmuTime time);
 
 	/** For sound chips that have per channel a left and a right output
-	 * that can be enabled separately: sets the channel factors to 1 for
-	 * an enabled and to 0 for a disabled output.
+	 * that can be enabled separately: sets the channel factors to
+	 * FULL_OUTPUT for an enabled and to 0 for a disabled output.
 	 * (Not an overload of setChannelFactors(): with 'bool' next to 'float'
 	 * parameters a call with e.g. 'int' arguments would be ambiguous.)
 	 */
@@ -158,8 +192,8 @@ public:
 	 */
 	[[nodiscard]] static ChannelFactors channelOutputs(unsigned channel, bool left, bool right) {
 		return {.channel = channel,
-		        .left  = left  ? 1.0f : 0.0f,
-		        .right = right ? 1.0f : 0.0f};
+		        .left  = left  ? FULL_OUTPUT : 0.0f,
+		        .right = right ? FULL_OUTPUT : 0.0f};
 	}
 
 	/** Are both channel factors zero? Such a channel isn't audible, and
@@ -321,10 +355,6 @@ protected:
 	[[nodiscard]] double getEffectiveSpeed() const;
 
 private:
-	struct Balance { // amplitude multiplication factors
-		float left, right;
-		[[nodiscard]] bool operator==(const Balance&) const = default;
-	};
 	void updateChannelGroups();
 
 	MSXMixer& mixer;
