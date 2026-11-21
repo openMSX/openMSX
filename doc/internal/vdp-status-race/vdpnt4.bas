@@ -1,0 +1,27 @@
+10 ' VDPNT 4, fully automatic: VDPNT around the field ends with R#18 = 00h,
+20 ' 07h and 08h: does the moment that decides the field's length move with
+30 ' the horizontal adjust? Per R#18 and N (A: 50 -> 60 Hz, N = 253; B: 60 ->
+40 ' 50 Hz, N = 229) a delay D = 14 * DLY + FINE of 65 to 125 Z80 cycles, 6 times each.
+50 ' Results: G<dir><V>W<w>.TXT, V: 8 = V9938, 9 = V9958. Columns: R#18, N,
+60 ' D, then the four counts.
+70 CLEAR 200,&HBFFF:SCREEN 0:WIDTH 80:KEY OFF:COLOR 15,4,4
+80 BLOAD "VDPNT4.BIN":DEFUSR=&HC000
+90 W=0:IF PEEK(&H2D)>=3 THEN W=1
+100 V$="8":IF ((VDP(-1)\2) AND 31)=2 THEN V$="9"
+105 D0=65:D1=125
+110 FOR DI=0 TO 1
+120 IF DI=0 THEN A=&H82:B=&H80:D$="A":N=253 ELSE A=&H80:B=&H82:D$="B":N=229
+130 F$="G"+D$+V$+"W"+MID$(STR$(W),2)+".TXT":PRINT F$
+140 OPEN F$ FOR OUTPUT AS #1
+150 PRINT #1,"VDPNT4 W=";W;" R#9 before";A;" after";B
+160 FOR J=0 TO 2:RA=0:IF J=1 THEN RA=7 ELSE IF J=2 THEN RA=8
+170 VDP(19)=RA
+180 FOR D=D0 TO D1:FOR R=1 TO 6
+190 POKE &HC003,N AND 255:POKE &HC004,N\256:POKE &HC005,A:POKE &HC006,B:POKE &HC010,D\14:POKE &HC011,D MOD 14
+200 X=USR(0)
+210 PRINT #1,RA;N;D;PEEK(&HC007)+256*PEEK(&HC008);PEEK(&HC009)+256*PEEK(&HC00A);PEEK(&HC00B)+256*PEEK(&HC00C);PEEK(&HC00D)+256*PEEK(&HC00E)
+220 NEXT R,D,J
+230 VDP(19)=0:CLOSE #1
+240 NEXT DI
+250 VDP(10)=PEEK(&HFFE8)
+260 PRINT "VDPNT4 done.":RUN "AUTOEXEC.BAS"
