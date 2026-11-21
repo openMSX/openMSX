@@ -439,12 +439,14 @@ public:
 		return line;
 	}
 
-	/** Is PAL timing active?
-	  * This setting is fixed at start of frame.
-	  * @return True if PAL timing, false if NTSC timing.
+	/** Is this a PAL (50Hz) field, as far as where the picture goes in the
+	  * output is concerned? The VDP itself latches nothing for this: the
+	  * field's length follows NT (see 'linesPerFrame'), and the display
+	  * start takes NT at the line counter reset.
+	  * @return True for a field longer than an NTSC one.
 	  */
 	[[nodiscard]] bool isPalTiming() const {
-		return palTiming;
+		return linesPerFrame != NTSC_LINES;
 	}
 
 	/** Get interlace status.
@@ -1493,16 +1495,13 @@ private:
 	  * earlier. See isSlotTableDisplayEnabled(). */
 	bool isSlotTableDisplayArea;
 
-	/** Is PAL timing active? False means NTSC timing.
-	  * This value is updated at the start of every frame,
-	  * to avoid problems with mid-screen PAL/NTSC switching.
-	  * @see isPalTiming.
-	  */
-	bool palTiming;
-
-	/** The number of lines of this frame: PAL_LINES or NTSC_LINES as NT
-	  * selects at the frame start, changed by an NT write during the frame
-	  * (see changeRegister()).
+	/** The number of lines of this frame. The VDP compares its line counter
+	  * with the last line of a field of the rate NT selects, once per line
+	  * and with NT as it is then; on a match the field ends with that line,
+	  * else the counter runs on to its wrap. This is the outcome of that
+	  * comparison: PAL_LINES or NTSC_LINES as NT selects at the frame start,
+	  * changed by an NT write during the frame (see changeRegister()), so
+	  * that the frame's end can be scheduled without a sync point per line.
 	  */
 	int linesPerFrame;
 
@@ -1628,7 +1627,7 @@ private:
 	MSXCPU& cpu;
 	const uint8_t fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 17);
+SERIALIZE_CLASS_VERSION(VDP, 18);
 
 } // namespace openmsx
 
