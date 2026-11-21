@@ -337,9 +337,10 @@ public:
 
 	/** Is the VDP fetching display data, as far as the VRAM access slots are
 	  * concerned? The access grid does not follow the display area: it starts
-	  * 162 cycles into the line *before* it, where the VDP starts fetching the
-	  * sprite data of the first display line, and it ends 162 cycles into the
-	  * line after it. Measured at both borders, see section 12 of
+	  * at cycle 162 of the slot tables' line *before* it, where the VDP starts
+	  * fetching the sprite data of the first display line, and it ends at
+	  * cycle 162 of the line after it (see VDPAccessSlots::getLineOffset() for
+	  * where those lines start). Measured at both borders, see section 12 of
 	  * doc/internal/vdp-vram-timing/2026-measurement-analysis.md.
 	  * @return true iff the display access grid applies.
 	  */
@@ -1343,9 +1344,9 @@ private:
 	  */
 	EmuTime displayStartSyncTime;
 
-	/** Moments the access grid switches to and from the display tables:
-	  * 1408 cycles before 'displayStartSyncTime' and 40 cycles before
-	  * 'vScanSyncTime'. See isSlotTableDisplayEnabled(). */
+	/** Moments the access grid switches to and from the display tables, at
+	  * the same point of the line before 'displayStartSyncTime' and of the
+	  * line of 'vScanSyncTime'. See isSlotTableDisplayEnabled(). */
 	EmuTime slotTableStartSyncTime;
 	EmuTime slotTableEndSyncTime;
 

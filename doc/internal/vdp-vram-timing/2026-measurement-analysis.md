@@ -855,6 +855,7 @@ margin 2, and none at all with the display off or sprites off.
 | one request buffer, released `threshold` cycles before its access | `VDP::scheduleV99x8VramAccess` |
 | the command start delay, per command | `Delta::CMD_START_*` |
 | a write's byte in the data register before its request (section 19) | `VDP::scheduleV99x8VramAccess` |
+| the slot tables' line placed relative to HR, moving with R#18 (section 20) | `VDPAccessSlots::getLineOffset` |
 
 The generated tables were checked entry by entry against the model in this directory:
 103968 table entries over the four V99x8 tables, 304 slot thresholds and 165424
@@ -1027,3 +1028,16 @@ it measures, how to read the results and what follows from them:
   request comes just late enough to get its own access, the first access writes the second
   byte too. The lead is fitted, about 18 VDP cycles, not seen directly. The two V9958s pin
   it down; the V9938 fits it as well as any other value from 8 to 20.
+
+## 20. Where the access slots are, relative to HR
+
+The captures number each line from the moment the HSYNC pin goes active, and don't show the
+status flags. `command-slots/` places the slot tables relative to HR, from which software
+times its accesses, with the CPU write pairs of section 19 and with the end of a
+short command, on the same three machines; its README has the method, the results and
+igmar's M04 as independent data:
+
+- HR falls at about cycle 181 of the tables' line in the graphics modes, and about 31
+  cycles later in the text modes, as HR itself does (R#18 = 00h). The CPU and the command
+  engine see the slots at the same place. Fitted, to about one Z80 cycle.
+- R#18 moves the slots together with HR.
