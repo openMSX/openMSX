@@ -76,6 +76,12 @@ public:
 	  */
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY) = 0;
 
+	/** The same as drawBorder(), in the border colour of the given
+	  * background colour instead of the current one.
+	  */
+	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY,
+	                        uint8_t bgColor) = 0;
+
 	/** Render a rectangle of display pixels on the host screen.
 	  * @param fromX X coordinate of render start in VDP ticks.
 	  * @param fromY Y coordinate of render start in absolute lines.
