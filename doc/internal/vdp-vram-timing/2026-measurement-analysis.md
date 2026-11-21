@@ -1041,3 +1041,16 @@ igmar's M04 as independent data:
   cycles later in the text modes, as HR itself does (R#18 = 00h). The CPU and the command
   engine see the slots at the same place. Fitted, to about one Z80 cycle.
 - R#18 moves the slots together with HR.
+
+## 21. When CE clears after a command
+
+The captures show a command's accesses, not CE. `command-end/` measures from the CPU side
+when CE clears after a command, on the same three machines, with the display off and with
+sprites on; its README has the method, the results and igmar's C04 as independent data:
+
+- CE stays set a fixed time after the command's last access, per command (about 30 VDP
+  cycles for LINE and SRCH, 78 for HMMV and LMMV, up to 131 for PSET), the same for every
+  size. Fitted; why it differs per command is not known.
+- Only the flag is held: a new R#46 write starts a new command at once.
+- HMMC and LMMC take their first byte from R#44; a one-dot LMCM ends on its own; STOP
+  holds CE about 237 VDP cycles after it is written, with or without a command running.
