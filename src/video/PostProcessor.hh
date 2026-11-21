@@ -66,6 +66,23 @@ public:
 		superImposeVideoFrame = videoSource;
 	}
 
+	/** How the external video (see above) is combined with the output:
+	  * 0 = normal alpha blend, 1 = opaque pixels at 50% over the video,
+	  * 2 = 50/50 mix of both complete images, 3 = only the external video.
+	  * Only used by the GL scalers.
+	  */
+	void setSuperimposeMix(int mode) { superImposeMix = mode; }
+
+	/** Intensity (0..1) of the external video, see VDP::isVideoDim(). */
+	void setSuperimposeVideoGain(float gain) { superImposeVideoGain = gain; }
+
+	/** Intensity (0..1) of the VDP image over the external video. */
+	void setSuperimposeComputerLevel(float level) { superImposeComputerLevel = level; }
+
+	/** Intensity (0..1) of the image of the computer when it is not
+	  * superimposed on external video, see VDP::getComputerGain(). */
+	void setComputerGain(float gain) { computerGain = gain; }
+
 	/** Set the VDP frame on which to superimpose the 'normal' output of
 	  * this PostProcessor. This is similar to the method above, except
 	  * that now the superimposing is done before scaling. IOW both frames
@@ -164,6 +181,10 @@ private:
 	  * nullptr when not superimposing. */
 	const RawFrame* superImposeVideoFrame = nullptr;
 	const FrameSource* superImposeVdpFrame = nullptr;
+	int superImposeMix = 0;
+	float superImposeVideoGain = 1.0f;
+	float superImposeComputerLevel = 1.0f;
+	float computerGain = 1.0f;
 
 	int interleaveCount = 0; // for interleave-black-frame
 	int lastFramesCount = 0; // How many items in lastFrames[] are up-to-date

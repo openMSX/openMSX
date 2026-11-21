@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Video Digitizer HBI-V1</name>
+    <manufacturer>Sony</manufacturer>
+    <code>HBI-V1</code>
+    <release_year>1989</release_year>
+    <description>Video digitizer cartridge with BASIC extensions (CALL AD, MD, DCOPY, DCLS, YJK, DG, ...). Digitizes the external video source of the VDP (see the External video input panel). Register behaviour not verified on real hardware.</description>
+    <type>video digitizer</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <SonyHBIV1 id="Sony HBI-V1">
+          <rom>
+            <!-- the two dumps only differ in the register/VRAM window (0x3E00-0x3FFF) -->
+            <sha1>94c4089f91af3d5f2e8db97bb004fa13bbae0d20</sha1>
+            <sha1>dbafa0f6ffa6dbfadbf631d209c5c9837ad0e100</sha1>
+            <filename>hbi-v1.rom</filename>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </SonyHBIV1>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

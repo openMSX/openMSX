@@ -21,5 +21,9 @@ ifeq ($(filter MINGW%,$(shell uname -s)),)
 WINDRES?=$(MINGW_CPU)-w64-mingw32-windres
 endif
 
-# make sure the threading lib is also included in the exe
+# Statically link the third-party bundle when that build mode is selected.
+# System MinGW packages provide import libraries (for example Tcl), which
+# cannot be used with a blanket -static option.
+ifeq ($(LINK_MODE),3RD_STA)
 LINK_FLAGS:= -static $(LINK_FLAGS)
+endif

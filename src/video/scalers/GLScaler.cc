@@ -29,6 +29,10 @@ GLScaler::GLScaler(const std::string& progName)
 		}
 		unifTexSize[i] = program[i].getUniformLocation("texSize");
 		unifMvpMatrix[i] = program[i].getUniformLocation("u_mvpMatrix");
+		unifSuperMix[i] = program[i].getUniformLocation("superMix");
+		unifVideoGain[i] = program[i].getUniformLocation("videoGain");
+		unifComputerGain[i] = program[i].getUniformLocation("computerGain");
+		unifComputerLevel[i] = program[i].getUniformLocation("computerLevel");
 	}
 }
 
@@ -68,6 +72,12 @@ void GLScaler::execute(
 	}
 	int i = superImpose ? 1 : 0;
 	glUniform3f(unifTexSize[i], srcWidthF, srcHeightF, logSrcHeightF);
+	glUniform1f(unifComputerGain[i], computerGain); // (-1 location in the superimpose variant)
+	if (superImpose) {
+		glUniform1f(unifSuperMix[i], float(superMix));
+		glUniform1f(unifVideoGain[i], videoGain);
+		glUniform1f(unifComputerLevel[i], computerLevel);
+	}
 
 	src.bind();
 	// Note: hShift is pre-divided by srcWidth, while vShift will be divided
