@@ -85,16 +85,18 @@ static constexpr int CPU_READ_SAMPLE_DELAY = 9;
   * openMSX sets the flag. Measured on a V9958 (Panasonic FS-A1GT, and a
   * Philips NMS 8250 whose V9938 was replaced by a V9958) and a V9938 (Sony
   * HB-F700D), see https://github.com/openMSX/openMSX/issues/2244 and
-  * doc/internal/vdp-status-race. The TMS99xx VDPs weren't measured; they are
-  * assumed to behave like the V9938. */
+  * doc/internal/vdp-status-race. One window for F on all VDPs: the V9938's
+  * results fit it as well as any other. FH's window ends later on the V9938:
+  * there the measurements are clear. The TMS99xx VDPs weren't measured; they
+  * are assumed to behave like the V9938. */
 struct FlagLostWindow { int before, after; };
-static constexpr FlagLostWindow F_LOST_V9958 = { 7, 14};
-static constexpr FlagLostWindow F_LOST_V9938 = {13, 15};
-static constexpr FlagLostWindow FH_LOST      = {21,  6};
+static constexpr FlagLostWindow F_LOST = {7, 15};
+static constexpr FlagLostWindow FH_LOST_V9958 = {21,  6};
+static constexpr FlagLostWindow FH_LOST_V9938 = {21, 12};
 
-static FlagLostWindow getFLostWindow(const VDP& vdp)
+static FlagLostWindow getFHLostWindow(const VDP& vdp)
 {
-	return vdp.hasYJK() ? F_LOST_V9958 : F_LOST_V9938;
+	return vdp.hasYJK() ? FH_LOST_V9958 : FH_LOST_V9938;
 }
 
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
@@ -507,7 +509,7 @@ void VDP::execVScan(EmuTime time)
 	isDisplayArea = false;
 
 	// Vertical scanning occurs, unless S#0 was read just before.
-	if ((time - statusReg0ReadTime) >= VDPClock::duration(getFLostWindow(*this).before)) {
+	if ((time - statusReg0ReadTime) >= VDPClock::duration(F_LOST.before)) {
 		statusReg0 |= 0x80;
 		fSetTime = time;
 		if (controlRegs[1] & 0x20) {
@@ -520,7 +522,7 @@ void VDP::execHScan(EmuTime time)
 {
 	// Horizontal scanning occurs, unless S#1 was read just before.
 	if ((controlRegs[0] & 0x10) &&
-	    ((time - statusReg1ReadTime) >= VDPClock::duration(FH_LOST.before))) {
+	    ((time - statusReg1ReadTime) >= VDPClock::duration(getFHLostWindow(*this).before))) {
 		irqHorizontal.set();
 		fhSetTime = time;
 	}
@@ -1297,7 +1299,7 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 	}();
 	switch (reg) {
 	case 0:
-		if ((time - fSetTime) < VDPClock::duration(getFLostWindow(*this).after)) {
+		if ((time - fSetTime) < VDPClock::duration(F_LOST.after)) {
 			ret &= ~0x80; // F was set just before this read: it's lost
 		}
 		statusReg0ReadTime = time;
@@ -1307,7 +1309,7 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 		break;
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
-			if ((time - fhSetTime) < VDPClock::duration(FH_LOST.after)) {
+			if ((time - fhSetTime) < VDPClock::duration(getFHLostWindow(*this).after)) {
 				ret &= ~0x01; // FH was set just before this read: it's lost
 			}
 			statusReg1ReadTime = time;
