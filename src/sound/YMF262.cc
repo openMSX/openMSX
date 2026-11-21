@@ -1397,6 +1397,8 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime time)
 
 void YMF262::reset(EmuTime time)
 {
+	updateStream(time);
+
 	eg_cnt = 0;
 
 	noise_rng = 1; // noise shift register
@@ -1410,12 +1412,16 @@ void YMF262::reset(EmuTime time)
 	writeRegDirect(0x03, 0, time); // Timer2
 	writeRegDirect(0x04, 0, time); // IRQ mask clear
 
-	// FIX IT  registers 101, 104 and 105
-	// FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
+	// After a reset the chip is in OPL2 mode, with all channels 2-operator
+	// channels. This must come before the writes to registers C0-C8 below:
+	// in OPL2 mode those enable the outputs of all channels.
+	writeRegDirect(0x105, 0, time); // OPL2 mode
+	writeRegDirect(0x104, 0, time); // no 4-operator channels
+
+	// FIX IT  register 101
 	for (int c = 0xFF; c >= 0x20; c--) {
 		writeRegDirect(c, 0, time);
 	}
-	// FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
 	for (int c = 0x1FF; c >= 0x120; c--) {
 		writeRegDirect(c, 0, time);
 	}
