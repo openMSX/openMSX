@@ -340,10 +340,9 @@ void VDP::resetInit()
 	// are loaded with these values at power on.
 	controlRegs[21] = 0x3B;
 	controlRegs[22] = 0x05;
-	// Note: frameStart is the actual place palTiming is written, but it
+	// Note: frameStart is the actual place linesPerFrame is set, but it
 	//       can be read before frameStart is called.
 	//       TODO: Clean up initialisation sequence.
-	palTiming = true; // controlRegs[9] & 0x02;
 	linesPerFrame = PAL_LINES;
 	displayMode.reset();
 	vramPointer = 0;
@@ -893,12 +892,13 @@ void VDP::frameStart(EmuTime time)
 	// but for now this is accurate enough.
 	statusReg2 ^= 0x02;
 
-	// Settings which are fixed at start of frame.
+	// The new field's length as NT selects now; an NT write later in the
+	// field can still change it (see changeRegister()).
+	linesPerFrame = (controlRegs[9] & 0x02) ? PAL_LINES : NTSC_LINES;
+
 	// Not sure this is how real MSX does it, but close enough for now.
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
-	palTiming = (controlRegs[9] & 0x02) != 0;
-	linesPerFrame = palTiming ? PAL_LINES : NTSC_LINES;
 	interlaced = !isFastBlinkEnabled() && ((controlRegs[9] & 0x08) != 0);
 
 	// Blinking.
@@ -949,7 +949,7 @@ void VDP::frameStart(EmuTime time)
 		<< ", frameEnd = " << (frameStartTime + getTicksPerFrame())
 		<< ", hscan = " << hScanSyncTime
 		<< ", displayStart = " << displayStart
-		<< ", timing: " << (palTiming ? "PAL"sv : "NTSC"sv)
+		<< ", timing: " << (isPalTiming() ? "PAL"sv : "NTSC"sv)
 		<< "\n";
 	*/
 }
@@ -2462,6 +2462,7 @@ int VDP::MsxX512PosInfo::calc(EmuTime time) const
 // version 15: added statusReg0ReadTime, fSetTime, statusReg1ReadTime, fhSetTime
 // version 16: added fhFlag, the pending interrupt line changes and syncIrqDelay
 // version 17: added linesPerFrame
+// version 18: removed palTiming (isPalTiming() follows linesPerFrame)
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -2517,9 +2518,12 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	             "blinkCount",           blinkCount,
 	             "vramPointer",          vramPointer,
 	             "palette",              palette,
-	             "isDisplayArea",        isDisplayArea,
-	             "palTiming",            palTiming,
-	             "interlaced",           interlaced,
+	             "isDisplayArea",        isDisplayArea);
+	bool palTiming = true; // only in older states
+	if (!ar.versionAtLeast(serVersion, 18)) {
+		ar.serialize("palTiming", palTiming);
+	}
+	ar.serialize("interlaced",           interlaced,
 	             "statusReg0",           statusReg0,
 	             "statusReg1",           statusReg1,
 	             "statusReg2",           statusReg2,
