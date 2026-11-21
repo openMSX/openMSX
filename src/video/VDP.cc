@@ -122,6 +122,7 @@ VDP::VDP(const DeviceConfig& config)
 	, syncSlotTableEnd(*this)
 	, syncVScan(*this)
 	, syncHScan(*this)
+	, syncIrqDelay(*this)
 	, syncHorAdjust(*this)
 	, syncSetMode(*this)
 	, syncSetBlank(*this)
@@ -364,6 +365,10 @@ void VDP::resetInit()
 	// Update IRQ to reflect new register values.
 	irqVertical.reset();
 	irqHorizontal.reset();
+	fhFlag = false;
+	fhPendingTime = EmuTime::infinity();
+	irqVerticalOn = irqVerticalOff = EmuTime::infinity();
+	irqHorizontalOn = irqHorizontalOff = EmuTime::infinity();
 
 	// From appendix 8 of the V9938 data book (page 148).
 	const std::array<uint16_t, 16> V9938_PALETTE = {
@@ -401,6 +406,7 @@ void VDP::reset(EmuTime time)
 	syncSlotTableEnd .removeSyncPoint();
 	syncVScan        .removeSyncPoint();
 	syncHScan        .removeSyncPoint();
+	syncIrqDelay     .removeSyncPoint();
 	syncHorAdjust    .removeSyncPoint();
 	syncSetMode      .removeSyncPoint();
 	syncSetBlank     .removeSyncPoint();
@@ -513,19 +519,115 @@ void VDP::execVScan(EmuTime time)
 		statusReg0 |= 0x80;
 		fSetTime = time;
 		if (controlRegs[1] & 0x20) {
-			irqVertical.set();
+			changeIrqVertical(true, time);
 		}
 	}
 }
 
 void VDP::execHScan(EmuTime time)
 {
-	// Horizontal scanning occurs, unless S#1 was read just before.
-	if ((controlRegs[0] & 0x10) &&
-	    ((time - statusReg1ReadTime) >= VDPClock::duration(getFHLostWindow(*this).before))) {
+	// FH was set at fhPendingTime; now its interrupt line goes active.
+	// (A read of S#1 just before FH, or IE1 turned off, cancelled this
+	// sync point, see readStatusReg() and changeRegister().)
+	applyPendingFH(time);
+	if (getLineIrqDelay() == 0) {
 		irqHorizontal.set();
-		fhSetTime = time;
+	} else {
+		irqHorizontalOn = time;
+		execIrqDelay(time);
 	}
+}
+
+void VDP::applyPendingFH(EmuTime time)
+{
+	if (fhPendingTime <= time) {
+		fhFlag = true;
+		fhSetTime = fhPendingTime;
+		fhPendingTime = EmuTime::infinity();
+	}
+}
+
+void VDP::cancelPendingFH(EmuTime time)
+{
+	if (fhPendingTime != EmuTime::infinity() && fhPendingTime > time) {
+		fhPendingTime = EmuTime::infinity();
+		syncHScan.removeSyncPoint();
+		hScanSyncTime = time;
+	}
+}
+
+void VDP::handOverLineIrq(EmuTime time)
+{
+	applyPendingFH(time);
+	if (fhPendingTime != EmuTime::infinity()) return; // FH still to come
+	if (auto irqTime = syncHScan.isPending()) {
+		syncHScan.removeSyncPoint();
+		hScanSyncTime = time;
+		irqHorizontalOn = *irqTime;
+		scheduleIrqDelay();
+	}
+}
+
+void VDP::changeIrqVertical(bool active, EmuTime time)
+{
+	if (getOutputDelay() == 0) {
+		if (active) irqVertical.set(); else irqVertical.reset();
+		return;
+	}
+	if (!active && !irqVertical.getState() &&
+	    irqVerticalOn == EmuTime::infinity()) {
+		return; // already inactive, and nothing pending to undo
+	}
+	(active ? irqVerticalOn : irqVerticalOff) =
+		time + VDPClock::duration(getOutputDelay());
+	scheduleIrqDelay();
+}
+
+void VDP::changeIrqHorizontal(bool active, EmuTime time)
+{
+	if (getLineIrqDelay() == 0) {
+		if (active) irqHorizontal.set(); else irqHorizontal.reset();
+		return;
+	}
+	if (!active && !irqHorizontal.getState() &&
+	    irqHorizontalOn == EmuTime::infinity()) {
+		// Already inactive, and nothing pending to undo (an active edge
+		// still to come at the HSCAN sync point comes after this one).
+		return;
+	}
+	(active ? irqHorizontalOn : irqHorizontalOff) =
+		time + VDPClock::duration(getLineIrqDelay());
+	scheduleIrqDelay();
+}
+
+void VDP::scheduleIrqDelay()
+{
+	syncIrqDelay.removeSyncPoint();
+	EmuTime next = std::min({irqVerticalOn, irqVerticalOff,
+	                         irqHorizontalOn, irqHorizontalOff});
+	if (next != EmuTime::infinity()) syncIrqDelay.setSyncPoint(next);
+}
+
+void VDP::execIrqDelay(EmuTime time)
+{
+	// Apply the changes that are due, in the order they happen.
+	auto apply = [&](EmuTime& on, EmuTime& off, auto& irq) {
+		while (true) {
+			bool doOn = on <= time;
+			bool doOff = off <= time;
+			if (!doOn && !doOff) break;
+			if (doOn && (!doOff || on <= off)) {
+				irq.set();
+				on = EmuTime::infinity();
+			} else {
+				irq.reset();
+				off = EmuTime::infinity();
+			}
+		}
+	};
+	apply(irqVerticalOn, irqVerticalOff, irqVertical);
+	apply(irqHorizontalOn, irqHorizontalOff, irqHorizontal);
+	scheduleIrqDelay();
 }
 
 void VDP::execHorAdjust(EmuTime time)
@@ -711,11 +813,10 @@ void VDP::scheduleVScan(EmuTime time)
 
 void VDP::scheduleHScan(EmuTime time)
 {
-	// Remove pending HSCAN sync point, if any.
-	if (hScanSyncTime > time) {
-		syncHScan.removeSyncPoint();
-		hScanSyncTime = time;
-	}
+	// Remove the pending HSCAN sync point, if any; an FH that is already
+	// set keeps the interrupt it has coming.
+	handOverLineIrq(time);
+	cancelPendingFH(time);
 
 	// The match is where the display line counter equals R#19 - R#23. The
 	// counter started at 'displayStart' and keeps counting until the next
@@ -742,9 +843,13 @@ void VDP::scheduleHScan(EmuTime time)
 		return;
 	}
 
-	// Register new HSCAN sync point if interrupt is enabled.
-	if ((controlRegs[0] & 0x10) && (matchTime > time)) {
-		hScanSyncTime = matchTime;
+	// Register new HSCAN sync point if interrupt is enabled, at the moment
+	// the interrupt line goes active; FH is set at the match itself, unless
+	// S#1 was read just before.
+	if ((controlRegs[0] & 0x10) && (matchTime > time) &&
+	    ((matchTime - statusReg1ReadTime) >= VDPClock::duration(getFHLostWindow(*this).before))) {
+		fhPendingTime = matchTime;
+		hScanSyncTime = matchTime + VDPClock::duration(getLineIrqDelay());
 		syncHScan.setSyncPoint(hScanSyncTime);
 	}
 }
@@ -1239,7 +1344,8 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 		return spriteChecker->peekStatusEarly(time);
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
-			return statusReg1 | (irqHorizontal.getState() ? 1:0);
+			bool fh = fhFlag || (fhPendingTime <= time);
+			return statusReg1 | (fh ? 1:0);
 		} else { // line int disabled
 			// FH goes up at the start of the right border of IL and
 			// goes down at the start of the next left border.
@@ -1305,15 +1411,22 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 		statusReg0ReadTime = time;
 		spriteChecker->resetStatus();
 		statusReg0 &= ~0x80;
-		irqVertical.reset();
+		changeIrqVertical(false, time);
 		break;
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
+			// A read just before FH is set: FH isn't set at all.
+			if (fhPendingTime != EmuTime::infinity() && fhPendingTime > time &&
+			    (fhPendingTime - time) < VDPClock::duration(getFHLostWindow(*this).before)) {
+				cancelPendingFH(time);
+			}
+			handOverLineIrq(time);
 			if ((time - fhSetTime) < VDPClock::duration(getFHLostWindow(*this).after)) {
 				ret &= ~0x01; // FH was set just before this read: it's lost
 			}
 			statusReg1ReadTime = time;
-			irqHorizontal.reset();
+			fhFlag = false;
+			changeIrqHorizontal(false, time);
 		}
 		break;
 	case 5:
@@ -1523,7 +1636,10 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 			if (val & 0x10) {
 				scheduleHScan(time);
 			} else {
-				irqHorizontal.reset();
+				cancelPendingFH(time);
+				handOverLineIrq(time);
+				fhFlag = false;
+				changeIrqHorizontal(false, time);
 			}
 		}
 		break;
@@ -1534,10 +1650,10 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 				// the intro music in 'Andonis' is way too slow
 				// and the intro logo of 'Zanac' is corrupted.
 				if (statusReg0 & 0x80) {
-					irqVertical.set();
+					changeIrqVertical(true, time);
 				}
 			} else {
-				irqVertical.reset();
+				changeIrqVertical(false, time);
 			}
 		}
 		if ((change & 0x80) && isVDPwithVRAMremapping()) {
@@ -2269,6 +2385,8 @@ int VDP::MsxX512PosInfo::calc(EmuTime time) const
 // version 13: added cpuVramReqData, secondCpuVramReqData
 // version 14: added syncLineCountReset and lineCountResetSyncTime; displayStart
 //             is latched there instead of at frame start
+// version 15: added statusReg0ReadTime, fSetTime, statusReg1ReadTime, fhSetTime
+// version 16: added fhFlag, the pending interrupt line changes and syncIrqDelay
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -2293,6 +2411,9 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		}
 		if (ar.versionAtLeast(serVersion, 14)) {
 			ar.serialize("syncLineCountReset", syncLineCountReset);
+		}
+		if (ar.versionAtLeast(serVersion, 16)) {
+			ar.serialize("syncIrqDelay", syncIrqDelay);
 		}
 	} else {
 		Schedulable::restoreOld(ar,
@@ -2397,6 +2518,25 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		             "fSetTime",           fSetTime,
 		             "statusReg1ReadTime", statusReg1ReadTime,
 		             "fhSetTime",          fhSetTime);
+	}
+
+	if (ar.versionAtLeast(serVersion, 16)) {
+		ar.serialize("fhFlag",           fhFlag,
+		             "fhPendingTime",    fhPendingTime,
+		             "irqVerticalOn",    irqVerticalOn,
+		             "irqVerticalOff",   irqVerticalOff,
+		             "irqHorizontalOn",  irqHorizontalOn,
+		             "irqHorizontalOff", irqHorizontalOff);
+	} else if constexpr (Archive::IS_LOADER) {
+		// Older states had FH and its interrupt line in one, and the HSCAN
+		// sync point at the match itself.
+		fhFlag = irqHorizontal.getState();
+		if (auto matchTime = syncHScan.isPending()) {
+			fhPendingTime = *matchTime;
+			syncHScan.removeSyncPoint();
+			hScanSyncTime = *matchTime + VDPClock::duration(getLineIrqDelay());
+			syncHScan.setSyncPoint(hScanSyncTime);
+		}
 	}
 
 	if (ar.versionAtLeast(serVersion, 11)) {
