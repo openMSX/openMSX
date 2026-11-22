@@ -1,5 +1,5 @@
-C-BIOS 0.31a
-============
+C-BIOS 0.32
+===========
 
 This software is a substitute BIOS which is can be used for running MSX
 emulators. It currently supports only execution of cartridge image ("ROMs").
@@ -229,6 +229,11 @@ ver 0.31  2026-11-11(CET) "rodent infestation"
           * More BIOS fixes; see CHANGELOG.md for the full list
 ver 0.31a 2026-11-12(CET)
           * openMSX configs: connect the PSG as in openMSX 19 and newer
+ver 0.32  2026-11-22(CET)
+          * Cassette support: TAPION/TAPIN/TAPOON/TAPOUT read and write
+            tapes at 1200 and 2400 baud, and STMOTR controls the motor
+          * Function key line, BEEP and background PLAY music
+          * More BIOS fixes; see CHANGELOG.md for the full list
 
 Special Thanks
 --------------
