@@ -337,10 +337,10 @@ void VDP::resetInit()
 	// are loaded with these values at power on.
 	controlRegs[21] = 0x3B;
 	controlRegs[22] = 0x05;
-	// Note: frameStart is the actual place palTiming is written, but it
+	// Note: frameStart is the actual place linesPerFrame is set, but it
 	//       can be read before frameStart is called.
 	//       TODO: Clean up initialisation sequence.
-	palTiming = true; // controlRegs[9] & 0x02;
+	linesPerFrame = PAL_LINES;
 	displayMode.reset();
 	vramPointer = 0;
 	cpuVramData = 0;
@@ -875,11 +875,13 @@ void VDP::frameStart(EmuTime time)
 	// but for now this is accurate enough.
 	statusReg2 ^= 0x02;
 
-	// Settings which are fixed at start of frame.
+	// The new field's length as NT selects now; an NT write later in the
+	// field can still change it (see changeRegister()).
+	linesPerFrame = (controlRegs[9] & 0x02) ? PAL_LINES : NTSC_LINES;
+
 	// Not sure this is how real MSX does it, but close enough for now.
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
-	palTiming = (controlRegs[9] & 0x02) != 0;
 	interlaced = !isFastBlinkEnabled() && ((controlRegs[9] & 0x08) != 0);
 
 	// Blinking.
@@ -930,7 +932,7 @@ void VDP::frameStart(EmuTime time)
 		<< ", frameEnd = " << (frameStartTime + getTicksPerFrame())
 		<< ", hscan = " << hScanSyncTime
 		<< ", displayStart = " << displayStart
-		<< ", timing: " << (palTiming ? "PAL"sv : "NTSC"sv)
+		<< ", timing: " << (isPalTiming() ? "PAL"sv : "NTSC"sv)
 		<< "\n";
 	*/
 }
@@ -1693,6 +1695,33 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 			dotClockDirectionCallback.execute();
 			// TODO: Emulate such behaviour.
 		}
+		if (change & 0x02) {
+			// An NT write gives this field the length of the rate NT
+			// now selects. A write less than FIELD_END_LEAD cycles
+			// before the field's end comes too late and leaves its
+			// length as it is (the next field gets the new rate). When
+			// the new rate's end is less than FIELD_END_LEAD cycles
+			// ahead, or already past, the line counter runs on to its
+			// wrap. The moment doesn't move with the horizontal adjust.
+			// Measured with vdpnt, vdpnt2, vdpnt3 and vdpnt4 on a V9938
+			// and two V9958s, see doc/internal/vdp-status-race.
+			static constexpr int FIELD_END_LEAD = 400;
+			int ticks = getTicksThisFrame(time) + FIELD_END_LEAD;
+			if (ticks < linesPerFrame * TICKS_PER_LINE) {
+				int lines = (val & 0x02) ? PAL_LINES : NTSC_LINES;
+				if (lines * TICKS_PER_LINE <= ticks) {
+					lines = NUM_LINES_MAX;
+				}
+				if (lines != linesPerFrame) {
+					linesPerFrame = lines;
+					syncVSync.removeSyncPoint();
+					syncVSync.setSyncPoint(
+						frameStartTime + getTicksPerFrame());
+					scheduleHScan(time);
+					scheduleVScan(time);
+				}
+			}
+		}
 		if (change & 0x80) {
 			/*
 			cerr << "changed to " << (val & 0x80 ? 212 : 192) << " lines"
@@ -2416,6 +2445,8 @@ int VDP::MsxX512PosInfo::calc(EmuTime time) const
 //             is latched there instead of at frame start
 // version 15: added statusReg0ReadTime, fSetTime, statusReg1ReadTime, fhSetTime
 // version 16: added fhFlag, the pending interrupt line changes and syncIrqDelay
+// version 17: added linesPerFrame
+// version 18: removed palTiming (isPalTiming() follows linesPerFrame)
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
@@ -2471,9 +2502,12 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	             "blinkCount",           blinkCount,
 	             "vramPointer",          vramPointer,
 	             "palette",              palette,
-	             "isDisplayArea",        isDisplayArea,
-	             "palTiming",            palTiming,
-	             "interlaced",           interlaced,
+	             "isDisplayArea",        isDisplayArea);
+	bool palTiming = true; // only in older states
+	if (!ar.versionAtLeast(serVersion, 18)) {
+		ar.serialize("palTiming", palTiming);
+	}
+	ar.serialize("interlaced",           interlaced,
 	             "statusReg0",           statusReg0,
 	             "statusReg1",           statusReg1,
 	             "statusReg2",           statusReg2,
@@ -2499,6 +2533,11 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	if constexpr (Archive::IS_LOADER) {
 		pendingCpuAccess = syncCpuVramAccess.isPending().has_value();
 		update(tooFastAccess);
+	}
+	if (ar.versionAtLeast(serVersion, 17)) {
+		ar.serialize("linesPerFrame", linesPerFrame);
+	} else if constexpr (Archive::IS_LOADER) {
+		linesPerFrame = palTiming ? PAL_LINES : NTSC_LINES;
 	}
 
 	if (ar.versionAtLeast(serVersion, 2)) {
