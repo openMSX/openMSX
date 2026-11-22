@@ -149,3 +149,4 @@ Also measured: the VDP sets F a few VDP cycles after VR rises, not at the same m
 Each has its own document in this folder, in the same form:
 - `irq-delay.md`: the interrupt lines lag the status flags.
 - `flag-positions.md`: where in the line HR, VR, F and FH change, per screen mode and with the horizontal adjust.
+- `line-latch.md`: the line latch (display mode, enable, sprite disable) and the line counter reset are two different moments.
