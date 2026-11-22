@@ -143,6 +143,19 @@ public:
 		return (version & VM_VRAM_REMAPPING) != 0;
 	}
 
+	/** A register write shows in the picture as if the picture followed the
+	  * VDP's timing (the status flags, register and VRAM writes) this many
+	  * VDP cycles later. Measured with vdpline3 on two V9958s (Panasonic
+	  * FS-A1GT, Philips NMS 8250) and a V9938 (Sony HB-F700D), the same on
+	  * both chips, relative to where openMSX puts the display area; whether
+	  * it is a delay in the chip or that place is off isn't known yet, see
+	  * doc/internal/vdp-status-race/picture-delay.md. Not measured on the
+	  * TMS99xx; assumed the same.
+	  */
+	[[nodiscard]] static constexpr int getPictureDelay() {
+		return 29;
+	}
+
 	/** The interrupt line of F (IE0) follows F by this many VDP cycles, both
 	  * when it goes active and when a read of S#0 makes it inactive: a read
 	  * just after F is set sees and clears F, and the interrupt still comes.
