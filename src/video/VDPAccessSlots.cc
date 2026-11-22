@@ -175,6 +175,9 @@ static constexpr size_t MAX_SLOTS = 192;
   * And then in 1368-mode, parts of the VDP 'stall' including the command engine
   * part. Measured directly: with S1,S0 != 0,0 the line is 1365 cycles and the
   * same memory cycles carry 3 cycles less padding (they do not lose all of it).
+  * The positions are those for R#18 = 00h: the horizontal adjust moves the
+  * padding 4 cycles per step the other way relative to the slots, keeping
+  * the total (this is not emulated either: the padding moves with the slots).
   *
   * 'extra': added to every command engine step. Sprite rendering costs an extra
   * cycle, as if the arbitration decision for a slot were taken a cycle earlier
@@ -354,12 +357,27 @@ static constexpr AccessTable tabBroken{};
 	}
 }
 
+int getLineOffset(const VDP& vdp)
+{
+	// The whole grid moves with the adjust, as HR does (measured, see
+	// doc/internal/vdp-vram-timing/command-slots/README.md); see the comment
+	// about 'pad' for the padding.
+	if (vdp.isMSX1VDP()) return 0;
+	return V99X8_LINE_OFFSET + (vdp.getHorizontalAdjust() - 7) * 4;
+}
+
+/** The position in the slot tables' line of position 'tick' of openMSX's. */
+[[nodiscard]] static int tableTick(int tick, const VDP& vdp)
+{
+	return (tick + TICKS - getLineOffset(vdp)) % TICKS;
+}
+
 EmuTime getAccessSlot(
 	EmuTime frame_, EmuTime time, Delta delta,
 	const VDP& vdp)
 {
 	VDP::VDPClock frame(frame_);
-	unsigned ticks = frame.getTicksTill(time) % TICKS;
+	auto ticks = (frame.getTicksTill(time) + TICKS - getLineOffset(vdp)) % TICKS;
 	const auto& tab = getTable(vdp);
 	return time + VDP::VDPClock::duration(tab.values[std::to_underlying(delta) + ticks]);
 }
@@ -368,13 +386,14 @@ Calculator getCalculator(
 	EmuTime frame, EmuTime time, EmuTime limit,
 	const VDP& vdp)
 {
-	return {frame, time, limit, getTable(vdp).values};
+	return {frame, getLineOffset(vdp), time, limit, getTable(vdp).values};
 }
 
 int paddingCycles(int tick, int n, const VDP& vdp)
 {
 	assert(0 <= tick); assert(tick < TICKS);
 	assert(0 < n); assert(n <= MAX_PADDING_SPAN);
+	tick = tableTick(tick, vdp);
 
 	int result = 0;
 	for (const auto& p : getTable(vdp).timing.pad) {
@@ -388,7 +407,7 @@ int paddingCycles(int tick, int n, const VDP& vdp)
 
 bool isLateCpuSlot(int slotTick, const VDP& vdp)
 {
-	return isLate(getTable(vdp).timing, slotTick);
+	return isLate(getTable(vdp).timing, tableTick(slotTick, vdp));
 }
 
 } // namespace openmsx::VDPAccessSlots
