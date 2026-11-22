@@ -78,7 +78,7 @@ public:
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
-		return status;
+		return status | ((time < ceEndTime) ? CE : 0);
 	}
 	// should be called after reading S#9
 	void resetBD() {
@@ -309,6 +309,10 @@ private:
 	  */
 	uint8_t status{0};
 
+	/** CE stays set in S#2 until this moment after a command has finished,
+	  * see commandDone(). */
+	EmuTime ceEndTime = EmuTime::zero();
+
 	/** Used in LMCM LMMC HMMC cmds, true when CPU has read or written
 	  * next byte.
 	  */
@@ -318,7 +322,7 @@ private:
 	 */
 	const bool hasExtendedVRAM;
 };
-SERIALIZE_CLASS_VERSION(VDPCmdEngine, 4);
+SERIALIZE_CLASS_VERSION(VDPCmdEngine, 5);
 
 } // namespace openmsx
 
