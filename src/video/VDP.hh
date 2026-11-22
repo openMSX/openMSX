@@ -677,10 +677,26 @@ public:
 	}
 
 	/** This is a combination of the (horizontal) set adjust register and
-	  * the YJK-mode bit.
+	  * the YJK-mode bit: where the picture is.
 	  */
 	[[nodiscard]] int getHorizontalAdjust() const {
 		return horizontalAdjust;
+	}
+
+	/** The (horizontal) set adjust register alone: where the VDP's timing
+	  * is (HR, F, FH, VR, the line latch and the line count reset). YJK
+	  * moves the picture 4 pixels, but not the timing (measured with
+	  * vdpline5, see doc/internal/vdp-status-race).
+	  */
+	[[nodiscard]] int getTimingAdjust() const {
+		return horizontalAdjust - getYjkAdjust();
+	}
+
+	/** The YJK part of the horizontal adjust: the YJK pixels come this many
+	  * pixels after the display start (4, or 0 when YJK is off).
+	  */
+	[[nodiscard]] int getYjkAdjust() const {
+		return (controlRegs[25] & 0x08) ? 4 : 0;
 	}
 
 	/** Gets the number of VDP clock ticks between start of line and the start
@@ -714,6 +730,13 @@ public:
 	[[nodiscard]] int getRightBorder() const {
 		return getLeftSprites()
 			+ (displayMode.isTextMode() ? 960 : 1024);
+	}
+
+	/** getRightBorder() in the VDP's timing, without the YJK picture shift
+	  * (see getTimingAdjust()): where HR and FH are.
+	  */
+	[[nodiscard]] int getTimingRightBorder() const {
+		return getRightBorder() - getYjkAdjust() * 4;
 	}
 
 	/** Gets the number of VDP clock ticks between start of line and the time
@@ -1087,7 +1110,7 @@ private:
 		static constexpr int HBLANK_START_GFX = 33;
 		static constexpr int HBLANK_LEN_GFX = 312;
 		bool text = displayMode.isTextMode();
-		int start = getRightBorder() + (text ? HBLANK_START_TXT : HBLANK_START_GFX);
+		int start = getTimingRightBorder() + (text ? HBLANK_START_TXT : HBLANK_START_GFX);
 		return (ticksThisFrame + TICKS_PER_LINE - start) % TICKS_PER_LINE
 		     < (text ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
 	}
