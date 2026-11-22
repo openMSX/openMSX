@@ -595,9 +595,12 @@ void PixelRenderer::renderUntil(EmuTime time)
 {
 	applyPendingScroll(time);
 
-	// Translate from time to pixel position.
-	int limitTicks = vdp.getTicksThisFrame(time);
-	assert(limitTicks <= vdp.getTicksPerFrame());
+	// Translate from time to pixel position. The picture follows the VDP's
+	// timing (register writes, VRAM, status flags) getPictureDelay() cycles
+	// later, so a change at this time shows from an earlier pixel position.
+	assert(vdp.getTicksThisFrame(time) <= vdp.getTicksPerFrame());
+	int limitTicks = std::max(
+		0, vdp.getTicksThisFrame(time) - vdp.getPictureDelay());
 	auto [limitX, limitY] = [&] -> std::pair<int, int> {
 		switch (accuracy) {
 		case RenderSettings::Accuracy::PIXEL: {
