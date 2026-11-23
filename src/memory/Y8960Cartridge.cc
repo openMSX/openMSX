@@ -7,7 +7,8 @@
 //     32-62  the same as 0-30
 //     63     SCC registers in the upper 2kB of the region (0x1800-0x1FFF).
 //            Only 0x9800-0x9FFF is where a Konami SCC has them.
-//   0x4000-0x7FFF is mirrored at 0xC000-0xFFFF, 0x8000-0xBFFF at 0x0000-0x3FFF.
+//   0x4000-0x7FFF is mirrored at 0xC000-0xFFFF, 0x8000-0xBFFF at 0x0000-0x3FFF,
+//   for reading only and without the SCC.
 //
 // Bank registers:
 //   Normal mode: 0x5000-0x57FF, 0x7000-0x77FF, 0x9000-0x97FF, 0xB000-0xB7FF.
@@ -197,6 +198,15 @@ void Y8960Cartridge::reset(EmuTime time)
 	romFunction = false;
 }
 
+// The region whose bank an address shows. Only a cartridge inserted with
+// -romtype Y8960Cartridge sits at 0x0000-0xFFFF and has the mirrors; the
+// extension places it at 0x4000-0xBFFF.
+[[nodiscard]] static unsigned bankRegion(uint16_t address)
+{
+	unsigned region = address >> 13;
+	return ((region < 2) || (region >= 6)) ? (region ^ 4) : region;
+}
+
 bool Y8960Cartridge::isRamRegion(unsigned region) const
 {
 	auto bank = getBank(region) & 0x3F;
@@ -229,22 +239,20 @@ bool Y8960Cartridge::isIoEnabler2(uint16_t address) const
 
 unsigned Y8960Cartridge::getRamAddress(uint16_t address) const
 {
-	return (getBank(address >> 13) & 0x0F) * 0x2000 + (address & 0x1FFF);
+	return (getBank(bankRegion(address)) & 0x0F) * 0x2000 + (address & 0x1FFF);
 }
 
 void Y8960Cartridge::setBank(unsigned region, uint8_t value)
 {
 	bankReg[region - 2] = value;
 	auto block = value % ROM_BANKS;
+	unsigned mirror = region ^ 4;
 	setRom(region, block);
-	if (region < 4) {
-		setRom(region + 4, block); // 0x4000-0x7FFF at 0xC000-0xFFFF
-	} else {
-		setRom(region - 4, block); // 0x8000-0xBFFF at 0x0000-0x3FFF
-	}
+	setRom(mirror, block);
 	// After setRom(), which points the CPU's read cache at the ROM block:
-	// the region may show RAM, or the SCC in its upper 2kB.
+	// both may show RAM, and the region the SCC in its upper 2kB.
 	invalidateDeviceRWCache(region << 13, 0x2000);
+	invalidateDeviceRWCache(mirror << 13, 0x2000);
 }
 
 byte Y8960Cartridge::peekMem(uint16_t address, EmuTime time) const
@@ -253,7 +261,7 @@ byte Y8960Cartridge::peekMem(uint16_t address, EmuTime time) const
 		return ioEnabler2;
 	} else if (isSccAddress(address)) {
 		return scc.peekMem(uint8_t(address), time);
-	} else if (isRamRegion(address >> 13)) {
+	} else if (isRamRegion(bankRegion(address))) {
 		return ram[getRamAddress(address)];
 	} else {
 		return Rom8kBBlocks::peekMem(address, time);
@@ -266,7 +274,7 @@ byte Y8960Cartridge::readMem(uint16_t address, EmuTime time)
 		return ioEnabler2;
 	} else if (isSccAddress(address)) {
 		return scc.readMem(uint8_t(address), time);
-	} else if (isRamRegion(address >> 13)) {
+	} else if (isRamRegion(bankRegion(address))) {
 		return ram[getRamAddress(address)];
 	} else {
 		return Rom8kBBlocks::readMem(address, time);
@@ -279,7 +287,7 @@ const byte* Y8960Cartridge::getReadCacheLine(uint16_t address) const
 		return nullptr;
 	} else if (isSccAddress(address)) {
 		return nullptr;
-	} else if (isRamRegion(address >> 13)) {
+	} else if (isRamRegion(bankRegion(address))) {
 		return &ram[getRamAddress(address)];
 	} else {
 		return Rom8kBBlocks::getReadCacheLine(address);
