@@ -168,7 +168,8 @@ private:
 	std::vector<KeyCodeMsxMapping> characterKeyCodeTab;
 	std::span<const ScanCodeMsxMapping> scanCodeTab;
 
-	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos;
+	// the positions of the modifier keys (from the keyboard_info file)
+	array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition> modifierPos;
 
 	struct KeyMatrixUpCmd final : RecordedCommand {
 		KeyMatrixUpCmd(CommandController& commandController,

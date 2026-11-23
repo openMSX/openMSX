@@ -89,30 +89,34 @@ static constexpr array_with_enum_index<Keyboard::Matrix, std::string_view> defau
 	"sega_int", // Matrix::SEGA
 };
 
-using ModifierArray = array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>;
-static constexpr array_with_enum_index<Keyboard::Matrix, ModifierArray> modifierPosForMatrix = {
-	ModifierArray{ // Matrix::MSX
-		KeyMatrixPosition(6, 0), // SHIFT
-		KeyMatrixPosition(6, 1), // CTRL
-		KeyMatrixPosition(6, 2), // GRAPH
-		KeyMatrixPosition(6, 3), // CAPS
-		KeyMatrixPosition(6, 4), // CODE
+// The names of the modifier keys in the keyboard_info files, per computer
+// family, in the order of KeyInfo::Modifier (SHIFT, CTRL, GRAPH, CAPS, CODE).
+// The first name that the keyboard of the machine has, gives the position.
+// (The key with the CODE function has another key cap per region.)
+using ModifierNames = array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, std::array<std::string_view, 3>>;
+static constexpr array_with_enum_index<Keyboard::Matrix, ModifierNames> modifierNamesForMatrix = {
+	ModifierNames{ // Matrix::MSX
+		std::array<std::string_view, 3>{"SHIFT"},
+		std::array<std::string_view, 3>{"CTRL"},
+		std::array<std::string_view, 3>{"GRAPH"},
+		std::array<std::string_view, 3>{"CAPSLOCK"},
+		std::array<std::string_view, 3>{"CODE", "KANA", "RUS"},
 	},
-	ModifierArray{ // Matrix::SVI
-		KeyMatrixPosition(6, 0), // SHIFT
-		KeyMatrixPosition(6, 1), // CTRL
-		KeyMatrixPosition(6, 2), // LGRAPH
-		KeyMatrixPosition(8, 3), // CAPS
-		KeyMatrixPosition(6, 3), // RGRAPH
+	ModifierNames{ // Matrix::SVI
+		std::array<std::string_view, 3>{"SHIFT"},
+		std::array<std::string_view, 3>{"CTRL"},
+		std::array<std::string_view, 3>{"LGRAPH"},
+		std::array<std::string_view, 3>{"CAPSLOCK"},
+		std::array<std::string_view, 3>{"RGRAPH"},
 	},
-	ModifierArray{ // Matrix::CVJOY
+	ModifierNames{ // Matrix::CVJOY (no keyboard)
 	},
-	ModifierArray{ // Matrix::SEGA
-		KeyMatrixPosition(13, 3), // SHIFT
-		KeyMatrixPosition(13, 2), // CTRL
-		KeyMatrixPosition(13, 1), // GRAPH
-		KeyMatrixPosition(),      // CAPS
-		KeyMatrixPosition( 0, 4), // ENG/DIER'S
+	ModifierNames{ // Matrix::SEGA
+		std::array<std::string_view, 3>{"SHIFT"},
+		std::array<std::string_view, 3>{"CTRL"},
+		std::array<std::string_view, 3>{"GRAPH"},
+		std::array<std::string_view, 3>{}, // no CAPS key
+		std::array<std::string_view, 3>{"ENG_DIER_S", "KANA"},
 	},
 };
 
@@ -809,7 +813,6 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, joystickManager(motherBoard.getReactor().getInputEventGenerator().getJoystickManager())
 	, keyCodeTab (defaultKeyCodeMappings [matrix_])
 	, scanCodeTab(defaultScanCodeMappings[matrix_])
-	, modifierPos(modifierPosForMatrix[matrix_])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyPositionCmd(commandController)
@@ -832,6 +835,15 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 {
+	for (auto [mod, names] : enumerate(modifierNamesForMatrix[matrix_])) {
+		for (auto name : names) {
+			if (name.empty()) break;
+			if (auto pos = keyboardInfo.getMsxKeyPosition(name); pos.isValid()) {
+				modifierPos[KeyInfo::Modifier(mod)] = pos;
+				break;
+			}
+		}
+	}
 	characterKeyCodeTab = adaptToKeymap(keyCodeTab, keyboardInfo.getUnicodeKeymap());
 
 	std::ranges::fill(keyMatrix,     255);
