@@ -249,6 +249,13 @@ void Y8960Cartridge::setBank(unsigned region, uint8_t value)
 	unsigned mirror = region ^ 4;
 	setRom(region, block);
 	setRom(mirror, block);
+	if (isRamRegion(region)) {
+		// The RAM isn't in the ROM image, so setRom() gave 'romblocks'
+		// the ROM block. Number RAM bank n as 16 + n instead, as it is
+		// selected in 0-31. The SCC bank keeps 15: below the registers
+		// it shows ROM block 15.
+		blockNr[region] = blockNr[mirror] = uint8_t(ROM_BANKS + (value % RAM_BANKS));
+	}
 	// After setRom(), which points the CPU's read cache at the ROM block:
 	// both may show RAM, and the region the SCC in its upper 2kB.
 	invalidateDeviceRWCache(region << 13, 0x2000);
