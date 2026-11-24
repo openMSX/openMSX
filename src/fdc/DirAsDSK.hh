@@ -53,9 +53,10 @@ private:
 	struct MapDir {
 		std::string hostName; // path relative to 'hostDir'
 		// The following two are used to detect changes in the host
-		// file compared to the last host->virtual-disk sync.
+		// file compared to the last host->virtual-disk sync, or to
+		// our own last write to the host file.
 		time_t mtime; // Modification time of host file at the time of
-		              // the last sync.
+		              // the last sync or our last write.
 		size_t filesize; // Host file size, normally the same as msx
 		                 // filesize, except when the host file was
 		                 // truncated.
@@ -95,6 +96,7 @@ private:
 	void exportToHost(DirIndex dirIndex, DirIndex dirDirIndex);
 	void exportToHostDir (DirIndex dirIndex, const std::string& hostName);
 	void exportToHostFile(DirIndex dirIndex, const std::string& hostName);
+	void updateHostFileStat(MapDir& mapDir) const;
 	[[nodiscard]] unsigned findNextFreeCluster(unsigned cluster);
 	[[nodiscard]] unsigned findFirstFreeCluster();
 	[[nodiscard]] unsigned getFreeCluster();

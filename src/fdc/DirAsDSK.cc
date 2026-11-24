@@ -577,19 +577,8 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 	// Set _msx_ modification time.
 	setMSXTimeStamp(dirIndex, fst);
 
-	// Set _host_ modification time (and filesize)
-	// Note: this is the _only_ place where we update the mapDir.mtime
-	// field. We do _not_ update it when the msx writes to the file. So in
-	// case the msx does write a data sector, it writes to the correct
-	// offset in the host file, but mtime is not updated. On the next
-	// host->emu sync we will resync the full file content and only then
-	// update mtime. This may seem inefficient, but it makes sure that we
-	// never miss any file changes performed by the host. E.g. the host
-	// changed part of the file short before the msx wrote to the same
-	// file. We can never guarantee that such race-scenarios work
-	// correctly, but at least with this mtime-update convention the file
-	// content will be the same on the host and the msx side after every
-	// sync.
+	// Set _host_ modification time (and filesize). These are also updated
+	// after our own writes to the host file, see updateHostFileStat().
 	size_t hostSize = fst.st_size;
 	auto& mapDir = mapDirs[dirIndex];
 	mapDir.filesize = hostSize;
@@ -1254,6 +1243,19 @@ void DirAsDSK::exportToHostDir(DirIndex dirIndex, const std::string& hostName)
 	}
 }
 
+// Take over the current modification time and size of the host file. Used
+// right after we wrote to it ourselves, so that the next sync doesn't see our
+// own write as a change on the host side. Re-importing the file would lose data
+// that the MSX wrote past the size in its directory entry, which is only
+// updated later (e.g. when the MSX closes the file).
+void DirAsDSK::updateHostFileStat(MapDir& mapDir) const
+{
+	if (auto fst = FileOperations::getStat(tmpStrCat(hostDir, mapDir.hostName))) {
+		mapDir.mtime    = fst->st_mtime;
+		mapDir.filesize = fst->st_size;
+	}
+}
+
 void DirAsDSK::exportToHostFile(DirIndex dirIndex, const std::string& hostName)
 {
 	// We write a host file with length that is the minimum of:
@@ -1291,6 +1293,9 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const std::string& hostName)
 		cliComm.printWarning("Error while syncing host file: ",
 		                     hostName, ": ", e.getMessage());
 	}
+	// We just rewrote the complete host file, so it's in sync now, even if
+	// someone else had changed it before.
+	updateHostFileStat(mapDirs[dirIndex]);
 }
 
 void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
@@ -1362,7 +1367,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	// Get corresponding directory entry.
 	auto entry = getDirEntryForCluster(startCluster);
 	if (!entry) return;
-	const auto* v = lookup(mapDirs, entry->dirIndex);
+	auto* v = lookup(mapDirs, entry->dirIndex);
 	if (!v) return; // sector was not mapped to a file, nothing more to do.
 
 	// Determine which part of this sector actually belongs to the file.
@@ -1387,6 +1392,12 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 
 	// Actually write data to host file.
 	std::string fullHostName = hostDir + v->hostName;
+	// Is the host file in sync with the virtual disk: does it still have the
+	// modification time and size from our last sync or our own last write?
+	// If not, someone else changed it, e.g. the user on the host.
+	auto fst = FileOperations::getStat(fullHostName);
+	bool inSync = fst && (v->mtime    == fst->st_mtime) &&
+	                     (v->filesize == size_t(fst->st_size));
 	try {
 		File file(fullHostName, "rb+"); // don't uncompress
 		file.seek(offset);
@@ -1395,6 +1406,11 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 		cliComm.printWarning("Couldn't write to file ", fullHostName,
 		                     ": ", e.getMessage());
 	}
+	// We just wrote part of the host file ourselves. If it was in sync
+	// before, it still is, so take over its new stat. If it wasn't,
+	// someone else changed it, and that change (in the rest of the file)
+	// must still be imported on the next sync.
+	if (inSync) updateHostFileStat(*v);
 }
 
 } // namespace openmsx
