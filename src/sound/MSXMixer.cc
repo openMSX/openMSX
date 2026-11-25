@@ -634,10 +634,18 @@ void MSXMixer::reschedule2()
 
 void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 {
+	// Generate the sound till now with the old parameters, and let the
+	// host sample clock continue from there. Restarting the clock at the
+	// current time (like reInit() does) would drop the samples since the
+	// last update.
+	updateStream(getCurrentTime());
+
 	hostSampleRate = newSampleRate;
 	fragmentSize = newFragmentSize;
 
-	reInit(); // must come before call to setOutputRate()
+	// must come before call to setOutputRate()
+	prevTime.setPeriod(EmuDuration::sec(getEffectiveSpeed() / double(hostSampleRate)));
+	reschedule();
 
 	for (auto& info : infos) {
 		info.device->setOutputRate(newSampleRate, speedManager.getSpeed());
