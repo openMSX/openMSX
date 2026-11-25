@@ -1492,7 +1492,17 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 			                  time);
 		}
 		if (change & 0x08) {
-			syncAtNextLine(syncHorAdjust, time);
+			// YJK's +4 dot shift takes effect at the write, with
+			// the decode, not at the next line as an R#18 write.
+			// Measured on a Philips VG-8235 (V9958), GRAPHIC7, R#25
+			// YJK set or cleared mid-line at four places: from the
+			// change the bar edges are at 8k + 4 (8k), as in the
+			// next line, and the line ends at dot 260 (256).
+			// The R#18 part stays the one in use, so an R#18 write
+			// still waiting for the next line is not taken early.
+			int newHorAdjust = horizontalAdjust + ((val & 0x08) ? 4 : -4);
+			renderer->updateHorizontalAdjust(newHorAdjust, time);
+			horizontalAdjust = newHorAdjust;
 		}
 		if (change & 0x02) {
 			renderer->updateBorderMask((val & 0x02) != 0, time);
