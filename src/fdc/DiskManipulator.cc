@@ -32,6 +32,8 @@
 #include <cctype>
 #include <memory>
 #include <ranges>
+#include <utility>
+#include <vector>
 
 namespace openmsx {
 
@@ -704,25 +706,32 @@ std::string DiskManipulator::imprt(DriveSettings& driveData,
 	auto& interp = getInterpreter();
 	auto add = overwrite ? MSXtar::Add::OVERWRITE
 	                     : MSXtar::Add::PRESERVE;
+	// First check that all host files and directories exist, so that a
+	// wrong argument doesn't leave a partial import behind.
+	std::vector<std::pair<std::string, FileOperations::Stat>> paths;
 	for (const auto& l : lists) {
 		for (auto i : xrange(l.getListLength(interp))) {
 			auto s = FileOperations::expandTilde(std::string(l.getListIndex(interp, i).getString()));
-			try {
-				auto st = FileOperations::getStat(s);
-				if (!st) {
-					throw CommandException("Non-existing file ", s);
-				}
-				if (FileOperations::isDirectory(*st)) {
-					messages += workhorse.addDir(s, add);
-				} else if (FileOperations::isRegularFile(*st)) {
-					messages += workhorse.addFile(s, add);
-				} else {
-					// ignore other stuff (sockets, device nodes, ..)
-					strAppend(messages, "Ignoring ", s, '\n');
-				}
-			} catch (MSXException& e) {
-				throw CommandException(std::move(e).getMessage());
+			auto st = FileOperations::getStat(s);
+			if (!st) {
+				throw CommandException("Non-existing file ", s);
 			}
+			paths.emplace_back(std::move(s), *st);
+		}
+	}
+
+	for (const auto& [s, st] : paths) {
+		try {
+			if (FileOperations::isDirectory(st)) {
+				messages += workhorse.addDir(s, add);
+			} else if (FileOperations::isRegularFile(st)) {
+				messages += workhorse.addFile(s, add);
+			} else {
+				// ignore other stuff (sockets, device nodes, ..)
+				strAppend(messages, "Ignoring ", s, '\n');
+			}
+		} catch (MSXException& e) {
+			throw CommandException(std::move(e).getMessage());
 		}
 	}
 	return messages;
