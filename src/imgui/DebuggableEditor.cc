@@ -116,7 +116,10 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 
 	unsigned memSize = debuggable->getSize();
 	columns = std::min(columns, narrow<int>(memSize));
-	auto s = calcSizes(memSize);
+	auto s = [&]{
+		im::ScopedFont sf(manager.fontMono); // calcSizes() assumes a mono-space font
+		return calcSizes(memSize);
+	}();
 
 	if (showExportWindow) {
 		drawExport(s, *debuggable);
