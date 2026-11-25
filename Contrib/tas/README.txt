@@ -13,7 +13,9 @@ The tools require Python version 3.x.
 Limitations
 -----------
 
-Currently omr2txt.py will only convert key presses listed in its "inputMap" dictionary. If your game uses keys other than the cursors and space, add the name and the keyboard matrix row/column in this dictionary near the top of the script.
+Currently omr2txt.py will only convert key presses listed in its "inputMap" dictionary. If your game uses keys other than the cursors and space, add the name and the keyboard matrix row/column in this dictionary near the top of the script. omr2txt.py reports which other keys are pressed in the replay, and how often; presses of those keys are not converted.
+
+The text format counts time in frames. A replay is only converted exactly if its input events are at a fixed position within each frame. That is the case when the input was entered while advancing frame by frame with tools like advance_frame (and reverse_frame): these run exactly one frame from where the emulation is paused, so all key presses entered while paused are at the same position within the frame. omr2txt.py detects that position (see "= offset" below). In a replay that was recorded by playing in real time, the input events are at arbitrary positions within the frame; omr2txt.py then rounds them to the nearest frame, which moves them, and the converted replay can go out of sync.
 
 I wrote these tools when working on my King's Valley TAS, so I could replace the recording of one pyramid's solution without having to re-record all pyramids that come after it. While I did implement some rudimentary error handling, don't expect them to be robust to bad input.
 
@@ -27,13 +29,16 @@ Lines starting with "=" are processing instructions:
 
 = base wsx-kv1.omr
 = base wsx-kv1.xml
-Specifies the recording to use as a base when converting back to OMR. The initial snapshot of this recording sets up the MSX machine and the game. Both ".omr" (OMR file, which is gzip-ed XML) and ".xml" (uncompressed XML from OMR file) file name extensions are supported.
+Specifies the recording to use as a base when converting back to OMR. The initial snapshot of this recording sets up the MSX machine and the game. The key presses of this recording are replaced by the ones from the event log; its other events (like "plug" commands at the start, or joystick input) are kept as they are. Both ".omr" (OMR file, which is gzip-ed XML) and ".xml" (uncompressed XML from OMR file) file name extensions are supported.
 
 = out kings_valley_mth_v0.omr
 Pathname of the output file that txt2omr.py will write.
 
 = scale 57346560
 Number of master clock ticks per time unit (frame). All following time intervals in the event log will be multiplied by this number.
+
+= offset 35896320
+Position of the input events within the frame, in master clock ticks: the time of the first event log entry. When the input was entered with advance_frame (see above), the input events are at a fixed position within each frame, which is usually not at a multiple of the frame length counted from time 0. omr2txt.py detects this position and writes it here, so that txt2omr.py puts the events at the same position within the frames. It must come before the first event log entry. Without it, the offset is 0.
 
 = input r key 8 7
 Defines an input name "r" as a key press of keyboard matrix row 8, column 7. Currently key presses are the only supported types of events.

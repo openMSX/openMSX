@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from gzip import GzipFile
-from math import modf
+from math import floor
 from sys import stderr
 from xml.sax import make_parser
 from xml.sax.handler import feature_external_ges
@@ -160,47 +160,89 @@ def filterEvents(inputEvents, wantedKeys):
 		if press != 0 or release != 0:
 			yield time, row, press, release
 
-def scaleTime(inputEvents, tickScale):
-	'''Yields the given input events, with the time stamps divided by the
-	given scale and rounded to the nearest integer.
+def reportIgnoredKeys(inputEvents, wantedKeys):
+	'''Prints the keys that are pressed in the given events, but that are not
+	in the given wanted keys (see filterEvents()), and how often.
+	'''
+	ignored = defaultdict(int)
+	for time, row, press, release in inputEvents:
+		press &= ~wantedKeys.get(row, 0)
+		col = 0
+		while press:
+			if press & 1:
+				ignored[(row, col)] += 1
+			col += 1
+			press >>= 1
+	if ignored:
+		print('ignored presses of keys that are not in inputMap: %s'
+				% ', '.join(
+					'row %d column %d (%dx)' % (row, col, count)
+					for (row, col), count in sorted(ignored.items())
+					), file=stderr)
+		print("add them to 'inputMap' at the top of this script "
+				"if the game uses them", file=stderr)
+
+def scaleTime(inputEvents, tickScale, offset):
+	'''Yields the given input events, with the time stamps relative to the
+	given offset, divided by the given scale and rounded to the nearest
+	integer.
 	'''
 	for time, row, press, release in inputEvents:
-		yield int(time / tickScale + 0.5), row, press, release
+		yield floor((time - offset) / tickScale + 0.5), row, press, release
 
-def checkAlignment(timestamps, alignment):
-	'''Returns the number of timestamps from the given sequence that are
-	close to multiples of the given alignment.
+def findPhase(timestamps, period):
+	'''Returns the phase (the offset within the period) that occurs most
+	often in the given timestamps, and the number of timestamps that are
+	close to that phase.
+	This assumes that the input was entered at a fixed position within each
+	frame, using tools like advance_frame: that runs exactly one frame from
+	where the emulation is paused, so the events of keys pressed while
+	paused are at exactly the same position within every frame. Some events
+	can be later in the frame (e.g. keys pressed while the emulation was
+	running), but not before it, so we use the most common phase rather than
+	the center of all phases.
 	'''
-	aligned = 0
-	for time in timestamps:
-		offset = modf(time / alignment)[0]
-		if offset < 0.001 or offset > 0.999:
-			aligned += 1
-	return aligned
+	tolerance = period // 1000
+	phases = Counter(time % period for time in timestamps)
+	bestPhase = phases.most_common(1)[0][0]
+	aligned = sum(
+		count
+		for phase, count in phases.items()
+		if min(abs(phase - bestPhase), period - abs(phase - bestPhase))
+			<= tolerance
+		)
+	return bestPhase, aligned
 
-def detectTicksPerFrame(timestamps):
-	'''Determine the most likely number of master clock ticks per frame,
-	by looking at how well the timestamps align with frame boundaries when
-	using the two frame timings that openMSX supports.
+def detectTiming(timestamps):
+	'''Determine the most likely number of master clock ticks per frame, and
+	the position of the input events within the frame (the offset), by
+	looking at how well the timestamps align when using the two frame
+	timings that openMSX supports. The input events are usually not at
+	multiples of the frame length counted from time 0, so for each frame
+	timing we use the most common position within the frame as the offset
+	(see findPhase()).
 	This assumes that the frame timing is the same throughout the replay,
 	which is not guaranteed in general, but will hopefully be the case for
 	tool-assisted speedruns.
+	Returns the number of ticks per frame and the offset.
 	'''
 	ticksPerFrame50 = (masterClock * vdpTicksPerLine * 313) // vdpClock
 	ticksPerFrame60 = (masterClock * vdpTicksPerLine * 262) // vdpClock
 
 	timestamps = tuple(timestamps)
-	aligned50 = checkAlignment(timestamps, ticksPerFrame50)
-	aligned60 = checkAlignment(timestamps, ticksPerFrame60)
+	offset50, aligned50 = findPhase(timestamps, ticksPerFrame50)
+	offset60, aligned60 = findPhase(timestamps, ticksPerFrame60)
 
 	if aligned50 > aligned60:
-		print('event timestamps align with 50 fps timing: %.2f%%'
-				% (100 * aligned50 / len(timestamps)), file=stderr)
-		return ticksPerFrame50
+		fps, ticksPerFrame, offset, aligned = \
+				50, ticksPerFrame50, offset50, aligned50
 	else:
-		print('event timestamps align with 60 fps timing: %.2f%%'
-				% (100 * aligned60 / len(timestamps)), file=stderr)
-		return ticksPerFrame60
+		fps, ticksPerFrame, offset, aligned = \
+				60, ticksPerFrame60, offset60, aligned60
+	print('event timestamps align with %d fps timing: %.2f%% '
+			'(offset: %d ticks)'
+			% (fps, 100 * aligned / len(timestamps), offset), file=stderr)
+	return ticksPerFrame, offset
 
 def eventsToState(inputEvents):
 	'''Yields pairs of a timestamp and a set of the active keys at that time.
@@ -243,8 +285,12 @@ def convert(inFilename, outFilename):
 	for name, (row, col) in inputMap.items():
 		wantedKeys[row] = wantedKeys.get(row, 0) | (1 << col)
 
+	allEvents = list(removeRedundantEvents(
+			combineEvents(readEvents(inFilename))
+			))
+	reportIgnoredKeys(allEvents, wantedKeys)
 	inputEvents = list(removeRedundantEvents(
-			filterEvents(combineEvents(readEvents(inFilename)), wantedKeys)
+			filterEvents(allEvents, wantedKeys)
 			))
 	print('after cleanup %d events remain' % len(inputEvents), file=stderr)
 	if not inputEvents:
@@ -254,9 +300,9 @@ def convert(inFilename, outFilename):
 			)
 		return
 
-	ticksPerFrame = detectTicksPerFrame(evt[0] for evt in inputEvents)
+	ticksPerFrame, offset = detectTiming(evt[0] for evt in inputEvents)
 	scaledEvents = list(removeRedundantEvents(
-			combineEvents(scaleTime(inputEvents, ticksPerFrame))
+			combineEvents(scaleTime(inputEvents, ticksPerFrame, offset))
 			))
 
 	with open(outFilename, 'w') as out:
@@ -265,6 +311,7 @@ def convert(inFilename, outFilename):
 		print('= base', inFilename, file=out)
 		print('= out', 'replay.omr', file=out)
 		print('= scale', ticksPerFrame, file=out)
+		print('= offset', offset, file=out)
 		for name, (row, col) in sorted(
 				inputMap.items(), key=lambda item: (item[1][0], -item[1][1])
 				):
@@ -284,7 +331,7 @@ def convert(inFilename, outFilename):
 			delta = frame - prevFrame
 			print(('%4d  %s' % (delta, formatState(prevActive))).rstrip(),
 					file=out)
-			seconds = (frame * ticksPerFrame) // masterClock
+			seconds = (offset + frame * ticksPerFrame) // masterClock
 			if seconds // milestone != prevSeconds // milestone:
 				printMilestone(frame, seconds)
 			prevFrame = frame
