@@ -133,7 +133,7 @@ void ImGuiOsdIcons::loadIcons()
 void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (iconInfoDirty) loadIcons();
-	if (showConfigureIcons) paintConfigureIcons();
+	if (configureWindow.open) paintConfigureIcons();
 	if (!showIcons) return;
 
 	// default placement: bottom left
@@ -169,7 +169,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 		if (allowMove) {
 			im::PopupContextItem("icons context menu", [&]{
 				if (ImGui::MenuItem("Configure icons")) {
-					showConfigureIcons = true;
+					configureWindow.raise();
 				}
 			});
 		}
@@ -214,7 +214,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 			}
 
 			// draw outline
-			if (showConfigureIcons) {
+			if (configureWindow.open) {
 				ImGui::SetCursorPos(cursor);
 				gl::vec2 rectMin = ImGui::GetCursorScreenPos();
 				gl::vec2 rectMax = rectMin + gl::vec2(maxIconSize);
@@ -239,7 +239,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 void ImGuiOsdIcons::paintConfigureIcons()
 {
 	ImGui::SetNextWindowSize(gl::vec2{37, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Configure Icons", &showConfigureIcons, [&]{
+	im::Window("Configure Icons", configureWindow, [&]{
 		ImGui::Checkbox("Show OSD icons", &showIcons);
 		ImGui::Separator();
 
