@@ -31,7 +31,7 @@ private:
 
 public:
 	bool showIcons = true;
-	bool showConfigureIcons = false;
+	im::WindowStatus configureWindow;
 
 private:
 	bool hideTitle = true;
@@ -70,7 +70,7 @@ private:
 		PersistentElement{"allowMove",    &ImGuiOsdIcons::allowMove},
 		PersistentElement{"fadeDuration", &ImGuiOsdIcons::fadeDuration},
 		PersistentElement{"fadeDelay",    &ImGuiOsdIcons::fadeDelay},
-		PersistentElement{"showConfig",   &ImGuiOsdIcons::showConfigureIcons}
+		PersistentElement{"showConfig",   &ImGuiOsdIcons::configureWindow}
 		// manually handle "icon.xxx", "adjust"
 	};
 };
