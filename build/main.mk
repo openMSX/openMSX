@@ -91,11 +91,7 @@ COMPILE_FLAGS:=-pthread
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
 LDFLAGS:=
-ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 LINK_FLAGS:=-pthread
-else
-LINK_FLAGS:=-pthread -ldl
-endif
 # Flags that specify the target platform.
 # These should be inherited by the 3rd party libs Makefile.
 TARGET_FLAGS:=
@@ -174,6 +170,9 @@ endif
 # Load OS specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_OS)
 include build/platform-$(OPENMSX_TARGET_OS).mk
+ifeq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
+LINK_FLAGS+=-ldl
+endif
 # Check that all expected variables were defined by OS specific Makefile:
 # - library file name extension
 $(call DEFCHECK,LIBRARYEXT)
@@ -531,7 +530,11 @@ $(BINARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 ifeq ($(OPENMSX_SUBSET),)
 	$(SUM) "Linking $(notdir $@)..."
 	$(CMD)mkdir -p $(@D)
+  ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
+	$(CMD)+$(file >$(@D)/openmsx-objects.rsp,$^)$(CXX) -o $@ $(CXXFLAGS) @$(@D)/openmsx-objects.rsp $(LINK_FLAGS)
+  else
 	$(CMD)+$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+  endif
   ifeq ($(STRIP_SEPARATE),true)
 	$(SUM) "Stripping $(notdir $@)..."
 	$(CMD)strip $@
