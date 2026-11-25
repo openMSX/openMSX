@@ -85,17 +85,15 @@ static constexpr int CPU_READ_SAMPLE_DELAY = 9;
   * openMSX sets the flag. Measured on a V9958 (Panasonic FS-A1GT, and a
   * Philips NMS 8250 whose V9938 was replaced by a V9958) and a V9938 (Sony
   * HB-F700D), see https://github.com/openMSX/openMSX/issues/2244 and
-  * doc/internal/vdp-status-race. The TMS99xx VDPs weren't measured; they are
-  * assumed to behave like the V9938. */
+  * doc/internal/vdp-status-race/README.md. Fitted by running the same
+  * tests in openMSX, together with the other values that depend on them
+  * (output and line interrupt delays, line latch): ranges that fit, F
+  * 'before' 7 to 10 and 'after' 15 to 18, FH 17 to 18 and 9 to 10. One
+  * window per flag for both chips; the TMS99xx VDPs weren't measured and
+  * are assumed to behave the same. */
 struct FlagLostWindow { int before, after; };
-static constexpr FlagLostWindow F_LOST_V9958 = { 7, 14};
-static constexpr FlagLostWindow F_LOST_V9938 = {13, 15};
-static constexpr FlagLostWindow FH_LOST      = {21,  6};
-
-static FlagLostWindow getFLostWindow(const VDP& vdp)
-{
-	return vdp.hasYJK() ? F_LOST_V9958 : F_LOST_V9938;
-}
+static constexpr FlagLostWindow F_LOST = {7, 15};
+static constexpr FlagLostWindow FH_LOST = {18, 9};
 
 /** A CPU VRAM request that would have been granted a 'tight' slot costs the
   * command engine that slot anyway, to a dummy read, if it arrives this many
@@ -507,7 +505,7 @@ void VDP::execVScan(EmuTime time)
 	isDisplayArea = false;
 
 	// Vertical scanning occurs, unless S#0 was read just before.
-	if ((time - statusReg0ReadTime) >= VDPClock::duration(getFLostWindow(*this).before)) {
+	if ((time - statusReg0ReadTime) >= VDPClock::duration(F_LOST.before)) {
 		statusReg0 |= 0x80;
 		fSetTime = time;
 		if (controlRegs[1] & 0x20) {
@@ -1297,7 +1295,7 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 	}();
 	switch (reg) {
 	case 0:
-		if ((time - fSetTime) < VDPClock::duration(getFLostWindow(*this).after)) {
+		if ((time - fSetTime) < VDPClock::duration(F_LOST.after)) {
 			ret &= ~0x80; // F was set just before this read: it's lost
 		}
 		statusReg0ReadTime = time;
