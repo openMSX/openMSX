@@ -152,7 +152,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		auto& reactor = manager.getReactor();
 		const auto& hotKey = reactor.getHotKey();
 
-		ImGui::MenuItem("Select MSX machine...", nullptr, &showSelectMachine);
+		ImGui::MenuItem("Select MSX machine...", nullptr, &selectMachineWindow.open);
 		showRecentMachinesMenu();
 
 		auto showSetupDepthLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) {
@@ -557,7 +557,7 @@ void ImGuiMachine::showSetupOverviewMachineEdit(MachineInfo& info)
 			}
 			if (ImGui::TableNextColumn()) {
 				if (ImGui::Selectable(info.displayName.c_str())) {
-					showSelectMachine = true;
+					selectMachineWindow.raise();
 				}
 			}
 			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
@@ -783,7 +783,7 @@ void ImGuiMachine::showSetupOverviewState(MSXMotherBoard& motherBoard, ImGuiTree
 
 void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 {
-	if (showSelectMachine) {
+	if (selectMachineWindow.open) {
 		paintSelectMachine(motherBoard);
 	}
 	if (showTestHardware) {
@@ -804,7 +804,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 {
 	ImGui::SetNextWindowSize(gl::vec2{29, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Select MSX machine", &showSelectMachine, [&]{
+	im::Window("Select MSX machine", selectMachineWindow, [&]{
 		auto& reactor = manager.getReactor();
 		auto instances = reactor.getMachineIDs();
 		auto currentInstance = reactor.getMachineID();
@@ -862,7 +862,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 						doubleClickToSelect ? ImGuiSelectableFlags_AllowDoubleClick: ImGuiSelectableFlags_None)) {
 					newMachineConfig = info.configName;
 					if (ok && (doubleClickToSelect ? ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) : true)) {
-						showSelectMachine = false; // close window
+						selectMachineWindow.open = false; // close window
 						manager.executeDelayed(makeTclList("machine", newMachineConfig));
 						addRecentItem(recentMachines, newMachineConfig);
 					}

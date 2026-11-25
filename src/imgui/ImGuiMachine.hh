@@ -58,7 +58,7 @@ private:
 	void showNonExistingPreview();
 
 public:
-	bool showSelectMachine = false;
+	im::WindowStatus selectMachineWindow;
 	bool showTestHardware = false;
 	bool showQuickSetupEditor = true;
 
