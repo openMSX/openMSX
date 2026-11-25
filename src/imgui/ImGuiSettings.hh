@@ -65,7 +65,7 @@ private:
 	float popupTimeout = 0.0f;
 	bool listening = false;
 
-	bool showCalibrateJoystick = false;
+	im::WindowStatus calibrateWindow;
 
 	struct AnalogStatus {
 		AnalogInput binding;
