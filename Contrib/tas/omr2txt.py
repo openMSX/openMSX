@@ -160,6 +160,28 @@ def filterEvents(inputEvents, wantedKeys):
 		if press != 0 or release != 0:
 			yield time, row, press, release
 
+def reportIgnoredKeys(inputEvents, wantedKeys):
+	'''Prints the keys that are pressed in the given events, but that are not
+	in the given wanted keys (see filterEvents()), and how often.
+	'''
+	ignored = defaultdict(int)
+	for time, row, press, release in inputEvents:
+		press &= ~wantedKeys.get(row, 0)
+		col = 0
+		while press:
+			if press & 1:
+				ignored[(row, col)] += 1
+			col += 1
+			press >>= 1
+	if ignored:
+		print('ignored presses of keys that are not in inputMap: %s'
+				% ', '.join(
+					'row %d column %d (%dx)' % (row, col, count)
+					for (row, col), count in sorted(ignored.items())
+					), file=stderr)
+		print("add them to 'inputMap' at the top of this script "
+				"if the game uses them", file=stderr)
+
 def scaleTime(inputEvents, tickScale, offset):
 	'''Yields the given input events, with the time stamps relative to the
 	given offset, divided by the given scale and rounded to the nearest
@@ -263,8 +285,12 @@ def convert(inFilename, outFilename):
 	for name, (row, col) in inputMap.items():
 		wantedKeys[row] = wantedKeys.get(row, 0) | (1 << col)
 
+	allEvents = list(removeRedundantEvents(
+			combineEvents(readEvents(inFilename))
+			))
+	reportIgnoredKeys(allEvents, wantedKeys)
 	inputEvents = list(removeRedundantEvents(
-			filterEvents(combineEvents(readEvents(inFilename)), wantedKeys)
+			filterEvents(allEvents, wantedKeys)
 			))
 	print('after cleanup %d events remain' % len(inputEvents), file=stderr)
 	if not inputEvents:

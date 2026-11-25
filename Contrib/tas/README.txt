@@ -13,7 +13,7 @@ The tools require Python version 3.x.
 Limitations
 -----------
 
-Currently omr2txt.py will only convert key presses listed in its "inputMap" dictionary. If your game uses keys other than the cursors and space, add the name and the keyboard matrix row/column in this dictionary near the top of the script.
+Currently omr2txt.py will only convert key presses listed in its "inputMap" dictionary. If your game uses keys other than the cursors and space, add the name and the keyboard matrix row/column in this dictionary near the top of the script. omr2txt.py reports which other keys are pressed in the replay, and how often; presses of those keys are not converted.
 
 The text format counts time in frames. A replay is only converted exactly if its input events are at a fixed position within each frame. That is the case when the input was entered while advancing frame by frame with tools like advance_frame (and reverse_frame): these run exactly one frame from where the emulation is paused, so all key presses entered while paused are at the same position within the frame. omr2txt.py detects that position (see "= offset" below). In a replay that was recorded by playing in real time, the input events are at arbitrary positions within the frame; omr2txt.py then rounds them to the nearest frame, which moves them, and the converted replay can go out of sync.
 
