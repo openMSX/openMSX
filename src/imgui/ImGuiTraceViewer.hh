@@ -55,7 +55,7 @@ public:
 
 public:
 	bool show = false;
-	bool showSelect = false;
+	im::WindowStatus selectWindow;
 
 private:
 	void calcTraces(Tracer& tracer);
@@ -145,7 +145,7 @@ private:
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement   {"show",             &ImGuiTraceViewer::show},
-		PersistentElement   {"showSelect",       &ImGuiTraceViewer::showSelect},
+		PersistentElement   {"showSelect",       &ImGuiTraceViewer::selectWindow},
 		PersistentElement   {"showMenuBar",      &ImGuiTraceViewer::showMenuBar},
 		PersistentElementMax{"units",            &ImGuiTraceViewer::units, Units::NUM_UNITS},
 		PersistentElement   {"allUserTraces",    &ImGuiTraceViewer::allUserTraces},
