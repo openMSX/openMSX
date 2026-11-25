@@ -71,7 +71,7 @@ private:
 	void parseSearchString(std::string_view str);
 	void search(const Sizes& s, Debuggable& debuggable, unsigned memSize);
 	[[nodiscard]] bool match(Debuggable& debuggable, unsigned memSize, unsigned addr);
-	void drawPreviewLine(const Sizes& s, Debuggable& debuggable, unsigned memSize);
+	void drawPreviewLine(Debuggable& debuggable, unsigned memSize);
 
 private:
 	enum AddressMode : int {CURSOR, EXPRESSION};

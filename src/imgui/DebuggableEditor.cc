@@ -418,18 +418,29 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		setAddr(s, debuggable, memSize, currentAddr);
 	}
 
+	// The footer rows mix the proportional font (labels, buttons, combos)
+	// and the mono-space font (data), so use the largest height of both.
+	auto maxOfFonts = [&](auto getHeight) {
+		auto mono = getHeight();
+		im::ScopedFont sf(manager.fontProp);
+		return std::max(mono, getHeight());
+	};
+	auto frameHeight = maxOfFonts([]{ return ImGui::GetFrameHeightWithSpacing(); });
+	auto lineHeight  = maxOfFonts([]{ return ImGui::GetTextLineHeight(); });
 	float footerHeight = 0.0f;
 	if (showAddress) {
-		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+		footerHeight += style.ItemSpacing.y + frameHeight;
 	}
 	if (showSearch) {
-		footerHeight += style.ItemSpacing.y + 2 * ImGui::GetFrameHeightWithSpacing();
+		footerHeight += style.ItemSpacing.y + 2 * frameHeight;
 	}
 	if (showDataPreview) {
-		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
+		// 'Preview as' line + table with 3 rows
+		footerHeight += style.ItemSpacing.y + frameHeight
+		              + 3 * (lineHeight + 2.0f * style.CellPadding.y) + style.ItemSpacing.y;
 	}
 	if (showSymbolInfo) {
-		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+		footerHeight += style.ItemSpacing.y + frameHeight;
 	}
 	// We begin into our scrolling region with the 'ImGuiWindowFlags_NoMove' in order to prevent click from moving the window.
 	// This is used as a facility since our main click detection code doesn't assign an ActiveId so the click would normally be caught as a window-move.
@@ -724,21 +735,23 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		bool forceScroll = ImGui::IsWindowAppearing();
 
 		ImGui::Separator();
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("Address");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
-		if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0Link BC\0Link DE\0Link HL\0Link IX\0Link IY\0")) {
-			dataEditingTakeFocus = true;
-			forceScroll = true;
-			if (addrMode >=2) {
-				static constexpr std::array linkExpr = {
-					"[reg bc]", "[reg de]", "[reg hl]", "[reg ix]", "[reg iy]"
-				};
-				addrExpr = linkExpr[addrMode - 2];
-				addrMode = EXPRESSION;
+		im::Font(manager.fontProp, [&]{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Address");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
+			if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0Link BC\0Link DE\0Link HL\0Link IX\0Link IY\0")) {
+				dataEditingTakeFocus = true;
+				forceScroll = true;
+				if (addrMode >=2) {
+					static constexpr std::array linkExpr = {
+						"[reg bc]", "[reg de]", "[reg hl]", "[reg ix]", "[reg iy]"
+					};
+					addrExpr = linkExpr[addrMode - 2];
+					addrMode = EXPRESSION;
+				}
 			}
-		}
+		});
 		ImGui::SameLine();
 
 		std::string* as = addrMode == CURSOR ? &addrStr : &addrExpr;
@@ -757,10 +770,13 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					dataEditingTakeFocus = true;
 				}
 			}
-			simpleToolTip([&]{
-				return addr ? strCat("0x", formatAddr(s, *addr))
-				            : addr.error();
-			});
+			if (addr) {
+				simpleToolTip([&]{ return strCat("0x", formatAddr(s, *addr)); });
+			} else {
+				im::Font(manager.fontProp, [&]{
+					simpleToolTip(addr.error());
+				});
+			}
 		});
 		im::Font(manager.fontProp, [&]{
 			HelpMarker("Address-mode:\n"
@@ -782,16 +798,19 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	}
 	if (showDataPreview) {
 		ImGui::Separator();
-		drawPreviewLine(s, debuggable, memSize);
+		drawPreviewLine(debuggable, memSize);
 	}
 	if (showSymbolInfo) {
 		ImGui::Separator();
-		ImGui::AlignTextToFramePadding();
 		auto symbol = symbolManager.lookupValue(narrow_cast<uint16_t>(currentAddr));
+		im::Font(manager.fontProp, [&]{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(symbol.empty() ? "No symbol for this address defined"sv
+			                                      : "Current symbol:"sv);
+		});
 		if (!symbol.empty()) {
-			ImGui::Text("Current symbol: %s", symbol[0]->name.c_str());
-		} else {
-			ImGui::TextUnformatted("No symbol for this address defined"sv);
+			ImGui::SameLine();
+			ImGui::TextUnformatted(symbol[0]->name);
 		}
 	}
 
@@ -819,6 +838,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		}
 	});
 	im::Popup("NotFound", [&]{
+		im::ScopedFont sf(manager.fontProp);
 		ImGui::TextUnformatted("Not found");
 	});
 }
@@ -940,7 +960,10 @@ void DebuggableEditor::drawSearch(const Sizes& s, Debuggable& debuggable, unsign
 	const auto& style = ImGui::GetStyle();
 
 	bool doSearch = false;
-	auto buttonSize = ImGui::CalcTextSize("Search").x + 2.0f * style.FramePadding.x;
+	auto buttonSize = [&]{
+		im::ScopedFont sf(manager.fontProp);
+		return ImGui::CalcTextSize("Search").x + 2.0f * style.FramePadding.x;
+	}();
 	ImGui::SetNextItemWidth(-(buttonSize + style.WindowPadding.x));
 	im::StyleColor(!searchPattern, ImGuiCol_Text, getColor(imColor::ERROR), [&] {
 		auto callback = [](ImGuiInputTextCallbackData* data) {
@@ -957,6 +980,7 @@ void DebuggableEditor::drawSearch(const Sizes& s, Debuggable& debuggable, unsign
 		}
 	});
 	ImGui::SameLine();
+	im::ScopedFont sf(manager.fontProp);
 	im::Disabled(!searchPattern, [&]{
 		doSearch |= ImGui::Button("Search");
 	});
@@ -1040,24 +1064,27 @@ void DebuggableEditor::search(const Sizes& s, Debuggable& debuggable, unsigned m
 	}
 }
 
-void DebuggableEditor::drawPreviewLine(const Sizes& s, Debuggable& debuggable, unsigned memSize)
+void DebuggableEditor::drawPreviewLine(Debuggable& debuggable, unsigned memSize)
 {
 	const auto& style = ImGui::GetStyle();
-	ImGui::AlignTextToFramePadding();
-	ImGui::TextUnformatted("Preview as:"sv);
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth((s.glyphWidth * 10.0f) + style.FramePadding.x * 2.0f + style.ItemInnerSpacing.x);
-	if (ImGui::BeginCombo("##combo_type", DataTypeGetDesc(previewDataType), ImGuiComboFlags_HeightLargest)) {
-		for (ImGuiDataType n = 0; n < 8; ++n) {
-			if (ImGui::Selectable(DataTypeGetDesc(n), previewDataType == n)) {
-				previewDataType = n;
+	im::Font(manager.fontProp, [&]{
+		auto extra = ImGui::GetFrameHeight() + 2.0f * style.FramePadding.x;
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Preview as:"sv);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::CalcTextSize("Uint64").x + extra);
+		if (ImGui::BeginCombo("##combo_type", DataTypeGetDesc(previewDataType), ImGuiComboFlags_HeightLargest)) {
+			for (ImGuiDataType n = 0; n < 8; ++n) {
+				if (ImGui::Selectable(DataTypeGetDesc(n), previewDataType == n)) {
+					previewDataType = n;
+				}
 			}
+			ImGui::EndCombo();
 		}
-		ImGui::EndCombo();
-	}
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth((s.glyphWidth * 6.0f) + style.FramePadding.x * 2.0f + style.ItemInnerSpacing.x);
-	ImGui::Combo("##combo_endianess", &previewEndianess, "LE\0BE\0\0");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::CalcTextSize("LE").x + extra);
+		ImGui::Combo("##combo_endianess", &previewEndianess, "LE\0BE\0\0");
+	});
 
 	std::array<uint8_t, 8> dataBuf = {};
 	auto elemSize = DataTypeGetSize(previewDataType);
@@ -1072,17 +1099,19 @@ void DebuggableEditor::drawPreviewLine(const Sizes& s, Debuggable& debuggable, u
 		std::reverse(dataBuf.begin(), dataBuf.begin() + elemSize);
 	}
 
-	ImGui::TextUnformatted("Dec "sv);
-	ImGui::SameLine();
-	formatDec(dataBuf, previewDataType);
-
-	ImGui::TextUnformatted("Hex "sv);
-	ImGui::SameLine();
-	formatHex(dataBuf, previewDataType);
-
-	ImGui::TextUnformatted("Bin "sv);
-	ImGui::SameLine();
-	formatBin(subspan(dataBuf, 0, elemSize));
+	im::Table("##preview", 2, ImGuiTableFlags_SizingFixedFit, [&]{
+		auto row = [&](std::string_view label, auto drawValue) {
+			if (ImGui::TableNextColumn()) {
+				im::Font(manager.fontProp, [&]{
+					ImGui::TextUnformatted(label);
+				});
+			}
+			if (ImGui::TableNextColumn()) drawValue();
+		};
+		row("Dec"sv, [&]{ formatDec(dataBuf, previewDataType); });
+		row("Hex"sv, [&]{ formatHex(dataBuf, previewDataType); });
+		row("Bin"sv, [&]{ formatBin(subspan(dataBuf, 0, elemSize)); });
+	});
 }
 
 } // namespace openmsx
