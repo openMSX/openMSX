@@ -74,7 +74,7 @@ void ImGuiMedia::save(ImGuiTextBuffer& buf)
 		saveGroup(info.groups[SelectDiskType::DIR_AS_DISK], tmpStrCat(name, ".dirAsDsk"));
 		// don't save groups[RAMDISK]
 		//if (info.select) buf.appendf("%s.select=%d\n", name.c_str(), info.select);
-		if (info.show) buf.appendf("%s.show=1\n", name.c_str());
+		if (info.window.open) buf.appendf("%s.show=1\n", name.c_str());
 		name.back()++;
 	}
 
@@ -83,7 +83,7 @@ void ImGuiMedia::save(ImGuiTextBuffer& buf)
 		saveGroup(info.groups[SelectCartridgeType::IMAGE], tmpStrCat(name, ".rom"));
 		saveGroup(info.groups[SelectCartridgeType::EXTENSION], tmpStrCat(name, ".extension"));
 		//if (info.select) buf.appendf("%s.select=%d\n", name.c_str(), info.select);
-		if (info.show) buf.appendf("%s.show=1\n", name.c_str());
+		if (info.window.open) buf.appendf("%s.show=1\n", name.c_str());
 		name.back()++;
 	}
 
@@ -99,7 +99,7 @@ void ImGuiMedia::save(ImGuiTextBuffer& buf)
 		name.back()++;
 	}
 
-	if (cassetteMediaInfo.show) buf.append("cassette.show=1\n");
+	if (cassetteMediaInfo.window.open) buf.append("cassette.show=1\n");
 	saveGroup(cassetteMediaInfo.group, "cassette");
 
 	saveGroup(extensionMediaInfo, "extension");
@@ -157,7 +157,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 				}
 			}
 		} else if (suffix == "show") {
-			disk->show = StringOp::stringToBool(value);
+			disk->window.open = StringOp::stringToBool(value);
 		}
 	} else if (auto* cart = get("cart", cartridgeMediaInfo)) {
 		using enum SelectCartridgeType;
@@ -173,7 +173,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 				}
 			}
 		} else if (suffix == "show") {
-			cart->show = StringOp::stringToBool(value);
+			cart->window.open = StringOp::stringToBool(value);
 		}
 	} else if (auto* hd = get("hd", hdMediaInfo)) {
 		loadGroup(*hd, name.substr(4));
@@ -182,7 +182,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 	} else if (name.starts_with("cassette.")) {
 		auto suffix = name.substr(9);
 		if (suffix == "show") {
-			cassetteMediaInfo.show = StringOp::stringToBool(value);
+			cassetteMediaInfo.window.open = StringOp::stringToBool(value);
 		} else {
 			loadGroup(cassetteMediaInfo.group, suffix);
 		}
@@ -204,13 +204,13 @@ void ImGuiMedia::showMediaWindow(std::string_view mediaName)
 		};
 
 		if (auto diskIndex = getIndex("disk"); diskIndex >= 0) {
-			diskMediaInfo[diskIndex].show = true;
+			diskMediaInfo[diskIndex].window.raise();
 		} else if (auto cartIndex = getIndex("cart"); cartIndex >= 0) {
-			cartridgeMediaInfo[cartIndex].show = true;
+			cartridgeMediaInfo[cartIndex].window.raise();
 	//	} else if (auto index = getIndex("hd")) {
 	//	} else if (auto index = getIndex("cd")) {
 		} else if (mediaName.starts_with("cassette")) {
-			cassetteMediaInfo.show = true;
+			cassetteMediaInfo.window.raise();
 	//	} else if (mediaName.starts_with("laserdisc")) {
 		}
 }
@@ -537,7 +537,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto [ps, ss] = slotManager.getPsSs(i);
 			std::string extraInfo = ss == -1 ? "" : strCat(" (", slotManager.getPsSsString(i), ")");
 			auto displayName = strCat("Cartridge Slot ", char('A' + i), extraInfo);
-			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].show);
+			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].window.open);
 			simpleToolTip([&]{ return displayNameForSlotContent(slotManager, i); });
 		}
 		if (!anySlot) {
@@ -647,7 +647,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			if (!(*drivesInUse)[i]) continue;
 			anyDrive = true;
 			auto displayName = strCat("Disk Drive ", char('A' + i));
-			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].show);
+			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].window.open);
 			simpleToolTip([&] { return displayNameForDriveContent(i); });
 		}
 		if (!anyDrive) {
@@ -658,7 +658,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		// cassetteplayer
 		elementInGroup();
 		if (auto* player = motherBoard->getCassettePort().getCassettePlayer()) {
-			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.show);
+			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.window.open);
 			simpleToolTip([&] -> std::string {
 				auto current = player->getImageName().getResolved();
 				return current.empty() ? "Empty" : current;
@@ -853,7 +853,7 @@ void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 	auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
 	for (auto i : xrange(RealDrive::MAX_DRIVES)) {
 		if (!(*drivesInUse)[i]) continue;
-		if (diskMediaInfo[i].show) {
+		if (diskMediaInfo[i].window.open) {
 			diskMenu(i);
 		}
 	}
@@ -861,12 +861,12 @@ void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 	const auto& slotManager = motherBoard->getSlotManager();
 	for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 		if (!slotManager.slotExists(i)) continue;
-		if (cartridgeMediaInfo[i].show) {
+		if (cartridgeMediaInfo[i].window.open) {
 			cartridgeMenu(i);
 		}
 	}
 
-	if (cassetteMediaInfo.show) {
+	if (cassetteMediaInfo.window.open) {
 		if (auto* player = motherBoard->getCassettePort().getCassettePlayer()) {
 			cassetteMenu(*player);
 		}
@@ -1319,7 +1319,7 @@ void ImGuiMedia::diskMenu(int i)
 	auto mediaName = strCat("disk", char('a' + i));
 	auto displayName = strCat("Disk Drive ", char('A' + i));
 	ImGui::SetNextWindowSize(gl::vec2{29, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window(displayName.c_str(), &info.show, [&]{
+	im::Window(displayName.c_str(), info.window, [&]{
 		auto current = showDiskInfo(mediaName, info);
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			using enum SelectDiskType;
@@ -1381,7 +1381,7 @@ void ImGuiMedia::diskMenu(int i)
 				}
 			});
 		});
-		insertMediaButton(mediaName, info.groups[info.select], &info.show);
+		insertMediaButton(mediaName, info.groups[info.select], &info.window.open);
 	});
 }
 
@@ -1390,7 +1390,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 	auto& info = cartridgeMediaInfo[cartNum];
 	auto displayName = strCat("Cartridge Slot ", char('A' + cartNum));
 	ImGui::SetNextWindowSize(gl::vec2{37, 30} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window(displayName.c_str(), &info.show, [&]{
+	im::Window(displayName.c_str(), info.window, [&]{
 		using enum SelectCartridgeType;
 		auto cartName = strCat("cart", char('a' + cartNum));
 		auto extName = strCat("ext", char('a' + cartNum));
@@ -1429,7 +1429,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 				ImGui::Checkbox("Reset MSX on changes", &resetOnCartChanges);
 			});
 			if (insertMediaButton(info.select == EXTENSION ? extName : cartName,
-					      info.groups[info.select], &info.show)) {
+					      info.groups[info.select], &info.window.open)) {
 				if (resetOnCartChanges) {
 					manager.executeDelayed(TclObject("reset"));
 				}
@@ -1535,7 +1535,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 	ImGui::SetNextWindowSize(gl::vec2{30, 21} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	auto& info = cassetteMediaInfo;
 	auto& group = info.group;
-	im::Window("Tape Deck", &info.show, [&]{
+	im::Window("Tape Deck", info.window, [&]{
 		ImGui::TextUnformatted("Current tape"sv);
 		auto current = cassettePlayer.getImageName().getResolved();
 		im::Indent([&]{
@@ -1667,7 +1667,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 				selectImage(group, "Select tape image", &cassetteFilter, current);
 			});
 		});
-		insertMediaButton("cassetteplayer", group, &info.show);
+		insertMediaButton("cassetteplayer", group, &info.window.open);
 	});
 }
 

@@ -101,7 +101,7 @@ public:
 		}
 		array_with_enum_index<SelectCartridgeType, ItemGroup> groups;
 		SelectCartridgeType select = SelectCartridgeType::IMAGE;
-		bool show = false;
+		im::WindowStatus window;
 		bool filterOpen = false;
 		std::string filterType;
 		std::string filterString;
@@ -113,11 +113,11 @@ public:
 		}
 		array_with_enum_index<SelectDiskType, ItemGroup> groups;
 		SelectDiskType select = SelectDiskType::IMAGE;
-		bool show = false;
+		im::WindowStatus window;
 	};
 	struct CassetteMediaInfo {
 		ItemGroup group;
-		bool show = false;
+		im::WindowStatus window;
 	};
 
 public:
