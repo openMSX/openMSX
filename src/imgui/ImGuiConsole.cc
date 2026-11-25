@@ -233,6 +233,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 			scrollRegionSize = ImGui::GetWindowSize();
 			scrollRegionPos = ImGui::GetWindowPos();
 			im::PopupContextWindow([&]{
+				im::ScopedFont sfProp(manager.fontProp);
 				if (ImGui::Selectable("Clear")) {
 					lines.clear();
 				}
