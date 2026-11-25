@@ -119,9 +119,9 @@ void ImGuiRasterViewer::paint(MSXMotherBoard* motherBoard)
 		paintDisplay(*motherBoard);
 	});
 
-	if (showConfigure) {
+	if (configureWindow.open) {
 		ImGui::SetNextWindowSize(gl::vec2{19, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-		im::Window("Raster beam - configure traces", &showConfigure, [&]{
+		im::Window("Raster beam - configure traces", configureWindow, [&]{
 			paintConfigure(*motherBoard);
 		});
 	}
@@ -201,7 +201,7 @@ void ImGuiRasterViewer::paintSettings()
 	ImGui::SameLine();
 	im::Disabled(!showTraces, [&]{
 		if (ImGui::Button("Configure...")) {
-			showConfigure = true;
+			configureWindow.raise();
 		}
 	});
 	HelpMarker("Shows trace events (Debugger > Probe/Trace viewer) that happened the last frame");
@@ -662,7 +662,7 @@ void ImGuiRasterViewer::paintConfigure(MSXMotherBoard& motherBoard)
 {
 	ImGui::SeparatorText("Probes / traces");
 	if (ImGui::Button("Select probes/traces...")) {
-		traceViewer.showSelect = true;
+		traceViewer.selectWindow.raise();
 	}
 	HelpMarker("Select which probe and trace information will be collected.\n"
 	           "In some cases this can be expensive, so it's not done by default.");

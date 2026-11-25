@@ -75,7 +75,7 @@ private:
 	bool showLineIrq = false;
 	bool showTraces = false;
 	bool showMarkers = true;
-	bool showConfigure = false;
+	im::WindowStatus configureWindow;
 
 	MemBuffer<uint32_t> pixelBuffer;
 	gl::Texture viewTex{gl::Null{}};

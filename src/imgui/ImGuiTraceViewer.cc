@@ -422,7 +422,7 @@ static bool menuItemWithShortcut(ImGuiManager& manager, const char* label, Short
 void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer)
 {
 	im::Menu("File", [&]{
-		ImGui::MenuItem("Select probes and traces", nullptr, &showSelect);
+		ImGui::MenuItem("Select probes and traces", nullptr, &selectWindow.open);
 		if (ImGui::MenuItem("Export as VCD ...")) {
 			manager.openFile->selectNewFile(
 				"Export to VCD", "VCD (*.vcd){.vcd}",
@@ -1074,7 +1074,7 @@ void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRo
 		const auto& io = ImGui::GetIO();
 
 		auto pos0 = ImGui::GetCursorPos();
-		if (ImGui::Button("Select ...")) showSelect = true;
+		if (ImGui::Button("Select ...")) selectWindow.raise();
 		ImGui::SetCursorPos(pos0);
 
 		ImGui::Dummy({10.0f, rulerHeight});
@@ -1456,9 +1456,9 @@ void ImGuiTraceViewer::paint(MSXMotherBoard* motherBoard)
 			paintMain(*motherBoard);
 		});
 	}
-	if (showSelect) {
+	if (selectWindow.open) {
 		ImGui::SetNextWindowSize(gl::vec2{18, 27} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-		im::Window("Select probes and traces", &showSelect, [&] {
+		im::Window("Select probes and traces", selectWindow, [&] {
 			paintSelect(*motherBoard);
 		});
 	}
