@@ -108,7 +108,7 @@ private:
 	int previewEndianess = LE;
 	ImGuiDataType previewDataType = ImGuiDataType_U8;
 
-	bool showExportWindow = false;
+	im::WindowStatus exportWindow;
 	int exportRange = RANGE_ALL;
 	int exportFormatted = EXPORT_FORMATTED;
 	int exportFormat = FORMAT_HEX;

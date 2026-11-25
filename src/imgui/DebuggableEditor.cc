@@ -118,7 +118,7 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	columns = std::min(columns, narrow<int>(memSize));
 	auto s = calcSizes(memSize);
 
-	if (showExportWindow) {
+	if (exportWindow.open) {
 		drawExport(s, *debuggable);
 	}
 
@@ -146,7 +146,7 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 	auto& interp = manager.getInterpreter();
 	const auto& style = ImGui::GetStyle();
 
-	im::Window(tmpStrCat("Export ", title).c_str(), &showExportWindow, [&]{
+	im::Window(tmpStrCat("Export ", title).c_str(), exportWindow, [&]{
 		if (ImGui::IsWindowAppearing()) {
 			exportBegin = strCat("0x", formatAddr(s, 0));
 			exportEnd   = strCat("0x", formatAddr(s, debuggable.getSize() - 1));
@@ -809,7 +809,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		});
 		ImGui::Separator();
 		if (ImGui::MenuItem("Export...")) {
-			showExportWindow = true;
+			exportWindow.raise();
 		}
 		if (ImGui::MenuItem(tmpStrCat("Open bitmap viewer at 0x", formatAddr(s, currentAddr)).c_str())) {
 			debugger->openBitmapViewer(getDebuggableName()).setOffset(currentAddr);
