@@ -460,7 +460,10 @@ std::optional<bool> ImGuiManager::handleMouseCapture(const SDL_Event& event)
 			ImGui::SetWindowFocus("MSX Display Area");
 			if (input.captureMouse()) {
 				ImGui::GetIO().ClearInputMouse();
-				mouseCaptureHint = 3.0f;
+				if (!mouseCaptureHintShown) {
+					mouseCaptureHintShown = true;
+					mouseCaptureHint = 3.0f;
+					}
 				updateMouseCapture();
 			} else {
 				printError("Could not capture mouse: ", SDL_GetError());

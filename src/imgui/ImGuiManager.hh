@@ -221,6 +221,7 @@ private:
 	bool guiActive = false;
 	unsigned suppressedMouseButtons = 0;
 	float mouseCaptureHint = 0.0f;
+	bool mouseCaptureHintShown = false;
 
 	EmuTime prevBoardTime = EmuTime::zero();
 	float speedDrawTimeOut = 0.0f;
