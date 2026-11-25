@@ -349,7 +349,7 @@ void ImGuiV9990Regs::paint(MSXMotherBoard* motherBoard)
 		auto time = motherBoard->getCurrentTime();
 
 		Regs regs(*vdp, time);
-		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, [&](auto& viewer) {
+		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, manager.fontMono, [&](auto& viewer) {
 			im::TreeNode("Screen mode", &openScreen, [&]{
 				static constexpr auto screenRegs = std::to_array<uint8_t>({6, 7, 16});
 				viewer.drawSection(screenRegs);

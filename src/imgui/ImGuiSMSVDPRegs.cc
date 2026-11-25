@@ -205,47 +205,47 @@ static constexpr auto regFunctions = std::array{
 	R{{S{2, 0xFF}}, "name table address; on SMS1 in mode 4, bit 0 masks the name-table row",
 	  [](uint32_t v, const Regs& regs) {
 		bool rowMask = regs.sms1Mode4() && !(v & 0x01);
-		return tmpStrCat("name table:     0x", hex_string<4>(regs.nameTableBase()),
-		                 rowMask ? " (SMS1: rows 16-27 repeat rows 0-11)"sv : ""sv, '\n');
+		return tmpStrCat("name table:\t0x", hex_string<4>(regs.nameTableBase()),
+		                 rowMask ? "\t(SMS1: rows 16-27 repeat rows 0-11)"sv : ""sv, '\n');
 	  }},
 	R{{S{3, 0xFF}}, "color table address (modes 0 and 2); in mode 2 bit 7 selects the base and bits 6-0 mask the address; on SMS1 in mode 4, tile mask for bit planes 0-1",
 	  [](uint32_t v, const Regs& regs) {
 		switch (auto mode = regs.getMode().mode) {
 		case 4:
 			if (auto mask = (v << 1) | 1; regs.sms1Mode4() && (mask != 0x1ff)) {
-				return tmpStrCat("SMS1 tile mask 1: 0x", hex_string<3>(mask), " (planes 0-1)\n");
+				return tmpStrCat("SMS1 tile mask 1:\t0x", hex_string<3>(mask), "\t(planes 0-1)\n");
 			}
 			[[fallthrough]];
 		case 1: case 3:
-			return tmpStrCat("color table:    (not used in mode ", mode, ")\n");
+			return tmpStrCat("color table:\t\t(not used in mode ", mode, ")\n");
 		case 2:
-			return tmpStrCat("color table:    0x", hex_string<4>(regs.colorTableBase()),
-			                 " (mask 0x", hex_string<4>(regs.colorTableMask()), ")\n");
+			return tmpStrCat("color table:\t0x", hex_string<4>(regs.colorTableBase()),
+			                 "\t(mask 0x", hex_string<4>(regs.colorTableMask()), ")\n");
 		default:
-			return tmpStrCat("color table:    0x", hex_string<4>(regs.colorTableBase()), '\n');
+			return tmpStrCat("color table:\t0x", hex_string<4>(regs.colorTableBase()), '\n');
 		}
 	  }},
 	R{{S{4, 0xFF}}, "pattern table address (modes 0-3); in mode 2 bit 2 selects the base and bits 1-0 mask the address; on SMS1 in mode 4, bits 2-0 are the tile mask for bit planes 2-3",
 	  [](uint32_t v, const Regs& regs) {
 		switch (regs.getMode().mode) {
 		case 2:
-			return tmpStrCat("pattern table:  0x", hex_string<4>(regs.patternTableBase()),
-			                 " (mask 0x", hex_string<4>(regs.patternTableMask()), ")\n");
+			return tmpStrCat("pattern table:\t0x", hex_string<4>(regs.patternTableBase()),
+			                 "\t(mask 0x", hex_string<4>(regs.patternTableMask()), ")\n");
 		case 4:
 			if (auto mask = ((v & 0x07) << 6) | 0x3f; regs.sms1Mode4() && (mask != 0x1ff)) {
-				return tmpStrCat("pattern table:  (fixed at 0x0000 in mode 4)\n"
-				                 "SMS1 tile mask 2: 0x", hex_string<3>(mask), " (planes 2-3)\n");
+				return tmpStrCat("pattern table:\t\t(fixed at 0x0000 in mode 4)\n"
+				                 "SMS1 tile mask 2:\t0x", hex_string<3>(mask), "\t(planes 2-3)\n");
 			}
-			return tmpStrCat("pattern table:  (fixed at 0x0000 in mode 4)\n");
+			return tmpStrCat("pattern table:\t\t(fixed at 0x0000 in mode 4)\n");
 		default:
-			return tmpStrCat("pattern table:  0x", hex_string<4>(regs.patternTableBase()), '\n');
+			return tmpStrCat("pattern table:\t0x", hex_string<4>(regs.patternTableBase()), '\n');
 		}
 	  }},
 	R{{S{5, 0xFF}}, "sprite attribute table address; on SMS1 in mode 4, bit 0 selects where the x/tile entries are",
 	  [](uint32_t v, const Regs& regs) {
 		bool lowXTile = regs.sms1Mode4() && !(v & 0x01);
-		return tmpStrCat("sprite attr:    0x", hex_string<4>(regs.spriteAttBase()),
-		                 lowXTile ? " (SMS1: x/tile at +0x00 instead of +0x80)"sv : ""sv, '\n');
+		return tmpStrCat("sprite attr:\t0x", hex_string<4>(regs.spriteAttBase()),
+		                 lowXTile ? "\t(SMS1: x/tile at +0x00 instead of +0x80)"sv : ""sv, '\n');
 	  }},
 	// One item for both modes, so that hovering any of these bits
 	// highlights the line that is actually shown.
@@ -254,11 +254,11 @@ static constexpr auto regFunctions = std::array{
 		if (regs.isMode4()) {
 			auto bank = (v & 0x04) ? "256-511"sv : "0-255"sv;
 			if (auto mask = ((v & 0x03) << 6) | 0x3f; regs.sms1Mode4() && (mask != 0xff)) {
-				return tmpStrCat("sprite tiles:   ", bank, " (SMS1 tile mask 0x", hex_string<2>(mask), ")\n");
+				return tmpStrCat("sprite tiles:\t", bank, "\t(SMS1 tile mask 0x", hex_string<2>(mask), ")\n");
 			}
-			return tmpStrCat("sprite tiles:   ", bank, '\n');
+			return tmpStrCat("sprite tiles:\t", bank, '\n');
 		}
-		return tmpStrCat("sprite pattern: 0x", hex_string<4>(regs.spritePatBase()), '\n');
+		return tmpStrCat("sprite pattern:\t0x", hex_string<4>(regs.spritePatBase()), '\n');
 	  }},
 
 	// scroll registers
@@ -317,7 +317,7 @@ void ImGuiSMSVDPRegs::paint(MSXMotherBoard* motherBoard)
 		auto time = motherBoard->getCurrentTime();
 
 		Regs regs(vdp, time);
-		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, [&](auto& viewer) {
+		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, manager.fontMono, [&](auto& viewer) {
 			im::TreeNode("Mode registers", &openMode, [&]{
 				static constexpr auto modeRegs = std::to_array<uint8_t>({0, 1});
 				viewer.drawSection(modeRegs);

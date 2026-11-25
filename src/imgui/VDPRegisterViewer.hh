@@ -14,6 +14,7 @@
 #include "ImGuiCpp.hh"
 #include "ImGuiUtils.hh"
 
+#include "StringOp.hh"
 #include "TemporaryString.hh"
 #include "narrow.hh"
 #include "ranges.hh"
@@ -23,11 +24,15 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cstdint>
+#include <optional>
 #include <span>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace openmsx {
 
@@ -45,6 +50,9 @@ struct RegSubFunction {
 // a single value, and how to display that value. Most items only need that
 // value, the others also get the 'Regs' (e.g. to show an address that depends
 // on the display mode).
+// A line of the form "label\tvalue\tremark" (the remark is optional) is drawn
+// like a table row: the values of all such lines are aligned in one column and
+// drawn in the mono-space font.
 template<typename Regs>
 struct RegFunction {
 	using Display     = TemporaryString(*)(uint32_t value);
@@ -108,9 +116,10 @@ public:
 
 private:
 	VDPRegisterViewer(const VDPRegisterTables<Regs>& tables_, const Regs& regs_,
-	                  int& hoveredFunction_, bool& explanation_)
+	                  int& hoveredFunction_, bool& explanation_, ImFont* monoFont_)
 		: tables(tables_), regs(regs_)
-		, hoveredFunction(hoveredFunction_), explanation(explanation_) {}
+		, hoveredFunction(hoveredFunction_), explanation(explanation_)
+		, monoFont(monoFont_) {}
 
 	// After the last section (but still inside the window): remembers the
 	// hovered item and handles the context menu.
@@ -118,12 +127,14 @@ private:
 
 	template<typename R, typename Sections>
 	friend void drawVDPRegisters(const VDPRegisterTables<R>& tables, const R& regs,
-	                             int& hoveredFunction, bool& explanation, Sections&& sections);
+	                             int& hoveredFunction, bool& explanation, ImFont* monoFont,
+	                             Sections&& sections);
 
 	const VDPRegisterTables<Regs>& tables;
 	const Regs& regs;
 	int& hoveredFunction;
 	bool& explanation;
+	ImFont* monoFont;
 	int newHoveredFunction = -1;
 };
 
@@ -200,8 +211,15 @@ void VDPRegisterViewer<Regs>::drawSection(std::span<const uint8_t> showRegisters
 		});
 	});
 	if (explanation) {
-		auto* drawList = ImGui::GetWindowDrawList();
-		gl::vec2 framePadding = ImGui::GetStyle().FramePadding;
+		// Collect the explanations first: lines of the form "label\tvalue"
+		// are drawn with all values aligned in one column (after the widest
+		// label), like a table.
+		struct Explained {
+			int f;
+			int shift;
+			std::string text;
+		};
+		std::vector<Explained> explained;
 		for (auto f : xrange(narrow<int>(tables.functions.size()))) {
 			const auto& func = tables.functions[f];
 			if (!(contains(showRegisters, func.subs[0].reg) ||
@@ -217,32 +235,100 @@ void VDPRegisterViewer<Regs>::drawSection(std::span<const uint8_t> showRegisters
 				shift += std::popcount(sub.mask);
 			}
 			if (auto s = func.explain(value, regs); !s.empty()) {
-				auto textColor = getColor(imColor::TEXT);
-				bool canHover = func.subs[0].mask != 0;
-				if (canHover && (f == hoveredFunction)) {
-					gl::vec2 textSize = ImGui::CalcTextSize(s);
-					gl::vec2 pos = ImGui::GetCursorScreenPos();
-					textColor = getColor(imColor::BLACK);
-					drawList->AddRectFilled(pos - framePadding, pos + textSize + 2.0f * framePadding, getColor(imColor::YELLOW));
+				explained.emplace_back(f, shift, std::string(s));
+			}
+		}
+
+		auto lines = [](std::string_view s) {
+			return StringOp::split_view<StringOp::EmptyParts::REMOVE>(s, '\n');
+		};
+		// A line "label\tvalue\tremark" (the remark is optional) is drawn as
+		// a table row: all values aligned in one column after the widest
+		// label, the value (presented data) in the mono-space font, the
+		// remark after it in the proportional font.
+		struct Fields {
+			std::string_view label, value, remark;
+		};
+		auto split = [](std::string_view line) -> std::optional<Fields> {
+			auto [label, rest] = StringOp::splitOnFirst(line, '\t');
+			if (label.size() == line.size()) return {}; // no tab
+			auto [value, remark] = StringOp::splitOnFirst(rest, '\t');
+			return Fields{label, value, remark};
+		};
+		float valueColumn = 0.0f;
+		for (const auto& e : explained) {
+			for (auto line : lines(e.text)) {
+				if (auto fields = split(line)) {
+					valueColumn = std::max(valueColumn, ImGui::CalcTextSize(fields->label).x);
 				}
-				im::StyleColor(ImGuiCol_Text, textColor, [&]{
-					ImGui::TextUnformatted(s);
-				});
-				if (canHover) {
-					if (ImGui::IsItemHovered()) {
-						newHoveredFunction = f;
+			}
+		}
+		valueColumn += ImGui::GetStyle().ItemSpacing.x;
+
+		auto drawText = [&](std::string_view s) {
+			if (s.find('\t') == std::string_view::npos) {
+				ImGui::TextUnformatted(s);
+				return;
+			}
+			im::Group([&]{
+				for (auto line : lines(s)) {
+					auto fields = split(line);
+					if (!fields) {
+						ImGui::TextUnformatted(line);
+						continue;
 					}
-					if (shift == 1) { // single bit
-						if (auto reg = func.subs[0].reg; reg < tables.firstStatusReg) { // non-status-register
-							if (ImGui::IsItemClicked()) {
-								auto mask = func.subs[0].mask;
-								regs.write(reg, regValues[reg] ^ mask);
-							}
+					ImGui::TextUnformatted(fields->label);
+					ImGui::SameLine(valueColumn); // relative to the start of the group
+					if (!fields->value.empty()) {
+						im::Font(monoFont, [&]{
+							ImGui::TextUnformatted(fields->value);
+						});
+						if (!fields->remark.empty()) ImGui::SameLine();
+					}
+					if (!fields->remark.empty()) {
+						ImGui::TextUnformatted(fields->remark);
+					}
+				}
+			});
+		};
+
+		auto* drawList = ImGui::GetWindowDrawList();
+		gl::vec2 framePadding = ImGui::GetStyle().FramePadding;
+		for (const auto& [f, shift, s] : explained) {
+			const auto& func = tables.functions[f];
+			bool canHover = func.subs[0].mask != 0;
+			bool highlight = canHover && (f == hoveredFunction);
+			// The highlight is drawn after the text (so that it has the size
+			// of the drawn text), but in a channel behind it.
+			ImDrawListSplitter splitter;
+			if (highlight) {
+				splitter.Split(drawList, 2);
+				splitter.SetCurrentChannel(drawList, 1);
+			}
+			im::StyleColor(ImGuiCol_Text, getColor(highlight ? imColor::BLACK : imColor::TEXT), [&]{
+				drawText(s);
+			});
+			if (highlight) {
+				splitter.SetCurrentChannel(drawList, 0);
+				gl::vec2 min = ImGui::GetItemRectMin();
+				gl::vec2 max = ImGui::GetItemRectMax();
+				drawList->AddRectFilled(min - framePadding, max + 2.0f * framePadding, getColor(imColor::YELLOW));
+				splitter.Merge(drawList);
+			}
+			if (canHover) {
+				if (ImGui::IsItemHovered()) {
+					newHoveredFunction = f;
+				}
+				if (shift == 1) { // single bit
+					if (auto reg = func.subs[0].reg; reg < tables.firstStatusReg) { // non-status-register
+						if (ImGui::IsItemClicked()) {
+							auto mask = func.subs[0].mask;
+							regs.write(reg, regValues[reg] ^ mask);
 						}
 					}
 				}
-				if (!s.ends_with('\n')) ImGui::SameLine();
 			}
+			if (!s.ends_with('\n')) ImGui::SameLine();
 		}
 	}
 }
@@ -264,17 +350,19 @@ void VDPRegisterViewer<Regs>::end()
 
 // Draws the register sections of one frame: 'sections(viewer)' draws each
 // section with viewer.drawSection(), e.g.
-//     drawVDPRegisters(tables, regs, hoveredFunction, explanation, [&](auto& viewer) {
+//     drawVDPRegisters(tables, regs, hoveredFunction, explanation, manager.fontMono, [&](auto& viewer) {
 //         im::TreeNode("Mode registers", ..., [&]{ viewer.drawSection(modeRegs); });
 //         ...
 //     });
 // 'hoveredFunction' and 'explanation' must outlive the frame: the hovered item
 // is highlighted in the next frame, 'explanation' is a (persistent) setting.
+// 'monoFont' is used for the values in the explanation.
 template<typename Regs, typename Sections>
 void drawVDPRegisters(const VDPRegisterTables<Regs>& tables, const Regs& regs,
-                      int& hoveredFunction, bool& explanation, Sections&& sections)
+                      int& hoveredFunction, bool& explanation, ImFont* monoFont,
+                      Sections&& sections)
 {
-	VDPRegisterViewer<Regs> viewer(tables, regs, hoveredFunction, explanation);
+	VDPRegisterViewer<Regs> viewer(tables, regs, hoveredFunction, explanation, monoFont);
 	sections(viewer);
 	viewer.end();
 }
