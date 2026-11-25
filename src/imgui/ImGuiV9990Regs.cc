@@ -342,7 +342,7 @@ void ImGuiV9990Regs::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show || !motherBoard) return;
 
-	ImGui::SetNextWindowSize(gl::vec2{41, 40} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{44, 40} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(title.c_str(), &show, [&]{
 		auto* vdp = dynamic_cast<V9990*>(motherBoard->findDevice("Sunrise GFX9000"));
 		if (!vdp) return;
