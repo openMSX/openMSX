@@ -79,6 +79,19 @@ inline bool Window(const char* name, std::invocable<> auto next)
 	return Window(name, nullptr, 0, next);
 }
 
+// Bring the current window (between ImGui::Begin() and End()) to the front.
+inline void raiseCurrentWindow()
+{
+	if (ImGui::IsWindowAppearing()) return; // otherwise crash, viewport not yet initialized???
+	// depending on the backend (e.g. Wayland) this could be nullptr
+	if (auto* swf = ImGui::GetPlatformIO().Platform_SetWindowFocus) {
+		swf(ImGui::GetWindowViewport());
+	}
+	// When window is inside the main viewport, this function is
+	// needed to raise focus even if Platform_SetWindowFocus exists
+	ImGui::SetWindowFocus();
+}
+
 struct WindowStatus {
 	bool open = false; // [level] true <=> window is open
 	bool do_raise = false; // [edge]  set to true when you want to raise this window
@@ -91,15 +104,7 @@ inline bool Window(const char* name, WindowStatus& status, ImGuiWindowFlags flag
 	if (open) {
 		if (status.do_raise) {
 			status.do_raise = false;
-			if (!ImGui::IsWindowAppearing()) { // otherwise crash, viewport not yet initialized???
-				// depending on the backend (e.g. Wayland) this could be nullptr
-				if (auto* swf = ImGui::GetPlatformIO().Platform_SetWindowFocus) {
-					swf(ImGui::GetWindowViewport());
-				}
-				// When window is inside the main viewport, this function is
-				// needed to raise focus even if Platform_SetWindowFocus exists
-				ImGui::SetWindowFocus();
-			}
+			raiseCurrentWindow();
 		}
 		next();
 	}
