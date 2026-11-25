@@ -536,23 +536,23 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 	});
 	im::Menu("Help", [&]{
 		if (ImGui::MenuItem("Overview")) {
-			showHelp = true;
+			helpWindow.raise();
 			helpSection = HelpSection::OVERVIEW;
 		}
 		if (ImGui::MenuItem("Probes and Traces")) {
-			showHelp = true;
+			helpWindow.raise();
 			helpSection = HelpSection::PROBES_AND_TRACES;
 		}
 		if (ImGui::MenuItem("Graphs")) {
-			showHelp = true;
+			helpWindow.raise();
 			helpSection = HelpSection::GRAPHS;
 		}
 		if (ImGui::MenuItem("Navigation")) {
-			showHelp = true;
+			helpWindow.raise();
 			helpSection = HelpSection::NAVIGATION;
 		}
 		if (ImGui::MenuItem("Example")) {
-			showHelp = true;
+			helpWindow.raise();
 			helpSection = HelpSection::EXAMPLE;
 		}
 	});
@@ -1462,9 +1462,9 @@ void ImGuiTraceViewer::paint(MSXMotherBoard* motherBoard)
 			paintSelect(*motherBoard);
 		});
 	}
-	if (showHelp) {
+	if (helpWindow.open) {
 		ImGui::SetNextWindowSize(gl::vec2{50, 38} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-		im::Window("Trace Viewer Help", &showHelp, [&] {
+		im::Window("Trace Viewer Help", helpWindow, [&] {
 			paintHelp();
 		});
 	}

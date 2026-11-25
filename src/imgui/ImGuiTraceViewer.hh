@@ -141,7 +141,7 @@ private:
 		EXAMPLE,
 	};
 	std::optional<HelpSection> helpSection;
-	bool showHelp = false;
+	im::WindowStatus helpWindow;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement   {"show",             &ImGuiTraceViewer::show},
