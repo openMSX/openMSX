@@ -259,25 +259,25 @@ static constexpr auto regFunctions = std::array{
 				v *= 2;
 			}
 		}
-		return tmpStrCat("name table:    0x", hex_string<5>(v << 10), '\n');
+		return tmpStrCat("name table:\t0x", hex_string<5>(v << 10), '\n');
 	  }},
 	R{{S{3, 0xFF}, S{10, 0x07}}, "color table address", [](uint32_t v, const Regs& regs) {
 		if (regs.isText2Mode()) v &= ~0x07;
 		if (regs.isGraph23Mode()) v &= ~0x7F;
-		return tmpStrCat("color table:   0x", hex_string<5>(v << 6), '\n');
+		return tmpStrCat("color table:\t0x", hex_string<5>(v << 6), '\n');
 	  }},
 	R{{S{4, 0x3F}}, "pattern table address", [](uint32_t v, const Regs& regs) {
 		if (regs.isGraph23Mode()) v &= ~0x03;
-		return tmpStrCat("pattern table: 0x", hex_string<5>(v << 11), '\n');
+		return tmpStrCat("pattern table:\t0x", hex_string<5>(v << 11), '\n');
 	  }},
 	R{{S{5, 0xFF}, S{11, 0x03}}, "sprite attribute table address", [](uint32_t v, const Regs& regs) {
 		if (regs.isSprite2Mode()) {
 			v &= ~0x03; // note: '3' instead of '7' because we want to display 'addr + 512'
 		}
-		return tmpStrCat("sprite attribute table: 0x", hex_string<5>(v << 7), '\n');
+		return tmpStrCat("sprite attribute table:\t0x", hex_string<5>(v << 7), '\n');
 	  }},
 	R{{S{6, 0x3F}}, "sprite pattern table address", [](uint32_t v) {
-		return tmpStrCat("sprite pattern table:   0x", hex_string<5>(v << 11), '\n');
+		return tmpStrCat("sprite pattern table:\t0x", hex_string<5>(v << 11), '\n');
 	  }},
 	R{{S{2, 0}}, "", &spacing},
 
@@ -456,7 +456,7 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 		auto make_span = [](const auto& array) {
 			return std::span<const uint8_t, std::dynamic_extent>(std::span(array));
 		};
-		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, [&](auto& viewer) {
+		drawVDPRegisters(vdpRegisters, regs, hoveredFunction, explanation, manager.fontMono, [&](auto& viewer) {
 			im::TreeNode("Control registers", &openControl, [&]{
 				im::TreeNode("Mode registers", &openMode, [&]{
 					static constexpr auto modeRegs1 = std::to_array<uint8_t>({0, 1});
