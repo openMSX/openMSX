@@ -640,6 +640,8 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	// last update.
 	updateStream(getCurrentTime());
 
+	EmuDuration oldPeriod = prevTime.getPeriod();
+	unsigned oldSampleRate = hostSampleRate;
 	hostSampleRate = newSampleRate;
 	fragmentSize = newFragmentSize;
 
@@ -647,8 +649,17 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	prevTime.setPeriod(EmuDuration::sec(getEffectiveSpeed() / double(hostSampleRate)));
 	reschedule();
 
+	// When only the fragment size changed (e.g. at the start and end of a
+	// pause), keep the resamplers of the sound devices: a new resampler
+	// starts from silence, which gives a glitch in the sound.
+	double speed = speedManager.getSpeed();
+	if ((newSampleRate == oldSampleRate) && (speed == outputSpeed) &&
+	    (prevTime.getPeriod() == oldPeriod)) {
+		return;
+	}
+	outputSpeed = speed;
 	for (auto& info : infos) {
-		info.device->setOutputRate(newSampleRate, speedManager.getSpeed());
+		info.device->setOutputRate(newSampleRate, speed);
 	}
 }
 
