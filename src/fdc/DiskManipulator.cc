@@ -354,9 +354,12 @@ std::string DiskManipulator::help(std::span<const TclObject> tokens) const
 	if (tokens.size() >= 2) {
 	  if (tokens[1] == "import") {
 	  helpText =
-	    "diskmanipulator import <disk name> [-overwrite] <host directory|host file>\n"
+	    "diskmanipulator import <disk name> [-overwrite] <host directory|host file> ...\n"
 	    "Import all files and subdirs from the host OS as specified into the <disk name> in the\n"
 	    "current MSX subdirectory as was specified with the last chdir command.\n"
+	    "Each argument is a Tcl list of host files and directories, e.g. the result of [glob *.txt].\n"
+	    "So pass a path that contains spaces as a list, e.g. [list \"my file.txt\"].\n"
+	    "If one of the host files or directories doesn't exist, nothing is imported.\n"
 	    "By default already existing entries are not overwritten, unless the -overwrite option is used.";
 	  } else if (tokens[1] == "export") {
 	  helpText =
