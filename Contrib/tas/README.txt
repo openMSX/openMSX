@@ -29,7 +29,7 @@ Lines starting with "=" are processing instructions:
 
 = base wsx-kv1.omr
 = base wsx-kv1.xml
-Specifies the recording to use as a base when converting back to OMR. The initial snapshot of this recording sets up the MSX machine and the game. Both ".omr" (OMR file, which is gzip-ed XML) and ".xml" (uncompressed XML from OMR file) file name extensions are supported.
+Specifies the recording to use as a base when converting back to OMR. The initial snapshot of this recording sets up the MSX machine and the game. The key presses of this recording are replaced by the ones from the event log; its other events (like "plug" commands at the start, or joystick input) are kept as they are. Both ".omr" (OMR file, which is gzip-ed XML) and ".xml" (uncompressed XML from OMR file) file name extensions are supported.
 
 = out kings_valley_mth_v0.omr
 Pathname of the output file that txt2omr.py will write.

@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 from gzip import GzipFile
 from sys import stderr
-from xml.etree.ElementTree import SubElement, parse as parseXML
+from xml.etree.ElementTree import Element, SubElement, parse as parseXML
 
 import platform
 
@@ -174,16 +174,11 @@ def replaceEvents(inp, out, inputEvents):
 		if not seenInitialSnapshot:
 			print('No snapshot found with timestamp 0', file=stderr)
 
-	# Replace event log.
+	# Replace the key presses in the event log.
 	eventsElem = doc.find('replay/events')
 	if eventsElem is None:
 		print('No events tag found; cannot insert events', file=stderr)
 	else:
-		tail = eventsElem.tail
-		eventsElem.clear()
-		eventsElem.text = '\n'
-		eventsElem.tail = tail
-
 		# IDs must be unique for the entire document. We look for the highest
 		# in-use ID and generate new IDs counting up from there.
 		baseID = max(
@@ -195,10 +190,22 @@ def replaceEvents(inp, out, inputEvents):
 			default=-1
 		) + 1
 
-		def createEvent(i, time):
-			itemElem = SubElement(eventsElem, 'item',
-					id=str(baseID + i), type='KeyMatrixState')
-			itemElem.tail = '\n'
+		# Keep the other events of the base replay (e.g. 'plug' commands at
+		# the start, or joystick input), at their original times: the text
+		# format only contains key presses.
+		events = [
+			(int(itemElem.find('StateChange/time/time').text), itemElem)
+			for itemElem in eventsElem.findall('item')
+			if itemElem.attrib.get('type') not in ('KeyMatrixState', 'EndLog')
+			]
+
+		tail = eventsElem.tail
+		eventsElem.clear()
+		eventsElem.text = '\n'
+		eventsElem.tail = tail
+
+		def createEvent(i, time, eventType):
+			itemElem = Element('item', id=str(baseID + i), type=eventType)
 			stateChangeElem = SubElement(itemElem, 'StateChange')
 			timeElem1 = SubElement(stateChangeElem, 'time')
 			timeElem2 = SubElement(timeElem1, 'time')
@@ -206,12 +213,22 @@ def replaceEvents(inp, out, inputEvents):
 			return itemElem
 
 		for i, (time, row, press, release) in enumerate(inputEvents):
-			itemElem = createEvent(i, time)
+			itemElem = createEvent(i, time, 'KeyMatrixState')
 			SubElement(itemElem, 'row').text = str(row)
 			SubElement(itemElem, 'press').text = str(press)
 			SubElement(itemElem, 'release').text = str(release)
-		endTime = inputEvents[-1][0] if inputEvents else 0
-		createEvent(len(inputEvents), endTime).attrib['type'] = 'EndLog'
+			events.append((time, itemElem))
+
+		# Sort by time; the sort is stable, so at the same time the kept
+		# events come before the key presses.
+		events.sort(key=lambda event: event[0])
+		endTime = events[-1][0] if events else 0
+		events.append(
+			(endTime, createEvent(len(inputEvents), endTime, 'EndLog'))
+			)
+		for time, itemElem in events:
+			itemElem.tail = '\n'
+			eventsElem.append(itemElem)
 
 	# Reset re-record count.
 	reRecordCount = doc.find('replay/reRecordCount')
