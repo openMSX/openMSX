@@ -49,6 +49,17 @@ def readStates(topFilename):
 			nonlocal scale
 			scale = int(words[1])
 			print('time scale: %.2f frames per second' % (masterClock / scale))
+		elif words[0] == 'offset':
+			if len(words) != 2:
+				raise ValueError(
+						'Processing instruction "offset" expects 1 argument, '
+						'got %d' % (len(words) - 1))
+			if inputStates:
+				raise ValueError(
+						'Processing instruction "offset" must come before '
+						'the first input state')
+			nonlocal time
+			time = int(words[1])
 		elif words[0] == 'input':
 			if len(words) != 5:
 				raise ValueError(

@@ -15,6 +15,8 @@ Limitations
 
 Currently omr2txt.py will only convert key presses listed in its "inputMap" dictionary. If your game uses keys other than the cursors and space, add the name and the keyboard matrix row/column in this dictionary near the top of the script.
 
+The text format counts time in frames. A replay is only converted exactly if its input events are at a fixed position within each frame. That is the case when the input was entered while advancing frame by frame with tools like advance_frame (and reverse_frame): these run exactly one frame from where the emulation is paused, so all key presses entered while paused are at the same position within the frame. omr2txt.py detects that position (see "= offset" below). In a replay that was recorded by playing in real time, the input events are at arbitrary positions within the frame; omr2txt.py then rounds them to the nearest frame, which moves them, and the converted replay can go out of sync.
+
 I wrote these tools when working on my King's Valley TAS, so I could replace the recording of one pyramid's solution without having to re-record all pyramids that come after it. While I did implement some rudimentary error handling, don't expect them to be robust to bad input.
 
 
@@ -34,6 +36,9 @@ Pathname of the output file that txt2omr.py will write.
 
 = scale 57346560
 Number of master clock ticks per time unit (frame). All following time intervals in the event log will be multiplied by this number.
+
+= offset 35896320
+Position of the input events within the frame, in master clock ticks: the time of the first event log entry. When the input was entered with advance_frame (see above), the input events are at a fixed position within each frame, which is usually not at a multiple of the frame length counted from time 0. omr2txt.py detects this position and writes it here, so that txt2omr.py puts the events at the same position within the frames. It must come before the first event log entry. Without it, the offset is 0.
 
 = input r key 8 7
 Defines an input name "r" as a key press of keyboard matrix row 8, column 7. Currently key presses are the only supported types of events.
