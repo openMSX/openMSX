@@ -1495,7 +1495,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 			ImGui::OpenPopup("bindings");
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Calibrate joystick axes")) showCalibrateJoystick = true;
+		if (ImGui::Button("Calibrate joystick axes")) calibrateWindow.raise();
 		im::Popup("bindings", [&]{
 			auto addOrSet = [&](auto getBindings) {
 				if (ImGui::MenuItem("Add to current bindings")) {
@@ -1692,7 +1692,7 @@ void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
 {
 	auto s = ImGui::GetFontSize();
 	ImGui::SetNextWindowSize(gl::vec2{32, 25} * s, ImGuiCond_FirstUseEver);
-	im::Window("Calibrate joysticks", &showCalibrateJoystick, [&]{
+	im::Window("Calibrate joysticks", calibrateWindow, [&]{
 		auto joysticks = joystickManager.getConnectedJoysticks();
 		bool disabled = joysticks.empty();
 		if (selectedJoystick >= joysticks.size()) selectedJoystick = 0;
@@ -2083,7 +2083,7 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 	} else {
 		deinitListener();
 	}
-	if (showCalibrateJoystick) paintCalibrate(joystickManager);
+	if (calibrateWindow.open) paintCalibrate(joystickManager);
 	if (showFont) paintFont();
 	if (showShortcut) paintShortcut();
 }
