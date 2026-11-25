@@ -247,6 +247,17 @@
   Files and directories that already exist on the MSX disk are not
   overwritten, unless the <code>-overwrite</code> option is given.</p>
 
+  <p>Each argument is a Tcl list of host files and directories. That way, the
+  result of the <code>glob</code> command (see below) can be used directly. But
+  it also means that a path that contains spaces is split into several paths. To
+  import such a path, pass it as a list, for instance with the Tcl
+  <code>list</code> command:</p>
+
+  <p><code>diskmanipulator import hda1 [list "my file.txt"]</code></p>
+
+  <p>If one of the host files or directories doesn't exist, nothing is
+  imported.</p>
+
   <p>If you want to use wildcards when importing files, you will have to use
   the Tcl <a class="external" href="http://www.tcl.tk/man/tcl8.5/TclCmd/glob.htm">
   <code>glob</code></a> command. This command will perform the wildcard
