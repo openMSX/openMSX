@@ -737,6 +737,7 @@ void DirAsDSK::addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSec
 		}
 	}
 	std::ranges::sort(hostNames, {}, [](const std::string& n) { return weight(n); });
+	adoptHostNameCase(hostSubDir, hostNames);
 
 	for (auto& hostName : hostNames) {
 		try {
@@ -759,6 +760,52 @@ void DirAsDSK::addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSec
 			}
 		} catch (MSXException& e) {
 			cliComm.printWarning(e.getMessage());
+		}
+	}
+}
+
+// On a case-insensitive host file system a mapped host file can get a name
+// that differs only in case from its name in 'mapDirs' (e.g. renamed on the
+// host). Then it doesn't match in the listing and would look like a new file.
+// So adopt the name from the listing (for a directory also in the paths below
+// it), but only if the mapped name itself isn't in the listing.
+void DirAsDSK::adoptHostNameCase(std::string_view hostSubDir, std::span<const std::string> hostNames)
+{
+	// the mapped names directly in this directory, sorted case-insensitively
+	struct Mapped {
+		std::string_view name;
+		MapDir* mapDir;
+	};
+	std::vector<Mapped> mapped;
+	for (auto& [idx, mapDir] : mapDirs) {
+		std::string_view n = mapDir.hostName;
+		if (!n.starts_with(hostSubDir)) continue;
+		n.remove_prefix(hostSubDir.size());
+		if (n.contains('/')) continue; // in a subdirectory
+		mapped.emplace_back(n, &mapDir);
+	}
+	std::ranges::sort(mapped, StringOp::caseless{}, &Mapped::name);
+
+	auto listing = to_vector<std::string_view>(hostNames);
+	std::ranges::sort(listing);
+
+	for (const auto& hostName : hostNames) {
+		auto same = std::ranges::equal_range(mapped, hostName, StringOp::caseless{}, &Mapped::name);
+		if (contains(same, hostName, &Mapped::name)) continue; // already mapped (or no match)
+		auto it = std::ranges::find_if(same, [&](const Mapped& m) {
+			return !std::ranges::binary_search(listing, m.name);
+		});
+		if (it == same.end()) continue;
+
+		// adopt the name, also in the paths below it, in case it's a directory
+		auto oldPrefix = strCat(it->mapDir->hostName, '/');
+		auto newPrefix = strCat(hostSubDir, hostName, '/');
+		it->mapDir->hostName = strCat(hostSubDir, hostName);
+		it->name = std::string_view(it->mapDir->hostName).substr(hostSubDir.size());
+		for (auto& [idx, md] : mapDirs) {
+			if (md.hostName.starts_with(oldPrefix)) {
+				md.hostName.replace(0, oldPrefix.size(), newPrefix);
+			}
 		}
 	}
 }
