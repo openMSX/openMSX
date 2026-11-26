@@ -58,6 +58,7 @@ private:
 	im::WindowStatus showFont;
 	im::WindowStatus showShortcut;
 	Shortcuts::ID editShortcutId = Shortcuts::ID::INVALID;
+	im::WindowStatus editShortcutWindow;
 
 	unsigned joystick = 0;
 	unsigned addPopupForKey = unsigned(-1);

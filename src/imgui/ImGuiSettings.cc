@@ -1956,10 +1956,9 @@ void ImGuiSettings::paintEditShortcut()
 {
 	using enum Shortcuts::Type;
 
-	bool editShortcutWindow = editShortcutId != Shortcuts::ID::INVALID;
-	if (!editShortcutWindow) return;
+	if (!editShortcutWindow.open) return;
 
-	im::Window("Edit shortcut", &editShortcutWindow, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+	im::Window("Edit shortcut", editShortcutWindow, ImGuiWindowFlags_AlwaysAutoResize, [&]{
 		auto& shortcuts = manager.getShortcuts();
 		auto shortcut = shortcuts.getShortcut(editShortcutId);
 
@@ -1993,7 +1992,7 @@ void ImGuiSettings::paintEditShortcut()
 				if (auto keyChord = getCurrentlyPressedKeyChord(); keyChord != ImGuiKey_None) {
 					shortcut.keyChord = keyChord;
 					shortcuts.setShortcut(editShortcutId, shortcut);
-					editShortcutWindow = false;
+					editShortcutWindow.open = false;
 					ImGui::CloseCurrentPopup();
 				}
 			});
@@ -2020,7 +2019,7 @@ void ImGuiSettings::paintEditShortcut()
 		im::Disabled(shortcut == defaultShortcut, [&]{
 			if (ImGui::Button("Restore default")) {
 				shortcuts.setShortcut(editShortcutId, defaultShortcut);
-				editShortcutWindow = false;
+				editShortcutWindow.open = false;
 			}
 			simpleToolTip([&]{ return formatShortcutWithAnnotations(defaultShortcut); });
 		});
@@ -2029,12 +2028,12 @@ void ImGuiSettings::paintEditShortcut()
 		im::Disabled(shortcut == Shortcuts::Shortcut{}, [&]{
 			if (ImGui::Button("Set None")) {
 				shortcuts.setShortcut(editShortcutId, Shortcuts::Shortcut{});
-				editShortcutWindow = false;
+				editShortcutWindow.open = false;
 			}
 			simpleToolTip("Set no binding for this shortcut"sv);
 		});
 	});
-	if (!editShortcutWindow) editShortcutId = Shortcuts::ID::INVALID;
+	if (!editShortcutWindow.open) editShortcutId = Shortcuts::ID::INVALID;
 }
 
 void ImGuiSettings::paintShortcut()
@@ -2061,6 +2060,7 @@ void ImGuiSettings::paintShortcut()
 					auto text = formatShortcutWithAnnotations(shortcut);
 					if (ImGui::Button(text.c_str(), buttonSize(text, 9.0f))) {
 						editShortcutId = id;
+						editShortcutWindow.raise();
 						centerNextWindowOverCurrent();
 					}
 				}
