@@ -435,7 +435,7 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 					}
 				});
 		}
-		if (ImGui::MenuItem("Close")) show = false;
+		if (ImGui::MenuItem("Close")) show.open = false;
 	});
 	im::Menu("View", [&]{
 		if (menuItemWithShortcut(manager, "Zoom to fit", Shortcuts::ID::TRACE_ZOOM_TO_FIT)) {
@@ -1449,10 +1449,10 @@ void ImGuiTraceViewer::paint(MSXMotherBoard* motherBoard)
 {
 	if (!motherBoard) return;
 
-	if (show) {
+	if (show.open) {
 		ImGui::SetNextWindowSize(gl::vec2{68, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 		int flags = showMenuBar ? ImGuiWindowFlags_MenuBar : 0;
-		im::Window("Probe/Trace Viewer", &show, flags, [&] {
+		im::Window("Probe/Trace Viewer", show, flags, [&] {
 			paintMain(*motherBoard);
 		});
 	}

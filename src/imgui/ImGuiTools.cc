@@ -47,7 +47,7 @@ void ImGuiTools::save(ImGuiTextBuffer& buf)
 	savePersistent(buf, *this, persistentElements);
 
 	for (const auto& note : notes) {
-		buf.appendf("note.show=%d\n", note.show);
+		buf.appendf("note.show=%d\n", note.show.open);
 		buf.appendf("note.text=%s\n", escape_newline::encode(note.text).c_str());
 	}
 }
@@ -64,7 +64,7 @@ void ImGuiTools::loadLine(std::string_view name, zstring_view value)
 	} else if (name.starts_with("note.")) {
 		if (name.ends_with(".show")) {
 			auto& note = notes.emplace_back();
-			note.show = StringOp::stringToBool(value);
+			note.show.open = StringOp::stringToBool(value);
 		} else if (name.ends_with(".text") && !notes.empty()) {
 			notes.back().text = escape_newline::decode(value);
 		}
@@ -100,9 +100,9 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 	im::Menu("Tools", [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
 
-		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard->show);
+		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard->show.open);
 		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
-		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console->show);
+		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console->show.open);
 		ImGui::MenuItem("Show message log", nullptr, &manager.messages->logWindow.open);
 		ImGui::Separator();
 
@@ -117,41 +117,41 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 			manager.executeDelayed(TclObject(pasteCommand));
 		}
 		if (ImGui::MenuItem("Simple notes widget...")) {
-			if (auto it = std::ranges::find(notes, false, &Note::show);
+			if (auto it = std::ranges::find(notes, false, [](const Note& n) { return n.show.open; });
 			    it != notes.end()) {
 				// reopen a closed note
-				it->show = true;
+				it->show.raise();
 			} else {
 				// create a new note
 				auto& note = notes.emplace_back();
-				note.show = true;
+				note.show.open = true;
 			}
 		}
 		simpleToolTip("Typical use: dock into a larger layout to add free text.");
 		ImGui::Separator();
 
 		im::Menu("Capture", [&]{
-			ImGui::MenuItem("Screenshot...", nullptr, &showScreenshot);
-			ImGui::MenuItem("Audio/Video...", nullptr, &showRecord);
+			ImGui::MenuItem("Screenshot...", nullptr, &showScreenshot.open);
+			ImGui::MenuItem("Audio/Video...", nullptr, &showRecord.open);
 		});
 		ImGui::Separator();
 
-		ImGui::MenuItem("Disk Manipulator", nullptr, &manager.diskManipulator->show);
+		ImGui::MenuItem("Disk Manipulator", nullptr, &manager.diskManipulator->show.open);
 		ImGui::Separator();
 
-		ImGui::MenuItem("Trainer Selector", nullptr, &manager.trainer->show);
-		ImGui::MenuItem("Cheat Finder", nullptr, &manager.cheatFinder->show);
+		ImGui::MenuItem("Trainer Selector", nullptr, &manager.trainer->show.open);
+		ImGui::MenuItem("Cheat Finder", nullptr, &manager.cheatFinder->show.open);
 		ImGui::Separator();
 
-		ImGui::MenuItem("SCC viewer", nullptr, &manager.sccViewer->show);
-		ImGui::MenuItem("MSX-Music viewer", nullptr, &manager.msxMusicViewer->show);
-		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show);
-		ImGui::MenuItem("Plotter viewer", nullptr, &manager.plotterViewer->show);
+		ImGui::MenuItem("SCC viewer", nullptr, &manager.sccViewer->show.open);
+		ImGui::MenuItem("MSX-Music viewer", nullptr, &manager.msxMusicViewer->show.open);
+		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show.open);
+		ImGui::MenuItem("Plotter viewer", nullptr, &manager.plotterViewer->show.open);
 		simpleToolTip("The plotter should be plugged into the printer port");
-		ImGui::MenuItem("Slot map", nullptr, &manager.slotMap->show);
+		ImGui::MenuItem("Slot map", nullptr, &manager.slotMap->show.open);
 		simpleToolTip("Show which devices are visible in which slot/page. "
 		              "Same information as the 'slotmap' console command.");
-		ImGui::MenuItem("I/O ports", nullptr, &manager.ioPorts->show);
+		ImGui::MenuItem("I/O ports", nullptr, &manager.ioPorts->show.open);
 		simpleToolTip("Shows which device is connected to which I/O port");
 		ImGui::Separator();
 
@@ -174,8 +174,8 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 
 void ImGuiTools::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (showScreenshot) paintScreenshot();
-	if (showRecord) paintRecord();
+	if (showScreenshot.open) paintScreenshot();
+	if (showRecord.open) paintRecord();
 	paintNotes();
 
 	confirmDialog.execute();
@@ -223,7 +223,7 @@ void ImGuiTools::nextScreenshotName()
 void ImGuiTools::paintScreenshot()
 {
 	ImGui::SetNextWindowSize(gl::vec2{24, 19} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Capture screenshot", &showScreenshot, [&]{
+	im::Window("Capture screenshot", showScreenshot, [&]{
 		if (ImGui::IsWindowAppearing()) {
 			// on each re-open of this window, create a suggestion for a name
 			generateScreenshotName();
@@ -308,7 +308,7 @@ void ImGuiTools::paintRecord()
 
 	auto title = recording ? strCat("Recording to ", FileOperations::getFilename(getRecordFilename()))
 	                       : std::string("Capture Audio/Video");
-	im::Window(tmpStrCat(title, "###A/V").c_str(), &showRecord, [&]{
+	im::Window(tmpStrCat(title, "###A/V").c_str(), showRecord, [&]{
 		im::Disabled(recording, [&]{
 			im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 				ImGui::TextUnformatted("Source:"sv);
@@ -402,9 +402,9 @@ void ImGuiTools::paintRecord()
 void ImGuiTools::paintNotes()
 {
 	for (auto [i, note] : enumerate(notes)) {
-		if (!note.show) continue;
+		if (!note.show.open) continue;
 
-		im::Window(tmpStrCat("Note ", i + 1).c_str(), &note.show, [&]{
+		im::Window(tmpStrCat("Note ", i + 1).c_str(), note.show, [&]{
 			ImGui::InputTextMultiline("##text", &note.text, {-FLT_MIN, -FLT_MIN});
 		});
 	}

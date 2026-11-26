@@ -51,9 +51,9 @@ void ImGuiV9990Tiles::loadLine(std::string_view name, zstring_view value)
 //   bitmap (64 patterns per row). Even/odd bytes use palette A/B.
 void ImGuiV9990Tiles::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 	ImGui::SetNextWindowSize({692, 886}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* v9990 = dynamic_cast<V9990*>(motherBoard->findDevice("Sunrise GFX9000")); // TODO name based OK?
 		if (!v9990) return;
 		using enum V9990DisplayMode;

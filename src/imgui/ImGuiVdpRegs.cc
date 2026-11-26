@@ -442,10 +442,10 @@ static constexpr VDPRegisterTables<Regs> vdpRegisters{registerDescriptions, regF
 
 void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 
 	ImGui::SetNextWindowSize(gl::vec2{41, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("VDP registers", &show, [&]{
+	im::Window("VDP registers", show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 		auto time = motherBoard->getCurrentTime();

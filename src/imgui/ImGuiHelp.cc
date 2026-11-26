@@ -26,7 +26,7 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 			ImGui::TextLinkOpenURL("Setup Guide", strCat("file://", docDir, "/manual/setup.html").c_str());
 			ImGui::TextLinkOpenURL("User Manual", strCat("file://", docDir, "/manual/user.html").c_str());
 		});
-		ImGui::MenuItem("Dear ImGui user guide", nullptr, &showImGuiUserGuide);
+		ImGui::MenuItem("Dear ImGui user guide", nullptr, &showImGuiUserGuide.open);
 		ImGui::Separator();
 		ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
 		HelpMarker("Show the ImGui demo window.\n"
@@ -34,17 +34,17 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 			"and can sometimes help to diagnose problems.\n"
 			"There is no connection with any openMSX functionality.");
 		ImGui::Separator();
-		ImGui::MenuItem("About openMSX", nullptr, &showAboutOpenMSX);
+		ImGui::MenuItem("About openMSX", nullptr, &showAboutOpenMSX.open);
 		ImGui::MenuItem("About Dear ImGui", nullptr, &showAboutImGui);
 	});
 }
 
 void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (showAboutOpenMSX) paintAbout();
+	if (showAboutOpenMSX.open) paintAbout();
 	if (showAboutImGui) ImGui::ShowAboutWindow(&showAboutImGui);
-	if (showImGuiUserGuide) {
-		im::Window("Dear ImGui User Guide", &showImGuiUserGuide, [&]{
+	if (showImGuiUserGuide.open) {
+		im::Window("Dear ImGui User Guide", showImGuiUserGuide, [&]{
 			ImGui::ShowUserGuide();
 		});
 	}
@@ -55,7 +55,7 @@ void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
 
 void ImGuiHelp::paintAbout()
 {
-	im::Window("About openMSX", &showAboutOpenMSX, [&]{
+	im::Window("About openMSX", showAboutOpenMSX, [&]{
 		if (!logo) {
 			logo.emplace(); // initialize with null-image
 			try {

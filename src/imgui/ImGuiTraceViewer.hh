@@ -54,7 +54,7 @@ public:
 	                                                       Tracer::Trace::Format format);
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 	im::WindowStatus selectWindow;
 
 private:

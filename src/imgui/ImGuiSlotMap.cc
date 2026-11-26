@@ -481,7 +481,7 @@ static gl::vec2 defaultWindowSize(const Metrics& m)
 
 void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show) return;
+	if (!show.open) return;
 	if (!motherBoard) return;
 
 	auto& cpuInterface = motherBoard->getCPUInterface();
@@ -513,7 +513,7 @@ void ImGuiSlotMap::paint(MSXMotherBoard* motherBoard)
 	ctx.separators.reserve(64);
 
 	ImGui::SetNextWindowSize(defaultWindowSize(ctx.metrics), ImGuiCond_FirstUseEver);
-	im::Window("Slot map", &show, [&]{
+	im::Window("Slot map", show, [&]{
 		ctx.drawList = ImGui::GetWindowDrawList();
 		drawSlotMap(ctx);
 

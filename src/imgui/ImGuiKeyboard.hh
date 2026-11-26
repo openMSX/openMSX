@@ -19,7 +19,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	// The labels of the keys are calculated once per machine (they come

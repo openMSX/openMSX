@@ -18,7 +18,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	static constexpr auto persistentElements = std::tuple{

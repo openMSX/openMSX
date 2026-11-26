@@ -217,7 +217,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				simpleToolTip(autoEnableReverseSetting->getDescription());
 			}
 
-			ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar, reverseEnabled);
+			ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar.open, reverseEnabled);
 		});
 	});
 
@@ -226,7 +226,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 
 void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 {
-	if (!showReverseBar) return;
+	if (!showReverseBar.open) return;
 	if (!motherBoard) return;
 	auto& reverseManager = motherBoard->getReverseManager();
 	if (!reverseManager.isCollecting()) return;
@@ -256,7 +256,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 	                               (reverseAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                             : 0;
 	adjust.pre();
-	im::Window("Reverse bar", &showReverseBar, flags, [&]{
+	im::Window("Reverse bar", showReverseBar, flags, [&]{
 		bool isOnMainViewPort = adjust.post();
 		auto b = reverseManager.getBegin();
 		auto e = reverseManager.getEnd();

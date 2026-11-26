@@ -191,7 +191,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (motherBoard) {
 			ImGui::Separator();
 
-			ImGui::MenuItem("Quick setup editor", nullptr, &showQuickSetupEditor);
+			ImGui::MenuItem("Quick setup editor", nullptr, &showQuickSetupEditor.open);
 
 			loadSetupOpen = setupFileList.menu("Load setup");
 
@@ -405,7 +405,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		}
 
 		ImGui::Separator();
-		ImGui::MenuItem("Test MSX hardware", nullptr, &showTestHardware);
+		ImGui::MenuItem("Test MSX hardware", nullptr, &showTestHardware.open);
 	});
 
 	confirmDialog.execute();
@@ -786,12 +786,12 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 	if (selectMachineWindow.open) {
 		paintSelectMachine(motherBoard);
 	}
-	if (showTestHardware) {
+	if (showTestHardware.open) {
 		paintTestHardware();
 	}
-	if (showQuickSetupEditor) {
+	if (showQuickSetupEditor.open) {
 		ImGui::SetNextWindowSize(ImVec2(0, 0)); // 0,0 will auto-size based on content
-		im::Window("Quick Setup Editor", &showQuickSetupEditor, [&]{
+		im::Window("Quick Setup Editor", showQuickSetupEditor, [&]{
 			if (motherBoard) {
 				showSetupOverviewEdit(*motherBoard);
 			} else {
@@ -997,7 +997,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 void ImGuiMachine::paintTestHardware()
 {
 	ImGui::SetNextWindowSize(gl::vec2{41.0f, 32.5f} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Test MSX hardware", &showTestHardware, [&]{
+	im::Window("Test MSX hardware", showTestHardware, [&]{
 		auto formatNum = [](size_t num, std::string_view text) {
 			if (num == 0) {
 				return strCat("No ", text, "###", text);

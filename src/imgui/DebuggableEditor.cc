@@ -109,7 +109,7 @@ void DebuggableEditor::makeSnapshot(Debuggable& debuggable)
 
 void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 {
-	if (!open || !motherBoard) return;
+	if (!window.open || !motherBoard) return;
 	auto& debugger = motherBoard->getDebugger();
 	auto* debuggable = debugger.findDebuggable(getDebuggableName());
 	if (!debuggable) return;
@@ -128,9 +128,7 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	im::ScopedFont sf(manager.fontMono);
 
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
-	if (gotoAddr) ImGui::SetNextWindowFocus();
-
-	im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
+	im::Window(title.c_str(), window, ImGuiWindowFlags_NoScrollbar, [&]{
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
 		    ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
 			ImGui::OpenPopup("context");

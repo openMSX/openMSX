@@ -536,11 +536,11 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 			part->showMenu(motherBoard);
 		}
 	};
-	if (mainMenuBarUndocked) {
-		im::Window("openMSX main menu", &mainMenuBarUndocked, ImGuiWindowFlags_MenuBar, [&]{
+	if (mainMenuBarUndocked.open) {
+		im::Window("openMSX main menu", mainMenuBarUndocked, ImGuiWindowFlags_MenuBar, [&]{
 			im::MenuBar([&]{
 				if (ImGui::ArrowButton("re-dock-button", ImGuiDir_Down)) {
-					mainMenuBarUndocked = false;
+					mainMenuBarUndocked.open = false;
 				}
 				simpleToolTip("Dock the menu bar in the main openMSX window.");
 				drawMenu();
@@ -581,7 +581,7 @@ void ImGuiManager::paintImGui(bool msxDisplayAreaFocused)
 		im::StyleVar(ImGuiStyleVar_Alpha, menuAlpha, [&]{
 			im::MainMenuBar([&]{
 				if (ImGui::ArrowButton("undock-button", ImGuiDir_Up)) {
-					mainMenuBarUndocked = true;
+					mainMenuBarUndocked.open = true;
 				}
 				simpleToolTip("Undock the menu bar from the main openMSX window.");
 				drawMenu();

@@ -262,7 +262,7 @@ void ImGuiIoPorts::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiIoPorts::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 
 	// Machines can explicitly declare that overlapping I/O ports are
 	// intentional, in that case don't flag them.
@@ -272,7 +272,7 @@ void ImGuiIoPorts::paint(MSXMotherBoard* motherBoard)
 
 	auto fontSize = ImGui::GetFontSize();
 	ImGui::SetNextWindowSize(ImVec2(46.0f * fontSize, 26.0f * fontSize), ImGuiCond_FirstUseEver);
-	im::Window("I/O ports", &show, [&]{
+	im::Window("I/O ports", show, [&]{
 		// A device doesn't necessarily occupy a contiguous range of ports
 		// (e.g. the Philips NMS-1205). Sort on 'Device' to see all ports of
 		// one device together instead of ordered by port number.

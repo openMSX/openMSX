@@ -15,13 +15,13 @@ using namespace std::literals;
 
 void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (!show) return;
+	if (!show.open) return;
 
 	bool start = false;
 	std::string searchExpr;
 
 	ImGui::SetNextWindowSize(gl::vec2{35, 0} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Cheat Finder", &show, [&]{
+	im::Window("Cheat Finder", show, [&]{
 		const auto& style = ImGui::GetStyle();
 		auto tSize = ImGui::CalcTextSize("=="sv).x + 2.0f * style.FramePadding.x;
 		auto bSpacing = 2.0f;

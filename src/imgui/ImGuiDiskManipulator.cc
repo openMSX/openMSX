@@ -303,7 +303,7 @@ std::string ImGuiDiskManipulator::getDiskImageName()
 
 void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (!show) return;
+	if (!show.open) return;
 
 	auto stuff = getMsxStuff();
 	if (stuff) {
@@ -323,7 +323,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 	const auto& style = ImGui::GetStyle();
 	ImGui::SetNextWindowSize(gl::vec2{70, 45} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Disk Manipulator", &show, [&]{
+	im::Window("Disk Manipulator", show, [&]{
 		auto availableSize = ImGui::GetContentRegionAvail();
 		auto tSize = ImGui::CalcTextSize(">>"sv);
 		auto bWidth = 2.0f * (style.ItemSpacing.x + style.FramePadding.x) + tSize.x;

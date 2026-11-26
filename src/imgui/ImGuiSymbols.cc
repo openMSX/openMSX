@@ -310,11 +310,11 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 
 void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show) return;
+	if (!show.open) return;
 
 	const auto& style = ImGui::GetStyle();
 	ImGui::SetNextWindowSize(gl::vec2{24, 18} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Symbol Manager", &show, [&]{
+	im::Window("Symbol Manager", show, [&]{
 		if (ImGui::Button("Load symbol file...")) {
 			manager.openFile->selectFile(
 				"Select symbol file",

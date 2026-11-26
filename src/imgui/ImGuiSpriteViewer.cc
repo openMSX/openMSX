@@ -88,10 +88,10 @@ static void renderSpriteAttrib(const VramTable& att, int sprite, int mode, int s
 
 void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 
 	ImGui::SetNextWindowSize({748, 1010}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 		const auto& vram = vdp->getVRAM().getData();

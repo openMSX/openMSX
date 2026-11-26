@@ -27,7 +27,7 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
-	bool show = true;
+	im::WindowStatus show{.open = true};
 
 private:
 	std::string title;

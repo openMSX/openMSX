@@ -57,7 +57,7 @@ private:
 	                           std::span<uint32_t> output);
 
 public:
-	bool show = true;
+	im::WindowStatus show{.open = true};
 
 private:
 	std::string title;

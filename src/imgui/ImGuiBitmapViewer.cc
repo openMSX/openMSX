@@ -116,11 +116,11 @@ void ImGuiBitmapViewer::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show) return;
+	if (!show.open) return;
 	if (!motherBoard) return;
 
 	ImGui::SetNextWindowSize({528, 620}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp || vdp->isMSX1VDP()) return;
 

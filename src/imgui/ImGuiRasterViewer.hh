@@ -49,7 +49,7 @@ private:
 	TraceInfo& getTraceInfoFor(std::string_view name);
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	ImGuiTraceViewer& traceViewer;

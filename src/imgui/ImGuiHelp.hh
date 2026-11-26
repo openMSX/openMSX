@@ -30,8 +30,8 @@ private:
 	void paintAbout();
 
 private:
-	bool showImGuiUserGuide = false;
-	bool showAboutOpenMSX = false;
+	im::WindowStatus showImGuiUserGuide;
+	im::WindowStatus showAboutOpenMSX;
 	bool showAboutImGui = false;
 	bool showDemoWindow = false;
 

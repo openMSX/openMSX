@@ -44,7 +44,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	void loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type,

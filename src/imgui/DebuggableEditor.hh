@@ -46,7 +46,7 @@ public:
 
 	// Moves the cursor to 'addr' and brings the window to the front. In
 	// expression mode the expression is replaced by 'addr'.
-	void gotoAddress(unsigned addr) { gotoAddr = addr; }
+	void gotoAddress(unsigned addr) { gotoAddr = addr; window.raise(); }
 
 	// ImGuiPart
 	[[nodiscard]] zstring_view iniName() const override { return title; }
@@ -56,7 +56,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool open = true;
+	im::WindowStatus window{.open = true};
 
 private:
 	[[nodiscard]] Sizes calcSizes(unsigned memSize) const;
@@ -123,7 +123,7 @@ private:
 	float exportStatusTimeout = 0.0f;
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement   {"open",             &DebuggableEditor::open},
+		PersistentElement   {"open",             &DebuggableEditor::window},
 		PersistentElementMax{"columns",          &DebuggableEditor::columns, MAX_COLUMNS + 1},
 		PersistentElement   {"showAscii",        &DebuggableEditor::showAscii},
 		PersistentElement   {"showAddress",      &DebuggableEditor::showAddress},

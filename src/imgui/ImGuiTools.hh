@@ -21,7 +21,7 @@ public:
 private:
 	struct Note {
 		std::string text;
-		bool show = false;
+		im::WindowStatus show;
 	};
 
 private:
@@ -36,8 +36,8 @@ private:
 	[[nodiscard]] std::string getRecordFilename() const;
 
 private:
-	bool showScreenshot = false;
-	bool showRecord = false;
+	im::WindowStatus showScreenshot;
+	im::WindowStatus showRecord;
 
 	std::string screenshotName;
 	enum class SsType : int { RENDERED, MSX, NUM };

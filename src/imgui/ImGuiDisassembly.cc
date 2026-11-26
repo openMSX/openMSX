@@ -62,8 +62,7 @@ void ImGuiDisassembly::loadEnd()
 void ImGuiDisassembly::setGotoTarget(uint16_t target)
 {
 	gotoTarget = target;
-	show = true;
-	raiseWindow = true;
+	show.raise();
 	setDisassemblyScrollY.reset(); // don't restore initial scroll position
 }
 
@@ -197,14 +196,10 @@ void ImGuiDisassembly::actionToggleBp(MSXMotherBoard& motherBoard)
 
 void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 {
-	if (!motherBoard || !show) return;
+	if (!motherBoard || !show.open) return;
 
 	ImGui::SetNextWindowSize({340, 540}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
-		if (raiseWindow) {
-			raiseWindow = false;
-			im::raiseCurrentWindow();
-		}
+	im::Window(title.c_str(), show, [&]{
 		auto& regs = motherBoard->getCPU().getRegisters();
 		auto& cpuInterface = motherBoard->getCPUInterface();
 		auto& debugger = motherBoard->getDebugger();

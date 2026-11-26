@@ -31,10 +31,10 @@ void ImGuiPlotterViewer::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiPlotterViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show) return;
+	if (!show.open) return;
 
 	ImGui::SetNextWindowSize({480, 720}, ImGuiCond_FirstUseEver);
-	im::Window("Plotter viewer", &show, [&]{
+	im::Window("Plotter viewer", show, [&]{
 		if (!motherBoard) {
 			ImGui::TextUnformatted("No machine present.");
 			return;

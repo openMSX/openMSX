@@ -54,9 +54,9 @@ private:
 	std::span<const FontInfo> getAvailableFonts();
 
 private:
-	bool showConfigureJoystick = false;
-	bool showFont = false;
-	bool showShortcut = false;
+	im::WindowStatus showConfigureJoystick;
+	im::WindowStatus showFont;
+	im::WindowStatus showShortcut;
 	Shortcuts::ID editShortcutId = Shortcuts::ID::INVALID;
 
 	unsigned joystick = 0;

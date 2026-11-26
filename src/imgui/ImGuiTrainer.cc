@@ -29,7 +29,7 @@ void ImGuiTrainer::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (!show) return;
+	if (!show.open) return;
 
 	if (!trainers) {
 		if (!manager.getReactor().isFullyStarted()) {
@@ -54,7 +54,7 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 	bool none = false;
 
 	ImGui::SetNextWindowSize(gl::vec2{28, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Trainer Selector", &show, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+	im::Window("Trainer Selector", show, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		ImGui::TextUnformatted("Select Game:"sv);
 		zstring_view displayName = activeGame.getString();
 		if (displayName.empty()) displayName = "none";

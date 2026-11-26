@@ -110,11 +110,11 @@ private:
 	int showChanges = SHOW_DURING_BREAK;
 	gl::vec4 changesColor{1.0f, 0.0f, 0.0f, 1.0f}; // RGBA
 
-	bool showControl = false;
-	bool showSlots = false;
-	bool showStack = false;
-	bool showRegisters = false;
-	bool showFlags = false;
+	im::WindowStatus showControl;
+	im::WindowStatus showSlots;
+	im::WindowStatus showStack;
+	im::WindowStatus showRegisters;
+	im::WindowStatus showFlags;
 	bool showXYFlags = false;
 	int flagsLayout = 1;
 	std::string breakpointFile;

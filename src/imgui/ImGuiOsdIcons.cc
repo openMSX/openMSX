@@ -134,7 +134,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (iconInfoDirty) loadIcons();
 	if (configureWindow.open) paintConfigureIcons();
-	if (!showIcons) return;
+	if (!showIcons.open) return;
 
 	// default placement: bottom left
 	const auto* mainViewPort = ImGui::GetMainViewport();
@@ -152,7 +152,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	                        (allowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                      : 0;
 	adjust.pre();
-	im::Window("Icons", &showIcons, flags | ImGuiWindowFlags_HorizontalScrollbar, [&]{
+	im::Window("Icons", showIcons, flags | ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		bool isOnMainViewPort = adjust.post();
 		gl::vec2 topLeft = ImGui::GetCursorPos();
 
@@ -240,7 +240,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 {
 	ImGui::SetNextWindowSize(gl::vec2{37, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Configure Icons", configureWindow, [&]{
-		ImGui::Checkbox("Show OSD icons", &showIcons);
+		ImGui::Checkbox("Show OSD icons", &showIcons.open);
 		ImGui::Separator();
 
 		if (ImGui::Checkbox("Hide Title", &hideTitle)) {

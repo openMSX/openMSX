@@ -66,7 +66,7 @@ private:
 	void paintMsxMusic(const YM2413& ym2413);
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	std::map<std::string, ChipState, std::less<>> chips;

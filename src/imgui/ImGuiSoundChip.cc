@@ -21,8 +21,8 @@ namespace openmsx {
 void ImGuiSoundChip::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
-	for (const auto& [name, enabled] : channels) {
-		buf.appendf("showChannels.%s=%d\n", name.c_str(), enabled);
+	for (const auto& [name, window] : channels) {
+		buf.appendf("showChannels.%s=%d\n", name.c_str(), window.open);
 	}
 }
 
@@ -31,14 +31,14 @@ void ImGuiSoundChip::loadLine(std::string_view name, zstring_view value)
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
 		// already handled
 	} else if (name.starts_with("showChannels.")) {
-		channels[std::string(name.substr(13))] = StringOp::stringToBool(value);
+		channels[std::string(name.substr(13))].open = StringOp::stringToBool(value);
 	}
 }
 
 void ImGuiSoundChip::paint(MSXMotherBoard* motherBoard)
 {
 	if (!motherBoard) return;
-	if (showSoundChipSettings) {
+	if (showSoundChipSettings.open) {
 		showChipSettings(*motherBoard);
 	}
 
@@ -47,10 +47,9 @@ void ImGuiSoundChip::paint(MSXMotherBoard* motherBoard)
 	const auto& infos = msxMixer.getDeviceInfos();
 	for (const auto& info : infos) {
 		const auto& name = info.device->getName();
-		auto [it, inserted] = channels.try_emplace(name, false);
-		auto& enabled = it->second;
-		if (enabled) {
-			showChannelSettings(*motherBoard, name, &enabled);
+		auto& window = channels[name];
+		if (window.open) {
+			showChannelSettings(*motherBoard, name, window);
 		}
 	}
 }
@@ -73,7 +72,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 		});
 	};
 
-	im::Window("Sound chip settings", &showSoundChipSettings, [&]{
+	im::Window("Sound chip settings", showSoundChipSettings, [&]{
 		int tableFlags = ImGuiTableFlags_RowBg |
 		                 ImGuiTableFlags_BordersV |
 		                 ImGuiTableFlags_BordersOuter |
@@ -124,10 +123,9 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, getColor(imColor::YELLOW));
 					}
 					const auto& name = info.device->getName();
-					auto [it, inserted] = channels.try_emplace(name, false);
-					auto& enabled = it->second;
+					auto& window = channels[name];
 					im::Indent([&]{
-						ImGui::Checkbox("##channels", &enabled);
+						ImGui::Checkbox("##channels", &window.open);
 					});
 				}
 			});
@@ -135,7 +133,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 	});
 }
 
-void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std::string& name, bool* enabled)
+void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std::string& name, im::WindowStatus& window)
 {
 	const auto& msxMixer = motherBoard.getMSXMixer();
 	const auto* info = msxMixer.findDeviceInfo(name);
@@ -143,7 +141,7 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 
 	auto label = tmpStrCat(name, " channel settings");
 	ImGui::SetNextWindowSize(gl::vec2{40, 0} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window(label.c_str(), enabled, [&]{
+	im::Window(label.c_str(), window, [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
 		int flags = ImGuiTableFlags_ScrollY |
 			    ImGuiTableFlags_RowBg |
