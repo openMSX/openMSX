@@ -287,7 +287,7 @@ void ImGuiMessages::paintOSD()
 	ImGui::SetNextWindowViewport(mainViewPort->ID);
 	ImGui::SetNextWindowPos(gl::vec2(mainViewPort->WorkPos) + gl::vec2(style.ItemSpacing));
 	ImGui::SetNextWindowSize({width, y});
-	im::Window("OSD messages", nullptr, flags, [&]{
+	im::Window("OSD messages", flags, [&]{
 		auto* drawList = ImGui::GetWindowDrawList();
 		gl::vec2 windowPos = ImGui::GetWindowPos();
 		for (const auto& [message, boxSize, yPos, textCol, bgCol] : drawInfo) {
