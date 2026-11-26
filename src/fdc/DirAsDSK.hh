@@ -8,6 +8,9 @@
 
 #include "hash_map.hh"
 
+#include <span>
+#include <string>
+#include <string_view>
 #include <utility>
 
 namespace openmsx {
@@ -76,6 +79,7 @@ private:
 	void deleteMSXFilesInDir(unsigned msxDirSector);
 	void freeFATChain(unsigned cluster);
 	void addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSector);
+	void adoptHostNameCase(std::string_view hostSubDir, std::span<const std::string> hostNames);
 	void addNewDirectory(const std::string& hostSubDir, const std::string& hostName,
 	                     unsigned msxDirSector, const FileOperations::Stat& fst);
 	void addNewHostFile(const std::string& hostSubDir, const std::string& hostName,
