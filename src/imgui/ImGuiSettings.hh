@@ -54,10 +54,11 @@ private:
 	std::span<const FontInfo> getAvailableFonts();
 
 private:
-	bool showConfigureJoystick = false;
-	bool showFont = false;
-	bool showShortcut = false;
+	im::WindowStatus showConfigureJoystick;
+	im::WindowStatus showFont;
+	im::WindowStatus showShortcut;
 	Shortcuts::ID editShortcutId = Shortcuts::ID::INVALID;
+	im::WindowStatus editShortcutWindow;
 
 	unsigned joystick = 0;
 	unsigned addPopupForKey = unsigned(-1);

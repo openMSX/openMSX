@@ -150,8 +150,9 @@ template<typename T>
 static void openOrCreate(ImGuiManager& manager, std::vector<std::unique_ptr<T>>& viewers)
 {
 	// prefer to reuse a previously closed viewer
-	if (auto it = std::ranges::find(viewers, false, &T::show); it != viewers.end()) {
-		(*it)->show = true;
+	if (auto it = std::ranges::find(viewers, false, [](const auto& v) { return v->show.open; });
+	    it != viewers.end()) {
+		(*it)->show.raise();
 		return;
 	}
 	// or create a new one
@@ -297,12 +298,12 @@ DebuggableBitmapViewer& ImGuiDebugger::openBitmapViewer(std::string_view debugga
 {
 	// prefer to reuse a previously closed viewer
 	auto [b, e] = std::ranges::equal_range(debuggableBitmapViewers, debuggableName, {}, &DebuggableBitmapViewer::getDebuggableName);
-	auto it = std::ranges::find(b, e, false, &DebuggableBitmapViewer::show);
+	auto it = std::ranges::find(b, e, false, [](const auto& v) { return v->show.open; });
 	if (it == e) {
 		// or create a new one
 		it = debuggableBitmapViewers.insert(e, std::make_unique<DebuggableBitmapViewer>(manager, debuggableName, std::distance(b, e)));
 	}
-	(*it)->show = true;
+	(*it)->show.raise();
 	return **it;
 }
 
@@ -310,13 +311,13 @@ DebuggableEditor& ImGuiDebugger::openHexEditor(std::string_view debuggableName)
 {
 	// prefer an open editor, then reuse a previously closed one (when none is open, all are closed)
 	auto [b, e] = std::ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
-	auto it = std::ranges::find(b, e, true, &DebuggableEditor::open);
+	auto it = std::ranges::find(b, e, true, [](const auto& v) { return v->window.open; });
 	if (it == e) it = b;
 	if (it == e) {
 		// or create a new one
 		it = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, debuggableName, 0));
 	}
-	(*it)->open = true;
+	(*it)->window.raise();
 	return **it;
 }
 
@@ -326,47 +327,47 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		// prefer to reuse a previously closed editor
 		auto [b, e] = std::ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
 		for (auto it = b; it != e; ++it) {
-			if (!(*it)->open) {
-				(*it)->open = true;
+			if (!(*it)->window.open) {
+				(*it)->window.raise();
 				return;
 			}
 		}
 		// or create a new one
 		auto index = std::distance(b, e);
 		auto it = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, name, index));
-		(*it)->open = true;
+		(*it)->window.raise();
 	};
 
 	im::Menu("Debugger", motherBoard != nullptr, [&]{
-		ImGui::MenuItem("Tool bar", nullptr, &showControl);
+		ImGui::MenuItem("Tool bar", nullptr, &showControl.open);
 		if (ImGui::MenuItem("Disassembly")) {
 			openOrCreate(manager, disassemblyViewers);
 		}
-		ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
-		ImGui::MenuItem("CPU flags", nullptr, &showFlags);
-		ImGui::MenuItem("Slots", nullptr, &showSlots);
-		ImGui::MenuItem("Stack", nullptr, &showStack);
+		ImGui::MenuItem("CPU registers", nullptr, &showRegisters.open);
+		ImGui::MenuItem("CPU flags", nullptr, &showFlags.open);
+		ImGui::MenuItem("Slots", nullptr, &showSlots.open);
+		ImGui::MenuItem("Stack", nullptr, &showStack.open);
 		auto it = std::ranges::lower_bound(hexEditors, "memory", {}, &DebuggableEditor::getDebuggableName);
-		bool memoryOpen = (it != hexEditors.end()) && (*it)->open;
+		bool memoryOpen = (it != hexEditors.end()) && (*it)->window.open;
 		if (ImGui::MenuItem("Memory", nullptr, &memoryOpen)) {
 			if (memoryOpen) {
 				createHexEditor("memory");
 			} else {
 				assert(it != hexEditors.end());
-				(*it)->open = false;
+				(*it)->window.open = false;
 			}
 		}
 		ImGui::Separator();
 		im::Menu("Breakpoints", [&]{
-			ImGui::MenuItem("Editor", nullptr, &manager.breakPoints->show);
+			ImGui::MenuItem("Editor", nullptr, &manager.breakPoints->show.open);
 			saveBreakpoints.menu("Save to file");
 			loadBreakpoints.menu("Load from file");
 			ImGui::Separator();
 			ImGui::MenuItem("Reload on startup", nullptr, &reloadBreakpoints);
 		});
-		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
-		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
-		ImGui::MenuItem("Probe/Trace viewer", nullptr, &manager.traceViewer->show);
+		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show.open);
+		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show.open);
+		ImGui::MenuItem("Probe/Trace viewer", nullptr, &manager.traceViewer->show.open);
 		ImGui::Separator();
 		if (ImGui::MenuItem("VDP bitmap viewer")) {
 			openOrCreate(manager, bitmapViewers);
@@ -402,8 +403,8 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 				openOrCreate(manager, v9990RegsViewers);
 			}
 		}
-		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show);
-		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show);
+		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show.open);
+		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show.open);
 		ImGui::MenuItem("Palette editor", nullptr, &manager.palette->window.open);
 		ImGui::Separator();
 		auto debuggablesMenu = [&](const char* label, std::invocable<const std::string&> auto action) {
@@ -516,8 +517,8 @@ void ImGuiDebugger::checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard
 
 void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard)
 {
-	if (!showControl) return;
-	im::Window("Debugger tool bar", &showControl, [&]{
+	if (!showControl.open) return;
+	im::Window("Debugger tool bar", showControl, [&]{
 		checkShortcuts(cpuInterface, motherBoard, nullptr);
 
 		gl::vec2 maxIconSize;
@@ -609,8 +610,8 @@ ImGuiDebugger::SlotInfo ImGuiDebugger::getSlotInfo(MSXCPUInterface& cpuInterface
 
 void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 {
-	if (!showSlots) return;
-	im::Window("Slots", &showSlots, [&]{
+	if (!showSlots.open) return;
+	im::Window("Slots", showSlots, [&]{
 		int flags = ImGuiTableFlags_BordersInnerV |
 			ImGuiTableFlags_Resizable |
 			ImGuiTableFlags_Reorderable |
@@ -660,11 +661,11 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 
 void ImGuiDebugger::drawStack(const CPURegs& regs, const MSXCPUInterface& cpuInterface, EmuTime time)
 {
-	if (!showStack) return;
+	if (!showStack.open) return;
 
 	auto line = ImGui::GetTextLineHeightWithSpacing();
 	ImGui::SetNextWindowSize(ImVec2(0.0f, 12 * line), ImGuiCond_FirstUseEver);
-	im::Window("stack", &showStack, [&]{
+	im::Window("stack", showStack, [&]{
 		auto sp = regs.getSP();
 
 		int flags = ImGuiTableFlags_ScrollY |
@@ -710,8 +711,8 @@ bool ImGuiDebugger::needDrawChanges() const
 
 void ImGuiDebugger::drawRegisters(CPURegs& regs)
 {
-	if (!showRegisters) return;
-	im::Window("CPU registers", &showRegisters, [&]{
+	if (!showRegisters.open) return;
+	im::Window("CPU registers", showRegisters, [&]{
 		std::optional<im::ScopedFont> sf(manager.fontMono);
 
 		if (!cpuRegsSnapshot && needSnapshot()) {
@@ -845,8 +846,8 @@ void ImGuiDebugger::configureChangesMenu()
 
 void ImGuiDebugger::drawFlags(CPURegs& regs)
 {
-	if (!showFlags) return;
-	im::Window("CPU flags", &showFlags, [&]{
+	if (!showFlags.open) return;
+	im::Window("CPU flags", showFlags, [&]{
 		auto [sizeH1, sizeH2, sizeV] = [&]{
 			im::ScopedFont sf(manager.fontMono);
 			return std::tuple{

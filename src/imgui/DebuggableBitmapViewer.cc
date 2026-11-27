@@ -347,11 +347,11 @@ void DebuggableBitmapViewer::validateColorMode()
 
 void DebuggableBitmapViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 
 	auto fontSize = ImGui::GetFontSize();
 	ImGui::SetNextWindowSize(gl::vec2{52, 45} * fontSize, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* debuggable = motherBoard->getDebugger().findDebuggable(getDebuggableName());
 		if (!debuggable) {
 			ImGui::StrCat("Debuggable '", getDebuggableName(), "' is not available.");

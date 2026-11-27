@@ -148,9 +148,9 @@ struct V9990Pixel {
 
 void ImGuiV9990Bitmap::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 	ImGui::SetNextWindowSize({528, 620}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* v9990 = dynamic_cast<V9990*>(motherBoard->findDevice("Sunrise GFX9000")); // TODO name based OK?
 		if (!v9990) return;
 		using enum V9990DisplayMode;

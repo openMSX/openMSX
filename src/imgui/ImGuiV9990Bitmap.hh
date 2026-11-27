@@ -39,7 +39,7 @@ private:
 	                 int width, int zx, int zy);
 
 public:
-	bool show = true;
+	im::WindowStatus show{.open = true};
 
 private:
 	std::string title;

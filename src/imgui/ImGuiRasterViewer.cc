@@ -107,11 +107,11 @@ static unsigned copyLine(const RawFrame& src, int openMsxLine, std::span<Pixel, 
 
 void ImGuiRasterViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show) return;
+	if (!show.open) return;
 	if (!motherBoard) return;
 
 	ImGui::SetNextWindowSize({700, 722}, ImGuiCond_FirstUseEver);
-	im::Window("Raster beam viewer", &show, [&]{
+	im::Window("Raster beam viewer", show, [&]{
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			paintSettings();
 		});

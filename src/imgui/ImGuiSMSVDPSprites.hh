@@ -30,7 +30,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = true;
+	im::WindowStatus show{.open = true};
 
 private:
 	std::string title;

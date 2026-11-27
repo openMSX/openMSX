@@ -48,7 +48,7 @@ private:
 		unsigned minAddr, unsigned maxAddr);
 
 public:
-	bool show = true;
+	im::WindowStatus show{.open = true};
 
 private:
 	SymbolManager& symbolManager;
@@ -60,7 +60,6 @@ private:
 	std::string gotoAddr;
 	std::string runToAddr;
 	std::optional<unsigned> gotoTarget;
-	bool raiseWindow = false; // bring the window to the front in the next paint()
 	std::optional<float> setDisassemblyScrollY;
 	bool followPC = false;
 	bool scrollToPcOnBreak = true;

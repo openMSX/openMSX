@@ -263,7 +263,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ComboBox("Resampler", globalSettings.getResampleSetting(), resamplerToolTips);
 			ImGui::Separator();
 
-			ImGui::MenuItem("Show sound chip settings", nullptr, &manager.soundChip->showSoundChipSettings);
+			ImGui::MenuItem("Show sound chip settings", nullptr, &manager.soundChip->showSoundChipSettings.open);
 		});
 		im::Menu("Speed", [&]{
 			im::TreeNode("Emulation", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -360,7 +360,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
 				}
 			}
-			ImGui::MenuItem("Configure MSX joysticks", nullptr, &showConfigureJoystick);
+			ImGui::MenuItem("Configure MSX joysticks", nullptr, &showConfigureJoystick.open);
 			auto& grabInputSetting = reactor.getInputEventGenerator().getGrabInput();
 			bool grabInput = grabInputSetting.getBoolean();
 			if (auto shortCut = getShortCutForCommand(hotKey, "toggle grabinput");
@@ -386,8 +386,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					setStyle();
 				}
 			});
-			ImGui::MenuItem("Select font", nullptr, &showFont);
-			ImGui::MenuItem("Edit shortcuts", nullptr, &showShortcut);
+			ImGui::MenuItem("Select font", nullptr, &showFont.open);
+			ImGui::MenuItem("Edit shortcuts", nullptr, &showShortcut.open);
 			ImGui::MenuItem("Configure OSD icons", nullptr, &manager.osdIcons->configureWindow.open);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			im::Menu("Status bar", [&]{
@@ -1340,7 +1340,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard, JoystickManager& 
 		// room for the bindings table plus the (upright) controller next to it
 		ImGui::SetNextWindowSizeConstraints(gl::vec2{470, 420}, gl::vec2{FLT_MAX, FLT_MAX});
 	}
-	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
+	im::Window("Configure MSX joysticks", showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
 		bool justChanged = im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
 			for (const auto& j : xrange(NUM_CONTROLLERS)) {
@@ -1883,7 +1883,7 @@ void ImGuiSettings::paintCalibrate(JoystickManager& joystickManager)
 
 void ImGuiSettings::paintFont()
 {
-	im::Window("Select font", &showFont, [&]{
+	im::Window("Select font", showFont, [&]{
 		auto selectFilename = [&](FilenameSetting& fileSetting, IntegerSetting& faceSetting, zstring_view name, float width) {
 			auto currentFile = fileSetting.getString();
 			auto currentFace = faceSetting.getInt();
@@ -1956,10 +1956,9 @@ void ImGuiSettings::paintEditShortcut()
 {
 	using enum Shortcuts::Type;
 
-	bool editShortcutWindow = editShortcutId != Shortcuts::ID::INVALID;
-	if (!editShortcutWindow) return;
+	if (!editShortcutWindow.open) return;
 
-	im::Window("Edit shortcut", &editShortcutWindow, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+	im::Window("Edit shortcut", editShortcutWindow, ImGuiWindowFlags_AlwaysAutoResize, [&]{
 		auto& shortcuts = manager.getShortcuts();
 		auto shortcut = shortcuts.getShortcut(editShortcutId);
 
@@ -1993,7 +1992,7 @@ void ImGuiSettings::paintEditShortcut()
 				if (auto keyChord = getCurrentlyPressedKeyChord(); keyChord != ImGuiKey_None) {
 					shortcut.keyChord = keyChord;
 					shortcuts.setShortcut(editShortcutId, shortcut);
-					editShortcutWindow = false;
+					editShortcutWindow.open = false;
 					ImGui::CloseCurrentPopup();
 				}
 			});
@@ -2020,7 +2019,7 @@ void ImGuiSettings::paintEditShortcut()
 		im::Disabled(shortcut == defaultShortcut, [&]{
 			if (ImGui::Button("Restore default")) {
 				shortcuts.setShortcut(editShortcutId, defaultShortcut);
-				editShortcutWindow = false;
+				editShortcutWindow.open = false;
 			}
 			simpleToolTip([&]{ return formatShortcutWithAnnotations(defaultShortcut); });
 		});
@@ -2029,17 +2028,17 @@ void ImGuiSettings::paintEditShortcut()
 		im::Disabled(shortcut == Shortcuts::Shortcut{}, [&]{
 			if (ImGui::Button("Set None")) {
 				shortcuts.setShortcut(editShortcutId, Shortcuts::Shortcut{});
-				editShortcutWindow = false;
+				editShortcutWindow.open = false;
 			}
 			simpleToolTip("Set no binding for this shortcut"sv);
 		});
 	});
-	if (!editShortcutWindow) editShortcutId = Shortcuts::ID::INVALID;
+	if (!editShortcutWindow.open) editShortcutId = Shortcuts::ID::INVALID;
 }
 
 void ImGuiSettings::paintShortcut()
 {
-	im::Window("Edit shortcuts", &showShortcut, [&]{
+	im::Window("Edit shortcuts", showShortcut, [&]{
 		int flags = ImGuiTableFlags_Resizable
 		          | ImGuiTableFlags_RowBg
 		          | ImGuiTableFlags_NoBordersInBodyUntilResize
@@ -2061,6 +2060,7 @@ void ImGuiSettings::paintShortcut()
 					auto text = formatShortcutWithAnnotations(shortcut);
 					if (ImGui::Button(text.c_str(), buttonSize(text, 9.0f))) {
 						editShortcutId = id;
+						editShortcutWindow.raise();
 						centerNextWindowOverCurrent();
 					}
 				}
@@ -2078,14 +2078,14 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 		setStyle();
 	}
 	auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
-	if (motherBoard && showConfigureJoystick) {
+	if (motherBoard && showConfigureJoystick.open) {
 		paintJoystick(*motherBoard, joystickManager);
 	} else {
 		deinitListener();
 	}
 	if (calibrateWindow.open) paintCalibrate(joystickManager);
-	if (showFont) paintFont();
-	if (showShortcut) paintShortcut();
+	if (showFont.open) paintFont();
+	if (showShortcut.open) paintShortcut();
 }
 
 std::span<const ImGuiSettings::FontInfo> ImGuiSettings::getAvailableFonts()

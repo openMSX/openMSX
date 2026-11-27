@@ -211,7 +211,7 @@ private:
 	RomType selectedRomType = RomType::UNKNOWN;
 	float insertedInfoTimeout = 0.0f;
 	gl::ivec2 windowPos;
-	bool mainMenuBarUndocked = false;
+	im::WindowStatus mainMenuBarUndocked;
 	bool handleDropped = false;
 	bool openInsertedInfo = false;
 	bool guiActive = false;

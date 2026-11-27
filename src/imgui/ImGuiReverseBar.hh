@@ -24,7 +24,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool showReverseBar = true;
+	im::WindowStatus showReverseBar{.open = true};
 
 private:
 	std::string saveStateName;

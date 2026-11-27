@@ -16,7 +16,7 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	static constexpr auto persistentElements = std::tuple{

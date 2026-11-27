@@ -95,9 +95,9 @@ static void renderPatternsSms16(std::span<const uint8_t, 0x4000> vram, unsigned 
 
 void ImGuiSMSVDPSprites::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 	ImGui::SetNextWindowSize({748, 1010}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* franky = dynamic_cast<Franky*>(motherBoard->findDevice("Franky"));
 		if (!franky) return;
 		auto& vdp = franky->getVdp();

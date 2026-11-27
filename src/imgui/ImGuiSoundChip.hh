@@ -20,12 +20,12 @@ public:
 
 private:
 	void showChipSettings(MSXMotherBoard& motherBoard);
-	void showChannelSettings(MSXMotherBoard& motherBoard, const std::string& name, bool* enabled);
+	void showChannelSettings(MSXMotherBoard& motherBoard, const std::string& name, im::WindowStatus& window);
 
 private:
-	std::map<std::string, bool, std::less<>> channels;
+	std::map<std::string, im::WindowStatus, std::less<>> channels;
 public:
-	bool showSoundChipSettings = false;
+	im::WindowStatus showSoundChipSettings;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiSoundChip::showSoundChipSettings}

@@ -98,7 +98,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus;
 	bool focus = false;
-	im::Window("MSX Display Area", nullptr, flags, [&]{
+	im::Window("MSX Display Area", flags, [&]{
 		// If no other window currently has focus, then take it ourselves.
 		if (ImGui::GetCurrentContext()->NavWindow == nullptr) {
 			ImGui::SetWindowFocus();

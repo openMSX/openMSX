@@ -450,10 +450,10 @@ static void paintDevice(SoundDevice& device, std::span<const MSXMixer::SoundDevi
 
 void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 
 	ImGui::SetNextWindowSize(gl::vec2{38, 15} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Audio channel viewer", &show, [&]{
+	im::Window("Audio channel viewer", show, [&]{
 		for (const auto& info: motherBoard->getMSXMixer().getDeviceInfos()) {
 			auto& device = *info.device;
 			const auto& name = device.getName();

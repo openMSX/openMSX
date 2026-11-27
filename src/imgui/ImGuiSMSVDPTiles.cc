@@ -106,9 +106,9 @@ void ImGuiSMSVDPTiles::renderPatterns(const PatternParams& params,
 
 void ImGuiSMSVDPTiles::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 	ImGui::SetNextWindowSize({692, 886}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* franky = dynamic_cast<Franky*>(motherBoard->findDevice("Franky"));
 		if (!franky) return;
 		auto& vdp = franky->getVdp();

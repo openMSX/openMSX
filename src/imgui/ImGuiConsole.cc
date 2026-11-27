@@ -78,9 +78,9 @@ void ImGuiConsole::loadLine(std::string_view name, zstring_view value)
 	// A console that is restored as open doesn't take the keyboard focus
 	// when it first appears: on startup the MSX should get it. (Opening
 	// the console later, e.g. with F10, still focuses its input line.)
-	wasShown = show;
+	wasShown = show.open;
 	// The 'console' setting (toggled by F10) follows the restored state.
-	consoleSetting.setBoolean(show);
+	consoleSetting.setBoolean(show.open);
 }
 
 void ImGuiConsole::print(std::string_view text, imColor color)
@@ -211,12 +211,12 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		replayInput.clear();
 	}
 
-	bool reclaimFocus = show && !wasShown; // window appears
-	wasShown = show;
-	if (!show) return;
+	bool reclaimFocus = show.open && !wasShown; // window appears
+	wasShown = show.open;
+	if (!show.open) return;
 
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-	im::Window("Console", &show, [&]{
+	im::Window("Console", show, [&]{
 		im::ScopedFont sf(manager.fontMono);
 
 		// Reserve enough left-over height for 1 separator + 1 input text
@@ -506,7 +506,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/    drawPos.x += ImGui::CalcTextSize(text).x;
 		/**/ }
 	});
-	if (!show) {
+	if (!show.open) {
 		// The window was closed with its close button: the 'console'
 		// setting follows (this also gives the focus to the MSX).
 		consoleSetting.setBoolean(false);
@@ -685,8 +685,12 @@ void ImGuiConsole::setCompletions(std::vector<CompletionCandidate> completions_)
 
 void ImGuiConsole::update(const Setting& /*setting*/) noexcept
 {
-	show = consoleSetting.getBoolean();
-	if (!show) {
+	if (consoleSetting.getBoolean()) {
+		show.raise();
+	} else {
+		show.open = false;
+	}
+	if (!show.open) {
 		// Close the console via the 'console' setting.  Typically this
 		// means via the F10 hotkey (or possibly by typing 'set console
 		// off' in the console).

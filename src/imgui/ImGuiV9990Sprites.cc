@@ -56,9 +56,9 @@ void ImGuiV9990Sprites::loadLine(std::string_view name, zstring_view value)
 //   sprites also count towards this limit).
 void ImGuiV9990Sprites::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 	ImGui::SetNextWindowSize({748, 1010}, ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* v9990 = dynamic_cast<V9990*>(motherBoard->findDevice("Sunrise GFX9000")); // TODO name based OK?
 		if (!v9990) return;
 		using enum V9990DisplayMode;

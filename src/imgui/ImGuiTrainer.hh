@@ -20,7 +20,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	std::optional<TclObject> trainers;

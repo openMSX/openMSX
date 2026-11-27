@@ -60,7 +60,7 @@ private:
 	void checkSort();
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 private:
 	SymbolManager& symbolManager;

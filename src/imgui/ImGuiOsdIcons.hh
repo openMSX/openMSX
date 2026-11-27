@@ -30,7 +30,7 @@ private:
 	void paintConfigureIcons();
 
 public:
-	bool showIcons = true;
+	im::WindowStatus showIcons{.open = true};
 	im::WindowStatus configureWindow;
 
 private:

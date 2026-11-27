@@ -61,22 +61,20 @@
 namespace im {
 
 // im::Window(): wrapper around ImGui::Begin() / ImGui::End()
-inline bool Window(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
+// A window that can be closed by the user takes a WindowStatus (see below),
+// these overloads are for windows without a close button.
+inline bool Window(const char* name, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
-	bool open = ImGui::Begin(name, p_open, flags);
+	bool open = ImGui::Begin(name, nullptr, flags);
 	if (open) {
 		next();
 	}
 	ImGui::End();
 	return open;
 }
-inline bool Window(const char* name, bool* p_open, std::invocable<> auto next)
-{
-	return Window(name, p_open, 0, next);
-}
 inline bool Window(const char* name, std::invocable<> auto next)
 {
-	return Window(name, nullptr, 0, next);
+	return Window(name, 0, next);
 }
 
 // Bring the current window (between ImGui::Begin() and End()) to the front.

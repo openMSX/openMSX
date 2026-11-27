@@ -13,7 +13,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 };
 
 } // namespace openmsx

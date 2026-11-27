@@ -59,8 +59,8 @@ private:
 
 public:
 	im::WindowStatus selectMachineWindow;
-	bool showTestHardware = false;
-	bool showQuickSetupEditor = true;
+	im::WindowStatus showTestHardware;
+	im::WindowStatus showQuickSetupEditor{.open = true};
 
 private:
 	std::vector<MachineInfo> machineInfo; // sorted on displayName

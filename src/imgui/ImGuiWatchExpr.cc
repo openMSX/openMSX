@@ -56,10 +56,10 @@ void ImGuiWatchExpr::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (!show) return;
+	if (!show.open) return;
 
 	ImGui::SetNextWindowSize(gl::vec2{35, 15} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Watch expression", &show, [&]{
+	im::Window("Watch expression", show, [&]{
 		const auto& style = ImGui::GetStyle();
 		auto width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize("Examples").x;
 		im::Child("child", {-width, 0}, [&] {

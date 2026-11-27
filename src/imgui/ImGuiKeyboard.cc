@@ -353,7 +353,7 @@ void ImGuiKeyboard::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show) return;
+	if (!show.open) return;
 
 	if (!motherBoard) return;
 	const auto* keyboard = motherBoard->getKeyboard();
@@ -387,7 +387,7 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 	};
 
 	ImGui::SetNextWindowSize({640, 200}, ImGuiCond_FirstUseEver);
-	im::Window("Virtual keyboard", &show, [&]{
+	im::Window("Virtual keyboard", show, [&]{
 		if (keys.empty()) {
 			ImGui::TextUnformatted("This machine has no keyboard."sv);
 			return;

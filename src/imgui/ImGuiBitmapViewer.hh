@@ -30,7 +30,7 @@ private:
 	                  int mode, int lines, int page, uint32_t* output) const;
 
 public:
-	bool show = true;
+	im::WindowStatus show{.open = true};
 
 private:
 	std::string title;

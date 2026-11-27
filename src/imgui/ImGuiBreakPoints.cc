@@ -49,10 +49,10 @@ void ImGuiBreakPoints::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiBreakPoints::paint(MSXMotherBoard* motherBoard)
 {
-	if (!motherBoard || !show) return;
+	if (!motherBoard || !show.open) return;
 
 	ImGui::SetNextWindowSize(gl::vec2{25, 14} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Breakpoints", &show, [&]{
+	im::Window("Breakpoints", show, [&]{
 		im::TabBar("tabs", [&]{
 			auto& cpuInterface = motherBoard->getCPUInterface();
 			im::TabItem("Breakpoints", [&]{

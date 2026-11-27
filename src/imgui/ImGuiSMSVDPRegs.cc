@@ -307,10 +307,10 @@ static constexpr VDPRegisterTables<Regs> vdpRegisters{registerDescriptions, regF
 
 void ImGuiSMSVDPRegs::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!show.open || !motherBoard) return;
 
 	ImGui::SetNextWindowSize(gl::vec2{41, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window(title.c_str(), &show, [&]{
+	im::Window(title.c_str(), show, [&]{
 		auto* franky = dynamic_cast<Franky*>(motherBoard->findDevice("Franky"));
 		if (!franky) return;
 		auto& vdp = franky->getVdp();

@@ -33,7 +33,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = false;
+	im::WindowStatus show;
 
 	struct CompletionPopupLayout {
 		std::vector<float> columnWidths = {};
