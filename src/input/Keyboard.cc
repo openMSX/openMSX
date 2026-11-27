@@ -743,6 +743,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, modifierPos(modifierPosForMatrix[matrix_])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
+	, keyPositionCmd(commandController)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
 	, msxcode2UnicodeCmd(commandController)
 	, unicode2MsxcodeCmd(commandController)
@@ -755,6 +756,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(config.getChildData(
 		"keyboard_type", defaultKeymapForMatrix[matrix_]))
+	, keyboardInfo(unicodeKeymap, modifierPos)
 	, matrixType(matrix_)
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
 	, blockRow11(matrix_ == Matrix::MSX
@@ -1757,6 +1759,50 @@ void Keyboard::KeyMatrixDownCmd::execute(std::span<const TclObject> tokens,
 std::string Keyboard::KeyMatrixDownCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "keymatrixdown <row> <bitmask>  press a key in the keyboard matrix\n";
+}
+
+
+// class KeyPositionCmd
+
+Keyboard::KeyPositionCmd::KeyPositionCmd(CommandController& commandController_)
+	: Command(commandController_, "msx_key_position")
+{
+}
+
+void Keyboard::KeyPositionCmd::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?msxkeyname?");
+
+	const auto& keyboardInfo = OUTER(Keyboard, keyPositionCmd).keyboardInfo;
+
+	if (tokens.size() == 1) {
+		result.addListElements(keyboardInfo.getMsxKeyNames());
+	} else {
+		auto name = tokens[1].getString();
+		if (auto pos = keyboardInfo.getMsxKeyPosition(name);
+		    pos.isValid()) {
+			result.addListElement(pos.getRow());
+			result.addListElement(pos.getColumn());
+		} else {
+			throw CommandException("No MSX-key with name: ", name);
+		}
+	}
+}
+
+std::string Keyboard::KeyPositionCmd::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "msx_key_position                    Returns a list of all MSX key names\n"
+	       "msx_key_position [<msx-key-name>]   Returns a 'row,column' pair indicating the position of the given key in the MSX keyboard matrix\n"
+	       "\n"
+	       "Example usage:\n"
+	       "  lassign [msx_key_position ESCAPE] row column\n"
+	       "  keymatrixdown $row [expr {1 << $column}]\n";
+}
+
+void Keyboard::KeyPositionCmd::tabCompletion(std::vector<std::string>& tokens) const
+{
+	const auto& keyboardInfo = OUTER(Keyboard, keyPositionCmd).keyboardInfo;
+	completeString(tokens, keyboardInfo.getMsxKeyNames(), false);
 }
 
 
