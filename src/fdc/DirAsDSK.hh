@@ -110,6 +110,7 @@ private:
 	[[nodiscard]] unsigned countFreeClusters();
 	[[nodiscard]] unsigned countClustersInChain(unsigned cluster);
 	[[nodiscard]] unsigned clustersForSize(size_t size) const;
+	[[nodiscard]] bool addNotImported(const std::string& hostName);
 	[[nodiscard]] unsigned readFAT(unsigned cluster);
 	void writeFAT12(unsigned cluster, unsigned val);
 	void exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer> oldFAT);
@@ -167,6 +168,10 @@ private:
 	// also not with a name in a different case (on a case-insensitive host
 	// file system), so the names are compared case-insensitively.
 	hash_set<std::string, std::identity, XXHasher_IgnoreCase, StringOp::casecmp> notImported;
+	// The same set from the sync before: a file that was in it already got
+	// a warning. Both sets only hold the files that don't fit now, so they
+	// don't grow over time.
+	hash_set<std::string, std::identity, XXHasher_IgnoreCase, StringOp::casecmp> prevNotImported;
 
 	// Disk format/geometry, derived from the drive's track-count and #sides.
 	const DiskFormat diskFormat;

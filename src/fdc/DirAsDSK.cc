@@ -142,6 +142,15 @@ unsigned DirAsDSK::clustersForSize(size_t size) const
 	return narrow<unsigned>((size + clusterSize - 1) / clusterSize);
 }
 
+// Remember that this host file is not on the virtual disk. Returns true when
+// that's new (in this sync and the previous one), i.e. when a warning should be
+// printed.
+bool DirAsDSK::addNotImported(const std::string& hostName)
+{
+	bool inserted = notImported.insert(hostName).second;
+	return inserted && !prevNotImported.contains(hostName);
+}
+
 // Throws when there are no more free clusters.
 unsigned DirAsDSK::getFreeCluster()
 {
@@ -457,6 +466,7 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 
 void DirAsDSK::syncWithHost()
 {
+	std::swap(prevNotImported, notImported);
 	notImported.clear();
 
 	// Check for removed host files. This frees up space in the virtual
@@ -615,9 +625,10 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 	if (clustersForSize(fst.st_size) >
 	    countFreeClusters() + countClustersInChain(msxDir(dirIndex).startCluster)) {
 		const auto& hostName = mapDirs[dirIndex].hostName;
-		cliComm.printWarning(hostName, " no longer fits on the virtual disk: "
-		                     "removed from the virtual disk (the host file is unchanged).");
-		notImported.insert(hostName);
+		if (addNotImported(hostName)) {
+			cliComm.printWarning(hostName, " no longer fits on the virtual disk: "
+			                     "removed from the virtual disk (the host file is unchanged).");
+		}
 		deleteMSXFile(dirIndex);
 		return;
 	}
@@ -656,7 +667,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 	auto remainingSize = hostSize;
 	unsigned prevCl = 0;
 	std::vector<bool> inChain(maxCluster, false);
-	bool failed = false;
+	std::string failure; // non-empty: the file couldn't be imported completely
 	try {
 		File file(hostDir + mapDir.hostName,
 		          "rb"); // don't uncompress
@@ -705,16 +716,14 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 		}
 		if (remainingSize != 0) {
 			// shouldn't happen, see the check above
-			cliComm.printWarning("Virtual disk image full: ",
-			                     mapDir.hostName, " not imported.");
-			failed = true;
+			failure = strCat("Virtual disk image full: ",
+			                 mapDir.hostName, " not imported.");
 		}
 	} catch (FileException& e) {
 		// Error opening or reading host file.
-		cliComm.printWarning("Error reading host file: ",
-		                     mapDir.hostName, ": ", e.getMessage(),
-		                     " Not imported.");
-		failed = true;
+		failure = strCat("Error reading host file: ",
+		                 mapDir.hostName, ": ", e.getMessage(),
+		                 " Not imported.");
 	}
 
 	// Properly terminate the FAT chain (also in case of an error, so that
@@ -732,9 +741,11 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 		freeFATChain(curCl);
 	}
 
-	if (failed) {
+	if (!failure.empty()) {
 		// Don't keep a truncated file (see above).
-		notImported.insert(mapDir.hostName);
+		if (addNotImported(mapDir.hostName)) {
+			cliComm.printWarning(failure);
+		}
 		deleteMSXFile(dirIndex);
 		return;
 	}
@@ -942,9 +953,10 @@ void DirAsDSK::addNewHostFile(const std::string& hostSubDir, const std::string& 
 	bool extendDir = !findFreeDirEntry(lastDirSector) &&
 	                 (lastDirSector != (firstDataSector - 1)); // (root can't be extended)
 	if (clustersForSize(fst.st_size) + (extendDir ? 1 : 0) > countFreeClusters()) {
-		cliComm.printWarning("Not enough free space on the virtual disk for ",
-		                     hostSubDir, hostName, ": not imported.");
-		notImported.insert(hostSubDir + hostName);
+		if (addNotImported(hostSubDir + hostName)) {
+			cliComm.printWarning("Not enough free space on the virtual disk for ",
+			                     hostSubDir, hostName, ": not imported.");
+		}
 		return;
 	}
 
