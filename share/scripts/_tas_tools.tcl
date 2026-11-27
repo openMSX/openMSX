@@ -242,6 +242,15 @@ proc is_key_pressed {row bit} {
 	expr {!([debug read keymatrix $row] & (1 << $bit))}
 }
 
+# Is one of the given MSX keys pressed? The keys are given by name, see the
+# 'msx_key_position' command.
+proc is_msx_key_pressed {args} {
+	foreach name $args {
+		if {![catch {msx_key_position $name} pos] && [is_key_pressed {*}$pos]} {return 1}
+	}
+	return 0
+}
+
 proc show_key_press {key state} {
 	set keycol [expr {$state ? 0xff000080 : "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"}]
 	osd configure cursors.$key -rgba $keycol
@@ -263,14 +272,25 @@ proc create_key {name x y} {
 #                name up
 #                x    20
 #                y    2
-#                check_expr {expr {([is_key_pressed 8 5] || !($joy &  1))}}
+#                check_expr {expr {[is_msx_key_pressed UP] || !($joy &  1)}}
 #        } {
 #                name shift
 #                x    186
 #                y    8
-#                check_expr {is_key_pressed 6 0}
+#                check_expr {is_msx_key_pressed SHIFT}
+#        } {
+#                name m
+#                x    78
+#                y    8
+#                check_expr {is_key_pressed 4 2}
 #        }}
 #}
+#
+# 'is_msx_key_pressed' checks a key by its name (the key with that label on
+# this machine's keyboard), 'is_key_pressed <row> <bit>' checks a position in
+# the keyboard matrix. Use the latter for a game that reads the matrix
+# directly instead of via the BIOS: e.g. row 4 bit 2 is the M key on most
+# MSX keyboards, but not on e.g. a Philips VG 8000.
 #
 
 proc toggle_cursors {} {
@@ -300,62 +320,62 @@ proc define_default_keys {} {
 		name up
 		x    20
 		y    2
-		check_expr {expr {([is_key_pressed 8 5] || !($joy &  1))}}
+		check_expr {expr {[is_msx_key_pressed UP] || !($joy &  1)}}
 	} {
 		name down
 		x    20
 		y    14
-		check_expr {expr {([is_key_pressed 8 6] || !($joy &  2))}}
+		check_expr {expr {[is_msx_key_pressed DOWN] || !($joy &  2)}}
 	} {
 		name left
 		x    2
 		y    8
-		check_expr {expr {([is_key_pressed 8 4] || !($joy &  4))}}
+		check_expr {expr {[is_msx_key_pressed LEFT] || !($joy &  4)}}
 	} {
 		name right
 		x    38
 		y    8
-		check_expr {expr {([is_key_pressed 8 7] || !($joy &  8))}}
+		check_expr {expr {[is_msx_key_pressed RIGHT] || !($joy &  8)}}
 	} {
 		name space
 		x    60
 		y    8
-		check_expr {expr {([is_key_pressed 8 0] || !($joy & 16))}}
+		check_expr {expr {[is_msx_key_pressed SPACE] || !($joy & 16)}}
 	} {
 		name m
 		x    78
 		y    8
-		check_expr {expr {([is_key_pressed 4 2] || !($joy & 32))}}
+		check_expr {expr {[is_msx_key_pressed M] || !($joy & 32)}}
 	} {
 		name n
 		x    96
 		y    8
-		check_expr {is_key_pressed 4 3}
+		check_expr {is_msx_key_pressed N}
 	} {
 		name z
 		x    114
 		y    8
-		check_expr {is_key_pressed 5 7}
+		check_expr {is_msx_key_pressed Z}
 	} {
 		name x
 		x    132
 		y    8
-		check_expr {is_key_pressed 5 5}
+		check_expr {is_msx_key_pressed X}
 	} {
 		name graph
 		x    150
 		y    8
-		check_expr {is_key_pressed 6 2}
+		check_expr {is_msx_key_pressed GRAPH LGRAPH}
 	} {
 		name ctrl
 		x    168
 		y    8
-		check_expr {is_key_pressed 6 1}
+		check_expr {is_msx_key_pressed CTRL}
 	} {
 		name shift
 		x    186
 		y    8
-		check_expr {is_key_pressed 6 0}
+		check_expr {is_msx_key_pressed SHIFT}
 	}}
 }
 
