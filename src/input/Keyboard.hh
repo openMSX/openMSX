@@ -339,6 +339,11 @@ private:
 	  * the emulated machine.
 	  */
 	uint8_t locksOn = 0;
+	/** In CHARACTER mode a press of the CODE/KANA lock key is a short
+	  * tap on the MSX, see processCodeKanaChange(). True from the press
+	  * until its release is scheduled, see MsxKeyEventQueue::executeUntil().
+	  */
+	bool codeKanaTemporarilyPressed = false;
 
 	/*  Countermeasure for missing Release events on Japanese keyboard s*/
 	enum class HostKeyMap : uint8_t { UNKNOWN, EN, JP };

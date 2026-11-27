@@ -1170,6 +1170,15 @@ void Keyboard::processCodeKanaChange(EmuTime time, bool down)
 {
 	if (down) {
 		locksOn ^= KeyInfo::CODE_MASK;
+		// In CHARACTER mode, when CODE/KANA is a lock key, only tap it:
+		// it's released again right after (like an auto-toggle, see
+		// pressUnicodeByUser()), however long the host key is held. A
+		// held key is repeated by the MSX, which toggles its lock several
+		// times, and then 'locksOn' no longer matches the MSX's state.
+		if ((keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::CHARACTER) &&
+		    (modifierIsLock & KeyInfo::CODE_MASK)) {
+			codeKanaTemporarilyPressed = true;
+		}
 	}
 	updateKeyMatrix(time, down, modifierPos[KeyInfo::Modifier::CODE]);
 }
@@ -1856,6 +1865,11 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime time)
 				// release of a key without scancode, it releases the
 				// character that was pressed for it.
 				eventQueue.emplace_front(KeyUpEvent::create(SDLK_UNKNOWN));
+			}
+			if (std::exchange(keyboard.codeKanaTemporarilyPressed, false)) {
+				// Release the tapped CODE/KANA key, before any of the
+				// other events in the queue.
+				eventQueue.emplace_front(KeyUpEvent::create(keyboard.keyboardSettings.getCodeKanaHostKey()));
 			}
 		} else {
 			// it's possible clear() has been called
