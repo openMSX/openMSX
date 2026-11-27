@@ -89,7 +89,7 @@ uint8_t YMF278B::readIO(uint16_t port, EmuTime time)
 				// doesn't have any measurable effect on MSX.
 				ymf278BusyTime = time + MEM_READ_DELAY;
 			}
-			return ymf278.readReg(opl4latch);
+			return ymf278.readReg(opl4latch, time);
 		default:
 			UNREACHABLE;
 		}

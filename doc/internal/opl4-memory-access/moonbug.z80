@@ -1,0 +1,1487 @@
+; MOONBUG: what does a real OPL4 (MoonSound, Wozblaster) do with its
+; memory access mode (wave register R#2 bit 0, "MA")?
+; MSX-DOS .COM (MOONBUG.COM, MSX-DOS 1 or 2, MSX1-safe). Needs an OPL4 on
+; ports 7Eh/7Fh and C4h-C7h with at least 256 kB of sample RAM.
+;
+; Part 1 (silent, about 10 s): tests whose results the program can read
+; back. They are printed and saved to MOONBUG.TXT on the current drive.
+; Part 2 (about 55 s): sounds to be RECORDED from the card's output. The
+; program waits for a key before it starts them.
+;
+; Run it right after a cold power-on, before any other OPL4 program: the
+; first test reads sample RAM that nothing has written yet.
+;
+; Sample RAM used (all in 200000h-23FFFFh):
+;   200000h  wave headers of tones 384-390 (R#2 = 10h: header at 200000h)
+;   200100h  W0: 64 samples, one sine period (689 Hz at 44100 Hz)
+;   201000h  RING: 8192 samples of the same sine
+;   204000h  W2: 11008 samples of the 689 Hz sine (tone A, 0.25 s), then
+;            22016 samples of a 2756 Hz sine (tone B, 0.5 s), then 4096
+;            zeros
+;   21E000h  never written (the uninitialised RAM test; also 29E000h,
+;            31E000h, 39E000h)
+;   21F000h  scratch of the memory tests
+;   220000h  W1: 65536 samples, a chirp: its frequency at sample n is
+;            (512 + n/32) * 44100 / 65536 Hz (345 Hz to 1722 Hz), so the
+;            pitch heard tells the play position
+;   230000h  scratch of the writes of sound test H
+;
+; Tones: 384 W0 loop, 385 W1 loop, 386 RING loop, and W2's tone A with
+; end = 11007 and loop = 11007 (387), 11008 (388), 0 (389), FFFFh (390).
+;
+; ---- Part 1, the lines of MOONBUG.TXT (numbers in hexadecimal) ----
+; U<addr> FF= 00= D=   256 bytes read at <addr> before anything is written:
+;                      how many are FFh, how many 00h, how many different
+;                      values; the next line has the first 12 bytes
+; RAM tags             a tag written at 200000h, 280000h, 300000h, 380000h
+;                      (last first) and read back: A5 A4 A7 A6 = 2 MB
+; MA0 wr mem= rd=      55h is stored, then AAh is written with MA = 0:
+;                      mem=55 the write was ignored; rd = R#6 read with
+;                      MA = 0
+; MA0 inc next=        11 22 33 44 stored; two reads of R#6 with MA = 0,
+;                      then one with MA = 1: 11 = the address did not move
+; MA toggle            11h, 22h, 33h written with MA turned off and on
+;                      between them, the address not rewritten: the four
+;                      bytes there (11 22 33 00 = the address is kept)
+; W18T err= first=     256 bytes written 18 clocks apart (OUTI, 5.0 us):
+;                      wrong bytes on a slow read back, the first's index
+; W12T ok= over=       64 writes 12 clocks apart (3.4 us): how many of the
+;                      first 64 bytes got the value (40 = all); how many of
+;                      the next 16 were touched (0)
+; R18T err= first=     256 reads 18 clocks apart (INI)
+; R12T next= want=     64 reads 12 clocks apart, then one slow read: the
+;                      byte it got, and the byte at index 64
+; REG slow= fast=      R#50h-57h written and read back: slowly with waits,
+;                      and select/data 12 clocks apart (8 = all right)
+; BUSY sel= wr= mem=   of 256 tries, the status read 12 clocks after a
+;                      register select, a register write and a memory write
+;                      had BUSY set
+; LD                   four times: status reads until LD went off after a
+;                      tone number write (one read loop = 64 clocks =
+;                      17.9 us; 8000 = it never went off)
+; HDR MA0= MA1= LD1=   R#AFh (channel 23's AR/D1R, cleared first) after a
+;                      tone number write with MA = 0 and with MA = 1
+;                      (F0 = the header was loaded), and the LD count with
+;                      MA = 1
+;
+; ---- Part 2, the sounds ----
+; A 1000 Hz FM beep of 3 frames (50 ms) and 12 frames of pause start each
+; test: it is the time reference of the recording. "f" is a frame
+; (1/60 s). The wave channel is channel 0 at 44100 Hz. "MA n" = MA on for n.
+;
+; A  W0 sine. 60f; MA 60f; 30f; MA 12f; 30f; MA 3f; 30f; MA 1f; 30f;
+;    MA 5 ms; 30f; MA 1 ms; 30f; MA 0.1 ms; 30f; MA 13 us; 30f; key off; 15f
+; B  FM tone only (1000 Hz). 60f; MA 60f; 30f; MA 3f; 30f; MA 1 ms; 30f;
+;    off; 15f
+; C  W0 sine and FM tone. 30f; MA 30f; 30f; MA 1 ms; 30f; off; 15f
+; D  nothing playing. 10 times (MA 6f; 6f); 30f; 60 times (1f; MA 1 ms);
+;    15f
+; E  W1 chirp. 180f; MA 18f; 60f; MA 60f; 90f; key off; 15f
+; F  W1 loaded, not keyed. MA on; 6f; key on; 18f; MA off; 90f; key off;
+;    15f
+; G  W0 sine. 30f; MA on; 6f; key off; 6f; MA off; 30f
+; H  W0 sine, 30f, then six cases of 30f each with 30f between them:
+;    1 MA on, no access      2 MA on, reading RAM as fast as a loop goes
+;    3 MA on, writing RAM    4 MA on, reading ROM
+;    5 MA off, writing R#6   6 MA off, reading R#6
+;    then key off; 15f
+; I  RING sine, never keyed off. The data written is the data already
+;    there. Four cases of 120f, a beep before each:
+;    1 each frame: MA on, address, 256 bytes with a status wait before
+;      each, MA off: MA is on for 13.6 ms
+;    2 each frame: the same with OTIR (23 clocks a byte): 2.0 ms
+;    3 each frame: 64 bytes with OTIR: 0.77 ms
+;    4 each frame: MA on for 0.33 ms to set the address, then 64 bytes,
+;      MA on for 22 us around each single byte, 80 us apart
+;    then key off; 15f
+; J  tones 387, 388, 389, 390 (W2 with four loop points), each: key on;
+;    90f; key off; 20f
+; then three beeps.
+
+BDOS    equ     0005h
+JIFFY   equ     0FC9Eh
+STAT    equ     0C4h            ; status (read), FM register select 0
+FMDAT   equ     0C5h
+FMSEL1  equ     0C6h
+FMDAT1  equ     0C7h
+WREG    equ     7Eh
+WDAT    equ     7Fh
+MAOFF   equ     10h             ; R#2: wave table header at 200000h
+MAON    equ     11h
+
+        macro   PRINT text
+        call    prints
+        db      text,0
+        endm
+
+        macro   PRINTLN text
+        call    prints
+        db      text,13,10,0
+        endm
+
+        org     0100h
+
+        jp      main
+
+; ---------------------------------------------------------------- console
+
+; print A, and keep it for MOONBUG.TXT. Keeps all registers.
+putc:   push    af
+        push    bc
+        push    de
+        push    hl
+        ld      hl,(logptr)
+        ld      (hl),a
+        inc     hl
+        ld      (logptr),hl
+        ld      e,a
+        ld      c,2
+        call    BDOS
+        pop     hl
+        pop     de
+        pop     bc
+        pop     af
+        ret
+
+; print the zero-terminated string after the call
+prints: ex      (sp),hl
+.l:     ld      a,(hl)
+        inc     hl
+        or      a
+        jr      z,.e
+        call    putc
+        jr      .l
+.e:     ex      (sp),hl
+        ret
+
+crlf:   ld      a,13
+        call    putc
+        ld      a,10
+        jr      putc
+
+; print HL, then A, in hexadecimal
+prhl:   ld      a,h
+        call    prhex
+        ld      a,l
+prhex:  push    af
+        rrca
+        rrca
+        rrca
+        rrca
+        call    .n
+        pop     af
+.n:     and     0Fh
+        add     a,'0'
+        cp      '9'+1
+        jr      c,putc
+        add     a,7
+        jr      putc
+
+space:  ld      a,' '
+        jr      putc
+
+; ------------------------------------------------------------------- OPL4
+
+; wait while the OPL4 is busy or loading (2.4 ms at most). AF.
+wwait:  push    bc
+        ld      b,0
+.l:     in      a,(STAT)
+        and     3
+        jr      z,.e
+        djnz    .l
+.e:     pop     bc
+        ret
+
+; wave register D = E. AF.
+wwr:    call    wwait
+        ld      a,d
+        out     (WREG),a
+        call    wwait
+        ld      a,e
+        out     (WDAT),a
+        ret
+
+; A = wave register D. F.
+wrd:    call    wwait
+        ld      a,d
+        out     (WREG),a
+        call    wwait
+        in      a,(WDAT)
+        ret
+
+; FM register D (array 0) = E. AF.
+fmwr:   ld      a,d
+        out     (STAT),a
+        ld      a,e
+        out     (FMDAT),a
+        ret
+
+; memory access on, the memory address = C:HL, R#6 selected. AF, DE.
+maddr:  ld      de,0200h+MAON
+        call    wwr
+; the same without touching R#2
+maddr2: ld      d,3
+        ld      e,c
+        call    wwr
+        ld      d,4
+        ld      e,h
+        call    wwr
+        ld      d,5
+        ld      e,l
+        call    wwr
+sel6:   call    wwait
+        ld      a,6
+        out     (WREG),a
+        ret
+
+maon:   ld      de,0200h+MAON
+        jr      wwr
+; memory access off. AF, DE.
+mdone:
+maoff:  ld      de,0200h+MAOFF
+        jr      wwr
+
+; a byte to the memory (after maddr). Keeps all registers.
+mput:   push    af
+        call    wwait
+        pop     af
+        out     (WDAT),a
+        ret
+
+; A = a byte of the memory (after maddr). F.
+mget:   call    wwait
+        in      a,(WDAT)
+        ret
+
+; BC bytes of the sine table, a step of E entries a byte, to the memory
+upsine: ld      d,0
+.l:     ld      h,high sintab
+        ld      l,d
+        ld      a,(hl)
+        call    mput
+        ld      a,d
+        add     a,e
+        ld      d,a
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,.l
+        ret
+
+; channel 0 readied with tone 384 + A: keyed off, 44100 Hz, the header
+; loaded, full level
+wprep:  push    af
+        ld      de,6800h
+        call    wwr
+        ld      de,2001h        ; FN 0, the tone's bit 8
+        call    wwr
+        ld      de,3810h        ; octave 1
+        call    wwr
+        pop     af
+        add     a,80h
+        ld      e,a
+        ld      d,08h
+        call    wwr
+        ld      de,5001h        ; TL 0, at once
+        jp      wwr
+won:    ld      de,6880h
+        jp      wwr
+woff:   ld      de,6800h
+        jp      wwr
+
+fmon:   ld      de,0B036h       ; 1000 Hz: block 5, F-number 293h
+        jp      fmwr
+fmoff:  ld      de,0B016h
+        jp      fmwr
+
+; wait BC frames
+frames: ei
+        halt
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,frames
+        ret
+
+        macro   WAITF n
+        ld      bc,n
+        call    frames
+        endm
+
+; the beep that starts a test
+blip:   call    fmon
+        WAITF   3
+        call    fmoff
+        WAITF   12
+        ret
+
+; MA on for BC frames
+maf:    push    bc
+        call    maon
+        pop     bc
+        call    frames
+        jp      maoff
+
+        macro   MAF n
+        ld      bc,n
+        call    maf
+        endm
+
+; MA on for about 30 clocks x HL (HL = 1: the shortest, 13 us)
+mashort:
+        call    wwait
+        di
+        ld      a,2
+        out     (WREG),a
+        ld      a,MAON
+        out     (WDAT),a
+.l:     dec     hl
+        ld      a,h
+        or      l
+        jr      nz,.l
+        ld      a,MAOFF
+        out     (WDAT),a
+        ei
+        ret
+
+        macro   MAS n
+        ld      hl,n
+        call    mashort
+        endm
+
+MS5     equ     597
+MS1     equ     119
+MS01    equ     12
+
+; ------------------------------------------------------------------ main
+
+main:   ld      hl,logbuf
+        ld      (logptr),hl
+        PRINTLN "MOONBUG 1.0"
+        ; the wave part on: NEW and NEW2
+        ld      a,5
+        out     (FMSEL1),a
+        ld      a,3
+        out     (FMDAT1),a
+        ld      bc,0
+.det:   in      a,(STAT)
+        and     3
+        jr      z,.det2
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,.det
+        jp      nocard
+.det2:  ld      d,2
+        call    wrd
+        ld      (r2read),a
+        and     0E0h
+        cp      20h
+        jp      nz,nocard
+        PRINT   "R#2="
+        ld      a,(r2read)
+        call    prhex
+        call    crlf
+        ld      de,0200h+MAOFF
+        call    wwr
+
+        call    t_uninit
+        call    t_ram
+        call    setup
+        call    upload
+        call    t_ma0
+        call    t_speed
+        call    t_busy
+        call    t_load
+        call    savelog
+
+        PRINTLN "Start recording the card's"
+        PRINTLN "output, then press a key."
+        ld      c,8
+        call    BDOS
+        call    sounds
+        call    setup
+        PRINTLN "Done."
+        jp      0
+
+nocard: PRINTLN "No OPL4 found"
+        jp      0
+
+; all wave channels keyed off, the mix levels, the FM beep's channel
+setup:  ld      d,68h
+.k:     ld      e,0
+        call    wwr
+        inc     d
+        ld      a,d
+        cp      80h
+        jr      nz,.k
+        ld      de,0F81Bh       ; FM mix: -9 dB
+        call    wwr
+        ld      de,0F900h       ; wave mix: 0 dB
+        call    wwr
+        ld      hl,fmtab
+.f:     ld      d,(hl)
+        inc     hl
+        ld      e,(hl)
+        inc     hl
+        ld      a,d
+        or      a
+        ret     z
+        call    fmwr
+        jr      .f
+fmtab:  db      20h,21h, 23h,21h, 40h,3Fh, 43h,00h, 60h,0F0h, 63h,0F0h
+        db      80h,0Fh, 83h,0Fh, 0E0h,0, 0E3h,0, 0C0h,30h, 0A0h,93h
+        db      0B0h,16h, 0
+
+; ------------------------------------------------- uninitialised RAM
+
+t_uninit:
+        ld      c,21h
+        call    .one
+        ld      c,29h
+        call    .one
+        ld      c,31h
+        call    .one
+        ld      c,39h
+.one:   push    bc
+        ld      a,'U'
+        call    putc
+        ld      a,c
+        call    prhex
+        PRINT   "E000 "
+        pop     bc
+        ld      hl,0E000h
+        call    maddr
+        ld      hl,rdbuf
+        ld      b,0
+.r:     call    mget
+        ld      (hl),a
+        inc     hl
+        djnz    .r
+        call    mdone
+        ; flags of the values seen
+        ld      hl,flags
+        ld      b,0
+        xor     a
+.c:     ld      (hl),a
+        inc     hl
+        djnz    .c
+        ld      hl,0
+        ld      (cntff),hl
+        ld      (cnt00),hl
+        ld      (cntd),hl
+        ld      de,rdbuf
+        ld      b,0
+.s:     ld      a,(de)
+        inc     de
+        ld      h,high flags
+        ld      l,a
+        ld      (hl),1
+        cp      0FFh
+        jr      nz,.s1
+        ld      hl,(cntff)
+        inc     hl
+        ld      (cntff),hl
+.s1:    or      a
+        jr      nz,.s2
+        ld      hl,(cnt00)
+        inc     hl
+        ld      (cnt00),hl
+.s2:    djnz    .s
+        ld      hl,flags
+        ld      b,0
+        ld      de,0
+.d:     ld      a,(hl)
+        inc     hl
+        or      a
+        jr      z,.d1
+        inc     de
+.d1:    djnz    .d
+        ld      (cntd),de
+        PRINT   "FF="
+        ld      hl,(cntff)
+        call    prhl
+        PRINT   " 00="
+        ld      hl,(cnt00)
+        call    prhl
+        PRINT   " D="
+        ld      hl,(cntd)
+        call    prhl
+        call    crlf
+        ld      hl,rdbuf
+        ld      b,12
+.p:     call    space
+        ld      a,(hl)
+        inc     hl
+        call    prhex
+        djnz    .p
+        jp      crlf
+
+; ---------------------------------------------------------- RAM size
+
+t_ram:  ld      b,4
+.sv:    call    .addr
+        call    mget
+        ld      hl,ramsave-1
+        ld      e,b
+        ld      d,0
+        add     hl,de
+        ld      (hl),a
+        call    .addr
+        ld      a,b
+        dec     a
+        xor     0A5h
+        call    mput
+        djnz    .sv
+        PRINT   "RAM tags"
+        ld      b,1
+.rd:    call    .addr
+        call    mget
+        push    af
+        call    space
+        pop     af
+        call    prhex
+        inc     b
+        ld      a,b
+        cp      5
+        jr      nz,.rd
+        call    crlf
+        ld      b,4
+.rs:    call    .addr
+        ld      hl,ramsave-1
+        ld      e,b
+        ld      d,0
+        add     hl,de
+        ld      a,(hl)
+        call    mput
+        djnz    .rs
+        jp      mdone
+; the address of block B (1-4): 200000h + 80000h x (B - 1)
+.addr:  push    bc
+        ld      a,b
+        dec     a
+        rlca
+        rlca
+        rlca
+        add     a,20h
+        ld      c,a
+        ld      hl,0
+        call    maddr
+        pop     bc
+        ret
+
+; -------------------------------------------------------- the samples
+
+        macro   HDR start, loop, last
+        db      (start >> 16) & 3Fh, (start >> 8) & 0FFh, start & 0FFh
+        db      loop >> 8, loop & 0FFh
+        db      (0FFFFh - last) >> 8, (0FFFFh - last) & 0FFh
+        db      0, 0F0h, 0, 0Fh, 0
+        endm
+
+NA      equ     11008
+NB      equ     22016
+
+headers:
+        HDR     200100h, 0, 63
+        HDR     220000h, 0, 0FFFFh
+        HDR     201000h, 0, 1FFFh
+        HDR     204000h, NA-1, NA-1
+        HDR     204000h, NA, NA-1
+        HDR     204000h, 0, NA-1
+        HDR     204000h, 0FFFFh, NA-1
+headers_end:
+
+upload: PRINT   "Uploading"
+        ld      c,20h
+        ld      hl,0
+        call    maddr
+        ld      hl,headers
+        ld      b,headers_end-headers
+.h:     ld      a,(hl)
+        inc     hl
+        call    mput
+        djnz    .h
+        ; W0
+        ld      c,20h
+        ld      hl,0100h
+        call    maddr
+        ld      bc,64
+        ld      e,4
+        call    upsine
+        call    .dot
+        ; RING
+        ld      c,20h
+        ld      hl,1000h
+        call    maddr
+        ld      bc,8192
+        ld      e,4
+        call    upsine
+        call    .dot
+        ; W2
+        ld      c,20h
+        ld      hl,4000h
+        call    maddr
+        ld      bc,NA
+        ld      e,4
+        call    upsine
+        ld      bc,NB
+        ld      e,16
+        call    upsine
+        ld      bc,4096
+        ld      e,0
+        call    upsine
+        call    .dot
+        ; W1, the chirp
+        ld      c,22h
+        ld      hl,0
+        call    maddr
+        ld      hl,0
+        ld      de,512
+        ld      bc,2048
+.o:     push    bc
+        ld      b,32
+.i:     add     hl,de
+        push    hl
+        ld      l,h
+        ld      h,high sintab
+        ld      a,(hl)
+        pop     hl
+        call    mput
+        djnz    .i
+        inc     de
+        pop     bc
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,.o
+        call    mdone
+        ; 256 bytes of the 689 Hz sine, for the stream
+        ld      hl,sbuf
+        ld      b,0
+        ld      d,0
+.sb:    push    hl
+        ld      h,high sintab
+        ld      l,d
+        ld      a,(hl)
+        pop     hl
+        ld      (hl),a
+        inc     hl
+        ld      a,d
+        add     a,4
+        ld      d,a
+        djnz    .sb
+        call    crlf
+        ret
+.dot:   ld      a,'.'
+        jp      putc
+
+; ---------------------------------------------- memory access with MA = 0
+
+t_ma0:  ; is a write with MA = 0 ignored?
+        ld      c,21h
+        ld      hl,0F000h
+        call    maddr
+        ld      a,55h
+        call    mput
+        call    mput
+        call    maoff
+        ld      c,21h
+        ld      hl,0F000h
+        call    maddr2
+        ld      a,0AAh
+        call    mput
+        call    mget
+        ld      (tmp1),a
+        ld      c,21h
+        ld      hl,0F000h
+        call    maddr
+        call    mget
+        ld      (tmp2),a
+        call    mdone
+        PRINT   "MA0 wr mem="
+        ld      a,(tmp2)
+        call    prhex
+        PRINT   " rd="
+        ld      a,(tmp1)
+        call    prhex
+        call    crlf
+        ; does the address move on a read with MA = 0?
+        ld      c,21h
+        ld      hl,0F010h
+        call    maddr
+        ld      a,11h
+        call    mput
+        ld      a,22h
+        call    mput
+        ld      a,33h
+        call    mput
+        ld      a,44h
+        call    mput
+        ld      c,21h
+        ld      hl,0F010h
+        call    maddr
+        call    maoff
+        call    sel6
+        call    mget
+        call    mget
+        call    maon
+        call    sel6
+        call    mget
+        ld      (tmp1),a
+        call    mdone
+        PRINT   "MA0 inc next="
+        ld      a,(tmp1)
+        call    prhex
+        call    crlf
+        ; is the address kept when MA goes off and on?
+        ld      c,21h
+        ld      hl,0F020h
+        call    maddr
+        xor     a
+        call    mput
+        call    mput
+        call    mput
+        call    mput
+        ld      c,21h
+        ld      hl,0F020h
+        call    maddr
+        ld      a,11h
+        call    mput
+        call    maoff
+        call    maon
+        call    sel6
+        ld      a,22h
+        call    mput
+        call    maoff
+        call    maon
+        call    sel6
+        ld      a,33h
+        call    mput
+        ld      c,21h
+        ld      hl,0F020h
+        call    maddr
+        PRINT   "MA toggle"
+        ld      b,4
+.t:     call    space
+        call    mget
+        call    prhex
+        djnz    .t
+        call    mdone
+        jp      crlf
+
+; ------------------------------------------------------------ speed
+
+t_speed:
+        ; the pattern: 7i + 3
+        ld      hl,pattern
+        ld      b,0
+        ld      a,3
+.pt:    ld      (hl),a
+        add     a,7
+        inc     hl
+        djnz    .pt
+        ; --- 256 writes 18 clocks apart
+        ld      hl,0F100h
+        call    .zero
+        ld      c,21h
+        ld      hl,0F100h
+        call    maddr
+        call    wwait
+        ld      hl,pattern
+        ld      c,WDAT
+        di
+        dup     256
+        outi
+        edup
+        ei
+        ld      hl,0F100h
+        call    .compare
+        PRINT   "W18T err="
+        call    .result
+        ; --- 64 writes 12 clocks apart
+        ld      hl,0F100h
+        call    .zero
+        ld      c,21h
+        ld      hl,0F100h
+        call    maddr
+        call    wwait
+        ld      a,5Ah
+        di
+        dup     64
+        out     (WDAT),a
+        edup
+        ei
+        ld      c,21h
+        ld      hl,0F100h
+        call    maddr
+        ld      b,64
+        ld      e,0
+.w1:    call    mget
+        cp      5Ah
+        jr      nz,.w2
+        inc     e
+.w2:    djnz    .w1
+        ld      b,16
+        ld      d,0
+.w3:    call    mget
+        or      a
+        jr      z,.w4
+        inc     d
+.w4:    djnz    .w3
+        push    de
+        call    mdone
+        PRINT   "W12T ok="
+        pop     de
+        push    de
+        ld      a,e
+        call    prhex
+        PRINT   " over="
+        pop     de
+        ld      a,d
+        call    prhex
+        call    crlf
+        ; --- 256 reads 18 clocks apart
+        call    .store
+        ld      c,21h
+        ld      hl,0F200h
+        call    maddr
+        call    wwait
+        ld      hl,rdbuf
+        ld      c,WDAT
+        di
+        dup     256
+        ini
+        edup
+        ei
+        call    mdone
+        call    .cmpbuf
+        PRINT   "R18T err="
+        call    .result
+        ; --- 64 reads 12 clocks apart
+        ld      c,21h
+        ld      hl,0F200h
+        call    maddr
+        call    wwait
+        di
+        dup     64
+        in      a,(WDAT)
+        edup
+        ei
+        call    mget
+        push    af
+        call    mdone
+        PRINT   "R12T next="
+        pop     af
+        call    prhex
+        PRINT   " want="
+        ld      a,(pattern+64)
+        call    prhex
+        call    crlf
+        ; --- registers
+        call    .regslow
+        ld      (tmp1),a
+        ld      d,50h
+.z:     ld      e,0
+        call    wwr
+        inc     d
+        ld      a,d
+        cp      58h
+        jr      nz,.z
+        call    wwait
+        di
+        ld      a,50h
+        dup     8
+        out     (WREG),a
+        out     (WDAT),a
+        inc     a
+        edup
+        ei
+        call    .regcount
+        ld      (tmp2),a
+        PRINT   "REG slow="
+        ld      a,(tmp1)
+        call    prhex
+        PRINT   " fast="
+        ld      a,(tmp2)
+        call    prhex
+        jp      crlf
+
+; R#50h-57h = their own numbers, written with waits; A = how many read
+; back right
+.regslow:
+        ld      d,50h
+.rs:    ld      e,d
+        call    wwr
+        inc     d
+        ld      a,d
+        cp      58h
+        jr      nz,.rs
+.regcount:
+        ld      d,50h
+        ld      b,0
+.rc:    call    wrd
+        cp      d
+        jr      nz,.rc1
+        inc     b
+.rc1:   inc     d
+        ld      a,d
+        cp      58h
+        jr      nz,.rc
+        ld      a,b
+        ret
+
+; 256 zeros at 21:HL, with waits
+.zero:  ld      c,21h
+        call    maddr
+        ld      b,0
+        xor     a
+.z1:    call    mput
+        djnz    .z1
+        ret
+
+; the pattern stored at 21F200h, with waits
+.store: ld      c,21h
+        ld      hl,0F200h
+        call    maddr
+        ld      hl,pattern
+        ld      b,0
+.s1:    ld      a,(hl)
+        inc     hl
+        call    mput
+        djnz    .s1
+        ret
+
+; 256 bytes at 21:HL read with waits to rdbuf, then compared
+.compare:
+        ld      c,21h
+        call    maddr
+        ld      hl,rdbuf
+        ld      b,0
+.c1:    call    mget
+        ld      (hl),a
+        inc     hl
+        djnz    .c1
+        call    mdone
+; rdbuf against the pattern: (errs) wrong bytes, (first) the first's index
+.cmpbuf:
+        ld      hl,0
+        ld      (errs),hl
+        ld      a,0FFh
+        ld      (first),a
+        ld      hl,rdbuf
+        ld      de,pattern
+        ld      b,0
+.c2:    ld      a,(de)
+        cp      (hl)
+        jr      z,.c3
+        push    hl
+        ld      hl,(errs)
+        ld      a,h
+        or      l
+        jr      nz,.c4
+        ld      a,b
+        neg
+        ld      (first),a
+.c4:    inc     hl
+        ld      (errs),hl
+        pop     hl
+.c3:    inc     hl
+        inc     de
+        djnz    .c2
+        ret
+
+.result:
+        ld      hl,(errs)
+        call    prhl
+        PRINT   " first="
+        ld      a,(first)
+        call    prhex
+        jp      crlf
+
+; ------------------------------------------------------------- BUSY
+
+t_busy: ld      hl,0
+        ld      b,0
+.s:     call    wwait
+        ld      a,57h
+        di
+        out     (WREG),a
+        in      a,(STAT)
+        ei
+        rra
+        jr      nc,.s1
+        inc     hl
+.s1:    djnz    .s
+        ld      (tmp1),hl
+        ld      hl,0
+        ld      b,0
+.w:     call    wwait
+        ld      a,57h
+        out     (WREG),a
+        call    wwait
+        ld      a,1
+        di
+        out     (WDAT),a
+        in      a,(STAT)
+        ei
+        rra
+        jr      nc,.w1
+        inc     hl
+.w1:    djnz    .w
+        ld      (tmp2),hl
+        ld      c,21h
+        ld      hl,0F400h
+        call    maddr
+        ld      hl,0
+        ld      b,0
+.m:     call    wwait
+        xor     a
+        di
+        out     (WDAT),a
+        in      a,(STAT)
+        ei
+        rra
+        jr      nc,.m1
+        inc     hl
+.m1:    djnz    .m
+        push    hl
+        call    mdone
+        PRINT   "BUSY sel="
+        ld      hl,(tmp1)
+        call    prhl
+        PRINT   " wr="
+        ld      hl,(tmp2)
+        call    prhl
+        PRINT   " mem="
+        pop     hl
+        call    prhl
+        jp      crlf
+
+; ------------------------------------------------------ header load
+
+; tone 384 loaded on channel 23; HL = status reads until LD went off
+ldtime: call    wwait
+        ld      a,1Fh
+        out     (WREG),a
+        call    wwait
+        ld      hl,0
+        ld      a,80h
+        di
+        out     (WDAT),a
+.l:     in      a,(STAT)
+        and     2
+        jr      z,.d
+        inc     hl
+        bit     7,h
+        jr      nz,.d
+        jp      .l
+.d:     ei
+        ret
+
+t_load: ld      de,7F00h        ; channel 23 keyed off
+        call    wwr
+        ld      de,3701h        ; the tone's bit 8
+        call    wwr
+        ld      de,4F10h
+        call    wwr
+        PRINT   "LD"
+        ld      b,4
+.l:     push    bc
+        call    ldtime
+        call    space
+        call    prhl
+        pop     bc
+        djnz    .l
+        call    crlf
+        ; is the header loaded with MA on?
+        ld      de,0AF00h
+        call    wwr
+        call    ldtime
+        ld      d,0AFh
+        call    wrd
+        ld      (tmp1),a
+        ld      de,0AF00h
+        call    wwr
+        call    maon
+        call    ldtime
+        ld      (tmp3),hl
+        ld      d,0AFh
+        call    wrd
+        ld      (tmp2),a
+        call    maoff
+        PRINT   "HDR MA0="
+        ld      a,(tmp1)
+        call    prhex
+        PRINT   " MA1="
+        ld      a,(tmp2)
+        call    prhex
+        PRINT   " LD1="
+        ld      hl,(tmp3)
+        call    prhl
+        jp      crlf
+
+; ------------------------------------------------------ MOONBUG.TXT
+
+savelog:
+        ld      de,fcb
+        ld      c,16h
+        call    BDOS
+        or      a
+        jr      nz,.err
+        ld      hl,1
+        ld      (fcb+14),hl
+        dec     hl
+        ld      (fcb+33),hl
+        ld      (fcb+35),hl
+        ld      de,logbuf
+        ld      c,1Ah
+        call    BDOS
+        ld      hl,(logptr)
+        ld      de,logbuf
+        or      a
+        sbc     hl,de
+        ld      de,fcb
+        ld      c,26h
+        call    BDOS
+        or      a
+        jr      nz,.err
+        ld      de,fcb
+        ld      c,10h
+        call    BDOS
+        PRINTLN "Saved MOONBUG.TXT"
+        ret
+.err:   PRINTLN "Disk error: not saved"
+        ret
+
+; ---------------------------------------------------------- the sounds
+
+sounds:
+        ; ---- A
+        PRINTLN "A MA over a wave sine"
+        call    blip
+        xor     a
+        call    wprep
+        call    won
+        WAITF   60
+        MAF     60
+        WAITF   30
+        MAF     12
+        WAITF   30
+        MAF     3
+        WAITF   30
+        MAF     1
+        WAITF   30
+        MAS     MS5
+        WAITF   30
+        MAS     MS1
+        WAITF   30
+        MAS     MS01
+        WAITF   30
+        MAS     1
+        WAITF   30
+        call    woff
+        WAITF   15
+        ; ---- B
+        PRINTLN "B MA over an FM tone"
+        call    blip
+        call    fmon
+        WAITF   60
+        MAF     60
+        WAITF   30
+        MAF     3
+        WAITF   30
+        MAS     MS1
+        WAITF   30
+        call    fmoff
+        WAITF   15
+        ; ---- C
+        PRINTLN "C wave and FM"
+        call    blip
+        xor     a
+        call    wprep
+        call    won
+        call    fmon
+        WAITF   30
+        MAF     30
+        WAITF   30
+        MAS     MS1
+        WAITF   30
+        call    woff
+        call    fmoff
+        WAITF   15
+        ; ---- D
+        PRINTLN "D MA in silence"
+        call    blip
+        ld      b,10
+.d1:    push    bc
+        MAF     6
+        WAITF   6
+        pop     bc
+        djnz    .d1
+        WAITF   30
+        ld      b,60
+.d2:    push    bc
+        WAITF   1
+        MAS     MS1
+        pop     bc
+        djnz    .d2
+        WAITF   15
+        ; ---- E
+        PRINTLN "E chirp: the position"
+        call    blip
+        ld      a,1
+        call    wprep
+        call    won
+        WAITF   180
+        MAF     18
+        WAITF   60
+        MAF     60
+        WAITF   90
+        call    woff
+        WAITF   15
+        ; ---- F
+        PRINTLN "F key on under MA"
+        call    blip
+        ld      a,1
+        call    wprep
+        call    maon
+        WAITF   6
+        call    won
+        WAITF   18
+        call    maoff
+        WAITF   90
+        call    woff
+        WAITF   15
+        ; ---- G
+        PRINTLN "G key off under MA"
+        call    blip
+        xor     a
+        call    wprep
+        call    won
+        WAITF   30
+        call    maon
+        WAITF   6
+        call    woff
+        WAITF   6
+        call    maoff
+        WAITF   30
+        ; ---- H
+        PRINTLN "H accesses"
+        call    blip
+        xor     a
+        call    wprep
+        call    won
+        WAITF   30
+        ; 1: MA on, no access
+        MAF     30
+        WAITF   30
+        ; 2: MA on, reading RAM
+        ld      c,23h
+        ld      hl,0
+        call    maddr
+        call    rdloop
+        call    maoff
+        WAITF   30
+        ; 3: MA on, writing RAM
+        ld      c,23h
+        ld      hl,0
+        call    maddr
+        call    wrloop
+        call    maoff
+        WAITF   30
+        ; 4: MA on, reading ROM
+        ld      c,0
+        ld      hl,0
+        call    maddr
+        call    rdloop
+        call    maoff
+        WAITF   30
+        ; 5: MA off, writing R#6
+        call    sel6
+        call    wrloop
+        WAITF   30
+        ; 6: MA off, reading R#6
+        call    sel6
+        call    rdloop
+        WAITF   30
+        call    woff
+        WAITF   15
+        ; ---- I
+        PRINTLN "I stream"
+        ld      a,2
+        call    wprep
+        call    won
+        ld      hl,0
+        ld      (ringpos),hl
+        call    blip
+        ld      b,120
+.i1:    push    bc
+        ei
+        halt
+        di
+        call    ringaddr
+        ld      hl,sbuf
+        ld      b,0
+.i1a:   ld      a,(hl)
+        inc     hl
+        call    mput
+        djnz    .i1a
+        call    mdone
+        ei
+        ld      de,256
+        call    ringadv
+        pop     bc
+        djnz    .i1
+        call    blip
+        ld      b,120
+.i2:    push    bc
+        ei
+        halt
+        di
+        call    ringaddr
+        call    wwait
+        ld      hl,sbuf
+        ld      bc,WDAT
+        otir
+        call    mdone
+        ei
+        ld      de,256
+        call    ringadv
+        pop     bc
+        djnz    .i2
+        call    blip
+        ld      b,120
+.i3:    push    bc
+        ei
+        halt
+        di
+        call    ringaddr
+        call    wwait
+        ld      hl,sbuf
+        ld      bc,64*256+WDAT
+        otir
+        call    mdone
+        ei
+        ld      de,64
+        call    ringadv
+        pop     bc
+        djnz    .i3
+        call    blip
+        ld      b,120
+.i4:    push    bc
+        ei
+        halt
+        di
+        call    ringaddr
+        call    maoff
+        call    wwait
+        ld      hl,sbuf
+        ld      b,64
+.i4a:   ld      a,2
+        out     (WREG),a
+        ld      a,MAON
+        out     (WDAT),a
+        ld      a,6
+        out     (WREG),a
+        ld      a,(hl)
+        out     (WDAT),a
+        ld      a,2
+        out     (WREG),a
+        ld      a,MAOFF
+        out     (WDAT),a
+        inc     hl
+        ld      c,12
+.i4b:   dec     c
+        jr      nz,.i4b
+        djnz    .i4a
+        ei
+        ld      de,64
+        call    ringadv
+        pop     bc
+        djnz    .i4
+        call    woff
+        WAITF   15
+        ; ---- J
+        PRINTLN "J loop points"
+        call    blip
+        ld      a,3
+.j:     push    af
+        call    wprep
+        call    won
+        WAITF   90
+        call    woff
+        WAITF   20
+        pop     af
+        inc     a
+        cp      7
+        jr      nz,.j
+        call    blip
+        call    blip
+        jp      blip
+
+; MA on, the memory address = the ring's write position
+ringaddr:
+        ld      hl,(ringpos)
+        ld      de,1000h
+        add     hl,de
+        ld      c,20h
+        jp      maddr
+
+; the ring's write position + DE, modulo 8192
+ringadv:
+        ld      hl,(ringpos)
+        add     hl,de
+        ld      a,h
+        and     1Fh
+        ld      h,a
+        ld      (ringpos),hl
+        ret
+
+; R#6 read (rdloop) or written (wrloop) in a loop for 30 frames
+rdloop: ld      a,(JIFFY)
+        add     a,30
+        ld      b,a
+        ei
+.l:     in      a,(WDAT)
+        ld      a,(JIFFY)
+        cp      b
+        jr      nz,.l
+        ret
+wrloop: ld      a,(JIFFY)
+        add     a,30
+        ld      b,a
+        ei
+.l:     xor     a
+        out     (WDAT),a
+        ld      a,(JIFFY)
+        cp      b
+        jr      nz,.l
+        ret
+
+; ---------------------------------------------------------------- data
+
+fcb:    db      0,"MOONBUG TXT"
+        ds      25,0
+
+logptr: dw      0
+r2read: db      0
+tmp1:   dw      0
+tmp2:   dw      0
+tmp3:   dw      0
+cntff:  dw      0
+cnt00:  dw      0
+cntd:   dw      0
+errs:   dw      0
+first:  db      0
+ringpos: dw     0
+ramsave: ds     4
+
+        align   256
+sintab:
+        include "sintab.inc"
+flags:  ds      256
+rdbuf:  ds      256
+pattern: ds     256
+sbuf:   ds      256
+logbuf:
