@@ -426,35 +426,43 @@ void YMF278::advance()
 	}
 }
 
+uint8_t YMF278::readSampleMem(unsigned address) const
+{
+	// Measured on a real YMF278 (2MB RAM): while R#2 bit 0 (memory access
+	// mode) is set, the chip does not fetch from the address it wants.
+	// It gets the byte at the CPU's memory address (R#3-5) instead. So a
+	// playing channel is silent (a constant value) as long as the CPU
+	// doesn't access the memory, and it plays the bytes the CPU passes
+	// over when it does. The play position keeps advancing.
+	return (regs[2] & 1) ? readMem(memAdr) : readMem(address);
+}
+
 int16_t YMF278::getSample(const Slot& slot, uint16_t pos) const
 {
-	// TODO How does this behave when R#2 bit 0 = 1?
-	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
-	//      sound generation blocked at some higher level?
 	switch (slot.bits) {
 	case 0: {
 		// 8 bit
-		return narrow_cast<int16_t>(readMem(slot.startAddr + pos) << 8);
+		return narrow_cast<int16_t>(readSampleMem(slot.startAddr + pos) << 8);
 	}
 	case 1: {
 		// 12 bit
 		unsigned addr = slot.startAddr + ((pos / 2) * 3);
 		if (pos & 1) {
 			return narrow_cast<int16_t>(
-				(readMem(addr + 2) << 8) |
-				(readMem(addr + 1) & 0xF0));
+				(readSampleMem(addr + 2) << 8) |
+				(readSampleMem(addr + 1) & 0xF0));
 		} else {
 			return narrow_cast<int16_t>(
-				 (readMem(addr + 0) << 8) |
-				((readMem(addr + 1) << 4) & 0xF0));
+				 (readSampleMem(addr + 0) << 8) |
+				((readSampleMem(addr + 1) << 4) & 0xF0));
 		}
 	}
 	case 2: {
 		// 16 bit
 		unsigned addr = slot.startAddr + (pos * 2);
 		return narrow_cast<int16_t>(
-			(readMem(addr + 0) << 8) |
-			(readMem(addr + 1) << 0));
+			(readSampleMem(addr + 0) << 8) |
+			(readSampleMem(addr + 1) << 0));
 	}
 	default:
 		// TODO unspecified
@@ -615,9 +623,9 @@ void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime time)
 			           (waveTblHdr * 0x80000 + ((slot.wave - 384) * 12));
 			std::array<uint8_t, 12> buf;
 			for (auto i : xrange(12)) {
-				// TODO What if R#2 bit 0 = 1?
-				//      See also getSample()
-				buf[i] = readMem(base + i);
+				// With R#2 bit 0 = 1 the header is not read
+				// correctly, see readSampleMem().
+				buf[i] = readSampleMem(base + i);
 			}
 			slot.bits = (buf[0] & 0xC0) >> 6;
 			slot.startAddr = buf[2] | (buf[1] << 8) | ((buf[0] & 0x3F) << 16);
@@ -773,13 +781,15 @@ void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime time)
 	regs[reg] = data;
 }
 
-uint8_t YMF278::readReg(uint8_t reg)
+uint8_t YMF278::readReg(uint8_t reg, EmuTime time)
 {
-	// no need to call updateStream(time)
 	uint8_t result = peekReg(reg);
 	if (reg == 6) {
 		// Memory Data Register
 		if (regs[2] & 1) {
+			// The playing channels hear the address change,
+			// see readSampleMem().
+			updateStream(time);
 			// Verified on real YMF278:
 			// memAdr is only increased when 'regs[2] & 1'
 			++memAdr; // no need to mask (again) here

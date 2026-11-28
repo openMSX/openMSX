@@ -40,7 +40,7 @@ public:
 	void clearRam();
 	void reset(EmuTime time);
 	void writeReg(uint8_t reg, uint8_t data, EmuTime time);
-	[[nodiscard]] uint8_t readReg(uint8_t reg);
+	[[nodiscard]] uint8_t readReg(uint8_t reg, EmuTime time);
 	[[nodiscard]] uint8_t peekReg(uint8_t reg) const;
 
 	[[nodiscard]] uint8_t readMem(unsigned address) const;
@@ -111,6 +111,7 @@ private:
 	void writeRegDirect(uint8_t reg, uint8_t data, EmuTime time);
 	void updateChannelFactors(unsigned slotNum, EmuTime time);
 	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;
+	[[nodiscard]] uint8_t readSampleMem(unsigned address) const;
 	[[nodiscard]] int16_t getSample(const Slot& slot, uint16_t pos) const;
 	[[nodiscard]] static uint16_t nextPos(const Slot& slot, uint16_t pos, uint16_t increment);
 	void advance();
