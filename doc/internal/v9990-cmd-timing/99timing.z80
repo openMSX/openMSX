@@ -1,0 +1,1885 @@
+; 99TIMING v2: how long V9990 commands take, in every display mode, timed
+; with a GR8NET's 24-bit counter. MSX-DOS .COM (99TIMING.COM, MSX-DOS 1 or
+; 2, MSX1-safe); writes 99TIMING.TXT on the current drive: 718 kB (8141
+; lines), so not a 720 kB floppy. Needs a V9990 (ports 60h-6Fh) and a
+; GR8NET (found by a slot search). About 25 minutes (1460 s in openMSX); a dot on the
+; console for each case.
+;
+; The clock: the GR8NET's controlled interrupt generator (GR8NET manual,
+; section 11.5.1), free running at 3.579545 MHz (CLS = 1: one tick a Z80
+; clock), read in page 1 at 5FEBh-5FEDh. Its interrupt is not used.
+;
+; A timed run (RUN):
+;  1. R#32-R#51 are written.
+;  2. Sync: the V9990's line interrupt (R#10-11 = the environment's line)
+;     is waited for in HALT, so every run starts at the same raster
+;     position (within the HALT's 5 clocks).
+;  3. A delay of D clocks moves the start along the line: D / 5 NOPs, and
+;     one of five stubs that take 21 to 25 clocks.
+;  4. The counter is read (A), the opcode goes to R#52, and the command-end
+;     interrupt (R#9 IECE) is waited for in HALT. Its handler reads the
+;     counter (B). The sample is A - B, in Z80 clocks.
+; The MSX VDP's interrupt is masked meanwhile (R#1 IE0), and 0038h is
+; hooked. A sample carries a fixed overhead: the CAL line gives it (the
+; same code with the interrupt already pending). So
+;     command time = sample - CAL, rounded up to the HALT's 5 clocks
+; (the interrupt is taken at the end of a 5-clock HALT cycle).
+;
+; Before its timed runs each case runs once polled, with a timeout: a
+; command that never sets the CE flag is listed as TIMEOUT and not timed.
+; Each environment first checks that both interrupts arrive (the E line).
+; IECE is set before the command starts: openMSX only keeps the CE flag up
+; to date then.
+;
+; Configurations (CONFIGS): R#6, R#7, port 67h (MCS), in this order:
+;   P1; P2; then B1, B3, B7 (MCS 0), B0, B2, B4 (MCS 1), B5 (R#7 HSCN,
+;   31 kHz) and B6 (HSCN and C25M), each at 2, 4, 8 and 16 bits a pixel,
+;   image width 512.
+;
+; Environments: R#8 (DISP bit 7, SPD bit 6: 1 = sprites/cursor off), the
+; sync line IL (counted from the picture's first line), and flags (bit 0:
+; the sweeps run here).
+;   P1:     0: display on,  sprites on,  start in the picture (IL 100)
+;           1: display on,  sprites on,  start in the retrace (IL 216)
+;           2: display on,  sprites off, IL 100
+;           3: display on,  sprites off, IL 216
+;           4: display off, sprites on,  IL 100
+;           5: display off, sprites off, IL 100
+;           6: display on,  sprites on,  IL 2 (the lines the 125 sprites
+;              of the cleared attribute table are on)
+;   others: 0: display on, cursor on, IL 100; 1: display on, cursor off,
+;           IL 100; 2: display off
+;
+; VRAM in P1 (PREP_P1): both layers colour 0; layer A rows 0-511 colour 5
+; (the non-zero source); rows 512-518 have one colour-1 pixel each, at
+; x = 0, 1, 2, 3, 16, 64, 255 (for SRCH). Rows 520-1023 stay 0 in both
+; layers (the zero source). The tests write layer A rows 1024-1700 and
+; layer B rows 0-600 and 1024-1700 only. A linear address in P1 is a word
+; offset and a chip bit (bit 0): 40000h is row 1024. The sprite attribute
+; table (3FE00h) is all 0: every sprite at y 0, x 0.
+; VRAM in the other configurations: all 55h, and every test writes 55h
+; again (FC and BC 5555h, copies).
+;
+; 99TIMING.TXT:
+;  # comment
+;  G <slot>                      the GR8NET's slot ID
+;  CAL <samples>                 the overhead (decimal clocks)
+;  V <test> <VRAM address> <128 bytes>   what a LINE left (P1, see LDUMP)
+;  M <config> <R#6> <R#7> <port 67h>
+;  E <env> <R#8> <IL> <sync> <ce>   sync/ce: 1 = that interrupt arrives
+;  <name> <env> <D> <SX> <SY> <DX> <DY> <NX> <NY> <ARG> <LOP> <WM> <FC>
+;         <BC> <OP> : <samples>  hex, D in clocks, the samples in decimal
+;         clocks; or ": TIMEOUT"
+; Case flags: 1 = swept over D = 0, 5, ... 235 (4 samples each); 2 = swept
+; over D = 0-227 (4 samples each); else D = 0, 6 samples. Swept cases only
+; run in the environments with flag bit 0.
+; LMMC, LMCM, CMMC and CMMK are not here: their time is the CPU's. POINT
+; and STOP are, to see whether they set CE by themselves.
+; Assembled with -DTAIL it only runs the last configurations (a test build).
+
+V9_VRAM         equ     60h
+V9_CMDP         equ     62h
+V9_DATA         equ     63h
+V9_SEL          equ     64h
+V9_STAT         equ     65h
+V9_INTF         equ     66h
+V9_SYS          equ     67h
+V9_OUT          equ     6Fh
+
+MSX_STAT        equ     99h
+MSX_CTRL        equ     99h
+RG1SAV          equ     0F3E0h          ; the BIOS's copy of the VDP's R#1
+IE0             equ     20h
+
+REG_CTL         equ     5FEAh           ; generator control
+REG_CNT         equ     5FEBh           ; counter LSB, MID, MSB
+CTL_OP          equ     01h
+CTL_RST         equ     02h
+CTL_CLS         equ     20h             ; 3.579545 MHz
+
+BDOS            equ     0005h
+ENASLT          equ     0024h
+RAMAD1          equ     0F342h          ; page 1's RAM slot (MSX-DOS)
+EXPTBL          equ     0FCC1h          ; bit 7: the primary slot is expanded
+GD_N            equ     2000            ; the slot search's delay, 28 clocks each
+
+NRUN            equ     6               ; samples of a plain case
+NRUNP           equ     4               ; samples of each sweep step
+NSLED           equ     48
+CASELEN         equ     27
+CFGLEN          equ     9
+
+        output  "99TIMING.COM"
+        org     0100h
+
+START:
+        ld      de,MSG_HELLO
+        call    PRINT
+        call    G_DETECT
+        jr      z,HAVE_G
+        ld      de,MSG_NOG
+        call    PRINT
+        rst     0
+HAVE_G:
+        ld      de,BUF
+        ld      c,1Ah                   ; set DTA
+        call    BDOSX
+        ld      de,FCB
+        ld      c,16h                   ; create file
+        call    BDOSX
+        and     a
+        jr      z,OPENED
+        ld      de,MSG_NOFILE
+        call    PRINT
+        rst     0
+OPENED:
+        call    V9_INIT
+        ld      hl,TXT_HEAD
+        call    FSTR
+        ld      a,'G'
+        call    FPUTC
+        call    FSPACE
+        ld      a,(SLOT)
+        call    FHEX8
+        call    FEOL
+
+        ; the counter: period 2^24, 3.579545 MHz, running from here on
+        call    ENTER
+        ld      a,CTL_RST
+        ld      (REG_CTL),a
+        xor     a
+        ld      (REG_CNT),a
+        ld      (REG_CNT+1),a
+        ld      (REG_CNT+2),a
+        ld      a,CTL_RST+CTL_OP+CTL_CLS
+        ld      (REG_CTL),a
+        call    LEAVE
+
+        ld      hl,PREP_P1
+        call    PREP
+        call    DO_CAL
+        call    LDUMP
+
+        ld      hl,CONFIGS
+        xor     a
+        ld      (CFGN),a
+CFG_LP:
+        ld      a,(hl)
+        cp      0FFh
+        jp      z,ALL_DONE
+        ld      (CFGP),hl
+        call    DO_CFG
+        ld      hl,(CFGP)
+        ld      de,CFGLEN
+        add     hl,de
+        ld      a,(CFGN)
+        inc     a
+        ld      (CFGN),a
+        jr      CFG_LP
+
+ALL_DONE:
+        ld      hl,TXT_END
+        call    FSTR
+        call    FCLOSE
+        call    V9_INIT                 ; P1, display off
+        ld      de,MSG_DONE
+        call    PRINT
+        rst     0
+
+; ---- a configuration: (CFGP) = R#6, R#7, port 67h, then the PREP list,
+; the environments and the cases (words) ----------------------------------
+DO_CFG:
+        ld      ix,(CFGP)
+        ld      a,8
+        out     (V9_SEL),a
+        ld      a,02h
+        out     (V9_DATA),a             ; display off
+        ld      a,(ix+2)
+        out     (V9_SYS),a              ; MCS
+        ld      a,6
+        out     (V9_SEL),a
+        ld      a,(ix+0)
+        out     (V9_DATA),a
+        ld      a,(ix+1)
+        out     (V9_DATA),a             ; R#7
+        ; about a second for the mode to settle
+        ld      b,0
+DG_W1:
+        ld      de,0
+DG_W2:
+        dec     de
+        ld      a,d
+        or      e
+        jr      nz,DG_W2
+        ld      a,b
+        xor     1
+        ld      b,a
+        jr      nz,DG_W1
+
+        ld      a,'M'
+        call    FPUTC
+        call    FSPACE
+        ld      a,(CFGN)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(ix+0)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(ix+1)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(ix+2)
+        call    FHEX8
+        call    FEOL
+        ld      e,'M'
+        call    PUTC
+
+        ld      l,(ix+3)
+        ld      h,(ix+4)
+        call    PREP
+        ld      ix,(CFGP)
+        ld      l,(ix+7)
+        ld      h,(ix+8)
+        ld      (CASEP),hl
+        ld      l,(ix+5)
+        ld      h,(ix+6)
+        push    hl
+        pop     iy
+        xor     a
+        ld      (ENVN),a
+ENV_LP:
+        ld      a,(iy+0)
+        cp      0FFh
+        ret     z
+        call    DO_ENV
+        ld      de,4
+        add     iy,de
+        ld      hl,ENVN
+        inc     (hl)
+        jr      ENV_LP
+
+; ---- the calibration -------------------------------------------------
+; A command is run and its CE flag kept; then RUN with the flag still set
+; (CLRV keeps bit 2) and the opcode sent to R#53 (read only): the
+; interrupt is taken right after the OUT.
+DO_CAL:
+        ld      hl,TXT_CAL
+        call    FSTR
+        xor     a
+        ld      (SYNCOK),a
+        ld      (DLYN),a
+        call    SET_DELAY
+        ld      a,20h
+        ld      (OPC),a
+        ld      hl,CAL_REGS
+        ld      (REGP),hl
+        ld      a,NRUN
+        ld      (NSAMP),a
+        call    ENTER
+        ld      a,NRUN
+        ld      hl,SAMPLES
+DC_LP:
+        push    af
+        push    hl
+        call    PROBE                   ; (it ends with the flags cleared)
+        ld      hl,(REGP)
+        call    SETREGS
+        ld      a,04h
+        call    V9_R9
+        ld      a,52
+        out     (V9_SEL),a
+        ld      a,20h
+        out     (V9_DATA),a
+DC_WAIT:
+        in      a,(V9_INTF)
+        and     04h
+        jr      z,DC_WAIT               ; (PROBE has shown it ends)
+        ld      a,53
+        ld      (REGSEL),a
+        ld      a,03h
+        ld      (CLRV),a
+        call    RUN
+        ld      a,52
+        ld      (REGSEL),a
+        ld      a,07h
+        ld      (CLRV),a
+        pop     hl
+        call    STORE
+        pop     af
+        dec     a
+        jr      nz,DC_LP
+        call    LEAVE
+        call    FSAMPLES
+        jp      FEOL
+
+; ---- what LINE draws past the edge (P1, display off) ------------------
+; Each LD_LIST entry: a LINE's R#32-R#51. It is drawn on cleared rows
+; 1100-1101; then 128 bytes of each of layer A's and layer B's rows 1100
+; and 1101 go to the file, and the rows are cleared again.
+LDUMP:
+        ld      hl,LD_LIST
+        xor     a
+        ld      (LDN),a
+LD_LP:
+        ld      a,(hl)
+        cp      0FFh
+        ret     z
+        inc     hl
+        push    hl
+        call    SETREGS
+        ld      a,0B0h
+        call    POLLCMD
+        ld      hl,LD_ADDRS
+        ld      b,4
+LD_ROW:
+        push    bc
+        ld      a,'V'
+        call    FPUTC
+        call    FSPACE
+        ld      a,(LDN)
+        call    FHEX4
+        call    FSPACE
+        ld      a,3
+        out     (V9_SEL),a
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      c,(hl)
+        inc     hl
+        ld      a,e
+        out     (V9_DATA),a
+        ld      a,d
+        out     (V9_DATA),a
+        ld      a,c
+        out     (V9_DATA),a
+        call    FHEX4                   ; bits 18-16
+        ld      a,d
+        call    FHEX8
+        ld      a,e
+        call    FHEX8
+        call    FSPACE
+        ld      b,128
+LD_BYTE:
+        in      a,(V9_VRAM)
+        call    FHEX8
+        djnz    LD_BYTE
+        call    FEOL
+        pop     bc
+        djnz    LD_ROW
+        ld      hl,LD_CLEAR
+        call    PREP
+        pop     hl
+        ld      de,20
+        add     hl,de
+        ld      a,(LDN)
+        inc     a
+        ld      (LDN),a
+        jr      LD_LP
+
+; A = opcode: R#52, then wait for CE to clear (about 1 s at most)
+POLLCMD:
+        ld      c,a
+        ld      a,52
+        out     (V9_SEL),a
+        ld      a,c
+        out     (V9_DATA),a
+        ld      de,0
+PC_WAIT:
+        in      a,(V9_STAT)
+        rra
+        ret     nc
+        dec     de
+        ld      a,d
+        or      e
+        jr      nz,PC_WAIT
+        ret
+
+; ---- an environment: IY = R#8, IL (word), flags -----------------------
+DO_ENV:
+        ld      a,8
+        out     (V9_SEL),a
+        ld      a,(iy+0)
+        out     (V9_DATA),a
+        ld      a,10
+        out     (V9_SEL),a
+        ld      a,(iy+1)
+        out     (V9_DATA),a
+        ld      a,(iy+2)
+        out     (V9_DATA),a             ; R#11 (IEHM 0)
+        xor     a
+        ld      (DLYN),a
+        call    SET_DELAY
+
+        ; do the interrupts arrive?
+        call    ENTER
+        ld      a,7
+        out     (V9_INTF),a
+        ld      a,02h                   ; IEH
+        call    INT_TEST
+        ld      (SYNCOK),a
+        ld      hl,CAL_REGS
+        call    SETREGS
+        ld      a,7
+        out     (V9_INTF),a
+        ld      a,04h                   ; IECE (INT_TEST starts the LMMV)
+        call    INT_TEST
+        ld      (CEOK),a
+        call    LEAVE
+
+        ld      a,'E'
+        call    FPUTC
+        call    FSPACE
+        ld      a,(ENVN)
+        call    FHEX4
+        call    FSPACE
+        ld      a,(iy+0)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(iy+2)
+        call    FHEX8
+        ld      a,(iy+1)
+        call    FHEX8
+        call    FSPACE
+        ld      a,(SYNCOK)
+        call    FHEX4
+        call    FSPACE
+        ld      a,(CEOK)
+        call    FHEX4
+        call    FEOL
+
+        ld      a,(ENVN)
+        add     a,'0'
+        ld      e,a
+        call    PUTC
+
+        ld      a,(CEOK)
+        and     a
+        jr      nz,DE_GO
+        ld      hl,TXT_NOCE
+        jp      FSTR                    ; no CE interrupt: nothing to time
+DE_GO:
+        ld      ix,(CASEP)
+CASE_LP:
+        ld      a,(ix+0)
+        and     a
+        ret     z
+        ld      a,(ix+5)
+        ld      (OPC),a
+        push    ix
+        pop     hl
+        ld      de,7
+        add     hl,de
+        ld      (REGP),hl
+        ; the sweep: B steps of C clocks
+        ld      a,(ix+6)
+        and     3
+        ld      bc,0100h                ; a plain case: D = 0 once
+        ld      e,NRUN
+        jr      z,CL_SET
+        bit     0,(iy+3)
+        jr      z,CL_NEXT               ; no sweeps in this environment
+        ld      e,NRUNP
+        ld      bc,48*256+5
+        dec     a
+        jr      z,CL_SET
+        ld      bc,228*256+1
+CL_SET:
+        ld      a,e
+        ld      (NSAMP),a
+        ld      a,c
+        ld      (DSTEP),a
+        xor     a
+        ld      (DLYN),a
+PH_LP:
+        push    bc
+        call    SET_DELAY
+        call    DO_CASE
+        pop     bc
+        ld      a,(TIMEDOUT)
+        and     a
+        jr      nz,CL_DOT               ; no point in the other steps
+        ld      a,(DSTEP)
+        ld      c,a
+        ld      a,(DLYN)
+        add     a,c
+        ld      (DLYN),a
+        djnz    PH_LP
+CL_DOT:
+        ld      e,'.'
+        call    PUTC
+CL_NEXT:
+        ld      de,CASELEN
+        add     ix,de
+        jr      CASE_LP
+
+; (DLYN) clocks = (DLYN) / 5 NOPs and stub (DLYN) mod 5
+SET_DELAY:
+        ld      a,(DLYN)
+        ld      b,0
+SD_DIV:
+        cp      5
+        jr      c,SD_GOT
+        sub     5
+        inc     b
+        jr      SD_DIV
+SD_GOT:
+        add     a,a
+        ld      e,a
+        ld      d,0
+        ld      hl,STUBS
+        add     hl,de
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        ld      (FINEP),de
+        ld      hl,SLED_END
+        ld      e,b
+        ld      d,0
+        and     a
+        sbc     hl,de
+        ld      (SLEDP),hl
+        ret
+
+; One case at one delay: the probe, the timed runs, the line.
+DO_CASE:
+        call    ENTER
+        call    PROBE
+        ld      (TIMEDOUT),a
+        and     a
+        jr      nz,DCS_OUT
+        ld      a,(NSAMP)
+        ld      hl,SAMPLES
+DCS_LP:
+        push    af
+        push    hl
+        call    RUN
+        pop     hl
+        call    STORE
+        pop     af
+        dec     a
+        jr      nz,DCS_LP
+DCS_OUT:
+        call    LEAVE
+
+        ; the line
+        push    ix
+        pop     hl
+        ld      b,5
+DCS_NAME:
+        ld      a,(hl)
+        call    FPUTC
+        inc     hl
+        djnz    DCS_NAME
+        call    FSPACE
+        ld      a,(ENVN)
+        call    FHEX4
+        call    FSPACE
+        ld      a,(DLYN)
+        call    FHEX8
+        ld      hl,(REGP)
+        ld      b,6
+        call    FWORDS                  ; SX SY DX DY NX NY
+        call    FSPACE
+        ld      a,(hl)
+        call    FHEX8                   ; ARG
+        inc     hl
+        call    FSPACE
+        ld      a,(hl)
+        call    FHEX8                   ; LOP
+        inc     hl
+        ld      b,3
+        call    FWORDS                  ; WM FC BC
+        call    FSPACE
+        ld      a,(OPC)
+        call    FHEX8
+        call    FSPACE
+        ld      a,':'
+        call    FPUTC
+        ld      a,(TIMEDOUT)
+        and     a
+        jr      z,DCS_S
+        ld      hl,TXT_TIMEOUT
+        call    FSTR
+        jp      FEOL
+DCS_S:
+        call    FSAMPLES
+        jp      FEOL
+
+; B words at (HL), each as " hhhh"
+FWORDS:
+        call    FSPACE
+        inc     hl
+        ld      a,(hl)
+        call    FHEX8
+        dec     hl
+        ld      a,(hl)
+        call    FHEX8
+        inc     hl
+        inc     hl
+        djnz    FWORDS
+        ret
+
+; the NSAMP samples, each as " <decimal>"
+FSAMPLES:
+        ld      a,(NSAMP)
+        ld      hl,SAMPLES
+FS_LP:
+        push    af
+        call    FSPACE
+        push    hl
+        call    FDEC24
+        pop     hl
+        inc     hl
+        inc     hl
+        inc     hl
+        pop     af
+        dec     a
+        jr      nz,FS_LP
+        ret
+
+; (HL) = TA - TB (the counter counts down); HL += 3
+STORE:
+        ld      a,(TA)
+        ld      b,a
+        ld      a,(TB)
+        ld      c,a
+        ld      a,b
+        sub     c
+        ld      (hl),a
+        inc     hl
+        ld      a,(TA+1)
+        ld      b,a
+        ld      a,(TB+1)
+        ld      c,a
+        ld      a,b
+        sbc     a,c
+        ld      (hl),a
+        inc     hl
+        ld      a,(TA+2)
+        ld      b,a
+        ld      a,(TB+2)
+        ld      c,a
+        ld      a,b
+        sbc     a,c
+        ld      (hl),a
+        inc     hl
+        ret
+
+; ---- the measuring window --------------------------------------------
+; Interrupts off, the MSX VDP's interrupt masked, 0038h = jp (patched),
+; the GR8NET in page 1. Keeps IX and IY.
+ENTER:
+        di
+        push    ix
+        push    iy
+        ld      a,(RG1SAV)
+        and     0FFh-IE0
+        call    MSX_R1
+        in      a,(MSX_STAT)
+        ld      hl,0038h
+        ld      de,HOOK_SAVE
+        ld      bc,3
+        ldir
+        ld      a,0C3h
+        ld      (0038h),a
+        ld      hl,STRAY
+        ld      (0039h),hl
+        ld      a,(SLOT)
+        ld      h,40h
+        call    ENASLT
+        di
+        pop     iy
+        pop     ix
+        ret
+
+LEAVE:
+        di
+        push    ix
+        push    iy
+        ld      a,9
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      a,(RAMAD1)
+        ld      h,40h
+        call    ENASLT
+        di
+        ld      hl,HOOK_SAVE
+        ld      de,0038h
+        ld      bc,3
+        ldir
+        ld      a,(RG1SAV)
+        call    MSX_R1
+        pop     iy
+        pop     ix
+        ei
+        ret
+
+; the MSX VDP's R#1 = A (interrupts off)
+MSX_R1:
+        out     (MSX_CTRL),a
+        ld      a,80h+1
+        out     (MSX_CTRL),a
+        ret
+
+; an interrupt nobody waits for: everything acknowledged, interrupts
+; stay off
+STRAY:
+        push    af
+        ld      a,7
+        out     (V9_INTF),a
+        in      a,(MSX_STAT)
+        pop     af
+        ret
+
+; A = the R#9 mask: 1 if that interrupt arrives within about a second,
+; else 0. The flags must be clear before. With IECE, R#52 = LMMV is
+; written here, after R#9 (R#32-R#51 are the caller's): openMSX misses a
+; command that ended before IECE was set.
+INT_TEST:
+        ld      (SAVESP),sp
+        ld      hl,IT_HIT
+        ld      (0039h),hl
+        ld      c,a
+        ld      a,9
+        out     (V9_SEL),a
+        ld      a,c
+        out     (V9_DATA),a
+        cp      04h
+        jr      nz,IT_GO
+        ld      a,52
+        out     (V9_SEL),a
+        ld      a,20h
+        out     (V9_DATA),a
+IT_GO:
+        ld      bc,0
+        ld      e,2
+        ei
+IT_LP:
+        dec     bc
+        ld      a,b
+        or      c
+        jr      nz,IT_LP
+        dec     e
+        jr      nz,IT_LP
+        di
+        xor     a
+        jr      IT_OUT
+IT_HIT:
+        ld      sp,(SAVESP)
+        ld      a,1
+IT_OUT:
+        ld      c,a
+        ld      hl,STRAY
+        ld      (0039h),hl
+        ld      a,9
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      a,7
+        out     (V9_INTF),a
+        ld      a,c
+        ret
+
+; The case once, polled: A = 0 if its CE flag sets within about 3.5 s,
+; else 1 (and STOP is issued). Ends with the flags cleared. IECE is on
+; meanwhile, with the CPU's interrupts off: openMSX only keeps the CE flag
+; up to date when the interrupt is enabled.
+PROBE:
+        ld      hl,(REGP)
+        call    SETREGS
+        ld      a,7
+        out     (V9_INTF),a
+        ld      a,04h
+        call    V9_R9
+        ld      a,52
+        out     (V9_SEL),a
+        ld      a,(OPC)
+        out     (V9_DATA),a
+        ld      de,0
+        ld      b,3
+PB_LP:
+        in      a,(V9_INTF)
+        and     04h
+        jr      nz,PB_OK
+        dec     de
+        ld      a,d
+        or      e
+        jr      nz,PB_LP
+        djnz    PB_LP
+        ld      a,52
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        call    V9_R9
+        ld      a,7
+        out     (V9_INTF),a
+        ld      a,1
+        ret
+PB_OK:
+        xor     a
+        call    V9_R9
+        ld      a,7
+        out     (V9_INTF),a
+        xor     a
+        ret
+
+; R#9 = A
+V9_R9:
+        push    af
+        ld      a,9
+        out     (V9_SEL),a
+        pop     af
+        out     (V9_DATA),a
+        ret
+
+; One timed run: TA = the counter before the opcode, TB = at the end
+; interrupt. Interrupts off at the end.
+RUN:
+        ld      (SAVESP),sp
+        ld      hl,(REGP)
+        call    SETREGS
+        ld      a,(SYNCOK)
+        and     a
+        jr      z,RUN_NOSYNC
+        ld      hl,RUN_SYNCED
+        ld      (0039h),hl
+        ld      a,9
+        out     (V9_SEL),a
+        ld      a,02h                   ; IEH
+        out     (V9_DATA),a
+        ld      a,(CLRV)
+        out     (V9_INTF),a
+        ei
+RUN_W1:
+        halt
+        jr      RUN_W1
+RUN_SYNCED:
+        ld      sp,(SAVESP)
+RUN_NOSYNC:
+        ld      hl,RUN_END
+        ld      (0039h),hl
+        ld      a,(CLRV)
+        out     (V9_INTF),a             ; HI acknowledged
+        ld      a,9
+        out     (V9_SEL),a
+        ld      a,04h                   ; IECE
+        out     (V9_DATA),a
+        ld      a,(REGSEL)
+        out     (V9_SEL),a
+        ld      a,(OPC)
+        ld      b,a
+        ld      hl,(FINEP)
+        jp      (hl)
+; The stubs: 21, 22, 23, 24 and 25 clocks (M1 waits counted), JP included.
+STUB0:
+        or      a                       ; 5
+        or      a                       ; 5
+        jp      RUN_CONT                ; 11
+STUB1:
+        jp      STUB1B                  ; 11
+STUB1B:
+        jp      RUN_CONT                ; 11
+STUB2:
+        inc     de                      ; 7
+        or      a                       ; 5
+        jp      RUN_CONT                ; 11
+STUB3:
+        jr      STUB3B                  ; 13
+STUB3B:
+        jp      RUN_CONT                ; 11
+STUB4:
+        ld      a,(DLYN)                ; 14
+        jp      RUN_CONT                ; 11
+RUN_CONT:
+        ld      hl,(SLEDP)
+        jp      (hl)
+SLED:
+        ds      NSLED, 0
+SLED_END:
+        ld      hl,TA
+        ld      a,(REG_CNT)
+        ld      (hl),a
+        inc     hl
+        ld      a,(REG_CNT+1)
+        ld      (hl),a
+        inc     hl
+        ld      a,(REG_CNT+2)
+        ld      (hl),a
+        ld      a,b
+        ei
+        out     (V9_DATA),a             ; the command starts
+RUN_W2:
+        halt
+        jr      RUN_W2
+RUN_END:
+        ld      a,(REG_CNT)
+        ld      (TB),a
+        ld      a,(REG_CNT+1)
+        ld      (TB+1),a
+        ld      a,(REG_CNT+2)
+        ld      (TB+2),a
+        ld      sp,(SAVESP)
+        ld      hl,STRAY
+        ld      (0039h),hl
+        ld      a,9
+        out     (V9_SEL),a
+        xor     a
+        out     (V9_DATA),a
+        ld      a,7
+        out     (V9_INTF),a
+        ret
+
+; HL = 20 bytes: R#32-R#51
+SETREGS:
+        ld      a,32
+        out     (V9_SEL),a
+        ld      bc,20*256+V9_DATA
+        otir
+        ret
+
+
+; ---- VRAM ------------------------------------------------------------
+; HL = a list of 20-byte LMMV register sets (each after a 1), ended by FFh.
+PREP:
+        ld      a,(hl)
+        cp      0FFh
+        ret     z
+        inc     hl
+        call    SETREGS                 ; (HL moves on)
+        ld      a,52
+        out     (V9_SEL),a
+        ld      a,20h
+        out     (V9_DATA),a
+        ld      b,8                     ; about 8 s at most
+        ld      de,0
+PR_WAIT:
+        in      a,(V9_STAT)
+        rra
+        jr      nc,PREP
+        dec     de
+        ld      a,d
+        or      e
+        jr      nz,PR_WAIT
+        djnz    PR_WAIT
+        jr      PREP
+
+V9_INIT:
+        ld      a,2
+        out     (V9_SYS),a
+        xor     a
+        out     (V9_SYS),a
+        ld      a,10h
+        out     (V9_OUT),a
+        ld      hl,REGS
+VI_LP:
+        ld      a,(hl)
+        cp      0FFh
+        ret     z
+        out     (V9_SEL),a
+        inc     hl
+        ld      a,(hl)
+        out     (V9_DATA),a
+        inc     hl
+        jr      VI_LP
+
+; ---- the GR8NET ------------------------------------------------------
+; Z if the counter was found; SLOT = its slot ID (RDSLT format). The I/O
+; ports (5Eh/5Fh) are not used: every slot, and every subslot of the
+; expanded ones, is put in page 1 in turn and must count Z80 clocks.
+G_DETECT:
+        di
+        xor     a
+        ld      (GD_PRIM),a
+GD_PLP:
+        ld      a,(GD_PRIM)
+        ld      e,a
+        ld      d,0
+        ld      hl,EXPTBL
+        add     hl,de
+        ld      a,(hl)
+        and     80h
+        or      e                       ; subslot 0
+GD_SLP:
+        ld      (SLOT),a
+        ld      h,40h
+        call    ENASLT
+        di
+        call    GD_PROBE
+        jr      z,GD_END
+        ld      a,(SLOT)
+        bit     7,a
+        jr      z,GD_NEXT               ; not expanded
+        add     a,4
+        bit     4,a
+        jr      z,GD_SLP                ; subslots 1-3
+GD_NEXT:
+        ld      a,(GD_PRIM)
+        inc     a
+        ld      (GD_PRIM),a
+        cp      4
+        jr      nz,GD_PLP
+        ld      a,0FFh
+        ld      (SLOT),a
+GD_END:
+        ld      a,(RAMAD1)
+        ld      h,40h
+        call    ENASLT
+        ei
+        ld      a,(SLOT)
+        inc     a
+        jr      z,GD_NONE
+        xor     a
+        ret
+GD_NONE:
+        inc     a                       ; NZ
+        ret
+
+; Z if page 1 has the counter: started at 3.579545 MHz and read three
+; times, GD_N then 2*GD_N delay loops apart, the second interval is
+; 28*GD_N ticks longer than the first, give or take 2 (the rest of the
+; two intervals is the same code). RAM or ROM reads the same three times.
+; A slot that fails gets its four bytes written back (it may be RAM).
+GD_PROBE:
+        ld      hl,REG_CTL
+        ld      de,GD_SAVE
+        ld      bc,4
+        ldir
+        ld      a,CTL_RST
+        ld      (REG_CTL),a
+        xor     a
+        ld      (REG_CNT),a
+        ld      (REG_CNT+1),a
+        ld      (REG_CNT+2),a
+        ld      a,CTL_RST+CTL_OP+CTL_CLS
+        ld      (REG_CTL),a
+        ld      hl,GD_C0
+        call    GD_READ
+        ld      bc,GD_N
+        call    GD_DELAY
+        ld      hl,GD_C1
+        call    GD_READ
+        ld      bc,GD_N*2
+        call    GD_DELAY
+        ld      hl,GD_C2
+        call    GD_READ
+        ; (C1 - C2) - (C0 - C1), 16 bits: the counter counts down
+        ld      hl,(GD_C1)
+        add     hl,hl
+        ld      de,(GD_C2)
+        and     a
+        sbc     hl,de
+        ld      de,(GD_C0)
+        and     a
+        sbc     hl,de
+        ld      de,28*GD_N-2
+        and     a
+        sbc     hl,de
+        ld      a,h
+        and     a
+        jr      nz,GD_NO
+        ld      a,l
+        cp      5
+        jr      nc,GD_NO
+        ld      a,CTL_RST               ; stopped
+        ld      (REG_CTL),a
+        xor     a
+        ret
+GD_NO:
+        ld      hl,GD_SAVE
+        ld      de,REG_CTL
+        ld      bc,4
+        ldir
+        or      1                       ; NZ
+        ret
+
+; (HL) = the counter's low 16 bits (the LSB read latches the rest)
+GD_READ:
+        ld      a,(REG_CNT)
+        ld      (hl),a
+        inc     hl
+        ld      a,(REG_CNT+1)
+        ld      (hl),a
+        ret
+
+; BC iterations of 28 clocks
+GD_DELAY:
+        dec     bc
+        ld      a,b
+        or      c
+        jp      nz,GD_DELAY
+        ret
+
+; ---- output ----------------------------------------------------------
+; BDOS call with IX, IY and HL kept.
+BDOSX:
+        push    hl
+        push    ix
+        push    iy
+        call    BDOS
+        pop     iy
+        pop     ix
+        pop     hl
+        ret
+
+PRINT:
+        ld      c,09h
+        jr      BDOSX
+
+; E -> the console
+PUTC:
+        ld      c,02h
+        jr      BDOSX
+
+; A -> the file buffer; a full 128-byte record is written. Keeps all but AF.
+FPUTC:
+        push    hl
+        push    de
+        push    bc
+        ld      hl,(BUFP)
+        ld      (hl),a
+        inc     l                       ; BUF is 256-aligned, 128 long
+        ld      (BUFP),hl
+        bit     7,l
+        jr      z,FP_OUT
+        ld      de,FCB
+        ld      c,15h                   ; sequential write
+        call    BDOSX
+        ld      hl,BUF
+        ld      (BUFP),hl
+FP_OUT:
+        pop     bc
+        pop     de
+        pop     hl
+        ret
+
+FSPACE:
+        ld      a,' '
+        jr      FPUTC
+
+FEOL:
+        ld      a,0Dh
+        call    FPUTC
+        ld      a,0Ah
+        jr      FPUTC
+
+FHEX8:
+        push    af
+        rrca
+        rrca
+        rrca
+        rrca
+        call    FHEX4
+        pop     af
+FHEX4:
+        and     0Fh
+        add     a,'0'
+        cp      '9'+1
+        jr      c,FPUTC
+        add     a,'A'-'9'-1
+        jr      FPUTC
+
+; HL = zero-terminated text.
+FSTR:
+        ld      a,(hl)
+        and     a
+        ret     z
+        call    FPUTC
+        inc     hl
+        jr      FSTR
+
+; (HL) = a 24-bit value, to the file in decimal. Keeps IX and IY.
+FDEC24:
+        push    ix
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+        inc     hl
+        ld      c,(hl)
+        ex      de,hl                   ; C:HL = the value
+        xor     a
+        ld      (LEAD),a
+        ld      ix,POW10
+        ld      a,8
+        ld      (COUNT),a
+FD_NEXT:
+        ld      e,(ix+0)
+        ld      d,(ix+1)
+        ld      b,(ix+2)                ; B:DE = the power of 10
+        xor     a
+        ld      (DIGIT),a
+FD_SUB:
+        and     a
+        sbc     hl,de
+        ld      a,c
+        sbc     a,b
+        ld      c,a
+        jr      c,FD_UNDER
+        ld      a,(DIGIT)
+        inc     a
+        ld      (DIGIT),a
+        jr      FD_SUB
+FD_UNDER:
+        add     hl,de
+        ld      a,c
+        adc     a,b
+        ld      c,a
+        ld      a,(DIGIT)
+        and     a
+        jr      nz,FD_SHOW
+        ld      a,(LEAD)
+        and     a
+        jr      nz,FD_SHOW
+        ld      a,(COUNT)
+        cp      1                       ; the last digit always shows
+        jr      nz,FD_SKIP
+FD_SHOW:
+        ld      a,1
+        ld      (LEAD),a
+        ld      a,(DIGIT)
+        add     a,'0'
+        call    FPUTC
+FD_SKIP:
+        inc     ix
+        inc     ix
+        inc     ix
+        ld      a,(COUNT)
+        dec     a
+        ld      (COUNT),a
+        jr      nz,FD_NEXT
+        pop     ix
+        ret
+
+; The last record padded with 1Ah, then close.
+FCLOSE:
+        ld      a,(BUFP)
+        and     a
+        jr      z,FC_CLOSE
+        ld      a,1Ah
+        call    FPUTC
+        jr      FCLOSE
+FC_CLOSE:
+        ld      de,FCB
+        ld      c,10h
+        jp      BDOSX
+
+; ---- data ------------------------------------------------------------
+        MACRO   d24 m_v
+        db      (m_v) & 0FFh, ((m_v) >> 8) & 0FFh, ((m_v) >> 16) & 0FFh
+        ENDM
+POW10:
+        d24     10000000
+        d24     1000000
+        d24     100000
+        d24     10000
+        d24     1000
+        d24     100
+        d24     10
+        d24     1
+
+STUBS:
+        dw      STUB0, STUB1, STUB2, STUB3, STUB4
+
+; P1, NTSC, display off, 512K VRAM
+REGS:
+        db      6,05h, 7,00h, 8,02h, 9,00h, 10,00h, 11,00h, 13,00h
+        db      15,00h, 16,00h
+        db      17,0, 18,0, 19,0, 20,0, 21,0, 22,0, 23,0, 24,0, 25,0
+        db      0FFh
+
+; R#8, IL (word), flags (bit 0: the sweeps run)
+ENVS_P1:
+        db      82h
+        dw      100
+        db      1
+        db      82h
+        dw      216
+        db      0
+        db      0C2h
+        dw      100
+        db      1
+        db      0C2h
+        dw      216
+        db      0
+        db      02h
+        dw      100
+        db      0
+        db      42h
+        dw      100
+        db      0
+        db      82h
+        dw      2
+        db      0
+        db      0FFh
+ENVS_BX:
+        db      82h
+        dw      100
+        db      1
+        db      0C2h
+        dw      100
+        db      1
+        db      02h
+        dw      100
+        db      0
+        db      0FFh
+
+        MACRO   REG20 m_sx, m_sy, m_dx, m_dy, m_nx, m_ny, m_arg, m_lop, m_wm, m_fc, m_bc
+        dw      m_sx, m_sy, m_dx, m_dy, m_nx, m_ny
+        db      m_arg, m_lop
+        dw      m_wm, m_fc, m_bc
+        ENDM
+; a linear address in an X/Y register pair: bits 7-0, then bits 18-8
+        MACRO   LIN m_a
+        dw      (m_a) & 0FFh, (m_a) >> 8
+        ENDM
+; A case: name (5 characters), R#52, flags, then R#32-R#51.
+        MACRO   CASE m_name, m_op, m_fl, m_sx, m_sy, m_dx, m_dy, m_nx, m_ny, m_arg, m_lop, m_wm, m_fc, m_bc
+        db      m_name
+        db      m_op, m_fl
+        REG20   m_sx, m_sy, m_dx, m_dy, m_nx, m_ny, m_arg, m_lop, m_wm, m_fc, m_bc
+        ENDM
+; a command with linear addresses: source, destination and count or size
+        MACRO   LCASE m_name, m_op, m_a, m_b, m_c, m_d, m_e, m_f, m_wm, m_fc, m_bc
+        db      m_name
+        db      m_op, 0
+        dw      m_a, m_b, m_c, m_d, m_e, m_f
+        db      0, 0Ch
+        dw      m_wm, m_fc, m_bc
+        ENDM
+
+; ======================= P1 ===========================================
+LB              equ     512             ; X bit 9: layer B
+WA              equ     00FFh           ; write mask: layer A
+WB              equ     0FF00h
+C0              equ     0000h
+C1              equ     1111h
+C5              equ     5555h
+CA              equ     0AAAAh
+SN              equ     0               ; source rows: colour 5 (0-511)
+SZ              equ     520             ; source rows: colour 0 (520-1023)
+DA              equ     1024            ; layer A's scratch rows
+; Linear addresses in P1: bit 0 is the chip (layer), the rest the offset.
+LSN             equ     0               ; rows 0 up (both layers)
+LDA             equ     2*DA*128        ; rows 1024 up
+LSZ             equ     2*SZ*128        ; rows 520 up: colour 0 in both layers
+
+PREP_P1:
+        db      1
+        REG20   0, 0, 0, 0, 256, 2048, 0, 0Ch, WA, C0, C0
+        db      1
+        REG20   0, 0, LB, 0, 256, 2048, 0, 0Ch, WB, C0, C0
+        db      1
+        REG20   0, 0, 0, 0, 256, 512, 0, 0Ch, WA, C5, C0
+        db      1
+        REG20   0, 0, 0, 512, 1, 1, 0, 0Ch, WA, C1, C0
+        db      1
+        REG20   0, 0, 1, 513, 1, 1, 0, 0Ch, WA, C1, C0
+        db      1
+        REG20   0, 0, 2, 514, 1, 1, 0, 0Ch, WA, C1, C0
+        db      1
+        REG20   0, 0, 3, 515, 1, 1, 0, 0Ch, WA, C1, C0
+        db      1
+        REG20   0, 0, 16, 516, 1, 1, 0, 0Ch, WA, C1, C0
+        db      1
+        REG20   0, 0, 64, 517, 1, 1, 0, 0Ch, WA, C1, C0
+        db      1
+        REG20   0, 0, 255, 518, 1, 1, 0, 0Ch, WA, C1, C0
+        db      0FFh
+
+; the calibration's and the interrupt check's command: LMMV 1x1
+CAL_REGS:
+        REG20   0, 0, 0, 1024, 1, 1, 0, 0Ch, 0FFFFh, C5, C5
+
+; LDUMP: the LINEs (colour 5 from row 1100), the rows read back, and the
+; LMMVs that clear them
+LD_LIST:
+        db      1                       ; 0: layer A, x 128, 500 to the right
+        REG20   0, 0, 128, 1100, 500, 0, 0, 0Ch, 0FFFFh, C5, C0
+        db      1                       ; 1: layer A, x 128, 300 to the left
+        REG20   0, 0, 128, 1100, 300, 0, 04h, 0Ch, 0FFFFh, C5, C0
+        db      1                       ; 2: layer B, x 128, 500 to the right
+        REG20   0, 0, LB+128, 1100, 500, 0, 0, 0Ch, 0FFFFh, C5, C0
+        db      1                       ; 3: layer A, x 250, 40 right, 1 down
+        REG20   0, 0, 250, 1100, 40, 1, 0, 0Ch, 0FFFFh, C5, C0
+        db      0FFh
+LD_ADDRS:
+        d24     1100*128
+        d24     1101*128
+        d24     40000h+1100*128
+        d24     40000h+1101*128
+LD_CLEAR:
+        db      1
+        REG20   0, 0, 0, 1100, 256, 2, 0, 0Ch, WA, C0, C0
+        db      1
+        REG20   0, 0, LB, 1100, 256, 2, 0, 0Ch, WB, C0, C0
+        db      0FFh
+
+        MACRO   MMV m_name, m_fl, m_nx, m_ny
+        CASE    m_name, 20h, m_fl, 0, 0, 0, DA, m_nx, m_ny, 0, 0Ch, WA, C5, C0
+        ENDM
+        MACRO   MMM m_name, m_fl, m_nx, m_ny
+        CASE    m_name, 40h, m_fl, 0, SN, 0, DA, m_nx, m_ny, 0, 0Ch, WA, C0, C0
+        ENDM
+; BMLL in P1: m_n bytes
+        MACRO   MLL m_name, m_n, m_src, m_dst
+        db      m_name
+        db      0A0h, 0
+        LIN     m_src
+        LIN     m_dst
+        LIN     m_n
+        db      0, 0Ch
+        dw      0FFFFh, C0, C0
+        ENDM
+
+; BMXL: from a linear address to a rectangle in the scratch rows
+        MACRO   MXL m_name, m_nx, m_ny
+        db      m_name
+        db      80h, 0
+        LIN     LSN
+        dw      0, DA, m_nx, m_ny
+        db      0, 0Ch
+        dw      WA, C0, C0
+        ENDM
+; BMLX: from a rectangle in the colour-5 rows to a linear address
+        MACRO   MLX m_name, m_nx, m_ny
+        db      m_name
+        db      90h, 0
+        dw      0, SN
+        LIN     LDA
+        dw      m_nx, m_ny
+        db      0, 0Ch
+        dw      WA, C0, C0
+        ENDM
+; CMMM: font bits from a linear address
+        MACRO   CMM m_name, m_src, m_nx, m_ny
+        db      m_name
+        db      70h, 0
+        LIN     m_src
+        dw      0, DA, m_nx, m_ny
+        db      0, 0Ch
+        dw      WA, C5, CA
+        ENDM
+; LINE from (128, 1100) in layer A: MJ, MI, ARG
+        MACRO   LIN_ m_name, m_mj, m_mi, m_arg
+        CASE    m_name, 0B0h, 0, 0, 0, 128, 1100, m_mj, m_mi, m_arg, 0Ch, WA, C5, C0
+        ENDM
+
+CASES_P1:
+        ; ---- the 1-clock sweeps: PSET, a SRCH that ends on its first
+        ; pixel, LMMV of 16 pixels
+        CASE    "QPSET", 0E0h, 2, 0, 0, 0, DA, 1, 1, 0, 0Ch, WA, C5, C0
+        CASE    "QSRCH", 0C0h, 2, 0, SN, 0, 0, 0, 0, 0, 0Ch, WA, C5, C0
+        MMV     "QMV16", 2, 16, 1
+        ; ---- the 5-clock sweeps: LMMV 1, LMMM 1 and 16 pixels
+        MMV     "PMV01", 1, 1, 1
+        MMM     "PMM01", 1, 1, 1
+        MMM     "PMM16", 1, 16, 1
+
+        ; ---- LMMV: sizes
+        MMV     "LMMV ", 0, 1, 1
+        MMV     "LMMV ", 0, 2, 1
+        MMV     "LMMV ", 0, 3, 1
+        MMV     "LMMV ", 0, 4, 1
+        MMV     "LMMV ", 0, 8, 1
+        MMV     "LMMV ", 0, 16, 1
+        MMV     "LMMV ", 0, 32, 1
+        MMV     "LMMV ", 0, 64, 1
+        MMV     "LMMV ", 0, 128, 1
+        MMV     "LMMV ", 0, 256, 1
+        MMV     "LMMV ", 0, 1, 2
+        MMV     "LMMV ", 0, 1, 8
+        MMV     "LMMV ", 0, 1, 64
+        MMV     "LMMV ", 0, 8, 8
+        MMV     "LMMV ", 0, 16, 16
+        MMV     "LMMV ", 0, 17, 16
+        MMV     "LMMV ", 0, 256, 2
+        MMV     "LMMV ", 0, 256, 4
+        MMV     "LMMV ", 0, 256, 8
+        MMV     "LMMV ", 0, 256, 16
+        MMV     "LMMV ", 0, 256, 32
+        MMV     "LMMV ", 0, 256, 64
+        MMV     "LMMV ", 0, 256, 128
+        MMV     "LMMV ", 0, 256, 256
+        MMV     "LMMV ", 0, 256, 500
+        ; ---- LMMV: the other parameters, 16x16 and 256x16
+        CASE    "LMMVx", 20h, 0, 0, 0, 3, DA, 16, 16, 0, 0Ch, WA, C5, C0        ; odd DX
+        CASE    "LMMVl", 20h, 0, 0, 0, 100, DA, 16, 16, 04h, 0Ch, WA, C5, C0    ; DIX
+        CASE    "LMMVu", 20h, 0, 0, 0, 0, DA+100, 16, 16, 08h, 0Ch, WA, C5, C0  ; DIY
+        CASE    "LMMVd", 20h, 0, 0, 0, 100, DA+100, 16, 16, 0Ch, 0Ch, WA, C5, C0
+        CASE    "LMMVb", 20h, 0, 0, 0, LB, 0, 16, 16, 0, 0Ch, WB, C5, C0        ; layer B
+        CASE    "LMMV0", 20h, 0, 0, 0, 0, DA, 16, 16, 0, 00h, WA, C5, C0        ; LOP 0
+        CASE    "LMMV^", 20h, 0, 0, 0, 0, DA, 16, 16, 0, 06h, WA, C5, C0        ; XOR
+        CASE    "LMMVt", 20h, 0, 0, 0, 0, DA, 16, 16, 0, 1Ch, WA, C5, C0        ; TP, colour 5
+        CASE    "LMMVT", 20h, 0, 0, 0, 0, DA, 16, 16, 0, 1Ch, WA, C0, C0        ; TP, colour 0
+        CASE    "LMMVm", 20h, 0, 0, 0, 0, DA, 16, 16, 0, 0Ch, 0000h, C5, C0     ; WM 0
+        CASE    "LMMVM", 20h, 0, 0, 0, 0, DA, 16, 16, 0, 0Ch, 0FFFFh, C5, C0    ; WM FFFFh
+        CASE    "LMMVl", 20h, 0, 0, 0, 255, DA, 256, 16, 04h, 0Ch, WA, C5, C0
+        CASE    "LMMVu", 20h, 0, 0, 0, 0, DA+100, 256, 16, 08h, 0Ch, WA, C5, C0
+        CASE    "LMMVb", 20h, 0, 0, 0, LB, 0, 256, 16, 0, 0Ch, WB, C5, C0
+        CASE    "LMMV0", 20h, 0, 0, 0, 0, DA, 256, 16, 0, 00h, WA, C5, C0
+        CASE    "LMMV^", 20h, 0, 0, 0, 0, DA, 256, 16, 0, 06h, WA, C5, C0
+        CASE    "LMMVt", 20h, 0, 0, 0, 0, DA, 256, 16, 0, 1Ch, WA, C5, C0
+        CASE    "LMMVT", 20h, 0, 0, 0, 0, DA, 256, 16, 0, 1Ch, WA, C0, C0
+        CASE    "LMMVm", 20h, 0, 0, 0, 0, DA, 256, 16, 0, 0Ch, 0000h, C5, C0
+        CASE    "LMMVM", 20h, 0, 0, 0, 0, DA, 256, 16, 0, 0Ch, 0FFFFh, C5, C0
+
+        ; ---- LMMM: sizes
+        MMM     "LMMM ", 0, 1, 1
+        MMM     "LMMM ", 0, 2, 1
+        MMM     "LMMM ", 0, 3, 1
+        MMM     "LMMM ", 0, 4, 1
+        MMM     "LMMM ", 0, 8, 1
+        MMM     "LMMM ", 0, 16, 1
+        MMM     "LMMM ", 0, 32, 1
+        MMM     "LMMM ", 0, 64, 1
+        MMM     "LMMM ", 0, 128, 1
+        MMM     "LMMM ", 0, 256, 1
+        MMM     "LMMM ", 0, 1, 2
+        MMM     "LMMM ", 0, 1, 8
+        MMM     "LMMM ", 0, 1, 64
+        MMM     "LMMM ", 0, 8, 8
+        MMM     "LMMM ", 0, 16, 16
+        MMM     "LMMM ", 0, 17, 16
+        MMM     "LMMM ", 0, 256, 2
+        MMM     "LMMM ", 0, 256, 4
+        MMM     "LMMM ", 0, 256, 8
+        MMM     "LMMM ", 0, 256, 16
+        MMM     "LMMM ", 0, 256, 32
+        MMM     "LMMM ", 0, 256, 64
+        MMM     "LMMM ", 0, 256, 128
+        MMM     "LMMM ", 0, 256, 256
+        MMM     "LMMM ", 0, 256, 500
+        ; ---- LMMM: the other parameters
+        CASE    "LMMMx", 40h, 0, 1, SN, 3, DA, 16, 16, 0, 0Ch, WA, C0, C0       ; odd SX, DX
+        CASE    "LMMMl", 40h, 0, 100, SN, 100, DA, 16, 16, 04h, 0Ch, WA, C0, C0
+        CASE    "LMMMu", 40h, 0, 0, SN+100, 0, DA+100, 16, 16, 08h, 0Ch, WA, C0, C0
+        CASE    "LMMMb", 40h, 0, 0, SN, LB, 0, 16, 16, 0, 0Ch, WB, C0, C0       ; A to B
+        CASE    "LMMMB", 40h, 0, LB, 300, LB, 0, 16, 16, 0, 0Ch, WB, C0, C0     ; B to B
+        CASE    "LMMM^", 40h, 0, 0, SN, 0, DA, 16, 16, 0, 06h, WA, C0, C0
+        CASE    "LMMMt", 40h, 0, 0, SN, 0, DA, 16, 16, 0, 1Ch, WA, C0, C0       ; TP, source 5
+        CASE    "LMMMT", 40h, 0, 0, SZ, 0, DA, 16, 16, 0, 1Ch, WA, C0, C0       ; TP, source 0
+        CASE    "LMMMz", 40h, 0, 0, SZ, 0, DA, 16, 16, 0, 0Ch, WA, C0, C0       ; source 0
+        CASE    "LMMMm", 40h, 0, 0, SN, 0, DA, 16, 16, 0, 0Ch, 0000h, C0, C0
+        CASE    "LMMMl", 40h, 0, 255, SN, 255, DA, 256, 16, 04h, 0Ch, WA, C0, C0
+        CASE    "LMMMu", 40h, 0, 0, SN+100, 0, DA+100, 256, 16, 08h, 0Ch, WA, C0, C0
+        CASE    "LMMMb", 40h, 0, 0, SN, LB, 0, 256, 16, 0, 0Ch, WB, C0, C0
+        CASE    "LMMMB", 40h, 0, LB, 300, LB, 0, 256, 16, 0, 0Ch, WB, C0, C0
+        CASE    "LMMM^", 40h, 0, 0, SN, 0, DA, 256, 16, 0, 06h, WA, C0, C0
+        CASE    "LMMMt", 40h, 0, 0, SN, 0, DA, 256, 16, 0, 1Ch, WA, C0, C0
+        CASE    "LMMMT", 40h, 0, 0, SZ, 0, DA, 256, 16, 0, 1Ch, WA, C0, C0
+        CASE    "LMMMz", 40h, 0, 0, SZ, 0, DA, 256, 16, 0, 0Ch, WA, C0, C0
+        CASE    "LMMMm", 40h, 0, 0, SN, 0, DA, 256, 16, 0, 0Ch, 0000h, C0, C0
+
+        ; ---- CMMM: font bits 55h, then 00h
+        CMM     "CMMM ", LSN, 1, 1
+        CMM     "CMMM ", LSN, 8, 1
+        CMM     "CMMM ", LSN, 256, 1
+        CMM     "CMMM ", LSN, 8, 8
+        CMM     "CMMM ", LSN, 16, 16
+        CMM     "CMMM ", LSN, 256, 16
+        CMM     "CMMM ", LSN, 256, 64
+        CMM     "CMMMz", LSZ, 16, 16
+        CMM     "CMMMz", LSZ, 256, 16
+
+        ; ---- BMXL, BMLX, BMLL
+        MXL     "BMXL ", 1, 1
+        MXL     "BMXL ", 16, 1
+        MXL     "BMXL ", 256, 1
+        MXL     "BMXL ", 16, 16
+        MXL     "BMXL ", 256, 16
+        MXL     "BMXL ", 256, 64
+        MXL     "BMXL ", 256, 256
+        MLX     "BMLX ", 1, 1
+        MLX     "BMLX ", 16, 1
+        MLX     "BMLX ", 256, 1
+        MLX     "BMLX ", 16, 16
+        MLX     "BMLX ", 256, 16
+        MLX     "BMLX ", 256, 64
+        MLX     "BMLX ", 256, 256
+        MLL     "BMLL ", 1, LSN, LDA
+        MLL     "BMLL ", 2, LSN, LDA
+        MLL     "BMLL ", 16, LSN, LDA
+        MLL     "BMLL ", 128, LSN, LDA
+        MLL     "BMLL ", 2048, LSN, LDA
+        MLL     "BMLL ", 8192, LSN, LDA
+        MLL     "BMLL ", 32768, LSN, LDA
+
+        ; ---- LINE: X major, then Y major, then the directions
+        LIN_    "LINE ", 1, 0, 0
+        LIN_    "LINE ", 2, 0, 0
+        LIN_    "LINE ", 16, 0, 0
+        LIN_    "LINE ", 64, 0, 0
+        LIN_    "LINE ", 255, 0, 0
+        LIN_    "LINE ", 500, 0, 0
+        LIN_    "LINE ", 64, 32, 0
+        LIN_    "LINE ", 64, 64, 0
+        LIN_    "LINE ", 255, 127, 0
+        LIN_    "LINE ", 255, 255, 0
+        LIN_    "LINEy", 16, 0, 01h
+        LIN_    "LINEy", 64, 0, 01h
+        LIN_    "LINEy", 255, 0, 01h
+        LIN_    "LINEy", 500, 0, 01h
+        LIN_    "LINEy", 255, 127, 01h
+        LIN_    "LINEy", 255, 255, 01h
+        LIN_    "LINEl", 64, 32, 04h
+        LIN_    "LINEu", 64, 32, 08h
+        LIN_    "LINEd", 64, 32, 0Dh
+
+
+        ; ---- SRCH along a row with one colour-1 pixel
+        CASE    "SRCH ", 0C0h, 0, 0, 512, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; at 0
+        CASE    "SRCH ", 0C0h, 0, 0, 513, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; at 1
+        CASE    "SRCH ", 0C0h, 0, 0, 514, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; at 2
+        CASE    "SRCH ", 0C0h, 0, 0, 515, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; at 3
+        CASE    "SRCH ", 0C0h, 0, 0, 516, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; at 16
+        CASE    "SRCH ", 0C0h, 0, 0, 517, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; at 64
+        CASE    "SRCH ", 0C0h, 0, 0, 518, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; at 255
+        CASE    "SRCHn", 0C0h, 0, 0, 600, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0        ; not found
+        CASE    "SRCHl", 0C0h, 0, 255, 516, 0, 0, 0, 0, 04h, 0Ch, WA, C1, C0    ; leftwards: 239 on
+        CASE    "SRCHL", 0C0h, 0, 255, 600, 0, 0, 0, 0, 04h, 0Ch, WA, C1, C0    ; leftwards, not found
+        CASE    "SRCHq", 0C0h, 0, 0, 517, 0, 0, 0, 0, 02h, 0Ch, WA, C0, C0      ; NEQ: at 64
+        CASE    "SRCHQ", 0C0h, 0, 0, 600, 0, 0, 0, 0, 02h, 0Ch, WA, C0, C0      ; NEQ, not found
+        CASE    "SRCHm", 0C0h, 0, 100, 600, 0, 0, 0, 0, 0, 0Ch, WA, C1, C0      ; from x 100: 156 pixels
+        CASE    "SRCHb", 0C0h, 0, LB, 600, 0, 0, 0, 0, 0, 0Ch, WB, C1, C0       ; layer B, not found
+
+        ; ---- BMLL around 2048 bytes, and odd addresses
+        MLL     "BMLL ", 256, LSN, LDA
+        MLL     "BMLL ", 1024, LSN, LDA
+        MLL     "BMLL ", 2040, LSN, LDA
+        MLL     "BMLL ", 2046, LSN, LDA
+        MLL     "BMLL ", 2047, LSN, LDA
+        MLL     "BMLL ", 2048, LSN, LDA
+        MLL     "BMLL ", 2049, LSN, LDA
+        MLL     "BMLL ", 2050, LSN, LDA
+        MLL     "BMLL ", 2056, LSN, LDA
+        MLL     "BMLL ", 4095, LSN, LDA
+        MLL     "BMLL ", 4096, LSN, LDA
+        MLL     "BMLL ", 4097, LSN, LDA
+        MLL     "BMLLa", 256, LSN+1, LDA+1          ; odd to odd
+        MLL     "BMLLb", 256, LSN, LDA+1            ; even to odd
+        MLL     "BMLLc", 256, LSN+1, LDA            ; odd to even
+        MLL     "BMLLd", 2048, LSN+256, LDA+256     ; another place
+
+        ; ---- rows of every length, 16 of them
+        MMV     "LMMV ", 0, 1, 16
+        MMV     "LMMV ", 0, 2, 16
+        MMV     "LMMV ", 0, 3, 16
+        MMV     "LMMV ", 0, 4, 16
+        MMV     "LMMV ", 0, 6, 16
+        MMV     "LMMV ", 0, 8, 16
+        MMV     "LMMV ", 0, 32, 16
+        MMV     "LMMV ", 0, 64, 16
+        MMV     "LMMV ", 0, 128, 16
+        MMM     "LMMM ", 0, 1, 16
+        MMM     "LMMM ", 0, 2, 16
+        MMM     "LMMM ", 0, 3, 16
+        MMM     "LMMM ", 0, 4, 16
+        MMM     "LMMM ", 0, 6, 16
+        MMM     "LMMM ", 0, 8, 16
+        MMM     "LMMM ", 0, 32, 16
+        MMM     "LMMM ", 0, 64, 16
+        MMM     "LMMM ", 0, 128, 16
+        ; LMMM with the source and the destination at different alignments
+        CASE    "LMMMe", 40h, 0, 0, SN, 1, DA, 16, 16, 0, 0Ch, WA, C0, C0       ; even to odd
+        CASE    "LMMMo", 40h, 0, 1, SN, 0, DA, 16, 16, 0, 0Ch, WA, C0, C0       ; odd to even
+
+        ; ---- byte alignment for the other commands (16x16)
+        LCASE   "CMMM ", 70h, 0, 0, 0, DA, 16, 16, WA, C5, CA
+        LCASE   "CMMMx", 70h, 0, 0, 3, DA, 16, 16, WA, C5, CA                   ; odd DX
+        LCASE   "CMMMw", 70h, 0, 0, 0, DA, 17, 16, WA, C5, CA                   ; 17 wide
+        LCASE   "BMXL ", 80h, 0, 0, 0, DA, 16, 16, WA, C0, C0
+        LCASE   "BMXLx", 80h, 0, 0, 3, DA, 16, 16, WA, C0, C0
+        LCASE   "BMXLw", 80h, 0, 0, 0, DA, 17, 16, WA, C0, C0
+        LCASE   "BMLX ", 90h, 0, SN, (LDA & 0FFh), (LDA >> 8), 16, 16, WA, C0, C0
+        LCASE   "BMLXx", 90h, 3, SN, (LDA & 0FFh), (LDA >> 8), 16, 16, WA, C0, C0
+        LCASE   "BMLXw", 90h, 0, SN, (LDA & 0FFh), (LDA >> 8), 17, 16, WA, C0, C0
+        ; one row of each, for the cost of a row
+        LCASE   "CMMM ", 70h, 0, 0, 0, DA, 256, 1, WA, C5, CA
+        LCASE   "CMMM ", 70h, 0, 0, 0, DA, 256, 4, WA, C5, CA
+        LCASE   "BMXL ", 80h, 0, 0, 0, DA, 256, 4, WA, C0, C0
+        LCASE   "BMLX ", 90h, 0, SN, (LDA & 0FFh), (LDA >> 8), 256, 4, WA, C0, C0
+
+        ; ---- LINE: short ones, and from odd and even x
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 1100, 3, 0, 0, 0Ch, WA, C5, C0
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 1100, 4, 0, 0, 0Ch, WA, C5, C0
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 1100, 8, 0, 0, 0Ch, WA, C5, C0
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 1100, 32, 0, 0, 0Ch, WA, C5, C0
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 1100, 128, 0, 0, 0Ch, WA, C5, C0
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 1100, 255, 0, 0, 0Ch, WA, C5, C0     ; stays in the layer
+        CASE    "LINEx", 0B0h, 0, 0, 0, 1, 1100, 128, 0, 0, 0Ch, WA, C5, C0     ; from odd x
+        CASE    "LINEe", 0B0h, 0, 0, 0, 200, 1100, 128, 0, 0, 0Ch, WA, C5, C0   ; leaves at 256
+        CASE    "LINEy", 0B0h, 0, 0, 0, 128, 1100, 128, 0, 01h, 0Ch, WA, C5, C0 ; Y major, in the layer
+
+        ; ---- the single-pixel commands, and STOP
+        CASE    "POINT", 0D0h, 0, 10, SN, 0, 0, 1, 1, 0, 0Ch, WA, C0, C0
+        CASE    "PSET ", 0E0h, 0, 0, 0, 10, DA, 1, 1, 0, 0Ch, WA, C5, C0
+        CASE    "PSETr", 0E1h, 0, 0, 0, 10, DA, 1, 1, 0, 0Ch, WA, C5, C0
+        CASE    "PSETv", 0E4h, 0, 0, 0, 10, DA, 1, 1, 0, 0Ch, WA, C5, C0
+        CASE    "ADVN ", 0F0h, 0, 0, 0, 10, DA, 1, 1, 0, 0Ch, WA, C5, C0
+        CASE    "ADVNr", 0F1h, 0, 0, 0, 10, DA, 1, 1, 0, 0Ch, WA, C5, C0
+        CASE    "STOP ", 00h, 0, 0, 0, 10, DA, 1, 1, 0, 0Ch, WA, C5, C0
+        CASE    "PSETb", 0E0h, 0, 0, 0, LB+10, DA, 1, 1, 0, 0Ch, WB, C5, C0    ; layer B
+        db      0
+
+; ======================= P2 and the bitmap modes =====================
+; All of VRAM is 55h. Every test writes 55h again (FC, BC 5555h, copies).
+WF              equ     0FFFFh
+PREP_P2:
+        db      1
+        REG20   0, 0, 0, 0, 1024, 1024, 0, 0Ch, WF, C5, C5
+        db      0FFh
+; image width 512: 4096 rows at 2 bits a pixel, down to 512 at 16
+PREP_B2:
+        db      1
+        REG20   0, 0, 0, 0, 512, 0, 0, 0Ch, WF, C5, C5
+        db      0FFh
+PREP_B4:
+        db      1
+        REG20   0, 0, 0, 0, 512, 2048, 0, 0Ch, WF, C5, C5
+        db      0FFh
+PREP_B8:
+        db      1
+        REG20   0, 0, 0, 0, 512, 1024, 0, 0Ch, WF, C5, C5
+        db      0FFh
+PREP_B16:
+        db      1
+        REG20   0, 0, 0, 0, 512, 512, 0, 0Ch, WF, C5, C5
+        db      0FFh
+
+        MACRO   XMV m_name, m_fl, m_dx, m_nx, m_ny
+        CASE    m_name, 20h, m_fl, 0, 0, m_dx, 300, m_nx, m_ny, 0, 0Ch, WF, C5, C5
+        ENDM
+        MACRO   XMM m_name, m_sx, m_dx, m_nx, m_ny
+        CASE    m_name, 40h, 0, m_sx, 0, m_dx, 300, m_nx, m_ny, 0, 0Ch, WF, C5, C5
+        ENDM
+
+; the full list (4 bits a pixel)
+CASES_BX:
+        CASE    "QPSET", 0E0h, 1, 0, 0, 0, 300, 1, 1, 0, 0Ch, WF, C5, C5
+        XMV     "QMV16", 1, 0, 16, 1
+CASES_BXS:                              ; the short list: the other depths
+        XMV     "LMMV ", 0, 0, 1, 1
+        XMV     "LMMV ", 0, 0, 16, 1
+        XMV     "LMMV ", 0, 0, 256, 1
+        XMV     "LMMV ", 0, 0, 256, 4
+        XMV     "LMMV ", 0, 0, 256, 16
+        XMV     "LMMV ", 0, 0, 256, 64
+        XMV     "LMMV ", 0, 0, 1, 16
+        XMV     "LMMVx", 0, 3, 17, 16
+        XMM     "LMMM ", 0, 0, 1, 1
+        XMM     "LMMM ", 0, 0, 16, 1
+        XMM     "LMMM ", 0, 0, 256, 1
+        XMM     "LMMM ", 0, 0, 256, 4
+        XMM     "LMMM ", 0, 0, 256, 16
+        XMM     "LMMM ", 0, 0, 256, 64
+        XMM     "LMMM ", 0, 0, 1, 16
+        XMM     "LMMMx", 1, 3, 17, 16
+        LCASE   "CMMM ", 70h, 0, 0, 0, 300, 256, 1, WF, C5, C5
+        LCASE   "CMMM ", 70h, 0, 0, 0, 300, 256, 4, WF, C5, C5
+        LCASE   "BMXL ", 80h, 0, 0, 0, 300, 256, 1, WF, C5, C5
+        LCASE   "BMXL ", 80h, 0, 0, 0, 300, 256, 4, WF, C5, C5
+        LCASE   "BMLX ", 90h, 0, 0, 0, 200h, 256, 1, WF, C5, C5
+        LCASE   "BMLX ", 90h, 0, 0, 0, 200h, 256, 4, WF, C5, C5
+        LCASE   "BMLL ", 0A0h, 0, 0, 0, 200h, 0, 1, WF, C5, C5                  ; 256 bytes
+        LCASE   "BMLL ", 0A0h, 0, 0, 0, 200h, 0, 4, WF, C5, C5                  ; 1024
+        LCASE   "BMLL ", 0A0h, 0, 0, 0, 200h, 0, 16, WF, C5, C5                 ; 4096
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 300, 16, 0, 0, 0Ch, WF, C5, C5
+        CASE    "LINE ", 0B0h, 0, 0, 0, 0, 300, 255, 0, 0, 0Ch, WF, C5, C5
+        CASE    "LINEy", 0B0h, 0, 0, 0, 0, 300, 200, 0, 01h, 0Ch, WF, C5, C5
+        CASE    "SRCH ", 0C0h, 0, 256, 0, 0, 0, 0, 0, 0, 0Ch, WF, C0, C5        ; not found: to the edge
+        CASE    "SRCHq", 0C0h, 0, 256, 0, 0, 0, 0, 0, 02h, 0Ch, WF, C0, C5      ; NEQ: at once
+        CASE    "PSET ", 0E0h, 0, 0, 0, 0, 300, 1, 1, 0, 0Ch, WF, C5, C5
+        db      0
+
+; R#6, R#7, port 67h, the PREP list, the environments, the cases
+        MACRO   CFG m_r6, m_r7, m_p67, m_prep, m_envs, m_cases
+        db      m_r6, m_r7, m_p67
+        dw      m_prep, m_envs, m_cases
+        ENDM
+; a bitmap mode (m_r6 without the depth) at 2, 4, 8, 16 bits a pixel
+        MACRO   CFGB m_r6, m_r7, m_p67
+        CFG     m_r6+0, m_r7, m_p67, PREP_B2, ENVS_BX, CASES_BXS
+        CFG     m_r6+1, m_r7, m_p67, PREP_B4, ENVS_BX, CASES_BX
+        CFG     m_r6+2, m_r7, m_p67, PREP_B8, ENVS_BX, CASES_BXS
+        CFG     m_r6+3, m_r7, m_p67, PREP_B16, ENVS_BX, CASES_BXS
+        ENDM
+CONFIGS:
+        IFNDEF  TAIL
+        CFG     05h, 0, 0, PREP_P1, ENVS_P1, CASES_P1   ; P1
+        CFG     59h, 0, 0, PREP_P2, ENVS_BX, CASES_BX   ; P2
+        CFGB    84h, 0, 0                               ; B1
+        CFGB    94h, 0, 0                               ; B3
+        CFGB    0A4h, 0, 0                              ; B7
+        CFGB    84h, 0, 1                               ; B0
+        CFGB    94h, 0, 1                               ; B2
+        ENDIF
+        CFGB    0A4h, 0, 1                              ; B4
+        ; R#7 HSCN doubles the line rate (31 kHz)
+        CFGB    0A4h, 01h, 0                            ; B5
+        CFGB    0A4h, 41h, 0                            ; B6 (C25M)
+        db      0FFh
+
+TXT_HEAD:
+        db      "# 99TIMING v2: V9990 command times, Z80 clocks (3.579545 MHz)", 0Dh, 0Ah
+        db      "# name env D SX SY DX DY NX NY ARG LOP WM FC BC OP : samples", 0Dh, 0Ah
+        db      "# command time = sample - CAL; D = start delay in clocks", 0Dh, 0Ah, 0
+TXT_CAL:
+        db      "CAL", 0
+TXT_NOCE:
+        db      "# no CE interrupt: not timed", 0Dh, 0Ah, 0
+TXT_TIMEOUT:
+        db      " TIMEOUT", 0
+TXT_END:
+        db      "# end", 0Dh, 0Ah, 0
+MSG_HELLO:
+        db      "99TIMING: V9990 command times -> 99TIMING.TXT", 0Dh, 0Ah, "$"
+MSG_NOG:
+        db      "GR8NET timer not found", 0Dh, 0Ah, "$"
+MSG_NOFILE:
+        db      "Cannot create 99TIMING.TXT", 0Dh, 0Ah, "$"
+MSG_DONE:
+        db      0Dh, 0Ah, "Done: 99TIMING.TXT", 0Dh, 0Ah, "$"
+
+FCB:
+        db      0, "99TIMINGTXT"
+        ds      25
+
+GD_PRIM:        db      0
+GD_SAVE:        ds      4
+GD_C0:          dw      0
+GD_C1:          dw      0
+GD_C2:          dw      0
+SLOT:           db      0
+CFGN:           db      0
+CFGP:           dw      0
+CASEP:          dw      0
+ENVN:           db      0
+LDN:            db      0
+SYNCOK:         db      0
+CEOK:           db      0
+OPC:            db      0
+REGSEL:         db      52
+CLRV:           db      07h
+DLYN:           db      0
+DSTEP:          db      0
+FINEP:          dw      STUB0
+SLEDP:          dw      SLED_END
+NSAMP:          db      0
+TIMEDOUT:       db      0
+REGP:           dw      0
+SAVESP:         dw      0
+HOOK_SAVE:      ds      3
+TA:             ds      3
+TB:             ds      3
+SAMPLES:        ds      NRUN*3
+LEAD:           db      0
+DIGIT:          db      0
+COUNT:          db      0
+BUFP:           dw      BUF
+
+        align   256
+BUF:    ds      128
+
+        ; page 1 is the GR8NET's while measuring: all of this must be below
+        assert  $ <= 4000h
