@@ -1064,6 +1064,12 @@ std::pair<unsigned, unsigned> DirAsDSK::getChainStart(unsigned cluster)
 			// Found a predecessor.
 			cluster = i;
 			++chainLength;
+			if (chainLength >= maxCluster) {
+				// More predecessors than clusters: a cycle in
+				// a corrupt FAT, there's no first cluster. The
+				// callers detect the cycle themselves.
+				break;
+			}
 			i = FIRST_CLUSTER - 1; // restart search
 		}
 	}
