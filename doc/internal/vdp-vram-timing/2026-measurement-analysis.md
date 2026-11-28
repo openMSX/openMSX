@@ -854,6 +854,7 @@ margin 2, and none at all with the display off or sprites off.
 | the request is registered 29 cycles after the port access | `VDP::scheduleV99x8VramAccess` |
 | one request buffer, released `threshold` cycles before its access | `VDP::scheduleV99x8VramAccess` |
 | the command start delay, per command | `Delta::CMD_START_*` |
+| a write's byte in the data register before its request (section 19) | `VDP::scheduleV99x8VramAccess` |
 
 The generated tables were checked entry by entry against the model in this directory:
 103968 table entries over the four V99x8 tables, 304 slot thresholds and 165424
@@ -1010,3 +1011,19 @@ cluster at 74 -- the right blanking region, which is where the bitmap and charac
 are too. Pinning them further needs an access inside that region: the CPU slots at 1206 to
 1362 are there, so a text `wrCpu` capture with S1/S0 = 16 would do it, where the `noCpu`
 captures that exist cannot.
+
+## 19. Two CPU writes in quick succession: which byte lands where
+
+The captures show which slot a CPU access gets, not which byte it writes. `cpu-write-pairs/`
+measures that from the CPU side, on three machines (Panasonic FS-A1GT with a V9958, Sony
+HB-F700D with a V9938, Philips NMS 8250 with a V9958): two writes to VRAM 14 to 42 Z80
+cycles apart, at every moment of a line, and what ends up in VRAM. Its README explains what
+it measures, how to read the results and what follows from them:
+
+- A request that comes too soon is lost (as in section 8.2), but its byte still replaces the
+  byte of the write that is waiting: there is one data register, and every `OUT` writes it.
+- A write's byte is in that data register before its request reaches the arbiter, and an
+  access writes what the data register holds when it happens. So when the second write's
+  request comes just late enough to get its own access, the first access writes the second
+  byte too. The lead is fitted, about 18 VDP cycles, not seen directly. The two V9958s pin
+  it down; the V9938 fits it as well as any other value from 8 to 20.
