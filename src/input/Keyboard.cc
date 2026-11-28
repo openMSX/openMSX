@@ -1827,10 +1827,11 @@ Keyboard::MsxKeyEventQueue::MsxKeyEventQueue(
 void Keyboard::MsxKeyEventQueue::process_asap(
 	EmuTime time, const Event& event)
 {
-	bool processImmediately = eventQueue.empty();
+	// A pending sync point processes the event (see processFront()).
+	bool processImmediately = eventQueue.empty() && !isPending();
 	eventQueue.push_back(event);
 	if (processImmediately) {
-		executeUntil(time);
+		processFront(time, false);
 	}
 }
 
@@ -1841,6 +1842,13 @@ void Keyboard::MsxKeyEventQueue::clear()
 }
 
 void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime time)
+{
+	// No event came in while waiting, see processFront().
+	if (eventQueue.empty()) return;
+	processFront(time, true);
+}
+
+void Keyboard::MsxKeyEventQueue::processFront(EmuTime time, bool late)
 {
 	// Get oldest event from the queue and process it
 	const Event& event = eventQueue.front();
@@ -1877,8 +1885,12 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime time)
 		}
 	}
 
-	if (!eventQueue.empty()) {
-		// There are still events. Process them in 1/15s from now
+	if (!eventQueue.empty() || late) {
+		// Process the next event 1/15s from now. After an event that
+		// was processed later than it came in, also when the next one
+		// comes in only after this one: otherwise both could be
+		// processed almost at the same time, too short for the MSX
+		// to see them (e.g. a key press and its release).
 		setSyncPoint(time + EmuDuration::hz(15));
 	}
 }

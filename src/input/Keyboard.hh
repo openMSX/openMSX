@@ -281,6 +281,8 @@ private:
 	private:
 		// Schedulable
 		void executeUntil(EmuTime time) override;
+
+		void processFront(EmuTime time, bool late);
 	private:
 		std::deque<Event> eventQueue;
 		Interpreter& interp;
