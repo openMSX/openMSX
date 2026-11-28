@@ -6,8 +6,12 @@
 #include "FileOperations.hh"
 #include "SectorBasedDisk.hh"
 
+#include "StringOp.hh"
 #include "hash_map.hh"
+#include "hash_set.hh"
+#include "xxhash.hh"
 
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -87,6 +91,7 @@ private:
 	[[nodiscard]] DirIndex fillMSXDirEntry(
 		const std::string& hostSubDir, const std::string& hostName,
 		unsigned msxDirSector);
+	[[nodiscard]] std::optional<DirIndex> findFreeDirEntry(unsigned& msxDirSector);
 	[[nodiscard]] DirIndex getFreeDirEntry(unsigned msxDirSector);
 	[[nodiscard]] DirIndex findHostFileInDSK(std::string_view hostName) const;
 	[[nodiscard]] bool checkFileUsedInDSK(std::string_view hostName) const;
@@ -102,6 +107,10 @@ private:
 	[[nodiscard]] unsigned findNextFreeCluster(unsigned cluster);
 	[[nodiscard]] unsigned findFirstFreeCluster();
 	[[nodiscard]] unsigned getFreeCluster();
+	[[nodiscard]] unsigned countFreeClusters();
+	[[nodiscard]] unsigned countClustersInChain(unsigned cluster);
+	[[nodiscard]] unsigned clustersForSize(size_t size) const;
+	[[nodiscard]] bool addNotImported(const std::string& hostName);
 	[[nodiscard]] unsigned readFAT(unsigned cluster);
 	void writeFAT12(unsigned cluster, unsigned val);
 	void exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer> oldFAT);
@@ -152,6 +161,17 @@ private:
 	// host file/dir.
 	using MapDirs = hash_map<DirIndex, MapDir, HashDirIndex>;
 	MapDirs mapDirs;
+
+	// The host files (paths relative to 'hostDir') that are not on the
+	// virtual disk because they don't fit. Rebuilt at every sync, and used
+	// until the next one: a new MSX file must not overwrite one of these,
+	// also not with a name in a different case (on a case-insensitive host
+	// file system), so the names are compared case-insensitively.
+	hash_set<std::string, std::identity, XXHasher_IgnoreCase, StringOp::casecmp> notImported;
+	// The same set from the sync before: a file that was in it already got
+	// a warning. Both sets only hold the files that don't fit now, so they
+	// don't grow over time.
+	hash_set<std::string, std::identity, XXHasher_IgnoreCase, StringOp::casecmp> prevNotImported;
 
 	// Disk format/geometry, derived from the drive's track-count and #sides.
 	const DiskFormat diskFormat;

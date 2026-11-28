@@ -110,6 +110,47 @@ unsigned DirAsDSK::findFirstFreeCluster()
 	return findNextFreeCluster(FIRST_CLUSTER - 1);
 }
 
+unsigned DirAsDSK::countFreeClusters()
+{
+	unsigned count = 0;
+	for (unsigned cluster = findFirstFreeCluster(); cluster < maxCluster;
+	     cluster = findNextFreeCluster(cluster)) {
+		++count;
+	}
+	return count;
+}
+
+// The number of different clusters in the FAT chain starting at 'cluster' (0
+// for an invalid start cluster). Like importHostFile() when it reuses the
+// chain, it stops at an invalid link and at a cluster that is already in the
+// chain (a cycle in a corrupt FAT).
+unsigned DirAsDSK::countClustersInChain(unsigned cluster)
+{
+	std::vector<bool> inChain(maxCluster, false);
+	unsigned count = 0;
+	while ((FIRST_CLUSTER <= cluster) && (cluster < maxCluster) && !inChain[cluster]) {
+		inChain[cluster] = true;
+		++count;
+		cluster = readFAT(cluster);
+	}
+	return count;
+}
+
+unsigned DirAsDSK::clustersForSize(size_t size) const
+{
+	auto clusterSize = sectorsPerCluster * SECTOR_SIZE;
+	return narrow<unsigned>((size + clusterSize - 1) / clusterSize);
+}
+
+// Remember that this host file is not on the virtual disk. Returns true when
+// that's new (in this sync and the previous one), i.e. when a warning should be
+// printed.
+bool DirAsDSK::addNotImported(const std::string& hostName)
+{
+	bool inserted = notImported.insert(hostName).second;
+	return inserted && !prevNotImported.contains(hostName);
+}
+
 // Throws when there are no more free clusters.
 unsigned DirAsDSK::getFreeCluster()
 {
@@ -425,6 +466,9 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 
 void DirAsDSK::syncWithHost()
 {
+	std::swap(prevNotImported, notImported);
+	notImported.clear();
+
 	// Check for removed host files. This frees up space in the virtual
 	// disk. Do this first because otherwise later actions may fail (run
 	// out of virtual disk space) for no good reason.
@@ -574,6 +618,21 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY));
 	assert(mapDirs.contains(dirIndex));
 
+	// Only import complete files: a truncated file is useless on the MSX,
+	// and if the MSX writes to it, the truncated content is written back
+	// to the host file. So remove a file that doesn't fit (anymore) from
+	// the virtual disk (this doesn't touch the host file).
+	if (clustersForSize(fst.st_size) >
+	    countFreeClusters() + countClustersInChain(msxDir(dirIndex).startCluster)) {
+		const auto& hostName = mapDirs[dirIndex].hostName;
+		if (addNotImported(hostName)) {
+			cliComm.printWarning(hostName, " no longer fits on the virtual disk: "
+			                     "removed from the virtual disk (the host file is unchanged).");
+		}
+		deleteMSXFile(dirIndex);
+		return;
+	}
+
 	// Set _msx_ modification time.
 	setMSXTimeStamp(dirIndex, fst);
 
@@ -607,6 +666,8 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 
 	auto remainingSize = hostSize;
 	unsigned prevCl = 0;
+	std::vector<bool> inChain(maxCluster, false);
+	std::string failure; // non-empty: the file couldn't be imported completely
 	try {
 		File file(hostDir + mapDir.hostName,
 		          "rb"); // don't uncompress
@@ -634,6 +695,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 				msxDir(dirIndex).startCluster = narrow<uint16_t>(curCl);
 			}
 			prevCl = curCl;
+			inChain[curCl] = true;
 
 			// Check if we can follow the existing FAT chain or
 			// need to allocate a free cluster.
@@ -641,7 +703,8 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 				curCl = readFAT(curCl);
 				if ((curCl == EOF_FAT)      || // normal end
 				    (curCl < FIRST_CLUSTER) || // invalid
-				    (curCl >= maxCluster)) {  // invalid
+				    (curCl >= maxCluster)   || // invalid
+				    inChain[curCl]) {          // cycle (corrupt FAT)
 					// Treat invalid FAT chain the same as
 					// a normal EOF_FAT.
 					moreClustersInChain = false;
@@ -652,18 +715,19 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 			}
 		}
 		if (remainingSize != 0) {
-			cliComm.printWarning("Virtual disk image full: ",
-			                     mapDir.hostName, " truncated.");
+			// shouldn't happen, see the check above
+			failure = strCat("Virtual disk image full: ",
+			                 mapDir.hostName, " not imported.");
 		}
 	} catch (FileException& e) {
 		// Error opening or reading host file.
-		cliComm.printWarning("Error reading host file: ",
-		                     mapDir.hostName, ": ", e.getMessage(),
-		                     " Truncated file on MSX disk.");
+		failure = strCat("Error reading host file: ",
+		                 mapDir.hostName, ": ", e.getMessage(),
+		                 " Not imported.");
 	}
 
-	// In all cases (no error / image full / host read error) we need to
-	// properly terminate the FAT chain.
+	// Properly terminate the FAT chain (also in case of an error, so that
+	// deleteMSXFile() below frees the right clusters).
 	if (prevCl) {
 		writeFAT12(prevCl, EOF_FAT);
 	} else {
@@ -677,14 +741,15 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 		freeFATChain(curCl);
 	}
 
-	// Write (possibly truncated) file size.
-	msxDir(dirIndex).size = uint32_t(hostSize - remainingSize);
-
-	// TODO in case of an error (disk image full, or host file read error),
-	// wouldn't it be better to remove the (half imported) msx file again?
-	// Sometimes when I'm using DirAsDSK I have one file that is too big
-	// (e.g. a core file, or a vim .swp file) and that one prevents
-	// DirAsDSK from importing the other (small) files in my directory.
+	if (!failure.empty()) {
+		// Don't keep a truncated file (see above).
+		if (addNotImported(mapDir.hostName)) {
+			cliComm.printWarning(failure);
+		}
+		deleteMSXFile(dirIndex);
+		return;
+	}
+	msxDir(dirIndex).size = uint32_t(hostSize);
 }
 
 void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, const FileOperations::Stat& fst)
@@ -882,11 +947,16 @@ void DirAsDSK::addNewHostFile(const std::string& hostSubDir, const std::string& 
 		// File is already present in the virtual disk, do nothing.
 		return;
 	}
-	// TODO check for available free space on disk instead of max free space
-	if (auto diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
-	    narrow<size_t>(fst.st_size) > diskSpace) {
-		cliComm.printWarning("File too large: ",
-		                     hostDir, hostSubDir, hostName);
+	// Don't import a file that doesn't fit completely, see importHostFile().
+	// A full subdirectory needs one more cluster for the new entry.
+	unsigned lastDirSector = msxDirSector;
+	bool extendDir = !findFreeDirEntry(lastDirSector) &&
+	                 (lastDirSector != (firstDataSector - 1)); // (root can't be extended)
+	if (clustersForSize(fst.st_size) + (extendDir ? 1 : 0) > countFreeClusters()) {
+		if (addNotImported(hostSubDir + hostName)) {
+			cliComm.printWarning("Not enough free space on the virtual disk for ",
+			                     hostSubDir, hostName, ": not imported.");
+		}
 		return;
 	}
 
@@ -923,7 +993,9 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 	}
 }
 
-DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
+// Find an unused entry in the (sub)directory starting at 'msxDirSector'.
+// If there is none, 'msxDirSector' is set to the last sector of the directory.
+std::optional<DirAsDSK::DirIndex> DirAsDSK::findFreeDirEntry(unsigned& msxDirSector)
 {
 	std::vector<bool> visited(nofSectors, false);
 	while (true) {
@@ -944,9 +1016,14 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 			}
 		}
 		unsigned sector = nextMsxDirSector(msxDirSector);
-		if (sector == unsigned(-1)) break;
+		if (sector == unsigned(-1)) return {};
 		msxDirSector = sector;
 	}
+}
+
+DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
+{
+	if (auto dirIndex = findFreeDirEntry(msxDirSector)) return *dirIndex;
 
 	// No free space in existing directory.
 	if (msxDirSector == (firstDataSector - 1)) {
@@ -1248,6 +1325,15 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 			hostSubDir += '/';
 		}
 		hostName = hostSubDir + msxToHostName(msxName);
+		// Don't overwrite a host file that isn't on the virtual disk
+		// (also with a name in a different case, on a case-insensitive
+		// host file system).
+		if (FileOperations::exists(hostDir + hostName) &&
+		    notImported.contains(hostName)) {
+			cliComm.printWarning("MSX file ", hostName, " not written to the host: "
+			                     "that would overwrite a host file that isn't on the virtual disk.");
+			return;
+		}
 		mapDirs[dirIndex].hostName = hostName;
 	}
 	if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) {
